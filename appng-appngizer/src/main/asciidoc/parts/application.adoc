@@ -1,0 +1,135 @@
+== Applications
+
+=== List applications
+*URL:* http://localhost:8080/appNGizer/application
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/application-list.xml[]
+----
+
+
+=== Show application
+*URL-Scheme:* http://localhost:8080/appNGizer/application/{app-name}
+
+*URL:* http://localhost:8080/appNGizer/application/appng-manager
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/application-show.xml[]
+----
+
+
+=== Update application
+*URL-Scheme:* http://localhost:8080/appNGizer/application/{app-name}
+
+*URL:* http://localhost:8080/appNGizer/application/appng-manager
+
+*Method:* PUT
+
+*Request-Body:*
+[source,xml,indent=0]
+----
+include::../xml/application-update.xml[]
+----
+
+
+=== Delete application
+*URL-Scheme:* http://localhost:8080/appNGizer/application/{app-name}
+
+*URL:* http://localhost:8080/appNGizer/application/appng-manager
+
+*Method:* DELETE
+
+
+=== Roles
+==== List roles
+*URL-Scheme:* http://localhost:8080/appNGizer/application/{app-name}/role
+
+*URL:* http://localhost:8080/appNGizer/application/appng-manager/role
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/role-list.xml[]
+----
+
+==== Show role
+*URL-Scheme:* http://localhost:8080/appNGizer/application/{app-name}/role/{role-name}
+
+*URL:* http://localhost:8080/appNGizer/application/appng-manager/role/Platform%20Administrator
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/role-show.xml[]
+----
+
+
+==== Create role
+*URL:* http://localhost:8080/appNGizer/application/appng-manager/role
+
+*Method:* POST
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/role-create.xml[]
+----
+
+
+==== Update role
+*URL-Scheme:* http://localhost:8080/appNGizer/application/{app-name}/role/{role-name}
+
+*URL:* http://localhost:8080/appNGizer/application/appng-manager/role/Editor
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/role-update.xml[]
+----
+
+
+==== Delete role
+*Returns 501 (Not Implemented)*
+
+
+=== Permissions
+==== List permissions
+*URL-Scheme:* +
+http://localhost:8080/appNGizer/application/{app-name}/permission
+
+*URL:* http://localhost:8080/appNGizer/application/appng-manager/permission
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/permission-list.xml[]
+----
+
+
+
+==== Create permission
+==== Update permission
+==== Delete permission
+
+=== Properties
+See <<Create Role>>
+==== List properties
+==== Create property
+==== Update property
+==== Delete property

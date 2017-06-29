@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<property xmlns="http://www.appng.org/schema/appngizer" name="cacheFolder" self="http://localhost/platform/property/cacheFolder">
+	<value>42</value>
+	<defaultValue>cache</defaultValue>
+	<description>foo</description>
+</property>

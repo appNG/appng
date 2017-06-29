@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties xmlns="http://www.appng.org/schema/appngizer" self="http://localhost:8080/appNGizer/site/manager/property">
+    <property name="appendTabId" self="http://localhost:8080/appNGizer/site/manager/property/appendTabId">
+        <value>false</value>
+        <defaultValue>false</defaultValue>
+        <description>If set to true, the name of the currently selected tab is being appended to the URL as a get-parameter. Addresses the issue that IE loses the anchor on a redirect.</description>
+    </property>
+    <property name="assetsDir" self="http://localhost:8080/appNGizer/site/manager/property/assetsDir">
+        <value>/assets</value>
+        <defaultValue>/assets</defaultValue>
+        <description>A semicolon-separated list of folder-names (relative to 'wwwDir') containing static resources such as images or pdfs</description>
+    </property>
+    <property name="authApplication" self="http://localhost:8080/appNGizer/site/manager/property/authApplication">
+        <value>appng-authentication</value>
+        <defaultValue>appng-authentication</defaultValue>
+        <description>The name of the application which is responsible for the authentication</description>
+    </property>
+    <property name="authLoginPage" self="http://localhost:8080/appNGizer/site/manager/property/authLoginPage">
+        <value>webform, digestlogin</value>
+        <defaultValue>webform</defaultValue>
+        <description>The names of the login-pages (comma-separated) within the application defined in 'authApplication'. The number of comma-separated pages must be the same as in 'authLoginRef', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!</description>
+    </property>
+    <property name="authLoginRef" self="http://localhost:8080/appNGizer/site/manager/property/authLoginRef">
+        <value>webform, login</value>
+        <defaultValue>webform</defaultValue>
+        <description>The action names (comma-separated) for the pages defined in {@link #AUTH_LOGIN_PAGE}. The number of comma-separated names must be the same as in 'authLoginPage', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!</description>
+    </property>
+</properties>

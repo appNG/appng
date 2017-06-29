@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings version="2.1" xmlns="http://java.sun.com/xml/ns/jaxb">
+	<bindings scd="x-schema::tns" xmlns:tns="http://www.appng.org/schema/application">
+		<schemaBindings map="false">
+			<package name="org.appng.xml.application" />
+		</schemaBindings>
+		<bindings scd="~tns:template">
+			<class ref="org.appng.xml.application.Template" />
+		</bindings>
+		<bindings scd="~tns:applicationInfo">
+			<class ref="org.appng.xml.application.ApplicationInfo" />
+		</bindings>
+		<bindings scd="~tns:permission">
+			<class ref="org.appng.xml.application.Permission" />
+		</bindings>
+		<bindings scd="~tns:property">
+			<class ref="org.appng.xml.application.Property" />
+		</bindings>
+		<bindings scd="~tns:properties">
+			<class ref="org.appng.xml.application.Properties" />
+		</bindings>
+		<bindings scd="~tns:datasources">
+			<class ref="org.appng.xml.application.Datasources" />
+		</bindings>
+		<bindings scd="~tns:roles">
+			<class ref="org.appng.xml.application.Roles" />
+		</bindings>
+		<bindings scd="~tns:permissions">
+			<class ref="org.appng.xml.application.Permissions" />
+		</bindings>
+		<bindings scd="~tns:packageInfo">
+			<class ref="org.appng.xml.application.PackageInfo" />
+		</bindings>
+		<bindings scd="~tns:role">
+			<class ref="org.appng.xml.application.Role" />
+		</bindings>
+		<bindings scd="~tns:permissionRef">
+			<class ref="org.appng.xml.application.PermissionRef" />
+		</bindings>
+		<bindings scd="~tns:datasource">
+			<class ref="org.appng.xml.application.Datasource" />
+		</bindings>
+		<bindings scd="~tns:datasourceType">
+			<typesafeEnumClass ref="org.appng.xml.application.DatasourceType" />
+		</bindings>
+	</bindings>
+
+</bindings>

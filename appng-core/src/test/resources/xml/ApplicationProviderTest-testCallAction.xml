@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<action xmlns="http://www.appng.org/schema/platform" id="create" eventId="events" async="false">
+	<config>
+		<title id="create.entity">Create entity</title>
+		<permissions>
+			<permission ref="create.entity" mode="set"></permission>
+		</permissions>
+		<params>
+			<param name="form_action">create</param>
+			<param name="action">create</param>
+		</params>
+		<meta-data bindClass="org.appng.testapplication.TestEntity">
+			<field name="id" type="int" format="#" hidden="true" binding="id">
+				<label id="id">ID</label>
+				<condition expression="true" />
+			</field>
+			<field name="name" type="text" binding="name">
+				<label id="name">Name</label>
+				<validation>
+					<notNull>
+						<message ref="name" class="ERROR">may not be null</message>
+					</notNull>
+				</validation>
+			</field>
+			<field name="integerValue" type="int" format="#" binding="integerValue">
+				<label id="integerValue">integer value</label>
+			</field>
+			<field name="doubleValue" type="decimal" format="#.##" binding="doubleValue">
+				<label id="doubleValue">double value</label>
+			</field>
+			<field name="booleanValue" type="checkbox" binding="booleanValue">
+				<label id="booleanValue">boolean value</label>
+			</field>
+		</meta-data>
+	</config>
+	<condition expression="${form_action eq 'create' and action eq 'create'}" />
+	<messages>
+		<message ref="create" class="OK">executed action create</message>
+	</messages>
+	<datasource id="new-entity" />
+	<data>
+		<result>
+			<field name="id" type="int">
+				<value></value>
+			</field>
+			<field name="name" type="text">
+				<value></value>
+			</field>
+			<field name="integerValue" type="int">
+				<value></value>
+			</field>
+			<field name="doubleValue" type="decimal">
+				<value></value>
+			</field>
+			<field name="booleanValue" type="checkbox">
+				<value></value>
+			</field>
+		</result>
+	</data>
+	<bean id="entities">
+		<option name="action" id="create" />
+	</bean>
+</action>

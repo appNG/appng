@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<action xmlns="http://www.appng.org/schema/platform" id="editPerson" eventId="personEvent" async="false">
+    <config>
+        <title id="person.edit" params="${hash}{name},${hash}{lastname}">Edit Person: Luke the Duke Skywalker</title>
+        <params>
+            <param name="id">1</param>
+            <param name="form_action">editPerson</param>
+        </params>
+        <meta-data bindClass="${package}.Person">
+            <field name="lastname" type="text" binding="lastname">
+                <label id="lastname">Lastname</label>
+                <validation>
+                    <notNull>
+                        <message ref="lastname" class="ERROR">Field must not be empty</message>
+                    </notNull>
+                </validation>
+            </field>
+            <field name="name" type="text" binding="name">
+                <label id="name">Name</label>
+                <validation>
+                    <notNull>
+                        <message ref="name" class="ERROR">Field must not be empty</message>
+                    </notNull>
+                </validation>
+            </field>
+        </meta-data>
+    </config>
+    <condition expression="${dollar}{not empty id and 'editPerson' eq form_action}"/>
+    <messages>
+        <message ref="editPerson" class="OK">Person has been edited!</message>
+    </messages>
+    <datasource id="person">
+        <params>
+            <param name="id">1</param>
+        </params>
+    </datasource>
+    <data>
+        <result>
+            <field name="lastname" type="text">
+                <value>Skywalker</value>
+            </field>
+            <field name="name" type="text">
+                <value>Luke the Duke</value>
+            </field>
+        </result>
+    </data>
+    <bean id="personAction">
+        <option name="action" person="1" id="edit"/>
+    </bean>
+</action>

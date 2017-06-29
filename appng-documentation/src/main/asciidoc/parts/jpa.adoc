@@ -1,0 +1,215 @@
+=== Using JPA
+An application can easily make use of http://projects.spring.io/spring-data-jpa[Spring Data JPA^] for implementing the data access layer. See the {spring-data-jpa}/reference/html/[Reference Documentation^] for more details.
+
+If your application want's to use JPA, follow these simple steps:
+
+. Add the following dependency to your `pom.xml` (the version is inherited from the parent pom):
++
+[source,xml]
+----
+<dependency>
+    <groupId>org.appng</groupId>
+     <artifactId>appng-persistence</artifactId>
+</dependency>
+----
+
+. Annotate your persistent domain objects with the required JPA annotations:
++
+[source,java]
+----
+@Entity
+public class Employee {
+    ....
+    
+    @Id
+    public Integer getId(){
+        return id;
+    }
+----
+
+. Add a `<datasource>` to your <<application.xml>>:
++
+[source,xml]
+----
+<datasources>
+    <datasource type="mysql" />
+</datasources>
+----
+
+. For the chosen database type, provide the DDL scripts:
++
+[source,text]
+----
+application-home
+└── sql
+    └── mysql
+        └── V1.0.0__init_tables.sql
+----
+
+. Create a {appng}/org/appng/persistence/repository/SearchRepository.html[org.appng.persistence.repository.SearchRepository^] for each of your entity classes:
++
+[source,java]
+----
+public interface EmployeeRepository extends SearchRepository<Employee, Integer> {
+
+}
+----
+
+. In your `beans.xml`, add the following configuration:
++
+[source,xml]
+----
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+       	http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+       	http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/data/jpa
+        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+  <context:component-scan base-package="com.myapp" />
+  
+  <jpa:repositories base-package="com.myapp.repository"
+      base-class="org.appng.persistence.repository.SearchRepositoryImpl" /> <!--1-->
+	
+  <tx:annotation-driven /> <!--2-->
+
+  <bean id="transactionManager"
+    class="org.springframework.orm.jpa.JpaTransactionManager" /> <!--3-->
+
+  <!--4-->
+  <bean id="entityManagerFactory"
+      class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+	<property name="persistenceProviderClass"
+	  value="org.hibernate.jpa.HibernatePersistenceProvider" />
+	<property name="persistenceUnitName" value="myapp"/> <!--5-->
+	<property name="dataSource" ref="datasource" /> <!--6-->
+	<property name="jpaVendorAdapter">
+      <bean
+          class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+	</property>
+	<property name="jpaProperties"> <!--7-->
+	  <props>
+		<prop key="hibernate.show_sql">${hibernateShowSql:true}</prop> <!--8-->
+		<prop key="hibernate.format_sql">${hibernateFormatSql:false}</prop>
+		<prop key="hibernate.id.new_generator_mappings">false</prop>
+	  </props>
+	</property>
+	<property name="packagesToScan"> <!--9-->
+	  <list>
+		<value>com.myapp.domain</value>
+	  </list>
+	</property>
+  </bean>
+  <bean id="entityManager"
+        class="org.springframework.orm.jpa.support.SharedEntityManagerBean" />  <!--10-->
+</beans>
+----
+<1> Enable Spring Data JPA repositories, defining the `base-package` where your repositories reside. As a `base-class`, use `org.appng.persistence.repository.SearchRepositoryImpl`.
+<2> Enable annotation based transaction management (using {spring}/javadoc-api/org/springframework/transaction/annotation/Transactional.html[org.springframework.transaction.annotation.Transactional^]).
+<3> Define a transaction manager.
+<4> Define an `EntityManagerFactory`.
+<5> Choose a meaningful name for the persistence unit.
+<6> The referenced bean `datasource` of type `javax.sql.DataSource` <<app-datasource,is provided by the platform>>.
+<7> Define the JPA properties.
+<8> Use some application-properties, also provide a default value.
+<9> Define the package(s) where your entities reside.
+<10> Define an `javax.persistence.EntityManager`.
+
+. Inject the repositories into your service class(es) and annotate them with  `@org.springframework.transaction.annotation.Transactional`:
++
+[source,java]
+----
+@org.springframework.stereotype.Service
+@org.springframework.transaction.annotation.Transactional
+public class EmployeeService {
+
+	private EmployeeRepository employeeRepository;
+
+	@Autowired
+	public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+		this.employeeRepository = employeeRepository;
+	}
+	
+	// transactional methods here
+}
+----
+
+For more details on declarative transaction management in Spring, see {spring}/spring-framework-reference/htmlsingle/#transaction-declarative[chapter 17.5^] of the Spring reference documentation.
+
+==== Working with `SearchRepository` and `SearchQuery<T>`
+Often your business logic needs to perform search queries bases on dynamic filter criteria (see <<Filtering>> for details about filters). A convenient way to handle this is to use a {appng}/org/appng/persistence/repository/SearchQuery.html[org.appng.persistence.repository.SearchQuery<T>^], which was built exactly for this purpose.
+
+In the following example, employees should be returned 
+
+* whose last name contains a certain text
+* whose first name starts with a certain text
+* who are born after a certain date.
+
+The implementation could look like this:
+[source,java]
+----
+public Page<Employee> searchEmployees(String lastName, String firstName,
+    Date bornAfter, Pageable pageable) {
+  SearchQuery<Employee> query = employeeRepository.createSearchQuery();
+  query.contains("lastName", lastName);
+  query.startsWith("firstName", firstName);
+  query.greaterThan("dateOfBirth", bornAfter);
+  Page<Employee> employees = employeeRepository.search(query, pageable);
+  return employees;
+}
+----
+
+This code is easy to read and thus quite self explaining. But wait, what if some or all of the arguments (except `pageable`) are `null`?
+
+The answer is: Everything is fine and works well. The reason for that is, that all query methods of  `SearchQuery<T>` are `null`-safe, meaning the given criteria is being ignored if the argument is `null`. Anyhow, you can use `isNull(String name)` if you explicitly want to check for null.
+
+You can make use of the following criteria methods:
+
+* `equals()` / `notEquals()`
+* `isNull()` / `isNotNull()`
+* `greaterThan()` / `lessThan()`
+* `greaterEquals()` / `lessEquals()`
+* `in()` / `notIn()`
+* `like()` / `notLike()`
+* `startsWith()` / `endsWith()`
+* `contains()`
+
+In cases where using criteria methods is not sufficient, you can use {appng}/org/appng/persistence/repository/SearchRepository.html#search-java.lang.String-java.lang.String-org.springframework.data.domain.Pageable-java.lang.Object...-[SearchRepository.search(String queryString, String entityName, Pageable pageable, Object... params)^] and pass your custom query string to it.
+
+==== Adding Auditing with Envers
+Adding support for http://hibernate.org/orm/envers[Hibernate Envers^] can be done in these steps:
+
+. Add `org.hibernate.envers.Audited` and other Envers annotations to your entities.
+. Let repositories extend `org.appng.persistence.repository.EnversSearchRepository`.
+. Use `org.appng.persistence.repository.EnversSearchRepositoryImpl` as `base-class` of `<jpa:repositories>`.  +
+You can extend the aforementioned class and override {appng}/org/appng/persistence/repository/EnversSearchRepositoryImpl.html#getRevisionEntity--[getRevisionEntity()^] for providing you own revision entity.
+. Provide the DDL scripts for the auditing tables and place them in `application-home/sql/<type>`.
+
+Your repository then offers theses methods, defined by http://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/history/RevisionRepository.html[org.springframework.data.repository.history.RevisionRepository^]
+
+* `Revision<N,T> findLastChangeRevision(ID id)`
+* `Revision<N,T> findRevision(ID id, N revisionNumber)`
+* `Revisions<N,T> findRevisions(ID id)`
+* `Page<Revision<N,T>> findRevisions(ID id, Pageable pageable)`
+
+Also check those methods provided by `SearchRepository`:
+
+* `Collection<T> getHistory(ID id)`
+* `T getRevision(ID id, Number revision)`
+* `Number getRevisionNumber(ID id)`
+
+==== Using Querydsl
+Adding support for http://www.querydsl.com[Querydsl^] can be done in three easy steps:
+
+. configure QueryDSL in the `pom.xml`, check the http://www.querydsl.com/static/querydsl/latest/reference/html_single/#d0e132[Querydsl Reference Guide^] for details
+. let repositories extend `org.appng.persistence.repository.QueryDslSearchRepository`
+. use `org.appng.persistence.repository.QueryDslSearchRepositoryImpl` as `base-class` of `<jpa:repositories>`
+
+The repository then implements {spring-data}/api/org/springframework/data/querydsl/QueryDslPredicateExecutor.html[org.springframework.data.querydsl.QueryDslPredicateExecutor^]

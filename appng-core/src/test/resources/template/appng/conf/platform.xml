@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<platform xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+
+	<config>
+		<output-format id="html" default="true">
+			<permissions>
+				<permission mode="set" ref="output-format.html" />
+			</permissions>
+			<output-type id="webgui" default="true">
+				<permissions>
+					<permission mode="set" ref="output-type.webgui" />
+				</permissions>
+				<template path="platform.xsl" type="master" delete-includes="true" />
+				<template path="utils.xsl" />
+			</output-type>
+			<output-type id="cmsplugin">
+				<permissions>
+					<permission mode="set" ref="output-type.cmsplugin" />
+				</permissions>
+				<template path="platform.xsl" type="master" delete-includes="true" />
+				<template path="utils.xsl" />
+			</output-type>
+		</output-format>
+		<output-format id="xml">
+			<output-type id="raw">
+				<template path="platform_xml.xsl" type="master" delete-includes="true" />
+			</output-type>
+		</output-format>
+
+	</config>
+
+	<navigation>
+		<item type="sites">
+			<item type="applications" />
+		</item>
+		<item type="anchor" ref="webform/logout" site="manager" application="appng-authentication" page="webform" actionName="action" actionValue="logout" hidden="true">
+			<label>Logout</label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+	</navigation>
+
+</platform>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<group xmlns="http://www.appng.org/schema/appngizer" name="Administrator" self="http://localhost/group/Administrator">
+    <description>a group for administrators</description>
+    <roles>
+        <role name="Administrator">
+            <application>demo-application</application>
+            <description>Administrator with all permissions</description>
+        </role>
+    </roles>
+</group>

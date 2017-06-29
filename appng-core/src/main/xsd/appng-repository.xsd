@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.appng.org/schema/repository"
+	version="${project.version}" xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.1"
+	xmlns:application="http://www.appng.org/schema/application" targetNamespace="http://www.appng.org/schema/repository">
+
+	<xs:import namespace="http://www.appng.org/schema/application" schemaLocation="${schemaLocation}" />
+
+	<xs:element name="getCertificationRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="digest" type="xs:string" minOccurs="0" />
+				<xs:element name="repository-name" type="xs:string" />
+			</xs:sequence>
+			<xs:attribute name="reload" type="xs:boolean" use="optional" default="false" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getCertificationResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="certification" type="tns:certification" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getPackagesRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="digest" type="xs:string" minOccurs="0" />
+				<xs:element name="repository-name" type="xs:string" />
+			</xs:sequence>
+			<xs:attribute name="reload" type="xs:boolean" use="optional" default="false" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getPackagesResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="packages" type="tns:packages" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="certification">
+		<xs:sequence>
+			<xs:element name="index" type="xs:base64Binary" />
+			<xs:element name="cert" type="xs:base64Binary" />
+			<xs:element name="signature" type="xs:base64Binary" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="packages">
+		<xs:sequence>
+			<xs:element name="certification" type="tns:certification" />
+			<xs:element name="package" type="tns:package" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="package">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:property>
+							<jxb:javadoc>Package name. Equals the file name prefix.
+							</jxb:javadoc>
+						</jxb:property>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="display-name" type="xs:string">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:property>
+							<jxb:javadoc>Display name of the current release or snapshot.
+							</jxb:javadoc>
+						</jxb:property>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="long-description" type="xs:string">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:property>
+							<jxb:javadoc>Description of the current release or snapshot.
+							</jxb:javadoc>
+						</jxb:property>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="version" type="xs:string">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:property>
+							<jxb:javadoc>The version of this package.
+							</jxb:javadoc>
+						</jxb:property>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="latest-release" type="xs:string">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:property>
+							<jxb:javadoc>Reference to the latest release version of this
+								Package.
+							</jxb:javadoc>
+						</jxb:property>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="latest-snapshot" type="xs:string">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:property>
+							<jxb:javadoc>Reference to the latest snapshot version of this
+								Package.
+							</jxb:javadoc>
+						</jxb:property>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="type" type="tns:packageType" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="packageType" final="restriction">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="application" />
+			<xs:enumeration value="template" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="getPackageVersionsRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="digest" type="xs:string" minOccurs="0" />
+				<xs:element name="repository-name" type="xs:string" />
+				<xs:element name="package-Name" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getPackageVersionsResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="package-versions" type="tns:packageVersions" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="packageVersions">
+		<xs:sequence>
+			<xs:element type="application:packageInfo" minOccurs="0" maxOccurs="unbounded" name="package" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="getPackageRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="digest" type="xs:string" minOccurs="0" />
+				<xs:element name="repository-name" type="xs:string" />
+				<xs:element name="package-name" type="xs:string" />
+				<xs:element name="package-version" type="xs:string" />
+				<xs:element name="package-timestamp" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getPackageResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="checksum" type="xs:string" nillable="false" />
+				<xs:element name="data" type="xs:base64Binary" nillable="false" />
+				<xs:element name="file-name" type="xs:string" nillable="false" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

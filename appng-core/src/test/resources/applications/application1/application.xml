@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.appng.org/schema/application" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/application http://www.appng.org/schema/application/appng-application.xsd">
+	<name>demo-application</name>
+	<display-name><![CDATA[Demo Application]]></display-name>
+	<description><![CDATA[A demo Application]]></description>
+	<long-description><![CDATA[This is an amazing demo application]]></long-description>
+	<version>1.5.2</version>
+	<timestamp>2012-11-27-1305</timestamp>
+	<appng-version>1.0.0-M1</appng-version>
+
+	<roles>
+		<role admin-role="true">
+			<name>Administrator</name>
+			<description>Administrator with all permissions</description>
+			<permission id="output-format.html" />
+			<permission id="output-type.webgui" />
+		</role>
+		<role>
+			<name>Debugger</name>
+			<description>Enables debugging output</description>
+			<permission id="debug" />
+		</role>
+	</roles>
+
+	<permissions>
+		<permission id="debug">debug view</permission>
+		<permission id="output-format.html">HTML Format</permission>
+		<permission id="output-type.webgui">Web-GUI type</permission>
+
+	</permissions>
+
+	<properties>
+		<property id="foo" description="a foo property">bar</property>
+	</properties>
+
+</application>

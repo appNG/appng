@@ -1,0 +1,393 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.appng.org/schema/appngizer"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" elementFormDefault="qualified" jxb:version="2.1"
+	targetNamespace="http://www.appng.org/schema/appngizer" version="${project.version}">
+
+	<xs:element name="home">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:attribute name="version" type="xs:string" use="required" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="platform">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="sites">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="site" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="database">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element name="type" type="xs:string" />
+						<xs:element name="user" type="xs:string" />
+						<xs:element name="password" type="xs:string" />
+						<xs:element name="dbVersion" type="xs:string" />
+						<xs:element name="driver" type="xs:string" />
+						<xs:element name="url" type="xs:string" />
+						<xs:element name="ok" type="xs:boolean" />
+						<xs:element name="versions" type="versions" minOccurs="0" />
+					</xs:sequence>
+					<xs:attribute name="id" type="xs:int" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="databases">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="database" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="versions">
+		<xs:sequence>
+			<xs:element name="version" type="schemaVersion" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="schemaVersion">
+		<xs:attribute name="version" type="xs:string" />
+		<xs:attribute name="state" type="xs:string" />
+		<xs:attribute name="description" type="xs:string" />
+		<xs:attribute name="checksum" type="xs:int" />
+		<xs:attribute name="installed" type="xs:dateTime" />
+	</xs:complexType>
+
+	<xs:element name="site">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="host" type="stringNotBlank" />
+						<xs:element name="domain" type="stringNotBlank" />
+						<xs:element name="description" type="xs:string" minOccurs="0" />
+						<xs:element name="active" type="xs:boolean" />
+						<xs:element name="createRepositoryPath" type="xs:boolean" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="applications">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="application" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="application">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="displayName" type="stringNotBlank" />
+						<xs:element name="core" type="xs:boolean" />
+						<xs:element name="fileBased" type="xs:boolean" />
+						<xs:element name="hidden" type="xs:boolean" />
+						<xs:element name="version" type="stringNotBlank" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="roles">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="role" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="role">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="application" type="stringNotBlank" />
+						<xs:element name="description" type="xs:string" minOccurs="0" />
+						<xs:element ref="permissions" minOccurs="0" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="permissions">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="permission" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="permission">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="application" type="xs:string" minOccurs="0" />
+						<xs:element name="description" type="xs:string" minOccurs="0" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="groups">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="group" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="group">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="description" type="xs:string" minOccurs="0" />
+						<xs:element ref="roles" minOccurs="0" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="subjects">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="subject" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="subject">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="realName" type="stringNotBlank" />
+						<xs:element name="email" type="email" />
+						<xs:element name="description" type="xs:string" minOccurs="0" />
+						<xs:element name="digest" type="stringNotBlank" minOccurs="0" />
+						<xs:element name="timeZone" type="xs:string" minOccurs="0" />
+						<xs:element name="language" type="stringNotBlank" minOccurs="0" />
+						<xs:element name="type" type="userType" />
+						<xs:element ref="groups" minOccurs="0" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="userType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="LOCAL_USER" />
+			<xs:enumeration value="GLOBAL_USER" />
+			<xs:enumeration value="GLOBAL_GROUP" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="repositories">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="repository" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="repository">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="description" type="xs:string" minOccurs="0" />
+						<xs:element name="remoteName" type="xs:string" minOccurs="0" />
+						<xs:element name="uri" type="xs:anyURI" />
+						<xs:element name="enabled" type="xs:boolean" />
+						<xs:element name="strict" type="xs:boolean" />
+						<xs:element name="published" type="xs:boolean" />
+						<xs:element name="mode" type="repositoryMode" />
+						<xs:element name="type" type="repositoryType" />
+						<xs:element ref="packages" minOccurs="0" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="repositoryType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="LOCAL" />
+			<xs:enumeration value="REMOTE" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="repositoryMode">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ALL" />
+			<xs:enumeration value="STABLE" />
+			<xs:enumeration value="SNAPSHOT" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="properties">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="property">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="value" type="xs:string" minOccurs="0" />
+						<xs:element name="defaultValue" type="xs:string" minOccurs="0" />
+						<xs:element name="description" type="xs:string" minOccurs="0" />
+					</xs:sequence>
+					<xs:attribute name="clob" type="xs:boolean" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="packages">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element ref="package" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="package">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="nameable">
+					<xs:sequence>
+						<xs:element name="displayName" type="xs:string" />
+						<xs:element name="version" type="xs:string" minOccurs="0" />
+						<xs:element name="timestamp" type="xs:string" minOccurs="0" />
+						<xs:element name="release" type="xs:string" minOccurs="0" />
+						<xs:element name="snapshot" type="xs:string" minOccurs="0" />
+						<xs:element name="installed" type="xs:boolean" />
+						<xs:element name="type" type="packageType" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="packageType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="APPLICATION" />
+			<xs:enumeration value="TEMPLATE" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="link">
+		<xs:complexContent>
+			<xs:extension base="nameable" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="links">
+		<xs:sequence>
+			<xs:element name="link" type="link" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="nameable" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="linkable">
+				<xs:attribute name="name" type="stringNotBlank" use="required" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+
+	<xs:complexType name="linkable" abstract="true">
+		<xs:sequence>
+			<xs:element name="links" type="links" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="self" type="xs:string" use="optional" />
+	</xs:complexType>
+
+	<xs:simpleType name="stringNotBlank">
+		<xs:restriction base="xs:string">
+			<xs:pattern value=".*\S+.*" />
+			<xs:maxLength value="255" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="email">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[^@]+@[^\.]+\..+" />
+			<xs:maxLength value="255" />
+		</xs:restriction>
+	</xs:simpleType>
+
+</xs:schema>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>appng-taglib</artifactId>
+	<packaging>jar</packaging>
+	<name>appNG Tag Library</name>
+	<description>appNG JSP taglibrary</description>
+
+	<parent>
+		<groupId>org.appng</groupId>
+		<artifactId>appng-parent</artifactId>
+		<version>1.14.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<!-- BEGIN DEPENDENCY MANAGEMENT -->
+	<dependencies>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-search</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-formtags</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jsp-api</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jasper</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

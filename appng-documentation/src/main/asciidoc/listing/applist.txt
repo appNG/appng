@@ -1,0 +1,22 @@
+├── application-home
+│   ├── conf
+│   │   └── <XML sources>
+│   ├── dictionary
+│   │   └── <resourcebundles>
+│   ├── resources
+│   │   └── <custom resources>
+│   ├── sql
+│   │   └── <type>
+│   │        └── <DDL Scripts>
+│   ├── xsl
+│   │   └── <XSL stylesheets>
+│   ├── application.xml
+│   └── beans.xml
+├── src
+│   └── main
+│       ├── java
+│       └── resources
+│   └── test
+│       ├── java
+│       └── resources
+└── pom.xml

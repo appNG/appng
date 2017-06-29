@@ -1,0 +1,77 @@
+== Expressions
+
+AppNG uses the https://docs.oracle.com/javaee/7/tutorial/jsf-el.htm[JSP Expression language^] syntax to provide support for dynamic expressions. See https://docs.oracle.com/javaee/7/tutorial/jsf-el005.htm#BNAIK[here^] for a list of operators.
+
+Expressions can be used to
+
+* pass page-parameters to an `<action>` / `<datasource>` 
+* pass `<action>`-parameters to a `<datasource>` 
+* pass `<action>`/`<datasource>`-parameters to the attributes of `<option>` elements 
+* control the `readonly`-, `hidden`- and `format`-attribute of a `<field>`
+* write the `expression` for a `<condition>` of a `<field>`,`<action>`,`<datasource>`,`<link>`
+* set the `passive`- and `folded`-attributes of a section `<element>`
+* set the `hidden`-attribute of a `<section>`
+* set the `async`-attribute of an `<action>`
+* set the `default` and `active`-attribute of a `<link>`
+* write a `condition` for an `<icon>`
+* pass a parameter to the `params`-attribute of a `<label>`, `<title>`, `<description>`, `<confirmation>`
+
+== Permissions
+
+As described <<application.xml, here>>, an application can define the available permissions it ships with in `application-home/application.xml`. Those permissions can be referenced at many places inside the source XML documents.
+
+Those places are:
+
+* the `<config>`-element of a(n)
+** `<page>`
+** `<action>`
+** `<datasource>`
+** `<event>`
+* a `<link>`/`<linkpanel>`
+* an `<output-format>` and `<output-type>`
+* a `<field>`
+
+When referencing a permission at one of those places, the `mode`-attribute needs to be set.
+There are two different modes:
+
+* `set` +
+Determines if the current {appng}/org/appng/api/model/Subject.html[subject^] has the required permission, and *applies* it to the defining parent element. This means, if the permission is not present, the parent element will *not be contained* in the resulting target XML.
+
+NOTE: This is the mode to be used in 99.99% percent of cases.
+
+* `read` + 
+Reads, *but does not apply*, the required permission from the current subject. This means, even if the permission is missing, the parent element will *be contained* in the target XML. +
+This mode can be used if some <<Custom XSL stylesheets>> should get applied, depending on the permissions of the subject.
+
+=== Anonymous permissions
+There is a special kind of permissions to allow anonymous access, using the prefix `anonymous`. Every user, regardless whether he's logged on or not, owns these permissions. Permissions that use the prefix `anonymous` *must not* be defined in `application.xml`.
+
+Anonymous permissions are especially useful when providing access to actions and datasources as a service. See <<Actions as a service>> and <<Datasources as a service>> for more details on these topics.
+
+=== Field permissions
+For a `<field>` using permissions, it can be differentiated between reading and writing the field. Here, the `<permissions>`-element allows an additional `mode`-attribute, with the possible values `read` and `write`.
+
+The following example shows how to use this mode:
+[source,xml]
+----
+<field name="foobar" type="text">
+    <label id="foobar" />
+    <permissions mode="read">
+        <permission ref="foobar.read" mode="set" />
+    </permissions>
+    <permissions mode="write">
+        <permission ref="foobar.write" mode="set" />
+    </permissions>
+</field>
+----
+
+=== Programmatically checking permissions
+In cases where the referencing permissions in the static XML sources is not sufficient, it is also possible to check them programmatically. 
+
+Therefore, you can retrieve a {appng}/org/appng/api/PermissionProcessor.html[org.appng.api.PermissionProcessor^] from a {appng}/org/appng/api/Request.html[org.appng.api.Request^]. Then, use the `hasPermission(String reference)`-method to check for a certain permission:
+[source,java]
+----
+if (request.getPermissionProcessor().hasPermission("doSomething")) {
+  // do something
+}
+----

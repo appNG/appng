@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<site name="localhost" self="http://localhost:8080/appNGizer/site/localhost" xmlns="http://www.appng.org/schema/appngizer">
+    <active>true</active>
+    <host>localhost</host>
+    <domain>http://localhost:8080</domain>
+    <properties self="http://localhost:8080/appNGizer/site/localhost/property"/>
+    <applications self="http://localhost:8080/appNGizer/site/localhost/application"/>
+</site>

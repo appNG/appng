@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<permissions self="http://localhost:8080/appNGizer/application/appng-manager/permission" xmlns="http://www.appng.org/schema/appngizer">
+	<permission name="application.delete">
+		<application>appng-manager</application>
+		<description>Delete a application</description>
+	</permission>
+	<permission name="application.dictionary">
+		<application>appng-manager</application>
+		<description>Show a application's dictionary</description>
+	</permission>
+	<permission name="application.edit">
+		<application>appng-manager</application>
+		<description>Edit a application</description>
+	</permission>
+	<permission name="application.list">
+		<application>appng-manager</application>
+		<description>List all applications</description>
+	</permission>
+	<permission name="application.properties">
+		<application>appng-manager</application>
+		<description>Show a application's properties</description>
+	</permission>
+</permissions>

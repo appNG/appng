@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<applications self="http://localhost:8080/appNGizer/application" xmlns="http://www.appng.org/schema/appngizer">
+	<application name="appng-manager" self="http://localhost:8080/appNGizer/application/appng-manager">
+		<displayName>Manager</displayName>
+		<core>true</core>
+		<fileBased>false</fileBased>
+		<hidden>false</hidden>
+		<version>0.12.1</version>
+	</application>
+	<application name="appng-authentication" self="http://localhost:8080/appNGizer/application/appng-authentication">
+		<displayName>Authentication</displayName>
+		<core>true</core>
+		<fileBased>false</fileBased>
+		<hidden>true</hidden>
+		<version>0.11.0</version>
+	</application>
+	<application name="appng-scheduler" self="http://localhost:8080/appNGizer/application/appng-scheduler">
+		<displayName>Scheduler</displayName>
+		<core>true</core>
+		<fileBased>false</fileBased>
+		<hidden>false</hidden>
+		<version>0.11.2</version>
+	</application>
+	<application name="appng-webutils" self="http://localhost:8080/appNGizer/application/appng-webutils">
+		<displayName>Webutils</displayName>
+		<core>false</core>
+		<fileBased>true</fileBased>
+		<hidden>false</hidden>
+		<version>0.11.0</version>
+	</application>
+</applications>

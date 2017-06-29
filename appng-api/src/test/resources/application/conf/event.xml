@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<event id="event" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+
+	<config></config>
+	<action id="action">
+		<config>
+			<permissions>
+				<permission ref="doesNotExist" mode="set" />
+			</permissions>
+			<params>
+				<param name="actionParam1" />
+				<param name="actionParam2" />
+			</params>
+		</config>
+		<datasource id="datasource">
+			<params>
+				<param name="doesNotExist" />
+			</params>
+		</datasource>
+		<bean id="actionBean">
+			<option name="id" value="${doesNotExist}" />
+		</bean>
+	</action>
+
+	<action id="action2">
+		<config />
+		<datasource id="doesNotExist" />
+		<bean id="actionBean" />
+	</action>
+</event>

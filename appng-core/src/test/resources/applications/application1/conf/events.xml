@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<event id="events" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config>
+		<title>event</title>
+	</config>
+	<action id="create">
+		<config>
+			<title>create.entity</title>
+			<permissions>
+				<permission ref="create.entity" mode="set" />
+			</permissions>
+			<params>
+				<param name="form_action" />
+				<param name="action" />
+			</params>
+		</config>
+		<condition expression="${form_action eq 'create' and action eq 'create'}" />
+		<datasource id="new-entity"/>
+		<bean id="entities">
+			<option name="action" id="create" />
+		</bean>
+	</action>
+
+	<action id="update">
+		<config>
+			<title params="#{name},${entityId}">update.entity</title>
+			<permissions>
+				<permission ref="update.entity" mode="set" />
+			</permissions>
+			<params>
+				<param name="entityId" />
+				<param name="form_action" />
+				<param name="action" />
+			</params>
+		</config>
+		<condition expression="${form_action eq 'update' and action eq 'update' and not empty entityId}" />
+		<datasource id="entity">
+			<params>
+				<param name="entityId">${entityId}</param>
+			</params>
+		</datasource>
+		<bean id="entities">
+			<option name="action" id="update" />
+			<option name="entity" id="${entityId}" />
+		</bean>
+	</action>
+
+	<action id="delete">
+		<config>
+			<title>delete.entity</title>
+			<permissions>
+				<permission ref="delete.entity" mode="set" />
+			</permissions>
+			<params>
+				<param name="id" />
+				<param name="action" />
+			</params>
+		</config>
+		<condition expression="${action eq 'delete' and not empty id}" />
+		<bean id="entities">
+			<option name="action" id="delete" />
+			<option name="entity" id="${id}" />
+		</bean>
+	</action>
+</event>
+

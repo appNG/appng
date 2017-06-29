@@ -1,0 +1,1004 @@
+== Datasources
+
+=== Metadata and fields
+A datasource represent either a single item or a collection of items. It needs to define the kind and structure of the returned data.
+For getting started, imagine the following Java Class `Employee`:
+
+[source,java]
+----
+public class Employee {
+    private Integer id;
+    private String lastName;
+    private String firstName;
+    private Date dateOfBirth;
+    
+    //getters and setters here
+}
+----
+[[datasource-multiple]]
+This class can be used by a datasource that represents a collection of items (employees, in that case):
+[source,xml]
+----
+<datasource id="employees"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd"> <!--1-->
+    <config>
+        <title id="employees" />
+        <params><!--2-->
+            <param name="selectedId" />
+        </params>
+        <meta-data bindClass="com.myapp.domain.Employee" <!--3-->
+                result-selector="${current.id eq selectedId}"><!--4-->
+            <field name="id" type="int"><!--5-->
+                <label id="id" />
+            </field>
+            <field name="lastName" type="text">
+                <label id="lastName" />
+            </field>
+            <field name="firstName" type="text">
+                <label id="firstName" />
+            </field>
+            <field name="dateOfBirth" type="date" format="yyyy-MM-dd">
+                <label id="dateOfBirth" />
+            </field>
+        </meta-data>
+    </config>
+    <bean id="employees"><!--6-->
+        <option name="mode" value="list" />
+    </bean>
+</datasource>
+----
+<1> Each datasource needs an unique id.
+<2> It can be parameterized using a `<params>` element.
+<3> The `<meta-data>` defines which `bindclass` the datasource binds to.
+<4> The keyword `current` acts as a loop variable for the collection. The expression given in `result-selector` is used to mark an element as selected. 
+<5> A property of the bindclass can be referenced with the `name` attribute of the `<field>`. Any valid *JavaBeans* property can be used here, including nested properties. Depending on the `type` of the field, a `format` pattern can be provided.  
+<6> Finally, the name of the Spring bean tells appNG which implementation to call. The `<bean>` can be parameterized using several `<option>` elements.
+
+Now let's check how the implementation of the bean `employees` (see number 6 from above) could look like:
+[source,java]
+----
+import org.appng.api.ActionProvider;
+import org.appng.api.DataContainer;
+import org.appng.api.DataProvider;
+import org.appng.api.Environment;
+import org.appng.api.FieldProcessor;
+import org.appng.api.Options;
+import org.appng.api.Request;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Component;
+
+import com.myapp.domain.Employee;
+import com.myapp.service.EmployeeService;
+
+@Component
+@Scope("request") //<1>
+public class Employees implements DataProvider { //<2>
+	
+	private EmployeeService service;
+
+	@Autowired
+	public Employees(EmployeeService service) {
+		this.service = service;
+	}
+
+    // <3>
+	public DataContainer getData(Site site, Application application, Environment environment,
+	        Options options, Request request, FieldProcessor fp) {
+		DataContainer dataContainer = new DataContainer(fp);
+		String mode = options.getOptionValue("mode", "value");// <4>
+		if ("list".equals(mode)) {
+		    Page<Employee> employees = service.findEmployees(fp.getPageable());
+		    dataContainer.setPage(employees); // <5>
+		} else {
+		    // do something else
+		}
+		return dataContainer; //<6>
+	}
+
+}
+----
+<1> Spring annotations are used to define the bean.
+<2> The interface to implement is {appng}/org/appng/api/DataProvider.html[org.appng.api.DataProvider^].
+<3> The single method to implement is `getData(...)`.
+<4> Values of the `<options>` defined in the source XML can be accessed through the {appng}/org/appng/api/Options.html[org.appng.api.Options^] parameter.
+<5> Since appNG uses the {spring-data}/api/org/springframework/data/domain/Page.html[Page^] abstraction of Spring Data, we retrieve a Page object from our service.
+<6> A {appng}/org/appng/api/DataContainer.html[org.appng.api.DataContainer^] is being returned.
+
+This was straight forward, wasn't it? A datasource returning a collection of items is used to display those items in tabular form and perform some <<page-sort-filter, sorting and filtering>> on this table.
+
+Next, let's see how to write datasource returning a *single* item.
+
+The datasource:
+[[ds-employee]]
+[source,xml]
+----
+<datasource id="employee"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd">
+    <config>
+        <title id="employee" />
+        <params><!--1-->
+            <param name="id" />
+        </params>
+        <meta-data bindClass="com.myapp.domain.Employee"><!--2-->
+            <field name="id" type="int" readonly="true"><!--3-->
+                <label id="id" />
+            </field>
+            <field name="lastName" type="text">
+                <label id="lastName" />
+            </field>
+            <field name="firstName" type="text">
+                <label id="firstName" />
+            </field>
+            <field name="dateOfBirth" type="date" format="yyyy-MM-dd">
+                <label id="dateOfBirth" />
+            </field>
+        </meta-data>
+    </config>
+    <bean id="employees"><!--4-->
+        <option name="mode" value="single" id="${id}"/>
+    </bean>
+</datasource>
+----
+<1> We need the id of the item.
+<2> Use the same bindclass and fields as before.
+<3> Since we don't want the id to be changed, mark it as read-only.
+<4> We use the same Spring bean as before, passing the id parameter through an option attribute, using the syntax `${<param-name>}`.
+
+In the implementing bean, we now just have to add the else-case:
+[source,java]
+----
+else if ("single".equals(mode)) {
+    Integer id = request.convert(options.getOptionValue("mode", "id"), Integer.class);//<1>
+    Employee employee = service.getEmployee(id);//<2>
+    dataContainer.setItem(employee);//<3>
+}
+----
+<1> Convert the option to an `Integer`.
+<2> Retrieve the `Employee` from the `service`.
+<3> Call `setItem` on the `datacontainer`.
+
+A datasource returning a single item is primarily used by action to perform some operations. See <<Actions>> for more details.
+
+==== Field attributes
+
+* `name` (`string`, required) +
+The name of the field. Must be a valid JavaBeans property path.
+
+* `type` (`enum`, required) +
+The type of the field. See <<Field Types and display modes>> for details.
+
+* `binding` (`string`, optional) +
+The name of the HTTP parameter this field binds to. Not needed in most cases. One exception is when using the `binding`-attribute of `<meta-data>`, which acts as a prefix, and this prefix should not be used for this field. 
+
+* `readonly` (`boolean expression`, optional) +
+Whether or not this is a read-only field. Only relevant in <<display-mode, display mode>> *form*. +
+Supports <<Expressions, expressions>> using the syntax `${<param-name>}`.
+
+* `hidden` (`boolean expression`, optional) +
+Whether or not this is a hidden field. +
+Supports <<Expressions, expressions>> using the syntax `${<param-name>}`.
+
+* `format` (`string expression`, optional) +
+Some field types do support additional formatting, see <<Field Types and display modes>> for details. +
+Supports <<Expressions, expressions>> using the syntax `${<param-name>}`. For example, the implicit <<i18n, i18n>>-variable can be used to read the date format from a resource bundle:
++
+[[i18n-format]]
+[source,xml]
+----
+<field name="dateOfBirth" type="date" format="${i18n.message('dateFormat')}" >
+----
+
+* `displayLength`  (`integer`, optional) +
+Controls after how many characters the field's value should be truncated. +
+Only relevant in <<display-mode, display mode>> *table*. +
+
+==== Conditional fields
+A field may contain a `<condition>` that uses all of the datasource's parameters in it's `expression`. Additionally, the `current`-variable can be used. See the section about <<Expressions, expressions>> for more details.
+Example, assuming a parameter `action` exists:
+[source,xml]
+----
+<condition expression="${action eq `edit` and current.id gt 5}" />
+----
+
+=== Field Types and display modes
+[[display-mode]]
+As mentioned before, a `<field>` can be of different types. The type of a field determines to which Java types it can be read from/written to and how this field is being rendered by the template. But there is a second factor that affects rendering, the *display mode*. An appNG template must support (at least) the two display modes *form* and *table*.
+
+When a datasource is referenced by (meaning: embedded into) an action, the display mode *form* is used. This means that a field renders as an HTML form element (`<input>`,`<select>` or `<textarea>`). The field attributes `hidden` and `readonly` and also its `<condition>` are evaluated here.
+
+When a datasource is used "standalone" inside a page, the display mode *table* is used. The datasource gets rendered as a HTML `<table>`, using the field labels as table header (`<th>`).
+
+A conclusion from the above is that not every field type is feasible for every display mode. Some field type do support the `format` attribute, which controls how the field's value is being formatted.
+
+See below for a list of all field types.
+
+
+==== `text`
+*Target Java Type:* `java.lang.String`
+
+*Form Mode*: `<input type="text">`
+
+*Table Mode:* standard string representation
+
+
+==== `longtext`
+*Target Java Type:* `java.lang.String`
+
+*Form Mode*: `<textarea>`
+
+*Table Mode:* standard string representation
+
+
+==== `richtext`
+*Target Java Type:* `java.lang.String`
+
+*Form Mode*: `<textarea>` with richtext editing capabilities
+
+*Table Mode:* standard string representation
+
+*Supported format:* a comma separated list of allowed HTML tags and attributes, e.g `format="p[align],div,span,a[href,target]"` (only relevant in form mode)
+
+
+==== `password`
+*Target Java Type:* `java.lang.String`
+
+*Form Mode*: `<input type="password">`
+
+*Table Mode:* standard string representation
+
+
+==== `url`
+*Target Java Type:* `java.net.URL`
+
+*Form Mode*: `<input type="text">`
+
+*Table Mode:* standard string representation
+
+
+==== `int`
+*Target Java Type:* `java.lang.Integer`
+
+*Form Mode*: `<input type="text">`
+
+*Table Mode:* formatted string representation (standard format: `#`)
+
+*Supported format:* a {jse}/java/text/DecimalFormat.html[DecimalFormat^] pattern, e.g. `format="#0.00"`, 
+
+
+==== `long`
+*Target Java Type:* `java.lang.Long`
+
+*Form Mode*: `<input type="text">`
+
+*Table Mode:* formatted string representation (standard format: `#`)
+
+*Supported format:* a {jse}/java/text/DecimalFormat.html[DecimalFormat^] pattern, e.g. `format="#0.00"`
+
+
+==== `decimal`
+*Target Java Type:*  `java.lang.Float`, `java.lang.Double`
+
+*Form Mode*: `<input type="text">`
+
+*Table Mode:* formatted string representation (standard format: `\#.##`)
+
+*Supported format:* a {jse}/java/text/DecimalFormat.html[DecimalFormat^] pattern, e.g. `format="#0.00"`
+
+
+==== `checkbox`
+*Target Java Type:*  `java.lang.Boolean`, `boolean` (primitive)
+
+*Form Mode*: `<input type="checkbox" value="true">`
+
+*Table Mode:* standard string representation
+
+
+==== `coordinate`
+*Target Java Type:*  {appng}/org/appng/tools/locator/Coordinate.html[org.appng.tools.locator.Coordinate^]
+
+*Form Mode:* Depends on the template, usually a Google Map with a marker is shown. Therefore, the field needs to define two child fields `latitude` and `longitude` of type `decimal`:
+[source,xml]
+----
+<field name="coordinate" type="coordinate">
+	<label>coordinate</label>
+	<field name="latitude" type="decimal" format="#0.0000000" >
+		<label id="latitude" />
+	</field>
+	<field name="longitude" type="decimal" format="#0.0000000" >
+		<label id="longitude" />
+	</field>
+</field>
+----
+*Table Mode:* not supported
+
+
+==== `date`
+*Target Java Type:*  `java.util.Date`
+
+*Form Mode*: `<input type="text">` with the formatted string representation. The template usually adds a user friendly date picker widget.
+
+*Table Mode:* formatted string representation (standard format: `yyyy-MM-dd HH:mm:ss`)
+
+*Supported format:* a {jse}/java/text/SimpleDateFormat.html[SimpleDateformat^] pattern, e.g. `format="yy/MM/dd"`
+
+
+==== `file`
+*Target Java Type:*  {appng}/org/appng/forms/FormUpload.html[org.appng.forms.FormUpload^] (form mode) or `String` (table mode)
+
+*Form Mode*: `<input type="file">`
+
+*Table Mode:* standard string representation and a file icon
+
+IMPORTANT: In table mode, the Java target type is a `String`, representing the *name* of the file. The template can then display a file icon corresponding to the file extension.
+
+
+==== `file-multiple`
+*Target Java Type:*  `java.util.Collection<{appng}/org/appng/forms/FormUpload.html[org.appng.forms.FormUpload^]>`
+
+*Form Mode*: `<input type="file" multiple="multiple">`
+
+*Table Mode:* not supported
+
+
+==== `image`
+*Target Java Type:*  `java.lang.String`, interpreted as the relative path to an image resource
+
+*Form Mode:* `<img src="...">`
+
+*Table Mode:* `<img src="...">`
+
+
+==== `linkpanel` 
+*Target Java Type:*  None, has a special meaning, see <<Linkpanels and Links>> for details.
+
+
+==== List types
+List types are mainly used in form mode to display checkboxes, radio buttons or selections. In order to do that, some special handling inside the `DataProvider<T>` is necessary. Generally speaking, for each field of a list type, a {appng}/org/appng/xml/platform/Selection.html[org.appng.xml.platform.Selection^] must be added to the `DataContainer` returned by a `DataProvider`. The *id* of the selection must match the *name* of the field, so the template can make the connection between them.
+
+Let's make an example. In our bindclass, we have the following field:
+[source,java]
+----
+ private Collection<Integer> selectedIds = new ArrayList<Integer>();
+----
+
+This field is mapped in the datasource:
+[source,xml]
+----
+<field name="selectedIds" type="list:select">
+    <label id="selectedIds" />
+</field>
+----
+
+We want this field to be rendered as `<select multiple="multiple">` (multiple because a regular select can only have one value). What we have to do in the `DataProvider` now is:
+[source,java]
+----
+DataContainer dataContainer = new DataContainer(fieldProcessor); //<1>
+SelectionFactory selectionFactory = getSelectionFactory();       //<2>
+Integer[] all =  new Integer[] { 1, 2, 3 };                      //<3>
+DemoBean d = getDemoBean();                                      //<4>
+Collection<Integer> selected = d.getSelectedIds();               //<5>
+Selection selectedIds = selectionFactory
+  .fromObjects("selectedIds", "selectedIds", allIds, selected);  //<6>
+selectedIds.setType(SelectionType.SELECT_MULTIPLE);              //<7>
+dataContainer.getSelections().add(selectedIds);                  //<8>
+----
+<1> create a `DataContainer` to be returned
+<2> retrieve a `SelectionFactory`
+<3> define the values that can be selected
+<4> retrieve the bind-object
+<5> retrieve the selected ids
+<6> call one of the helper method of the `selectionFactory` to build a `Selection`. Those helper methods always take the id of the selection as the first argument. This id must match the field's name.
+<7> set the appropriate {appng}/org/appng/xml/platform/SelectionType.html[org.appng.xml.platform.SelectionType^]
+<8> add the `selection` to the `dataContainer`
+
+As you see,the simplest way to create a selection is using one of the helper methods of the SelectionFactory. In most real world applications, you will build selections not from simple Java types, but from your domain model.
+
+[[building-selections]]
+Therefore, it is a good idea to let your domain model classes implement {appng}/org/appng/api/model/Identifiable.html[org.appng.api.model.Identifiable^] or {appng}/org/appng/api/model/Named.html[org.appng.api.model.Named^]. If done so, you can use one of the `fromIdentifiable(...)` or `fromNamed(...)` helper methods of {appng}/org/appng/api/support/SelectionFactory.html[org.appng.api.support.SelectionFactory^]. Also check the `fromEnum(...)` methods to be used with `java.lang.Enum`.
+
+===== `list:checkbox`
+*Selection Type:* `SelectionType.CHECKBOX`
+
+*Target Java Type:* `java.util.Collection<[String|Integer]>`
+
+*Form Mode:* multiple `<input type="checkbox">`
+
+*Table Mode:* an HTML unordered list (`<ul>`) containing the collection values
+
+
+===== `list:radio`
+*Selection Type:* `SelectionType.RADIO`
+
+*Target Java Type:* `String` or `Integer`
+
+*Form Mode:* multiple `<input type="radio">`
+
+*Table Mode:* standard string representation
+
+
+===== `list:select`
+*Selection Type:* `SelectionType.SELECT` / `SelectionType.SELECT_MULTIPLE` 
+
+*Target Java Type:* `[String|Integer]` / `java.util.Collection<[String|Integer]>`
+
+*Form Mode:* `<select>` or `<select multiple="multiple">`
+
+*Table Mode:* an HTML unordered list (`<ul>`) containing the single value/ the collection values
+
+
+===== `list:text`
+*Selection Type:* `SelectionType.TEXT`
+
+*Target Java Type:* `java.util.Collection<String>`
+
+*Form Mode:* multiple `<input type="text">`
+
+*Table Mode:* an HTML unordered list (`<ul>`) containing the collection values
+
+
+=== The `current` variable
+In a datasource, the implicit variable `current` is always available. It the single-item-case, `current` refers to that single item. In case the datasource returns multiple items, you may consider `current` as the loop variable.
+
+
+=== Linkpanels and Links
+==== Adding inline links for each item
+Like shown in the  <<datasource-multiple,above example>>, it is easy to write a datasource that returns a collection of items. Now imagine for each of those items, you want to provide a link to edit or delete this item.
+
+Therefore we need to add a `<field type="linkpanel">` to the datasource's `<meta-data>`. Because we can not define the linkpanel inside the field, we need to add it to the `<config>` element:
+[[ds-employees]]
+[source,xml]
+----
+<datasource id="employees"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd">
+    <config>
+        <title id="employees" />
+        <params>
+            <param name="selectedId" />
+        </params>
+        <meta-data bindClass="com.myapp.domain.Employee" 
+                result-selector="${current.id eq selectedId}">
+            <field name="id" type="int">
+                <label id="id" />
+            </field>
+            <field name="lastName" type="text">
+                <label id="lastName" />
+            </field>
+            <field name="firstName" type="text">
+                <label id="firstName" />
+            </field>
+            <field name="dateOfBirth" type="date" format="yyyy-MM-dd">
+                <label id="dateOfBirth" />
+            </field>
+            <field name="actions" type="linkpanel"> <!--1-->
+                <label id="actions" />
+            </field>
+        </meta-data>
+        <linkpanel location="inline" id="actions"> <!--2-->
+			<link target="/employees/update/${current.id}" mode="intern"> <!--3-->
+                <label id="employee.update" /> <!--4-->
+                <icon>edit</icon> <!--5-->
+			</link>
+			<link target="/employees&#63;delAction=delete&#38;delId=${current.id}" mode="intern"><!--6-->
+                <label id="employee.delete" />
+                <icon>delete</icon>
+                <confirmation id="employee.delete.confirm" 
+                    params="${current.firstName},${current.lastName}" /><!--7-->
+			</link>
+		</linkpanel>
+    </config>
+    <bean id="employees">
+        <option name="mode" value="list" />
+    </bean>
+</datasource>
+----
+<1> We define a field of type `linkpanel`.
+<2> Next, a linkpanel whose `id` *matches* the `name` of the linkpanel field, must be defined.
+<3> The link to edit an item uses `mode="intern"`, because it points to the page "employees". The page is responsible for including the action for editing the item. See <<Actions>> and <<Pages>> for more information on that topics.
+<4> A link has a label, that is used for a mouseover tooltip.
+<5> A link can use from a set of predefined icons that each appNG Template must provide. See <<List of icons>> for a list of predefined icons.
+<6> The link to delete the item uses some GET-parameters. Please note that for the question mark (?) and the ampersand (&), the corresponding https://en.wikipedia.org/wiki/Numeric_character_reference[Numeric character references^] `\&#63;` and  `\&#38;` must be used in order to not break the XML document during XSLT transformation.
+<7> Because we want to avoid accidentally deleting an item, we add a parametrized `<confirmation>`. The entry in the application's dictionary would look like this: `employee.delete.confirm=Delete {0} {1}?`
+
+==== Adding links for the whole datasource
+Finally, a link to create a new item should be provided by the datasource. This is done by adding a linkpanel with location `top`, `bottom` or `both`. *No field of type linkpanel must be added to the meta-data!*
+[source,xml]
+----
+<datasource id="employees">
+    <config>
+    ...
+    <meta-data>
+    ...
+    </meta-data>
+        <linkpanel location="both" id="other">
+            <link target="/employees/create" mode="intern">
+                <label id="employee.create" />
+                <icon>new</icon>
+            </link>
+        </linkpanel>
+    </config>
+    ...
+</datasource>
+----
+
+The link generated this way is shown above/under/above and under the resulting table, depending on the chosen `location` (one of `top`, `bottom`, `both`).
+
+==== Links to webservices
+If you want to provide a link to a webservice, use the following approach:
+[source,xml]
+----
+<link mode="webservice" target="downloadService?id=${current.downloadId}"> <--1-->
+  <label id="download" />
+  <icon>download</icon>
+</link>
+----
+<1> Use the `webservice`-mode for the link. The target starts with the name of the bean implementing the webservice, followed by the parameters required by that service.
+
+More about webservices can be found in <<webservices, this chapter>>.
+
+[[field-reference]]
+=== Field references
+As an alternative to the `current`-variable, there's the *field reference syntax*. As a prefix, it uses the number/hash-sign (`#`) instead of the dollar sign (`$`). With this syntax, you can reference field-values *by their name*.
+
+Field references can be used
+
+* inside inline-links
+** in the `target`-attribute
+** as a `<label>`-parameter
+** as a `<confirmation>`-parameter
+* as a `<title>`-parameter of an `<action>`, referencing a single-item datasource
+
+This said, the datasource <<ds-employees,employees>> could also define it's links like shown below:
+[source,xml]
+----
+<link target="/employees/update/#{id}" mode="intern">
+    <label id="employee.update" params="#{firstName}, #{lastName}"/>
+    <icon>edit</icon>
+</link>
+<link target="/employees&#63;delAction=delete&#38;delId=#{id}" mode="intern">
+    <label id="employee.delete" params="#{firstName}, #{lastName}"/>
+    <icon>delete</icon>
+    <confirmation id="employee.delete.confirm" params="#{firstName}, #{lastName}" />
+</link>
+----
+
+Then, the resourcebundle would look like
+[source]
+----
+employee.update = Edit {0} {1}
+employee.delete = Delete {0} {1}
+employee.delete.confirm = Really delete {0} {1}?
+----
+
+[[page-sort-filter]]
+=== Paging, Sorting and Filtering
+
+==== Paging and Sorting
+Sorting is a first class citizen of the appNG application platform. If you use the {spring-data}/api/org/springframework/data/domain/Page.html[org.springframework.data.domain.Page^] abstraction of Spring Data JPA together with repository methods that take a {spring-data}/api/org/springframework/data/domain/Pageable.html[org.springframework.data.domain.Pageable^] object as an argument, it is easy to provide those features.
+
+For paging, nothing needs to be changed in the source XML of the datasources. Just call {appng}/org/appng/api/FieldProcessor.html#getPageable--[fieldProcessor.getPageable()^] and use the returned `Pageable` as a method argument for a repository search method. Within the page, you can use the `pageSize`-attribute of the `<datasource>` to change the default page size of 25 for that datasource.
+
+TIP: If you can not/do not want to provide paging and sorting by implementing it inside your business logic, you can use {appng}/org/appng/api/DataContainer.html#setPage-java.util.Collection-org.springframework.data.domain.Pageable-[DataContainer.setPage(Collection<?> items, Pageable pageable)^] and let the framework handle it. +
+You can even disable paging and sorting by using {appng}/org/appng/api/DataContainer.html#setItems-java.util.Collection-[DataContainer.setItems(Collection<?> items)^]
+
+For (multi-column) sorting, just add the `<sort />`-element to the `<field>` you want to sort by, *and that's it!*. For each field that is sortable, the sort icons will be displayed in the table header for that field.
+
+The `<sort/>` element offers the following attributes:
+
+* `prio` (`integer`) +
+The priority for the default-sort, less means higher. Start with 0 and increase by 1.
+
+* `order` ([`ASC`|`DESC`]) +
+* `order` ([`ASC`|`DESC`]) +
+The direction for the default-sort
+
+* `name` (`string`) +
+The name of the property to be used in a JPA search query. Only necessary if different from the field's name.
+
+* `ignore-case` (`boolean`) +
+Whether or not the search should be case insensitive or not.
+
+If you want to define a default sort order for a datasource, just use the `prio` and order `attributes`	.
+In the following example, we define a default sorting by last name and first name, both descending and ignoring case:
+[source,xml]
+----
+<field name="lastName" type="text">
+     <sort order="DESC" prio="0" ignore-case="true" />
+<field>
+<field name="firstName" type="text">
+     <sort order="DESC" prio="1" ignore-case="true" />
+<field>
+----
+
+==== Filtering
+If your application is dealing with large sets of data, the ability to filter this data is a common requirement. That's why appNG offers the concept of filters. A filter is a `SelectionGroup` that is added to a `DataContainer`. To that `SelectionGroup`, you add your filter criteria in form of a `Selection`, obtained from a `SelectionFactory`. See the section about <<building-selections,building selections>> for details.
+
+Filtering is done by rendering a HTML `<form>` containing the filter criteria. That form  submits its data with the HTTP `GET`-method, which leads to bookmarkable filter-criteria.
+Although there are many different ways how to implement the filter functionalities in detail, there has evolved some kind of best practices for this.
+
+If your datasource only requires a few filter criteria, it is feasible to manually read them from the request as shown below:
+[source,java]
+----
+import org.apache.commons.lang3.StringUtils;
+...
+public DataContainer getData(...) {
+  DataContainer dataContainer = new DataContainer(); //<1>
+  SelectionGroup group = new SelectionGroup();
+  dataContainer.getSelectionGroups().add(group);
+				
+  String filterByName = request.getParameter("nameFilter"); //<2>
+  Selection nameFilter =
+    selectionFactory.fromObjects("nameFilter", "label.nameFilter",
+      new String[] { StringUtils.trimToEmpty(filterByName) });
+  nameFilter.setType(SelectionType.TEXT);
+  group.getSelections().add(nameFilter);//<3>
+
+  Page<Employee> employees = 
+    service.searchEmployees(name, fieldProcessor.getPageable());
+  dataContainer.setPage(employees);
+  return dataContainer; //<4>
+}
+----
+<1> create a `DataContainer` and add a `SelectionGroup` (read: filter)
+<2> manually read the value of the filter criteria from the request
+<3> use a `SelectionFactory` to create a `Selection`, respecting the current value taken from the request
+<4> retrieve the data and return it
+
+===== Advanced Filtering Techniques
+In most cases where filtering is required, more than one filter criteria is available for the user. Since we do not want to manually read the string values from the request and if necessary convert them to the right type, another approach can be taken.
+
+. Define and implement a `DataProvider` that wraps your filter criteria
++
+[source,java]
+----
+@Component
+@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS) // <1>
+public class Filter implements DataProvider {
+
+  private String nameFilter; //<2>
+  private Integer idFilter;
+
+  public DataContainer getData(Site site, Application application,
+      Environment environment, Options options,
+      Request request, FieldProcessor fp) {
+    try {
+      request.fillBindObject(this, fp, request, site.getSiteClassLoader()); //<3>
+      DataContainer dataContainer = new DataContainer(fp);
+      dataContainer.setItem(this);
+      return dataContainer; //<4>
+    } catch (BusinessException e) {
+      throw new ApplicationException("error filling filter", e);
+    }
+  }
+
+  // getters and setters here
+}
+----
+<1> The filter needs to be *request*-scoped
+<2> define the filter criteria
+<3> do a `request.fillBindObject(...)` with the `Filter` itself
+<4> return a `DataContainer`
++
+IMPORTANT: Note the `proxyMode` for the filter is set to `ScopedProxyMode.TARGET_CLASS`. This is necessary if you want to inject the filter into a bean with a longer-lived scope. Because a "regular" `DataProvider` uses singleton scope, we need the make the filter a scoped proxy. Check out the {spring}/spring-framework-reference/htmlsingle/#beans-factory-scopes-other-injection[Spring Reference Documentation^] for more details about scoped proxies.
++
+The corresponding source XML definition:
++
+[source,xml]
+----
+<datasource id="filter"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd">
+  <config>
+    <meta-data bindClass="com.myapp.business.Filter">
+      <field name="nameFilter" type="text">
+        <label id=nameFilter" />
+      </field>
+      <field name="idFilter" type="int">
+        <label id="idFilter" />
+      </field>
+    </meta-data>
+  </config>
+  <bean id="filter" />
+</datasource>
+----
++
+
+. Include this datasource in your page +
+The important thing here is to include the filter datasource *before* the datasource you want to filter. Because there is no need to display this datasource, we mark the `<section>` as `hidden`.
++
+[source,xml]
+----
+<section hidden="true">
+  <element>
+    <datasource id="filter" />
+  </element>
+</section>
+----
+
+. In the datasource to be filtered, inject the filter and build your selections from it
++
+[source,java]
+----
+  private SelectionFactory selectionFactory;
+
+  private Filter filter;
+
+  @Autowired
+  public DemoBeans(SelectionFactory selectionFactory, Filter filter) {
+    this.selectionFactory = selectionFactory;
+    this.filter = filter;
+  }
+
+  public DataContainer getData(...) {
+    DataContainer dataContainer = new DataContainer(fp);
+    SelectionGroup group = new SelectionGroup();
+    // build selections with a SelectionFactory and add them to the group
+    // group.getSelections().add(selection);
+    dataContainer.getSelectionGroups().add(group);
+  }
+----
+
+=== Datasource inheritance
+A datasource can inherit from another datasource. This can be defined by a special datasource id notation where the _id_ of the inherited datasource is appended with two double colon after the datasource id `<datasource id="child::parent">`. +
+If a datasource id contains the inheritance separator `"::"`, appNG clones the parent datasource definition and uses the first part of the id as id for the final datasource. Other elements of the datasource are added or overwritten:
+
+* *title* +
+If the child defines another title than the parent datasource, the title gets overwritten. Otherwise the title of the parent datasource is used.
+
+* *parameter* +
+The list of parameters are copied from the inherited datasource. Parameters, defined in the child datasource, are added to the existing list of parameters. If the child has a parameter with the same name as a parameter from parent datasource, the parameter gets overwritten by the child datasource definition.
+
+* *bind class* +
+The bind class definition is mandatory anyhow. The child can define another bind class than the parent datasource. This is possible, if the bind class provides the same attributes referenced in the datasource fields, conditions and links as the original bind class of the parent datasource.
+
+* *fields* +
+The list of fields are copied from the parent datasource. New fields will be prepended to the list of existing fields. If the parent datasource has a linkpanel-field, the new fields will be prepended to the linkpanel-field. Fields with the same name will overwrite existing fields which have been copied from the parent datasource.
+
+* *bean id* +
+The complete bean definition is copied from the parent datasource. If the child defines another bean id than the parent datasource, the bean id gets overwritten.
+
+* *bean options* +
+The list of bean options are copied from the parent datasource. Bean options in the child datasource are added to the existing list. If the child datasource has an bean option with the same option name, the inherited option gets overwritten. Bean options are also inherited if the bean id is different.
+
+* *linkpanels* +
+The list of linkpanels is copied from the parent datasource. If the child provides additional linkpanels, the panels are added to the list from the parent datasource.
++
+If the child provides a link panel with the same id as an existing link panel, the linkpanel from parent datasource and all its links gets overwritten by the linkpanel definition of the child datasource.
+
+* *config permissions* +
+Permissions are copied from the parent datasource. If the child datasource defines it's own permissions, those from the parent datasource get overwritten.
+
+* *config labels* +
+The list of labels are copied from the parent datasource. New labels provided by the child are added. If the child datasource provides a label with the same id that an inherited label, the inherited label gets overwritten overwritten.
+
+A datasource definition which has only an id-attribute and no other elements is not valid. Though it is necessary to add at least the mandatory elements. The simplest possible example would be: 
+
+[source,xml]
+----
+<datasource id="employees2::employees"  <1>
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config><2>
+	  <meta-data bindClass="com.myapp.domain.Employee" /> <3>
+	</config>
+	<bean /> <4>
+</datasource>
+----
+<1> datasource `employees2` inherits datasource `employees`
+<2> a datasource must have a config node
+<3> a config node must have a meta-data node with bindClass attribute. It uses the same bind class as the parent datasource
+<4> a datasource must have a bean node +
+
+
+The datasource can be referenced with id  `employees2` in pages and actions. It is an exact clone of the datasource `employees` just with another id. This new datasource will not provide any additional elements or features compared to the parent datasource. 
+
+TIP: Even this simple clone is useful. It makes it possible to place the same datasource with 
+different parameters on the same page because of the different ids.
+
+<<<
+An example for a more complex inheritance would look like this:
+[source,xml]
+----
+<datasource id="teamleads::employees"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config>
+		<title id="teamleads" /> <1>
+		<meta-data bindClass="com.myapp.domain.TeamLead" > <2>
+	  		<field name="teamSize" type="int"> <3>
+	  			<label id="teamSize"/>
+	  		</field>
+		</meta-data>
+		<linkpanel location="inline" id="actions"> <4>
+ 			<link target="/teamlead/showteam/${current.id}" mode="intern"> 
+				<label id="teamlead.team" /> 
+				<icon>user</icon> 
+			</link>
+		</linkpanel>
+	</config>
+	<bean>
+		<option name="kind" value="teamlead" /> <5>
+	</bean>
+</datasource>
+----
+<1> The datasource gets a new title.
+<2> The bind class is now `TeamLead` which has to provide all referenced attributes from the parent datasource. It also has to provide all attributes referenced in this child datasource 
+<3> The datasource gets an additional field showing the size of the team
+<4> The linkpanel with `id="actions"` of the datasource employee gets overwritten. It will now only provide one link to show the teamlead's team members. All inherited links has been removed with the inherited linkpanel. If the other links are required, they must be duplicated in the child definition.  
+<5> This adds an option to the inherited bean option list.
+
+After appNG processed the inheritance, the final datasource will have the following structure:
+[source,xml]
+----
+<datasource id="teamleads"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd">
+    <config>
+        <title id="teamleads" />
+        <params>
+            <param name="selectedId" />
+        </params>
+        <meta-data bindClass="com.myapp.domain.TeamLeads" 
+                result-selector="${current.id eq selectedId}">
+            <field name="id" type="int">
+                <label id="id" />
+            </field>
+            <field name="lastName" type="text">
+                <label id="lastName" />
+            </field>
+            <field name="firstName" type="text">
+                <label id="firstName" />
+            </field>
+            <field name="dateOfBirth" type="date" format="yyyy-MM-dd">
+                <label id="dateOfBirth" />
+            </field>
+            <field name="teamSize" type="int"> 
+	  			<label id="teamSize"/>
+	  		 </field>
+            <field name="actions" type="linkpanel"> 
+                <label id="actions" />
+            </field>
+        </meta-data>
+        <linkpanel location="inline" id="actions"> 
+ 			<link target="/teamlead/showteam/${current.id}" mode="intern"> 
+				<label id="teamlead.team" /> 
+				<icon>user</icon> 
+			</link>
+		</linkpanel>
+    </config>
+    <bean id="employees">
+        <option name="mode" value="list" />
+        <option name="kind" value="teamlead" />
+    </bean>
+</datasource>
+----
+
+Because the bean id is not overwritten by the child datasource, the called bean for this datasource is still the bean `employees`. An example enhancement for the class `Employees` using the additional option `kind` would be: 
+
+[source,java]
+----
+// (...)
+@Component
+@Scope("request") 
+public class Employees implements DataProvider {   
+	//(...)
+
+	public DataContainer getData(Site site, Application application, Environment environment, Options options, Request request, FieldProcessor fp) {
+		
+		DataContainer dataContainer = new DataContainer(fp);
+		String mode = options.getOptionValue("mode", "value"); 
+	 	String kind = options.getOptionValue("kind", "value"); <1>
+		if ("list".equals(mode)) {
+			if("teamlead".equals(kind){ 
+				Page<TeamLead> teamLeads = service.findTeamLeads(fp.getPageable()); <2>
+				dataContainer.setPage(teamLeads);
+			} else {
+				Page<Employee> employees = service.findEmployees(fp.getPageable()); 
+				dataContainer.setPage(employees); 
+			}
+		} else {
+			// do something else
+		}
+		return dataContainer; 
+	}
+	// (...)
+----
+<1> Retrieve the option `kind`. If the bean has been called for datasource `employees`, the variable will be null. If it has been called for datasource `teamleads` the value will be `"teamlead"`.
+<2> Get the team leads instead of all employees and put them in the data container. 
+
+TIP: The `FieldProcessor` provides the datasource name as `String` with method `fp.getReference()`. This could also be used instead adding the option `kind` in the example above.  
+
+TIP: It would also be possible to define a new DataProvider bean (TeamLeads) to provide data for this datasource instead enhancing the existing bean `Employees`.    
+
+==== Multiple inheritance
+Multiple inheritance is not supported. A datasource can have only one parent. But it is possible to build an inheritance hierarchy:
+[source,xml]
+----
+<datasource id="employees2::employees" <1>
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd"> 
+	<config>
+	  <meta-data bindClass="com.myapp.domain.Employee" /> 
+	</config>
+	<bean /> 
+</datasource>
+
+<datasource id="employees3::employees2 <2>
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd"> 
+	<config>
+	  <meta-data bindClass="com.myapp.domain.Employee" /> 
+	</config>
+	<bean /> 
+</datasource>
+----
+<1> employees2 inherits employees
+<2> employees3 inherits employees2 (which inherited employees)
+
+AppNG will first process the inheritance of `employees` into `employees2` with all rules defined above. After that it will process the inheritance of `employees2` into `employees3` with the same rules no matter that this datasource already inherited another datasource. 
+
+
+=== Datasources as a service
+It is possible to retrieve a single datasource with a special service URL. The schema for such an URL is
+
+`http(s)://<host>[:<port>]/service/<site-name>/<application-name>/datasource/<format>/<datasource-id>`
+
+The supported formats are *xml* and *json*.
+
+Examples:
+
+* http://localhost:8080/service/manager/myapp/datasource/xml/mydatasource
+* http://localhost:8080/service/manager/myapp/datasource/json/mydatasource?param1=foo&param2=bar
+
+As you can see in the second example, you can pass parameters defined by the datasource as GET-parameters.
+
+IMPORTANT: Datasources that should be available through a service URL *must* be secured by a permission. If no permission is present, the access will be denied. <<Anonymous permissions>> might be used.
+
+==== Defining paging and sorting
+When used as a service, paging and sorting capabilities can also be used by a specially named GET-Parameter.
+As an example, let's take the datasource `employees` as defined here.
+To sort this datasource by _lastname_ ascending and by _firstname_ descending and to retrieve the _second_ page with a page size of _25_, the URL would be:
+
+http://localhost:8080/service/manager/myapp/datasource/json/employees?sortEmployees=page:1;pageSize:25;firstName:asc;lastName:asc
+
+Let's further analyse the query-part of the URL.
+It contains a *single GET-Parameter* that defines the above mentioned criteria for paging and sorting. The syntax is `<criterion>:<value>`, where multiple criteria are separated with a semicolon (`;`).
+[source]
+----
+sortEmployees= <1>
+page:1;        <2>
+pageSize:25;   <3>
+firstName:asc; <4>
+lastName:desc  <5>
+----
+<1> The name of the parameter is `sort` plus the capitalized id of the datasource.
+<2> Since appNG uses _zero-indexed_ pages, the number of the second page is 1
+<3> Define the size of the page.
+<4> Sort by firstname, ascending.
+<5> Sort by lastName, descending.
+
+TIP: Since appNG supports multi-field-sorting, the order of the fields within the sort-parameter is essential.

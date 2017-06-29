@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasource xmlns="http://www.appng.org/schema/platform" id="entity">
+	<config>
+		<title id="entity">Entity</title>
+		<permissions>
+			<permission ref="show_entity" mode="set"></permission>
+		</permissions>
+		<params>
+			<param name="entityId">1</param>
+			<param name="param2"></param>
+		</params>
+		<meta-data bindClass="org.appng.testapplication.TestEntity">
+			<field name="id" type="int" format="#" readonly="true" hidden="true" binding="id">
+				<label id="id">ID</label>
+				<condition expression="true" />
+			</field>
+			<field name="name" type="text" binding="name">
+				<label id="name">Name</label>
+			</field>
+			<field name="integerValue" type="list:checkbox" binding="integerValue">
+				<label id="integerValue">integer value</label>
+			</field>
+			<field name="doubleValue" type="decimal" format="#.##" binding="doubleValue">
+				<label id="doubleValue">double value</label>
+			</field>
+			<field name="booleanValue" type="checkbox" binding="booleanValue">
+				<label id="booleanValue">boolean value</label>
+			</field>
+		</meta-data>
+	</config>
+	<data>
+		<selection id="integerValue" type="checkbox">
+			<title id="integerValue">integer value</title>
+			<option value="1" name="1" selected="false" />
+			<option value="2" name="2" selected="false" />
+			<option value="3" name="3" selected="false" />
+			<option value="4" name="4" selected="false" />
+			<option value="5" name="5" selected="true" />
+		</selection>
+		<result>
+			<field name="id" type="int">
+				<value>1</value>
+			</field>
+			<field name="name" type="text">
+				<value>new name</value>
+			</field>
+			<field name="integerValue" type="list:checkbox">
+				<value>5</value>
+			</field>
+			<field name="doubleValue" type="decimal">
+				<value>5.5</value>
+			</field>
+			<field name="booleanValue" type="checkbox">
+				<value>false</value>
+			</field>
+		</result>
+	</data>
+</datasource>

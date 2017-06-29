@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<property name="myCustomProperty" xmlns="http://www.appng.org/schema/appngizer">
+	<defaultValue>42</defaultValue>
+	<description>The answer to life, the universe and everything</description>
+</property>

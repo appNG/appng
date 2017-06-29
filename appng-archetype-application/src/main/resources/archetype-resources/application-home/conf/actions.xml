@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<event id="personEvent" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config></config>
+
+	<action id="editPerson">
+		<config>
+			<title id="person.edit" params="${hash}{name},${hash}{lastname}"></title>
+			<params>
+				<param name="id" />
+				<param name="form_action" />
+			</params>
+		</config>
+		<condition expression="${dollar}{not empty id and 'editPerson' eq form_action}" />
+		<datasource id="person">
+			<params>
+				<param name="id">${dollar}{id}</param>
+			</params>
+		</datasource>
+		<bean id="personAction">
+			<option name="action" id="edit" person="${dollar}{id}" />
+		</bean>
+	</action>
+
+	<action id="createPerson">
+		<config>
+			<title id="person.create"></title>
+			<params>
+				<param name="form_action" />
+			</params>
+		</config>
+		<condition expression="${dollar}{'createPerson' eq form_action}" />
+		<datasource id="newPerson" />
+		<bean id="personAction">
+			<option name="action" id="create" />
+		</bean>
+	</action>
+</event>

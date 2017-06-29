@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<role name="Platform Administrator" self="http://localhost:8080/appNGizer/application/appng-manager/role/Platform%20Administrator" xmlns="http://www.appng.org/schema/appngizer">
+	<application>appng-manager</application>
+	<description>Administrator with all permissions</description>
+	<permissions>
+		<permission name="site.databases">
+			<application>appng-manager</application>
+			<description>Show the site's databases</description>
+		</permission>
+		<permission name="application.property.edit">
+			<application>appng-manager</application>
+			<description>Edit a application property</description>
+		</permission>
+		<permission name="site.application.property.delete">
+			<application>appng-manager</application>
+			<description>Delete a property for a site's application</description>
+		</permission>
+	</permissions>
+</role>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<repository xmlns="http://www.appng.org/schema/appngizer" name="local repo" self="http://localhost/repository/local%20repo">
+    <links>
+        <link name="install" self="http://localhost/repository/local%20repo/install" />
+        <link name="upload" self="http://localhost/repository/local%20repo/upload" />
+    </links>
+    <uri>file:///appng/appng-core/src/test/resources/zip</uri>
+    <enabled>true</enabled>
+    <strict>false</strict>
+    <published>false</published>
+    <mode>ALL</mode>
+    <type>LOCAL</type>
+    <packages>
+        <package name="demo-application" self="http://localhost/repository/local%20repo/demo-application">
+            <displayName>Demo Application</displayName>
+            <release>1.5.4</release>
+            <installed>false</installed>
+            <type>APPLICATION</type>
+        </package>
+    </packages>
+</repository>

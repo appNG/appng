@@ -1,0 +1,14 @@
+[ {
+  "part" : "search-en",
+  "data" : [ {
+    "title" : "foobar.txt",
+    "date" : "2015-03-27",
+    "text" : "This is foo!\n",
+    "fragment" : "This is <span>foo</span>!\n",
+    "type" : "txt",
+    "language" : "en",
+    "link" : "/en/foobar.txt",
+    "score" : 1.0,
+    "fields" : [ ]
+  } ]
+} ]

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<platform xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config>
+		<labels>
+			<label id="submit" />
+			<label id="cancel" />
+			<label id="yes" />
+			<label id="no" />
+			<label id="abort" />
+			<label id="reject.updates" />
+			<label id="uploaded.item" />
+			<label id="uploaded.items" />
+			<label id="close" />
+			<label id="logged.in" />
+			<label id="switch.output-type" />
+			<label id="label.nodata" />
+			<label id="label.first" />
+			<label id="label.last" />
+			<label id="label.previous" />
+			<label id="label.next" />
+			<label id="label.chunkSize" />
+			<label id="username" />
+			<label id="password" />
+			<label id="logon" />
+			<label id="forgot.password" />
+			<label id="preview.text" />
+			<label id="copy.clipboard" />
+			<label id="reset" />
+			<label id="site.properties" />
+			<label id="choose.site-plugin" />
+			<label id="app.properties" />
+			<label id="true" />
+			<label id="false" />
+			<label id="plugin.properties" />
+			<label id="select" />
+			<label id="asc" />
+			<label id="desc" />
+			<label id="data.sort" />
+		</labels>
+		<output-format id="html" default="true">
+			<permissions>
+				<permission mode="set" ref="output-format.html" />
+			</permissions>
+			<output-type id="webgui" default="true">
+				<permissions>
+					<permission mode="set" ref="output-type.webgui" />
+				</permissions>
+				<template path="platform.xsl" type="master" delete-includes="true" />
+				<template path="utils.xsl" />
+				<template path="page.xsl" />
+				<template path="datasource.xsl" />
+				<template path="event.xsl" />
+			</output-type>
+			<output-type id="cmsplugin">
+				<permissions>
+					<permission mode="set" ref="output-type.cmsplugin" />
+				</permissions>
+				<template path="platform.xsl" type="master" delete-includes="true" />
+				<template path="utils.xsl" />
+				<template path="page_cms.xsl" />
+				<template path="datasource.xsl" />
+				<template path="event.xsl" />
+			</output-type>
+		</output-format>
+		<output-format id="xml">
+			<output-type id="raw">
+				<template path="master_xml.xsl" type="master" delete-includes="true" />
+			</output-type>
+		</output-format>
+
+		<authentications>
+			<authentication ref="${site.authLoginRef}" site="${site.name}" application="${site.authApplication}" page="${site.authLoginPage}" index="index" />
+		</authentications>
+
+	</config>
+
+	<navigation>
+		<item type="sites">
+			<item type="applications" />
+		</item>
+		<item type="anchor" ref="${site.authLogoutRef}" site="${site.name}" application="${site.authApplication}" page="${site.authLogoutPage}"
+			actionName="${site.authLogoutActionName}" actionValue="${site.authLogoutActionValue}">
+			<label>Logout</label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+
+	</navigation>
+
+</platform>

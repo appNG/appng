@@ -1,0 +1,4 @@
+#!/bin/sh
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+export APPNG_HOME=$DIR/../../
+java -cp $APPNG_HOME/WEB-INF/lib/*:$APPNG_HOME/../lib/* -Dlog4j.configuration=file:$APPNG_HOME/WEB-INF/conf/log4j-cli.properties -Dappng.home=$APPNG_HOME org.appng.cli.CliBootstrap "$@"

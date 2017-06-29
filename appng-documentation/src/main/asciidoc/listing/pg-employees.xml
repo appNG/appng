@@ -1,0 +1,60 @@
+<page id="employees"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd"> <!--1-->
+    <config>
+        <title id="page.employees" />
+        <url-schema> <!--2-->
+            <url-params>
+                <url-param name="action" />
+                <url-param name="id" />
+            </url-params>
+            <get-params>
+                <get-param name="delAction" />
+                <get-param name="delId" />
+            </get-params>
+            <post-params> <!--3-->
+                <post-param name="form_action" />
+            </post-params>
+        </url-schema>
+    </config>
+    <structure>
+        <section>
+            <element>
+                <action id="create" eventId="employeeEvent"> <!--4-->
+                    <condition expression="${action eq 'create'}" />
+                    <params>
+                        <param name="form_action">${form_action}</param>
+                    </params>
+                </action>
+            </element>
+            <element>
+                <action id="update" eventId="employeeEvent"> <!--5-->
+                    <condition expression="${action eq 'update' and not empty id}" />
+                    <params>
+                        <param name="id">${id}</param>
+                        <param name="form_action">${form_action}</param>
+                    </params>
+                </action>
+            </element>
+            <element>
+                <datasource id="employees"> <!--6-->
+                    <params>
+                        <param name="selectedId">${id}</param>
+                    </params>
+                </datasource>
+            </element>
+        </section>
+        <section hidden="true"> <!--7-->
+            <element>
+                <action id="delete" eventId="employeeEvent" onSuccess="/employees"> <!--8-->
+                    <params>
+                        <param name="action">${delAction}</param>
+                        <param name="id">${delId}</param>
+                    </params>
+                </action>
+            </element>
+        </section>
+    </structure>
+</page>

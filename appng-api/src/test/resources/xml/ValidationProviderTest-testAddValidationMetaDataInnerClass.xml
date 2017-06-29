@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.support.ValidationProviderTest.InnerClass">
+    <field name="foo" type="text" binding="foo">
+        <validation>
+            <notNull>
+                <message ref="foo" class="ERROR">may not be null</message>
+            </notNull>
+            <size min="5" max="2147483647">
+                <message ref="foo" class="ERROR">size must be between 5 and 2147483647</message>
+            </size>
+        </validation>
+    </field>
+</metaData>

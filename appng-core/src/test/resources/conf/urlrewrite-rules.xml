@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rules>
+	<rule>
+		<from>^/de/index$</from>
+		<to last="true">/en/index.jsp</to>
+	</rule>
+	<rule>
+		<from>^/en/index.jsp$</from>
+		<to type="redirect" last="true">/de/index</to>
+	</rule>
+</rules>

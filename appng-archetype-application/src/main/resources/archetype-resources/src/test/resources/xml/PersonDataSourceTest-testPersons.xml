@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasource xmlns="http://www.appng.org/schema/platform" id="persons">
+    <config>
+        <title id="Persons">Persons</title>
+        <params>
+            <param name="selected"/>
+        </params>
+        <meta-data bindClass="${package}.Person" result-selector="${dollar}{current.id eq selected}">
+            <field name="lastname" type="text" binding="lastname">
+                <label id="lastname">Lastname</label>
+            </field>
+            <field name="name" type="text" binding="name">
+                <label id="name">Name</label>
+            </field>
+            <field name="actions" type="linkpanel" binding="actions">
+                <label id="actions">actions</label>
+            </field>
+        </meta-data>
+        <linkpanel id="actions" location="inline">
+            <link id="edit" mode="intern" target="/index/update/${dollar}{current.id}">
+                <label id="edit">Edit</label>
+                <icon>edit</icon>
+            </link>
+        </linkpanel>
+        <linkpanel id="create" location="both">
+            <link id="edit" mode="intern" target="/index/create">
+                <label id="person.create">New Person</label>
+                <icon>new</icon>
+            </link>
+        </linkpanel>
+    </config>
+    <data>
+        <resultset chunk="0" chunkname="persons" chunksize="25" nextchunk="0" previouschunk="0" firstchunk="0" lastchunk="0" hits="4">
+            <result>
+                <field name="lastname" type="text">
+                    <value>Skywalker</value>
+                </field>
+                <field name="name" type="text">
+                    <value>Luke</value>
+                </field>
+                <linkpanel id="actions" location="inline">
+                    <link id="edit" mode="intern" target="/index/update/1">
+                        <label id="edit">Edit</label>
+                        <icon>edit</icon>
+                    </link>
+                </linkpanel>
+            </result>
+            <result>
+                <field name="lastname" type="text">
+                    <value>Solo</value>
+                </field>
+                <field name="name" type="text">
+                    <value>Han</value>
+                </field>
+                <linkpanel id="actions" location="inline">
+                    <link id="edit" mode="intern" target="/index/update/2">
+                        <label id="edit">Edit</label>
+                        <icon>edit</icon>
+                    </link>
+                </linkpanel>
+            </result>
+            <result>
+                <field name="lastname" type="text">
+                    <value>D2</value>
+                </field>
+                <field name="name" type="text">
+                    <value>R2</value>
+                </field>
+                <linkpanel id="actions" location="inline">
+                    <link id="edit" mode="intern" target="/index/update/3">
+                        <label id="edit">Edit</label>
+                        <icon>edit</icon>
+                    </link>
+                </linkpanel>
+            </result>
+            <result>
+                <field name="lastname" type="text">
+                    <value>P0</value>
+                </field>
+                <field name="name" type="text">
+                    <value>C3</value>
+                </field>
+                <linkpanel id="actions" location="inline">
+                    <link id="edit" mode="intern" target="/index/update/4">
+                        <label id="edit">Edit</label>
+                        <icon>edit</icon>
+                    </link>
+                </linkpanel>
+            </result>
+        </resultset>
+    </data>
+</datasource>

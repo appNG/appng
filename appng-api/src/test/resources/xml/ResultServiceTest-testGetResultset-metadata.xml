@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.Person" result-selector="${current.id == 1}">
+    <field binding="name" type="text" name="name">
+    	<sort prio="1" order="desc"/>
+    </field>
+    <field binding="firstname" type="text" name="firstname">
+    	<sort prio="0" order="asc"/>
+    </field>
+    <field binding="birthDate" format="yyyy.MM.dd" type="date" name="birthDate"/>
+    <field binding="size" format="#.##" type="decimal" name="size"/>
+    <field binding="savings" format="###,###.###" type="decimal" name="savings"/>
+    <field binding="age" type="long" name="age">
+        <condition expression="false"/>
+    </field>
+    <field binding="offsprings" type="list:select" name="offsprings">
+        <condition expression="false"/>
+    </field>
+    <field binding="integerList" type="list:checkbox" name="integerList"/>
+    <field binding="picture" type="file" name="picture"/>
+    <field binding="morePictures" type="file-multiple" name="morePictures"/>
+    <field binding="strings" type="list:text" name="strings"/>
+    <field binding="thepanel" type="linkpanel" name="thepanel"/>
+    <field binding="coordinate" type="coordinate" name="coordinate">
+        <field binding="coordinate.latitude" format="#.##" type="decimal" name="latitude"/>
+        <field binding="coordinate.longitude" format="#.##" type="decimal" name="longitude"/>
+    </field>
+    <field binding="images" type="image" name="images">
+        <icon>/foo/bar1.jpg</icon>
+        <icon condition="${true}">/foo/bar2.jpg</icon>
+        <icon condition="${1 eq 2}">/foo/bar3.jpg</icon>
+    </field>
+    <field binding="father" name="father">
+        <field binding="father.name" type="text" name="name"/>
+        <field binding="father.firstname" type="text" name="firstname"/>
+    </field>
+</metaData>

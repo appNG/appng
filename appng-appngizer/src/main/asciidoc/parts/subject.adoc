@@ -1,0 +1,83 @@
+== Subjects
+=== List subjects
+*URL:* http://localhost:8080/appNGizer/subject
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/subject-list.xml[]
+----
+
+
+=== Show subject
+*URL-Scheme:* http://localhost:8080/appNGizer/subject/{subject-name}
+
+*URL:* http://localhost:8080/appNGizer/subject/Admin
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/subject-show.xml[]
+----
+
+
+=== Create subject
+*URL:* http://localhost:8080/appNGizer/subject
+
+*Method:* POST
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/subject-create.xml[]
+----
+
+[NOTE]
+====
+The `<digest>` needs to be a valid https://en.wikipedia.org/wiki/Bcrypt[Bcrypt] hash of the user's password. Implementations of Bcrypt are available for many programming languages. When using Java, you can use the implementation of http://docs.spring.io/spring-security/site/docs/current/apidocs/org/springframework/security/crypto/bcrypt/BCrypt.html[Spring Security]. For Phyton, there's also a https://pypi.python.org/pypi/bcrypt/3.1.0[bcrypt package] available.
+====
+
+[IMPORTANT]
+====
+If the digest starts with the Bcrypt-prefix `$2a$`, it will be taken as is. Otherwise, it will be encrypted by appNGizer. If ommitted, the users's digest remains unchainged.
+====
+
+*Response Body:* -none-
+
+
+=== Update subject
+*URL-Scheme:* http://localhost:8080/appNGizer/subject/{subject-name}
+
+*URL:* http://localhost:8080/appNGizer/subject/admin
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/subject-update.xml[]
+----
+[IMPORTANT]
+====
+The same rules for the `<digest>` apply as for creating subjects. The response will always contain the encrypted version.
+====
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/subject-update_response.xml[]
+----
+
+
+=== Delete subject
+*URL-Scheme:* http://localhost:8080/appNGizer/subject/{subject-name}
+
+*URL:* http://localhost:8080/appNGizer/subject/admin
+
+*Method:* DELETE
+
+*Response Body:* -none-

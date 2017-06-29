@@ -1,0 +1,62 @@
+== Groups
+=== List Groups
+*URL:* http://localhost:8080/appNGizer/group
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/group-list.xml[]
+----
+
+=== Show group
+*URL-Scheme:* http://localhost:8080/appNGizer/group/{group-name}
+
+*URL:* http://localhost:8080/appNGizer/group/Administator
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/group-show.xml[]
+----
+
+
+=== Create group
+*URL:* http://localhost:8080/appNGizer/group
+
+*Method:* POST
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/group-create.xml[]
+----
+
+*Response Body:* -none-
+
+
+=== Update group
+*URL-Scheme:* http://localhost:8080/appNGizer/group/{group-name}
+
+*URL:* http://localhost:8080/appNGizer/group/Administator
+
+*Method:* PUT
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/group-update.xml[]
+----
+
+
+=== Delete group
+*URL-Scheme:* http://localhost:8080/appNGizer/group/{group-name}
+
+*URL:* http://localhost:8080/appNGizer/group/Administator
+
+*Method:* DELETE
+
+*Response Body:* -none-

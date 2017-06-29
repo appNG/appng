@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.appng.org/schema/application" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.appng.org/schema/application http://www.appng.org/schema/application/appng-application.xsd">
+    <name>demo-plugin</name>
+    <display-name><![CDATA[displayName]]></display-name>
+    <description><![CDATA[a description]]></description>
+    <long-description><![CDATA[long description]]></long-description>
+    <version>1.0.0</version>
+    <timestamp>2013-07-27</timestamp>
+    <appng-version>0.8.0</appng-version>
+
+    <roles>
+        <role>
+            <name>User</name>
+            <description>General role for all users</description>
+            <permission id="permissionA" />
+            <permission id="permissionB" />
+            <permission id="permissionB" />
+            <permission id="permissionC" />
+            <permission id="doesNotExist" />
+        </role>
+        <role>
+            <name>User</name>
+            <description>duplicate</description>
+        </role>
+    </roles>
+
+    <permissions>
+        <permission id="permissionA" />
+        <permission id="permissionA" />
+        <permission id="permissionB" />
+        <permission id="permissionC" />
+    </permissions>
+
+    <properties>
+        <property id="propa"></property>
+        <property id="propb"></property>
+        <property id="propa"></property>
+    </properties>
+
+</application>

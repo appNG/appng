@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<group name="Editor" xmlns="http://www.appng.org/schema/appngizer">
+    <description>group for editors</description>
+    <roles>
+        <role name="Platform Administrator" >
+            <application>appng-manager</application>
+        </role>
+        <role name="Users">
+            <application>appng-authentication</application>
+        </role>
+        <role name="Scheduler Admin">
+            <application>appng-scheduler</application>
+        </role>
+    </roles>
+</group>

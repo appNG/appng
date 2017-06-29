@@ -1,0 +1,55 @@
+# Some variable declarations
+def DEPLOY=-f
+def MANAGER_VERSION=${manager.version}
+def AUTH_VERSION=${auth.version}
+def SCHEDULER_VERSION=${scheduler.version}
+def TEMPLATE_VERSION=${template.version}
+
+def ADMIN_SUBJECT=admin
+def ADMIN_GROUP=Administrators
+def REPOSITORY=Local
+def REMOTE_REPOSITORY=${repository.name}
+def MANAGER_SITE=manager
+
+def MANAGER_APP=appng-manager
+def AUTH_APP=appng-authentication
+def SCHEDULER_APP=appng-scheduler
+def APPNG_TEMPLATE=appng-template
+
+def REPO_PATH=${systemProp['appng.localRepoPath']}
+def REMOTE_REPO_PATH=${repository.path}
+def REMOTE_REPO_NAME=${repository.remoteName}
+
+# Initialize database. The database will be managed by appNG.
+-initdatabase -m
+
+# create admin user
+create-subject -u ${ADMIN_SUBJECT} -p s3cr3t -n "appNG Administrator" -l en -e appng@example.com
+list-subjects -v
+
+# add admin user to built-in admin group
+add-group -u ${ADMIN_SUBJECT} -g ${ADMIN_GROUP}
+
+# create repositories
+create-repository -n ${REPOSITORY} -u ${REPO_PATH}
+create-repository -n ${REMOTE_REPOSITORY} -u ${REMOTE_REPO_PATH} -t REMOTE -r ${REMOTE_REPO_NAME}
+list-repositories -v
+
+# create manager site
+create-site -n ${MANAGER_SITE} -h localhost -d http://localhost:8080 -e
+list-sites -v
+
+# import core applications
+install-application -n ${MANAGER_APP} -v ${MANAGER_VERSION} -r ${REPOSITORY} -c ${DEPLOY}
+install-application -n ${AUTH_APP} -v ${AUTH_VERSION} -r ${REPOSITORY} -c -h ${DEPLOY}
+install-application -n ${SCHEDULER_APP} -v ${SCHEDULER_VERSION} -r ${REPOSITORY} -c ${DEPLOY}
+list-applications -v
+
+# activate core applications
+activate-application -s ${MANAGER_SITE} -a ${MANAGER_APP}
+activate-application -s ${MANAGER_SITE} -a ${AUTH_APP}
+activate-application -s ${MANAGER_SITE} -a ${SCHEDULER_APP}
+list-roles -v
+
+# Install default appNG template
+install-template -n ${APPNG_TEMPLATE} -v ${TEMPLATE_VERSION} -r ${REPOSITORY}

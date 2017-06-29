@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<platform xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+
+	<config>
+		<output-format id="html">
+			<output-type id="webgui">
+				<template path="platform.xsl" type="master" delete-includes="true" />
+				<template path="utils.xsl" />
+			</output-type>
+		</output-format>
+		<output-format id="notype">
+			<output-type>
+				<template />
+			</output-type>
+		</output-format>
+
+		<authentications>
+			<authentication ref="webform" site="webadmin" application="authentication-webform" page="webform" index="index" />
+		</authentications>
+
+	</config>
+
+	<navigation>
+		<item type="sites">
+			<item type="applications" />
+		</item>
+		<item type="anchor" ref="webform/logout" site="webadmin" application="authentication-webform" page="webform"
+			actionName="action" actionValue="logout" hidden="true">
+			<label>Logout</label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+	</navigation>
+
+</platform>

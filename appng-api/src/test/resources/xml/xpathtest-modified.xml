@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root foo="bar">
+	<a id="foo">
+		<string>abcd</string>
+		<boolean>true</boolean>
+		<integer>1</integer>
+		<double>3.45</double>
+	</a>
+	<b id="bar">
+		<string>xyz</string>
+		<boolean>false</boolean>
+	</b>
+<text>data</text></root>

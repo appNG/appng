@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+	   	http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean" />
+
+	<bean id="messageSource" class="org.appng.api.support.ResourceBundleMessageSource">
+		<property name="alwaysUseMessageFormat" value="true" />
+		<property name="defaultEncoding" value="UTF-8"/>
+		<property name="fallbackToSystemLocale" value="false" />
+	</bean>
+
+	<bean id="datasource" class="org.appng.core.repository.config.DataSourceFactory" destroy-method="destroy" >
+		<property name="configurerClass" value="${site.DatasourceConfigurer}" />
+	</bean>
+
+	<bean id="environment" class="org.appng.api.support.environment.EnvironmentFactoryBean" scope="request" />
+	<bean id="request" class="org.appng.api.support.RequestFactoryBean" scope="request" />
+	
+	<bean id="selectionFactory" class="org.appng.api.support.SelectionFactory" />
+
+</beans>

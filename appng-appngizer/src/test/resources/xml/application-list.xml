@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<applications xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/application">
+	<application name="demo-application" self="http://localhost/application/demo-application">
+		<displayName>Demo Application</displayName>
+		<core>false</core>
+		<fileBased>true</fileBased>
+		<hidden>false</hidden>
+		<version>1.5.3</version>
+	</application>
+</applications>

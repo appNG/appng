@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<platform xmlns="http://www.appng.org/schema/appngizer" self="http://localhost:8080/appNGizer/platform">
+    <links>
+        <link name="database" self="http://localhost:8080/appNGizer/platform/database"/>
+        <link name="property" self="http://localhost:8080/appNGizer/platform/property"/>
+        <link name="reload" self="http://localhost:8080/appNGizer/platform/reload"/>
+        <link name="system" self="http://localhost:8080/appNGizer/platform/system"/>
+        <link name="environment" self="http://localhost:8080/appNGizer/platform/environment"/>
+    </links>
+</platform>

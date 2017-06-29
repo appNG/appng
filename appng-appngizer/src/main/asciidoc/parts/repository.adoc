@@ -1,0 +1,113 @@
+== Repository
+=== List Repositories
+*URL:* http://localhost:8080/appNGizer/repository
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-list.xml[]
+----
+
+
+=== Create repository
+*URL:* http://localhost:8080/appNGizer/repository
+
+*Method:* POST
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-create.xml[]
+----
+
+*Response Body:* -none-
+
+
+=== Update repository
+*URL-Scheme:* http://localhost:8080/appNGizer/repository/{repository-name}
+
+*URL:* http://localhost:8080/appNGizer/repository/Local
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-update.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-update_response.xml[]
+----
+
+
+=== Delete repository
+*URL-Scheme:* http://localhost:8080/appNGizer/repository/{repository-name}
+
+*URL:* http://localhost:8080/appNGizer/repository/Local
+
+*Method:* DELETE
+
+*Request Body:* -none-
+
+*Response Body:* -none-
+
+
+=== Show repository with available packages
+*URL-Scheme:* http://localhost:8080/appNGizer/repository/{repository-name}
+
+*URL:* http://localhost:8080/appNGizer/repository/Local
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-list-packages.xml[]
+----
+
+
+=== Install package
+*URL-Scheme:* http://localhost:8080/appNGizer/repository/{repository-name}/install
+
+*URL:* http://localhost:8080/appNGizer/repository/Remote/install
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-install-package.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-install-package-response.xml[]
+----
+
+
+=== Upload package
+*URL-Scheme:* http://localhost:8080/appNGizer/repository/{repository-name}/upload
+
+*URL:* http://localhost:8080/appNGizer/repository/Local/upload
+
+*Method:* POST
+
+*Request*
+A `multipart/form-data` encoded request with a parameter named `file` that contains the package archive.
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/repository-upload-package-response.xml[]
+----
+
+*Response Code:*
+
+* *405* (method not allowed) - if the repository is not a local repository
+* *400* (bad request) - if the file is not a valid archive

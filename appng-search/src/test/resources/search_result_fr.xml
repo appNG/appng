@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<search>
+   <filter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:type="searchFilter">
+      <search>
+         <config>
+            <name>q</name>
+            <visible>true</visible>
+         </config>
+         <data>
+            <active>true</active>
+            <value>foo</value>
+         </data>
+      </search>
+   </filter>
+   <results>
+      <time>0</time>
+      <pagination>
+         <numberOfElements>0</numberOfElements>
+         <numberOfPages>0</numberOfPages>
+         <page>0</page>
+         <pageParam>page</pageParam>
+         <pageSize>25</pageSize>
+         <pageSizeParam>pageSize</pageSizeParam>
+      </pagination>
+   </results>
+</search>

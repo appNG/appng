@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlrewrite>
+	<rule>
+		<name>Test Rule</name>
+		<note>simple redirect.</note>
+		<from>http://new/redirect/url</from>
+		<to type="redirect">/rewrite-newurl</to>
+	</rule>
+</urlrewrite>

@@ -1,0 +1,215 @@
+== The Application
+=== Output-format and -type
+The output-format determines the basic format of the output, such as HTML, PDF or XML. The default output-format is __html__. A format can provide several output-types, each of them offering a different layout.
+
+An output-type offers a certain layout for a output-format. 
+For example, there could be one output-type optimized for desktop clients and one optimized for mobile clients. The default output-type for the format __html__ is __webgui__. That's the reason why every application that provides a GUI  must add the built-in permissions `output-format.html` and `output-type.webgui` to each role that should have access to that GUI.
+
+See <<Permissions, chapter 9>> for more information about permissions.
+
+
+=== Pre-defined Beans
+The Spring application context of an appNG application comes with a number of pre defined beans of different scopes, as listed here:
+
+* `conversionService` +
+*Type:* {spring}/javadoc-api/org/springframework/core/convert/ConversionService.html[org.springframework.core.convert.ConversionService^] +
+*Scope:* singleton
+
+[[app-messageSource]]
+* `messageSource` +
+This mesage source is built from the resource bundle file(s) provided in the application's `dictionary` folder. +
+*Type:* {appng}/org/appng/api/support/ResourceBundleMessageSource.html[org.appng.api.support.ResourceBundleMessageSource^] +
+*Scope:*  singleton
+
+[[app-datasource]]
+* `datasource` +
+Only available if there is a `<datasource>` present in `application.xml`. Usually used to configure a JPA `EntityManagerFactory`, as described in <<Using JPA, this section>>. +
+*Type:* {jse}/javax/sql/DataSource.html[javax.sql.DataSource.html^] +
+*Scope:* singleton
+
+* `environment` +
+The `environment` is used to retrieve and set attributes of different {appng}/org/appng/api/Scope.html[Scope^]s. +
+*Type:*  {appng}/org/appng/api/Environment.html[org.appng.api.Environment^] +
+*Scope:* request
+
+* `request` +
+A wrapper for the current {jee}/javax/servlet/http/HttpServletRequest.html[javax.servlet.http/HttpServletRequest.html^], offering additional framework methods. +
+*Type:* {appng}/org/appng/api/Request.html[org.appng.api.Request^] +
+*Scope:* request
+
+* `selectionFactory` +
+A factory for building selections, see <<building-selections, here>> for more on that topic. +
+*Type:* {appng}/org/appng/api/support/SelectionFactory.html[org.appng.api.support.SelectionFactory^] +
+*Scope:* singleton
+
+=== Configurable Application Features
+There are some built-in features an application can use by utilizing pre-defined application properties in `application.xml`. See below for a list of these properties:
+
+* `featureIndexing (boolean)` +
+If set to `true`, the application can add documents to the site's search index. See the chapter about  <<indexing-and-searching, indexing and searching>> for details.
+
+* `featureImageProcessing (boolean)` +
+If set to `true`, the application can obtain a pre configured {appng}/org/appng/tools/image/ImageProcessor.html[org.appng.tools.image.ImageProcessor^]. See {appng}/org/appng/api/model/Application.html#getFeatureProvider--[Application#getFeatureProvider()^] and  {appng}/org/appng/api/model/FeatureProvider.html#getImageProcessor-java.io.File-java.lang.String-[FeatureProvider#getImageProcessor(File sourceFile, String targetFile)^] for details.
+
+[[prop-activeProfiles]]
+* `activeProfiles (String)` +
+A comma-separated list of active profiles, those can be used in `<beans profile="...">` of `beans.xml`.
+
+=== Internationalization (I18n)
+Supporting different languages is a frequent requirement for many applications. Therefore, different resource bundles can be provided in the `application-home/dictionary`-folder. Any XML element that binds to a {appng}/org/appng/xml/platform/Label.html[org.appng.xml.platform.Label^] can make use of the built in internationalization capabilities:
+
+* `<action><config><title>`
+* `<action><config><description>`
+* `<datasource><config><title>`
+* `<datasource><config><description>`
+* `<applicationConfig><config><title>`
+* `<applicationConfig><config><description>`
+* `<page><config><title>`
+* `<page><config><description>`
+* `<event><config><title>`
+* `<event><config><description>`
+* `<link><label>`
+* `<link><confirmation>`
+* `<section><title>`
+* `<element><title>`
+* `<field><label>`
+* `<selection><title>`
+* `<optionGroup><title>`
+
+The `id` of a `Label` is used as the resource bundle key. It can be parametrized using the `params`-attribute. This attribute allows
+
+* fixed terms, surrounded by single quotes
+* (`<page>`-/`<action>`-/`<datasource>`-) parameter <<Expressions, expressions>> using the syntax `${<param-name}`
+* <<field-reference, field reference>>s using the syntax `#{<field-name>}`
+
+Consider the following label:
+[source,xml]
+----
+<label id="item.delete.confirm" params="'ID', ${current.id}" />
+----
+
+and the corresponding entry for `item.delete.confirm` from the resource bundle:
+[source]
+----
+item.delete.confirm=Do you really want to delete the item with {0}: {1}?
+----
+
+At runtime, the `<label>` would be resolved to
+[source]
+----
+<label id="item.delete.confirm">Do you really want to delete the item with ID: 4711?</label>
+----
+
+[[i18n]]
+==== The implicit `i18n` variable
+In order to make it possible to retrieve values from the dictionary through an <<Expressions, expression>>, a variable named `i18n` of type {appng}/org/appng/api/support/I18n.html[org.appng.api.support.I18n^] is added to the expression evaluation context. This is especially useful if different date- and number-formats should be used for different locales. Check out the description of the format-attribute <<i18n-format, here>> to see an example.
+
+include::jpa.adoc[]
+
+=== Custom XSL stylesheets
+In every non-trivial application, you will reach the point where the standard rendering of the used template is not sufficient. At that point, you will need to write some custom XSL stylesheets.
+
+There are several points in the source XML documents where you can place a reference to such a custom stylesheet:
+
+* `<page><config>`
+* `<action><config>`
+* `<event><config>`
+* `<datasource><config>`
+* `<applicationRootConfig><config>`
+
+As an example, we want to display the following field of an action with a https://jqueryui.com/slider/#rangemax[jQuery UI Slider^]:
+[source,xml]
+----
+<field name="rating" type="int">
+    <label id="rating" />
+</field>
+----
+
+NOTE: When writing custom XSLT, you need to know about the resources the used template ships with. As the standard appNG Template ships with https://jquery.com[jQuery^] and https://jqueryui.com[jQuery UI^], no additional `<script>`-resources need to be imported.
+
+The XSL stylesheet for this would look like shown below:
+
+.rating.xsl
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="2.0" xmlns="http://www.appng.org/schema/platform" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs"><!--1-->
+  <xsl:output method="xhtml" /><!--2-->
+
+  <xsl:template
+      match="action[@id='ratingAction']/config/meta-data/field[@name eq 'rating']" <!--3-->
+      priority="2" mode="form"> <!--4-->
+    <!--5-->
+    <xsl:param name="field-htmlid" tunnel="yes" />
+    <xsl:param name="field-binding" tunnel="yes" />
+    <xsl:param name="field-value" tunnel="yes" />
+    <xsl:param name="field-attributes" tunnel="yes" />
+    <div class="fieldcontainer"><!--6-->
+      <div class="label"><!--7-->
+        <label class="text" for="rating"><xsl:value-of select="label/text()"/> </label>
+      </div>
+      <div class="field"><!--8-->
+        <input type="text" name="{$field-binding}" id="{$field-htmlid}"
+            class="text" style="width:80px !important" readonly="readonly" />
+        <div id="r_slider" style="margin-top:5px;margin-bottom:10px;width:80px" />
+      </div>
+      <script><!--9-->
+      $(function() {
+        $("#r_slider").slider({
+          value: <xsl:value-of select="$field-value"/>, min: 0, max: 5,step: 1,
+          slide: function( event, ui ) { 
+            $("#<xsl:value-of select="$field-htmlid"/>").val(ui.value);
+          }
+        });
+        $("#<xsl:value-of select="$field-htmlid"/>").val($("#r_slider").slider("value"));
+      });
+      </script>
+    </div>
+  </xsl:template>
+</xsl:stylesheet>
+----
+<1> the root element of the stylesheet, defining the required namespaces
+<2> the output method is `xhtml` 
+<3> the `<xsl:template>` uses an XPath expression to match the required field
+<4> the template applies for display-mode `form`
+<5> we receive some https://www.w3.org/TR/xslt20/#tunnel-params[tunnel parameters^] from higher prioritized templates
+<6> the `<div>`-container for a field
+<7> the `<div>`-container for a field's label
+<8> the `<div>`-container for the actual `<input>` field
+<9> the Javascript markup to build the slider
+
+Now, the custom stylesheet `rating.xsl` needs to be referenced inside the `ratingAction`:
+[source,xml]
+----
+<action id="ratingAction">
+  <config>
+    <title id="rating.create" />
+    <template path="recipe.xsl" /> <!--1-->
+    ...
+  </config>
+  ...
+</action>
+----
+<1> reference the template by the relative path to the `application-home/xsl` folder 
+
+For further reference, have a look at the corresponding recommendations from the W3C:
+
+* https://www.w3.org/TR/xslt20[^]
+* https://www.w3.org/TR/xpath20[^]
+* https://www.w3.org/TR/xpath-functions[^]
+
+==== Referencing custom resources
+If your custom XSL stylesheets need to include custom resources from `application-home/resources`, the schema to build the path for this resources is:
+
+`/template_<applicaton-name>/<relative-resource-path>`
+
+This example assumes that `jquery.colorpicker.js` is located at `application-home/resources/colorpicker`
+[source,xml]
+----
+<script src="/template_myapp/colorpicker/jquery.colorpicker.js">
+----
+
+
+
+

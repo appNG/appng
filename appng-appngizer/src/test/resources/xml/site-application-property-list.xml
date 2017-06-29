@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/site/localhost/application/demo-application/property">
+	<property name="bar" self="http://localhost/site/localhost/application/demo-application/property/bar">
+		<value>foobaz</value>
+		<defaultValue>foobaz</defaultValue>
+		<description>a new property</description>
+	</property>
+	<property clob="true" name="clobValue" self="http://localhost/site/localhost/application/demo-application/property/clobValue">
+		<value><![CDATA[d
+e
+f]]></value>
+		<description>a clob property</description>
+	</property>
+	<property name="foo" self="http://localhost/site/localhost/application/demo-application/property/foo">
+		<value>foobar</value>
+		<defaultValue>foobar</defaultValue>
+		<description>a foo property [UPDATED]</description>
+	</property>
+</properties>

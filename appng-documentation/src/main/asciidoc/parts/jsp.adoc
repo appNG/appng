@@ -1,0 +1,529 @@
+== JSP Tags
+AppNG provides a number of tags to be used in JavaServer Pages. Those can be used if an appNG site is used to serve JSP based content. Usually, this content originates from a https://en.wikipedia.org/wiki/Content_management_system[content management sytem^].
+
+In order to use the appNG JSP tags, a `@taglib` directive must be added to the page:
+
+[source,xml]
+----
+<%@taglib uri="http://appng.org/tags" prefix="appNG"%>
+----
+
+[TIP]
+====
+Within JSP files, you can make use of the available __implicit objects__ like `${param}`, `${requestScope}`  `${sessionScope}`.
+For further details see https://docs.oracle.com/javaee/7/tutorial/jsf-custom012.htm#BNATJ[section 15.12.2^] of the  https://docs.oracle.com/javaee/7/tutorial/index.html[The Java EE Tutorial^].
+====
+
+=== <appNG:taglet>
+This is probably the most common way of embedding dynamic contents provided by an appNG application into a JSP page. First, implement one of the following interfaces in your application and declare the implementing class as a Spring bean:
+
+* {appng}/org/appng/api/Taglet.html[org.appng.api.Taglet^]
+* {appng}/org/appng/api/GlobalTaglet.html[org.appng.api.GlobalTaglet^]
+* {appng}/org/appng/api/XMLTaglet.html[org.appng.api.XMLTaglet^]
+* {appng}/org/appng/api/GlobalXMLTaglet.html[org.appng.api.GlobalXMLTaglet^]
+
+*Example:*
+[source,xml]
+----
+<appNG:taglet application="myapp" method="myTaglet"><!--1-->
+   <appNG:param name="foo">bar</appNG:param><!--2-->
+   <appNG:param name="jin">fizzbar</appNG:param>
+</appNG:taglet>
+----
+<1> Calls the taglet, `method` refers to the Spring bean name.
+<2> Adds some parameters that are being passed as a `java.util.Map<String,String>` to the `processTaglet()`-method of the respective implementation.
+
+Note that the content-type delivered by a taglet is variable. It can be XML, JSON, HTML or even plain text.
+See the Javadoc of the interfaces mentioned above for more details about the different types of taglets.
+
+=== Form tags
+With the form tags it it possible to build HTML forms, validate them on the server side and pass the user input to a {appng}/org/appng/api/FormProcessProvider.html[org.appng.api.FormProcessProvider^].
+
+*Example:*
+[source,xml]
+----
+<appNG:form><!--1-->
+   <appNG:formData mode="not_submitted"><!--2-->
+     <form action="" method="post" enctype="multipart/form-data" ><!--3-->
+        <!--4-->
+        <appNG:formElement rule="email"
+                mandatory="true"
+                mandatoryMessage="E-mail is mandatory!"
+                errorClass="error"
+                errorMessage="Not a valid e-mail!"
+                errorElementId="emailError">
+            <input type="text" name="email" /><!--5-->
+            <div id="emailError">
+        </appNG:formElement>
+        <input type="submit" />
+     </form>
+   </appNG:formData>
+   <appNG:formConfirmation application="appng-webutils" method="debugProvider" mode="submitted"><!--6-->
+     <appNG:param name="foo">bar</appNG:param><!--7-->
+     <appNG:param name="jin">fizz</appNG:param>
+     <p>Thank you for your message!<p>
+   </appNG:formConfirmation>
+ </appNG:form>
+----
+<1> Start with `<appNG:form>`.
+<2> Next, define the content of the form using `<appNG:formData>`. The `mode` controls whether to form is always shown (`always`) or only as long it hasn't been submitted (`not_submitted`).
+<3> A regular HTML `<form>` needs to be defined.
+<4> Adds a `<appNG:formElement>` for the user's email address (attributes explained below).
+<5> Nest the regular HTML `<input>`-tag inside `<appNG:formElement>`.
+<6> The `<appNG:formConfirmation>` defines which `org.appng.api.FormProcessProvider` to call. The `method`-attributes names the respective Spring bean. The `mode` controls whether the content of this tag should always be shown (`always`) or only if the form has been submitted (`submitted`).
+<7> Adds some parameters that are being passed as a `java.util.Map<String,Object>` to the `process()`-method of the respective `FormProcessProvider` implementation.
+
+IMPORTANT: The `FormProcessProvider` is only being called if all mandatory fields have a valid value and all rules are satisfied.
+
+The `<appNG:formElement>` is used as a wrapper around standard HTML form input fields, which are
+
+* `<input>` (types: `text`, `radio`, `password`, `hidden`, `file`, `checkbox`)
+* `<textarea>`
+* `<select>` with nested `<option>`
+
+
+*Attributes:* (all optional)
+
+* `mandatory` - set to true if the field is mandatory
+* `mandatoryMessage` - the message to be displayed when no value has been entered for a mandatory field
+* `errorMessage` - the error message to be displayed when validation fails
+* `errorClass` - the CSS class to add to the input field when validation fails
+* `errorElementId` - the id of an element to append a <span> with the error message
+* `rule` - a validation rule for the input field
+* `desc` - a description for the input field
+ 
+*Rules:*
+
+Here's a list of the possible values for the `rule` attribute.
+
+[width="100%",options="header"]
+|====================
+| Name | Description | Example 
+
+|`string`
+|only word characters ([a-zA-Z_0-9] allowed)
+|`rule="string"`
+
+|`email`
+|must be a valid email address
+|`rule="email"`
+
+|`equals`
+|must be equal to another field or value
+|`rule="equals('foo')"`  +
+`rule="equals(anotherfield)"`
+
+|`regExp`
+|must match the given regular expression
+|`rule="regExp('[A-F0-9]+')"`
+
+|`number`
+|must be a number
+|`rule="number"`
+
+|`numberFractionDigits`
+|must be a number with up to x digits, and y fractional digits
+|`rule="number(2,4)"`
+
+|`size`
+|must have an exact length of x
+|`rule="size(3)"`
+
+|`sizeMin`
+|must have a minimum length of x
+|`rule="sizeMin(3)"`
+
+|`sizeMax`
+|must have a maximum length of x
+|`rule="sizeMax(3)"`
+
+|`sizeMinMax`
+|must have a minimum length of x and a maximum length of y
+|`rule="sizeMinMax(3,5)"`
+
+|`fileType`
+|must have one of the comma-separated types +
+(`type="file` only)
+|`rule="fileType('tif,pdf')"`
+
+|`fileSizeMin`
+|must have a minimum size of x MB/KB +
+(`type="file"` only)
+|`rule="fileSizeMin('0.5MB')"`
+
+|`fileSizeMax`
+|must have a maximum size of x MB/KB +
+(`type="file"` only)
+|`rule="fileSizeMax('5.0MB')"`
+
+|`fileSize`
+|must have a size between x and y MB/KB +
+(`type="file"` only)
+|`rule="fileSize('500KB','5.0MB')"`
+
+|`fileCount`
+|between x and y files must have been selected +
+(`type="file"` only)
+|`rule="fileCount(1,10)"`
+
+|`fileCountMin`
+|at least x files must have been selected +
+(`type="file"` only)
+|`rule="fileCountMin(5)"`
+
+|`fileCountMax`
+|at most x files must have been selected +
+(`type="file"` only)
+|`rule="fileCountMax(5)"`
+
+|`captcha`
+|Must match a captcha value. The result of the captcha is stored in the variable `SESSION['SESSION']['captcha']`, where the first `SESSION` means the HTTP Session, `['SESSION']` the name of an attribute within the HTTP session. Since this attribute is also a map, you can use `['captcha']` to retrieve the result.
+|`rule="captcha(SESSION['SESSION']['captcha'])"`
+ 
+|====================
+
+
+Make sure you also check the Javadoc of the form tags:
+
+* {appng}/org/appng/taglib/form/Form.html[org.appng.taglib.form.Form^]
+* {appng}/org/appng/taglib/form/FormData.html[org.appng.taglib.form.FormData^]
+* {appng}/org/appng/taglib/form/FormElement.html[org.appng.taglib.form.FormElement^]
+* {appng}/org/appng/taglib/form/FormGroup.html[org.appng.taglib.form.FormGroup^]
+* {appng}/org/appng/taglib/form/FormConfirmation.html[org.appng.taglib.form.FormConfirmation^]
+
+==== <appNG:formGroup>
+A HTML `<select>` and a group of radio buttons (`<input type="radio">`) must be wrapped by an `<appNG:formGroup>`.
+
+*Example for a `<select>`:*
+[source,xml]
+----
+<appNG:formGroup name="subject" <!--1-->
+        mandatory="true" mandatoryMessage="This field is mandatory!"  <!--2-->
+        errorClass="error" errorElementId="subject_error">  <!--3-->
+    <select name="subject"> <!--4-->
+        <appNG:formElement> <!--5-->
+            <option value="">Please select</option>
+        </appNG:formElement>
+        <appNG:formElement>
+            <option value="A">Option A</option>
+        </appNG:formElement>
+        <appNG:formElement>
+            <option value="B">Option B</option>
+        </appNG:formElement>
+            <appNG:formElement><option value="C">Option C</option>
+        </appNG:formElement>
+    </select>
+    <div id="subject_error"></div> <!--6-->
+</appNG:formGroup>
+----
+<1> Defines the name of the group.
+<2> Make the field mandatory and provide a message.
+<3> Define the class and the id of the element holding the error message.
+<4> Use the group's name also as name for the `<select>`.
+<5> Add a `<appNG:formelement>` for each option.
+<6> The element holding the error message, if any.
+
+NOTE: A `<appNG:formGroup>` is rendered as a `<div>`, which -in case of an error- also receives the `errorClass`.
+
+*Example for a radio group:*
+[source,xml]
+----
+<appNG:formGroup name="gender"
+        mandatory="true" mandatoryMessage="This field is mandatory!"
+        errorClass="invalid"  errorElementId="gender_error">
+        <appNG:formElement>
+            <input type="radio" value="M" name="gender"><label>Male</label>
+        </appNG:formElement>
+        <br/>
+        <appNG:formElement>
+            <input type="radio" value="F" name="gender"><label>Female</label>
+        </appNG:formElement>
+    </select>
+    <div id="gender_error" class="error"></div>
+</appNG:formGroup>
+----
+
+=== Search tags
+These tags provide functionality to make use of the <<Indexing and Searching, indexing and searching>>-features of appNG. It must contain at least one `<appNG:searchPart>` tag.
+
+See the chapter about <<Indexing and Searching>> for details on this topic.
+
+==== <appNG:search>
+This tag is used to retrieve the search results in a certain format. The 'json'-format is useful if some Javascript renders the results, while 'xml' can be used to apply a XSL stylesheet to the results.
+
+*Attributes:* (defaults in braces)
+
+* `format` ('json')- one of `xml` or `json`
+* `parts` (`false`) - whether the resulting XML/JSON should be split in parts
+* `highlight` (`span`) - the x(ht)ml-tag used to highlight the search term within the search results. 
+
+*Parameters:* (defaults in braces)
+
+* `pageSize` (`25`) +
+the page size to use
+* `pageSizeParam` (`pageSize`) +
+the name of the request parameter that contains the page-size
+* `pageParam` (`page`) +
+the name of the request parameter that contains the current page
+* `queryParam` (`q`) +
+the name of the request parameter that contains the search term
+* `maxTextLength` (`150`) +
+the maximum length of a search result text
+* `dateFormat` (`yyyy-MM-dd`) +
+the date pattern used to format dates
+* `fillWith` (`...`) +
+the placeholder used when the search result text is being stripped
+* `xsl` +
+the path to the XSLT stylesheet to use when format is XML
+* `pretty` (`false`) +
+if the XML/JSON output should be formatted prettily
+
+
+*Example:*
+
+[source,xml]
+----
+<appNG:search parts="false" format="json" highlight="span"><!--1-->
+        <appNG:param name="queryParam">term</appNG:param>
+        <appNG:param name="pageSize">10</appNG:param>
+        <appNG:param name="pageParam">p</appNG:param><!--2-->
+        <!--3-->
+        <appNG:searchPart
+            application="global"
+            language="de"
+            title="Search Results"
+            fields="title,contents" analyzerClass="org.apache.lucene.analysis.de.GermanAnalyzer"/>
+ </appNG:search>
+----
+<1> use `json` format
+<2> set some parameters by overriding their default
+<3> add a `<appng:searchPart>` with `application="global"`, meaning instead of calling specific application, the results from the standard global search should be used
+
+*Predefined fields*
+
+The following field are predefined by appNG and should not be misused by putting different kind of information into them:
+
+* `path`  - then path to the document, relative to the site's domain 
+* `title` - the title of the document
+* `teaser` - a short intro text for the document
+* `image` - an image for the document
+* `date` - the date of the last change, using the pattern `yyyy-MM-dd HH:mm:ss`
+* `type` - the type of the document
+* `language` - the language of the document
+* `contents` - the textual content of the document
+* `id` - the Id of the document
+
+
+==== <appNG:searchPart>
+As shown above, an `<appNG:search>` can contain different `<appNG:seachPart>`-elements.
+An `<appNG:seachPart>` refers to an implementation of {appng}/org/appng/search/SearchProvider.html[org.appng.search.SearchProvider^].
+
+*Attributes:*
+
+* `application` - the application that provides the `SearchProvider`
+* `method` - the name of the Spring bean implementing `SearchProvider`
+* `language` - the language of the documents to find
+* `title` - the title for this part
+* `fields` - a comma-separated list of the document's field to search in
+* `analyzerClass` - the class implementing {lucene}/org/apache/lucene/analysis/Analyzer.html[org.apache.lucene.analysis.Analyzer^], used when performing the search
+
+*Parameters:*
+Any parameter recognized by the `SearchProvider`.
+
+*Example:*
+
+[source,xml]
+----
+<appNG:searchPart
+        application="acme-products"
+        method="productSearchProvider"
+        language="en"
+        title="ACME Products"
+        fields="title,contents"
+        analyzerClass="org.apache.lucene.analysis.en.EnglishAnalyzer">
+    <appNG:param name="foo">bar</appNG:param>
+    <appNG:param name="jin">fizz</appNG:param>
+</appNG:searchPart>
+----
+
+==== <appNG:searchable>
+This tag is used to mark certain areas of a JSP page as searchable, meaning those parts should be added as a document to the site's search index.
+
+*Attributes:*
+
+* `index` - whether the body content should be indexed
+* `visible` (`true`) - whether or not the body content should be displayed
+* `field` - the name of the field. May be one of the standard fields (`title`, `teaser`, `image`, `contents`) or a user-defined one.
+
+NOTE: For JSPs, the fields `id`, `date`, `type`, `language` and `path` are set by appNG and thus must not be set with `<appNG:searchable>`.  
+
+*Example:*
+
+[source,xml]
+----
+<!--1-->
+<appNG:searchable index="true" field="title" visible="false">
+    The Hitchhiker's Guide to the Galaxy
+</appNG:searchable>
+<!--2-->
+<appNG:searchable index="true" field="contents">
+The Hitchhiker's Guide to the Galaxy is a comic science fiction series created by Douglas Adams.
+    <!--3-->
+	<appNG:searchable index="false">
+	    This text is being ignored.
+	</appNG:searchable>
+The title is the name of a fictional, eccentric, electronic	travel guide, The Hitchhiker's Guide to the Galaxy, prominently featured in the series.
+	</appNG:searchable>
+<!--4-->
+<appNG:searchable index="true" field="customfield" visible="false">
+    Hitchhiker
+</appNG:searchable>
+----
+<1> define an invisible field for the `title`
+<2> define the `contents`-field (multiple occurences are allowed!)
+<3> tags can be nested, if some areas should be excluded (use `index="false"` in those cases)
+<4> adds an invisible field named `customfield`
+
+
+*Excluding a page from being indexed*
+
+The `<appNG:searchable>` tag can also be used the *exclude* a page from being indexed. Therefore, use the field `indexPage` and set it's value to `false`. No other attributes are required.
+
+[source,xml]
+----
+<appNG:searchable field="indexPage">false</appNG:searchable>
+----
+
+As an alternative, you can use a surrounding `<appNG:searchable index="false">` tag.
+
+[source,xml]
+----
+<appNG:searchable index="false">
+    <appNG:searchable index="true" field="title">Title</appNG:searchable>
+    <appNG:searchable index="true" field="contents">Contents</appNG:searchable>
+</appNG:searchable>
+----
+
+
+=== Other tags
+==== <appNG:param>
+The `<appng:param>` tag can be used to add parameters to a
+
+* `<appNG:taglet>`
+* `<appNG:search>`
+* `<appNG:searchPart>`
+* `<appNG:formConfirmation>`
+* `<appNG:application>`
+
+*Attributes:*
+
+* `name` - the name of the parameter
+* `unescape` - if set to `true`, HTML entities in the value are unescaped before passed to the owning tag
+
+For the parameter's value, you can reference to request parameters using the syntax `#[<param>]`.
+
+*Example:*
+[source,xml]
+----
+<appNG:param name="replyTo">#[email]</appNG:param>
+----
+
+
+==== <appNG:attribute>
+With this tag, you can read/ write  attributes of different {appng}/org/appng/api/Scope.html[Scope^]s from/ to the current {appng}/org/appng/api/Environment.html[environment^].
+
+*Attributes:*
+
+* `scope` - the scope of the attribute (`REQUEST`, `SESSION`, `PLATFORM` or `URL`)
+* `mode` - the mode (`read` or `write`)
+* `name` - the name of the attribute
+* `value` - write mode only: the value to write
+
+*Example:*
+[source,xml]
+----
+<appNG:attribute scope="SESSION" mode="read"  name="foo"  />
+<appNG:attribute scope="REQUEST" mode="read"  name="bar" />
+<appNG:attribute scope="SESSION" mode="write" name="someName" value="someValue"/>
+<!--
+For URL-scope, the name is the zero based index of the path segment
+(segments are separated by '/'). For example, if the path is
+'/en/foo/bar/42' then you can access the '42' with index 3
+-->
+<appNG:attribute scope="URL" mode="read" name="3" />
+----
+
+NOTE: Only the `REQUEST` and `SESSION` scope allow the `write` mode.
+
+==== <appNG:if>
+This tag is used to display the tag body only if the given condition matches. In the condition, any request parameter can be used. <<Expressions>> are supported, but no leading `${` and closing  `}` is required. 
+
+*Attributes:*
+
+* `condition` - the condition to be satisfied
+
+Example:
+[source,xml]
+----
+<!--assumed there's a request parameter named 'foo' -->
+<appNG:if condition="foo eq 'bar'">Foobar!</appNG:if>
+----
+
+==== <appNG:permission>
+If you want to make sure a that certain content is only visible if the logged-in user has a certain permission, use the `<appNG:permission>` tag.
+
+*Attributes:*
+
+* `application` - the name of the application that provides the permission
+* `permission` - the name of the permission
+
+Example:
+[source,xml]
+----
+<appNG:permission application="myapp" permission="showSecretContent">
+This is secret content!
+</appNG:permission>
+----
+
+=== <appNG:application>
+Used to embed an appNG application inside a JSP page. This is achieved by transforming the `<platform>` XML document returned by the application with a custom XSL stylesheet. Thus it is possible to adjust the appearance of the application to any required design.
+
+*Attributes:*
+
+* `application` - the name of the application that should be embedded.
+
+*Parameters:* (`<appNG:param>`)
+
+* `defaultBaseUrl` +
+The url of the page where the application is embedded
+
+* `defaultPage` +
+The default page of the application, used when the url parameters do not contain a page name
+
+* `xslStyleSheet` +
+The path to the XSLT stylesheet used for transformation, relative to the site's repository folder. If omitted, the plain XML is written as an HTML comment.
+
+* `requestAttribute` +
+The name of an environment-attribute with the scope `REQUEST` where the transformation result should be stored in. If this parameter is not set, the result is directly written to the page.
+
+*GET-Parameters:*
+
+* `xsl` - if `false`, the plain XML is written as an HTML comment
+
+*Example:*
+
+The following example assumes you want to embed the application `acme-app` into the page `/en/acme`.  
+Every path segment after `/en/acme` is passed as an url-parameter to the application.
+[source,xml]
+----
+ <appNG:application name="acme-app">
+   <appNG:param name="defaultBaseUrl">/en/acme</appNG:param>
+   <appNG:param name="defaultPage">/index/welcome</appNG:param>
+   <appNG:param name="xslStyleSheet">/meta/xsl/acme/platform.xsl</appNG:param>
+   <appNG:param name="requestAttribute">acmeResult</appNG:param>
+ </appNG:application>
+ <!-- later in JSP -->
+ <appNG:attribute mode="read" name="acmeResult" scope="REQUEST" />
+
+----
+

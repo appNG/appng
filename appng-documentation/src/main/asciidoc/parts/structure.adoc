@@ -1,0 +1,85 @@
+== Structure of an appNG application
+An appNG application first and foremost is a standard https://maven.apache.org/[Apache Maven^] project. Additionally, it uses an `application-home` folder that contains the non-Java resources.
+
+The listing below gives a rough overview about how an appNG application is composed:
+
+[source]
+----
+include::../listing/applist.txt[]
+----
+
+=== `application-home/application.xml` (required)
+This file describes the basic attributes of an application, like its name, version and the version of appNG it has been built for. Additionally, it defines which roles and permissions are required, which configuration properties exist and which kind of database (if any) is needed to run the application.
+
+The XML schema definition (XSD) for `application.xml` is located here: +
+{appng-schema}/application/appng-application.xsd[^]
+
+[[application.xml]]
+[source,xml]
+.application.xml
+----
+include::../listing/application.xml[]
+----
+<1> general information (name,version etc.)
+<2> the available roles, referencing permissions
+<3> a role with attribute `admin-role=true` is automatically added to the default admin group in appNG named _Administrators_ on installation
+<4> the available permissions
+<5> the available properties
+<6> the database type(s) supported by the application
+
+=== `application-home/beans.xml` (required)
+Since each appNG application get it's own {spring}/javadoc-api/org/springframework/context/ApplicationContext.html[Spring Application Context^], a `beans.xml` file must be provided to set up this context.
+
+==== placeholders
+Inside `beans.xml`, you can use several placeholders, as explained below:
+
+* *application properties* as defined in `application.xml` +
+*Syntax:* `${<propertyName>}` +
+*Example:* `${myAppProperty}`
+
+* *site properties* defined for the {appng}/org/appng/api/model/Site.html[org.appng.api.model.Site^] +
+Constants for the property names are available in {appng}/org/appng/api/SiteProperties.html[org.appng.api.SiteProperties^] +
+*Syntax:* `${site.<propertyName>}` +
+*Example:* `${site.mailHost}`
+
+* *platform properties* +
+Constants for the property names are available in {appng}/org/appng/api/Platform.Property.html[org.appng.api.Platform.Property^] +
+*Syntax:* `${platform.<propertyName>}` +
+*Example:* `${platform.devMode}`
+
+IMPORTANT: Platform properties are only available if the application is configured as a core application.
+
+===== Nested beans and profiles
+You can use nested `<beans>` inside `beans.xml`, which can nicely be combined using the `profile`-attribute and the application property <<prop-activeProfiles,activeProfiles>>.
+
+=== `application-home/conf` (optional)
+This folder contains the XML definitions of the application's <<Actions>>, <<Datasources>> and <<Pages>>. This folder can have any number of subfolders.
+
+=== `application-home/dictionary` (optional)
+This folder contains the resource bundle files used for internationalization.
+
+=== `application-home/lib` (required)
+This folder contains the application's JAR file as well as 3rd party JARs that are not provided by the appNG platform.
+
+=== `application-home/sql` (optional)
+For every `<datasource>` listed in <<application.xml>>, there must be a subfolder containing the DDL scripts for that type. Since appNG uses Flyway (https://flywaydb.org[^]) to keep the database up to date, the naming scheme `V<version>\__<name>.sql` must be used for those scripts, for example `V1.2.5__add_new_table.sql`.
+
+=== `application-home/resources` (optional)
+This is the place for custom CSS-, Javascript- and image-files, as well as other resources needed by your application. These assets are most likely used by some <<Custom XSL stylesheets>>.
+
+=== `application-home/xsl` (optional)
+This optional folder can contain the custom XSL stylesheets of the application. See <<Custom XSL stylesheets>> for more details on that topic.
+
+=== `pom.xml` (required)
+The `pom.xml` makes use of the parent pom `appng-application-parent` and configures the http://maven.apache.org/plugins/maven-assembly-plugin/[Maven Assembly Plugin^].
+[source,xml]
+.pom.xml
+----
+include::../listing/pom.xml[]
+----
+
+The dependency tree of a standard appNG application looks like this:
+[source]
+----
+include::../listing/dependencies.txt[]
+----

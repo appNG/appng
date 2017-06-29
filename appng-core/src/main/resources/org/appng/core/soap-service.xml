@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="wsdlDefinitionHandlerAdapter" class="org.springframework.ws.transport.http.WsdlDefinitionHandlerAdapter">
+		<property name="transformLocations" value="false" />
+	</bean>
+
+	<bean class="org.springframework.ws.transport.http.WebServiceMessageReceiverHandlerAdapter">
+		<property name="messageFactory">
+			<bean class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory" />
+		</property>
+	</bean>
+
+	<bean class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+		<property name="portTypeName" value="${portTypeName}" />
+		<property name="locationUri" value="${locationUri}" />
+		<property name="schema" ref="schema" />
+	</bean>
+
+	<bean id="schema" class="org.springframework.xml.xsd.SimpleXsdSchema">
+		<property name="xsd" value="${schemaLocation}" />
+	</bean>
+
+	<bean id="payloadMapping" class="org.springframework.ws.server.endpoint.mapping.PayloadRootAnnotationMethodEndpointMapping">
+		<property name="detectEndpointsInAncestorContexts" value="true" />
+	</bean>
+
+	<bean id="jaxbMarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="lazyInit" value="true" />
+		<property name="contextPath" value="${contextPath}" />
+		<property name="supportJaxbElementClass" value="true" />
+		<property name="marshallerProperties">
+			<map>
+				<entry key="jaxb.formatted.output">
+					<value type="java.lang.Boolean">true</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="marshallingPayloadMethodProcessor" class="org.springframework.ws.server.endpoint.adapter.method.MarshallingPayloadMethodProcessor">
+		<property name="marshaller" ref="jaxbMarshaller" />
+		<property name="unmarshaller" ref="jaxbMarshaller" />
+	</bean>
+
+	<bean id="messageDispatcher" class="org.springframework.ws.soap.server.SoapMessageDispatcher">
+		<property name="endpointAdapters">
+			<list>
+				<ref bean="endpointAdapter" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="endpointAdapter" class="org.springframework.ws.server.endpoint.adapter.DefaultMethodEndpointAdapter">
+		<property name="methodArgumentResolvers">
+			<list>
+				<ref bean="marshallingPayloadMethodProcessor" />
+				<bean class="org.springframework.ws.soap.server.endpoint.adapter.method.SoapMethodArgumentResolver" />
+			</list>
+		</property>
+		<property name="methodReturnValueHandlers">
+			<list>
+				<ref bean="marshallingPayloadMethodProcessor" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

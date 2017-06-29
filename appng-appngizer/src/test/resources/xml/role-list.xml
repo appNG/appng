@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<roles xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/application/demo-application/role">
+	<role name="Administrator" self="http://localhost/application/demo-application/role/Administrator">
+		<application>demo-application</application>
+		<description>Administrator with all permissions</description>
+	</role>
+	<role name="Debugger" self="http://localhost/application/demo-application/role/Debugger">
+		<application>demo-application</application>
+		<description>Enables debugging output</description>
+	</role>
+	<role name="Tester" self="http://localhost/application/demo-application/role/Tester">
+		<application>demo-application</application>
+		<description>tests some stuff</description>
+	</role>
+</roles>

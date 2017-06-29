@@ -1,0 +1,3608 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.appng.org/schema/platform" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+	elementFormDefault="qualified" jxb:version="2.1" targetNamespace="http://www.appng.org/schema/platform" version="${project.version}">
+
+	<xs:element name="page" type="pageDefinition" />
+	<xs:element name="pages" type="pages" />
+	<xs:element name="datasource" type="datasource" />
+	<xs:element name="event" type="event" />
+
+	<xs:element name="data" type="data" />
+
+	<xs:element name="platform">
+		<xs:annotation>
+			<xs:documentation>The root element of an appNG target XML document.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The root element of an appNG target XML document.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="config" type="platformConfig" />
+				<xs:element name="subject" type="subject" minOccurs="0" />
+				<xs:element name="navigation" type="navigation" />
+				<xs:element name="content" type="content" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" />
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="datasources">
+		<xs:annotation>
+			<xs:documentation>A wrapper for multiple &lt;datasource&gt;-elements.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A wrapper for multiple  {@link Datasource}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element maxOccurs="unbounded" name="datasource" type="datasource" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="events">
+		<xs:annotation>
+			<xs:documentation>A wrapper for multiple &lt;event&gt;-elements.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A wrapper for multiple  {@link Event}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element maxOccurs="unbounded" name="event" type="event" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="applicationRootConfig">
+		<xs:annotation>
+			<xs:documentation>The root configuration of the application, defining session parameters and navigation.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The root configuration of the application, defining {@link SessionParams} and {@link Navigation}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="name" type="xs:string" />
+				<xs:element name="config" type="applicationConfig" />
+				<xs:element name="navigation" type="linkpanel" minOccurs="0" />
+				<xs:element name="pages" type="pages" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute name="id" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The id for this config.</xs:documentation>
+					<xs:appinfo>
+						<jxb:property>
+							<jxb:javadoc>The id for this config.</jxb:javadoc>
+						</jxb:property>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="textcontents">
+		<xs:annotation>
+			<xs:documentation>The root element for defining some text-elements.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="textelements" type="textelements" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>A collection of text-elements of different types.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="expression">
+		<xs:annotation>
+			<xs:documentation><![CDATA[An expression uses page-/datasource-/action-parameters and the syntax ${<param>}]]></xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\$\{.*\}" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="booleanValue">
+		<xs:annotation>
+			<xs:documentation>A booleanValue can either be true or false, and can be the result of an expression.</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="xs:boolean expression" />
+	</xs:simpleType>
+
+	<xs:simpleType name="stringValue">
+		<xs:annotation>
+			<xs:documentation>A string value, which can be the result of an expression</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="xs:string expression" />
+	</xs:simpleType>
+
+	<xs:complexType name="structureDef">
+		<xs:annotation>
+			<xs:documentation>Defines the structure within a page.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines the structure within a {@link PageDefinition}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="section" type="sectionDef" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="sectionDef">
+		<xs:annotation>
+			<xs:documentation>Defines a section within the structure</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines a section within a {@link StructureDef}. A section contains multiple {@link SectionelementDef}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="sectionConfig" minOccurs="0" />
+			<xs:element name="title" type="label" minOccurs="0" />
+			<xs:element maxOccurs="unbounded" name="element" type="sectionelementDef" />
+		</xs:sequence>
+		<xs:attribute name="hidden" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the resulting &lt;section&gt; will not be visible to the user.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the resulting {@link Section} will not be visible to the user.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="sectionConfig">
+		<xs:sequence>
+			<xs:element name="title" type="label" minOccurs="0" />
+			<xs:element name="textelements" type="textelements" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="sectionelementDef">
+		<xs:annotation>
+			<xs:documentation>Defines an element within a section that either contains an action or a datasource.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines an section-element within a {@link SectionDef}. 
+A section-element can either be a {@link DatasourceRef} or a {@link ActionRef}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="label" minOccurs="0"/>
+			<xs:choice>
+				<xs:element name="datasource" type="datasourceRef" />
+				<xs:element name="action" type="actionRef" />
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="folded" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>
+If evaluating to 'true', the resulting &lt;sectionelement&gt; will be displayed folded.
+If evaluating to 'false', the resulting &lt;sectionelement&gt; will be displayed unfolded.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If evaluating to {@code true}, the resulting {@link Sectionelement} will be displayed folded. 
+If evaluating to {@code false}, the resulting {@link Sectionelement} will be displayed unfolded.
+If empty, the {@link Sectionelement} will not be foldable.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="passive" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>
+If evaluating to 'true', the resulting &lt;sectionelement&gt; will not determine the title of the tab.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If evaluating to {@code true}, the resulting {@link Sectionelement} will not determine the title of the tab.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The display mode for this element to be used by the template.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The display mode for this element to be used by the template.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="structure">
+		<xs:annotation>
+			<xs:documentation>Defines the structure of a page.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines the structure of a {@link PageDefinition}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="section" type="section" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="section">
+		<xs:annotation>
+			<xs:documentation>Defines a section of the structure.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines a section of a {@link Structure}. A section can contain multiple {@link Sectionelement}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="sectionConfig" minOccurs="0" />
+			<xs:element name="title" type="label" minOccurs="0" />
+			<xs:element maxOccurs="unbounded" name="element" type="sectionelement" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="hidden" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the &lt;section&gt; will not be visible to the user.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If evaluating to {@code true}, the {@link Section} will not be visible to the user.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="executionTime" type="xs:long">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The time in milliseconds it took to process this section.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The time in milliseconds it took to process this {@code Section}.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="sectionelement">
+		<xs:annotation>
+			<xs:documentation>Defines an element of a section.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines an element of a {@link Section}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="label" minOccurs="0"/>
+			<xs:choice>
+				<xs:element name="datasource" type="datasource" />
+				<xs:element name="action" type="action" />
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="folded" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>
+If evaluating to 'true', the &lt;sectionelement&gt; will be displayed folded.
+If evaluating to 'false', the resulting &lt;sectionelement&gt; will be displayed unfolded.
+If empty, the {@link Sectionelement} will not be foldable.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If evaluating to {@code true}, the {@link Sectionelement} will be displayed folded. 
+If evaluating to {@code false}, the {@link Sectionelement} will be displayed unfolded.
+If empty, the {@link Sectionelement} will not be foldable.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="passive" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>
+If evaluating to 'true', the &lt;sectionelement&gt; will not determine the title of the tab.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the {@link Sectionelement} will not determine the title of the tab.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The display mode for this element to be used by the template.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The display mode for this element to be used by the template.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="executionTime" type="xs:long">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The time in milliseconds it took to process this sectionelement.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The time in milliseconds it took to process this {@code Sectionelement}.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	
+
+	<xs:complexType name="platformConfig">
+		<xs:annotation>
+			<xs:documentation><![CDATA[The configuration for the owning <platform>.]]></xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The configuration for the owning {@link Platform}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="labels" type="labels" minOccurs="0" />
+			<xs:element name="output-format" type="output-format" maxOccurs="unbounded" />
+			<xs:element name="authentications" type="authentications" minOccurs="0" />
+			<xs:element name="session" type="sessionInfo" minOccurs="0" />
+			<xs:element name="platform-url" type="xs:string" minOccurs="0" />
+			<xs:element name="base-url" type="xs:string" minOccurs="0" />
+			<xs:element name="current-url" type="xs:string" minOccurs="0" />
+			<xs:element name="output" type="output" minOccurs="0" />
+			<xs:element name="textelements" type="textelements" minOccurs="0" />
+			<xs:element name="debug" type="xs:boolean" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="output-format">
+		<xs:annotation>
+			<xs:documentation>The output-format determines the basic format of the output, such as html,pdf or xml. The default output-format is 'html'.
+A format can provide several output-types, each of them offering a different layout.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The OutputFormat determines the basic format of the output, such as html,pdf or xml. The default OutputFormat is 'html'.
+A format can provide several {@link OutputType}s, each of them offering a different layout.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="permissions" type="permissions" minOccurs="0" />
+			<xs:element name="output-type" type="output-type" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unique Id for this output-format.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique Id for this {@link OutputFormat}</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="default" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Set to 'true' if this is the default output-format.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Set to 'true' if this is the default {@link OutputFormat}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="output-type">
+		<xs:annotation>
+			<xs:documentation>An output-type offers a certain layout for a output-format. 
+For example, there could be one output-type optimized for desktop clients and one optmized for mobile clients. 
+Therefore, several templates are used, which contain the necessary XSL transformations.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[An OutputType offers a certain layout for a {@link OutputFormat}. 
+For example, there could be one OutputType optimized for desktop clients and one optmized for mobile clients. 
+Therefore, several {@link Template}s are used, which contain the nessecarry XSL transformations.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="permissions" type="permissions" minOccurs="0" />
+			<xs:element name="template" type="template" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unique Id for this output type within the parent output-format.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique Id for this OutputType within the parent {@link OutputFormat}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="default" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Set to 'true' if this is the default output-type for the parent output-format.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Set to 'true' if this is the default OutputType for the parent {@link OutputFormat}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="subject">
+		<xs:annotation>
+			<xs:documentation>A subject contains information about the currently logged-in user.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A subject contains information about the currently logged-in user.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="username" type="xs:string" />
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="localization" type="localization" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="localization">
+		<xs:annotation>
+			<xs:documentation>Contains all localization-relevant information.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Contains all localization-relevant information]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="language" type="xs:string" />
+			<xs:element name="decimalSeparator" type="xs:string" />
+			<xs:element name="groupingSeparator" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="navigation">
+		<xs:annotation>
+			<xs:documentation>Defines the navigation, containing multiple navigation-items.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+	]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="item" type="navigation-item" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="navigation-item">
+		<xs:annotation>
+			<xs:documentation>A single item for navigation.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A single item for navigation.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="label" type="xs:string" minOccurs="0" />
+			<xs:element name="icon" type="icon" minOccurs="0" />
+			<xs:element name="item" type="navigation-item" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="type" type="itemType">
+			<xs:annotation>
+				<xs:documentation>The type of this item.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The type of this item.
+@see ItemType]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ref" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The URL-reference for this item, meaning it contains the navigation path.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The URL-reference for this item, meaning it contains the navigation path.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of this navigation item.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of this navigation item.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="site" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of the site this item belongs to.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the site this item belongs to.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="application" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of the application this item belongs to.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the application this item belongs to.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="page" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The id of the page this item refers to.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The id of the page this item refers to.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="actionName" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>If the {page} for this item is set, this defines the name for a page-parameter.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If the {@link #page} for this item is set, this defines the name for a page-parameter.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="actionValue" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>If the {page} for this item is set, this defines the value for the page-parameter defined in the actionName-attribute</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If the {@link #page} for this item is set, this defines the value for the page-parameter defined in {@link #actionName}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="hidden" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Set to 'true' to mark this item as hidden.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Set to 'true' to mark this item as hidden.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="selected" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Set to 'true' to mark this item as selected.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Set to 'true' to mark this item as selected.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="itemType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="site">
+				<xs:annotation>
+					<xs:documentation>The item represents a site. Child items are usually of type 'application'.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="sites">
+				<xs:annotation>
+					<xs:documentation>The item represents a set of sites. Child items are usually of type 'applications'.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="application">
+				<xs:annotation>
+					<xs:documentation>The item represents a application.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="applications">
+				<xs:annotation>
+					<xs:documentation>The item represents a set of applications.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="anchor">
+				<xs:annotation>
+					<xs:documentation>The item represents an anchor, which separates it from regular items.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="authentications">
+		<xs:annotation>
+			<xs:documentation><![CDATA[A wrapper for the available <authentication> items.]]></xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A wrapper for the available {@link Authentication} items.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="authentication" type="authentication" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="authentication">
+		<xs:annotation>
+			<xs:documentation>A special navigation-item that represents an available authentication mechanism.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A special navigation-item that represents an available authentication mechanism.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="navigation-item">
+				<xs:attribute name="index" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Set to 'index' to mark this authentication as the default.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>Set to 'index' to mark this authentication as the default.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="content">
+		<xs:annotation>
+			<xs:documentation><![CDATA[The actual content of the <platform> element.]]></xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The actual content of a {@link Platform}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="application" type="applicationReference" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="datasource">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[Provides some data by implementing the org.appng.api.DataProvider interface.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Provides some data by implementing the {@code org.appng.api.DataProvider} interface.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="dataConfig" />
+			<xs:choice>
+				<xs:element name="bean" type="bean" />
+				<xs:element name="data" type="data" />
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The globally unique id of this datasource.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The globally unique id of this datasource.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="source" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The fully qualified class name of the underlying bean.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The fully qualified class name of the underlying bean.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="bean">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[References a bean defined in the applications beans.xml file.]]>		
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[References a bean defined in the applications {@code beans.xml} file.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="option" type="beanOption" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The id of the bean as defined in the applications beans.xml file.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The id of the bean as defined in the applications {@code beans.xml} file.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="beanOption">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[Used to parametrize a bean.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Used to parametrize a {@link Bean}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The unique name of this option within the enclosing bean.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The unique name of this option within the enclosing {@link Bean}.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:anyAttribute processContents="lax">
+			
+		</xs:anyAttribute>
+	</xs:complexType>
+
+	<xs:complexType name="config">
+		<xs:annotation>
+			<xs:documentation>A container for several configuration elements.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A container for several configuration elements.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element minOccurs="0" name="title" type="label" />
+			<xs:element minOccurs="0" name="description" type="label" />
+			<xs:element minOccurs="0" name="template" maxOccurs="unbounded" type="template" />
+			<xs:element minOccurs="0" name="permissions" type="permissions" />
+			<xs:element minOccurs="0" name="labels" type="labels" />
+			<xs:element minOccurs="0" name="textelements" type="textelements" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="labels">
+		<xs:annotation>
+			<xs:documentation>A container for a collection of labels.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A container for a collection of {@link Label}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="label" type="label" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="event">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[An event is a container for multiple <action>s, which usually operate on the same kind of domain objects.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[An event is a container for multiple {@link Action}s, which usually operate on the same kind of domain objects.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="config" />
+			<xs:element name="action" type="action" maxOccurs="unbounded" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The globally unique id of the event.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The globally unique id of the event.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="action">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[Performs some business logic by implementing the org.appng.api.ActionProvider<T> interface.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Performs some business logic by implementing the {@code org.appng.api.ActionProvider<T>} interface.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="dataConfig" minOccurs="0" />
+			<xs:element name="condition" type="condition" minOccurs="0" />
+			<xs:element name="messages" type="messages" minOccurs="0" />
+			<xs:element name="datasource" type="datasourceRef" minOccurs="0" />
+			<xs:element name="userdata" type="userData" minOccurs="0" />
+			<xs:element name="data" type="data" minOccurs="0" />
+			<xs:element name="bean" type="bean" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The unique id of the action.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="eventId" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>The unique id of the event the action belongs to.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of the event the action belongs to.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="onSuccess" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The URI to forward to after successfully performing the action.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The URI to forward to after successfully performing the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="async" type="booleanValue" default="false">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the &lt;action&gt; will be executed asynchronously.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If evaluating to {@code true}, the {@link Action} will be executed asynchronously.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="clientValidation" type="booleanValue" use="optional">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the validation of the input-fields will be performed on the
+					client
+					(where possible).
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If evaluating to {@code true}, the validation of the input-fields will be performed on the client]]>
+							(where possible).
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="source" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The fully qualified class name of the underlying bean.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The fully qualified class name of the underlying bean.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="dataConfig">
+		<xs:annotation>
+			<xs:documentation>The configuration for a datasource.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The configuration for a {@link Datasource}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="config">
+				<xs:sequence>
+					<xs:element name="params" type="params" minOccurs="0" maxOccurs="1" />
+					<xs:element name="meta-data" type="metaData" minOccurs="0" />
+					<xs:element name="linkpanel" type="linkpanel" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="validationGroups">
+		<xs:sequence>
+			<xs:element name="group" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>The full qualified class name for this group.</xs:documentation>
+					</xs:annotation>
+					<xs:attribute name="class" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>The class of the group</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="condition" type="expression">
+						<xs:annotation>
+							<xs:documentation>The condition for using this group.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="metaData">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[The <meta-data> defines how the binding from domain-objects to their XML-representation is done, and vice versa. Therefore a set of <field>s is used.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The MetaData defines how the binding from domain-objects to their XML-representation is done, and vice versa. Therefore a set of {@link FieldDef}initions is used.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="validation" minOccurs="0" type="validationGroups">
+				<xs:annotation>
+					<xs:documentation>A list of validation groups</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="field" type="fieldDef" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of fields which should be mapped to the object of the given {@link #getBindClass()}.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="binding" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>The default binding-prefix for all &lt;field&gt;s of this metadata.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The default binding-prefix for all {@link FieldDef}s of this metadata.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="bindClass" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>The fully qualified name of the class represented by this metadata.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The fully qualified name of the class represented by this metadata.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="result-selector" type="expression">
+			<xs:annotation>
+				<xs:documentation>An expression defining when the actual &lt;result&gt; should be marked as selected.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>An expression defining when the actual {@link Result} should be marked as selected.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="linkpanel">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[Defines a set of links which are being displayed on the given location.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@code Linkpanel} defines a set of {@link Link}s which are being displayed on the given {@link PanelLocation}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="condition" type="condition" minOccurs="0" maxOccurs="1" />
+			<xs:element type="permissions" minOccurs="0" name="permissions" />
+			<xs:element name="link" type="link" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The unique id of this Linkpanel</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of this Linkpanel</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="location" use="required" type="panel-location">
+			<xs:annotation>
+				<xs:documentation>Defines the location of this Linkpanel.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Defines the location of this Linkpanel.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="link">
+		<xs:annotation>
+			<xs:documentation>Links to an (internal) page/webservice, or to an external location.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Links to an (internal) page/webservice, or to an external location.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="condition" type="condition" minOccurs="0" maxOccurs="1" />
+			<xs:element type="permissions" minOccurs="0" name="permissions" />
+			<xs:element name="label" type="label" />
+			<xs:element name="icon" type="icon" minOccurs="0" />
+			<xs:element name="confirmation" type="label" minOccurs="0" />
+			<xs:element name="textelements" type="textelements" minOccurs="0" />
+		</xs:all>
+		<xs:attribute name="id" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>The unqiue id of this &lt;link&gt; within the owning &lt;linkpanel&gt;</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unqiue id of this {@code Link} within the owning {@link Linkpanel}</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="linkmode" use="required">
+			<xs:annotation>
+				<xs:documentation>The &lt;linkmode&gt; used when displaying this link.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The {@link Linkmode} used when displaying this link.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="target" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The URI of the link, may be relative to the application (linkmode 'inline' or 'intern') or absolute (linkmode 'extern')
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The URI of the link, may be relative to the application ({@link Linkmode#INTERN} or {@link
+							Linkmode#INTERN}) or absolute ({@link Linkmode#EXTERN})
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="default" type="booleanValue" use="optional">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the link will be the default for the current &lt;result&gt;
+					(linkmode 'inline' only).
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the link will be the default for the current {@link Result} ({@link
+							Linkmode#INTERN} only).
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="active" type="booleanValue" use="optional">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the link will be marked as currently active.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the link will be marked as currently active.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="disabled" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Whether or not this link is disabled, see also show-disabled attribute</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Whether or not this link is disabled, see also {@link #isShowDisabled()}</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="show-disabled" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>If set to 'true', and the link condition evaluates to 'false', the link will be displayed in an disabled state instead of hiding it completely.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If set to {@code true}, and the link condition evaluates to {@code false}, the link will be displayed in an disabled state instead of hiding it completely.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="icon" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Used to define the icon for a link.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Used to define the icon for a link.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="label" type="booleanValue" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>The label for this icon.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The label for this icon.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="condition" type="expression">
+			<xs:annotation>
+				<xs:documentation>The icon is only being displayed if this evaluates to 'true'.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The icon is only being displayed if this evaluates to {@code true}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="icontype" use="optional" default="class">
+			<xs:annotation>
+				<xs:documentation>The &lt;icontype&gt; for this icon.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The {@link Icontype} for this icon.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="icontype" final="restriction">
+		<xs:annotation>
+			<xs:documentation>Defines the different types for an {@link Icon}</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="class">
+				<xs:annotation>
+					<xs:documentation>The icon displayed depends on the style-informations provided by the template.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="file">
+				<xs:annotation>
+					<xs:documentation>The icon displayed is located at the given URI.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="linkmode" final="restriction">
+		<xs:annotation>
+			<xs:documentation>Defines the possible modes of a {@link Link}.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="intern">
+				<xs:annotation>
+					<xs:documentation>An internal link, the target must be relative to the application root URL.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="extern">
+				<xs:annotation>
+					<xs:documentation>An external link, thus means it must be absolute.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="webservice">
+				<xs:annotation>
+					<xs:documentation>A link to a {@link org.appng.api.Webservice}, must start with the bean-name of the webservice.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="panel-location" final="restriction">
+		<xs:annotation>
+			<xs:documentation>Defines the possible display-locations for a {@link Linpanel}.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="inline">
+				<xs:annotation>
+					<xs:documentation>The linkpanel is displayed inline as part of a {@link Resultset}s {@link Result}.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="top">
+				<xs:annotation>
+					<xs:documentation>The linkpanel is displayed on the top, above the {@link Datasource}.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="bottom">
+				<xs:annotation>
+					<xs:documentation>The linkpanel is displayed on the bottom, beneath the {@link Datasource}.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="both">
+				<xs:annotation>
+					<xs:documentation>The linkpanel is displayed above and beneath the {@link Datasource}.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<xs:complexType name="condition">
+		<xs:annotation>
+			<xs:documentation>Checks whether the owning element should be displayed</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link Condition} is used to check whether the owning element should be displayed.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="expression" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>An expression that must evaluate to 'true' or 'false'</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>An expression that must evaluate to {@code true} or {@code false}</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="pages">
+		<xs:annotation>
+			<xs:documentation>This element defines the different pages of a application</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A set of {@link PageDefinition}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="page" type="pageDefinition" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="pagesReference">
+		<xs:annotation>
+			<xs:documentation>A wrapper for a collection of pages.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A wrapper for a collection of {@link PageReference}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="page" type="pageReference" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="urlSchema">
+		<xs:annotation>
+			<xs:documentation>The url-schema defines which parameters are allowed on the page.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The URL-Schema defines which {@link Param}eters are allowed on a certain {@link PageReference} respectively {@link PageDefinition}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="url-params" type="urlParams" minOccurs="0" maxOccurs="1" />
+			<xs:element name="get-params" type="getParams" minOccurs="0" maxOccurs="1" />
+			<xs:element name="post-params" type="postParams" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="params">
+		<xs:annotation>
+			<xs:documentation>A set of parameters used when referencing/calling an action/datasource.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A set of {@link Param}eters used when referencing/calling an {@link Action}/{@link Datasource}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="param" type="param" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="urlParams">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[Those are the parameters defined by the URL path-segments (separeted by '/') which can be used on the page. 
+Please note that, unlike <get-params> and <post-params>, the order of the parameters is essential.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Those are the {@link Param}eters defined by the URL path-segments (separeted by '/') which can be used on the page. 
+Please note that, unlike {@link GetParams} and {@link PostParams}, the order of the parameters is essential.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="url-param" type="param" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getParams">
+		<xs:annotation>
+			<xs:documentation>Those are the GET-parameters which can be used on the page.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Those are the GET-{@link Param}eters which can be used on the page.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="get-param" type="param" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="postParams">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[Those are the POST-parameters which can be used on the page.
+Note that only those POST-parameters which are being used in a <condition> have to be declared here.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Those are the POST-{@link Param}eters which can be used on the page.
+Note that only those POST-parameters which are being used in a {@link Condition} have to be declared here.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="post-param" type="param" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="param" mixed="true">
+		<xs:annotation>
+			<xs:documentation>A parameter. Nomen est Omen.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A parameter, used for the {@link UrlSchema} of a {@link PageDefinition} and for parametrizing {@link Action}s and {@link Datasource}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute use="required" name="name">
+					<xs:annotation>
+						<xs:documentation>The name of the parameter, must start with a character, after that only characters, digits and
+							underscore are allowed.
+						</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The name of the parameter, must start with a character, after that only characters, digits and
+									underscore are allowed.
+								</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="[a-zA-Z]+[a-zA-Z0-9_]*" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute use="optional" name="type" type="paramType" default="text">
+					<xs:annotation>
+						<xs:documentation>The type for this parameter.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The {@link ParamType} for this parameter.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute use="optional" name="default" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The default-value for this parameter.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The default-value for this parameter.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="pageDefinition">
+		<xs:annotation>
+			<xs:documentation>Defines a page including its structure and config.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines a page including its {@link StructureDef} and {@link PageConfig}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="pageConfig" minOccurs="1" maxOccurs="1" />
+			<xs:element name="structure" type="structureDef" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unique id of the page.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of the page.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The type of the page, currently only 'index' is supported.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The type of the page, currently only 'index' is supported.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="pageReference">
+		<xs:annotation>
+			<xs:documentation>A concrete page containing a structure.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A concrete page containing a {@link Structure}, which was previously defined by a {@link PageDefinition}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="pageConfig" minOccurs="1" maxOccurs="1" />
+			<xs:element name="messages" type="messages" minOccurs="0" />
+			<xs:element name="structure" type="structure" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unique id of the page.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of the page.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The type of the page, currently only 'index' is supported.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The type of the page, currently only 'index' is supported.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="executionTime" type="xs:long">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The time in milliseconds it took to process this page.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The time in milliseconds it took to process this {@code PageDefinition}.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="datasourceRef">
+		<xs:annotation>
+			<xs:documentation>A reference to a datasource</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A reference to a {@link Datasource}. It depends on the {@link Condition} and {@link Permissions} whether or not the referenced {@link Datasource} is being included to the page.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="params" type="params" minOccurs="0" maxOccurs="1" />
+			<xs:element name="condition" type="condition" minOccurs="0" maxOccurs="1" />
+			<xs:element name="permissions" type="permissions" minOccurs="0" maxOccurs="1" />
+		</xs:all>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unique id of the referenced &lt;datasource&gt;.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of the referenced {@link Datasource}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="pageSize">
+				<xs:annotation>
+				<xs:documentation>
+<![CDATA[The default page size for the datasource]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The default page size for the datasource]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:pattern value="50|25|10|5|1" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="actionRef">
+		<xs:annotation>
+			<xs:documentation>A reference to an action</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A reference to a {@link Action}. It depends on the {@link Condition} and {@link Permissions} whether or not the referenced {@link Action} is being included to the page.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="params" type="params" minOccurs="0" maxOccurs="1" />
+			<xs:element name="condition" type="condition" minOccurs="0" maxOccurs="1" />
+			<xs:element name="permissions" type="permissions" minOccurs="0" maxOccurs="1" />
+		</xs:all>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unique id of the referenced &lt;action&gt;</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of the referenced {@link Action}</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="eventId" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The event-id of the referenced &lt;action&gt;</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The event-id of the referenced {@link Action}</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="onSuccess" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The URI to forward to after successfully performing the action.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The URI to forward to after successfully performing the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="forceForward" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>If onSuccess is set, forwarding can be forced, even in case of an error</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If onSuccess is set, forwarding can be forced, even in case of an error</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="async" type="booleanValue" default="false">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the &lt;action&gt; will be executed asynchronously.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the {@link Action} will be executed asynchronously.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="clientValidation" type="booleanValue" use="optional">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the validation of the input-fields will be performed on the
+					client
+					(where possible).
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the validation of the input-fields will be performed on the client
+							(where possible).
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="pageConfig">
+		<xs:annotation>
+			<xs:documentation>The configuration of a page, containing the url-schema</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The configuration of a page, containing the {@link UrlSchema}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="config">
+				<xs:sequence>
+					<xs:element name="url-schema" type="urlSchema" />
+					<xs:element name="linkpanel" type="linkpanel" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="textelements">
+		<xs:sequence>
+			<xs:element name="label" type="text-element" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A label for an input field or a button.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="title" type="text-element" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>The title for a page, section, datasource, action</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="text" type="text-element" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A longer intro or description text.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="lightbox" type="text-element" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A text to be displayed in a modal dialog, aka lightbox</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="tooltip" type="text-element" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A text to be displayed as a tooltip</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="target">
+			<xs:annotation>
+				<xs:documentation>The target for this text elements, expressed as XPath</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="text-element">
+		<xs:annotation>
+			<xs:documentation>A text element that contains some XML, plain text or a CDATA section.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="xml">
+					<xs:annotation>
+						<xs:documentation>A text-element containing XML</xs:documentation>
+					</xs:annotation>				
+					<xs:complexType mixed="true">
+						<xs:sequence>
+							<xs:any processContents="skip" minOccurs="0" namespace="##other" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="plain">
+					<xs:annotation>
+						<xs:documentation>A text-element containing plain text</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string" />
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="cdata">
+					<xs:annotation>
+						<xs:documentation>A text-element containing CDATA text</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string" />
+					</xs:simpleType>
+				</xs:element>
+			</xs:choice>
+			<xs:element name="description" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>A desription for this text element</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The id of this text element, useful for referencing it in an XPath expression.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="condition" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The condition for this text-element, must an expression evaluating to true or false.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="label">
+		<xs:annotation>
+			<xs:documentation>An internationalized text retrieved from the applications dictionary.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[An internationalized text retrieved from the applications dictionary.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="id" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>
+<![CDATA[The id of the {@code Label}, used as a key to retrieve the content from the applications dictionary.]]>
+						</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>
+<![CDATA[The id of the {@code Label}, used as a key to retrieve the content from the applications dictionary.]]>
+								</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="params" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>
+<![CDATA[A <label> can be parameterized, using a String (e.g. 'foo') or parameters (${field} or #{field}).
+Multiple parameters must be be separated by a comma, e.g. "'foo',${field},#{field}".]]>
+						</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>
+<![CDATA[A {@code Label} can be parameterized, using a String (e.g. 'foo') or parameters (${field} or #{field}).
+Multiple parameters must be be separated by a comma, e.g. "'foo',${field},#{field}".]]>
+								</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="permissions">
+		<xs:annotation>
+			<xs:documentation>A containers for a set of permission elements.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A container for a set of {@link Permission}s. 
+Only if all {@link Permission}s are satisfied, the owning Object (could be a {@link FieldDef}, {@link Action}, {@link Datasource}, {@link PageReference}, {@link OutputType} or  {@link OutputFormat})is being included.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="permission" type="permission">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="permission">
+		<xs:annotation>
+			<xs:documentation>A single permission</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A single permission]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="permissionValue">
+				<xs:attribute use="required" name="ref" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The unique name of the permission which is required.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The unique name of the permission which is required.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute use="required" name="mode" type="permissionMode">
+					<xs:annotation>
+						<xs:documentation>The mode for this permission.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The mode for this permission.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:simpleType name="permissionValue" final="restriction">
+		<xs:annotation>
+			<xs:documentation>whether or not the permission is present</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="true">
+				<xs:annotation>
+					<xs:documentation>permission is present</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="false">
+				<xs:annotation>
+					<xs:documentation>permission is not present</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="">
+				<xs:annotation>
+					<xs:documentation>No value set</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="permissionMode" final="restriction">
+		<xs:annotation>
+			<xs:documentation>The mode for a permisson.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="set">
+				<xs:annotation>
+					<xs:documentation>Determines if the current subject has the required permission, and applies it to the defining parent element. This means, if the permission is not present, the parent element will not be displayed.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="read">
+				<xs:annotation>
+					<xs:documentation>Reads, but does not apply, the required permission from the current subject. This means, even if the permission is missing, the parent element will be visible.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="template">
+		<xs:annotation>
+			<xs:documentation>
+<![CDATA[A Template references a XSL stylesheet, located either in the folder /xsl of a appNG-template or of a appNG-application.]]>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A Template references a XSL stylesheet, located either in the folder {@code /xsl} of a appNG-template or of a appNG-application.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="path" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The path to the template resource, relative to /xsl of the appNG-template or -application.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The path to the template resource, relative to {@code /xsl} of the appNG-template or -application.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="output-type" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[When defining custom templates in a(n) event/action/datasource, 
+use this attribute to determine the output-type this template should apply to.
+If empty, the template is being applied to any output-type.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[When defining custom templates in a(n) {@link Event}/{@link Action}/{@link Datasource}, 
+use this attribute to determine the {@link OutputType} this template should apply to.
+If empty, the template is being applied to any output-type.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The type of the template. Currently, only 'master' is allowed as a value for the master stylesheet of an appNG template.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The type of the template. Currently, only 'master' is allowed as a value for the master stylesheet of an appNG template.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="delete-includes" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[If set to 'true', possibly existing &lt;xsl:include&gt; statements will be removed from the master template.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If set to {@code true}, possibly existing {@code <xsl:include>} statements will be removed from the master template.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="applicationReference">
+		<xs:annotation>
+			<xs:documentation >The application, as part of the platform's content.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The application, as part of the platform's content.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="config" type="applicationConfig" />
+			<xs:element name="pages" type="pagesReference" minOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The id (aka the name) of the application.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The id (aka the name) of the application.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="version" type="xs:string" />
+	</xs:complexType>
+
+
+	<xs:complexType name="applicationConfig">
+		<xs:annotation>
+			<xs:documentation>The basic configuration of an application</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The {@code ApplicationConfig} is responsible for the basic configuration of a application.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="config">
+				<xs:sequence>
+					<xs:element name="session" type="session" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="output">
+		<xs:annotation>
+			<xs:documentation>Defines the output-format and -type to be used.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines the output-format and -type to be used.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="format" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Defines the output-format to be used.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Defines the output-format to be used.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Defines the output-type to be used.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Defines the output-type to be used.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="sessionInfo">
+		<xs:annotation>
+			<xs:documentation>Keeps track of information about the users session with appNG.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Keeps track of information about the users session with appNG.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The globally unique id of the session.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The globally unique id of the session.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="timeout" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The timeout of the session in seconds.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The timeout of the session in seconds.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="starttime" type="xs:long">
+			<xs:annotation>
+				<xs:documentation>The unix time at session start.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unix time at session start.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="session">
+		<xs:annotation>
+			<xs:documentation>Configures the session for the application.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Configures the session for the application.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="sessionInfo">
+				<xs:sequence>
+					<xs:element name="session-params" type="sessionParams" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="sessionParams">
+		<xs:annotation>
+			<xs:documentation>A set of parameters maintened by the session, may be a POST-, GET- or URL-paramter.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A set of {@link Param}eters maintened by the session, may be a POST-, GET- or URL-paramter.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="session-param" type="param" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="messages">
+		<xs:annotation>
+			<xs:documentation>A set of messages</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A set of {@link Message}s]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="message" type="message" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="ref" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The name of the &lt;pageReference&gt;/&lt;action&gt;/&lt;datasource&gt;/&lt;field&gt; those
+					messages are referring to.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the {@link PageReference}/{@link Action}/{@link Datasource}/{@link FieldDef} those
+							messages are referring to.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="message" mixed="true">
+		<xs:annotation>
+			<xs:documentation>A single message</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A single message]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="ref" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The name of the &lt;pageReference&gt;/&lt;action&gt;/&lt;fatasource&gt;/&lt;field&gt; this
+					message is referring to.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the {@link PageReference}/{@link Action}/{@link Datasource}/{@link FieldDef} this
+							message is referring to.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="class" type="messageType" use="required">
+			<xs:annotation>
+				<xs:documentation>The type of the message.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The type of the message.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+
+	<xs:simpleType name="messageType">
+		<xs:annotation>
+			<xs:documentation>Defines the possible types for a {@link Message}.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="OK">
+				<xs:annotation>
+					<xs:documentation>everything is fine</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="NOTICE">
+				<xs:annotation>
+					<xs:documentation>not critical, but noteworthy</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="INVALID">
+				<xs:annotation>
+					<xs:documentation>critical, but not an error</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ERROR">
+				<xs:annotation>
+					<xs:documentation>a serious error</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<xs:complexType name="data">
+		<xs:annotation>
+			<xs:documentation>The actual payload of a datasource, containing either a single result or a resultset.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The actual payload of a {@link Datasource}, containing either a single {@link Result} or a {@link Resultset}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="selection" type="selection" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="selectionGroup" type="selectionGroup" minOccurs="0" maxOccurs="unbounded" />
+			<xs:choice>
+				<xs:element name="resultset" type="resultset" minOccurs="1" maxOccurs="1" />
+				<xs:element name="result" type="result" minOccurs="1" maxOccurs="1" />
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="paginate" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>If empty or evaluating to 'true', the &lt;resultset&gt; supports pagination
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If empty or evaluating to {@code true}, the {@link Resultset} supports pagination
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="selectionGroup">
+		<xs:annotation>
+			<xs:documentation>A group of selections used to filter a resultset.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A group of {@link Selection}s used to filter a {@link Resultset}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="selection" type="selection" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="selection">
+		<xs:annotation>
+			<xs:documentation>A selection is used to filter a resultset or to display a field which uses a list-type.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@code Selection} is used to filter a {@link Resultset} or to display a {@link FieldDef} which uses a list-type (e.g {@link FieldType#LIST_SELECT}).]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="label" maxOccurs="1" />
+			<xs:element name="option" type="option" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="optionGroup" type="optionGroup" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unique id of the selection within the &lt;selectionGroup&gt;.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The unique id of the selection within the {@link SelectionGroup}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="selectionType" default="select">
+			<xs:annotation>
+				<xs:documentation>The type of the selection.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The type of the selection.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="format" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The format applied to the users-inputs, if any.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The format applied to the users-inputs, if any.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="autosubmit" type="xs:boolean" default="false">
+			<xs:annotation>
+				<xs:documentation>If set to true, a change of the selection value will cause the submission of the data.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If set to true, a change of the selection value will cause the submission of the data.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="selectionType" final="restriction">
+		<xs:annotation>
+			<xs:documentation>Defines the possible types for a {@link Selection}.</xs:documentation>		
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="select">
+				<xs:annotation>
+					<xs:documentation>Display selection as a dropdown-list (single-selection).</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="select:multiple">
+				<xs:annotation>
+					<xs:documentation>Display selection as a dropdown-list (multi-selection).</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="radio">
+				<xs:annotation>
+					<xs:documentation>Display selection as a list of radio buttons.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="checkbox">
+				<xs:annotation>
+					<xs:documentation>Display selection as a (list of) checkbox(es).</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="text">
+				<xs:annotation>
+					<xs:documentation>Display selection as a text-field.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="date">
+				<xs:annotation>
+					<xs:documentation>Display selection as a date, using a calendar.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="option">
+		<xs:annotation>
+			<xs:documentation>Defines a possible option for a selection</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Defines a possible option for a {@link Selection}]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="value" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The value of the option.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The value of the option.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="name" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The name of the option.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the option.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="selected" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Used for marking the option as selected.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Used for marking the option as selected.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="disabled" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Used for marking the option as disabled.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Used for marking the option as disabled.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="optionGroup">
+		<xs:annotation>
+			<xs:documentation>A group of options.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A group of options.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="label" type="label" maxOccurs="1" />
+			<xs:element name="option" type="option" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The id of this group.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The id of this group.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+
+	<xs:complexType name="userInputField" mixed="true">
+		<xs:annotation>
+			<xs:documentation>A single field the users entered a value for.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A single field the users entered a value for.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute use="required" name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of the field.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the field, see {@link FieldDef#getBinding()}.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="userData">
+		<xs:annotation>
+			<xs:documentation>This is used to keep track of the user inputs during validation.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[This is used to keep track of the user inputs during validation.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="input" type="userInputField" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="fieldDef">
+		<xs:annotation>
+			<xs:documentation>A field maps a property of a Java object to it's XML-representation and vice versa.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link FieldDef}inition maps a property of a Java-object to it's XML-representation and vice versa. When reading/writing a value from/to an Object, the field's {@link #binding} is used to do this via the JavaBeans API.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="sort" type="sort" minOccurs="0" />
+			<xs:element name="label" type="label" minOccurs="0" />
+			<xs:element name="icon" type="icon" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="condition" type="condition" minOccurs="0" />
+			<xs:element name="permissions" type="fieldPermissions" minOccurs="0" maxOccurs="2" />
+			<xs:element name="validation" type="validation" minOccurs="0" />
+			<xs:element name="messages" type="messages" minOccurs="0" />
+			<xs:element name="field" type="fieldDef" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute use="required" name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of the field.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the field.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute use="required" name="type" type="fieldType">
+			<xs:annotation>
+				<xs:documentation>The &lt;fieldType&gt;, which decides about how the field is being displayed.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The {@link FieldType}, which decides about how the field is being displayed.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute use="optional" name="displayLength" type="xs:integer">
+			<xs:annotation>
+				<xs:documentation>The maximum number of characters when displaying the field's value as string.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The maximum number of characters when displaying the field's value as string.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute use="optional" name="format" type="stringValue">
+			<xs:annotation>
+				<xs:documentation>The format used for this field, presuming the type supports formatting.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The format used for this field, presuming the {@link #type} supports formatting.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute use="optional" name="readonly" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the field's value is readonly.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the field's value is readonly.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute use="optional" name="hidden" type="booleanValue">
+			<xs:annotation>
+				<xs:documentation>If evaluating to 'true', the field will not be visible to the user.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>If evaluating to {@code true}, the field will not be visible to the user.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute use="optional" name="binding" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>This is the name of the property used with the JavaBeans API. If no value is set, the binding is
+					the
+					combination of the MetaDatas bindClass() (if any, separated with a dot) and the field's name.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>This is the name of the property used with the JavaBeans API. If no value is set, the binding is
+							the
+							combination of {@link MetaData#getBindClass()} (if any, separated with a dot) and the field's name.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="sort">
+		<xs:annotation>
+			<xs:documentation>Contains the direction and priority for a sortable field.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Contains the {@link SortOrder} and priority for a sortable {@link FieldDef}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:attribute name="order" type="sortOrder">
+			<xs:annotation>
+				<xs:documentation>The direction of sorting.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The direction of sorting.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of the property to be used in the search query. Only nessecarry if different from the field's name.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the property to be used in the search query. Only nessecarry if different from the {@link FieldDef}'s name.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="prio" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The priority of sorting, needed to support multiple sort criterias.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The priority of sorting, needed to support multiple sort criterias.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ignore-case" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Whether or not the sort will be case sensitive.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Whether or not the sort will be case sensitive.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="sortOrder" final="restriction">
+		<xs:annotation>
+			<xs:documentation>Defines the possible sort orders.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="asc">
+				<xs:annotation>
+					<xs:documentation>ascending order</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="desc">
+				<xs:annotation>
+					<xs:documentation>descending order</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="fieldType" final="restriction">
+		<xs:annotation>
+			<xs:documentation>Defines the type of data a {@link DataField} contains (as defined by the {@link FieldDef}).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="text">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link java.lang.String}.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="longtext">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a (possibly large) {@link java.lang.String}.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="richtext">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a (possibly large) {@link java.lang.String}, which contains richtext (usually HTML).]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="password">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link java.lang.String} which represents a password.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="url">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link java.net.URL}.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="int">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link java.lang.Integer}, formatted with the format defined in {@link FieldDef#getFormat()}.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="long">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link java.lang.Long}, formatted with the format defined in {@link FieldDef#getFormat()}.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="decimal">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link java.lang.Double} or {@link java.lang.Float}, formatted with the format defined in {@link FieldDef#getFormat()}.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="checkbox">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A field containing a {@link java.lang.Boolean} or a {@code boolean}, usually displayed as checkbox.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="coordinate">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link org.appng.tools.locator.Coordinate}, usually displayed as two input fields together with a map.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="date">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link java.util.Date}, formatted with the format defined in {@link FieldDef#getFormat()}. Usually displayed together with a calendar.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="file">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a {@link org.appng.forms.FormUpload}, usually displayed as file-upload dialog for a single file.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="file-multiple">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a collection of {@link org.appng.forms.FormUpload}s, usually displayed as file-upload dialog for a multiple files.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="image">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[Displays an icon.]]>		
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="linkpanel">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[Defines a reference to a {@link Linkpanel} using {@link Linkmode#INTERN}]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="list:checkbox">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a collection which is being displayed as a list of checkboxes.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="list:radio">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a collection which is being displayed as a list of radio-buttons.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="list:select">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a collection which is being displayed as a dropdown list.]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="list:text">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a collection of {@link java.lang.String}s]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="object">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing an object]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="list:object">
+				<xs:annotation>
+					<xs:documentation>
+<![CDATA[A property containing a collection of objects]]>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="paramType" final="restriction">
+		<xs:annotation>
+			<xs:documentation>Defines the possible types for a {@link Parm}eter.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="boolean">
+				<xs:annotation>
+					<xs:documentation>Parameter is a boolean.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="decimal">
+				<xs:annotation>
+					<xs:documentation>Parameter is a decimal.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="int">
+				<xs:annotation>
+					<xs:documentation>Parameter is an integer.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="text">
+				<xs:annotation>
+					<xs:documentation>Parameter is text.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- VALIDATION BEGIN -->
+	<xs:complexType name="validation">
+		<xs:annotation>
+			<xs:documentation>A container for the different validation rules of a field.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A container for the different validation rules of a field.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="type" type="type" minOccurs="0" />
+			<xs:element name="notNull" type="notNull" minOccurs="0" />
+			<xs:element name="size" type="size" minOccurs="0" />
+			<xs:element name="min" type="min" minOccurs="0" />
+			<xs:element name="future" type="future" minOccurs="0" />
+			<xs:element name="past" type="past" minOccurs="0" />
+			<xs:element name="max" type="max" minOccurs="0" />
+			<xs:element name="digits" type="digits" minOccurs="0" />
+			<xs:element name="pattern" type="pattern" minOccurs="0" />
+			<xs:element name="fileUpload" type="fileUpload" minOccurs="0" />
+			<xs:element name="rule" type="rule" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="rule">
+		<xs:annotation>
+			<xs:documentation>
+			</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A custom rule supporting any options]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule" >
+				<xs:sequence>
+					<xs:element name="option" minOccurs="0" maxOccurs="unbounded">
+						<xs:complexType>
+							<xs:attribute name="name" type="xs:string" use="required"/>
+							<xs:attribute name="value" type="xs:string" use="required"/>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="type" type="xs:string" use="required"/>
+				<xs:attribute name="name" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="validationRule" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Abstract type for validation rules</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[Abstract base-class for specific validation rules.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="message" type="message" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="type">
+		<xs:annotation>
+			<xs:documentation>A validation rule for the case that the field's value does not match with it's type.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} that contains the message for the case that the {@link FieldDef}s value does not match with its  {@link FieldType}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="notNull">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating that the field's value is mandatory and thus not nullable.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}s value is mandatory and thus not nullable.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="future">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the field's value represents a date in the future.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}s value represents a date in the future.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="past">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the field's value represents a date in the past.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}s value represents a date in the past.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="size">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the length of the field's value needs to be between {min} and {max} characters long.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the length of the {@link FieldDef}s value needs to be between {@link #getMin()} and {@link #getMax()} characters long.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule">
+				<xs:attribute name="min" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The minimum length.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The minimum length.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="max" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The maximum length.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The maximum length.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="digits">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the field's value is a digit with a maximum of {integer} integral digits and {fraction} fraction digits.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}'s value is a digit with a maximum of {@link #getInteger()} integral digits and {@link #getFraction()} fraction digits.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule">
+				<xs:attribute name="integer" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The maximum number of integral digits.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The maximum number of integral digits.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="fraction" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The maximum number of fraction digits.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The maximum number of fraction digits.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="min">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the field's value must have a minimal decimal-value of {value}</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}'s value must have a minimal decimal-value of {@link #getValue()}]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule">
+				<xs:attribute name="value" type="xs:decimal">
+					<xs:annotation>
+						<xs:documentation>The minimum value for the field.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The minimum value for the field.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="max">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the field's value must have a maximal decimal-value of {value}</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}'s value must have a maximal decimal-value of {@link #getValue()}]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule">
+				<xs:attribute name="value" type="xs:decimal">
+					<xs:annotation>
+						<xs:documentation>The maximal value for the field.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The maximal value for the field.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="pattern">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the field's value must match the regular expression defined by {regexp}.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}'s value must match the regular expression defined by {@link #getRegexp()}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule">
+				<xs:attribute name="regexp" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The regular expression for the field.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The regular expression for the field.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="fileUpload">
+		<xs:annotation>
+			<xs:documentation>A validation rule indicating the field's value represents one ore more form-uploads.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}'s value represents one ore more {@link org.appng.forms.FormUpload}s.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="validationRule">
+				<xs:attribute name="minCount" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The minimum number of files.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The minimum number of files.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="maxCount" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The maximum number of files.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The maximum number of files.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="minSize" type="xs:long">
+					<xs:annotation>
+						<xs:documentation>The minimum size of each file.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The minimum size of each file.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="maxSize" type="xs:long">
+					<xs:annotation>
+						<xs:documentation>The maximum size of each file.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The maximum size of each file.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="unit" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The unit to use for size restrictions.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The unit to use for size restrictions.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="fileTypes" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>A comma separated list of allowed file-extensions.</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>A comma separated list of allowed file-extensions.</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- VALIDATION END -->
+
+	<xs:complexType name="datafield">
+		<xs:annotation>
+			<xs:documentation>For each field of a datasource's meta-data, a datafield is being added to the result.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[For each {@link FieldDef}inition of a {@link Datasource}'s {@link MetaData}, a {@link Datafield} is being added to the {@link Result}.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="field" type="datafield" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="value" type="xs:string" minOccurs="0" />
+			<xs:element name="icon" type="icon" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute use="required" name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of the datafield.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the datafield.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute use="optional" name="type" type="fieldType">
+			<xs:annotation>
+				<xs:documentation>The &lt;fieldType&gt; of the datafield.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The {@link FieldType} of the datafield.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="fieldPermissions">
+		<xs:annotation>
+			<xs:documentation>The permissions for this field.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[The permissions for a field.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="permission" type="permission">
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute use="optional" name="mode" type="fieldPermissionType">
+			<xs:annotation>
+				<xs:documentation>The mode for the field permission</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The mode for the field permission</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="fieldPermissionType" final="restriction">
+		<xs:annotation>
+			<xs:documentation>The different types for a field permission.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="read">
+				<xs:annotation>
+					<xs:documentation>read mode, used when reading the field</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="write">
+				<xs:annotation>
+					<xs:documentation>write mode, used when writing the field</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="resultset">
+		<xs:annotation>
+			<xs:documentation>A resulset contains a set of result elements, including pagination support.</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[A Resulset contains a set of {@link Result}s, including pagination support. A Resultset is always wrapped inside an {@link Data}-object.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="result" type="result" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="chunk" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>The current zero-based chunk (page-number).</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The current zero-based chunk (page-number).</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="chunkname" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The name of the chunk.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The name of the chunk.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="chunksize" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>The size of the chunk (items per page).</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The size of the chunk (items per page).</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="nextchunk" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>The number of the next chunk.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The number of the next chunk.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="previouschunk" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>The number of the previous chunk.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The number of the previous chunk.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="firstchunk" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>The number of the first chunk.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The number of the first chunk.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="lastchunk" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>The number of the last chunk.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The number of the last chunk.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="hits" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation>The number of hits (all items).</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>The number of hits (all items).</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="result">
+		<xs:annotation>
+			<xs:documentation>A single result</xs:documentation>
+			<xs:appinfo>
+				<jxb:class>
+					<jxb:javadoc>
+<![CDATA[For each {@link FieldDef} defined in the {@link MetaData} (where the {@link Condition} and {@link Permissions} are satisfied), the result contains a corresponding {@link Datafield}. 
+{@link Linkpanel}s are also included.]]>
+					</jxb:javadoc>
+				</jxb:class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="field" type="datafield" minOccurs="1" maxOccurs="unbounded" />
+			<xs:element name="linkpanel" type="linkpanel" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="selected" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Marks the result as selected</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Marks the result as selected</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+</xs:schema>

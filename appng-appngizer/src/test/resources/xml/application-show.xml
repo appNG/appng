@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application xmlns="http://www.appng.org/schema/appngizer" name="demo-application"
+	self="http://localhost/application/demo-application">
+	<links>
+		<link name="role" self="http://localhost/application/demo-application/role" />
+		<link name="permission" self="http://localhost/application/demo-application/permission" />
+		<link name="property" self="http://localhost/application/demo-application/property" />
+	</links>
+	<displayName>Demo Application</displayName>
+	<core>false</core>
+	<fileBased>true</fileBased>
+	<hidden>false</hidden>
+	<version>1.5.3</version>
+</application>

@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<platform xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.appng.org/schema/platform ../../../main/xsd/appng-platform.xsd">
+	<config>
+		<labels>
+			<label id="submit"><![CDATA[Submit]]></label>
+			<label id="cancel"><![CDATA[Reset]]></label>
+			<label id="yes"><![CDATA[Yes]]></label>
+			<label id="no"><![CDATA[No]]></label>
+			<label id="abort"><![CDATA[abort]]></label>
+			<label id="reject.updates"><![CDATA[reject.updates]]></label>
+			<label id="uploaded.item"><![CDATA[uploaded.item]]></label>
+			<label id="uploaded.items"><![CDATA[uploaded.items]]></label>
+			<label id="close"><![CDATA[close]]></label>
+			<label id="logged.in"><![CDATA[Logged in as]]></label>
+			<label id="switch.output-type"><![CDATA[switch.output-type]]></label>
+			<label id="label.nodata"><![CDATA[No data present.]]></label>
+			<label id="label.first"><![CDATA[first]]></label>
+			<label id="label.last"><![CDATA[last]]></label>
+			<label id="label.previous"><![CDATA[previous]]></label>
+			<label id="label.next"><![CDATA[next]]></label>
+			<label id="label.chunkSize"><![CDATA[Items per Page]]></label>
+			<label id="username"><![CDATA[User]]></label>
+			<label id="password"><![CDATA[Password]]></label>
+			<label id="logon"><![CDATA[Login]]></label>
+			<label id="forgot.password"><![CDATA[Forgot password?]]></label>
+			<label id="preview.text"><![CDATA[XML preview]]></label>
+			<label id="copy.clipboard"><![CDATA[Copy to clipboard]]></label>
+			<label id="reset"><![CDATA[Reset]]></label>
+			<label id="site.properties"><![CDATA[site.properties]]></label>
+			<label id="choose.site-plugin"><![CDATA[choose.site-plugin]]></label>
+			<label id="app.properties"><![CDATA[Application properties]]></label>
+			<label id="true"><![CDATA[yes]]></label>
+			<label id="false"><![CDATA[no]]></label>
+			<label id="plugin.properties"><![CDATA[Plugin properties]]></label>
+			<label id="select"><![CDATA[choose]]></label>
+			<label id="asc"><![CDATA[ascending]]></label>
+			<label id="desc"><![CDATA[descending]]></label>
+			<label id="data.sort"><![CDATA[Sort]]></label>
+			<label id="change.password"><![CDATA[Change password]]></label>
+			<label id="logout"><![CDATA[Logout]]></label>
+			<label id="confirmation.password"><![CDATA[confirmation.password]]></label>
+		</labels>
+		<output-format default="true" id="html">
+			<permissions>
+				<permission mode="set" ref="output-format.html">true</permission>
+			</permissions>
+			<output-type default="true" id="webgui">
+				<permissions>
+					<permission mode="set" ref="output-type.webgui">true</permission>
+				</permissions>
+				<template delete-includes="true" path="platform.xsl" type="master" />
+				<template path="utils.xsl" />
+				<template path="page.xsl" />
+				<template path="datasource.xsl" />
+				<template path="event.xsl" />
+			</output-type>
+			<output-type id="cmsplugin">
+				<permissions>
+					<permission mode="set" ref="output-type.cmsplugin" />
+				</permissions>
+				<template delete-includes="true" path="platform.xsl" type="master" />
+				<template path="utils.xsl" />
+				<template path="page_cms.xsl" />
+				<template path="datasource.xsl" />
+				<template path="event.xsl" />
+			</output-type>
+		</output-format>
+		<output-format id="xml">
+			<output-type id="raw">
+				<template delete-includes="true" path="master_xml.xsl" type="master" />
+			</output-type>
+		</output-format>
+		<authentications>
+			<authentication index="index" page="webform" application="appng-authentication"
+				ref="webform" site="localhost" />
+		</authentications>
+		<session id="0BFFAB9623150F511A8398AEB1950170" />
+		<platform-url>http://localhost:8080/ws/localhost/appng-demoplugin/index</platform-url>
+		<base-url>/ws</base-url>
+		<current-url>/ws/localhost/appng-demoplugin/index</current-url>
+		<output format="html" type="webgui" />
+	</config>
+	<subject>
+		<username>appNG Administrator</username>
+		<name>admin</name>
+		<localization>
+			<language>en</language>
+			<decimalSeparator>.</decimalSeparator>
+			<groupingSeparator>,</groupingSeparator>
+		</localization>
+	</subject>
+	<navigation>
+		<item actionName="action" actionValue="changePassword" page="webform" application="appng-authentication" ref="webform/changePassword"
+			site="localhost" type="anchor">
+			<label><![CDATA[change.password]]></label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+		<item name="localhost" ref="localhost" selected="true" type="site">
+			<label><![CDATA[localhost]]></label>
+			<item hidden="true" ref="appng-authentication" site="localhost" type="application">
+				<label><![CDATA[Authentication]]></label>
+			</item>
+			<item hidden="false" ref="appng-demoplugin" selected="true" site="localhost" type="application">
+				<label><![CDATA[Demo-Plugin]]></label>
+			</item>
+			<item hidden="false" ref="appng-scheduler" site="localhost" type="application">
+				<label><![CDATA[Scheduler]]></label>
+			</item>
+			<item hidden="false" ref="appng-webadmin" site="localhost" type="application">
+				<label><![CDATA[Webadmin]]></label>
+			</item>
+		</item>
+		<item actionName="action" actionValue="logout" page="webform" application="appng-authentication" ref="webform/logout"
+			site="localhost" type="anchor">
+			<label><![CDATA[logout]]></label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+	</navigation>
+	<content>
+		<application id="appng-demoplugin">
+			<config>
+				<title><![CDATA[Demo-Plugin]]></title>
+				<permissions>
+					<permission mode="set" ref="debug">false</permission>
+				</permissions>
+				<session id="0BFFAB9623150F511A8398AEB1950170">
+					<session-params>
+						<session-param name="democlassesChunk" />
+						<session-param name="democlassesChunksize" />
+					</session-params>
+				</session>
+			</config>
+			<pages>
+				<page id="index" type="index">
+					<config>
+						<title id="indexpage"><![CDATA[indexpage]]></title>
+						<permissions>
+							<permission mode="set" ref="pageIndex">true</permission>
+						</permissions>
+						<url-schema>
+							<get-params>
+								<get-param default="0" name="democlassesChunk">0</get-param>
+								<get-param default="5" name="democlassesChunksize">5</get-param>
+							</get-params>
+						</url-schema>
+					</config>
+					<structure>
+						<section>
+							<element >
+								<action clientValidation="true" eventId="demo-event" id="create" >
+									<config>
+										<title><![CDATA[Form Demo]]></title>
+										<permissions>
+											<permission mode="set" ref="actionCreate">true</permission>
+										</permissions>
+										<params>
+											<param name="form_action" />
+										</params>
+										<meta-data bindClass="org.appng.demo.DemoClass">
+											<field binding="integerValue" format="#" name="integerValue" type="int">
+												<label id="integerValue"><![CDATA[Integer ]]></label>
+												<validation>
+													<type>
+														<message class="ERROR" ref="integerValue"><![CDATA[Please enter a valid integer]]></message>
+													</type>
+													<min value="5">
+														<message class="ERROR" ref="integerValue"><![CDATA[must be greater than or equal to 5]]></message>
+													</min>
+													<max value="9">
+														<message class="ERROR" ref="integerValue"><![CDATA[must be less than or equal to 9]]></message>
+													</max>
+												</validation>
+											</field>
+											<field binding="longValue" format="#.###" name="longValue" type="long">
+												<label id="longValue"><![CDATA[Long]]></label>
+												<validation>
+													<type>
+														<message class="ERROR" ref="longValue"><![CDATA[Please enter a valid integer]]></message>
+													</type>
+													<min value="5000">
+														<message class="ERROR" ref="longValue"><![CDATA[must be greater than or equal to 5000]]></message>
+													</min>
+													<max value="9000">
+														<message class="ERROR" ref="longValue"><![CDATA[must be less than or equal to 9000]]></message>
+													</max>
+												</validation>
+											</field>
+											<field binding="floatValue" format="#,###.00" name="floatValue" type="decimal">
+												<label id="floatValue"><![CDATA[Float]]></label>
+												<validation>
+													<type>
+														<message class="ERROR" ref="floatValue"><![CDATA[Please enter a valid digit]]></message>
+													</type>
+													<min value="3.7">
+														<message class="ERROR" ref="floatValue"><![CDATA[must be greater than or equal to 3.7]]></message>
+													</min>
+													<max value="5.9">
+														<message class="ERROR" ref="floatValue"><![CDATA[must be less than or equal to 5.9]]></message>
+													</max>
+												</validation>
+											</field>
+											<field binding="doubleValue" format="#,###.0#" name="doubleValue" type="decimal">
+												<label id="doubleValue"><![CDATA[Double]]></label>
+												<validation>
+													<type>
+														<message class="ERROR" ref="doubleValue"><![CDATA[Please enter a valid digit]]></message>
+													</type>
+													<min value="3.7">
+														<message class="ERROR" ref="doubleValue"><![CDATA[must be greater than or equal to 3.7]]></message>
+													</min>
+													<max value="5.9">
+														<message class="ERROR" ref="doubleValue"><![CDATA[must be less than or equal to 5.9]]></message>
+													</max>
+												</validation>
+											</field>
+											<field binding="decimalValue" format="#,###.##" name="decimalValue" type="decimal">
+												<label id="decimalValue"><![CDATA[Decimal]]></label>
+												<validation>
+													<type>
+														<message class="ERROR" ref="decimalValue"><![CDATA[Please enter a valid digit]]></message>
+													</type>
+													<min value="3.7">
+														<message class="ERROR" ref="decimalValue"><![CDATA[must be greater than or equal to 3.7]]></message>
+													</min>
+													<max value="5.9">
+														<message class="ERROR" ref="decimalValue"><![CDATA[must be less than or equal to 5.9]]></message>
+													</max>
+												</validation>
+											</field>
+											<field binding="digitValue" format="#,###.0000" name="digitValue" type="decimal">
+												<label id="digitValue"><![CDATA[Digit]]></label>
+												<validation>
+													<type>
+														<message class="ERROR" ref="digitValue"><![CDATA[Please enter a valid digit]]></message>
+													</type>
+													<digits fraction="5" integer="3">
+														<message class="ERROR" ref="digitValue"><![CDATA[numeric value out of bounds (<3 digits>.<5 digits> expected)]]></message>
+													</digits>
+												</validation>
+											</field>
+											<field binding="stringValue" name="stringValue" type="text">
+												<label id="stringValue"><![CDATA[String]]></label>
+												<validation>
+													<size max="200" min="3">
+														<message class="ERROR" ref="stringValue"><![CDATA[size must be between 3 and 200]]></message>
+													</size>
+												</validation>
+											</field>
+											<field binding="dateValue" format="dd.MM.yyyy" name="dateValue" type="date">
+												<label id="dateValue"><![CDATA[Date]]></label>
+												<validation>
+													<future>
+														<message class="ERROR" ref="dateValue"><![CDATA[must be in the future]]></message>
+													</future>
+												</validation>
+											</field>
+											<field binding="timeValue" format="HH:mm:ss" name="timeValue" type="date">
+												<label id="timeValue"><![CDATA[Time]]></label>
+											</field>
+											<field binding="dateTimeValue" format="dd.MM.yyyy HH:mm:ss" name="dateTimeValue" type="date">
+												<label id="dateTimeValue"><![CDATA[Date and Time]]></label>
+											</field>
+											<field binding="upload" name="upload" type="file">
+												<label id="upload"><![CDATA[Single Upload]]></label>
+												<validation>
+													<fileUpload fileTypes="pdf" maxCount="1" maxSize="10485760" minCount="0" minSize="0" unit="MB">
+														<message class="ERROR" ref="upload"><![CDATA[Please upload a file of the following types: pdf]]></message>
+													</fileUpload>
+												</validation>
+											</field>
+											<field binding="uploads" name="uploads" type="file-multiple">
+												<label id="uploads"><![CDATA[Multiple Uploads]]></label>
+												<validation>
+													<fileUpload fileTypes="pdf" maxCount="5" maxSize="10485760" minCount="0" minSize="0" unit="MB">
+														<message class="ERROR" ref="uploads"><![CDATA[Please upload 0 to 5 files (max. 10485760 MB each) of the following types: pdf]]></message>
+													</fileUpload>
+												</validation>
+											</field>
+											<field binding="booleanValue" name="booleanValue" type="checkbox">
+												<label id="booleanValue"><![CDATA[Boolean checkbox]]></label>
+											</field>
+											<field binding="text" name="text" type="longtext">
+												<label id="text"><![CDATA[Textarea]]></label>
+												<validation>
+													<size max="5000" min="0">
+														<message class="ERROR" ref="text"><![CDATA[Enter at most 5000 characters]]></message>
+													</size>
+												</validation>
+											</field>
+											<field binding="selectId" name="selectItems" type="list:select">
+												<label id="selectItems"><![CDATA[Select]]></label>
+											</field>
+											<field binding="radioId" name="radioItems" type="list:radio">
+												<label id="radioItems"><![CDATA[Radio]]></label>
+											</field>
+											<field binding="checkboxIds" name="checkboxItems" type="list:checkbox">
+												<label id="checkboxItems"><![CDATA[Checkboxes]]></label>
+											</field>
+										</meta-data>
+									</config>
+									<condition expression="${form_action eq 'create'}" />
+									<datasource id="new-democlass" />
+									<data>
+										<selection id="selectItems" type="select">
+											<title id="selectItems"><![CDATA[Select]]></title>
+											<option name="a" selected="false" value="1" />
+											<option name="b" selected="true" value="2" />
+											<option name="c" selected="false" value="3" />
+										</selection>
+										<selection id="checkboxItems" type="checkbox">
+											<title id="checkboxItems"><![CDATA[Checkboxes]]></title>
+											<option name="I" selected="true" value="1" />
+											<option name="II" selected="true" value="2" />
+											<option name="III" selected="true" value="3" />
+										</selection>
+										<selection id="radioItems" type="radio">
+											<title id="radioItems"><![CDATA[Radio]]></title>
+											<option name="1" selected="false" value="1" />
+											<option name="2" selected="false" value="2" />
+											<option name="3" selected="true" value="3" />
+										</selection>
+										<result>
+											<field name="integerValue" type="int">
+												<value><![CDATA[6]]></value>
+											</field>
+											<field name="longValue" type="long">
+												<value><![CDATA[5429]]></value>
+											</field>
+											<field name="floatValue" type="decimal">
+												<value><![CDATA[4.28]]></value>
+											</field>
+											<field name="doubleValue" type="decimal">
+												<value><![CDATA[3.97]]></value>
+											</field>
+											<field name="decimalValue" type="decimal">
+												<value><![CDATA[3.7]]></value>
+											</field>
+											<field name="digitValue" type="decimal">
+												<value />
+											</field>
+											<field name="stringValue" type="text">
+												<value />
+											</field>
+											<field name="dateValue" type="date">
+												<value><![CDATA[07.12.2012]]></value>
+											</field>
+											<field name="timeValue" type="date">
+												<value><![CDATA[14:53:57]]></value>
+											</field>
+											<field name="dateTimeValue" type="date">
+												<value><![CDATA[06.12.2012 14:53:57]]></value>
+											</field>
+											<field name="upload" type="file">
+												<value />
+											</field>
+											<field name="uploads" type="file-multiple">
+												<value />
+											</field>
+											<field name="booleanValue" type="checkbox">
+												<value><![CDATA[false]]></value>
+											</field>
+											<field name="text" type="longtext">
+												<value />
+											</field>
+											<field name="selectItems" type="list:select">
+												<value />
+											</field>
+											<field name="radioItems" type="list:radio">
+												<value />
+											</field>
+											<field name="checkboxItems" type="list:checkbox">
+												<value />
+											</field>
+										</result>
+									</data>
+									<bean id="demoAction">
+										<option id="create" name="action" />
+									</bean>
+								</action>
+							</element>
+						</section>
+						<section>
+							<element>
+								<action eventId="demo-event" id="readonly">
+									<config>
+										<title><![CDATA[Form Demo (Readonly)]]></title>
+										<permissions>
+											<permission mode="set" ref="actionCreate">true</permission>
+										</permissions>
+										<params>
+											<param name="form_action" />
+										</params>
+										<meta-data bindClass="org.appng.demo.DemoClass">
+											<field binding="integerValue" format="#" name="integerValue" readonly="true" type="int">
+												<label id="integerValue"><![CDATA[Integer ]]></label>
+											</field>
+											<field binding="decimalValue" format="#,###.##" name="decimalValue" readonly="true" type="decimal">
+												<label id="decimalValue"><![CDATA[Decimal]]></label>
+											</field>
+											<field binding="stringValue" name="stringValue" readonly="true" type="text">
+												<label id="stringValue"><![CDATA[String]]></label>
+											</field>
+											<field binding="dateTimeValue" format="dd.MM.yyyy HH:mm:ss" name="dateTimeValue" readonly="true" type="date">
+												<label id="dateTimeValue"><![CDATA[Date and Time]]></label>
+											</field>
+											<field binding="upload" name="upload" readonly="true" type="file">
+												<label id="upload"><![CDATA[Single Upload]]></label>
+											</field>
+											<field binding="booleanValue" name="booleanValue" readonly="true" type="checkbox">
+												<label id="booleanValue"><![CDATA[Boolean checkbox]]></label>
+											</field>
+											<field binding="text" name="text" readonly="true" type="longtext">
+												<label id="text"><![CDATA[Textarea]]></label>
+											</field>
+											<field binding="selectId" name="selectItems" readonly="true" type="list:select">
+												<label id="selectItems"><![CDATA[Select]]></label>
+											</field>
+											<field binding="radioId" name="radioItems" readonly="true" type="list:radio">
+												<label id="radioItems"><![CDATA[Radio]]></label>
+											</field>
+											<field binding="checkboxIds" name="checkboxItems" readonly="true" type="list:checkbox">
+												<label id="checkboxItems"><![CDATA[Checkboxes]]></label>
+											</field>
+										</meta-data>
+									</config>
+									<condition expression="${form_action eq 'readonly'}" />
+									<datasource id="readonly-democlass" />
+									<data>
+										<selection id="selectItems" type="select">
+											<title id="selectItems"><![CDATA[Select]]></title>
+											<option name="a" selected="false" value="1" />
+											<option name="b" selected="true" value="2" />
+											<option name="c" selected="false" value="3" />
+										</selection>
+										<selection id="checkboxItems" type="checkbox">
+											<title id="checkboxItems"><![CDATA[Checkboxes]]></title>
+											<option name="I" selected="true" value="1" />
+											<option name="II" selected="true" value="2" />
+											<option name="III" selected="true" value="3" />
+										</selection>
+										<selection id="radioItems" type="radio">
+											<title id="radioItems"><![CDATA[Radio]]></title>
+											<option name="1" selected="false" value="1" />
+											<option name="2" selected="false" value="2" />
+											<option name="3" selected="true" value="3" />
+										</selection>
+										<result>
+											<field name="integerValue" type="int">
+												<value><![CDATA[5]]></value>
+											</field>
+											<field name="decimalValue" type="decimal">
+												<value><![CDATA[3.7]]></value>
+											</field>
+											<field name="stringValue" type="text">
+												<value />
+											</field>
+											<field name="dateTimeValue" type="date">
+												<value><![CDATA[06.12.2012 14:53:57]]></value>
+											</field>
+											<field name="upload" type="file">
+												<value />
+											</field>
+											<field name="booleanValue" type="checkbox">
+												<value><![CDATA[false]]></value>
+											</field>
+											<field name="text" type="longtext">
+												<value />
+											</field>
+											<field name="selectItems" type="list:select">
+												<value />
+											</field>
+											<field name="radioItems" type="list:radio">
+												<value />
+											</field>
+											<field name="checkboxItems" type="list:checkbox">
+												<value />
+											</field>
+										</result>
+									</data>
+									<bean id="demoAction">
+										<option id="create" name="action" />
+									</bean>
+								</action>
+							</element>
+						</section>
+						<section>
+							<element>
+								<datasource id="democlasses">
+									<config>
+										<title id="democlasses"><![CDATA[Demo Classes]]></title>
+										<description><![CDATA[This is a multi-line description.
+			There should be a line break after every line.
+			Like this.
+			Or that.]]></description>
+										<params>
+											<param name="chunk">0</param>
+											<param name="chunksize">5</param>
+										</params>
+										<meta-data bindClass="org.appng.demo.DemoClass">
+											<field binding="integerValue" format="#" name="integerValue" type="int">
+												<sort />
+												<label id="integerValue"><![CDATA[Integer ]]></label>
+											</field>
+											<field binding="doubleValue" format="#,###.0#" name="doubleValue" type="decimal">
+												<sort />
+												<label id="doubleValue"><![CDATA[Double]]></label>
+											</field>
+											<field binding="stringValue" name="stringValue" type="text">
+												<sort />
+												<label id="stringValue"><![CDATA[String]]></label>
+											</field>
+											<field binding="dateTimeValue" format="dd.MM.yyyy HH:mm:ss" name="dateTimeValue" type="date">
+												<sort />
+												<label id="dateTimeValue"><![CDATA[Date and Time]]></label>
+											</field>
+											<field binding="booleanValue" name="booleanValue" type="checkbox">
+												<sort />
+												<label id="booleanValue"><![CDATA[Boolean checkbox]]></label>
+											</field>
+											<field binding="text" name="text" type="longtext">
+												<sort />
+												<label id="text"><![CDATA[Textarea]]></label>
+											</field>
+											<field binding="actions" name="actions" type="linkpanel">
+												<label><![CDATA[actions]]></label>
+											</field>
+										</meta-data>
+										<linkpanel id="actions" location="inline">
+											<link id="actions[1]" mode="intern" target="">
+												<condition expression="${current.fileName ne null}" />
+												<label><![CDATA[Edit]]></label>
+												<icon>edit</icon>
+											</link>
+											<link id="actions[2]" mode="webservice" target="/webservices/appng-demoplugin/download?id=${current.id}">
+												<condition expression="${current.fileName ne null}" />
+												<label><![CDATA[download]]></label>
+												<icon>download</icon>
+											</link>
+										</linkpanel>
+										<linkpanel id="external" location="top">
+											<link id="external[1]" mode="extern"
+												target="http://localhost:8080/service/localhost/appng-demoplugin/soap/personService/personService.wsdl">
+												<label><![CDATA[soap1]]></label>
+											</link>
+										</linkpanel>
+									</config>
+									<data>
+										<selectionGroup>
+											<selection id="selectItems" type="select">
+												<title id="selectItems"><![CDATA[Select]]></title>
+												<option name="a" selected="false" value="1" />
+												<option name="b" selected="true" value="2" />
+												<option name="c" selected="false" value="3" />
+											</selection>
+											<selection id="checkboxItems" type="checkbox">
+												<title id="checkboxItems"><![CDATA[Checkboxes]]></title>
+												<option name="I" selected="true" value="1" />
+												<option name="II" selected="true" value="2" />
+												<option name="III" selected="true" value="3" />
+											</selection>
+											<selection id="radioItems" type="radio">
+												<title id="radioItems"><![CDATA[Radio]]></title>
+												<option name="1" selected="false" value="1" />
+												<option name="2" selected="false" value="2" />
+												<option name="3" selected="true" value="3" />
+											</selection>
+										</selectionGroup>
+										<resultset chunk="0" chunkname="demoschunk" chunksize="5" firstchunk="0"
+											hits="1" lastchunk="0" nextchunk="0" previouschunk="0">
+											<result>
+												<field name="integerValue" type="int">
+													<value><![CDATA[6]]></value>
+												</field>
+												<field name="doubleValue" type="decimal">
+													<value><![CDATA[4.58]]></value>
+												</field>
+												<field name="stringValue" type="text">
+													<value />
+												</field>
+												<field name="dateTimeValue" type="date">
+													<value><![CDATA[06.12.2012 13:43:40]]></value>
+												</field>
+												<field name="booleanValue" type="checkbox">
+													<value><![CDATA[false]]></value>
+												</field>
+												<field name="text" type="longtext">
+													<value><![CDATA[foo
+bar
+foobar
+barfoo
+dsfgsdfgsd fsdf sdfg sdfg sdfg sdfg sdfg sdfg sdfgsdf sdf sdfg sdfg sdf sdfg sdfg sdfg sdfg sdfg sdfg sdfg sdfg sdfg sdfg sdf ]]></value>
+												</field>
+												<linkpanel id="actions" location="inline" />
+											</result>
+										</resultset>
+									</data>
+								</datasource>
+							</element>
+						</section>
+					</structure>
+				</page>
+			</pages>
+		</application>
+	</content>
+</platform>
+

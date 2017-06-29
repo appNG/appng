@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<site name="localhost" xmlns="http://www.appng.org/schema/appngizer">
+	<active>true</active>
+	<host>127.0.0.1</host>
+	<domain>http://127.0.0.1:8080</domain>
+	<description>I am local!</description>
+</site>

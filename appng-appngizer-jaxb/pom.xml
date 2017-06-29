@@ -1,0 +1,60 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>appng-appngizer-jaxb</artifactId>
+	<packaging>jar</packaging>
+	<name>appNGizer JAXB API</name>
+	<description></description>
+
+	<parent>
+		<groupId>org.appng</groupId>
+		<artifactId>appng-parent</artifactId>
+		<version>1.14.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<compilerArgs>
+						<arg>-XDignore.symbol.file</arg>
+					</compilerArgs>
+					<fork>true</fork>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxb2-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-xmlapi</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<target>2.1</target>
+							<packageName>org.appng.appngizer.model.xml</packageName>
+							<schemaDirectory>${project.basedir}/src/main/resources</schemaDirectory>
+							<schemaFiles>appngizer.xsd</schemaFiles>
+							<bindingFiles>bindings.xml</bindingFiles>
+							<extension>true</extension>
+							<clearOutputDir>false</clearOutputDir>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

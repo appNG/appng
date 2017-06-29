@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<datasource id="entity">
+		<config>
+			<title>entity</title>
+			<permissions>
+				<permission ref="show_entity" mode="set" />
+			</permissions>
+			<params>
+				<param name="entityId" />
+				<param name="param2" />
+			</params>
+			<meta-data bindClass="org.appng.testapplication.TestEntity">
+				<field name="id" type="int" hidden="${not empty entityId}" readonly="${current.id eq entityId}">
+					<label>id</label>
+					<condition expression="${1==1}" />
+				</field>
+				<field name="name" type="text">
+					<label>name</label>
+				</field>
+				<field name="integerValue" type="list:checkbox">
+					<label>integerValue</label>
+				</field>
+				<field name="doubleValue" type="decimal">
+					<label>doubleValue</label>
+				</field>
+				<field name="booleanValue" type="checkbox">
+					<label>booleanValue</label>
+				</field>
+			</meta-data>
+		</config>
+		<bean id="entities">
+			<option name="entity" id="${entityId}" param2="${param2}" />
+		</bean>
+	</datasource>
+
+	<datasource id="new-entity">
+		<config>
+			<title>entity</title>
+			<params>
+				<param name="param1" />
+			</params>
+			<meta-data bindClass="org.appng.testapplication.TestEntity">
+				<field name="id" type="int" hidden="true">
+					<label>id</label>
+					<condition expression="${1==1}" />
+				</field>
+				<field name="name" type="text">
+					<label>name</label>
+				</field>
+				<field name="integerValue" type="int">
+					<label>integerValue</label>
+				</field>
+				<field name="doubleValue" type="decimal">
+					<label>doubleValue</label>
+				</field>
+				<field name="booleanValue" type="checkbox">
+					<label>booleanValue</label>
+				</field>
+			</meta-data>
+		</config>
+		<bean id="entities">
+			<option name="action" id="create" />
+		</bean>
+	</datasource>
+
+	<datasource id="entities">
+		<config>
+			<title>entities</title>
+			<permissions>
+				<permission ref="show_entities" mode="set" />
+			</permissions>
+			<params>
+				<param name="param1" />
+				<param name="param2" />
+				<param name="param3" />
+				<param name="param4" default="4" />
+			</params>
+			<meta-data bindClass="org.appng.testapplication.TestEntity">
+				<field name="id" type="int" hidden="true">
+					<label>id</label>
+					<condition expression="${1==1}" />
+				</field>
+				<field name="name" type="text" hidden="${4 == param4}" readonly="${4 == param4}">
+					<sort />
+					<label>name</label>
+				</field>
+				<field name="integerValue" type="int">
+					<label>integerValue</label>
+				</field>
+				<field name="doubleValue" type="decimal">
+					<sort />
+					<label>doubleValue</label>
+				</field>
+				<field name="booleanValue" type="checkbox">
+					<label>booleanValue</label>
+				</field>
+				<field name="actions" type="linkpanel">
+					<label>actions</label>
+				</field>
+			</meta-data>
+			<linkpanel location="inline" id="actions">
+				<link target="/${current.id}_edit" mode="intern" default="true">
+					<label>edit</label>
+					<icon>edit</icon>
+				</link>
+				<link target="/${current.id}_delete" mode="intern" default="true">
+					<label>delete</label>
+					<icon>delete</icon>
+					<confirmation id="confirm.delete[#{name}]" />
+				</link>
+			</linkpanel>
+		</config>
+		<bean id="entities">
+			<option name="action" param1="${param1}" param2="${param2}" />
+		</bean>
+	</datasource>
+
+</datasources>

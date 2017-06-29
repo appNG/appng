@@ -1,0 +1,17 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>appng-template-assembly</artifactId>
+	<packaging>jar</packaging>
+	<name>appNG Template Assembly Descriptors</name>
+	<description>assembly descriptors for an appNG template</description>
+	
+	<!-- IMPORTANT! -->
+	<!-- http://maven.apache.org/plugins/maven-assembly-plugin/examples/sharing-descriptors.html -->
+	<!-- Note: Your assembly descriptors must be in the directory /src/main/resources/assemblies to be available to the Assembly Plugin. -->
+	<parent>
+		<groupId>org.appng</groupId>
+		<artifactId>appng-parent</artifactId>
+		<version>1.14.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+</project>

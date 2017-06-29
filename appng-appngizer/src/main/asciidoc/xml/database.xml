@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<database xmlns="http://www.appng.org/schema/appngizer" self="http://localhost:8080/appNGizer/platform/database">
+    <links>
+        <link name="initialize" self="http://localhost:8080/appNGizer/platform/database/initialize"/>
+    </links>
+    <type>MYSQL</type>
+    <dbVersion>MySQL 5.6.29-76.2-log</dbVersion>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <url>jdbc:mysql://localhost:3306/appng</url>
+    <ok>true</ok>
+    <versions>
+        <version version="2.8.2" state="Success" description="alter sites granted" checksum="-2124797671" installed="2016-08-01T11:54:08.000+02:00"/>
+        <version version="2.8.1" state="Success" description="add repository strict" checksum="-637161553" installed="2016-08-01T11:54:07.000+02:00"/>
+        <version version="2.8" state="Success" description="add template" checksum="1443237131" installed="2016-08-01T11:54:07.000+02:00"/>
+        <version version="2.7.1" state="Success" description="modify datetime" checksum="-238501285" installed="2016-08-01T11:54:07.000+02:00"/>
+        <version version="2.7" state="Success" description="modify resource name" checksum="-410225045" installed="2016-08-01T11:54:05.000+02:00"/>
+        <version version="2.6" state="Success" description="drop-site-parentId" checksum="-628397585" installed="2016-08-01T11:54:05.000+02:00"/>
+        <version version="2.5" state="Success" description="add quartz sched time" checksum="-1887151531" installed="2016-08-01T11:54:04.000+02:00"/>
+        <version version="2.4" state="Success" description="migrate to platform" checksum="-356840062" installed="2016-08-01T11:54:04.000+02:00"/>
+        <version version="2.3" state="Success" description="add sites granted" checksum="562840097" installed="2016-08-01T11:54:00.000+02:00"/>
+        <version version="2.2" state="Success" description="Add validation query column" checksum="-406328953" installed="2016-08-01T11:54:00.000+02:00"/>
+        <version version="2.1" state="Success" description="Add active column" checksum="2085895145" installed="2016-08-01T11:54:00.000+02:00"/>
+        <version version="2.0" state="Success" description="set subject email nullable" checksum="-200093527" installed="2016-08-01T11:53:59.000+02:00"/>
+        <version version="1.9" state="Success" description="Add remote repository name" checksum="-1230423146" installed="2016-08-01T11:53:59.000+02:00"/>
+        <version version="1.8" state="Success" description="Add managed column" checksum="1109092965" installed="2016-08-01T11:53:59.000+02:00"/>
+        <version version="1.7" state="Success" description="modify property description" checksum="-242497654" installed="2016-08-01T11:53:58.000+02:00"/>
+        <version version="1.6" state="Success" description="Add Min and MaxConnections" checksum="-1788286290" installed="2016-08-01T11:53:58.000+02:00"/>
+        <version version="1.5" state="Success" description="Add plugin timestamp appngversion" checksum="1676943241" installed="2016-08-01T11:53:58.000+02:00"/>
+        <version version="1.4" state="Success" description="Add DatabaseConnection" checksum="318992837" installed="2016-08-01T11:53:57.000+02:00"/>
+        <version version="1.3" state="Success" description="Set site folder" checksum="2024773474" installed="2016-08-01T11:53:57.000+02:00"/>
+        <version version="1.2" state="Success" description="Let PluginRepository name be unique" checksum="-743274501" installed="2016-08-01T11:53:56.000+02:00"/>
+        <version version="1.1" state="Success" description="Quartz initial setup" checksum="1726445701" installed="2016-08-01T11:53:56.000+02:00"/>
+        <version version="1.0" state="Success" description="appNG initial setup" checksum="-644756127" installed="2016-08-01T11:53:55.000+02:00"/>
+    </versions>
+</database>

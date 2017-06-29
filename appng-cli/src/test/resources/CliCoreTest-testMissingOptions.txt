@@ -1,0 +1,10 @@
+The following options are required: [-r], [-n], [-a]
+Usage: appng add-permission [options]
+  Options:
+  * -a
+      The application name.
+  * -n
+      The permission(s) to add, multiple values can be provided (separated by 
+      space). 
+  * -r
+      The role name.

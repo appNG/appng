@@ -1,0 +1,164 @@
+== Site
+=== List sites
+*URL:* http://localhost:8080/appNGizer/site
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/sites.xml[]
+----
+
+
+=== Show site
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}
+
+*URL:* http://localhost:8080/appNGizer/site/localhost
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-show.xml[]
+----
+
+
+=== Create site
+*URL:* http://localhost:8080/appNGizer/site
+
+*Method:* POST
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-create.xml[]
+----
+
+*Response Body:* -none-
+
+
+=== Update site
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}
+
+*URL:* http://localhost:8080/appNGizer/site/localhost
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-update.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-update_response.xml[]
+----
+
+
+=== Delete site
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}
+
+*URL:* http://localhost:8080/appNGizer/site/localhost
+
+*Method:* DELETE
+
+*Request Body:* -none-
+
+*Response Body:* -none-
+
+
+=== Reload site
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/reload
+
+*URL:* http://localhost:8080/appNGizer/site/localhost/reload
+
+*Method:* PUT
+
+*Request Body:* -none-
+
+*Response Body:* -none-
+
+
+=== Properties
+==== List properties
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/property
+
+*URL:* http://localhost:8080/appNGizer/site/localhost/property
+
+*Method:* GET
+
+*Request Body:* -none-
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-property-list.xml[]
+----
+
+
+==== Create Property
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/property
+
+*URL:* http://localhost:8080/appNGizer/site/localhost/property
+
+*Method:* POST
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/property-create.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<property xmlns="http://www.appng.org/schema/appngizer" name="myCustomProperty" self="http://localhost:8080/appNGizer/site/localhost/property/myCustomProperty">
+    <value>42</value>
+    <defaultValue>42</defaultValue>
+    <description>The answer to life, the universe and everything</description>
+</property>
+----
+
+
+==== Update Property
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/property/{property-name}
+
+*URL:* http://localhost:8080/appNGizer/site/localhost/property/myCustomProperty
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/property-update.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<property xmlns="http://www.appng.org/schema/appngizer" name="myCustomProperty" self="http://localhost:8080/appNGizer/site/localhost/property/myCustomProperty">
+    <value>57</value>
+    <defaultValue>42</defaultValue>
+    <description>The real answer to life, the universe and everything</description>
+</property>
+----
+
+==== Delete property
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/property/{property-name}
+
+*URL:* http://localhost:8080/appNGizer/site/localhost/property/myCustomProperty
+
+*Method:* DELETE
+
+*Request Body:* -none-
+
+*Response Body:* -none-
+
+
+include::site-application.adoc[]

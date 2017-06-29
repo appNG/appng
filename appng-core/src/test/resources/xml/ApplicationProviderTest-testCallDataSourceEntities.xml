@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasource xmlns="http://www.appng.org/schema/platform" id="entities">
+	<config>
+		<title id="entities">Entities</title>
+		<permissions>
+			<permission ref="show_entities" mode="set"></permission>
+		</permissions>
+		<params>
+			<param name="param1"></param>
+			<param name="param2"></param>
+			<param name="param3"></param>
+			<param name="param4" default="4">4</param>
+		</params>
+		<meta-data bindClass="org.appng.testapplication.TestEntity">
+			<field name="id" type="int" format="#" hidden="true" binding="id">
+				<label id="id">ID</label>
+				<condition expression="true" />
+			</field>
+			<field name="name" type="text" readonly="true" hidden="true" binding="name">
+				<sort />
+				<label id="name">Name</label>
+			</field>
+			<field name="integerValue" type="int" format="#" binding="integerValue">
+				<label id="integerValue">integer value</label>
+			</field>
+			<field name="doubleValue" type="decimal" format="#.##" binding="doubleValue">
+				<sort />
+				<label id="doubleValue">double value</label>
+			</field>
+			<field name="booleanValue" type="checkbox" binding="booleanValue">
+				<label id="booleanValue">boolean value</label>
+			</field>
+			<field name="actions" type="linkpanel" binding="actions">
+				<label id="actions">Actions</label>
+			</field>
+		</meta-data>
+		<linkpanel id="actions" location="inline">
+			<link id="actions[1]" mode="intern" target="/${current.id}_edit" default="true">
+				<label id="edit">Edit</label>
+				<icon>edit</icon>
+			</link>
+			<link id="actions[2]" mode="intern" target="/${current.id}_delete" default="true">
+				<label id="delete">Delete</label>
+				<icon>delete</icon>
+				<confirmation id="confirm.delete" params="#{name}">Really delete #{name}?</confirmation>
+			</link>
+		</linkpanel>
+	</config>
+	<data>
+		<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0"
+			lastchunk="0" hits="2">
+			<result>
+				<field name="id" type="int">
+					<value>1</value>
+				</field>
+				<field name="name" type="text">
+					<value>new name</value>
+				</field>
+				<field name="integerValue" type="int">
+					<value>5</value>
+				</field>
+				<field name="doubleValue" type="decimal">
+					<value>5.5</value>
+				</field>
+				<field name="booleanValue" type="checkbox">
+					<value>false</value>
+				</field>
+				<linkpanel id="actions" location="inline">
+					<link id="actions[1]" mode="intern" target="/1_edit" default="true">
+						<label id="edit">Edit</label>
+						<icon>edit</icon>
+					</link>
+					<link id="actions[2]" mode="intern" target="/1_delete" default="true">
+						<label id="delete">Delete</label>
+						<icon>delete</icon>
+						<confirmation id="confirm.delete" params="#{name}">Really delete new name?</confirmation>
+					</link>
+				</linkpanel>
+			</result>
+			<result>
+				<field name="id" type="int">
+					<value>2</value>
+				</field>
+				<field name="name" type="text">
+					<value>entity2</value>
+				</field>
+				<field name="integerValue" type="int">
+					<value>7</value>
+				</field>
+				<field name="doubleValue" type="decimal">
+					<value>7.8</value>
+				</field>
+				<field name="booleanValue" type="checkbox">
+					<value>true</value>
+				</field>
+				<linkpanel id="actions" location="inline">
+					<link id="actions[1]" mode="intern" target="/2_edit" default="true">
+						<label id="edit">Edit</label>
+						<icon>edit</icon>
+					</link>
+					<link id="actions[2]" mode="intern" target="/2_delete" default="true">
+						<label id="delete">Delete</label>
+						<icon>delete</icon>
+						<confirmation id="confirm.delete" params="#{name}">Really delete entity2?</confirmation>
+					</link>
+				</linkpanel>
+			</result>
+		</resultset>
+	</data>
+</datasource>

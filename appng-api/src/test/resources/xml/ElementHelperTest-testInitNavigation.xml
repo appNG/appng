@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<linkpanel xmlns="http://www.appng.org/schema/platform">
+	<link id="panel[1]" mode="extern" target="target">
+		<condition expression="${1 eq 1}" />
+		<label>link1</label>
+	</link>
+</linkpanel>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<search>
+   <filter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:type="searchFilter">
+      <search>
+         <config>
+            <name>q</name>
+            <visible>true</visible>
+         </config>
+         <data>
+            <active>true</active>
+            <value>Anhalter</value>
+         </data>
+      </search>
+   </filter>
+   <results>
+      <time>0</time>
+      <pagination>
+         <numberOfElements>2</numberOfElements>
+         <numberOfPages>1</numberOfPages>
+         <page>0</page>
+         <pageParam>page</pageParam>
+         <pageSize>25</pageSize>
+         <pageSizeParam>pageSize</pageSizeParam>
+      </pagination>
+      <data>
+         <title><![CDATA[Per Anhalter durch die Galaxis]]></title>
+         <link>/de/42.jsp</link>
+         <date>2015-03-27</date>
+         <score>1.0</score>
+         <type>jsp</type>
+         <language>de</language>
+         <fragment><![CDATA[Per <span>Anhalter</span> durch die Galaxis (auch: Per <span>Anhalter</span> ins All, Originaltitel: The Hitchhiker’s Guide to the Galaxy, abgekürzt HHGTTG, oder H2G2) ist das bekannteste Werk des englischen Schriftstellers...) umgesetzt. „Per <span>Anhalter</span> durch die Galaxis“ ist dabei sowohl der Titel des ersten Buches]]></fragment>
+         <text><![CDATA[Per Anhalter durch die Galaxis (auch: Per Anhalter ins All, Originaltitel: The Hitchhiker’s Guide to the Galaxy, abgekürzt HHGTTG, oder H2G2) ist das bekannteste Werk des englischen Schriftstellers Douglas Adams. Es handelt sich um eine Mischung aus Komödie, Satire und Science Fiction, die zuerst als Hörspielserie vom BBC-Radio ausgestrahlt wurde. Als Roman international erfolgreich, wurde das Werk weiterentwickelt und dabei noch in weitere Medien (Fernsehserie, Computerspiel, Kinofilm) umgesetzt. „Per Anhalter durch die Galaxis“ ist dabei sowohl der Titel des ersten Buches als auch gleichzeitig der gesamten Serie. Die Geschichte erlangte schon früh Kultcharakter, wobei der charakteristische Humor des Autors besonderen Anklang fand. ]]></text>
+         <fields>
+            <field name="customfield">Anhalter</field>
+            <field name="anotherCustomfield">Douglas Adams</field>
+         </fields>
+      </data>
+      <data>
+         <title><![CDATA[42.txt]]></title>
+         <link>/de/42.txt</link>
+         <date>2015-03-27</date>
+         <score>1.0</score>
+         <type>txt</type>
+         <language>de</language>
+         <fragment><![CDATA[Per <span>Anhalter</span> durch die Galaxis (auch: Per <span>Anhalter</span> ins All, Originaltitel: The Hitchhiker’s Guide to the Galaxy, 
+abgekürzt HHGTTG, oder H2G2) ist das bekannteste Werk des englischen Schriftstellers...) umgesetzt. „Per <span>Anhalter</span> durch die Galaxis“ ist dabei sowohl der Titel des 
+ersten Buches]]></fragment>
+         <text><![CDATA[Per Anhalter durch die Galaxis (auch: Per Anhalter ins All, Originaltitel: The Hitchhiker’s Guide to the Galaxy, 
+abgekürzt HHGTTG, oder H2G2) ist das bekannteste Werk des englischen Schriftstellers Douglas Adams. Es handelt 
+sich um eine Mischung aus Komödie, Satire und Science Fiction, die zuerst als Hörspielserie vom BBC-Radio ausgestrahlt 
+wurde. Als Roman international erfolgreich, wurde das Werk weiterentwickelt und dabei noch in weitere Medien 
+(Fernsehserie, Computerspiel, Kinofilm) umgesetzt. „Per Anhalter durch die Galaxis“ ist dabei sowohl der Titel des 
+ersten Buches als auch gleichzeitig der gesamten Serie. Die Geschichte erlangte schon früh Kultcharakter, wobei der 
+charakteristische Humor des Autors besonderen Anklang fand.
+]]></text>
+         <fields/>
+      </data>
+   </results>
+</search>

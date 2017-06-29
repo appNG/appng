@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.appng.org/schema/application" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/application http://www.appng.org/schema/application/appng-application.xsd">
+	<name>myartifactid</name> <!--1-->
+	<display-name><![CDATA[myapplication]]></display-name>
+	<description><![CDATA[enter description here]]></description>
+	<long-description><![CDATA[enter long description here]]></long-description>
+	<version>1.0-SNAPSHOT</version>
+	<timestamp>20160829-1007</timestamp>
+	<appng-version>0.11.0</appng-version>
+
+	<roles> <!--2-->
+		<role admin-role="true"> <!--3-->
+			<name>Admin</name>
+			<description>an administrator with all permissions</description>
+			<permission id="output-format.html" />
+			<permission id="output-type.webgui" />
+		</role>
+	</roles>
+
+	<permissions> <!--4-->
+		<permission id="output-format.html" />
+		<permission id="output-type.webgui" />
+	</permissions>
+ 
+	<properties> <!--5-->
+		<property id="hibernateShowSql">false</property>
+		<property id="hibernateFormatSql">false</property>
+	</properties>
+	
+	<datasources> <!--6-->
+		<datasource type="mysql" />
+	</datasources>
+
+</application>

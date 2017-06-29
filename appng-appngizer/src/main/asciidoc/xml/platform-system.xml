@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties xmlns="http://www.appng.org/schema/appngizer" self="/platform/system">
+    <property name="appng.node.id">
+        <value>appNG-001</value>
+    </property>
+    <property name="file.encoding">
+        <value>UTF-8</value>
+    </property>
+    <property name="file.separator">
+        <value>/</value>
+    </property>
+    <property name="java.home">
+        <value>/usr/lib/jvm/java-8-openjdk-amd64/jre</value>
+    </property>
+</properties>

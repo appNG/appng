@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<applicationReference xmlns="http://www.appng.org/schema/platform" version="1.5.2" id="demo-application">
+	<config>
+		<title id="plugintitle">A Test-Plugin</title>
+		<permissions>
+			<permission mode="set" ref="debug"></permission>
+		</permissions>
+		<session>
+			<session-params>
+				<session-param name="sessionparam1"></session-param>
+				<session-param name="sessionparam2"></session-param>
+			</session-params>
+		</session>
+	</config>
+	<pages>
+		<page type="index" id="entity" executionTime="25">
+			<config>
+				<title id="entity">Entity</title>
+				<description></description>
+				<permissions>
+					<permission mode="set" ref="page.entity"></permission>
+				</permissions>
+				<url-schema>
+					<url-params>
+						<url-param name="action" />
+						<url-param name="entityId" />
+						<url-param name="entityAction" />
+						<url-param name="entityId" />
+					</url-params>
+					<get-params>
+						<get-param name="form_action"></get-param>
+					</get-params>
+					<post-params>
+						<post-param name="form_action"></post-param>
+					</post-params>
+				</url-schema>
+				<linkpanel location="top" id="page-nav">
+					<link target="/page0" mode="intern" id="page-nav[1]">
+						<label id="page0">Page 0</label>
+					</link>
+					<link target="/page1" mode="intern" id="page-nav[2]">
+						<condition expression="${1==1}" />
+						<label id="page1">Page 1</label>
+					</link>
+					<link target="/page3" mode="intern" id="page-nav[4]">
+						<permissions>
+							<permission mode="set" ref="page3"></permission>
+						</permissions>
+						<label id="page3">Page 3</label>
+					</link>
+				</linkpanel>
+			</config>
+			<structure>
+				<section executionTime="20">
+					<element executionTime="20">
+						<datasource id="entities">
+							<config>
+								<title id="entities">Entities</title>
+								<permissions>
+									<permission mode="set" ref="show_entities"></permission>
+								</permissions>
+								<params>
+									<param name="param1"></param>
+									<param name="param2"></param>
+									<param name="param3">3</param>
+									<param default="4" name="param4">4</param>
+								</params>
+								<meta-data bindClass="org.appng.testapplication.TestEntity">
+									<field binding="id" hidden="true" format="#" type="int" name="id">
+										<label id="id">ID</label>
+										<condition expression="true" />
+									</field>
+									<field binding="name" hidden="true" readonly="true" type="text" name="name">
+										<sort prio="0" order="asc" />
+										<label id="name">Name</label>
+									</field>
+									<field binding="integerValue" format="#" type="int" name="integerValue">
+										<label id="integerValue">integer value</label>
+									</field>
+									<field binding="doubleValue" format="#.##" type="decimal" name="doubleValue">
+										<sort prio="1" order="desc" />
+										<label id="doubleValue">double value</label>
+									</field>
+									<field binding="booleanValue" type="checkbox" name="booleanValue">
+										<label id="booleanValue">boolean value</label>
+									</field>
+									<field binding="actions" type="linkpanel" name="actions">
+										<label id="actions">Actions</label>
+									</field>
+								</meta-data>
+								<linkpanel location="inline" id="actions">
+									<link default="true" target="/${current.id}_edit" mode="intern" id="actions[1]">
+										<label id="edit">Edit</label>
+										<icon>edit</icon>
+									</link>
+									<link default="true" target="/${current.id}_delete" mode="intern" id="actions[2]">
+										<label id="delete">Delete</label>
+										<icon>delete</icon>
+										<confirmation params="#{name}" id="confirm.delete">Really delete #{name}?</confirmation>
+									</link>
+								</linkpanel>
+							</config>
+							<data>
+								<resultset hits="2" lastchunk="0" firstchunk="0"
+									previouschunk="0" nextchunk="0" chunksize="2" chunk="0" chunkname="entities">
+									<result>
+										<field type="int" name="id">
+											<value>1</value>
+										</field>
+										<field type="text" name="name">
+											<value>entity1</value>
+										</field>
+										<field type="int" name="integerValue">
+											<value>5</value>
+										</field>
+										<field type="decimal" name="doubleValue">
+											<value>5.5</value>
+										</field>
+										<field type="checkbox" name="booleanValue">
+											<value>false</value>
+										</field>
+										<linkpanel location="inline" id="actions">
+											<link default="true" target="/1_edit" mode="intern" id="actions[1]">
+												<label id="edit">Edit</label>
+												<icon>edit</icon>
+											</link>
+											<link default="true" target="/1_delete" mode="intern" id="actions[2]">
+												<label id="delete">Delete</label>
+												<icon>delete</icon>
+												<confirmation params="#{name}" id="confirm.delete">Really delete entity1?</confirmation>
+											</link>
+										</linkpanel>
+									</result>
+									<result>
+										<field type="int" name="id">
+											<value>2</value>
+										</field>
+										<field type="text" name="name">
+											<value>entity2</value>
+										</field>
+										<field type="int" name="integerValue">
+											<value>7</value>
+										</field>
+										<field type="decimal" name="doubleValue">
+											<value>7.8</value>
+										</field>
+										<field type="checkbox" name="booleanValue">
+											<value>true</value>
+										</field>
+										<linkpanel location="inline" id="actions">
+											<link default="true" target="/2_edit" mode="intern" id="actions[1]">
+												<label id="edit">Edit</label>
+												<icon>edit</icon>
+											</link>
+											<link default="true" target="/2_delete" mode="intern" id="actions[2]">
+												<label id="delete">Delete</label>
+												<icon>delete</icon>
+												<confirmation params="#{name}" id="confirm.delete">Really delete entity2?</confirmation>
+											</link>
+										</linkpanel>
+									</result>
+								</resultset>
+							</data>
+						</datasource>
+					</element>
+				</section>
+			</structure>
+		</page>
+	</pages>
+</applicationReference>

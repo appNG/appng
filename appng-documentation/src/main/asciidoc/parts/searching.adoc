@@ -1,0 +1,79 @@
+== Indexing and Searching
+Each appNG site owns its own document based index. Documents are added to/ retrieved from the index in the form of an {appng}/org/appng/api/search/Document.html[org.appng.api.search.Document^]. Each site has its own indexing thread, that is waiting for {appng}/org/appng/api/search/DocumentProducer.html[org.appng.api.search.DocumentProducer^]s to offer some {appng}/org/appng/api/search/DocumentEvent.html[org.appng.api.search.DocumentEvent^]s
+
+=== Adding documents at runtime
+An application can provide a `org.appng.api.search.DocumentProducer` with these steps:
+
+. Retrieve a {appng}/org/appng/api/model/FeatureProvider.html[org.appng.api.model.FeatureProvider^] by calling {appng}/org/appng/api/model/Application.html#getFeatureProvider--[Application.getFeatureProvider()^]
+
+. Call {appng}/org/appng/api/model/FeatureProvider.html#getIndexer--[FeatureProvider.getIndexer()^] to obtain a 
+`{appng}/org/appng/api/search/Consumer.html[Consumer^]<
+{appng}/org/appng/api/search/DocumentEvent.html[DocumentEvent^],
+{appng}/org/appng/api/search/DocumentProducer.html[DocumentProducer^]>`
+
+. Add a {appng}/org/appng/api/search/DocumentProducer.html[DocumentProducer^] to this `Consumer<DocumentEvent,DocumentProducer>`
+
+. Provide {appng}/org/appng/api/search/Document.html[org.appng.api.search.Document^]s by calling `DocumentProducer.put(DocumentEvent e)`
+
+*Example:*
+[source,java]
+----
+import org.appng.api.search.Consumer;
+import org.appng.api.search.Document;
+import org.appng.api.search.DocumentEvent;
+import org.appng.api.search.DocumentProducer;
+...
+Consumer<DocumentEvent, DocumentProducer> indexer =
+    application.getFeatureProvider().getIndexer();//<1>
+DocumentProducer documentProducer = 
+    new DocumentProducer(EnglishAnalyzer.class, "myapp-indexer");//<2>
+indexer.put(documentProducer);//<3>
+Document docAdded = ... // //<4>
+documentProducer.put(new DocumentEvent(docAdded, Document.CREATE)); //<5>
+----
+<1> retrieve the `indexer`
+<2> create a new `DocumentProducer`
+<3> add the `producer` to the `indexer`
+<4> create a `Document`, you may extend {appng}/org/appng/search/indexer/SimpleDocument.html[org.appng.search.indexer.SimpleDocument^] here
+<5> add a new `DocumentEvent` to the producer
+
+=== Adding Documents at the time of indexing
+If the appNG site has the appNG scheduler application enabled (which will be the case in most scenarios) there's the {appng}/org/appng/search/DocumentProvider.html[org.appng.search.DocumentProvider^]-interface that can be implemented by the application to provide an `java.lang.Iterable` of {appng}/org/appng/api/search/DocumentProducer.html[org.appng.api.search.DocumentProducer^]s.
+
+The appNG scheduler application contains an indexing <<job-scheduling,job>> that automatically detects all the Spring beans implementing `DocumentProvider`.
+
+[source,java]
+----
+import org.appng.api.search.Document;
+import org.appng.api.search.DocumentEvent;
+import org.appng.api.search.DocumentProducer;
+import org.appng.search.DocumentProvider;
+
+@org.springframework.stereotype.Component // <1>
+public class MyDocumentProvider implements DocumentProvider {
+
+    public Iterable<DocumentProducer>
+            getDocumentProducers(Site site, Application application) { // <2>
+        DocumentProducer documentProducer =
+                new DocumentProducer(EnglishAnalyzer.class, "myapp-indexer"); // <3>
+        for(/* loop over some domain objects */) {
+            Document docAdded = ...; // build document
+            documentProducer.put(new DocumentEvent(docAdded, Document.CREATE)); // <4>
+        }
+        return java.util.Arrays.asList(documentProducer);
+    }
+}
+----
+<1> `MyDocumentProvider` is a `@Component`, so the indexing job can detect it.
+<2> The single method to implement is `getDocumentProducers(Site site, Application application)`.
+<3> Create a `DocumentProducer` by providing the {lucene}/org/apache/lucene/analysis/Analyzer.html[Analyzer^] to use and a name.
+<4> Since the indexing-job is completely rebuilding the index, we use the event type {appng}/org/appng/api/search/Document.html#CREATE[Document.CREATE^].
+
+=== Adding documents through `<appNG:searchable>`
+The `<appNG:searchable>` JSP-tag can be used to add documents to the index when a site's JSP repository is being indexed by the appNG scheduler application. Details about the `<appNG:searchable>`-tag can be found in the <<Search tags, section about search tags>>.
+
+=== Adding documents at the time of searching
+Instead of providing documents at indexing time, an application can also provide documents right a the time of searching. This can be achieved by implementing {appng}/org/appng/search/SearchProvider.html[org.appng.search.SearchProvider^].
+
+The `SearchProvider` can then be referenced by a `<appNG:searchPart>`-tag. See the <<Search tags, section about search tags>> for details.
+

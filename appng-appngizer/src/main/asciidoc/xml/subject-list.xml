@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<subjects self="http://localhost:8080/appNGizer/subjects" xmlns="http://www.appng.org/schema/appngizer">
+    <subject name="admin" self="http://localhost:8080/appNGizer/subject/admin">
+        <realName>appNG Administrator</realName>
+        <email>admin@appng.org</email>
+        <description>foo!</description>
+        <timeZone>Europe/Berlin</timeZone>
+        <language>en</language>
+        <type>LOCAL_USER</type>
+    </subject>
+    <subject name="editor" self="http://localhost:8080/appNGizer/subject/editor">
+        <realName>appNG Editor</realName>
+        <email>editor@appng.org</email>
+        <description>bar!</description>
+        <timeZone>Europe/Berlin</timeZone>
+        <language>de</language>
+        <type>LOCAL_USER</type>
+    </subject>
+</subjects>

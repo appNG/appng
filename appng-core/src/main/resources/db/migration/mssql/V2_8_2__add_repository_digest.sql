@@ -1,0 +1,1 @@
+alter table repository add digest nvarchar(255);

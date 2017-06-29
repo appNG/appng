@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<result xmlns="http://www.appng.org/schema/platform">
+    <field name="father" type="object">
+        <field name="name" type="text">
+            <value>Vader</value>
+        </field>
+        <field name="firstname" type="text">
+            <value>Darth</value>
+        </field>
+        <field name="offsprings" type="list:object">
+            <field name="offsprings[0]" type="object">
+                <field name="name" type="text">
+                    <value>Skywalker</value>
+                </field>
+                <field name="firstname" type="text">
+                    <value>Luke</value>
+                </field>
+                <field name="birthDate" type="date">
+                    <value>3049-04-14</value>
+                </field>
+                <value></value>
+            </field>
+            <field name="offsprings[1]" type="object">
+                <field name="name" type="text">
+                    <value>Organa</value>
+                </field>
+                <field name="firstname" type="text">
+                    <value>Leia</value>
+                </field>
+                <field name="birthDate" type="date">
+                    <value>3049-04-14</value>
+                </field>
+                <value></value>
+            </field>
+        </field>
+        <value></value>
+    </field>
+</result>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<database xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/platform/database">
+    <links>
+        <link name="initialize" self="http://localhost/platform/database/initialize" />
+    </links>
+    <type>HSQL</type>
+    <user>sa</user>
+    <password>$2a$13$c88b98bda40fc9526c6b2OodngLtg4bxRj.5i0ECkHNkqq1olOVPm</password>
+    <dbVersion>HSQL Database Engine 2.4.0</dbVersion>
+    <driver>org.hsqldb.jdbc.JDBCDriver</driver>
+    <url>jdbc:hsqldb:mem:testdb</url>
+    <ok>true</ok>
+    <versions>
+    	<version version="1.3.2" state="Success" description="add repository accepted certs" checksum="1710103480"
+            installed="2017-04-10T10:30:20.782+02:00" />
+        <version version="1.3.1" state="Success" description="add global admin role" checksum="1230735742"
+            installed="2017-04-10T10:30:20.767+02:00" />
+        <version version="1.3.0" state="Success" description="add type to template" checksum="727633006"
+            installed="2017-04-10T10:30:20.757+02:00" />
+        <version version="1.2.3" state="Success" description="set resource bytes not null" checksum="-652001277"
+            installed="2017-04-10T10:30:20.749+02:00" />
+        <version version="1.2.2" state="Success" description="add repository digest" checksum="-222577107"
+            installed="2017-04-10T10:30:20.739+02:00" />
+        <version version="1.2.1" state="Success" description="add repository strict" checksum="-780205616"
+            installed="2017-04-10T10:30:20.728+02:00" />
+        <version version="1.2" state="Success" description="add template" checksum="1088238598"
+            installed="2017-04-10T10:30:20.717+02:00" />
+        <version version="1.1" state="Success" description="Quartz initial setup" checksum="1129524243"
+            installed="2017-04-10T10:30:20.703+02:00" />
+        <version version="1.0" state="Success" description="appNG initial setup" checksum="-359267528"
+            installed="2017-04-10T10:30:20.670+02:00" />
+    </versions>
+</database>

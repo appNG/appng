@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<result xmlns="http://www.appng.org/schema/platform">
+	<field  name="creationDate" type="date">
+		<value>2013-10-22</value>
+	</field>
+</result>

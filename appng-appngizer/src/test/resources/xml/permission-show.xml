@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<permission xmlns="http://www.appng.org/schema/appngizer" name="testPermission"
+	self="http://localhost/application/demo-application/permission/testPermission">
+	<application>demo-application</application>
+	<description>test</description>
+</permission>

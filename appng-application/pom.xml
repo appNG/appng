@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>appng-application</artifactId>
+	<packaging>war</packaging>
+	<name>appNG Application</name>
+
+	<parent>
+		<groupId>org.appng</groupId>
+		<artifactId>appng-parent</artifactId>
+		<version>1.14.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+		<manager.version>1.12.2</manager.version>
+		<scheduler.version>1.11.2</scheduler.version>
+		<authentication.version>1.11.0</authentication.version>
+		<template.name>appng-template</template.name>
+		<template.version>1.14.2</template.version>
+		<repository.name>appng.org Stable</repository.name>
+		<repository.path>https://www.appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
+		<repository.remoteName>appNG Stable</repository.remoteName>
+		<admin.name>admin</admin.name>
+		<admin.realName>appNG Administrator</admin.realName>
+		<admin.email>admin@example.com</admin.email>
+		<admin.password>s3cr3t</admin.password>
+		<install.opts>-f</install.opts>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>src/main/webapp/META-INF</directory>
+							<filtering>true</filtering>
+							<targetPath>META-INF</targetPath>
+						</resource>
+						<resource>
+							<directory>src/main/webapp/WEB-INF</directory>
+							<filtering>true</filtering>
+							<targetPath>WEB-INF</targetPath>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<excludeScope>provided</excludeScope>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+					<finalName>${project.artifactId}-${project.version}-dependencies-${maven.build.timestamp}</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
+					<outputDirectory>${outFolder}</outputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>deploy</phase>
+						<configuration>
+							<target>
+								<copy todir="${outFolder}">
+									<fileset dir="target">
+										<include name="*.war" />
+									</fileset>
+								</copy>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-jsch</artifactId>
+						<version>1.10.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- BEGIN DEPENDENCY MANAGEMENT -->
+	<dependencies>
+		<!-- BEGIN PROJECT DEPENDENCIES -->
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-xmlapi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-tomcat7</artifactId>
+			<version>${appNGVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-tomcat8</artifactId>
+			<version>${appNGVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-cli</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-persistence</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-search</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>isoparser</artifactId>
+					<groupId>com.googlecode.mp4parser</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-taglib</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-mail</artifactId>
+		</dependency>
+		<!-- END PROJECT DEPENDENCIES -->
+		<!-- BEGIN FRAMEWORK DEPENDENCIES -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.tuckey</groupId>
+			<artifactId>urlrewritefilter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.im4java</groupId>
+			<artifactId>im4java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.saxon</groupId>
+			<artifactId>Saxon-HE</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-formtags</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-web</artifactId>
+		</dependency>
+		<!-- provided by Tomcat -->
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+		<!-- END FRAMEWORK DEPENDENCIES -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<!-- END DEPENDENCY MANAGEMENT -->
+	<description>the appNG web-application</description>
+</project>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasource xmlns="http://www.appng.org/schema/platform" id="enhancedClone">
+    <config>
+        <title>testNewTitle</title>
+        <description id="blabla"></description>
+        <permissions>
+            <permission ref="testPermission" mode="set"></permission>
+        </permissions>
+        <params>
+            <param name="dsParam1"></param>
+            <param name="dsParam2"></param>
+            <param name="newParam">newParamValue</param>
+        </params>
+        <meta-data bindClass="anotherClassBitesTheDust">
+            <field name="foo" type="text" binding="foo"/>
+        </meta-data>
+        <linkpanel id="foo" location="inline"/>
+        <linkpanel id="jin" location="inline">
+            <permissions>
+                <permission ref="doesNotExist" mode="set"></permission>
+            </permissions>
+            <link mode="intern" target="/fizz">
+                <permissions>
+                    <permission ref="doesNotExist" mode="set"></permission>
+                </permissions>
+                <label></label>
+                <icon></icon>
+            </link>
+            <link mode="intern" target="?foo=bar">
+                <label></label>
+                <icon></icon>
+            </link>
+        </linkpanel>
+        <linkpanel id="nintendo" location="inline">
+            <link id="legend-of-zelda" mode="intern" target="hyrule">
+                <label></label>
+                <icon></icon>
+            </link>
+        </linkpanel>
+    </config>
+    <bean id="datasource">
+        <option name="id" value="${doesNotExist}"/>
+        <option name="testOption" value="foobar"/>
+    </bean>
+</datasource>

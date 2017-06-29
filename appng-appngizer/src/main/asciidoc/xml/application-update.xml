@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application name="appng-manager" xmlns="http://www.appng.org/schema/appngizer">
+    <displayName>appNG Manager</displayName>
+    <core>false</core>
+    <fileBased>true</fileBased>
+    <hidden>true</hidden>
+    <version>0.12.1</version>
+</application>

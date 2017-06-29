@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.Person">
+    <field name="father" type="object" binding="father">
+        <field name="name" type="text" binding="father.name"/>
+        <field name="firstname" type="text" binding="father.firstname"/>
+        <field name="offsprings" type="list:object" binding="father.offsprings">
+            <field name="offsprings[]" type="object" binding="father.offsprings[]">
+                <field name="name" type="text" displayLength="30" binding="father.offsprings[].name"/>
+                <field name="firstname" type="text" hidden="false" binding="father.offsprings[].firstname">
+                    <condition expression="true"/>
+                </field>
+                <field name="birthDate" type="date" format="yyyy-MM-dd" readonly="false" binding="father.offsprings[].birthDate"/>
+            </field>
+        </field>
+    </field>
+</metaData>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties self="http://localhost:8080/appNGizer/platform/property" xmlns="http://www.appng.org/schema/appngizer">
+	<property name="applicationDir" self="http://localhost:8080/appNGizer/platform/property/applicationDir">
+		<value>/applications</value>
+		<defaultValue>/applications</defaultValue>
+		<description>The folder used for installing file-based-applications, relative to the webapp-root</description>
+	</property>
+	<property name="cacheApplicationFolder" self="http://localhost:8080/appNGizer/platform/property/cacheApplicationFolder">
+		<value>application</value>
+		<defaultValue>application</defaultValue>
+		<description>The folder for the application-cache, relative to platform.cacheFolder. Applications might use this
+			folder to cache temporary data.</description>
+	</property>
+	<property name="cacheFolder" self="http://localhost:8080/appNGizer/platform/property/cacheFolder">
+		<value>cache</value>
+		<defaultValue>cache</defaultValue>
+		<description>The cache folder, relative to WEB-INF. Contains the platform.cacheFolder and the
+			platform.cacheApplicationFolder.</description>
+	</property>
+	<property name="cacheImageFolder" self="http://localhost:8080/appNGizer/platform/property/cacheImageFolder">
+		<value>image</value>
+		<defaultValue>image</defaultValue>
+		<description>The folder used for caching images, within the application-cache</description>
+	</property>
+	<property name="cachePlatformFolder" self="http://localhost:8080/appNGizer/platform/property/cachePlatformFolder">
+		<value>platform</value>
+		<defaultValue>platform</defaultValue>
+		<description>The folder for the platform-cache, relative to platform.cacheFolder. The platform cache is used by appNG
+			to cache application resources.</description>
+	</property>
+</properties>

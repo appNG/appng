@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+	<diskStore path="java.io.tmpdir" />
+	<defaultCache maxBytesLocalHeap="104857600" timeToIdleSeconds="120" timeToLiveSeconds="120"
+		maxEntriesLocalDisk="10000000" eternal="false" memoryStoreEvictionPolicy="LRU">
+		<persistence strategy="localtempswap" />
+		<elementValueComparator class="net.sf.ehcache.store.DefaultElementValueComparator" />
+	</defaultCache>
+</ehcache>

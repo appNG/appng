@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<groups self="http://localhost:8080/appNGizer/groups" xmlns="http://www.appng.org/schema/appngizer">
+    <group name="Administrator" self="http://localhost:8080/appNGizer/group/Administrator">
+        <description>appNG administrator group</description>
+    </group>
+    <group name="Editor" self="http://localhost:8080/appNGizer/group/Editor">
+        <description>group for editors</description>
+    </group>
+</groups>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<roles self="http://localhost:8080/appNGizer/application/appng-manager/role" xmlns="http://www.appng.org/schema/appngizer">
+    <role name="Platform Administrator" self="http://localhost:8080/appNGizer/application/appng-manager/role/Platform%20Administrator">
+        <application>appng-manager</application>
+        <description>Administrator with all permissions</description>
+    </role>
+    <role name="User Manager" self="http://localhost:8080/appNGizer/application/appng-manager/role/User%20Manager">
+        <application>appng-manager</application>
+        <description>A role for managing groups,users and roles with their permissions</description>
+    </role>
+    <role name="Site Manager" self="http://localhost:8080/appNGizer/application/appng-manager/role/Site%20Manager">
+        <application>appng-manager</application>
+        <description></description>
+    </role>
+    <role name="Debugger" self="http://localhost:8080/appNGizer/application/appng-manager/role/Debugger">
+        <application>appng-manager</application>
+        <description>Enables debugging output</description>
+    </role>
+</roles>

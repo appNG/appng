@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<role name="Editor" xmlns="http://www.appng.org/schema/appngizer">
+	<application>appng-manager</application>
+	<description>Editor role</description>
+	<permissions>
+		<permission name="site.databases" />
+		<permission name="application.property.edit" />
+		<permission name="site.application.property.delete" />
+	</permissions>
+</role>

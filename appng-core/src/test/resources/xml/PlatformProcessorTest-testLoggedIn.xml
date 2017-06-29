@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<platform xmlns="http://www.appng.org/schema/platform" version="42-Final">
+	<config>
+		<output-format default="true" id="html">
+			<permissions>
+				<permission mode="set" ref="output-format.html"></permission>
+			</permissions>
+			<output-type default="true" id="webgui">
+				<permissions>
+					<permission mode="set" ref="output-type.webgui"></permission>
+				</permissions>
+				<template delete-includes="true" path="platform.xsl" type="master" />
+				<template path="utils.xsl" />
+			</output-type>
+			<output-type id="cmsplugin">
+				<permissions>
+					<permission mode="set" ref="output-type.cmsplugin"></permission>
+				</permissions>
+				<template delete-includes="true" path="platform.xsl" type="master" />
+				<template path="utils.xsl" />
+			</output-type>
+		</output-format>
+		<output-format id="xml">
+			<output-type id="raw">
+				<template delete-includes="true" path="platform_xml.xsl" type="master" />
+			</output-type>
+		</output-format>
+		<authentications>
+			<authentication index="index" page="webform" application="appng-authentication" ref="webform" site="manager" />
+		</authentications>
+		<session />
+		<platform-url>http://s1.example.com:8080/manager/manager/application1/page1/action/2</platform-url>
+		<base-url>/manager</base-url>
+		<current-url>/manager/manager/application1/page1/action/2</current-url>
+		<output format="html" type="webgui" />
+	</config>
+	<subject>
+		<localization>
+			<language>en</language>
+			<decimalSeparator>.</decimalSeparator>
+			<groupingSeparator>,</groupingSeparator>
+		</localization>
+	</subject>
+	<navigation>
+		<item actionName="action" actionValue="logout" hidden="true" page="webform" application="appng-authentication" ref="webform/logout"
+			site="manager" type="anchor">
+			<label>Logout</label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+	</navigation>
+	<content>
+		<application>
+			<config />
+		</application>
+	</content>
+</platform>

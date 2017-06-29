@@ -1,0 +1,30 @@
+[ {
+  "part" : "search-en",
+  "data" : [ {
+    "title" : "The Hitchhiker's Guide to the Galaxy",
+    "date" : "2015-03-27",
+    "text" : "The Hitchhiker's Guide to the Galaxy is a comic science fiction series created by Douglas Adams. Originally a radio comedy broadcast on BBC Radio 4 in 1978, it was later adapted to other formats, and over several years it gradually became an international multi-media phenomenon. Adaptations have included stage shows, a \"trilogy\" of five books published between 1979 and 1992, a sixth novel penned by Eoin Colfer in 2009, a 1981 TV series, a 1984 computer game, and three series of three-part comic book adaptations of the first three novels published by DC Comics between 1993 and 1996. There were also two series of towels, produced by Beer-Davies, that are considered by some fans to be an \"official version\" of The Hitchhiker's Guide to the Galaxy, as they include text from the first novel.[1][2] A Hollywood-funded film version, produced and filmed in the UK, was released in April 2005, and radio adaptations of the third, fourth, and fifth novels were broadcast from 2004 to 2005. Adams himself did many of these adaptations, including the novels, the TV series, the computer game, and the earliest drafts of the Hollywood film’s screenplay, and some of the stage shows introduced new material written by Adams. The title is the name of a fictional, eccentric, electronic travel guide, The Hitchhiker's Guide to the Galaxy, prominently featured in the series. ",
+    "fragment" : "The <span>Hitchhiker's</span> Guide to the Galaxy is a comic science fiction series created by Douglas Adams... to be an \"official version\" of The <span>Hitchhiker's</span> Guide to the Galaxy, as they include text from the first novel.[1..., The <span>Hitchhiker's</span> Guide to the Galaxy, prominently featured in the series. ",
+    "type" : "jsp",
+    "language" : "en",
+    "link" : "/en/42.jsp",
+    "score" : 1.0,
+    "fields" : [ {
+      "name" : "customfield",
+      "value" : "Hitchhiker"
+    }, {
+      "name" : "anotherCustomfield",
+      "value" : "Douglas Adams"
+    } ]
+  }, {
+    "title" : "42.txt",
+    "date" : "2015-03-27",
+    "text" : "The Hitchhiker's Guide to the Galaxy is a comic science fiction series created by Douglas Adams. Originally a radio \ncomedy broadcast on BBC Radio 4 in 1978, it was later adapted to other formats, and over several years it gradually \nbecame an international multi-media phenomenon. Adaptations have included stage shows, a \"trilogy\" of five books \npublished between 1979 and 1992, a sixth novel penned by Eoin Colfer in 2009, a 1981 TV series, a 1984 computer game,\n and three series of three-part comic book adaptations of the first three novels published by DC Comics between 1993 \n and 1996. There were also two series of towels, produced by Beer-Davies, that are considered by some fans to be an \n \"official version\" of The Hitchhiker's Guide to the Galaxy, as they include text from the first novel.[1][2] A \n Hollywood-funded film version, produced and filmed in the UK, was released in April 2005, and radio adaptations of \n the third, fourth, and fifth novels were broadcast from 2004 to 2005. Adams himself did many of these adaptations, \n including the novels, the TV series, the computer game, and the earliest drafts of the Hollywood film’s screenplay, \n and some of the stage shows introduced new material written by Adams.\n\nThe title is the name of a fictional, eccentric, electronic travel guide, The Hitchhiker's Guide to the Galaxy, \nprominently featured in the series.\n",
+    "fragment" : "The <span>Hitchhiker's</span> Guide to the Galaxy is a comic science fiction series created by Douglas Adams... to be an \n \"official version\" of The <span>Hitchhiker's</span> Guide to the Galaxy, as they include text from the first... travel guide, The <span>Hitchhiker's</span> Guide to the Galaxy, \nprominently featured in the series.\n",
+    "type" : "txt",
+    "language" : "en",
+    "link" : "/en/42.txt",
+    "score" : 1.0,
+    "fields" : [ ]
+  } ]
+} ]

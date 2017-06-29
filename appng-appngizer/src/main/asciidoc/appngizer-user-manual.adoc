@@ -1,0 +1,73 @@
+= {project-name} User Manual
+Matthias Müller <matthias.mueller@appng.org>
+Build Version  {project-version} created {localdate}
+:title-logo-image: appng.png
+:toc:
+
+== General
+
+This document describes the RESTful API for appNGizer, a tool for remote managing appNG installations.
+
+All operations that require a request body must use the HTTP Header *Content-Type* *application/xml*.
+The only exception is the POST-request used for authentication (see <<Authenticate>>), where *text/plain* must be used.
+
+=== HTTP methods and return codes
+==== GET
+Retrieves a resource/ a list of resources.
+
+*Return codes*:
+
+* *200* (OK) - if the resource has been successfully retrieved
+* *404* (Not found) - if such a resource does not exist
+* *500* (Internal Server error) - if an error occurred
+
+==== POST
+Creates a new resources.
+
+*Return codes*:
+
+* *201* (Created) - if everthing went well
+* *409* (Conflict) - if such a resource already exists
+* *500* (Internal Server error) - if an error occurred
+
+==== PUT
+Updates an existing resources.
+
+*Return codes*:
+
+* *200* (OK) - if the resource has been updated
+* *303* (See Other) - if the location of the resource has changed due to the update
+* *404* (Not found) - if such a resource does not exist
+* *409* (Conflict) - if such a resource already exists
+* *500* (Internal Server error) - if an error occurred
+
+==== DELETE
+Updates an existing resource.
+
+*Return codes*:
+
+* *204* (No Content) - if the resource has been deleted
+* *404* (Not found) - if such a resource does not exist
+* *500* (Internal Server error) - if an error occurred
+
+
+=== Schema and namespace
+The XSD schema for appNGizer is available at
+
+http://www.appng.org/schema/appngizer/appngizer.xsd
+
+The namespace to be used is `http://www.appng.org/schema/appngizer`.
+
+include::parts/home.adoc[]
+
+include::parts/platform.adoc[]
+
+include::parts/application.adoc[]
+
+include::parts/site.adoc[]
+
+include::parts/repository.adoc[]
+
+include::parts/group.adoc[]
+
+include::parts/subject.adoc[]

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+
+	<datasource id="persons">
+		<config>
+			<title>Persons</title>
+			<params>
+				<param name="selected"></param>
+			</params>
+			<meta-data bindClass="${package}.Person" result-selector="${dollar}{current.id eq selected}">
+				<field name="lastname" type="text">
+					<label id="lastname"></label>
+				</field>
+				<field name="name" type="text">
+					<label id="name"></label>
+				</field>
+				<field name="actions" type="linkpanel">
+					<label id="actions" />
+				</field>
+			</meta-data>
+			<linkpanel location="inline" id="actions">
+				<link target="/index/update/${dollar}{current.id}" mode="intern" id="edit">
+					<icon>edit</icon>
+					<label id="edit" />
+				</link>
+			</linkpanel>
+			<linkpanel location="both" id="create">
+				<link target="/index/create" mode="intern" id="edit">
+					<icon>new</icon>
+					<label id="person.create" />
+				</link>
+			</linkpanel>
+		</config>
+		<bean id="personDataSource" />
+	</datasource>
+
+	<datasource id="person">
+		<config>
+			<params>
+				<param name="id"></param>
+			</params>
+			<meta-data bindClass="${package}.Person">
+				<field name="lastname" type="text">
+					<label id="lastname"></label>
+				</field>
+				<field name="name" type="text">
+					<label id="name"></label>
+				</field>
+			</meta-data>
+		</config>
+		<bean id="personDataSource">
+			<option name="person" id="${dollar}{id}" />
+		</bean>
+	</datasource>
+
+	<datasource id="newPerson">
+		<config>
+			<meta-data bindClass="${package}.Person">
+				<field name="lastname" type="text">
+					<label id="lastname"></label>
+				</field>
+				<field name="name" type="text">
+					<label id="name"></label>
+				</field>
+			</meta-data>
+		</config>
+		<bean id="personDataSource">
+			<option name="person" id="-1" />
+		</bean>
+	</datasource>
+
+</datasources>

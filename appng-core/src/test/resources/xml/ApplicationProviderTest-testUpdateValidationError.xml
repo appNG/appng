@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<applicationReference xmlns="http://www.appng.org/schema/platform" version="1.5.2" id="demo-application">
+	<config>
+		<title id="plugintitle">A Test-Plugin</title>
+		<permissions>
+			<permission mode="set" ref="debug"></permission>
+		</permissions>
+		<session>
+			<session-params>
+				<session-param name="sessionparam1"></session-param>
+				<session-param name="sessionparam2"></session-param>
+			</session-params>
+		</session>
+	</config>
+	<pages>
+		<page type="index" id="entity">
+			<config>
+				<title id="entity">Entity</title>
+				<description></description>
+				<permissions>
+					<permission mode="set" ref="page.entity"></permission>
+				</permissions>
+				<url-schema>
+					<url-params>
+						<url-param name="action">update</url-param>
+						<url-param name="entityId">1</url-param>
+						<url-param name="entityAction" />
+						<url-param name="entityId">1</url-param>
+					</url-params>
+					<get-params>
+						<get-param name="form_action"></get-param>
+					</get-params>
+					<post-params>
+						<post-param name="form_action">update</post-param>
+					</post-params>
+				</url-schema>
+				<linkpanel location="top" id="page-nav">
+					<link target="/page0" mode="intern" id="page-nav[1]">
+						<label id="page0">Page 0</label>
+					</link>
+					<link target="/page1" mode="intern" id="page-nav[2]">
+						<condition expression="${1==1}" />
+						<label id="page1">Page 1</label>
+					</link>
+					<link target="/page3" mode="intern" id="page-nav[4]">
+						<permissions>
+							<permission mode="set" ref="page3"></permission>
+						</permissions>
+						<label id="page3">Page 3</label>
+					</link>
+				</linkpanel>
+			</config>
+			<structure>
+				<section>
+					<element passive="true">
+						<action eventId="events" id="update">
+							<config>
+								<title params="#{name},${entityId}" id="update.entity">Update entity new name (ID: 1)</title>
+								<permissions>
+									<permission mode="set" ref="update.entity"></permission>
+								</permissions>
+								<params>
+									<param name="entityId">1</param>
+									<param name="form_action">update</param>
+									<param name="action">update</param>
+								</params>
+								<meta-data bindClass="org.appng.testapplication.TestEntity">
+									<field binding="id" hidden="true" readonly="true" format="#" type="int" name="id">
+										<label id="id">ID</label>
+										<condition expression="true" />
+									</field>
+									<field binding="name" type="text" name="name">
+										<label id="name">Name</label>
+										<validation>
+											<notNull>
+												<message class="ERROR" ref="name">may not be null</message>
+											</notNull>
+										</validation>
+										<messages ref="name">
+											<message class="ERROR" ref="name">may not be null</message>
+										</messages>
+									</field>
+									<field binding="integerValue" type="list:checkbox" name="integerValue">
+										<label id="integerValue">integer value</label>
+									</field>
+									<field binding="doubleValue" format="#.##" type="decimal" name="doubleValue">
+										<label id="doubleValue">double value</label>
+									</field>
+									<field binding="booleanValue" type="checkbox" name="booleanValue">
+										<label id="booleanValue">boolean value</label>
+									</field>
+								</meta-data>
+							</config>
+							<condition expression="${form_action eq 'update' and action eq 'update' and not empty entityId}" />
+							<datasource id="entity">
+								<params>
+									<param name="entityId">1</param>
+								</params>
+							</datasource>
+							<userdata>
+								<input name="integerValue">4</input>
+								<input name="doubleValue">3.9</input>
+								<input name="booleanValue">true</input>
+							</userdata>
+							<data>
+								<selection type="checkbox" id="integerValue">
+									<title id="integerValue">integer value</title>
+									<option selected="false" name="1" value="1" />
+									<option selected="false" name="2" value="2" />
+									<option selected="false" name="3" value="3" />
+									<option selected="true" name="4" value="4" />
+									<option selected="false" name="5" value="5" />
+								</selection>
+								<result>
+									<field type="int" name="id">
+										<value>1</value>
+									</field>
+									<field type="text" name="name">
+										<value>new name</value>
+									</field>
+									<field type="list:checkbox" name="integerValue">
+										<value>5</value>
+									</field>
+									<field type="decimal" name="doubleValue">
+										<value>5.5</value>
+									</field>
+									<field type="checkbox" name="booleanValue">
+										<value>false</value>
+									</field>
+								</result>
+							</data>
+							<bean id="entities">
+								<option name="action" id="update" />
+								<option name="entity" id="1" />
+							</bean>
+						</action>
+					</element>
+				</section>
+			</structure>
+		</page>
+	</pages>
+</applicationReference>

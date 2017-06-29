@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<applicationReference xmlns="http://www.appng.org/schema/platform" version="1.5.2" id="demo-application">
+    <config>
+        <title id="plugintitle">A Test-Plugin</title>
+        <permissions>
+            <permission mode="set" ref="debug"></permission>
+        </permissions>
+        <session>
+            <session-params>
+                <session-param name="sessionparam1"></session-param>
+                <session-param name="sessionparam2"></session-param>
+            </session-params>
+        </session>
+    </config>
+    <pages>
+        <page type="index" id="entity">
+            <config>
+                <title id="entity">Entity</title>
+                <description></description>
+                <permissions>
+                    <permission mode="set" ref="page.entity"></permission>
+                </permissions>
+                <url-schema>
+                    <url-params>
+                        <url-param name="action">update</url-param>
+                        <url-param name="entityId">1</url-param>
+                        <url-param name="entityAction"/>
+                        <url-param name="entityId">1</url-param>
+                    </url-params>
+                    <get-params>
+                        <get-param name="form_action"></get-param>
+                    </get-params>
+                    <post-params>
+                        <post-param name="form_action">update</post-param>
+                    </post-params>
+                </url-schema>
+                <linkpanel location="top" id="page-nav">
+                    <link target="/page0" mode="intern" id="page-nav[1]">
+                        <label id="page0">Page 0</label>
+                    </link>
+                    <link target="/page1" mode="intern" id="page-nav[2]">
+                        <condition expression="${1==1}"/>
+                        <label id="page1">Page 1</label>
+                    </link>
+                    <link target="/page3" mode="intern" id="page-nav[4]">
+                        <permissions>
+                            <permission mode="set" ref="page3"></permission>
+                        </permissions>
+                        <label id="page3">Page 3</label>
+                    </link>
+                </linkpanel>
+            </config>
+            <messages ref="entity">
+                <message class="ERROR" ref="update">Internal error</message>
+                <message class="ERROR">org.appng.api.ProcessingException: error performing action 'update' of event 'events', ID: 791837698</message>
+            </messages>
+            <structure/>
+        </page>
+    </pages>
+</applicationReference>

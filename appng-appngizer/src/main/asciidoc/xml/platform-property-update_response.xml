@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<property name="myCustomProperty" self="http://localhost:8080/appNGizer/platform/property/myCustomProperty" xmlns="http://www.appng.org/schema/appngizer">
+    <value>57</value>
+    <defaultValue>42</defaultValue>
+    <description>The real answer to life, the universe and everything</description>
+</property>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<permissions xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/application/demo-application/permission">
+	<permission name="debug" self="http://localhost/application/demo-application/permission/debug">
+		<application>demo-application</application>
+		<description>debug view</description>
+	</permission>
+	<permission name="output-format.html" self="http://localhost/application/demo-application/permission/output-format.html">
+		<application>demo-application</application>
+		<description>HTML Format</description>
+	</permission>
+	<permission name="output-type.webgui" self="http://localhost/application/demo-application/permission/output-type.webgui">
+		<application>demo-application</application>
+		<description>Web-GUI type</description>
+	</permission>
+	<permission name="testPermission" self="http://localhost/application/demo-application/permission/testPermission">
+		<application>demo-application</application>
+		<description>test</description>
+	</permission>
+</permissions>

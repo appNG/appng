@@ -1,0 +1,8 @@
+repoCodeName: Local
+repoDescription: a local test repository
+repoVersion: 
+[package digests]
+demo-application-1.5.1.zip: 65fd39da4cc20cab904c088b7ac22f41d2a3cb5feacf318728323cefe191bb7d
+demo-application-1.5.2-2012-11-27-1305.zip: 2f2ba67d4a02515500492f51682992bc1e6aa9e3400cbd0ad86af31e7f2af3b9
+demo-application-1.5.3-2013-01-13-1303.zip: 6481ea8230a97cf46fb521109f9aa36be2cf2a800664e64ef3d352f96ad8dbae
+demo-application-1.5.4-2017-04-10-1046.zip: e65fc4f41b0e6192f35a72610c00d65a2befbbd58d0337f0282581731b31b348

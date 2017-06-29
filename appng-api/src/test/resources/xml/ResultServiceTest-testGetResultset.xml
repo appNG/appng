@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resultset xmlns="http://www.appng.org/schema/platform" hits="2" lastchunk="0" firstchunk="0" previouschunk="0"
+	nextchunk="0" chunksize="2" chunkname="action" chunk="0">
+	<result selected="true">
+		<field type="text" name="name">
+			<value>Princess</value>
+		</field>
+		<field type="text" name="firstname">
+			<value>Lea</value>
+		</field>
+		<field type="date" name="birthDate">
+			<value></value>
+		</field>
+		<field type="decimal" name="size">
+			<value></value>
+		</field>
+		<field type="decimal" name="savings">
+			<value></value>
+		</field>
+		<field type="list:checkbox" name="integerList">
+			<value></value>
+		</field>
+		<field type="file" name="picture">
+			<value></value>
+		</field>
+		<field type="file-multiple" name="morePictures">
+			<value></value>
+		</field>
+		<field type="list:text" name="strings">
+			<value></value>
+		</field>
+		<field type="coordinate" name="coordinate">
+			<field type="decimal" name="latitude">
+				<value>12.23</value>
+			</field>
+			<field type="decimal" name="longitude">
+				<value>34.36</value>
+			</field>
+			<value></value>
+		</field>
+		<field type="image" name="images">
+			<value />
+			<icon type="class">/foo/bar1.jpg</icon>
+			<icon type="class">/foo/bar2.jpg</icon>
+		</field>
+		<field name="father">
+			<field type="text" name="name">
+				<value>Darth</value>
+			</field>
+			<field type="text" name="firstname">
+				<value>Vader</value>
+			</field>
+		</field>
+		<linkpanel location="inline" id="thepanel">
+			<link target="/foobar/foo/1/Lea/Princess" mode="intern" id="2">
+				<confirmation params="#{name}" id="some.label">some.label[#{name}]</confirmation>
+			</link>
+		</linkpanel>
+	</result>
+	<result>
+		<field type="text" name="name">
+			<value>Skywalker</value>
+		</field>
+		<field type="text" name="firstname">
+			<value>Luke</value>
+		</field>
+		<field type="date" name="birthDate">
+			<value></value>
+		</field>
+		<field type="decimal" name="size">
+			<value>1.85</value>
+		</field>
+		<field type="decimal" name="savings">
+			<value>123,456.357</value>
+		</field>
+		<field type="list:checkbox" name="integerList">
+			<value></value>
+		</field>
+		<field type="file" name="picture">
+			<value></value>
+		</field>
+		<field type="file-multiple" name="morePictures">
+			<value></value>
+		</field>
+		<field type="list:text" name="strings">
+			<value></value>
+		</field>
+		<field type="coordinate" name="coordinate">
+			<field type="decimal" name="latitude">
+				<value>17.23</value>
+			</field>
+			<field type="decimal" name="longitude">
+				<value>14.36</value>
+			</field>
+			<value></value>
+		</field>
+		<field type="image" name="images">
+			<value />
+			<icon type="class">/foo/bar1.jpg</icon>
+			<icon type="class">/foo/bar2.jpg</icon>
+		</field>
+		<field name="father">
+			<field type="text" name="name">
+				<value>Darth</value>
+			</field>
+			<field type="text" name="firstname">
+				<value>Vader</value>
+			</field>
+		</field>
+		<linkpanel location="inline" id="thepanel">
+			<link target="/foobar/foo/2/Luke/Skywalker" mode="intern" id="2">
+				<confirmation params="#{name}" id="some.label">some.label[#{name}]</confirmation>
+			</link>
+		</linkpanel>
+	</result>
+</resultset>

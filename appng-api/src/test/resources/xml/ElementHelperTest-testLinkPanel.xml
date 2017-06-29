@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataConfig xmlns="http://www.appng.org/schema/platform">
+	<linkpanel id="linkpanel1" location="inline">
+		<link id="linkpanel1[1]" mode="extern" target="foo" active="true">
+			<condition expression="${1 eq 1}" />
+			<label>link1</label>
+			<confirmation id="some.label" params="#{name}">some.label
+			</confirmation>
+		</link>
+		<link id="linkpanel1[4]" mode="webservice"
+			target="/services/localhost/application/webservice/wslink">
+			<label>link4</label>
+		</link>
+		<link id="linkpanel1[5]" mode="extern" target="disabled" show-disabled="true">
+			<condition expression="${3 eq 4}" />
+			<label>link5</label>
+		</link>
+	</linkpanel>
+</dataConfig>

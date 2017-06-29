@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.appng.org/schema/application" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/application http://www.appng.org/schema/application/appng-application.xsd">
+	<name>${project.artifactId}</name>
+	<display-name><![CDATA[${displayName}]]></display-name>
+	<description><![CDATA[${project.description}]]></description>
+	<long-description><![CDATA[${longDescription}]]></long-description>
+	<version>${project.version}</version>
+	<timestamp>${timestamp}</timestamp>
+	<appng-version>${appNGVersion}</appng-version>
+
+	<roles>
+		<role admin-role="true">
+			<name>Admin</name>
+			<description>an administrator with all permissions</description>
+			<permission id="output-format.html" />
+			<permission id="output-type.webgui" />
+		</role>
+	</roles>
+
+	<permissions>
+		<permission id="output-format.html" />
+		<permission id="output-type.webgui" />
+	</permissions>
+
+	<properties />
+
+</application>

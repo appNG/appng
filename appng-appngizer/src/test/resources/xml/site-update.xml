@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<site name="localhost" self="http://localhost/site/localhost" xmlns="http://www.appng.org/schema/appngizer">
+	<links>
+		<link name="properties" self="http://localhost/site/localhost/property" />
+		<link name="applications" self="http://localhost/site/localhost/application" />
+		<link name="databases" self="http://localhost/site/localhost/database" />
+	</links>
+	<host>localhost</host>
+	<domain>http://localhost:8080</domain>
+	<description>the local host</description>
+	<active>true</active>
+	<createRepositoryPath>true</createRepositoryPath>
+</site>

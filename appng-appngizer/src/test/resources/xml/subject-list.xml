@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<subjects xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/subject">
+	<subject name="Admin" self="http://localhost/subject/Admin">
+		<realName>Admin Istrator</realName>
+		<email>admin@appng.com</email>
+		<description>a subject for administrators</description>
+		<timeZone>Europe/Madrid</timeZone>
+		<language>es</language>
+		<type>LOCAL_USER</type>
+	</subject>
+</subjects>

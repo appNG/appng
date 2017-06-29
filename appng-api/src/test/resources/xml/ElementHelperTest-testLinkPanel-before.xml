@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataConfig xmlns="http://www.appng.org/schema/platform">
+	<linkpanel id="linkpanel1" location="inline">
+		<link mode="extern" target="foo">
+			<condition expression="${1 eq 1}" />
+			<label>link1</label>
+			<confirmation id="some.label" params="#{name}" />
+		</link>
+		<link mode="extern" target="bar">
+			<condition expression="${1 eq 2}" />
+			<label>link2</label>
+		</link>
+		<link mode="extern" target="bar">
+			<label>link3</label>
+		</link>
+		<link mode="webservice" target="wslink">
+			<label>link4</label>
+		</link>
+		<link mode="extern" target="disabled" show-disabled="true">
+			<condition expression="${3 eq 4}" />
+			<label>link5</label>
+		</link>
+		<link mode="extern" target="foobar" show-disabled="true">
+			<condition expression="${current.id=5}" />
+			<permissions>
+				<permission ref="link:withCurrentCondition" />
+			</permissions>
+			<label>withCurrentCondition</label>
+		</link>
+	</linkpanel>
+	<linkpanel id="linkpanel2" />
+</dataConfig>

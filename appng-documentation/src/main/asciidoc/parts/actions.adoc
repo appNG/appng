@@ -1,0 +1,267 @@
+== Actions
+While a datasource represents the structure/state of the application's data, actions are there to manipulate the state of that data. In most cases, an action will be rendered as an HTML `<form>` with various `<input>`-fields.
+
+Let's see how a typical action looks like:
+[source,xml]
+----
+<event id="employeeEvent"
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd"> <!--1-->
+    <config></config>
+    <action id="update"> <!--2-->
+        <config>
+            <title id="employee.update" /> <!--3-->
+            <params> <!--4-->
+                <param name="id" />
+                <param name="form_action" />
+            </params>
+        </config>
+        <condition expression="${'update' eq form_action and not empty id}" /> <!--5-->
+        <datasource id="employee"> <!--6-->
+            <params>
+                <param name="id">${id}</param>
+            </params>
+        </datasource>
+        <bean id="employees"> <!--7-->
+            <option name="mode" value="update" id="${id}" />
+        </bean>
+    </action>
+</event>
+----
+<1> Actions are always grouped by an `<event>`. That makes it easy to collect all actions that perform on the same domain object within on event. The id of the event *must* be globally unique.
+<2> Within the event, each action *must* have a unique id.
+<3> An action *must* define a title that is used as a headline when rendered as HTML.
+<4> An action *can* be parametrized using a `<params>` element. 
+<5> An action *can* define an execute condition. Only if the condition matches, the action will be executed.
+<6> An action *can* make use of a datasource and pass its parameters to that datasource.
+<7> Just like for datasources, the name of the Spring bean implementing the action *must* be given. Also, any number of options can be passed to that implementation.
+
+As you see, we use the datasource <<ds-employee,employee>> defined before. Thus the type of the data received by the action is an `Employee`.
+
+Next, the implementation:
+[source, java]
+----
+import org.appng.api.ActionProvider;
+import org.appng.api.Environment;
+import org.appng.api.FieldProcessor;
+import org.appng.api.Options;
+import org.appng.api.Request;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.myapp.domain.Employee;
+import com.myapp.service.EmployeeService;
+
+@Component
+@Scope("request") //<1>
+public class Employees implements ActionProvider<Employee> { // <2>
+
+    private EmployeeService service;
+
+	@Autowired
+	public Employees(EmployeeService service) {
+		this.service = service;
+	}
+
+    // <3>
+    public void perform(Site site, Application application,
+            Environment environment, Options options, Request request,
+            Employee formBean, FieldProcessor fieldProcessor) {
+        // <4>
+		String mode = options.getOptionValue("mode", "value");
+		Integer id = request.convert(options.getOptionValue("mode", "id"), Integer.class);
+	    if ("update".equals(mode)) {
+	        // <5>
+			service.updateEmployee(formBean, request, fieldProcessor);
+	    } else {
+	        ...
+	    }
+	}
+}
+----
+<1> Spring annotations are used to define the bean.
+<2> The interface to be implemented is {appng}/org/appng/api/ActionProvider.html[org.appng.api.ActionProvider<T>^]. Because the datasource uses the bindclass `Employee`, we use this as type parameter.
+<3> The single method to implement is `perform(...)`, which takes a parameter `formBean` of the required type `Employee`. 
+<4> We retrieve the mode and the id from the options.
+<5> We call the service to update the employee.
+
+As you can see, there is no need for manually binding request parameters to the `formBean`, appNG is doing that job for you. Now, you might ask how the implementation of  `service.updateEmployee(...)` might look like and why it needs the `request` and `fieldProcessor` arguments. Good catch!
+
+In web applications, we always face the problem that the data received from the user has to be merged with the real, probably persistent data. This problem even gets worse as the user most times is only allowed to edit certain properties of the data. So what to do? Merge each property manually? This is not the appNG way.
+
+But this is:
+[source,java]
+----
+public void updateEmployee(Employee formBean, Request request, FieldProcessor fp) {
+    Employee current = getEmployee(formBean.getId()); // <1>
+    request.setPropertyValues(formBean, current, fp.getMetaData()); // <2>
+    String message = 
+        request.getMessage("employee.updated", e.getFirstName(), e.getLastName()); <3>
+    fp.addOkMessage(message);
+}
+----
+<1> We retrieve the current data.
+<2> For each non-readonly (aka writable) field of the `FieldProcessor`, the field value is written from the `formBean` to the current data.
+<3> Retrieve a parametrized message from the resourcebundle and add it to the `FieldProcessor`.
+
+How does this work? Well, the `FieldProcessor` contains the {appng}/org/appng/xml/platform/MetaData.html[org.appng.xml.platform.MetaData^] with all the {appng}/org/appng/xml/platform/FieldDef.html[org.appng.xml.platform.FieldDef^]initions defined in the <<ds-employee, datasource employee>>. Because of this, the `request` can easily write those fields to the target object, including possible necessarry type conversions. 
+
+=== Validation
+Validation is a first class citizen in the appNG application framework. Therefore, the http://beanvalidation.org[Bean Validation API^] as specified in *JSR-303/JSR-349* is used. Just add some validation annotations to the POJO bindclass that you datasource uses. As long as the `formBean` of an `ActionProvider` is not valid, the action will not perform and the error messages will be shown.
+
+*Example:*
+[source,java]
+----
+@NotNull(message = ValidationMessages.VALIDATION_NOT_NULL) //<1>
+@Size(min = 3, message = "{firstname.toShort}") //<2>
+public String getFirstName() {
+    return firstName;
+}
+...
+@FileUpload(fileTypes = "jpg,png", maxSize = 10, unit = Unit.MB) //<3>
+public org.appng.forms.FormUpload getUpload() {
+    return upload;
+}
+
+@Valid
+public Salary getSalary() { //<4>
+    return salary;
+}
+----
+<1> A predefined message from {appng}/org/appng/api/ValidationMessages.html[org.appng.api.ValidationMessages^] can be used
+<2> Alternatively, a custom validation message from the application's resourcebundle can be used. Don't forget the curly braces!
+<3> A {appng}/org/appng/forms/FormUpload.html[org.appng.forms.FormUpload^] can be validated using `@FileUpload`.
+<4> Nested properties can be validated using `@Valid`.
+
+You can use any {jee}/javax/validation/Constraint.html[Constraint^] in your application, may it be the standard constraints from the `javax.validation.constraints`-package, those from http://hibernate.org/validator/[Hibernate Validator^] (shipped with appNG), or any custom and/or compound constraints.
+
+
+==== Client side validation
+An appNG template ships with support for client-side validation. Because it can not know all possible constraints you are using in your action's bindclass, only these standard constraints are eligile for client-site validation:
+
+* {jee}/javax/validation/constraints/Digits.html[javax.validation.constraints.Digits^]
+* {jee}/javax/validation/constraints/Future.html[javax.validation.constraints.Future^]
+* {jee}/javax/validation/constraints/Max.html[javax.validation.constraints.Max^]
+* {jee}/javax/validation/constraints/Min.html[javax.validation.constraints.Min^]
+* {jee}/javax/validation/constraints/NotNull.html[javax.validation.constraints.NotNull^]
+* {jee}/javax/validation/constraints/Past.html[javax.validation.constraints.Past^]
+* {jee}/javax/validation/constraints/Pattern.html[javax.validation.constraints.Pattern^]
+* {jee}/javax/validation/constraints/Size.html[javax.validation.constraints.Size^]
+* {appng}/org/appng/api/FileUpload.html[org.appng.api.FileUpload^]
+* {appng}/org/appng/api/NotBlank.html[org.appng.api.NotBlank^]
+
+
+TIP: If your action's bindclass uses some additional constraints, it should be considered to set  `clientValidation="false"` for your `<action>`. Otherwise, the client-validation would pass, whereas the server-side validation fails. This could be confusing to the user.
+
+==== Programmatic validation
+By implementing {appng}/org/appng/api/FormValidator.html[org.appng.api.FormValidator^] in your `ActionProvider`/ `DataProvider` *or* in your bind-object, validation can be done programmatically.
+
+*Example:*
+
+In this example, a credit card number is validated inside the bind-object `BankAccount` using https://commons.apache.org/proper/commons-validator/[Apache Commons Validator^]'s `CreditCardValidator`.
+
+[source,java]
+----
+import org.apache.commons.validator.routines.CreditCardValidator;
+import org.appng.api.Environment;
+import org.appng.api.FieldProcessor;
+import org.appng.api.FormValidator;
+import org.appng.api.Options;
+import org.appng.api.Request;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
+import org.appng.xml.platform.FieldDef;
+
+public class BankAccount implements FormValidator { //<1>
+
+	private String creditCardNumber;
+
+    //<2>
+	public void validate(Site site, Application application,
+	        Environment environment, Options options,
+	        Request request, FieldProcessor fieldProcessor) {
+		//<3>
+		if (!new CreditCardValidator().isValid(creditCardNumber)) {
+			FieldDef creditCardNumber = fieldProcessor.getField("creditCardNumber"); //<4>
+			fieldProcessor.addErrorMessage(creditCardNumber, "Invalid credit card number!"); //<5>
+		}
+	}
+
+    // getters and setters here
+
+}
+----
+<1> Implement `org.appng.api.FormValidator`.
+<2> The single method to be implemented is `validate(...)`.
+<3> Check if the credit card number is valid.
+<4> If not, get the `FieldDef` for `creditCardNumber` from the `FieldProcessor` by it's `binding`.
+<5> Add an error-message for the field.
+
+You can also use the `FieldProcessor` inside your `ActionProvider`/ `DataProvider` to add validation error messages to a field or to the whole action/datasource respectively. In case of an action, make sure not to process any further and just `return` from the action.
+
+*Example:*
+
+[source, java]
+----
+public SaveBankAccount implements ActionProvider<BankAccount> {
+
+    public void perform(Site site, Application application,
+            Environment environment, Options options, Request request,
+			BankAccount formBean, FieldProcessor fieldProcessor) {
+		//<1>
+	    if (!new CreditCardValidator().isValid(formBean.getCreditCardNumber())) {
+			FieldDef creditCardNumber = fieldProcessor.getField("creditCardNumber"); //<2>
+			fieldProcessor.addErrorMessage(creditCardNumber, "Invalid credit card number!");
+			fieldProcessor.addErrorMessage("Your input contains errors!"); //<3>
+			return; //<4>
+		}
+		// continue
+	}
+}
+----
+<1> Check if the credit card number is valid.
+<2> If not, add the error-message to the `creditCardNumber` field.
+<3> Add a global error message.
+<4> Stop processing and return.
+
+==== Using validation groups
+The Bean Validation API supports the concept of validation groups, as can bee seen in http://beanvalidation.org/1.1/spec/#validationapi-validatorapi-groups[section 5.1.3^] that specification.
+
+AppNG does support validation groups by adding those to the `<meta-data>` of an application's datasource. Usually, an interface  defined inside the class to be validated is used as a validation group.
+
+*Example:*
+[source,xml]
+----
+<meta-data bindclass="com.myapp.domain.Employee">
+    <validation><!--1-->
+        <group class="javax.validation.groups.Default" /> <!--2-->
+        <group class="com.myapp.domain.Employee$AddressFields"
+            condition="${current.active}" /> <!--3-->
+    </validation>
+    <!-- list of <field> elements follows here -->
+</meta-data>
+----
+<1> Add a `<validation>`-element to the `<meta-data>` to define groups.
+<2> Adds the `Default` group.
+<3> Adds a custom validation group. If this is an inner interface, the dollar sign (`$`) needs to be used to specify the fully qualified class name for the group. The `condition` tells the framework only to use this group if the (boolean) property `active` of current `Employee` is `true`.
+
+=== Actions as a service
+It is possible to retrieve and perform a single action with a special service URL. The schema for such an URL is
+
+`http(s)://<host>[:<port>]/service/<site-name>/<application-name>/action/<format>/<event-id>/<action-id>`
+
+The supported formats are *xml* and *json*.
+
+Examples:
+
+* http://localhost:8080/service/manager/myapp/action/json/myEvent/myAction
+* http://localhost:8080/service/manager/myapp/action/xml/myEvent/myAction
+
+In order to execute the action, the client of the webservice must send an HTTP-POST request containing all the mandatory fields plus the action parameters that are required to satisfy the execute-`<condition>` of the action.
+
+IMPORTANT: Actions that should be available through a service URL *must* be secured by a permission. If no permission is present, the access will be denied. <<Anonymous permissions>> might be used.

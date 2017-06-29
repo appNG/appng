@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package xmlns="http://www.appng.org/schema/appngizer">
+    <name>appng-authentication</name>
+    <displayName>Authentication</displayName>
+    <version>0.11.0</version>
+    <timestamp>20170601-0751</timestamp>
+</package>

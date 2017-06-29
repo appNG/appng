@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<jxb:bindings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" jxb:version="2.0">
+	<jxb:bindings schemaLocation="../xsd/appng-platform.xsd">
+
+		<jxb:globalBindings>
+			<jxb:serializable uid="100" />
+			<xjc:superClass name="org.appng.xml.BaseObject" />
+		</jxb:globalBindings>
+
+		<jxb:bindings node="xs:element[@name='events']/xs:complexType/xs:sequence/xs:element[@name='event']">
+			<jxb:property name="eventList" />
+		</jxb:bindings>
+
+		<jxb:bindings node="xs:element[@name='datasources']/xs:complexType/xs:sequence/xs:element[@name='datasource']">
+			<jxb:property name="datasourceList" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='bean']/xs:sequence/xs:element[@name='option']">
+			<jxb:property name="options" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='pages']/xs:sequence/xs:element[@name='page']">
+			<jxb:property name="pageList" />			
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='permissions']/xs:sequence/xs:element[@name='permission']">
+			<jxb:property name="permissionList" />
+		</jxb:bindings>
+
+		<!--jxb:bindings node="//xs:complexType[@name='fields']/xs:sequence/xs:element[@name='field']"> <jxb:property name="fieldList" 
+			/> </jxb:bindings -->
+
+		<jxb:bindings node="//xs:complexType[@name='config']/xs:sequence/xs:element[@name='template']">
+			<jxb:property name="templates" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='output-type']/xs:sequence/xs:element[@name='template']">
+			<jxb:property name="templates" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='event']/xs:sequence/xs:element[@name='action']">
+			<jxb:property name="actions" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='datafield']/xs:sequence/xs:element[@name='field']">
+			<jxb:property name="fields" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='metaData']/xs:sequence/xs:element[@name='field']">
+			<jxb:property name="fields" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='messages']/xs:sequence/xs:element[@name='message']">
+			<jxb:property name="messageList" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='result']//xs:element[@name='field']">
+			<jxb:property name="fields" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='resultset']/xs:sequence/xs:element[@name='result']">
+			<jxb:property name="results" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='data']//xs:element[@name='selection']">
+			<jxb:property name="selections" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='data']//xs:element[@name='selectionGroup']">
+			<jxb:property name="selectionGroups" />
+		</jxb:bindings>
+		
+		<jxb:bindings node="//xs:complexType[@name='selectionGroup']//xs:element[@name='selection']">
+			<jxb:property name="selections" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='selection']//xs:element[@name='option']">
+			<jxb:property name="options" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='selection']//xs:element[@name='optionGroup']">
+			<jxb:property name="optionGroups" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='datafield']//xs:element[@name='icon' ]">
+			<jxb:property name="icons" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='fieldDef']//xs:element[@name='icon']">
+			<jxb:property name="icons" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='fieldDef']//xs:element[@name='field']">
+			<jxb:property name="fields" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='optionGroup']//xs:element[@name='option']">
+			<jxb:property name="options" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='linkpanel']//xs:element[@name='link']">
+			<jxb:property name="links" />
+		</jxb:bindings>
+
+		<jxb:bindings node="//xs:complexType[@name='getParams']/xs:sequence/xs:element[@name='get-param']">
+			<jxb:property name="paramList" />
+		</jxb:bindings>
+		<jxb:bindings node="//xs:complexType[@name='postParams']/xs:sequence/xs:element[@name='post-param']">
+			<jxb:property name="paramList" />
+		</jxb:bindings>
+		<jxb:bindings node="//xs:complexType[@name='urlParams']/xs:sequence/xs:element[@name='url-param']">
+			<jxb:property name="paramList" />
+		</jxb:bindings>
+		<jxb:bindings node="//xs:complexType[@name='labels']/xs:sequence/xs:element[@name='label']">
+			<jxb:property name="labels" />
+		</jxb:bindings>
+		<jxb:bindings node="//xs:complexType[@name='validation']/xs:sequence/xs:element[@name='rule']">
+			<jxb:property name="rules" />
+		</jxb:bindings>
+		<jxb:bindings node="//xs:complexType[@name='validationGroups']/xs:sequence/xs:element[@name='group']">
+			<jxb:property name="groups" />
+		</jxb:bindings>
+
+	</jxb:bindings>
+</jxb:bindings>
+
+
+
+
+
+

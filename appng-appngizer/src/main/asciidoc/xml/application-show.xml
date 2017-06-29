@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application name="appng-manager" self="http://localhost:8080/appNGizer/application/appng-manager" xmlns="http://www.appng.org/schema/appngizer">
+    <links>
+        <link name="role" self="http://localhost:8080/appNGizer/application/appng-manager/role"/>
+        <link name="permission" self="http://localhost:8080/appNGizer/application/appng-manager/permission"/>
+        <link name="property" self="http://localhost:8080/appNGizer/application/appng-manager/property"/>
+    </links>
+    <displayName>Manager</displayName>
+    <core>true</core>
+    <fileBased>false</fileBased>
+    <hidden>false</hidden>
+    <version>0.12.1</version>
+</application>

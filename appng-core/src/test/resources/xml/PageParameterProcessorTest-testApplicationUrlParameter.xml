@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<urlSchema xmlns="http://www.appng.org/schema/platform">
+	<url-params>
+		<url-param default="login" name="action">actionFromUrl</url-param>
+	</url-params>
+	<get-params>
+		<get-param name="action"></get-param>
+		<get-param name="param2" default="5" type="int">5</get-param>
+		<get-param name="user"></get-param>
+		<get-param name="hash"></get-param>
+	</get-params>
+	<post-params>
+		<post-param name="action" />
+	</post-params>
+</urlSchema>

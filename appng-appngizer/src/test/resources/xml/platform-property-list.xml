@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/platform/property">
+	<property name="applicationDir" self="http://localhost/platform/property/applicationDir">
+		<value>/applications</value>
+		<defaultValue>/applications</defaultValue>
+		<description>The folder used for installing file-based-applications, relative to the webapp-root</description>
+	</property>
+	<property name="cacheApplicationFolder" self="http://localhost/platform/property/cacheApplicationFolder">
+		<value>application</value>
+		<defaultValue>application</defaultValue>
+		<description>The folder for the application-cache, relative to platform.cacheFolder. Applications might use this
+			folder to cache temporary data.</description>
+	</property>
+	<property name="cacheFolder" self="http://localhost/platform/property/cacheFolder">
+		<value>cache</value>
+		<defaultValue>cache</defaultValue>
+		<description>The cache folder, relative to WEB-INF. Contains the platform.cacheFolder and the
+			platform.cacheApplicationFolder.</description>
+	</property>
+	<property name="cacheImageFolder" self="http://localhost/platform/property/cacheImageFolder">
+		<value>image</value>
+		<defaultValue>image</defaultValue>
+		<description>The folder used for caching images, within the application-cache</description>
+	</property>
+	<property name="cachePlatformFolder" self="http://localhost/platform/property/cachePlatformFolder">
+		<value>platform</value>
+		<defaultValue>platform</defaultValue>
+		<description>The folder for the platform-cache, relative to platform.cacheFolder. The platform cache is used by appNG
+			to cache application resources.</description>
+	</property>
+	<property name="csrfFilterEnabled" self="http://localhost/platform/property/csrfFilterEnabled">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to true to enable a filter preventing CSRF-attacks</description>
+	</property>
+	<property name="databaseValidationPeriod" self="http://localhost/platform/property/databaseValidationPeriod">
+		<value>15</value>
+		<defaultValue>15</defaultValue>
+		<description>The idle database connection test period in minutes. If a database connection remains idle for the
+			specified time, the validation query defined in the database connection will be sent to prevent a database connection
+			timeout.</description>
+	</property>
+	<property name="defaultTemplate" self="http://localhost/platform/property/defaultTemplate">
+		<value>appng</value>
+		<defaultValue>appng</defaultValue>
+		<description>The name of the default template to use (must be a folder located under platform.templateFolder)
+		</description>
+	</property>
+	<property name="devMode" self="http://localhost/platform/property/devMode">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Disable for production use. If enabled, XML and XSL resources will be written to the cache directory. If
+			disabled, XML and XSL resources will be cached in memory.</description>
+	</property>
+	<property name="ehcacheConfig" self="http://localhost/platform/property/ehcacheConfig">
+		<value>WEB-INF/conf/ehcache.xml</value>
+		<defaultValue>WEB-INF/conf/ehcache.xml</defaultValue>
+		<description>The global page cache configuration using the Ehcache XML configuration format. This cache is used to
+			cache HTTP responses.</description>
+	</property>
+	<property name="encoding" self="http://localhost/platform/property/encoding">
+		<value>UTF-8</value>
+		<defaultValue>UTF-8</defaultValue>
+		<description>The charset/encoding used for http-responses.</description>
+	</property>
+	<property name="filebasedDeployment" self="http://localhost/platform/property/filebasedDeployment">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>Set to 'true' if applications should be deployed to the local filesystem, 'false' otherwise.
+		</description>
+	</property>
+	<property name="formatOutput" self="http://localhost/platform/property/formatOutput">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Disable for production use. If enabled, debugging is easier, but Textarea values are formatted wrong.
+		</description>
+	</property>
+	<property name="imageMagickPath" self="http://localhost/platform/property/imageMagickPath">
+		<value>/usr/bin</value>
+		<defaultValue>/usr/bin</defaultValue>
+		<description>The path to the ImageMagick executable</description>
+	</property>
+	<property name="jspFileType" self="http://localhost/platform/property/jspFileType">
+		<value>jsp</value>
+		<defaultValue>jsp</defaultValue>
+		<description>The file-extension for JSP-files.</description>
+	</property>
+	<property name="locale" self="http://localhost/platform/property/locale">
+		<value>en</value>
+		<defaultValue>en</defaultValue>
+		<description>The default locale for the site. Use one of java.util.Locale.getAvailableLocales()</description>
+	</property>
+	<property name="logfile" self="http://localhost/platform/property/logfile">
+		<value>appNG.log</value>
+		<defaultValue>appNG.log</defaultValue>
+		<description>The name of the logfile generated by appNG</description>
+	</property>
+	<property name="mailDisabled" self="http://localhost/platform/property/mailDisabled">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>Set to 'true' to disable mailing and log the e-mails instead.</description>
+	</property>
+	<property name="mailHost" self="http://localhost/platform/property/mailHost">
+		<value>localhost</value>
+		<defaultValue>localhost</defaultValue>
+		<description>The mail-host to use.</description>
+	</property>
+	<property name="mailPort" self="http://localhost/platform/property/mailPort">
+		<value>25</value>
+		<defaultValue>25</defaultValue>
+		<description>The mail-port to use</description>
+	</property>
+	<property name="manageDatabases" self="http://localhost/platform/property/manageDatabases">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>If set to 'true', appNG will manage the databases (create schemas and users) required by the
+			applications.</description>
+	</property>
+	<property name="maxUploadSize" self="http://localhost/platform/property/maxUploadSize">
+		<value>31457280</value>
+		<defaultValue>31457280</defaultValue>
+		<description>The maximum size for file uploads in bytes</description>
+	</property>
+	<property name="mdcEnabled" self="http://localhost/platform/property/mdcEnabled">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>Set to 'true' to enable support for Mapped Diagnostic Context (MDC) Logging.</description>
+	</property>
+	<property name="messagingEnabled" self="http://localhost/platform/property/messagingEnabled">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to true to enable cluster messaging</description>
+	</property>
+	<property name="messagingGroupAddress" self="http://localhost/platform/property/messagingGroupAddress">
+		<value>224.2.2.4</value>
+		<defaultValue>224.2.2.4</defaultValue>
+		<description>The multicast address used for messaging</description>
+	</property>
+	<property name="messagingGroupPort" self="http://localhost/platform/property/messagingGroupPort">
+		<value>4000</value>
+		<defaultValue>4000</defaultValue>
+		<description>The port used for multicast messaging</description>
+	</property>
+	<property name="messagingReceiver" self="http://localhost/platform/property/messagingReceiver">
+		<value>org.appng.core.controller.messaging.MulticastReceiver</value>
+		<defaultValue>org.appng.core.controller.messaging.MulticastReceiver</defaultValue>
+		<description>Define messaging implementation by referring class name. Default method is multicast </description>
+	</property>
+	<property name="monitorPerformance" self="http://localhost/platform/property/monitorPerformance">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to true to enable performance monitoring for the target XML</description>
+	</property>
+	<property name="passwordPolicyErrorMessageKey" self="http://localhost/platform/property/passwordPolicyErrorMessageKey">
+		<value>DefaultPasswordPolicy.errorMessage</value>
+		<defaultValue>DefaultPasswordPolicy.errorMessage</defaultValue>
+		<description>The resource-bundle key (for messages-core) for the message which is being displayed when the password
+			does not match the policy.</description>
+	</property>
+	<property name="passwordPolicyRegEx" self="http://localhost/platform/property/passwordPolicyRegEx">
+		<value>[\S]{6,64}</value>
+		<defaultValue>[\S]{6,64}</defaultValue>
+		<description>A regular expression describing the password-policy</description>
+	</property>
+	<property name="platformRootPath" self="http://localhost/platform/property/platformRootPath">
+		<value>target/webapps/ROOT</value>
+		<defaultValue>target/webapps/ROOT</defaultValue>
+		<description>The absolute root-path of the platform</description>
+	</property>
+	<property name="repositoryCert" self="http://localhost/platform/property/repositoryCert" clob="true">
+		<value></value>
+		<description>The certificate to use when verifying a signed remote repository (PEM format)</description>
+	</property>
+	<property name="repositoryDefaultDigest" self="http://localhost/platform/property/repositoryDefaultDigest">
+		<value></value>
+		<defaultValue></defaultValue>
+		<description>The default digest for a published local application repository</description>
+	</property>
+	<property name="repositoryPath" self="http://localhost/platform/property/repositoryPath">
+		<value>repository</value>
+		<defaultValue>repository</defaultValue>
+		<description>The folder used for the repositories of the site, relative to the webapp-root</description>
+	</property>
+	<property name="repositorySignature" self="http://localhost/platform/property/repositorySignature" clob="true">
+		<value></value>
+		<description>The private key to use when signing a local published repository (PEM format)</description>
+	</property>
+	<property name="repositoryTrustStore" self="http://localhost/platform/property/repositoryTrustStore">
+		<value></value>
+		<defaultValue></defaultValue>
+		<description>The truststore used when verifying a signed remote repository, using file-protocol. If empty, the default $java.home/lib/security/cacerts is being used.</description>
+	</property>
+	<property name="repositoryTrustStorePassword" self="http://localhost/platform/property/repositoryTrustStorePassword">
+		<value></value>
+		<defaultValue></defaultValue>
+		<description>The truststore's password</description>
+	</property>
+	<property name="repositoryVerifySignature" self="http://localhost/platform/property/repositoryVerifySignature">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>When set to 'true', signed remote repositories are validated against the configured (or default) truststore.</description>
+	</property>
+	<property name="sessionTimeout" self="http://localhost/platform/property/sessionTimeout">
+		<value>1800</value>
+		<defaultValue>1800</defaultValue>
+		<description>The timeout for a user session in seconds</description>
+	</property>
+	<property name="sharedSecret" self="http://localhost/platform/property/sharedSecret">
+		<value>ajNxN:y/c4E6UXtY</value>
+		<defaultValue>ajNxN:y/c4E6UXtY</defaultValue>
+		<description>The shared secret used for digest authentication</description>
+	</property>
+	<property name="templateFolder" self="http://localhost/platform/property/templateFolder">
+		<value>/templates</value>
+		<defaultValue>/templates</defaultValue>
+		<description>The folder used for templates, relative to the webapp-root</description>
+	</property>
+	<property name="templatePrefix" self="http://localhost/platform/property/templatePrefix">
+		<value>/template</value>
+		<defaultValue>/template</defaultValue>
+		<description>The path under which the resources of the active template are beeing served.</description>
+	</property>
+	<property name="timeZone" self="http://localhost/platform/property/timeZone">
+		<value>Europe/Berlin</value>
+		<defaultValue>Europe/Berlin</defaultValue>
+		<description>The default timezone for the site. Use one of java.util.TimeZone.getAvailableIDs().</description>
+	</property>
+	<property name="uploadDir" self="http://localhost/platform/property/uploadDir">
+		<value>/uploads</value>
+		<defaultValue>/uploads</defaultValue>
+		<description>The folder for saving uploads, relative to the webapp-root</description>
+	</property>
+	<property name="vHostMode" self="http://localhost/platform/property/vHostMode">
+		<value>NAME_BASED</value>
+		<defaultValue>NAME_BASED</defaultValue>
+		<description>Defines whether the server is identified by its IP ('IP_BASED') or by its name ('NAME_BASED')
+		</description>
+	</property>
+	<property name="writeDebugFiles" self="http://localhost/platform/property/writeDebugFiles">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>When set to 'true', the XML, XSLT and potential Exceptions occurring on a request to the appNG manager
+			GUI are written to &lt;platformRootPath&gt;/debug</description>
+	</property>
+	<property name="xssAllowedTags" self="http://localhost/platform/property/xssAllowedTags">
+		<value>a href class style|div align style</value>
+		<defaultValue>a href class style|div align style</defaultValue>
+		<description>A list of additionally allowed HTML Tags, separated by '|', optionally followed by a space-separated list of allowed attributes. Example :h1|h2|a href class style|div align style</description>
+	</property>
+	<property name="xssProtect" self="http://localhost/platform/property/xssProtect">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to 'true' to enable XSS protection</description>
+	</property>
+</properties>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.appng.org/schema/application" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/application http://www.appng.org/schema/application/appng-application.xsd">
+	<name>My App</name>
+	<display-name><![CDATA[My App]]></display-name>
+	<description><![CDATA[My App]]></description>
+	<long-description><![CDATA[My App]]></long-description>
+	<version>1.0</version>
+	<timestamp>${timestamp}</timestamp>
+	<appng-version>0.12.0</appng-version>
+
+	<properties>
+		<property id="propertyA" description="this is property a">foo</property>
+		<property id="propertyB" description="this is property b">bar</property>
+
+		<property id="propertyC" description="this is property c (multilined)" clob="true"><![CDATA[a=foo
+b=bar]]></property>
+	</properties>
+
+</application>

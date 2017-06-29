@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<search>
+   <filter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:type="searchFilter">
+      <search>
+         <config>
+            <name>q</name>
+            <visible>true</visible>
+         </config>
+         <data>
+            <active>true</active>
+            <value>foo</value>
+         </data>
+      </search>
+   </filter>
+   <results>
+      <time>0</time>
+      <pagination>
+         <numberOfElements>1</numberOfElements>
+         <numberOfPages>1</numberOfPages>
+         <page>0</page>
+         <pageParam>page</pageParam>
+         <pageSize>25</pageSize>
+         <pageSizeParam>pageSize</pageSizeParam>
+      </pagination>
+      <data>
+         <title><![CDATA[foobar.txt]]></title>
+         <link>/en/foobar.txt</link>
+         <date>2015-03-27</date>
+         <score>1.0</score>
+         <type>txt</type>
+         <language>en</language>
+         <fragment><![CDATA[This is <span>foo</span>!
+]]></fragment>
+         <text><![CDATA[This is foo!
+]]></text>
+         <fields/>
+      </data>
+   </results>
+</search>

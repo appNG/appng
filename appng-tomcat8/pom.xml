@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>appng-tomcat8</artifactId>
+	<packaging>jar</packaging>
+	<name>appNG Tomcat 8</name>
+	<description>appNG support for Tomcat 8</description>
+
+	<parent>
+		<groupId>org.appng</groupId>
+		<artifactId>appng-parent</artifactId>
+		<version>1.14.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+		<tomcat.version>8.0.39</tomcat.version>
+		<servlet.version>3.1.0</servlet.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-catalina</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

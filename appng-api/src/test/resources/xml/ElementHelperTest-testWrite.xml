@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform">
+	<field name="writeableField">
+		<label>writeableField</label>
+	</field>
+</metaData>

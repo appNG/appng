@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Title: ${project.name}
+Implementation-Version: ${project.version}
+Implementation-Vendor: aiticon GmbH
+Implementation-Vendor-Id: org.appng
+Specification-Title: ${project.name}
+Specification-Version: ${project.version}
+Specification-Vendor: aiticon GmbH
+

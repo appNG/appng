@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applicationRootConfig id="index" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<name>myapp</name>
+	<config>
+		<title>myapp</title>
+		<session>
+			<session-params />
+		</session>
+	</config>
+	<navigation location="inline" id="nav">
+		<link target="/index" mode="intern">
+			<label>Index</label>
+		</link>
+	</navigation>
+	<pages>
+		<page id="index" type="index">
+			<config>
+				<title>Persons</title>
+				<url-schema>
+					<url-params>
+						<url-param name="action"></url-param>
+						<url-param name="id"></url-param>
+					</url-params>
+				</url-schema>
+			</config>
+			<structure>
+				<section>
+					<element>
+						<action eventId="personEvent" id="editPerson">
+							<condition expression="${dollar}{'update' eq action and not empty id}" />
+							<params>
+								<param name="id">${dollar}{id}</param>
+							</params>
+						</action>
+					</element>
+					<element>
+						<action eventId="personEvent" id="createPerson">
+							<condition expression="${dollar}{'create' eq action and empty id}" />
+						</action>
+					</element>
+					<element>
+						<datasource id="persons">
+							<params>
+								<param name="selected">${dollar}{id}</param>
+							</params>
+						</datasource>
+					</element>
+				</section>
+			</structure>
+		</page>
+	</pages>
+</applicationRootConfig>

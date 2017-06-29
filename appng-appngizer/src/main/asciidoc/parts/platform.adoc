@@ -1,0 +1,143 @@
+== Platform
+
+*URL:* http://localhost:8080/appNGizer/platform
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/platform.xml[]
+----
+
+=== Database
+
+==== Show database status
+*URL:* http://localhost:8080/appNGizer/platform/database
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/database.xml[]
+----
+
+
+==== Initialize database
+*URL:* http://localhost:8080/appNGizer/platform/database/initialize
+
+*Method:* POST
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/database.xml[]
+----
+
+
+=== Reload platform
+
+IMPORTANT: This action is only available if appNGizer is running in the same Tomcat as appNG itself.
+
+*URL:* http://localhost:8080/appNGizer/platform/reload
+
+*Method:* POST
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/platform.xml[]
+----
+
+=== System environment
+*URL:* http://localhost:8080/appNGizer/platform/environment
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/platform-environment.xml[]
+----
+
+
+=== System properties
+*URL:* http://localhost:8080/appNGizer/platform/system
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/platform-system.xml[]
+----
+
+
+
+=== Properties
+
+==== List Properties
+*URL:* http://localhost:8080/appNGizer/platform/property
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/platform-properties.xml[]
+----
+
+
+==== Create Property
+*URL:* http://localhost:8080/appNGizer/platform/property
+
+*Method:* POST
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/property-create.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/dummy.xml[]
+----
+
+
+==== Update Property
+*URL-Scheme:* http://localhost:8080/appNGizer/platform/property/{property-name}
+
+*URL:* http://localhost:8080/appNGizer/platform/property/myCustomProperty
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/property-update.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/platform-property-update_response.xml[]
+----
+
+
+==== Delete Property
+*URL-Scheme:* http://localhost:8080/appNGizer/platform/property/{property-name}
+
+*URL:* http://localhost:8080/appNGizer/platform/property/myCustomProperty
+
+*Method:* DELETE
+
+*Request Body:* -none-
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/platform-property-update_response.xml[]
+----

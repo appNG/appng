@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jxb:bindings jxb:version="2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd">
+
+	<jxb:bindings schemaLocation="../resources/appngizer.xsd">
+
+	</jxb:bindings>
+</jxb:bindings>
+
+
+
+
+
+

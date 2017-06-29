@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<group name="Administrator" self="http://localhost:8080/appNGizer/group/Administrator" xmlns="http://www.appng.org/schema/appngizer">
+    <description>appNG administrator group</description>
+    <roles>
+        <role name="Platform Administrator" self="http://localhost:8080/appNGizer/application/appng-manager/role/Platform%20Administrator">
+            <application>appng-manager</application>
+            <description>Administrator with all permissions</description>
+        </role>
+        <role name="Users" self="http://localhost:8080/appNGizer/application/appng-authentication/role/Users">
+            <application>appng-authentication</application>
+            <description>General role for all users</description>
+        </role>
+        <role name="Scheduler Admin" self="http://localhost:8080/appNGizer/application/appng-scheduler/role/Scheduler%20Admin">
+            <application>appng-scheduler</application>
+            <description>a super administrator with all permissions</description>
+        </role>
+    </roles>
+</group>

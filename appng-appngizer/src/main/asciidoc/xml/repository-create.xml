@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<repository name="Local" xmlns="http://www.appng.org/schema/appngizer">
+    <remoteName></remoteName>
+    <uri>file:///local/repo/path</uri>
+    <enabled>true</enabled>
+    <strict>false</strict>
+    <published>false</published>
+    <type>LOCAL</type>
+    <mode>ALL</mode>
+</repository>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<repository name="Remote" self="http://localhost:8080/appNGizer/repository/Remote" xmlns="http://www.appng.org/schema/appngizer">
+    <remoteName>pdev0-all</remoteName>
+    <uri>http://appng.s-ait-p-dev0.aitintra.de/service/appng/appng-manager/soap/repositoryService</uri>
+    <enabled>true</enabled>
+    <strict>false</strict>
+    <published>false</published>
+    <type>REMOTE</type>
+    <mode>ALL</mode>
+    <packages>
+        <package self="http://localhost:8080/appNGizer/repository/Remote/appng-authentication">
+            <name>appng-authentication</name>
+            <displayName>Authentication</displayName>
+            <installed>true</installed>
+            <release>0.11.0</release>
+            <type>application</type>
+        </package>
+        <package self="http://localhost:8080/appNGizer/repository/Remote/appng-manager">
+            <name>appng-manager</name>
+            <displayName>Manager</displayName>
+            <installed>true</installed>
+            <snapshot>0.12.2-SNAPSHOT</snapshot>
+            <release>0.12.1</release>
+            <type>application</type>
+        </package>
+        <package self="http://localhost:8080/appNGizer/repository/Remote/appng-scheduler">
+            <name>appng-scheduler</name>
+            <displayName>Scheduler</displayName>
+            <installed>true</installed>
+            <snapshot>0.11.3-SNAPSHOT</snapshot>
+            <release>0.11.2</release>
+            <type>application</type>
+        </package>
+        <package self="http://localhost:8080/appNGizer/repository/Remote/appng-template">
+            <name>appng-template</name>
+            <displayName>appng</displayName>
+            <installed>false</installed>
+            <snapshot>0.14.3-SNAPSHOT</snapshot>
+            <release>0.14.2</release>
+            <type>template</type>
+        </package>
+    </packages>
+</repository>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<subject name="admin" xmlns="http://www.appng.org/schema/appngizer">
+    <realName>appNG Admin</realName>
+    <email>admin@appng.org</email>
+    <description>bar!</description>
+    <digest>$2a$13$GkdFoQDajx73NJMUoyb4mOWKQ7XtIbPnioVXHeJTn3oMPuaJX1iCu</digest>
+    <timeZone>Europe/Madrid</timeZone>
+    <language>es</language>
+    <type>LOCAL_USER</type>
+    <groups>
+        <group name="Administrator" />
+        <group name="Editor" />
+    </groups>
+</subject>

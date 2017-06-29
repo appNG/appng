@@ -1,0 +1,57 @@
+No <applicationRootConfig> found, application will not work!
+application.xml: Duplicate permission 'permissionA'.
+application.xml: Duplicate property 'propa'.
+application.xml: Duplicate role: User
+application.xml: The role 'User' references the permission 'permissionB' more than once!
+application.xml: The role 'User' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource '::wrongClone': bindclass 'doesNotExist' not found!
+datasource.xml: datasource 'cloneCloneCloneDatasource': bindclass 'doesNotExist' not found!
+datasource.xml: datasource 'cloneCloneCloneDatasource': linkpanel 'foo' link '/page?getParam=5&doesNotExist=7' points to page 'page' and uses the unknown get-paramter(s) [doesNotExist]. Valid get-parameters are: [getParam]
+datasource.xml: datasource 'cloneCloneCloneDatasource': linkpanel 'foo' link 'bar' points to an invalid target, must start with '/', '${<param>}' or '?'!
+datasource.xml: datasource 'cloneCloneCloneDatasource': linkpanel 'jin' link '/fizz' points to the unknown page 'fizz'
+datasource.xml: datasource 'cloneCloneCloneDatasource': linkpanel 'jin' link '/fizz' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneCloneCloneDatasource': linkpanel 'jin' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneCloneCloneDatasource': references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneCloneDatasource': bindclass 'doesNotExist' not found!
+datasource.xml: datasource 'cloneCloneDatasource': linkpanel 'foo' link '/page?getParam=5&doesNotExist=7' points to page 'page' and uses the unknown get-paramter(s) [doesNotExist]. Valid get-parameters are: [getParam]
+datasource.xml: datasource 'cloneCloneDatasource': linkpanel 'foo' link 'bar' points to an invalid target, must start with '/', '${<param>}' or '?'!
+datasource.xml: datasource 'cloneCloneDatasource': linkpanel 'jin' link '/fizz' points to the unknown page 'fizz'
+datasource.xml: datasource 'cloneCloneDatasource': linkpanel 'jin' link '/fizz' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneCloneDatasource': linkpanel 'jin' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneCloneDatasource': references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneDatasource': bindclass 'doesNotExist' not found!
+datasource.xml: datasource 'cloneDatasource': linkpanel 'foo' link '/page?getParam=5&doesNotExist=7' points to page 'page' and uses the unknown get-paramter(s) [doesNotExist]. Valid get-parameters are: [getParam]
+datasource.xml: datasource 'cloneDatasource': linkpanel 'foo' link 'bar' points to an invalid target, must start with '/', '${<param>}' or '?'!
+datasource.xml: datasource 'cloneDatasource': linkpanel 'jin' link '/fizz' points to the unknown page 'fizz'
+datasource.xml: datasource 'cloneDatasource': linkpanel 'jin' link '/fizz' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneDatasource': linkpanel 'jin' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'cloneDatasource': references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'datasource', option 'id' references the unknown parameter 'doesNotExist'. Valid parameters are: [dsParam1, dsParam2]
+datasource.xml: datasource 'datasource': bindclass 'doesNotExist' not found!
+datasource.xml: datasource 'datasource': linkpanel 'foo' link '/page?getParam=5&doesNotExist=7' points to page 'page' and uses the unknown get-paramter(s) [doesNotExist]. Valid get-parameters are: [getParam]
+datasource.xml: datasource 'datasource': linkpanel 'foo' link 'bar' points to an invalid target, must start with '/', '${<param>}' or '?'!
+datasource.xml: datasource 'datasource': linkpanel 'jin' link '/fizz' points to the unknown page 'fizz'
+datasource.xml: datasource 'datasource': linkpanel 'jin' link '/fizz' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'datasource': linkpanel 'jin' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'datasource': references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'enhancedClone': bindclass 'anotherClassBitesTheDust' not found!
+datasource.xml: datasource 'enhancedClone': linkpanel 'jin' link '/fizz' points to the unknown page 'fizz'
+datasource.xml: datasource 'enhancedClone': linkpanel 'jin' link '/fizz' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'enhancedClone': linkpanel 'jin' references the unknown permission 'doesNotExist'.
+datasource.xml: datasource 'enhancedClone': linkpanel 'nintendo' link 'hyrule' points to an invalid target, must start with '/', '${<param>}' or '?'!
+datasource.xml: datasource 'enhancedClone': references the unknown permission 'testPermission'.
+datasource.xml: datasource 'invalidValidationGroup': validation group class 'SagittariusA' not found!
+datasource.xml: datasource 'wrongClone::': bindclass 'doesNotExist' not found!
+datasource.xml: datasource 'wrongDoubleClone::cloneDatasource::datasource': bindclass 'doesNotExist' not found!
+event.xml: action 'action', option 'id' references the unknown parameter 'doesNotExist'. Valid parameters are: [actionParam2, actionParam1]
+event.xml: action 'action': references the unknown permission 'doesNotExist'.
+event.xml: action 'action': the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) [doesNotExist] which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
+event.xml: action 'action2':  references the unknown datasource 'doesNotExist'.
+page.xml: page 'page' references the unknown action 'doesNotExist' (from event 'event').
+page.xml: page 'page' references the unknown datasource 'doesNotExist'.
+page.xml: page 'page' references the unknown event 'doesNotExist'.
+page.xml: page 'page' references the unknown permission 'doesNotExist'.
+page.xml: page 'page' the reference to action 'action' (from 'event.xml') uses the parameter(s) [actionParam3] which are unknown in the action 'action'! Supported parameters are: [actionParam2, actionParam1]
+page.xml: page 'page' the reference to action 'action' uses the unknown parameter(s) [doesNotExist]. Supported parameters are: [getParam, urlParam, postParam]
+page.xml: page 'page' the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) [dsParam3] which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
+page.xml: page 'page' the reference to dataSource 'datasource' uses the unknown parameter(s) [doesNotExist]. Supported parameters are: [getParam, urlParam, postParam]

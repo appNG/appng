@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package xmlns="http://www.appng.org/schema/appngizer" name="appng-authentication" self="http://localhost:8080/appNGizer/repository/Local/appng-authentication/0.9.3">
+	<name>appng-authentication</name>
+	<displayName>Authentication</displayName>
+	<installed>false</installed>
+	<release>0.11.0</release>
+	<type>application</type>
+</package>

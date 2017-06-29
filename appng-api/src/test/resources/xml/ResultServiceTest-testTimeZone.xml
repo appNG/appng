@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<result xmlns="http://www.appng.org/schema/platform">
+	<field type="text" name="name">
+		<value>John</value>
+	</field>
+	<field type="date" name="birthDate">
+		<value>2012.12.12 15:14:15</value>
+	</field>
+</result>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page id="page" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+
+	<config>
+		<permissions>
+			<permission ref="doesNotExist" mode="set" />
+		</permissions>
+		<url-schema>
+			<url-params>
+				<url-param name="urlParam" />
+			</url-params>
+			<get-params>
+				<get-param name="getParam" />
+			</get-params>
+			<post-params>
+				<post-param name="postParam" />
+			</post-params>
+		</url-schema>
+	</config>
+	<structure>
+		<section>
+			<element>
+				<action id="action" eventId="event">
+					<permissions>
+						<permission ref="doesNotExist" mode="set" />
+					</permissions>
+					<params>
+						<param name="actionParam1">${urlParam}</param>
+						<param name="actionParam2">${doesNotExist}</param>
+						<param name="actionParam3" />
+					</params>
+				</action>
+			</element>
+			<element>
+				<action id="action2" eventId="event">
+				</action>
+			</element>
+			<element>
+				<action id="doesNotExist" eventId="event" />
+			</element>
+			<element>
+				<action id="action" eventId="doesNotExist" />
+			</element>
+			<element>
+				<datasource id="datasource">
+					<permissions>
+						<permission ref="doesNotExist" mode="set" />
+					</permissions>
+					<params>
+						<param name="dsParam1">${getParam}</param>
+						<param name="dsParam2">${doesNotExist}</param>
+						<param name="dsParam3" />
+					</params>
+				</datasource>
+			</element>
+			<element>
+				<datasource id="doesNotExist" />
+			</element>
+		</section>
+	</structure>
+</page>

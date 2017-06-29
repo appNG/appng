@@ -1,0 +1,91 @@
+== Pages
+
+===  `<page>` and  `<pages>`
+A `<page>` is a single view presented to the user. On a page you can compose several <<Actions>> and <<Datasources>> within any number of sections and section elements.
+
+An example of a page is shown below:
+
+[source,xml]
+----
+include::../listing/pg-employees.xml[]
+----
+<1> Each page *must* have a unique id.
+<2> A page *must* define die URL schema.
+<3> Since a page can not 'know' every possible POST parameter only the built-in parameter `form_action` needs to be set here.
+<4> The `create` action is included, but only if `${action eq 'create'}`.
+<5> The `update` action is included, but only if `${action eq 'update' and not empty id}`.
+<6> Always include the 'employees' datasource, passing the `id` as a parameter.
+<7> Include a hidden section with the 'delete'-action, passing the get-parameters `delId` and `delAction`. 
+<8> After a successful delete action, the user gets redirected to the page `employees`. This is done to cleanup the URL from the GET-parameters used for deletion. 
+
+=== `<url-schema>`
+As shown in the example above, the current URL in conjunction with the URL-schema of the page is responsible for what action and datasources are being shown on that page.
+
+As you already might know, an appNG application URL has the following form:
+
+`http(s)://<host>[:<port>]/<manager-prefix>/<site>/<application>/<page>/<url-param-1-to-n>?<get-params>`
+
+Example:
+
+`http://localhost:8080/manager/appng/myapp/employees/update/7`
+
+
+So with this URL, the  runtime-representation of the URL-schema is:
+[source,xml]
+----
+<url-schema>
+	<url-params>
+		<url-param name="action">update</url-param>
+		<url-param name="itemid">7</url-param>
+	</url-params>
+	<get-params>
+		<get-param name="foo" />
+	</get-params>
+	<post-params>
+		<post-param name="form_action" />
+	</post-params>
+</url-schema>
+----
+
+When rendering the page, appNG first checks the include conditions for every action and datasource. In the next step, every action whose execute-condition matches is beeing executed. This includes the execution of the datasources referenced by those actions. Finally, the datasources included on the page are processed.
+
+=== `<applicationRootConfig>` and `<navigation>`
+There is a single place where some general configuration for all pages must be done. There must be one source XML file containing an `<applicationRootConfig>`. The only exception for that rule is, if the application does not offer a GUI at all, but only offers some other services. See <<Implementing services>> for an overview about what services this could be.
+
+Anyhow, if you build an application with a GUI, you need to provide an `<applicationRootConfig>`. A typical exemplar of that looks like this:
+[source,xml]
+----
+<applicationRootConfig
+	xmlns="http://www.appng.org/schema/platform"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform
+		http://www.appng.org/schema/platform/appng-platform.xsd">
+    <name>My Cool App</name><!--1-->
+    <config>
+        <session>
+            <session-params><!--2-->
+                <session-param name="param1" />
+                <session-param name="param2" />
+            </session-params>
+        </session>
+	</config>
+    <navigation location="top" id="topnav"><!--3-->
+        <link mode="intern" target="/employees">
+            <label id="employees" />
+        </link>
+        <link mode="intern" target="/settings">
+            <label id="settings" />
+        </link>
+    </navigation>
+</applicationRootConfig>
+----
+<1> provide a name, just for informational purposes
+<2> define which post-/get-/url-parameters should be persisted in the user's HTTP session
+<3> provide the top level navigation for the application, linking to certain pages
+
+Note that each page page-parameter -*may it be a GET-, POST- or URL-parameter*- that is defined as a session-parameter, will be saved into the session and does not change until a different value is assigned or the session expires. If a page defines a parameter that it not contained in the current request, but there is a session parameter with that name, the value from the session will be taken.
+
+A common use-case for session parameters is using them for filter criteria of a datasource. See <<Filtering,here>> for more about filtering.
+
+IMPORTANT: __With great power comes great responsibility!__ +
+Using session parameters is a powerful feature. Decide carefully which parameters should get stored in the session.

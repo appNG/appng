@@ -1,0 +1,355 @@
+== Implementing services
+
+[[webservices]]
+===  Webservices
+A webservice is the suitable solution if your application needs to provide
+
+* images, probably scaled and otherwise edited using an {appng}/org/appng/tools/image/ImageProcessor.html[ImageProcessor^]
+* file attachments (aka downloads)
+* custom formatted data as JSON, HTML, XML or any other required format
+
+The interface to implement is {appng}/org/appng/api/Webservice.html[org.appng.api.Webservice^] or {appng}/org/appng/api/AttachmentWebservice.html[org.appng.api.AttachmentWebservice^].
+
+Example:
+[source,java]
+----
+@org.springframework.stereotype.Service
+public class ImageService implements Webservice {
+
+  public byte[] processRequest(Site site, Application application,
+      Environment environment, Request request) throws BusinessException {
+      Integer id = request.convert(request.getParameter("id"), Integer.class);
+      Image image = getImage(id)
+      return image.getData(id);
+  }
+  
+  public String getContentType() {
+    return "image/jpg";
+  }
+
+}
+----
+
+The URL schema for a webservice is
+
+`http(s)://<host>[:<port>]/service/<site-name>/<application-name>/webservice/<service-name>`
+
+Example: http://localhost:8080/service/manager/myapp/webservice/myWebservice
+
+
+=== SOAP services
+The interface {appng}/org/appng/api/SoapService.html[org.appng.api.SoapService^] is used to implement a https://en.wikipedia.org/wiki/SOAP[SOAP^] compliant service based on http://projects.spring.io/spring-ws/[Spring WS^]. For more information on Spring WS, see the http://docs.spring.io/spring-ws/site/reference/html/tutorial.html[Reference Documentation^] and this https://spring.io/guides/gs/producing-web-service/[Getting Started Guide^].
+
+The following steps are required to build a SOAP service:
+
+. Define a XSD schema
++
+Because Spring WS uses the contract-first approach, it is essential to have an XSD schema defining the structure of the request and response elements. The schema file should be placed in `src/main/xsd`.
++
+A minimalist XSD looks like this:
++
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/soap"><!--1-->
+	<xs:element name="exampleMethodRequest"><!--2-->
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="requestParam" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="exampleMethodResponse"><!--2-->
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="responseParam" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+----
+<1> define the namespace for the schema
+<2> define the request and response elements, following the naming convention `xyzRequest` and `xyzResponse`
+
+. Generate JAXB classes for the schema file
++
+The http://www.mojohaus.org/jaxb2-maven-plugin/Documentation/v2.2/[jaxb2-maven-plugin^] can be used to generate the Java classes using the https://docs.oracle.com/javase/8/docs/technotes/tools/unix/xjc.html[xjc^] binding compiler on this schema. The http://www.mojohaus.org/build-helper-maven-plugin/index.html[build-helper-maven-plugin^] is then used to add those classes to the project sources.
++
+Example configuration from `pom.xml`:
++
+[source,xml]
+----
+<build>
+  <resources>
+    <resource>
+      <directory>src/main/xsd</directory><!--1-->
+    </resource>
+    <resource>
+      <directory>src/main/resources</directory>
+    </resource>
+  </resources>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>jaxb2-maven-plugin</artifactId>
+      <version>2.2</version>
+      <executions>
+        <execution>
+          <id>generate</id>
+          <goals>
+            <goal>xjc</goal>
+          </goals>
+          <phase>generate-sources</phase>
+          <configuration>
+            <packageName>com.example.soap</packageName><!--2-->
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>build-helper-maven-plugin</artifactId>
+      <version>1.12</version>
+      <executions>
+        <execution>
+          <phase>generate-sources</phase>
+          <goals>
+            <goal>add-source</goal>
+          </goals>
+          <configuration>
+            <sources>
+              <source>target/generated-sources/jaxb</source><!--3-->
+            </sources>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+----
+<1> add `src/main/xsd` to the project's `resources`
+<2> generate JAXB classes in the package `com.example.soap`
+<3> add the folder with the generated JAXB classes as a source directory
+
+. Implement the `SoapService`
++
+[source,java]
+----
+import org.appng.api.Environment;
+import org.appng.api.SoapService;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import com.example.soap.ExampleMethodRequest;
+import com.example.soap.ExampleMethodResponse;
+
+@Endpoint //<1>
+public class ExampleSoapService implements SoapService { //<2>
+
+  private Site site;
+  private Application application;
+  private Environment environment;
+
+  //<3>
+  @PayloadRoot(namespace = "http://example.com/soap", localPart = "exampleMethodRequest")
+  //<4>
+  public @ResponsePayload ExampleMethodResponse getExample(
+        @RequestPayload ExampleMethodRequest request) {
+    ExampleMethodResponse exampleMethodResponse = new ExampleMethodResponse();
+    exampleMethodResponse.setResponseParam(request.getRequestParam());
+    return exampleMethodResponse;
+  }
+
+  //<5>
+  public String getSchemaLocation() {
+    return "example.xsd";
+  }
+
+  //<6>
+  public String getContextPath() {
+    return "com.example.soap";
+  }
+
+  // getters and setters here
+
+}
+
+----
+<1> annotate with `@org.springframework.ws.server.endpoint.annotation.Endpoint`
+<2> implement `org.appng.api.SoapService`
+<3> define a `@PayloadRoot` that uses the `namespace` of the XSD schema and defining the `localPart`
+<4> the method must use the a request-object as an `@RequestPayload` argument and response-object as an `@ResponsePayload` return type
+<5> return the classpath-relative location of the schema file
+<6> return the package name of the generated JAXB classes
+
+
+The URL schema for the WSDL of the service is
+
+`http(s)://<host>[:<port>]/service/<site-name>/<application-name>/soap/<service-name>/<service-name>.wsdl`
+
+Example:
+http://localhost:8080/service/manager/myapp/soap/exampleSoapService/exampleSoapService.wsdl
+
+
+=== REST services
+With appNG, you can easily create https://en.wikipedia.org/wiki/Representational_state_transfer[REST^]-based services by using the Spring framework's designated annotations. The most important ones to use here are {spring}/javadoc-api/org/springframework/web/bind/annotation/RestController.html[@RestController^],  {spring}/javadoc-api/org/springframework/web/bind/annotation/RequestMapping.html[@RequestMapping^] and {spring}/javadoc-api/org/springframework/web/bind/annotation/PathVariable.html[@PathVariable^].
+
+Let's implement the add-operation of a simple `CalculatorService` as a `@RestController`.
+
+[source,java]
+----
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController //<1>
+public class CalculatorService {
+    
+    @RequestMapping(value = "/add/{a}/{b}", //<2>
+        method = RequestMethod.GET, //<3>
+        produces = MediaType.TEXT_PLAIN_VALUE) //<4>
+	public ResponseEntity<Integer> add( //<5>
+	        @PathVariable("a") Integer a, @PathVariable("b") Integer b) { //<6>
+		return new ResponseEntity<Integer>(a + b, HttpStatus.OK); //<7>
+	}
+}
+----
+<1> Define the class ass  `@RestController`
+<2> Define a `@RequestMapping` and the path it should match, using path variables
+<3> Define the HTTP method
+<4> Define the media-type this method produces
+<5> Return a `ResponseEntity` of the desired type
+<6> Map the path variables to the parameters 
+<7> Return the response
+
+In order to make the necessary conversion of the `ResponseEntity` work, there needs to be an appropriate {spring}/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html[HttpMessageConverter^] present in your application.
+
+
+For the example above, this converter looks like this:
+
+[source,java]
+----
+@Service
+public class IntegerMessageConverter implements HttpMessageConverter<Integer> {
+
+	public List<MediaType> getSupportedMediaTypes() {
+		return Arrays.asList(MediaType.TEXT_PLAIN);
+	}
+
+	public boolean canWrite(Class<?> clazz, MediaType mediaType) {
+		return Integer.class.equals(clazz);
+	}
+	
+	public void write(Integer t, MediaType contentType, HttpOutputMessage outputMessage)
+			throws IOException, HttpMessageNotWritableException {
+		outputMessage.getBody().write(String.valueOf(t).getBytes());
+	}
+
+	public boolean canRead(Class<?> clazz, MediaType mediaType) {
+		return false;
+	}
+	
+	public Integer read(Class<? extends Integer> clazz, HttpInputMessage inputMessage)
+			throws IOException, HttpMessageNotReadableException {
+		return null;
+	}
+
+}
+----
+
+
+[TIP]
+====
+If your request-/response-types are JAXB-generated classes, you have to use a {spring}/javadoc-api/org/springframework/http/converter/xml/MarshallingHttpMessageConverter.html[MarshallingHttpMessageConverter^] instead.
+
+For JSON-format, there's a {spring}/javadoc-api/org/springframework/http/converter/json/MappingJackson2HttpMessageConverter.html[MappingJackson2HttpMessageConverter^] available.
+====
+
+The URL schema for the REST service is
+
+`http(s)://<host>[:<port>]/service/<site-name>/<application-name>/rest/path/to/service`
+
+Example:
+http://localhost:8080/service/manager/myapp/rest/add/3/4
+
+
+For more details on this topic, see {spring}/spring-framework-reference/htmlsingle/#mvc-ann-restcontroller[section 22.3.3^] of Spring's reference documentation.
+
+
+=== Job scheduling
+A {appng}/org/appng/api/ScheduledJob.html[org.appng.api.ScheduledJob^] is a (periodically or manually triggered) task that can be defined by an application. The implementation is simple:
+
+[source,java]
+----
+import java.util.Map;
+
+import org.appng.api.ScheduledJob;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
+
+public class DemoJob implements ScheduledJob {
+
+	private String description;
+	private Map<String, Object> jobDataMap;
+
+	public void execute(Site site, Application application) throws Exception {
+		// do something
+	}
+
+    // getters and setters here
+
+}
+----
+
+With the `jobDataMap`, the required configuration parameters can be passed to the job. There are some predefined parameters for a job:
+
+* `cronExpression` +
+A https://en.wikipedia.org/wiki/Cron#CRON_expression[cron-expression^] describing when the job should be executed. The http://www.cronmaker.com/[Cronmaker^] is a useful tool helping you to build those expressions.
+* `enabled` +
+If set to `true` and the `cronExpression` property is properly set, the job will automatically be scheduled when the appNG platform starts.
+* `runOnce` +
+If set to `true`, this job will only run once per appNG cluster, i.e. it is not executed on each node, which is the default behavior.
+* `hardInterruptable` +
+If set to `true`, this job can safely be interrupted, e.g when a `Site` is being reloaded. This is achieved by running the job in a separate thread and calling {jse}/java/lang/Thread.html#interrupt--[Thread.interrupt^].
+
+The best way to configure a job is in `beans.xml`:
+[source,xml]
+----
+<bean id="demoJob" class="com.myapp.job.Demojob">
+  <property name="jobDataMap">
+    <map>
+      <entry key="enabled" value="true" />
+      <entry key="runOnce" value="true" />
+      <entry key="cronExpression" value="0 0 8 ? * *" /><!--1-->
+      <entry key="foo" value="bar" /><!--2-->
+      <entry key="answer" value="42" />
+    </map>
+  </property>
+</bean>
+----
+<1> add the standard predefined parameters
+<2> add some custom parameters
+
+
+== Interfaces to be used
+
+=== `org.appng.api.model.Site`
+{appng}/org/appng/api/model/Site.html[Javadoc^]
+
+=== `org.appng.api.model.Application`
+{appng}/org/appng/api/model/Application.html[Javadoc^]
+
+=== `org.appng.api.Request`
+{appng}/org/appng/api/Request.html[Javadoc^]
+
+=== `org.appng.api.Environment`
+{appng}/org/appng/api/Environment.html[Javadoc^]

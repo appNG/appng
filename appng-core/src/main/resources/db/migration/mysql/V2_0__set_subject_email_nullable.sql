@@ -1,0 +1,1 @@
+alter table subject modify email varchar(255);

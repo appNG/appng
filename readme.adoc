@@ -1,0 +1,37 @@
+image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
+:version: 1.14.0
+
+== Welcome to appNG
+AppNG is both, a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat] and the https://spring.io[Spring Framework].
+
+With appNG, you can build your own applications and deploy them to the platform within minutes.
+
+== Core Features
+* Clear separation of concerns following the *MVC* paradigm
+* *Declarative UI definition* using schema-safe XML files
+* Writing business logic by implementing a *handful of interfaces*
+* Automatic *parameter-binding* and type conversion
+* Out-of-the-box support for *JPA* and http://projects.spring.io/spring-data/[Spring Data]
+* Built-In *connection pooling* using https://github.com/brettwooldridge/HikariCP[HikariCP]
+* Database *schema migrations* powered by https://flywaydb.org/[Flyway]
+* Built-In *role based access control*, which allows using field-based access
+* Easily provide your own *SOAP* or *REST* based webservices
+* Fully supports *internationalization* (i18n)
+* *Easy deployment* by providing a repository mechanism
+* Powerful *administration tools* like a command line interface (CLI) and a REST-client
+* Supports the *Bean Validation API*
+* Supports *indexing and searching*, powered by http://lucene.apache.org/[Lucene]
+* Customizable *templating* mechanism
+* Configurable and extendable *authentication mechanism* (local, LDAP etc.)
+* Provides *job scheduling* powered by http://www.quartz-scheduler.org/[Quartz]
+* Provides a large set of commonly used *libraries* such as https://commons.apache.org/[Apache Commons] or https://github.com/FasterXML/jackson[Jackson]
+* Can serve *JSP*-content that can make use of the appNG *tag library*
+
+== Documentation
+Coming soon.
+
+== Getting started
+Coming soon.
+
+== License
+appNG is licensed under the https://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0].

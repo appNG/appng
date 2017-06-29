@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties xmlns="http://www.appng.org/schema/appngizer" self="/platform/environment">
+     <property name="HOME">
+        <value>/home/johndoe</value>
+    </property>
+    <property name="LANG">
+        <value>de_DE.UTF-8</value>
+    </property>
+</properties>

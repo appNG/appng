@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pages xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<page id="entity" type="index">
+		<config>
+			<title id="entity" />
+			<description />
+			<permissions>
+				<permission ref="page.entity" mode="set" />
+			</permissions>
+			<url-schema>
+				<url-params>
+					<url-param name="action" />
+					<url-param name="entityId" />
+					<url-param name="entityAction" />
+					<url-param name="entityId" />
+				</url-params>
+				<get-params>
+					<get-param name="form_action" />
+				</get-params>
+				<post-params>
+					<post-param name="form_action" />
+				</post-params>
+			</url-schema>
+		</config>
+		<structure>
+			<section>
+				<element passive="true">
+					<action id="update" eventId="events">
+						<condition expression="${action eq 'update' and not empty entityId}" />
+						<permissions>
+							<permission ref="update.entity" mode="set" />
+						</permissions>
+						<params>
+							<param name="entityId">${entityId}</param>
+							<param name="form_action">${form_action}</param>
+							<param name="action">${action}</param>
+						</params>
+					</action>
+				</element>
+				<element>
+					<action id="create" eventId="events" onSuccess="/index/${action}">
+						<condition expression="${action eq 'create' and empty entityId}" />
+						<permissions>
+							<permission ref="create.entity" mode="set" />
+						</permissions>
+						<params>
+							<param name="form_action">${form_action}</param>
+							<param name="action">${action}</param>
+						</params>
+					</action>
+				</element>
+
+				<element>
+					<datasource id="entities">
+						<condition expression="${empty action and empty entityId}" />
+						<params>
+							<param name="param1">${action}</param>
+							<param name="param2">${entityId}</param>
+							<param name="param3" default="3">${entityAction}</param>
+							<param name="param5">foobar</param>
+						</params>
+					</datasource>
+				</element>
+
+			</section>
+		</structure>
+	</page>
+</pages>
