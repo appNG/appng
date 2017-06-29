@@ -112,6 +112,8 @@ Coming soon.
 * https://appng.org/schema/[XSD Schema]
 * Maven Repository - Stable
 * Maven Repository - Snapshot
+* appNG Application Repository - Stable
+* appNG Application Repository - Snapshot
 
 == License
 appNG is licensed under the https://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0].
