@@ -92,13 +92,26 @@ NOTE: WAR files are a Web ARchive and contain all required files, while the ZIP 
 
 |====================
 
-NOTE: Snapshots reflect the current development status. We do not recommend to use snapshots in production. However, if you want to take a look at the latest features, feel free to download a copy and try it out.
+WARNING: Snapshots reflect the current development status. We do not recommend to use snapshots in production and might not be able to help, if you are running cutting-edge appNG. However, if you want to take a look at the latest features, feel free to download a copy and try it out.
 
 == Getting help
 
 Please ask your question at https://stackoverflow.com/[Stack Overflow] and make sure to add the https://stackoverflow.com/questions/tagged/appng[appng] tag to your question.
 
+If you think you found a bug or want to propose a new feature, please create a ticket in our https://appng.org/jira/[issue tracker].
+
 If you require an *Enterprise Support Plan*, please contact https://www.aiticon.com[aiticon GmbH] for further information. aiticon also offers trainings, consulting, development and hosting for appNG.
+
+== How to contribute
+Coming soon.
+
+== Developer Links
+* https://appng.org/jira/[Issue Tracker]
+* https://appng.org/jenkins/[Continuous Integration]
+* https://appng.org/appng/[Builds and Docs]
+* https://appng.org/schema/[XSD Schema]
+* Maven Repository - Stable
+* Maven Repository - Snapshot
 
 == License
 appNG is licensed under the https://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0].
