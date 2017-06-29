@@ -2,7 +2,7 @@ image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 :version: 1.14.0
 
 == Welcome to appNG
-AppNG is both, a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat] and the https://spring.io[Spring Framework].
+appNG is both, a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat] and the https://spring.io[Spring Framework].
 
 With appNG, you can build your own applications and deploy them to the platform within minutes.
 
@@ -28,7 +28,32 @@ With appNG, you can build your own applications and deploy them to the platform 
 * Can serve *JSP*-content that can make use of the appNG *tag library*
 
 == Documentation
-Coming soon.
+
+[width="100%",options="header"]
+|====================
+| Component | Type | Format
+
+|appNG Core
+|JavaDoc
+|https://appng.org/appng/docs/1.14.0/javadoc/[HTML]
+
+|appNG Core
+|Application Developer Guide
+|https://appng.org/appng/docs/1.14.0/reference/html/developerguide.html[HTML], https://appng.org/appng/docs/1.14.0/reference/pdf/developerguide.pdf[PDF]
+
+|appNGizer
+|Setup Guide
+|https://appng.org/appng/docs/1.14.0/appngizer/html/appngizer-setup-guide.html[HTML], https://appng.org/appng/docs/1.14.0/appngizer/pdf/appngizer-setup-guide.pdf[PDF]
+
+|appNGizer
+|Platform installation guide
+|https://appng.org/appng/docs/1.14.0/appngizer/html/appngizer-platform-installation-guide.html[HTML], https://appng.org/appng/docs/1.14.0/appngizer/pdf/appngizer-platform-installation-guide.pdf[PDF]
+
+|appNGizer
+|User Manual
+|https://appng.org/appng/docs/1.14.0/appngizer/html/appngizer-user-manual.html[HTML], https://appng.org/appng/docs/1.14.0/appngizer/pdf/appngizer-user-manual.pdf[PDF]
+
+|====================
 
 == Getting started
 Coming soon.
