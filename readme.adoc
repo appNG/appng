@@ -2,7 +2,7 @@ image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 :version: 1.14.0
 
 == Welcome to appNG
-appNG is both, a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat] and the https://spring.io[Spring Framework].
+appNG is a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat] and the https://spring.io[Spring Framework].
 
 With appNG, you can build your own applications and deploy them to the platform within minutes.
 
@@ -27,17 +27,20 @@ With appNG, you can build your own applications and deploy them to the platform 
 * Provides a large set of commonly used *libraries* such as https://commons.apache.org/[Apache Commons] or https://github.com/FasterXML/jackson[Jackson]
 * Can serve *JSP*-content that can make use of the appNG *tag library*
 
+== Getting started
+Coming soon.
+
 == Documentation
 
 [width="100%",options="header"]
 |====================
 | Component | Type | Format
 
-|appNG Core
+|appNG
 |JavaDoc
 |https://appng.org/appng/docs/1.14.0/javadoc/[HTML]
 
-|appNG Core
+|appNG
 |Application Developer Guide
 |https://appng.org/appng/docs/1.14.0/reference/html/developerguide.html[HTML], https://appng.org/appng/docs/1.14.0/reference/pdf/developerguide.pdf[PDF]
 
@@ -55,8 +58,47 @@ With appNG, you can build your own applications and deploy them to the platform 
 
 |====================
 
-== Getting started
-Coming soon.
+== Download Releases
+
+[width="100%",options="header"]
+|====================
+| Component | Version | Format
+
+|appNG
+|1.14.0
+|https://appng.org/appng/builds/stable/appng-application-1.14.0.war[WAR], https://appng.org/appng/builds/stable/appng-application-1.14.0-dependencies-20170629-1239.zip[ZIP]
+
+|appNGizer
+|1.14.0
+|https://appng.org/appng/builds/stable/appng-appngizer-1.14.0.war[WAR]
+
+|====================
+
+NOTE: WAR files are a Web ARchive and contain all required files, while the ZIP archives just contain the JAR files located under `WEB-INF/lib`. If you are unsure which format is the right one for you, download the WAR file.
+
+== Download Snapshots
+
+[width="100%",options="header"]
+|====================
+| Component | Version | Format
+
+|appNG
+|1.14.1-SNAPSHOT
+|https://appng.org/appng/builds/snapshot/appng-application-1.14.1-SNAPSHOT.war[WAR], https://appng.org/appng/builds/snapshot/appng-application-1.14.1-SNAPSHOT-dependencies-20170629-1438.zip[ZIP]
+
+|appNGizer
+|1.14.1-SNAPSHOT
+|https://appng.org/appng/builds/snapshot/appng-appngizer-1.14.1-SNAPSHOT.war[WAR]
+
+|====================
+
+NOTE: Snapshots reflect the current development status. We do not recommend to use snapshots in production. However, if you want to take a look at the latest features, feel free to download a copy and try it out.
+
+== Getting help
+
+Please ask your question at https://stackoverflow.com/[Stack Overflow] and make sure to add the https://stackoverflow.com/questions/tagged/appng[appng] tag to your question.
+
+If you require an *Enterprise Support Plan*, please contact https://www.aiticon.com[aiticon GmbH] for further information. aiticon also offers trainings, consulting, development and hosting for appNG.
 
 == License
 appNG is licensed under the https://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0].
