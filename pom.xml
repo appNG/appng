@@ -22,6 +22,30 @@
 		</license>
 	</licenses>
 
+	<developers>
+		<developer>
+			<id>mherlitzius</id>
+			<name>Matthias Herlitzius</name>
+			<email>matthias.herlitzius at appng.org</email>
+			<organization>aiticon GmbH</organization>
+			<organizationUrl>http://www.aiticon.com</organizationUrl>
+		</developer>
+		<developer>
+			<id>madness-inc</id>
+			<name>Matthias Müller</name>
+			<email>matthias.mueller at appng.org</email>
+			<organization>aiticon GmbH</organization>
+			<organizationUrl>http://www.aiticon.com</organizationUrl>
+		</developer>
+		<developer>
+			<id>stuemke</id>
+			<name>Claus Stümke</name>
+			<email>claus.stuemke at appng.org</email>
+			<organization>aiticon GmbH</organization>
+			<organizationUrl>http://www.aiticon.com</organizationUrl>
+		</developer>
+	</developers>
+
 	<properties>
 		<appNGVersion>${project.version}</appNGVersion>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
@@ -329,7 +353,8 @@
 						<exclude>**/package-info.java</exclude>
 					</excludes>
 				</configuration>
-				<!--executions> <execution> <phase>validate</phase> <goals> <goal>check</goal> </goals> </execution> </executions -->
+				<!--executions> <execution> <phase>validate</phase> <goals> <goal>check</goal> 
+					</goals> </execution> </executions -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -347,10 +372,18 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>generate-javadoc</id>
 						<goals>
 							<goal>aggregate</goal>
 						</goals>
-						<phase>deploy</phase>
+						<phase>package</phase>
+					</execution>
+					<execution>
+						<id>attach-javadoc</id>
+						<goals>
+							<goal>aggregate-jar</goal>
+						</goals>
+						<phase>package</phase>
 					</execution>
 				</executions>
 				<configuration>

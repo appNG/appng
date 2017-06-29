@@ -7,7 +7,46 @@
 	<name>appNG Template Parent</name>
 	<packaging>pom</packaging>
 	<description>A parent pom for appNG templates</description>
+	<url>https://www.appng.org</url>
 
+	<licenses>
+		<license>
+			<name>Apache 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>mherlitzius</id>
+			<name>Matthias Herlitzius</name>
+			<email>matthias.herlitzius at appng.org</email>
+			<organization>aiticon GmbH</organization>
+			<organizationUrl>http://www.aiticon.com</organizationUrl>
+		</developer>
+		<developer>
+			<id>madness-inc</id>
+			<name>Matthias Müller</name>
+			<email>matthias.mueller at appng.org</email>
+			<organization>aiticon GmbH</organization>
+			<organizationUrl>http://www.aiticon.com</organizationUrl>
+		</developer>
+		<developer>
+			<id>stuemke</id>
+			<name>Claus Stümke</name>
+			<email>claus.stuemke at appng.org</email>
+			<organization>aiticon GmbH</organization>
+			<organizationUrl>http://www.aiticon.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:ssh://git@github.com:appNG/appng.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:appNG/appng.git</developerConnection>
+		<url>https://github.com/appNG/appng</url>
+	</scm>
 	<properties>
 		<outFolder>target</outFolder>
 		<!-- you need to overwrite this in child projects! -->
@@ -15,7 +54,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<appNGVersion>0.14.0-SNAPSHOT</appNGVersion>
+		<appNGVersion>0.14.1-SNAPSHOT</appNGVersion>
 	</properties>
 
 	<distributionManagement>
