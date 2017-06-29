@@ -54,7 +54,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<appNGVersion>0.14.1-SNAPSHOT</appNGVersion>
+		<appNGVersion>1.14.1-SNAPSHOT</appNGVersion>
 	</properties>
 
 	<distributionManagement>
