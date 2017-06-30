@@ -1356,7 +1356,7 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 			</xs:enumeration>
 			<xs:enumeration value="webservice">
 				<xs:annotation>
-					<xs:documentation>A link to a {@link org.appng.api.Webservice}, must start with the bean-name of the webservice.
+					<xs:documentation>A link to a {@code org.appng.api.Webservice}, must start with the bean-name of the webservice.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -2919,7 +2919,7 @@ If empty, the template is being applied to any output-type.]]>
 			<xs:enumeration value="coordinate">
 				<xs:annotation>
 					<xs:documentation>
-<![CDATA[A property containing a {@link org.appng.tools.locator.Coordinate}, usually displayed as two input fields together with a map.]]>
+<![CDATA[A property containing a {@code org.appng.tools.locator.Coordinate}, usually displayed as two input fields together with a map.]]>
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -2933,14 +2933,14 @@ If empty, the template is being applied to any output-type.]]>
 			<xs:enumeration value="file">
 				<xs:annotation>
 					<xs:documentation>
-<![CDATA[A property containing a {@link org.appng.forms.FormUpload}, usually displayed as file-upload dialog for a single file.]]>
+<![CDATA[A property containing a {@code org.appng.forms.FormUpload}, usually displayed as file-upload dialog for a single file.]]>
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 			<xs:enumeration value="file-multiple">
 				<xs:annotation>
 					<xs:documentation>
-<![CDATA[A property containing a collection of {@link org.appng.forms.FormUpload}s, usually displayed as file-upload dialog for a multiple files.]]>
+<![CDATA[A property containing a collection of {@code org.appng.forms.FormUpload}s, usually displayed as file-upload dialog for a multiple files.]]>
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -3326,7 +3326,7 @@ If empty, the template is being applied to any output-type.]]>
 			<xs:appinfo>
 				<jxb:class>
 					<jxb:javadoc>
-<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}'s value represents one ore more {@link org.appng.forms.FormUpload}s.]]>
+<![CDATA[A {@link ValidationRule} indicating the {@link FieldDef}'s value represents one ore more {@code org.appng.forms.FormUpload}s.]]>
 					</jxb:javadoc>
 				</jxb:class>
 			</xs:appinfo>
