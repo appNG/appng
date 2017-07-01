@@ -30,6 +30,40 @@ With appNG, you can build your own applications and deploy them to the platform 
 == Getting started
 Coming soon.
 
+== Components
+
+[width="100%",options="header"]
+|====================
+| Name | Type | Description
+
+| https://github.com/appNG/appng[appNG]
+| Web application
+| The appNG platform.
+
+| https://github.com/appNG/appng[appNGizer]
+| Web application
+| Provides the appNG REST API. The appNGizer is part of the appng Git Repository, but during the build a separate WAR file is packaged.
+
+| https://github.com/appNG/appng-manager[appNG Manager]
+| appNG core application
+| Provides a web-based interface to administer appNG and to access other appNG applications.
+
+| https://github.com/appNG/appng-authentication[appNG Authentication]
+| appNG core application
+| Provides different authentication mechanisms for appNG.
+
+| https://github.com/appNG/appng-scheduler[appNG Scheduler]
+| appNG core application
+| Provides job scheduling services.
+
+| https://github.com/appNG/appng-template[appNG Template]
+| appNG template
+| The classic XSLT based template, used in conjunction with the appNG Manager.
+
+|====================
+
+NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG applications run on the appNG platform. appNG core applications have elevated permissions to access and control the appNG platform. appNG templates define the visual appearance of appNG applications.
+
 == Documentation
 
 [width="100%",options="header"]
