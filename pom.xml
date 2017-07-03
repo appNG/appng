@@ -397,22 +397,6 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>generate-javadoc</id>
-						<goals>
-							<goal>aggregate</goal>
-						</goals>
-						<phase>package</phase>
-					</execution>
-					<execution>
-						<id>attach-javadoc</id>
-						<goals>
-							<goal>aggregate-jar</goal>
-						</goals>
-						<phase>package</phase>
-					</execution>
-				</executions>
 				<configuration>
 					<additionalparam>-Xdoclint:none, -Xdoclint:reference</additionalparam>
 					<detectLinks>true</detectLinks>
