@@ -105,7 +105,7 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 
 |appNG
 |1.14.0
-|https://appng.org/appng/builds/stable/appng-application-1.14.0.war[WAR], https://appng.org/appng/builds/stable/appng-application-1.14.0-dependencies-20170629-1239.zip[ZIP]
+|https://appng.org/appng/builds/stable/appng-application-1.14.0.war[WAR]
 
 |appNGizer
 |1.14.0
@@ -123,7 +123,7 @@ NOTE: WAR files are a Web ARchive and contain all required files, while the ZIP 
 
 |appNG
 |1.14.1-SNAPSHOT
-|https://appng.org/appng/builds/snapshot/appng-application-1.14.1-SNAPSHOT.war[WAR], https://appng.org/appng/builds/snapshot/appng-application-1.14.1-SNAPSHOT-dependencies-20170629-1438.zip[ZIP]
+|https://appng.org/appng/builds/snapshot/appng-application-1.14.1-SNAPSHOT.war[WAR]
 
 |appNGizer
 |1.14.1-SNAPSHOT
