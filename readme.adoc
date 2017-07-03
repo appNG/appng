@@ -6,6 +6,8 @@ appNG is a *web application platform* and a *web application framework*, based o
 
 With appNG, you can build your own applications and deploy them to the platform within minutes.
 
+appNG is very well suited to create and operate your own application platform as a service (aPaaS).
+
 == Core Features
 * Clear separation of concerns following the *MVC* paradigm
 * *Declarative UI definition* using schema-safe XML files
@@ -18,6 +20,7 @@ With appNG, you can build your own applications and deploy them to the platform 
 * Easily provide your own *SOAP* or *REST* based webservices
 * Fully supports *internationalization* (i18n)
 * *Easy deployment* by providing a repository mechanism
+* Cluster support and *horizontal scaling*
 * Powerful *administration tools* like a command line interface (CLI) and a REST-client
 * Supports the *Bean Validation API*
 * Supports *indexing and searching*, powered by http://lucene.apache.org/[Lucene]
@@ -26,6 +29,8 @@ With appNG, you can build your own applications and deploy them to the platform 
 * Provides *job scheduling* powered by http://www.quartz-scheduler.org/[Quartz]
 * Provides a large set of commonly used *libraries* such as https://commons.apache.org/[Apache Commons] or https://github.com/FasterXML/jackson[Jackson]
 * Can serve *JSP*-content that can make use of the appNG *tag library*
+* *Multi-tenancy* allows to separate or group applications
+* *Rapid protoyping* enables you to design your user interface without writing one line of Java code
 
 == Getting started
 Coming soon.
@@ -42,7 +47,7 @@ Coming soon.
 
 | https://github.com/appNG/appng[appNGizer]
 | Web application
-| Provides the appNG REST API. The appNGizer is part of the appng Git Repository, but during the build a separate WAR file is packaged.
+| Provides the appNG REST API. The appNGizer is part of the appng Git Repository. During the build a separate appNGizer WAR file is packaged.
 
 | https://github.com/appNG/appng-manager[appNG Manager]
 | appNG core application
