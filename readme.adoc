@@ -113,8 +113,6 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 
 |====================
 
-NOTE: WAR files are a Web ARchive and contain all required files, while the ZIP archives just contain the JAR files located under `WEB-INF/lib`. If you are unsure which format is the right one for you, download the WAR file.
-
 == Download Snapshots
 
 [width="100%",options="header"]
