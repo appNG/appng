@@ -1,1 +1,1 @@
-PUBLIC "http://www.appng.org/schema/application" "../../../../appng-xmlapi/src/main/xsd/appng-application.xsd"
+SYSTEM "http://www.appng.org/schema/application/appng-application.xsd" "../../../../appng-xmlapi/src/main/xsd/appng-application.xsd"

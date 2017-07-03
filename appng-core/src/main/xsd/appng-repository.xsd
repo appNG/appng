@@ -3,7 +3,7 @@
 	version="${project.version}" xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.1"
 	xmlns:application="http://www.appng.org/schema/application" targetNamespace="http://www.appng.org/schema/repository">
 
-	<xs:import namespace="http://www.appng.org/schema/application" schemaLocation="${schemaLocation}" />
+	<xs:import namespace="http://www.appng.org/schema/application" schemaLocation="http://www.appng.org/schema/application/appng-application.xsd" />
 
 	<xs:element name="getCertificationRequest">
 		<xs:complexType>

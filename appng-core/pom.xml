@@ -15,19 +15,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<properties>
-		<schemaLocation>http://www.appng.org/schema/application/appng-application.xsd</schemaLocation>
-	</properties>
-
-	<profiles>
-		<profile>
-			<id>local</id>
-			<properties>
-				<schemaLocation>${project.parent.basedir}/appng-xmlapi/src/main/xsd/appng-application.xsd</schemaLocation>
-			</properties>
-		</profile>
-	</profiles>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -36,7 +23,7 @@
 				<executions>
 					<execution>
 						<id>generate-publishing</id>
-						<phase>process-resources</phase>
+						<phase>generate-sources</phase>
 						<goals>
 							<goal>xjc</goal>
 						</goals>
@@ -45,7 +32,7 @@
 							<packageName>org.appng.core.xml.repository</packageName>
 							<bindingFiles>bindings.xml</bindingFiles>
 							<catalog>src/main/xjb/catalog.cat</catalog>
-							<schemaDirectory>target/classes</schemaDirectory>
+							<schemaDirectory>src/main/xsd</schemaDirectory>
 							<schemaFiles>appng-repository.xsd</schemaFiles>
 							<extension>true</extension>
 							<clearOutputDir>false</clearOutputDir>
