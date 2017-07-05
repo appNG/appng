@@ -34,7 +34,7 @@ appNG is very well suited to create and operate your own application platform as
 * *Rapid protoyping* enables you to design your user interface without writing one line of Java code
 
 == Getting started
-=== Download and run the appNG Standalone Version
+=== Download and run the appNG standalone Version
 appNG is available as a standalone version, suitable for evaluation and testing purposes.
 
 The standalone version also comes with *appNGizer*, the REST-based administration tool for appNG.
@@ -74,7 +74,7 @@ This file is the application archive.
 === Deploying the application
 The next step is to deploy the application through a local repository, e.g. the application archives are served from the local file system.
 
-During installation of the *appNG Standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
+During installation of the *appNG standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
 So the first step is to copy `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` to this location.
 
 [NOTE]
