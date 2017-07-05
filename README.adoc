@@ -42,7 +42,7 @@ The standalone version also comes with *appNGizer*, the REST-based administratio
 The standalone version can be found here:
 https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
 
-Unzip the file, change into the extracted folder an run
+Unzip the file, change into the extracted folder and run
 [source,subs=normal]
 ----
 java -jar appng-standalone-{stable}.jar -i -u
@@ -74,7 +74,7 @@ This file is the application archive.
 === Deploying the application
 The next step is to deploy the application through a local repository, e.g. the application archives are served from the local file system.
 
-During installation of the *appNG standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
+During installation of the *appNG Standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
 So the first step is to copy `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` to this location.
 
 [NOTE]
@@ -100,7 +100,7 @@ Immediately, a new navigation item named `MYAPPLICATION` should appear on the si
 
 === What's next?
 You should import the Maven project into your favorite IDE. Then start browsing the code to get an idea of how an appNG application works.
-You should also have a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
+You should also take a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
 
 You may also want to check out *appNGizer* at http://localhost:8080/appNGizer. The user manual can be found here:
 https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html 
