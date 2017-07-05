@@ -1,6 +1,6 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 :snapshot: 1.14.2-SNAPSHOT
-:stable: 1.14.0
+:stable: 1.14.1
 
 == Welcome to appNG
 appNG is a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat^] and the https://spring.io[Spring Framework^].
@@ -34,7 +34,71 @@ appNG is very well suited to create and operate your own application platform as
 * *Rapid protoyping* enables you to design your user interface without writing one line of Java code
 
 == Getting started
-Coming soon.
+=== Download and run the appNG Standalone Version
+appNG is available as a standalone version, suitable for evaluation and testing purposes.
+
+The standalone version can be found here:
+https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
+
+Unzip the file, change into the extracted folder an run
+[source,subs=normal]
+----
+java -jar appng-standalone-{stable}.jar -i -u
+----
+
+Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
+
+Sign-in with the username `admin` and the password `s3cr3t`.
+
+[NOTE]
+====
+When executing the jar for the next time, you must omit the parameters `-i` and `-u`, as they are only allowed on the very first run.
+====
+
+=== Create your first appNG application
+Using the *apppNG Maven Archetype*, you can easily create your first own application.
+
+Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
+[source,subs=normal]
+----
+mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={stable} -DinteractiveMode=false
+----
+
+Next, change into the created project folder and run `mvn package`.
+
+In the target folder, a file named `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` should have been generated.
+This file is the application archive.
+
+=== Deploying the application
+The next step is to deploy the application through a local repository, e.g. the application archives are served from the local file system.
+
+During installation of the *appNG standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
+So the first step is to copy `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` to this location.
+
+[NOTE]
+====
+You can also build the application archive directly in the repository folder by using the Maven option `-DoutFolder=/path/to/appng-standalone-{stable}/repository/`
+====
+
+Next, we use the *appNG CLI* to install the application and to activat it for the site `manager` (that has been created during installation).
+
+In `/path/to/appng-standalone-{stable}/appng/WEB-INF/bin`, execute the following commands:
+
+[source]
+----
+./appng install-application -n myartifactid -v 1.0-SNAPSHOT -r Local
+./appng activate-application -s manager -a myartifactid
+----
+
+Both commands should return without any message, meaning they where successful.
+
+The final step is to __reload__ the site `manager`. Therefore, login at http://localhost:8080/manager and click on the reload-icon shown next to the site in the overview. A message __"Site has been reloaded."__ should appear.
+
+Immediately, a new navigation item named `MYAPPLICATION` should appear on the site's navigation on the left. When clicking it, you see the results of your very first appNG application. *Congratulations!*
+
+=== What's next?
+You should import the Maven project into your favorite IDE. Then start browsing the code to get an idea of how an appNG application works.
+You should also have a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
 
 == Components
 
@@ -49,6 +113,11 @@ Coming soon.
 | https://github.com/appNG/appng[appNGizer^]
 | Web application
 | Provides the appNG REST API. The appNGizer is part of the appng Git Repository. During the build a separate appNGizer WAR file is packaged.
+
+| https://github.com/appNG/appng[appng-standalone^]
+| Standalone version with bundled Tomcat
+| Includes the applications: Manager, Authentication and Scheduler and also the appNG Template
+
 
 | https://github.com/appNG/appng-manager[appNG Manager^]
 | appNG core application
@@ -112,6 +181,11 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |{stable}
 |https://appng.org/appng/builds/stable/appng-appngizer-{stable}.war[WAR^]
 
+|Standalone
+|{stable}
+|https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip[ZIP^]
+
+
 |====================
 
 == Download Snapshots
@@ -127,6 +201,10 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |appNGizer
 |{snapshot}-SNAPSHOT
 |https://appng.org/appng/builds/snapshot/appng-appngizer-{snapshot}-SNAPSHOT.war[WAR^]
+
+|Standalone
+|{stable}
+|https://appng.org/appng/builds/snapshot/appng-standalone-{snapshot}.zip[ZIP^]
 
 |====================
 
