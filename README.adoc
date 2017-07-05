@@ -37,6 +37,8 @@ appNG is very well suited to create and operate your own application platform as
 === Download and run the appNG Standalone Version
 appNG is available as a standalone version, suitable for evaluation and testing purposes.
 
+The standalone version also comes with *appNGizer*, the REST-based administration tool for appNG.
+
 The standalone version can be found here:
 https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
 
@@ -52,11 +54,11 @@ Sign-in with the username `admin` and the password `s3cr3t`.
 
 [NOTE]
 ====
-When executing the jar for the next time, you must omit the parameters `-i` and `-u`, as they are only allowed on the very first run.
+When executing the jar for the next time, you *must* omit the parameters `-u` and `-i`, as they are only allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the applications and the template).
 ====
 
 === Create your first appNG application
-Using the *apppNG Maven Archetype*, you can easily create your first own application.
+Using the *appNG Maven Archetype*, you can easily create your first own application.
 
 Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
 [source,subs=normal]
@@ -80,7 +82,7 @@ So the first step is to copy `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` to 
 You can also build the application archive directly in the repository folder by using the Maven option `-DoutFolder=/path/to/appng-standalone-{stable}/repository/`
 ====
 
-Next, we use the *appNG CLI* to install the application and to activat it for the site `manager` (that has been created during installation).
+Next, we use the *appNG CLI* to install the application and to activate it for the site `manager` (that has been created during installation).
 
 In `/path/to/appng-standalone-{stable}/appng/WEB-INF/bin`, execute the following commands:
 
@@ -99,6 +101,9 @@ Immediately, a new navigation item named `MYAPPLICATION` should appear on the si
 === What's next?
 You should import the Maven project into your favorite IDE. Then start browsing the code to get an idea of how an appNG application works.
 You should also have a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
+
+You may also want to check out *appNGizer* at http://localhost:8080/appNGizer. The user manual can be found here:
+https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html 
 
 == Components
 
@@ -196,11 +201,11 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 
 |appNG
 |{snapshot}-SNAPSHOT
-|https://appng.org/appng/builds/snapshot/appng-application-{snapshot}-SNAPSHOT.war[WAR^]
+|https://appng.org/appng/builds/snapshot/appng-application-{snapshot}.war[WAR^]
 
 |appNGizer
 |{snapshot}-SNAPSHOT
-|https://appng.org/appng/builds/snapshot/appng-appngizer-{snapshot}-SNAPSHOT.war[WAR^]
+|https://appng.org/appng/builds/snapshot/appng-appngizer-{snapshot}.war[WAR^]
 
 |Standalone
 |{stable}
