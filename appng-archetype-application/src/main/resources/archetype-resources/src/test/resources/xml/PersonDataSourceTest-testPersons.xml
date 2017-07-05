@@ -13,7 +13,7 @@
                 <label id="name">Name</label>
             </field>
             <field name="actions" type="linkpanel" binding="actions">
-                <label id="actions">actions</label>
+                <label id="actions">Actions</label>
             </field>
         </meta-data>
         <linkpanel id="actions" location="inline">
