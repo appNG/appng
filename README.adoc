@@ -40,7 +40,7 @@ appNG is available as a standalone version, suitable for evaluation and testing 
 The standalone version can be found here:
 https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
 
-Unzip the file, change into the extracted folder an run
+Unzip the file, change into the extracted folder and run
 [source,subs=normal]
 ----
 java -jar appng-standalone-{stable}.jar -i -u
@@ -56,7 +56,7 @@ When executing the jar for the next time, you must omit the parameters `-i` and 
 ====
 
 === Create your first appNG application
-Using the *apppNG Maven Archetype*, you can easily create your first own application.
+Using the *appNG Maven Archetype*, you can easily create your first own application.
 
 Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
 [source,subs=normal]
@@ -72,7 +72,7 @@ This file is the application archive.
 === Deploying the application
 The next step is to deploy the application through a local repository, e.g. the application archives are served from the local file system.
 
-During installation of the *appNG standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
+During installation of the *appNG Standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
 So the first step is to copy `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` to this location.
 
 [NOTE]
@@ -80,7 +80,7 @@ So the first step is to copy `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` to 
 You can also build the application archive directly in the repository folder by using the Maven option `-DoutFolder=/path/to/appng-standalone-{stable}/repository/`
 ====
 
-Next, we use the *appNG CLI* to install the application and to activat it for the site `manager` (that has been created during installation).
+Next, we use the *appNG CLI* to install the application and to activate it for the site `manager` (that has been created during installation).
 
 In `/path/to/appng-standalone-{stable}/appng/WEB-INF/bin`, execute the following commands:
 
@@ -98,7 +98,7 @@ Immediately, a new navigation item named `MYAPPLICATION` should appear on the si
 
 === What's next?
 You should import the Maven project into your favorite IDE. Then start browsing the code to get an idea of how an appNG application works.
-You should also have a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
+You should also take a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
 
 == Components
 
