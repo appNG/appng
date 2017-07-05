@@ -200,15 +200,15 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 | Component | Version | Format
 
 |appNG
-|{snapshot}-SNAPSHOT
+|{snapshot}
 |https://appng.org/appng/builds/snapshot/appng-application-{snapshot}.war[WAR^]
 
 |appNGizer
-|{snapshot}-SNAPSHOT
+|{snapshot}
 |https://appng.org/appng/builds/snapshot/appng-appngizer-{snapshot}.war[WAR^]
 
 |Standalone
-|{stable}
+|{snapshot}
 |https://appng.org/appng/builds/snapshot/appng-standalone-{snapshot}.zip[ZIP^]
 
 |====================
