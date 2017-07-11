@@ -94,6 +94,13 @@ In `/path/to/appng-standalone-{stable}/appng/WEB-INF/bin`, execute the following
 
 Both commands should return without any message, meaning they where successful.
 
++[NOTE]
++====
++You can also use the appNG Manager or the appNGizer to install and activate an application. To see a list of available CLI commands, execute `./appng` or `./appng -h`.
++
++If you configure the appNGizer Maven Plugin for your project, you can automatically install and activate your application after the build.
++====
++
 The final step is to __reload__ the site `manager`. Therefore, login at http://localhost:8080/manager and click on the reload-icon shown next to the site in the overview. A message __"Site has been reloaded."__ should appear.
 
 Immediately, a new navigation item named `MYAPPLICATION` should appear on the site's navigation on the left. When clicking it, you see the results of your very first appNG application. *Congratulations!*
