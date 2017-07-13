@@ -14,6 +14,7 @@ appNG is very well suited to create and operate your own application platform as
 * *Declarative UI definition* using schema-safe XML files
 * Writing business logic by implementing a *handful of interfaces*
 * Automatic *parameter-binding* and type conversion
+* Built-in support for *paging, filtering sorting*
 * Out-of-the-box support for *JPA* and http://projects.spring.io/spring-data/[Spring Data^]
 * Built-In *connection pooling* using https://github.com/brettwooldridge/HikariCP[HikariCP^]
 * Database *schema migrations* powered by https://flywaydb.org/[Flyway^]
@@ -21,13 +22,15 @@ appNG is very well suited to create and operate your own application platform as
 * Easily provide your own *SOAP* or *REST* based webservices
 * Fully supports *internationalization* (i18n)
 * *Easy deployment* by providing a repository mechanism
+* Configurable caching powered by http://www.ehcache.org/[Ehcache^]
 * Cluster support and *horizontal scaling*
-* Powerful *administration tools* like a command line interface (CLI) and a REST-client
+* Powerful *administration tools*, including a graphical user interface (GUI), but also a command line interface (CLI) and a REST-client
 * Supports the *Bean Validation API*
 * Supports *indexing and searching*, powered by http://lucene.apache.org/[Lucene^]
 * Customizable *templating* mechanism
 * Configurable and extendable *authentication mechanism* (local, LDAP etc.)
 * Provides *job scheduling* powered by http://www.quartz-scheduler.org/[Quartz^]
+* Provides *tooling for common tasks* like resizing images, sending emails, geo-locating, report generation etc.
 * Provides a large set of commonly used *libraries* such as https://commons.apache.org/[Apache Commons^] or https://github.com/FasterXML/jackson[Jackson^]
 * Can serve *JSP*-content that can make use of the appNG *tag library*
 * *Multi-tenancy* allows to separate or group applications
@@ -54,7 +57,8 @@ Sign-in with the username `admin` and the password `s3cr3t`.
 
 [NOTE]
 ====
-When executing the jar for the next time, you *must* omit the parameters `-u` and `-i`, as they are only allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the applications and the template).
+When executing the jar for the next time, you *must* omit the parameters `-u` and `-i`, as they are only
+allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the appNG applications and the template).
 ====
 
 === Create your first appNG application
@@ -63,7 +67,7 @@ Using the *appNG Maven Archetype*, you can easily create your first own applicat
 Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
 [source,subs=normal]
 ----
-mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={stable} -DinteractiveMode=false
+mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={snapshot} -DinteractiveMode=false
 ----
 
 Next, change into the created project folder and run `mvn package`.
@@ -77,7 +81,7 @@ The next step is to deploy the application through a local repository, e.g. the 
 During installation of the *appNG standalone* version, a local repository has been created at `/path/to/appng-standalone-{stable}/repository/`.
 So the first step is to copy `myartifactid-1.0-SNAPSHOT-<yyyyMMdd-HHmm>.zip` to this location.
 
-[NOTE]
+[TIP]
 ====
 You can also build the application archive directly in the repository folder by using the Maven option `-DoutFolder=/path/to/appng-standalone-{stable}/repository/`
 ====
@@ -96,14 +100,23 @@ Both commands should return without any message, meaning they where successful.
 
 The final step is to __reload__ the site `manager`. Therefore, login at http://localhost:8080/manager and click on the reload-icon shown next to the site in the overview. A message __"Site has been reloaded."__ should appear.
 
-Immediately, a new navigation item named `MYAPPLICATION` should appear on the site's navigation on the left. When clicking it, you see the results of your very first appNG application. *Congratulations!*
+After a re-login (see details below), a new navigation item named `MYAPPLICATION` should appear on the site's navigation on the left. When clicking it, you see the results of your very first appNG application. *Congratulations!*
+
+[NOTE]
+====
+During installation, the application's role `Admin` has been added to the appNG's built-in `Administrators` group, to which your user belongs to.
+Since the groups of a user are determined once during login, you need to re-login to apply the newly received permissions.
+
+For the following updates of your application, this step is therefore not necessary.
+====
+
 
 === What's next?
 You should import the Maven project into your favorite IDE. Then start browsing the code to get an idea of how an appNG application works.
 You should also take a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
 
 You may also want to check out *appNGizer* at http://localhost:8080/appNGizer. The user manual can be found here:
-https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html 
+https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html
 
 == Components
 
@@ -238,4 +251,3 @@ Coming soon.
 
 == License
 appNG is licensed under the https://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0^].
-
