@@ -191,6 +191,8 @@
 		</profile>
 
 		<profile>
+			<!-- a profile for local development -->
+			<!-- copies the appNG jars to ${env.CATALINA_HOME}/webapps/ROOT/WEB-INF/lib/ -->
 			<id>local</id>
 			<properties>
 				<maven.test.skip>true</maven.test.skip>
@@ -246,6 +248,60 @@
 			</build>
 		</profile>
 	</profiles>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<configuration>
+					<linkXref>true</linkXref>
+					<sourceEncoding>utf-8</sourceEncoding>
+					<targetJdk>1.8</targetJdk>
+					<skipEmptyReport>false</skipEmptyReport>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<configuration>
+					<formats>
+						<format>xml</format>
+						<format>html</format>
+					</formats>
+					<check>
+						<lineLength>120</lineLength>
+						<totalBranchRate>85</totalBranchRate>
+						<totalLineRate>85</totalLineRate>
+					</check>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<!-- BUILD CONFIGURATION -->
 	<build>
@@ -450,63 +506,11 @@
 				<!-- https://cwiki.apache.org/MAVEN/maven-3x-and-site-plugin.html -->
 				<configuration>
 					<port>8088</port>
-					<reportPlugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-pmd-plugin</artifactId>
-							<configuration>
-								<linkXref>true</linkXref>
-								<sourceEncoding>utf-8</sourceEncoding>
-								<targetJdk>1.5</targetJdk>
-							</configuration>
-						</plugin>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-project-info-reports-plugin</artifactId>
-						</plugin>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-javadoc-plugin</artifactId>
-						</plugin>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-jxr-plugin</artifactId>
-							<configuration>
-								<aggregate>true</aggregate>
-							</configuration>
-						</plugin>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-surefire-report-plugin</artifactId>
-						</plugin>
-						<plugin>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>cobertura-maven-plugin</artifactId>
-							<configuration>
-								<formats>
-									<format>xml</format>
-									<format>html</format>
-								</formats>
-								<check>
-									<lineLength>120</lineLength>
-									<totalBranchRate>85</totalBranchRate>
-									<totalLineRate>85</totalLineRate>
-								</check>
-							</configuration>
-						</plugin>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-checkstyle-plugin</artifactId>
-						</plugin>
-					</reportPlugins>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<configuration>
-					<configLocation>http://s-ait-e-www0.aitintra.de/aiticon_checks.xml</configLocation>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
