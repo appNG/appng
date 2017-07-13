@@ -4,7 +4,7 @@
 	<artifactId>appng-appngizer</artifactId>
 	<packaging>war</packaging>
 	<name>appNGizer</name>
-	<description></description>
+	<description>REST based administration for appNG</description>
 
 	<parent>
 		<groupId>org.appng</groupId>
@@ -83,7 +83,7 @@
 					<dependency>
 						<groupId>org.asciidoctor</groupId>
 						<artifactId>asciidoctorj-pdf</artifactId>
-						<version>1.5.0-alpha.11</version>
+						<version>1.5.0-alpha.15</version>
 					</dependency>
 				</dependencies>
 				<configuration>
@@ -100,7 +100,8 @@
 						<numbered>true</numbered>
 						<project-version>${project.version}</project-version>
 						<project-name>${project.name}</project-name>
-						<documentation-home>http://projects.s-ait-p-dev0.aitintra.de/appNG/appNGizer/</documentation-home>
+						<documentation-home>https://appng.org/appng/docs/${appNGVersion}/appngizer</documentation-home>
+						<output-format>pdf</output-format>
 					</attributes>
 				</configuration>
 				<executions>
@@ -124,12 +125,12 @@
 							<backend>html5</backend>
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-user-manual.adoc</sourceDocumentName>
-							<sourceHighlighter>coderay</sourceHighlighter>
 							<attributes>
 								<linkcss>true</linkcss>
 								<icons>font</icons>
 								<sectanchors>true</sectanchors>
 								<stylesheet>appng.css</stylesheet>
+								<output-format>html</output-format>
 							</attributes>
 						</configuration>
 					</execution>
@@ -153,12 +154,12 @@
 							<backend>html5</backend>
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-platform-installation-guide.adoc</sourceDocumentName>
-							<sourceHighlighter>coderay</sourceHighlighter>
 							<attributes>
 								<linkcss>true</linkcss>
 								<icons>font</icons>
 								<sectanchors>true</sectanchors>
 								<stylesheet>appng.css</stylesheet>
+								<output-format>html</output-format>
 							</attributes>
 						</configuration>
 					</execution>
@@ -182,12 +183,12 @@
 							<backend>html5</backend>
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
-							<sourceHighlighter>coderay</sourceHighlighter>
 							<attributes>
 								<linkcss>true</linkcss>
 								<icons>font</icons>
 								<sectanchors>true</sectanchors>
 								<stylesheet>appng.css</stylesheet>
+								<output-format>html</output-format>
 							</attributes>
 						</configuration>
 					</execution>
@@ -197,18 +198,6 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<id>e-www0</id>
-			<properties>
-				<appNGHome>/srv/webapps/tomcat7-appng-003/webapps/ROOT</appNGHome>
-			</properties>
-		</profile>
-		<profile>
-			<id>t-cwv1</id>
-			<properties>
-				<appNGHome>/srv/webapps/tomcat7-appng-cluster-twcloud/webapps/ROOT</appNGHome>
-			</properties>
-		</profile>
 		<profile>
 			<id>local</id>
 			<properties>

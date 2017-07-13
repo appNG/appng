@@ -1,7 +1,7 @@
 = {project-name} Platform installation guide
 Matthias Müller <matthias.mueller@appng.org>
 Build Version  {project-version} created {localdate}
-:title-logo-image: appng.png
+:title-logo-image: image:appng.png[align=right]
 :toc:
 
 This guide describes how to setup appNG with the appNGizer.

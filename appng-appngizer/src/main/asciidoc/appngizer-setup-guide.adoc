@@ -1,19 +1,19 @@
 = {project-name} Setup Guide
 Matthias Müller <matthias.mueller@appng.org>
 Build Version  {project-version} created {localdate}
-:title-logo-image: appng.png
+:title-logo-image: image:appng.png[align=right]
 :toc:
 
 :documentation-home: 
 
-This guide desribes how to setup appNGizer.
+This guide describes how to setup appNGizer.
 
 == Introduction
 _appNGizer_ is a https://en.wikipedia.org/wiki/Representational_state_transfer[REST] based webapplication for remote managing an appNG instance.
 
-See the link:{documentation-home}readme{outfilesuffix}[User Manual] for further usage details about how to use appNGizer.
+See the link:{documentation-home}/{output-format}/appngizer-user-manual.{output-format}[User Manual] for further usage details about how to use appNGizer.
 
-See the link:{documentation-home}install-platform{outfilesuffix}[platform installation guide] for details about how to setup your appNG instance with appNGizer.
+See the link:{documentation-home}/{output-format}/appngizer-platform-installation-guide.{output-format}[platform installation guide] for details about how to setup your appNG instance with appNGizer.
 
 == Prerequisites
 * Java 8
