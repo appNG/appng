@@ -11,7 +11,7 @@
 		<name>aiticon GmbH</name>
 	</organization>
 	<inceptionYear>2011</inceptionYear>
-	<url>https://www.appng.org</url>
+	<url>https://appng.org</url>
 
 	<licenses>
 		<license>
@@ -79,20 +79,20 @@
 	</scm>
 	<ciManagement>
 		<system>jenkins</system>
-		<url>https://www.appng.org/jenkins/job/appNG/</url>
+		<url>https://appng.org/jenkins/job/appNG/</url>
 	</ciManagement>
 	<issueManagement>
-		<url>https://www.appng.org/jira/browse/APPNG</url>
+		<url>https://appng.org/jira/browse/APPNG</url>
 		<system>JIRA</system>
 	</issueManagement>
 	<distributionManagement>
 		<repository>
 			<id>appng-stable</id>
-			<url>https://www.appng.org/nexus/repository/appng-stable/</url>
+			<url>https://appng.org/nexus/repository/appng-stable/</url>
 		</repository>
 		<snapshotRepository>
 			<id>appng-snapshot</id>
-			<url>https://www.appng.org/nexus/repository/appng-snapshot/</url>
+			<url>https://appng.org/nexus/repository/appng-snapshot/</url>
 		</snapshotRepository>
 	</distributionManagement>
 

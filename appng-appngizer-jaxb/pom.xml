@@ -4,7 +4,7 @@
 	<artifactId>appng-appngizer-jaxb</artifactId>
 	<packaging>jar</packaging>
 	<name>appNGizer JAXB API</name>
-	<description></description>
+	<description>JAXB bindings for appNGizer</description>
 
 	<parent>
 		<groupId>org.appng</groupId>

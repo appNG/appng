@@ -5,7 +5,7 @@
 	<artifactId>appng-appngizer-maven-plugin</artifactId>
 	<name>appNG appNGizer Maven Plugin</name>
 	<packaging>maven-plugin</packaging>
-	<url>http://www.appng.org</url>
+	<url>http://appng.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,11 +21,11 @@
 	<distributionManagement>
 		<repository>
 			<id>appng-stable</id>
-			<url>https://www.appng.org/nexus/repository/appng-stable/</url>
+			<url>https://appng.org/nexus/repository/appng-stable/</url>
 		</repository>
 		<snapshotRepository>
 			<id>appng-snapshot</id>
-			<url>https://www.appng.org/nexus/repository/appng-snapshot/</url>
+			<url>https://appng.org/nexus/repository/appng-snapshot/</url>
 		</snapshotRepository>
 	</distributionManagement>
 

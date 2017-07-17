@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 	<name>appNG application parent</name>
 	<description>Parent pom for appNG applications</description>
-	<url>https://www.appng.org</url>
+	<url>https://appng.org</url>
 
 	<licenses>
 		<license>
@@ -65,11 +65,11 @@
 	<distributionManagement>
 		<repository>
 			<id>appng-stable</id>
-			<url>https://www.appng.org/nexus/repository/appng-stable/</url>
+			<url>https://appng.org/nexus/repository/appng-stable/</url>
 		</repository>
 		<snapshotRepository>
 			<id>appng-snapshot</id>
-			<url>https://www.appng.org/nexus/repository/appng-snapshot/</url>
+			<url>https://appng.org/nexus/repository/appng-snapshot/</url>
 		</snapshotRepository>
 	</distributionManagement>
 

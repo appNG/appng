@@ -15,13 +15,13 @@
 	</parent>
 
 	<properties>
-		<manager.version>1.12.2</manager.version>
+		<manager.version>1.12.3</manager.version>
 		<scheduler.version>1.11.2</scheduler.version>
-		<authentication.version>1.11.0</authentication.version>
+		<authentication.version>1.11.1</authentication.version>
 		<template.name>appng-template</template.name>
-		<template.version>1.14.2</template.version>
+		<template.version>1.14.3</template.version>
 		<repository.name>appng.org Stable</repository.name>
-		<repository.path>https://www.appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
+		<repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
 		<repository.remoteName>appNG Stable</repository.remoteName>
 		<admin.name>admin</admin.name>
 		<admin.realName>appNG Administrator</admin.realName>
