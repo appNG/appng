@@ -27,7 +27,7 @@ import org.junit.Assert;
 
 public class CommandCreateRepositoryTest extends AbstractCommandTest {
 
-	static final URI REPO_URI = new File("target/localrepo").getAbsoluteFile().toURI();
+	static final URI REPO_URI = new File("target/test-classes/localrepo").getAbsoluteFile().toURI();
 
 	public ExecutableCliCommand getCommand() {
 		String[] args = new String[] { "-n", "localrepo", "-d", "a local repository", "-t", RepositoryType.LOCAL.name(),

@@ -20,6 +20,7 @@ import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.NoSuchRepositoryException;
 import org.appng.core.model.Repository;
+import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.service.CoreService;
 
 import com.beust.jcommander.Parameter;
@@ -63,6 +64,9 @@ public class InstallTemplate implements ExecutableCliCommand {
 		Repository repository = cle.getCoreService().getApplicationRepositoryByName(repositoryName);
 		if (null == repository) {
 			throw new NoSuchRepositoryException(repositoryName);
+		}
+		if (null == RepositoryCacheFactory.instance()) {
+			RepositoryCacheFactory.init(cle.getPlatformConfig());
 		}
 		CoreService coreService = cle.getCoreService();
 		coreService.provideTemplate(repository.getId(), templateName, templateVersion, templateTimestamp);

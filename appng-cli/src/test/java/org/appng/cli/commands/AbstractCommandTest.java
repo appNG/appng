@@ -108,7 +108,7 @@ public abstract class AbstractCommandTest {
 
 	public abstract ExecutableCliCommand getCommand();
 
-	public abstract void validate();
+	public abstract void validate() throws BusinessException;
 
 	protected void validateTableSize(PrettyTable prettyTable, int rows) {
 		Assert.assertEquals(rows, prettyTable.getRows().size());
