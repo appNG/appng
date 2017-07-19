@@ -10,7 +10,8 @@
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>lib</outputDirectory>
-			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<useTransitiveFiltering>true</useTransitiveFiltering>
+			<useTransitiveDependencies>true</useTransitiveDependencies>
 		</dependencySet>
 	</dependencySets>
 	<files>

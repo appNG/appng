@@ -112,6 +112,7 @@
 		<module>appng-cli</module>
 		<module>appng-taglib</module>
 		<module>appng-application</module>
+		<module>appng-application-bom</module>
 		<module>appng-documentation</module>
 		<module>appng-template-assembly</module>
 		<module>appng-template-parent</module>
