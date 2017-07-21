@@ -106,11 +106,14 @@ public class ApplicationStartup {
 		tomcat.getServer().await();
 	}
 
-	protected static void replaceInFile(String file, String search, String replace) throws IOException {
+	protected static void replaceInFile(String file, String search, String replacement) throws IOException {
 		Path path = Paths.get(file);
 		Charset charset = StandardCharsets.UTF_8;
 		String content = new String(Files.readAllBytes(path), charset);
-		content = content.replaceAll(Pattern.quote(search), Matcher.quoteReplacement(replace));
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			replacement = "/" + replacement;
+		}
+		content = content.replaceAll(Pattern.quote(search), Matcher.quoteReplacement(replacement));
 		Files.write(path, content.getBytes(charset));
 	}
 
