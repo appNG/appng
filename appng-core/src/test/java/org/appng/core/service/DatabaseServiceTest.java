@@ -16,6 +16,7 @@
 package org.appng.core.service;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import org.appng.api.model.Site;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.repository.DatabaseConnectionRepository;
+import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.testsupport.persistence.ConnectionHelper;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.junit.Assert;
@@ -140,6 +142,9 @@ public class DatabaseServiceTest extends TestInitializer {
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.MSSQL, platformConnection.getType());
 		validateSchemaVersion(platformConnection, "2.9.2");
+		DataSource sqlDataSource = new HikariCPConfigurer(platformConnection).getDataSource();
+		DatabaseMetaData metaData = sqlDataSource.getConnection().getMetaData();
+		Assert.assertTrue(metaData.getDatabaseProductName().startsWith("Microsoft SQL Server"));
 	}
 
 	private Properties getProperties(DatabaseType databaseType, String jdbcUrl, String user, String password,
