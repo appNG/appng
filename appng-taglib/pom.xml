@@ -15,6 +15,32 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
+	<profiles>
+		<profile>
+			<id>versioneye</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.versioneye</groupId>
+						<artifactId>versioneye-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>update</goal>
+									<goal>securityAndLicenseCheck</goal>
+								</goals>
+								<configuration>
+									<projectId>5975f8ea368b08001a8c3cdc</projectId>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<!-- BEGIN DEPENDENCY MANAGEMENT -->
 	<dependencies>
 		<dependency>
@@ -46,10 +72,12 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>

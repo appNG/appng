@@ -16,7 +16,7 @@
     </parent>
 
     <properties>
-        <tomcat.version>8.5.15</tomcat.version>
+        <tomcat>8.5.15</tomcat>
         <manager.version>1.12.3</manager.version>
         <auth.version>1.11.1</auth.version>
         <scheduler.version>1.11.3</scheduler.version>
@@ -140,17 +140,17 @@
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
-            <version>${tomcat.version}</version>
+            <version>${tomcat}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
-            <version>${tomcat.version}</version>
+            <version>${tomcat}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-tribes</artifactId>
-            <version>${tomcat.version}</version>
+            <version>${tomcat}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

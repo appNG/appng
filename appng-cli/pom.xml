@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>appng-cli</artifactId>
@@ -13,6 +14,34 @@
 		<version>1.14.2-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+
+	<profiles>
+		<profile>
+			<id>versioneye</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.versioneye</groupId>
+						<artifactId>versioneye-maven-plugin</artifactId>
+						<configuration>
+							<projectId>5975f71a6725bd001ad5feeb</projectId>
+							<organisation>appNG</organisation>
+							<team>Owners</team>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>update</goal>
+									<goal>securityAndLicenseCheck</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>

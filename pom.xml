@@ -415,6 +415,11 @@
 						</dependency>
 					</dependencies>
 				</plugin>
+				<plugin>
+					<groupId>com.versioneye</groupId>
+					<artifactId>versioneye-maven-plugin</artifactId>
+					<version>3.11.4</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -437,8 +442,7 @@
 						<exclude>**/package-info.java</exclude>
 					</excludes>
 				</configuration>
-				<!--executions> <execution> <phase>validate</phase> <goals> <goal>check</goal> 
-					</goals> </execution> </executions -->
+				<!--executions> <execution> <phase>validate</phase> <goals> <goal>check</goal> </goals> </execution> </executions -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -512,6 +516,14 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.versioneye</groupId>
+				<artifactId>versioneye-maven-plugin</artifactId>
+				<configuration>
+					<organisation>appNG</organisation>
+					<team>Owners</team>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

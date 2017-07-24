@@ -114,6 +114,34 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>versioneye</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.versioneye</groupId>
+						<artifactId>versioneye-maven-plugin</artifactId>
+						<configuration>
+							<projectId>5975f6206725bd000e2b03a8</projectId>
+							<organisation>appNG</organisation>
+							<team>Owners</team>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>update</goal>
+									<goal>securityAndLicenseCheck</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<!-- BEGIN DEPENDENCY MANAGEMENT -->
 	<dependencies>
 		<!-- BEGIN PROJECT DEPENDENCIES -->

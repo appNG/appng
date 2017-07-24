@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>appng-search</artifactId>
@@ -14,22 +15,45 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
+	<profiles>
+		<profile>
+			<id>versioneye</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.versioneye</groupId>
+						<artifactId>versioneye-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>update</goal>
+									<goal>securityAndLicenseCheck</goal>
+								</goals>
+								<configuration>
+									<projectId>5975f8b46725bd001ad6006d</projectId>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<!-- PROJECT DEPENDENCIES -->
 	<dependencies>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
@@ -47,11 +71,6 @@
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-facet</artifactId>
 		</dependency>
-		<!--dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-backward-codecs</artifactId>
-			<version>5.5.2</version>
-		</dependency-->
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
