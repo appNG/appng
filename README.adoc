@@ -1,6 +1,7 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 :snapshot: 1.14.3-SNAPSHOT
 :stable: 1.14.2
+:current: {snapshot}
 
 == Welcome to appNG
 appNG is a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat^] and the https://spring.io[Spring Framework^].
@@ -67,7 +68,7 @@ Using the *appNG Maven Archetype*, you can easily create your first own applicat
 Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
 [source,subs=normal]
 ----
-mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={snapshot} -DinteractiveMode=false
+mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={current} -DinteractiveMode=false
 ----
 
 Next, change into the created project folder and run `mvn package`.
@@ -176,19 +177,19 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 
 |appNG
 |Application Developer Guide
-|https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[HTML^], https://appng.org/appng/docs/{snapshot}/reference/pdf/developerguide.pdf[PDF^]
+|https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[HTML^], https://appng.org/appng/docs/{current}/reference/pdf/developerguide.pdf[PDF^]
 
 |appNGizer
 |Setup Guide
-|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-setup-guide.html[HTML^], https://appng.org/appng/docs/{snapshot}/appngizer/pdf/appngizer-setup-guide.pdf[PDF^]
+|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-setup-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-setup-guide.pdf[PDF^]
 
 |appNGizer
 |Platform installation guide
-|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-platform-installation-guide.html[HTML^], https://appng.org/appng/docs/{snapshot}/appngizer/pdf/appngizer-platform-installation-guide.pdf[PDF^]
+|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-platform-installation-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-platform-installation-guide.pdf[PDF^]
 
 |appNGizer
 |User Manual
-|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html[HTML^], https://appng.org/appng/docs/{snapshot}/appngizer/pdf/appngizer-user-manual.pdf[PDF^]
+|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-user-manual.pdf[PDF^]
 
 |====================
 
