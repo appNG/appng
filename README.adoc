@@ -173,23 +173,23 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 
 |appNG
 |JavaDoc
-|https://appng.org/appng/docs/{snapshot}/javadoc/[HTML]
+|https://appng.org/appng/docs/{current}/javadoc/[HTML]
 
 |appNG
 |Application Developer Guide
-|https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[HTML^], https://appng.org/appng/docs/{current}/reference/pdf/developerguide.pdf[PDF^]
+|https://appng.org/appng/docs/{current}/reference/html/developerguide.html[HTML^], https://appng.org/appng/docs/{current}/reference/pdf/developerguide.pdf[PDF^]
 
 |appNGizer
 |Setup Guide
-|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-setup-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-setup-guide.pdf[PDF^]
+|https://appng.org/appng/docs/{current}/appngizer/html/appngizer-setup-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-setup-guide.pdf[PDF^]
 
 |appNGizer
 |Platform installation guide
-|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-platform-installation-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-platform-installation-guide.pdf[PDF^]
+|https://appng.org/appng/docs/{current}/appngizer/html/appngizer-platform-installation-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-platform-installation-guide.pdf[PDF^]
 
 |appNGizer
 |User Manual
-|https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-user-manual.pdf[PDF^]
+|https://appng.org/appng/docs/{current}/appngizer/html/appngizer-user-manual.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-user-manual.pdf[PDF^]
 
 |====================
 
