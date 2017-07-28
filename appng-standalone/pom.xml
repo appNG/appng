@@ -16,11 +16,6 @@
     </parent>
 
     <properties>
-        <tomcat>8.5.15</tomcat>
-        <manager.version>1.12.3</manager.version>
-        <auth.version>1.11.1</auth.version>
-        <scheduler.version>1.11.3</scheduler.version>
-        <template.version>1.15.0-SNAPSHOT</template.version>
 		<repository.name>appng.org Stable</repository.name>
         <repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
 		<repository.remoteName>appNG Stable</repository.remoteName>
@@ -115,7 +110,7 @@
         <dependency>
             <groupId>org.appng</groupId>
             <artifactId>appng-authentication</artifactId>
-            <version>${auth.version}</version>
+            <version>${authentication.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -126,7 +121,7 @@
         </dependency>
         <dependency>
             <groupId>org.appng</groupId>
-            <artifactId>appng-template</artifactId>
+            <artifactId>${template.name}</artifactId>
             <version>${template.version}</version>
             <type>zip</type>
             <exclusions>
@@ -140,17 +135,17 @@
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
-            <version>${tomcat}</version>
+            <version>${tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
-            <version>${tomcat}</version>
+            <version>${tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-tribes</artifactId>
-            <version>${tomcat}</version>
+            <version>${tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
