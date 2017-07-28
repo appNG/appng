@@ -68,7 +68,7 @@ Using the *appNG Maven Archetype*, you can easily create your first own applicat
 Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
 [source,subs=normal]
 ----
-mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={current} -DinteractiveMode=false
+mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={stable} -DinteractiveMode=false
 ----
 
 Next, change into the created project folder and run `mvn package`.
