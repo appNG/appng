@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.14.3</version>
+		<version>1.15.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -19,7 +19,7 @@
 		<scheduler.version>1.11.3</scheduler.version>
 		<authentication.version>1.11.1</authentication.version>
 		<template.name>appng-template</template.name>
-		<template.version>1.14.3</template.version>
+		<template.version>1.15.0-SNAPSHOT</template.version>
 		<repository.name>appng.org Stable</repository.name>
 		<repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
 		<repository.remoteName>appNG Stable</repository.remoteName>
