@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
@@ -44,7 +45,9 @@ public class RepositoryWatcherTest {
 		RepositoryWatcher repositoryWatcher = new RepositoryWatcher();
 		Cache ehcache = new Cache("testcache", 1000, MemoryStoreEvictionPolicy.LRU, false, null, false, 1000, 1000,
 				false, 60, new RegisteredEventListeners(null));
-		ehcache.setCacheManager(new CacheManager());
+		Configuration configuration = new Configuration();
+		configuration.setName(getClass().getSimpleName() + "cache");
+		ehcache.setCacheManager(new CacheManager(configuration));
 		ehcache.initialise();
 		String fehlerJsp = "/de/fehler.jsp";
 		String testJsp = "/de/test.jsp";
@@ -54,7 +57,7 @@ public class RepositoryWatcherTest {
 		ehcache.put(new Element(keyTestJsp, "a value"));
 		ehcache.put(new Element("GET/de/error", "a value"));
 		ehcache.put(new Element("GET/de/fault", "a value"));
-		// Assert.assertEquals(2, ehcache.getSize());
+		Assert.assertEquals(4, ehcache.getSize());
 		repositoryWatcher.init(ehcache, rootDir, new File(urlrewrite), RepositoryWatcher.DEFAULT_RULE_SUFFIX,
 				Arrays.asList("de"));
 		ThreadFactory tf = new ThreadFactoryBuilder().setNameFormat("repositoryWatcher").setDaemon(true).build();
