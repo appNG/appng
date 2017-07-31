@@ -8,4 +8,8 @@
 		<from>^/fr/index.jsp$</from>
 		<to type="redirect" last="true">/fr/accueil</to>
 	</rule>
+	<rule>
+		<from>^/de/fault((\?\S+)?)$</from>
+		<to last="true">/de/fehler.jsp$1</to>
+	</rule>
 </rules>
