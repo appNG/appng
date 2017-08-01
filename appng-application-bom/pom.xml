@@ -132,19 +132,19 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -202,7 +202,7 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.google.protobuf</groupId>
+				<groupId>com.googleotobuf</groupId>
 				<artifactId>protobuf-java</artifactId>
 				<version>2.5.0</version>
 				<scope>provided</scope>
@@ -1218,19 +1218,19 @@
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-commons</artifactId>
-				<version>1.13.4.RELEASE</version>
+				<version>1.13.6.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-envers</artifactId>
-				<version>1.1.4.RELEASE</version>
+				<version>1.1.6.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
-				<version>1.11.4.RELEASE</version>
+				<version>1.11.6.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
