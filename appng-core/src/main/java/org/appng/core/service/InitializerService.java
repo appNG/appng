@@ -73,6 +73,7 @@ import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
 import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.domain.DatabaseConnection;
@@ -115,6 +116,7 @@ import net.sf.ehcache.constructs.blocking.BlockingCache;
 public class InitializerService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializerService.class);
+	private static final int THREAD_PRIORITY_LOW = 3;
 
 	private static final String LIB_LOCATION = "/WEB-INF/lib";
 	private static final String EXT_JAR = ".jar";
@@ -183,14 +185,29 @@ public class InitializerService {
 	}
 
 	private void startIndexThread(Site site, DocumentIndexer documentIndexer) {
-		ThreadFactory threadFactory = new ThreadFactoryBuilder().setDaemon(true)
-				.setNameFormat("appng-indexthread-" + site.getName()).build();
+		startSiteThread(site, "appng-indexthread-" + site.getName(), THREAD_PRIORITY_LOW, documentIndexer);
+	}
+
+	private void startRepositoryWatcher(Site site, boolean ehcacheEnabled, String jspType) {
+		if (ehcacheEnabled && site.getProperties().getBoolean(SiteProperties.EHCACHE_WATCH_REPOSITORY, false)) {
+			String watcherRuleSourceSuffix = site.getProperties().getString(
+					SiteProperties.EHCACHE_WATCHER_RULE_SOURCE_SUFFIX, RepositoryWatcher.DEFAULT_RULE_SUFFIX);
+			String threadName = String.format("appng-repositoryWatcher-%s", site.getName());
+			RepositoryWatcher repositoryWatcher = new RepositoryWatcher(site, jspType, watcherRuleSourceSuffix);
+			startSiteThread(site, threadName, THREAD_PRIORITY_LOW, repositoryWatcher);
+		}
+	}
+
+	private void startSiteThread(Site site, String threadName, int priority, Runnable runnable) {
+		if (!siteThreads.containsKey(site.getName())) {
+			siteThreads.put(site.getName(), new ArrayList<ExecutorService>());
+		}
+		ThreadFactory threadFactory = new ThreadFactoryBuilder().setDaemon(true).setPriority(priority)
+				.setNameFormat(threadName).build();
 		ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
-		List<ExecutorService> executors = new ArrayList<ExecutorService>();
-		executors.add(executor);
-		siteThreads.put(site.getName(), executors);
-		executor.execute(documentIndexer);
-		LOGGER.info("starting index thread");
+		siteThreads.get(site.getName()).add(executor);
+		executor.execute(runnable);
+		LOGGER.info("starting {}", threadName);
 	}
 
 	/**
@@ -289,8 +306,9 @@ public class InitializerService {
 		}
 	}
 
-	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides, String name) {
-		if(defaultOverrides.containsKey(name)){
+	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
+			String name) {
+		if (defaultOverrides.containsKey(name)) {
 			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
 		}
 	}
@@ -576,6 +594,7 @@ public class InitializerService {
 		site.setSiteClassLoader(siteClassLoader);
 
 		startIndexThread(site, documentIndexer);
+		startRepositoryWatcher(site, ehcacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
 
 		String datasourceConfigurerName = siteProps.getString(SiteProperties.DATASOURCE_CONFIGURER);
 		try {

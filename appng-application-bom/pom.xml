@@ -132,19 +132,19 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -202,7 +202,7 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.google.protobuf</groupId>
+				<groupId>com.googleotobuf</groupId>
 				<artifactId>protobuf-java</artifactId>
 				<version>2.5.0</version>
 				<scope>provided</scope>
@@ -804,55 +804,55 @@
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-api</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-el-api</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-jasper-el</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-jasper</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-jsp-api</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-juli</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-servlet-api</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-util-scan</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-util</artifactId>
-				<version>8.5.15</version>
+				<version>8.5.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1218,19 +1218,19 @@
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-commons</artifactId>
-				<version>1.13.4.RELEASE</version>
+				<version>1.13.6.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-envers</artifactId>
-				<version>1.1.4.RELEASE</version>
+				<version>1.1.6.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
-				<version>1.11.4.RELEASE</version>
+				<version>1.11.6.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1260,79 +1260,79 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-webmvc</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.10.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

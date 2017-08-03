@@ -15,11 +15,6 @@
 	</parent>
 
 	<properties>
-		<manager.version>1.12.3</manager.version>
-		<scheduler.version>1.11.3</scheduler.version>
-		<authentication.version>1.11.1</authentication.version>
-		<template.name>appng-template</template.name>
-		<template.version>1.15.0-SNAPSHOT</template.version>
 		<repository.name>appng.org Stable</repository.name>
 		<repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
 		<repository.remoteName>appNG Stable</repository.remoteName>

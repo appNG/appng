@@ -51,26 +51,31 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.9.RELEASE</springVersion>
+		<springVersion>4.3.10.RELEASE</springVersion>
 		<springWSVersion>2.4.0.RELEASE</springWSVersion>
 		<springSecurityVersion>4.2.3.RELEASE</springSecurityVersion>
-		<springDataVersion>1.13.4.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.4.RELEASE</springDataJpaVersion>
-		<springDataEnversVersion>1.1.4.RELEASE</springDataEnversVersion>
+		<springDataVersion>1.13.6.RELEASE</springDataVersion>
+		<springDataJpaVersion>1.11.6.RELEASE</springDataJpaVersion>
+		<springDataEnversVersion>1.1.6.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.1.4</queryDslVersion>
 		<luceneVersion>6.6.0</luceneVersion>
 		<tikaVersion>1.15</tikaVersion>
 		<hibernateVersion>5.2.10.Final</hibernateVersion>
 		<slf4jVersion>1.7.25</slf4jVersion>
 		<poiVersion>3.16</poiVersion>
-		<jacksonVersion>2.9.0.pr4</jacksonVersion>
+		<jacksonVersion>2.9.0</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>8.5.15</tomcat.version>
+		<tomcat.version>8.5.16</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 		<esapi.version>2.1.0.1</esapi.version>
 		<docDir>./target/generated-docs</docDir>
 		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
+		<manager.version>1.12.3</manager.version>
+		<scheduler.version>1.11.3</scheduler.version>
+		<authentication.version>1.11.1</authentication.version>
+		<template.name>appng-template</template.name>
+		<template.version>1.14.3</template.version>
 	</properties>
 	<scm>
 		<connection>scm:git:ssh://git@github.com:appNG/appng.git</connection>
@@ -197,6 +202,10 @@
 			<id>local</id>
 			<properties>
 				<maven.test.skip>true</maven.test.skip>
+				<asciidoctor.skip>true</asciidoctor.skip>
+				<maven.war.skip>true</maven.war.skip>
+				<mdep.skip>true</mdep.skip>
+				<assembly.skipAssembly>true</assembly.skipAssembly>
 			</properties>
 			<modules>
 				<module>appng-tools</module>
