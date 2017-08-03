@@ -6,8 +6,8 @@ image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 [caption="Apache License 2.0",link=LICENSE]
 image::https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat-square[]
 
-[caption="Maven Central",link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.appng%22%20AND%20a%3A%22appng-api%22]
-image::https://img.shields.io/maven-central/v/org.appng/appng-api.svg?style=flat-square[]
+[caption="Maven Central",link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.appng%22%20AND%20a%3A%22appng-application%22]
+image::https://img.shields.io/maven-central/v/org.appng/appng-application.svg?style=flat-square[]
 
 [caption="Dependency Status",link=https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc]
 image::https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc/badge.svg?style=flat-square[]
