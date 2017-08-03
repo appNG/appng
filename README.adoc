@@ -47,6 +47,12 @@ appNG is very well suited to create and operate your own application platform as
 * *Rapid protoyping* enables you to design your user interface without writing one line of Java code
 
 == Getting started
+
+[NOTE]
+====
+The dollar sign ($) at the beginning of a line denotes the command prompt. Depending on your operating system and shell you might see other signs like %, # or >. This sign is not part of the command to be executed.
+====
+
 === Download and run the appNG standalone Version
 appNG is available as a standalone version, suitable for evaluation and testing purposes.
 
@@ -55,10 +61,18 @@ The standalone version also comes with *appNGizer*, the REST-based administratio
 The standalone version can be found here:
 https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
 
+Check that Java 1.8 is available in your class path:
+----
+$ java -version
+openjdk version "1.8.0_131"
+OpenJDK Runtime Environment (build 1.8.0_131-8u131-b11-1~bpo8+1-b11)
+OpenJDK 64-Bit Server VM (build 25.131-b11, mixed mode)
+----
+
 Unzip the file, change into the extracted folder and run
 [source,subs=normal]
 ----
-java -jar appng-standalone-{stable}.jar -i -u
+$ java -jar appng-standalone-{stable}.jar -i -u
 ----
 
 Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
@@ -77,7 +91,7 @@ Using the *appNG Maven Archetype*, you can easily create your first own applicat
 Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
 [source,subs=normal]
 ----
-mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={stable} -DinteractiveMode=false
+$ mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={stable} -DinteractiveMode=false
 ----
 
 Next, change into the created project folder and run `mvn package`.
@@ -102,8 +116,8 @@ In `/path/to/appng-standalone-{stable}/appng/WEB-INF/bin`, execute the following
 
 [source]
 ----
-./appng install-application -n myartifactid -v 1.0-SNAPSHOT -r Local
-./appng activate-application -s manager -a myartifactid
+$ ./appng install-application -n myartifactid -v 1.0-SNAPSHOT -r Local
+$ ./appng activate-application -s manager -a myartifactid
 ----
 
 Both commands should return without any message, meaning they where successful.
