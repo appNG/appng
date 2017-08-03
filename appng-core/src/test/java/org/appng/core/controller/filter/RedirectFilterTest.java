@@ -95,8 +95,10 @@ public class RedirectFilterTest {
 		verifyRule(conf.getRules().get(2), "^/en/page.jsp/(.*)$", "/de/seite/${encode:utf8:$1}");
 		verifyRule(conf.getRules().get(3), "^/de/index$", "/en/index.jsp");
 		verifyRule(conf.getRules().get(4), "^/en/index.jsp$", "/de/index");
-		verifyRule(conf.getRules().get(5), "^/fr/accueil$", "/fr/index.jsp");
-		verifyRule(conf.getRules().get(6), "^/fr/index.jsp$", "/fr/accueil");
+		verifyRule(conf.getRules().get(5), "^/de/error$", "/de/fehler.jsp");
+		verifyRule(conf.getRules().get(6), "^/fr/accueil$", "/fr/index.jsp");
+		verifyRule(conf.getRules().get(7), "^/fr/index.jsp$", "/fr/accueil");
+		verifyRule(conf.getRules().get(8), "^/de/fault((\\?\\S+)?)$", "/de/fehler.jsp$1");
 
 	}
 
