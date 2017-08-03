@@ -197,6 +197,7 @@
 			<id>local</id>
 			<properties>
 				<maven.test.skip>true</maven.test.skip>
+				<doc.skip>true</doc.skip>
 			</properties>
 			<modules>
 				<module>appng-tools</module>

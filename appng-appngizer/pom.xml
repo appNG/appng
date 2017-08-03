@@ -87,6 +87,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
+					<skip>${doc.skip}</skip>
 					<backend>pdf</backend>
 					<outputDirectory>target/generated-docs/pdf</outputDirectory>
 					<sourceHighlighter>coderay</sourceHighlighter>
@@ -112,6 +113,7 @@
 							<goal>process-asciidoc</goal>
 						</goals>
 						<configuration>
+							<skip>${doc.skip}</skip>
 							<sourceDocumentName>appngizer-user-manual.adoc</sourceDocumentName>
 						</configuration>
 					</execution>
@@ -122,6 +124,7 @@
 							<goal>process-asciidoc</goal>
 						</goals>
 						<configuration>
+							<skip>${doc.skip}</skip>
 							<backend>html5</backend>
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-user-manual.adoc</sourceDocumentName>
@@ -141,6 +144,7 @@
 							<goal>process-asciidoc</goal>
 						</goals>
 						<configuration>
+							<skip>${doc.skip}</skip>
 							<sourceDocumentName>appngizer-platform-installation-guide.adoc</sourceDocumentName>
 						</configuration>
 					</execution>
@@ -151,6 +155,7 @@
 							<goal>process-asciidoc</goal>
 						</goals>
 						<configuration>
+							<skip>${doc.skip}</skip>
 							<backend>html5</backend>
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-platform-installation-guide.adoc</sourceDocumentName>
@@ -170,6 +175,7 @@
 							<goal>process-asciidoc</goal>
 						</goals>
 						<configuration>
+							<skip>${doc.skip}</skip>
 							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
 						</configuration>
 					</execution>
@@ -180,6 +186,7 @@
 							<goal>process-asciidoc</goal>
 						</goals>
 						<configuration>
+							<skip>${doc.skip}</skip>
 							<backend>html5</backend>
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
