@@ -4,10 +4,10 @@ image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 :current: {snapshot}
 
 [caption="Dependency Status",link=https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc]
-image::https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc/badge.svg?style=flat-square[]
+image::https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc/badge.svg?style=flat-square[float="left"]
 
 [caption="Apache License 2.0",link=LICENSE]
-image::https://img.shields.io/badge/License-Apache%202-blue.svg[]
+image::https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat-square[]
 
 == Welcome to appNG
 appNG is a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat^] and the https://spring.io[Spring Framework^].
