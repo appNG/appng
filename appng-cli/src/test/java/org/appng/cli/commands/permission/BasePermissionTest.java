@@ -50,7 +50,7 @@ public abstract class BasePermissionTest extends AbstractCommandTest {
 		ApplicationImpl application = new ApplicationImpl();
 		application.setName(APPLICATION);
 		application.setApplicationVersion("1.0.0");
-		application.setCoreApplication(true);
+		application.setPrivileged(true);
 		applicationRepository.save(application);
 
 		RoleImpl role = new RoleImpl();

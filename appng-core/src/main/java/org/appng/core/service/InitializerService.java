@@ -609,7 +609,7 @@ public class InitializerService {
 				}
 
 				java.util.Properties props = PropertySupport.getProperties(platformConfig, site, application,
-						application.isCoreApplication());
+						application.isPrivileged());
 
 				PropertySourcesPlaceholderConfigurer configurer = getPlaceholderConfigurer(props);
 				applicationContext.addBeanFactoryPostProcessor(configurer);

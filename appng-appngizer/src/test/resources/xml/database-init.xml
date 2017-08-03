@@ -27,7 +27,7 @@
             installed="2017-04-10T10:30:41.347+02:00" />
         <version version="1.1" state="Success" description="Quartz initial setup" checksum="1129524243"
             installed="2017-04-10T10:30:41.335+02:00" />
-        <version version="1.0" state="Success" description="appNG initial setup" checksum="-359267528"
+        <version version="1.0" state="Success" description="appNG initial setup" checksum="1411118267"
             installed="2017-04-10T10:30:41.304+02:00" />
     </versions>
 </database>

@@ -79,13 +79,13 @@ public class ListApplications extends CommandList implements ExecutableCliComman
 			prettyTable.addColumn(TableConstants.ID);
 			prettyTable.addColumn(TableConstants.NAME);
 			prettyTable.addColumn(TableConstants.DISPLAY_NAME);
-			prettyTable.addColumn(TableConstants.CORE_APPLICATION);
+			prettyTable.addColumn(TableConstants.PRIVILEGED);
 			prettyTable.addColumn(TableConstants.FILEBASED, true);
 			prettyTable.addColumn(TableConstants.HIDDEN, true);
 
 			for (Application application : applications) {
 				prettyTable.addRow(application.getId(), application.getName(), application.getDisplayName(),
-						application.isCoreApplication(), application.isFileBased(), application.isHidden());
+						application.isPrivileged(), application.isFileBased(), application.isHidden());
 			}
 
 			cle.setResult(renderTable());

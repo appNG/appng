@@ -35,7 +35,7 @@ import org.appng.api.model.Subject;
  * {@link #getTimeZone()}
  * <li>allowing to share attributes between multiple applications (using {@link Scope#SESSION} and {@link Scope#SITE})
  * <li>keeping track of platform-wide configuration parameters ( {@link Scope#PLATFORM} and {@link Application}s where
- * {@link org.appng.api.model.Application#isCoreApplication()} is {@code true})
+ * {@link org.appng.api.model.Application#isPrivileged()} is {@code true})
  * </ul>
  * </ul>
  * 

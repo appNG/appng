@@ -135,7 +135,7 @@ In the example we use RabbitMQ as message broker.
 </package>
 ----
 
-=== Make it a hidden core application
+=== Make it a hidden privileged application
 
 *URL:* http://localhost:8080/appNGizer/application/appng-authentication
 
@@ -174,7 +174,7 @@ In the example we use RabbitMQ as message broker.
 </package>
 ----
 
-=== Make it a core application
+=== Make it a privileged application
 
 
 *URL:* http://localhost:8080/appNGizer/application/appng-manager

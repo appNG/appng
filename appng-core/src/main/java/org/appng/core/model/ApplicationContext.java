@@ -63,7 +63,7 @@ public class ApplicationContext extends XmlWebApplicationContext {
 		setClassLoader(classLoader);
 		setServletContext(sc);
 		setConfigLocations(configLocations);
-		if (application.isCoreApplication()) {
+		if (application.isPrivileged()) {
 			setParent(parent);
 			this.site = siteApplication.getSite();
 		}

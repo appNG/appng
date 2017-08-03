@@ -106,7 +106,7 @@ public class ApplicationProviderTest extends TestBase {
 			return context;
 		}
 
-		public void setCoreApplication(boolean isCoreApplication) {
+		public void setPrivileged(boolean isPrivileged) {
 
 		}
 

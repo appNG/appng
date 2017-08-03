@@ -43,7 +43,7 @@ public class Application extends org.appng.appngizer.model.xml.Application imple
 		Application app = new Application(appImpl.getName());
 		app.setVersion(appImpl.getApplicationVersion());
 		app.setDisplayName(appImpl.getDisplayName());
-		app.setCore(appImpl.isCoreApplication());
+		app.setCore(appImpl.isPrivileged());
 		app.setFileBased(appImpl.isFileBased());
 		app.setHidden(appImpl.isHidden());
 		app.setSelf(null == site ? "/application/" + app.getName() : "/site/" + site + "/application/" + app.getName());
@@ -56,7 +56,7 @@ public class Application extends org.appng.appngizer.model.xml.Application imple
 		app.setDisplayName(a.getDisplayName());
 		app.setFileBased(a.isFileBased());
 		app.setHidden(a.isHidden());
-		app.setCoreApplication(a.isCore());
+		app.setPrivileged(a.isCore());
 		return app;
 	}
 
