@@ -38,10 +38,10 @@ public enum ResourceType implements FilenameFilter {
 	 */
 	BEANS_XML("", "xml"),
 
-	/** The {@link Application}'s jar-files ({@code *.jar}) located at {@code /lib} */
+	/** The {@link Application}'s JAR files ({@code *.jar}) located at {@code /lib} */
 	JAR("lib", "jar"),
 
-	/** The {@link Application}s XML-sources ({@code *.xml}) located at {@code /conf} */
+	/** The {@link Application}s XML sources ({@code *.xml}) located at {@code /conf} */
 	XML("conf", true, "xml"),
 
 	/**
@@ -49,7 +49,7 @@ public enum ResourceType implements FilenameFilter {
 	 */
 	XSL("xsl", "xsl"),
 
-	/** The {@link Application}s SQL-scripts ({@code *.sql}), located at {@code /sql} */
+	/** The {@link Application}s SQL scripts ({@code *.sql}), located at {@code /sql} */
 	SQL("sql", true, "sql"),
 
 	/** The {@link Application}s custom (non-XSL) template resources */
@@ -67,7 +67,7 @@ public enum ResourceType implements FilenameFilter {
 	DICTIONARY("dictionary", "properties"),
 
 	/**
-	 * The {@link Application}'s {@code application-info.xml} located in the root directory
+	 * The {@link Application}'s {@code application.xml} located in the root directory
 	 */
 	APPLICATION("", "xml");
 
