@@ -201,11 +201,11 @@
 			<!-- copies the appNG jars to ${env.CATALINA_HOME}/webapps/ROOT/WEB-INF/lib/ -->
 			<id>local</id>
 			<properties>
+				<doc.skip>true</doc.skip>
+				<assembly.skipAssembly>true</assembly.skipAssembly>
 				<maven.test.skip>true</maven.test.skip>
-				<asciidoctor.skip>true</asciidoctor.skip>
 				<maven.war.skip>true</maven.war.skip>
 				<mdep.skip>true</mdep.skip>
-				<assembly.skipAssembly>true</assembly.skipAssembly>
 			</properties>
 			<modules>
 				<module>appng-tools</module>
@@ -462,6 +462,9 @@
 							<goal>jar-no-fork</goal>
 						</goals>
 						<phase>verify</phase>
+						<configuration>
+							<skipSource>${doc.skip}</skipSource>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

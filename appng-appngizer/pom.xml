@@ -35,6 +35,7 @@
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
+					<skip>false</skip>
 					<filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
 					<webResources>
 						<resource>
@@ -87,6 +88,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
+					<skip>${doc.skip}</skip>
 					<backend>pdf</backend>
 					<outputDirectory>target/generated-docs/pdf</outputDirectory>
 					<sourceHighlighter>coderay</sourceHighlighter>
