@@ -72,7 +72,7 @@
 							<goal>process-asciidoc</goal>
 						</goals>
 						<configuration>
-s							<backend>pdf</backend>
+							<backend>pdf</backend>
 							<sourceHighlighter>coderay</sourceHighlighter>
 							<sourceDocumentName>developerguide.adoc</sourceDocumentName>
 							<outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
