@@ -452,7 +452,7 @@ public class InitializerService {
 		Set<ApplicationProvider> applications = new HashSet<ApplicationProvider>();
 
 		// platform and application cache
-		CacheProvider cacheProvider = new CacheProvider(platformConfig);
+		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 		cacheProvider.clearCache(site);
 
 		// ehcache
