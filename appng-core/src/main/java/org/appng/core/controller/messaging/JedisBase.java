@@ -22,12 +22,19 @@ import org.appng.api.model.Properties;
 import redis.clients.jedis.Jedis;
 
 /**
- * TODO insert description
+ * Base class for Jedis messaging
  * 
  * @author Claus Stümke, aiticon GmbH, 2015
  *
  */
 public class JedisBase {
+
+	protected static final String REDIS_MESSAGING_PASSWORD = "redisMessagingPassword";
+	protected static final String REDIS_MESSAGING_CHANNEL = "redisMessagingChannel";
+	protected static final String REDIS_MESSAGING_TIMEOUT = "redisMessagingTimeout";
+	protected static final String REDIS_MESSAGING_HOST = "redisMessagingHost";
+	protected static final String REDIS_MESSAGING_PORT = "redisMessagingPort";
+	
 	protected Serializer eventSerializer;
 	protected String host;
 	protected String channel;
@@ -37,11 +44,11 @@ public class JedisBase {
 
 	protected void initialize() {
 		Properties platformConfig = eventSerializer.getPlatformConfig();
-		port = platformConfig.getInteger("redisMessagingPort", 6379);
-		host = platformConfig.getString("redisMessagingHost", "localhost");
-		timeout = platformConfig.getInteger("redisMessagingTimeout", 0);
-		channel = platformConfig.getString("redisMessagingChannel", "appng-messaging");
-		password = platformConfig.getString("redisMessagingPassword", "");
+		port = platformConfig.getInteger(REDIS_MESSAGING_PORT, 6379);
+		host = platformConfig.getString(REDIS_MESSAGING_HOST, "localhost");
+		timeout = platformConfig.getInteger(REDIS_MESSAGING_TIMEOUT, 0);
+		channel = platformConfig.getString(REDIS_MESSAGING_CHANNEL, "appng-messaging");
+		password = platformConfig.getString(REDIS_MESSAGING_PASSWORD, "");
 	}
 
 	public Jedis getJedis() {
