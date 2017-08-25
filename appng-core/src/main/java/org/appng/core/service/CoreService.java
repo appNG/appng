@@ -782,7 +782,9 @@ public class CoreService {
 			applicationResources.dumpToCache(ResourceType.APPLICATION, ResourceType.SQL);
 			ApplicationInfo applicationInfo = applicationResources.getApplicationInfo();
 			File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
-			return databaseService.manageApplicationConnection(siteApplication, applicationInfo, sqlFolder);
+			String databasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
+			return databaseService.manageApplicationConnection(siteApplication, applicationInfo, sqlFolder,
+					databasePrefix);
 		} catch (Exception e) {
 			log.error("error during database setup for application " + application.getName(), e);
 		} finally {
@@ -1593,7 +1595,8 @@ public class CoreService {
 	public void resetConnection(FieldProcessor fp, Integer conId) {
 		SiteApplication siteApplication = siteApplicationRepository.findByDatabaseConnectionId(conId);
 		if (null != siteApplication) {
-			databaseService.resetApplicationConnection(siteApplication);
+			String databasePrefix = getPlatform(true).getString(Platform.Property.DATABASE_PREFIX);
+			databaseService.resetApplicationConnection(siteApplication, databasePrefix);
 		}
 	}
 
@@ -1637,7 +1640,7 @@ public class CoreService {
 				Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
 				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
-				
+
 				while (waited < maxWaitTime && (requests = shutdownSite.getRequests()) > 1) {
 					try {
 						Thread.sleep(waitTime);

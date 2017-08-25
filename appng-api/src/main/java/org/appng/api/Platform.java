@@ -112,6 +112,10 @@ public final class Platform {
 		 */
 		public static final String CSRF_FILTER_ENABLED = "csrfFilterEnabled";
 		/**
+		 * The prefix to use when generating database names
+		 */
+		public static final String DATABASE_PREFIX = "databasePrefix";
+		/**
 		 * The idle database connection test period in minutes. If a database connection remains idle for the specified
 		 * time, the validation query defined in the database connection will be sent to prevent a database connection
 		 * timeout.

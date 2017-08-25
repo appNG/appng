@@ -296,6 +296,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_CACHE_FOLDER, "application");
 		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_FOLDER, "cache");
 		addPlatformProperty(defaultOverrides, Platform.Property.CSRF_FILTER_ENABLED, "false");
+		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_PREFIX, StringUtils.EMPTY);
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_VALIDATION_PERIOD, 15);
 		addPlatformProperty(defaultOverrides, Platform.Property.DEFAULT_TEMPLATE, "appng");
 		addPlatformProperty(defaultOverrides, Platform.Property.DEV_MODE, devMode);
