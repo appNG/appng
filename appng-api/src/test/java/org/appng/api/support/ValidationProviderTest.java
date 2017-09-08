@@ -48,13 +48,14 @@ import org.springframework.context.MessageSource;
  */
 public class ValidationProviderTest extends AbstractTest {
 
-	private ValidationProvider validationProvider = new DefaultValidationProvider();
+	private static final String MUST_NOT_BE_NULL = "must not be null";
+	private ValidationProvider validationProvider;
 
 	@Before
 	public void setup() {
 		MessageSource messageSource = getMessageSource();
-		validationProvider = new DefaultValidationProvider(new LocalizedMessageInterpolator(Locale.ENGLISH,
-				messageSource), messageSource, Locale.ENGLISH);
+		validationProvider = new DefaultValidationProvider(
+				new LocalizedMessageInterpolator(Locale.ENGLISH, messageSource), messageSource, Locale.ENGLISH);
 	}
 
 	@Test
@@ -102,7 +103,7 @@ public class ValidationProviderTest extends AbstractTest {
 		validationProvider.addValidationMetaData(metaData, classLoader, Default.class, GroupA.class);
 		XmlValidator.validate(metaData);
 	}
-	
+
 	@Test
 	public void testAddValidationMetaDataAsRule() throws Exception {
 		MetaData metaData = MetaDataProvider.getMetaData();
@@ -111,6 +112,9 @@ public class ValidationProviderTest extends AbstractTest {
 		URLClassLoader classLoader = new URLClassLoader(new URL[0]);
 		Mockito.when(site.getSiteClassLoader()).thenReturn(classLoader);
 		XmlValidator.validate(metaData, "-before");
+		MessageSource messageSource = getMessageSource();
+		validationProvider = new DefaultValidationProvider(
+				new LocalizedMessageInterpolator(Locale.ENGLISH, messageSource), messageSource, Locale.ENGLISH, true);
 		validationProvider.addValidationMetaData(metaData, classLoader, Default.class, GroupA.class);
 		XmlValidator.validate(metaData);
 	}
@@ -140,7 +144,7 @@ public class ValidationProviderTest extends AbstractTest {
 		Messages messages = fp.getField("name").getMessages();
 		Assert.assertEquals(1, messages.getMessageList().size());
 		String content = messages.getMessageList().get(0).getContent();
-		Assert.assertEquals("may not be null", content);
+		Assert.assertEquals(MUST_NOT_BE_NULL, content);
 
 		FieldProcessorImpl fp2 = new FieldProcessorImpl("test", new MetaData());
 		validationProvider.validateBean(foobar, fp2);
@@ -157,7 +161,7 @@ public class ValidationProviderTest extends AbstractTest {
 		FieldProcessor fp = new FieldProcessorImpl("bla", metaData);
 		validationProvider.validateField(new Foobar(), fp, "name");
 		Assert.assertTrue("should have 1 error", fp.hasErrors());
-		Assert.assertEquals("may not be null", fieldDef.getMessages().getMessageList().get(0).getContent());
+		Assert.assertEquals(MUST_NOT_BE_NULL, fieldDef.getMessages().getMessageList().get(0).getContent());
 	}
 
 	@Test

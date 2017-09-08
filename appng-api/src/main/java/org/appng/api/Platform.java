@@ -108,6 +108,11 @@ public final class Platform {
 		 */
 		public static final String CACHE_FOLDER = "cacheFolder";
 		/**
+		 * Whether validation constraints should be added as a {@link org.appng.xml.platform.Rule} to the
+		 * {@link org.appng.xml.platform.FieldDef}s {@link org.appng.xml.platform.Validation}
+		 */
+		public static final String CONSTRAINTS_AS_RULE = "constraintsAsRule";
+		/**
 		 * Set to {@code true} to enable a filter preventing CSRF-attacks
 		 */
 		public static final String CSRF_FILTER_ENABLED = "csrfFilterEnabled";

@@ -3,7 +3,7 @@
     <field name="foo" type="text" binding="foo">
         <validation>
             <notNull>
-                <message ref="foo" class="ERROR">may not be null</message>
+                <message ref="foo" class="ERROR">must not be null</message>
             </notNull>
             <size min="5" max="2147483647">
                 <message ref="foo" class="ERROR">size must be between 5 and 2147483647</message>

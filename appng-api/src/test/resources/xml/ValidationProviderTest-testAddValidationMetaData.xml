@@ -4,25 +4,31 @@
 		<sort order="desc" prio="1" />
 		<validation>
 			<notNull>
-				<message ref="name" class="ERROR">may not be null</message>
+				<message ref="name" class="ERROR">must not be null</message>
 			</notNull>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="name" class="ERROR">must not be blank</message>
+			</rule>
 		</validation>
 	</field>
 	<field name="firstname" type="text" binding="firstname">
 		<sort order="asc" prio="0" />
 		<validation>
 			<notNull>
-				<message ref="firstname" class="ERROR">may not be null</message>
+				<message ref="firstname" class="ERROR">must not be null</message>
 			</notNull>
 			<size min="1" max="5">
 				<message ref="firstname" class="ERROR">Value must be between 1 and 5</message>
 			</size>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="firstname" class="ERROR">must not be blank</message>
+			</rule>
 		</validation>
 	</field>
 	<field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate">
 		<validation>
 			<past>
-				<message ref="birthDate" class="ERROR">must be in the past</message>
+				<message ref="birthDate" class="ERROR">must be a past date</message>
 			</past>
 		</validation>
 	</field>
@@ -46,8 +52,20 @@
 		<condition expression="${not empty current.offsprings}" />
 	</field>
 	<field name="integerList" type="list:checkbox" binding="integerList" />
-	<field name="picture" type="file" binding="picture" />
-	<field name="morePictures" type="file-multiple" binding="morePictures" />
+	<field name="picture" type="file" binding="picture">
+		<validation>
+			<fileUpload minCount="1" maxCount="1" minSize="0" maxSize="10" unit="MB" fileTypes="jpg,bmp">
+				<message ref="picture" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+			</fileUpload>
+		</validation>
+	</field>
+	<field name="morePictures" type="file-multiple" binding="morePictures">
+		<validation>
+			<fileUpload minCount="0" maxCount="5" minSize="0" maxSize="10" unit="MB" fileTypes="jpg,bmp">
+				<message ref="morePictures" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+			</fileUpload>
+		</validation>
+	</field>
 	<field name="strings" type="list:text" binding="strings" />
 	<field name="thepanel" type="linkpanel" binding="thepanel" />
 	<field name="coordinate" type="coordinate" binding="coordinate">
@@ -66,18 +84,24 @@
 	<field name="offsprings[0].name" type="text" binding="offsprings[0].name">
 		<validation>
 			<notNull>
-				<message ref="offsprings[0].name" class="ERROR">may not be null</message>
+				<message ref="offsprings[0].name" class="ERROR">must not be null</message>
 			</notNull>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="offsprings[0].name" class="ERROR">must not be blank</message>
+			</rule>
 		</validation>
 	</field>
 	<field name="offsprings[0].firstname" type="text" binding="offsprings[0].firstname">
 		<validation>
 			<notNull>
-				<message ref="offsprings[0].firstname" class="ERROR">may not be null</message>
+				<message ref="offsprings[0].firstname" class="ERROR">must not be null</message>
 			</notNull>
 			<size min="1" max="5">
 				<message ref="offsprings[0].firstname" class="ERROR">Value must be between 1 and 5</message>
 			</size>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="offsprings[0].firstname" class="ERROR">must not be blank</message>
+			</rule>
 		</validation>
 	</field>
 	<field name="offspringNames['Han'].name" type="text" binding="offspringNames['Han'].name" />
