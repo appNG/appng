@@ -65,7 +65,7 @@
 		<poiVersion>3.16</poiVersion>
 		<jacksonVersion>2.9.0</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>8.5.16</tomcat.version>
+		<tomcat.version>8.5.20</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 		<esapi.version>2.1.0.1</esapi.version>
 		<docDir>./target/generated-docs</docDir>
@@ -877,12 +877,12 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>2.6.3</version>
+				<version>2.7.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>22.0</version>
+				<version>23.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
