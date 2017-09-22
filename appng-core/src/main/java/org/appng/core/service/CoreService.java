@@ -36,6 +36,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -2030,6 +2031,24 @@ public class CoreService {
 
 	public SiteApplication getSiteApplication(String site, String application) {
 		return siteApplicationRepository.findBySiteNameAndApplicationName(site, application);
+	}
+
+	public SiteApplication getSiteApplicationWithGrantedSites(String site, String application) {
+		SiteApplication siteApplication = getSiteApplication(site, application);
+		if (null != siteApplication) {
+			siteApplication.getGrantedSites().size();
+		}
+		return siteApplication;
+	}
+
+	public SiteApplication grantApplicationForSites(String site, String application, List<String> siteNames) {
+		SiteApplication siteApplication = getSiteApplication(site, application);
+		if (CollectionUtils.isNotEmpty(siteNames)) {
+			siteApplication.getGrantedSites().clear();
+			List<SiteImpl> grantedSites = siteRepository.findByNameIn(siteNames);
+			siteApplication.getGrantedSites().addAll(grantedSites);
+		}
+		return siteApplication;
 	}
 
 }
