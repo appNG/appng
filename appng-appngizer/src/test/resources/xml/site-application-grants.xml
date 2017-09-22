@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<grants xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/site/localhost/application/demo-application/grants">
+	<grant site="anotherSite">true</grant>
+</grants>

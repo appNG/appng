@@ -27,6 +27,7 @@ import org.appng.api.model.Properties;
 import org.appng.appngizer.model.xml.Nameable;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
+import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.CoreService;
 import org.appng.core.service.DatabaseService;
@@ -50,20 +51,21 @@ public abstract class ControllerBase {
 
 	@Autowired
 	HttpSession session;
-	
+
 	@Autowired
 	CoreService coreService;
-	
+
 	@Autowired
 	TemplateService templateService;
-	
+
 	@Autowired
 	DatabaseService databaseService;
-	
+
 	@Autowired
 	AppNGizerConfigurer configurer;
-	
-	@Autowired ApplicationContext appCtx;
+
+	@Autowired
+	ApplicationContext appCtx;
 
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(BusinessException.class)
@@ -79,7 +81,6 @@ public abstract class ControllerBase {
 		return coreService;
 	}
 
-
 	TemplateService getTemplateService() {
 		return templateService;
 	}
@@ -91,7 +92,11 @@ public abstract class ControllerBase {
 	SiteImpl getSiteByName(String name) {
 		return getCoreService().getSiteByName(name);
 	}
-	
+
+	SiteApplication getSiteApplication(String site, String application) {
+		return getCoreService().getSiteApplicationWithGrantedSites(site, application);
+	}
+
 	boolean nameChanged(Nameable nameable, String name) {
 		return !nameable.getName().equals(name);
 	}
@@ -147,13 +152,13 @@ public abstract class ControllerBase {
 	<T> ResponseEntity<T> reply(T entity, HttpStatus status) {
 		return new ResponseEntity<T>(entity, status);
 	}
-	
+
 	protected MigrationInfo getDatabaseStatus() {
 		DatabaseConnection platformConnection = databaseService.getPlatformConnection(configurer.getProps());
 		return databaseService.statusComplete(platformConnection).current();
 	}
 
-	public String getSharedSecret(){
+	public String getSharedSecret() {
 		Properties platformCfg = getCoreService().getPlatformProperties();
 		return platformCfg.getString(Platform.Property.SHARED_SECRET);
 	}

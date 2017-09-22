@@ -102,6 +102,39 @@ include::../xml/property-update.xml[]
 *Response Body:* -none-
 
 
+==== Showing grants for a site
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/application/{app-name}/grants
+
+*URL:* http://localhost:8080/appNGizer/site/appng/application/appng-authentication/grants
+
+*Method:* GET
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-application-grants.xml[]
+----
+
+
+==== Granting an application for other sites
+*URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/application/{app-name}/grants
+
+*URL:* http://localhost:8080/appNGizer/site/appng/application/appng-authentication/grants
+
+*Method:* PUT
+
+*Request Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-application-grants.xml[]
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/site-application-grants.xml[]
+----
+
 
 ==== Activate application
 *URL-Scheme:* http://localhost:8080/appNGizer/site/{site-name}/application/{app-name}
