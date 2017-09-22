@@ -111,7 +111,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 *            the {@link MessageSource} used when adding validation messages
 	 * @param locale
 	 *            the {@link Locale} used when adding validation messages
-	 * @param addContraintsAsRule
+	 * @param contraintsAsRule
 	 *            whether validation constraints should be added as a {@link Rule} to the {@link FieldDef}s
 	 *            {@link Validation}
 	 */
