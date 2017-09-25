@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -46,6 +47,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,15 +141,17 @@ public class InitializerServiceTest extends TestSupport
 		File templateRoot = new File("target/test-classes/repository/site-1/www/template/");
 		FileUtils.deleteQuietly(templateRoot);
 		Mockito.when(ctx.getRealPath("/uploads")).thenReturn("target/uploads");
+		
+		
+		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES)).thenReturn(new HashMap<String, Site>());
+		
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);
 		service.loadPlatform(new java.util.Properties(), env, null, null, null);
 		Mockito.verify(ctx, Mockito.atLeastOnce()).getRealPath(Mockito.anyString());
-		Mockito.verify(env).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.eq(Platform.Environment.PLATFORM_CONFIG),
-				Mockito.any(Properties.class));
-
-		Mockito.verify(env).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.eq(Platform.Environment.SITES),
-				Mockito.any(Map.class));
+		Mockito.verify(env,VerificationModeFactory.atLeast(1)).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.anyString(),
+				Mockito.any());
+	
 		Assert.assertTrue(new File(templateRoot, "assets/favicon.ico").exists());
 		Assert.assertTrue(new File(templateRoot, "resources/dummy.txt").exists());
 		Assert.assertFalse(new File(templateRoot, "xsl").exists());
@@ -168,7 +172,7 @@ public class InitializerServiceTest extends TestSupport
 		TestEntity entity = new TestEntity(null, "name", 2, 3.4d, true);
 		testservice.createEntity(entity);
 		Assert.assertEquals(Integer.valueOf(1), entity.getId());
-		service.shutDownSite(ctx, siteToLoad);
+		service.shutDownSite(env, siteToLoad);
 	}
 
 	@Override

@@ -166,35 +166,34 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		if (site != null) {
 			try {
 				int requests = ((SiteImpl) site).addRequest();
-				LOGGER.debug("site {} currently handles {} requests", site.getName(), requests);
+				LOGGER.debug("site {} currently handles {} requests", site, requests);
 				long waited = 0;
 				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
 				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 
-				while (waited < maxWaitTime && site.hasState(SiteState.STOPPING, SiteState.STOPPED)) {
+				while (waited < maxWaitTime && (site = RequestUtil.getSiteByName(env, site.getName()))
+						.hasState(SiteState.STOPPING, SiteState.STOPPED)) {
 					try {
 						Thread.sleep(waitTime);
 						waited += waitTime;
-						site = RequestUtil.getSiteByHost(env, hostIdentifier);
 					} catch (InterruptedException e) {
 						LOGGER.error("error while waiting for site to be started", e);
 					}
-					LOGGER.info("site '{}' is currently beeing stopped, waited {}ms", site.getName(), waited);
+					LOGGER.info("site '{}' is currently beeing stopped, waited {}ms", site, waited);
 				}
 
-				while (waited < maxWaitTime && site.hasState(SiteState.STARTING)) {
+				while (waited < maxWaitTime
+						&& (site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTING)) {
 					try {
 						Thread.sleep(waitTime);
 						waited += waitTime;
-						site = RequestUtil.getSiteByHost(env, hostIdentifier);
 					} catch (InterruptedException e) {
 						LOGGER.error("error while waiting for site to be started", e);
 					}
-					LOGGER.info("site '{}' is currently being started, waited {}ms", site.getName(), waited);
+					LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
 				}
 
-				if (site.hasState(SiteState.STARTED)) {
-
+				if ((site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTED)) {
 					boolean enforcePrimaryDomain = site.getProperties()
 							.getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
 					if (enforcePrimaryDomain) {
@@ -256,18 +255,20 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 										EnvironmentKeys.PREVIOUS_PATH, servletPath);
 							}
 						} else {
-							LOGGER.error("site {} should be STARTED but is {}", site.getName(), site.getState());
+							LOGGER.error("site {} should be STARTED.", site);
 							servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 						}
 					}
 
 				} else {
-					LOGGER.error("timeout while waiting for site {}, waited {}ms", site.getName(), waited);
+					LOGGER.error("timeout while waiting for site {}, waited {}ms", site, waited);
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 				}
 			} finally {
-				int requests = ((SiteImpl) site).removeRequest();
-				LOGGER.debug("site {} currently handles {} requests", site.getName(), requests);
+				if (null != site) {
+					int requests = ((SiteImpl) site).removeRequest();
+					LOGGER.debug("site {} currently handles {} requests", site, requests);
+				}
 			}
 
 		} else if (allowPlainRequests) {
