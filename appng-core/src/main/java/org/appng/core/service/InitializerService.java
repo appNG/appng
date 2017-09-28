@@ -401,8 +401,12 @@ public class InitializerService {
 	 * @param siteToLoad
 	 *            the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
 	 *            {@link CoreService#getSiteByName(String)}
-	 * @param servletContext
-	 *            the current {@link ServletContext}
+	 * @param env
+	 *            the current {@link Environment}
+	 * @param sendReloadEvent
+	 *            whether or not a {@link ReloadSiteEvent} should be sent
+	 * @param fp
+	 *            a {@link FieldProcessor} to attach messages to
 	 * @throws InvalidConfigurationException
 	 *             if an configuration error occurred
 	 */
