@@ -122,6 +122,26 @@
 		</xs:complexType>
 	</xs:element>
 
+	<xs:element name="grants">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element name="grant" type="grant" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="grant">
+		<xs:simpleContent>
+			<xs:extension base="xs:boolean">
+				<xs:attribute name="site" type="xs:string" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
 	<xs:element name="roles">
 		<xs:complexType>
 			<xs:complexContent>

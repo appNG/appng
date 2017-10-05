@@ -388,7 +388,7 @@ public class RepositoryImpl implements Repository {
 	 *            the certificate chain
 	 * @throws SigningException
 	 *             if an error occurs while encoding the certificates to their binary form
-	 * @see {@link #getTrustedCertChain()}
+	 * @see #getTrustedCertChain()
 	 */
 	public void setTrustedCertChain(Collection<X509Certificate> trustedCerts) throws SigningException {
 		try {

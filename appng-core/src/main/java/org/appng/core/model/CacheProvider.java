@@ -72,6 +72,20 @@ public class CacheProvider {
 	 *            {@link org.appng.api.Platform.Property}.
 	 */
 	public CacheProvider(Properties platformConfig) {
+		this(platformConfig, false);
+	}
+
+	/**
+	 * Creates a new CacheProvider. Retrieves the directory layout from the platform configuration.
+	 * 
+	 * @param platformConfig
+	 *            The platform configuration. Contains values for keys defined in
+	 *            {@link org.appng.api.Platform.Property}.
+	 * @param changeOwner
+	 *            if set to {@code true} and we're running on *nix, a recursive {@code chown} command is being executed
+	 *            for the cache folder
+	 */
+	public CacheProvider(Properties platformConfig, boolean changeOwner) {
 
 		this.platformRoot = new File(platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH));
 		prefixLength = this.platformRoot.getAbsolutePath().length();
@@ -88,7 +102,7 @@ public class CacheProvider {
 
 		String appngUser = platformConfig.getString(InitializerService.APPNG_USER);
 		String appngGroup = platformConfig.getString(InitializerService.APPNG_GROUP);
-		if (OperatingSystem.isLinux() && StringUtils.isNoneBlank(appngUser, appngGroup)) {
+		if (changeOwner && OperatingSystem.isLinux() && StringUtils.isNoneBlank(appngUser, appngGroup)) {
 			String command = String.format("chown -R %s:%s %s", appngUser, appngGroup, cache.getAbsolutePath());
 			StringConsumer errorConsumer = new StringConsumer();
 			if (0 != Command.execute(command, null, errorConsumer)) {

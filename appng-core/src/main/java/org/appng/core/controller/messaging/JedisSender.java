@@ -60,8 +60,9 @@ public class JedisSender extends JedisBase implements Sender {
 			eventSerializer.serialize(outMessage, event);
 			jedis.publish(channel.getBytes(), outMessage.toByteArray());
 			LOGGER.debug("Successfully published event {}", event);
+			return true;
 		} catch (IOException e) {
-			LOGGER.error("", e);
+			LOGGER.error("error while sending event " + event, e);
 		} finally {
 			jedis.close();
 		}

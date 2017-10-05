@@ -25,8 +25,11 @@ import java.util.List;
 import org.appng.appngizer.model.Application;
 import org.appng.appngizer.model.Applications;
 import org.appng.appngizer.model.Link;
+import org.appng.appngizer.model.xml.Grant;
+import org.appng.appngizer.model.xml.Grants;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
+import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.AccessibleApplication;
 import org.slf4j.Logger;
@@ -35,6 +38,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,18 +74,61 @@ public class SiteApplicationController extends ControllerBase {
 		if (null == siteByName) {
 			return notFound();
 		}
-		ApplicationImpl application = (ApplicationImpl) siteByName.getApplication(app);
-		if (null == application) {
+		SiteApplication siteApplication = getSiteApplication(site, app);
+		if (null == siteApplication) {
 			return notFound();
 		}
+		ApplicationImpl application = (ApplicationImpl) siteApplication.getApplication();
 		Application fromDomain = Application.fromDomain(application, site);
 		fromDomain.addLinks();
+		fromDomain.addLink(new Link("grants", fromDomain.getSelf() + "/grants"));
+
 		DatabaseConnection dbc = getCoreService().getDatabaseConnection(siteByName, application);
 		if (null != dbc) {
 			fromDomain.addLink(new Link("database", fromDomain.getSelf() + "/database"));
 		}
 		fromDomain.applyUriComponents(getUriBuilder());
 		return ok(fromDomain);
+	}
+
+	@RequestMapping(value = "/site/{site}/application/{app}/grants", method = RequestMethod.PUT)
+	public ResponseEntity<Grants> grantApplicationForSites(@PathVariable("site") String site,
+			@PathVariable("app") String appName, @RequestBody Grants grants) {
+		SiteApplication application = getSiteApplication(site, appName);
+		if (null == application) {
+			return notFound();
+		}
+		List<String> grantedSites = new ArrayList<>();
+		for (Grant grant : grants.getGrant()) {
+			if (grant.isValue()) {
+				grantedSites.add(grant.getSite());
+			}
+		}
+		getCoreService().grantApplicationForSites(site, appName, grantedSites);
+		return getGrantsForApplication(site, appName);
+	}
+
+	@RequestMapping(value = "/site/{site}/application/{app}/grants", method = RequestMethod.GET)
+	public ResponseEntity<Grants> getGrantsForApplication(@PathVariable("site") String site,
+			@PathVariable("app") String app) {
+		SiteApplication application = getSiteApplication(site, app);
+		if (null == application) {
+			return notFound();
+		}
+		Grants grants = new Grants();
+		String self = String.format("/site/%s/application/%s/grants", site, app);
+		grants.setSelf(getUriBuilder().path(self).build().toUriString());
+		List<SiteImpl> sites = getCoreService().getSites();
+		for (SiteImpl s : sites) {
+			if (!s.getName().equals(site)) {
+				Grant grant = new Grant();
+				grant.setSite(s.getName());
+				boolean isGranted = application.getGrantedSites().contains(s);
+				grant.setValue(isGranted);
+				grants.getGrant().add(grant);
+			}
+		}
+		return ok(grants);
 	}
 
 	@RequestMapping(value = "/site/{site}/application/{app}", method = RequestMethod.POST)

@@ -68,30 +68,31 @@ public class DatabaseService extends MigrationService {
 	protected DatabaseConnectionRepository databaseConnectionRepository;
 
 	private MigrationStatus migrateSchema(DatabaseConnection rootConnection, String dbInfo,
-			SiteApplication siteApplication, Datasource datasource, File sqlFolder) {
+			SiteApplication siteApplication, Datasource datasource, File sqlFolder, String databasePrefix) {
 		Site site = siteApplication.getSite();
 		Application application = siteApplication.getApplication();
 		DatasourceType type = datasource.getType();
 		DatabaseType databaseType = DatabaseType.valueOf(type.name());
-		log.info("connected to " + rootConnection.getJdbcUrl() + " (" + dbInfo + ")");
+		log.info("connected to {} ({})", rootConnection.getJdbcUrl(), dbInfo);
 		try {
-			DatabaseConnection applicationConnection = createApplicationConnection(site, application, rootConnection);
+			DatabaseConnection applicationConnection = createApplicationConnection(site, application, rootConnection,
+					databasePrefix);
 			String databaseName = applicationConnection.getName();
 			if (dataBaseExists(rootConnection, databaseName)) {
-				log.info("database '" + databaseName + "' already exists!");
+				log.info("database '{}' already exists!", databaseName);
 			} else {
 				DataSource dataSource = getDataSource(rootConnection);
 				JdbcOperations operation = new JdbcTemplate(dataSource);
 				List<String> sqlScriptLines = getScript(databaseType, SCRIPT_INIT);
 				for (String statement : sqlScriptLines) {
 					String password = new String(applicationConnection.getPassword());
-					String sqlScript = StringUtils.replaceEach(statement, new String[] { PARAM_DATABASE, PARAM_USER,
-							PARAM_PASSWORD }, new String[] { databaseName, applicationConnection.getUserName(),
-							password });
+					String sqlScript = StringUtils.replaceEach(statement,
+							new String[] { PARAM_DATABASE, PARAM_USER, PARAM_PASSWORD },
+							new String[] { databaseName, applicationConnection.getUserName(), password });
 					operation.execute(sqlScript);
 				}
-				log.info("created database at " + applicationConnection.getJdbcUrl());
-				log.info("created user " + applicationConnection.getUserName());
+				log.info("created database at {}", applicationConnection.getJdbcUrl());
+				log.info("created user {}", applicationConnection.getUserName());
 			}
 
 			siteApplication.setDatabaseConnection(applicationConnection);
@@ -117,9 +118,9 @@ public class DatabaseService extends MigrationService {
 
 	@Transactional
 	private DatabaseConnection createApplicationConnection(Site site, Application application,
-			DatabaseConnection rootConnection) {
+			DatabaseConnection rootConnection, String databasePrefix) {
 		DatabaseConnection databaseConnection = new DatabaseConnection();
-		configureApplicationConnection(site, application, rootConnection, databaseConnection);
+		configureApplicationConnection(site, application, rootConnection, databaseConnection, databasePrefix);
 		databaseConnectionRepository.save(databaseConnection);
 		return databaseConnection;
 	}
@@ -131,30 +132,31 @@ public class DatabaseService extends MigrationService {
 	 * @param siteApplication
 	 *            a {@link SiteApplication}
 	 */
-	public void resetApplicationConnection(SiteApplication siteApplication) {
+	public void resetApplicationConnection(SiteApplication siteApplication, String databasePrefix) {
 		DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
 		DatabaseType type = databaseConnection.getType();
 		DatabaseConnection rootConnection = getRootConnectionOfType(type);
 		if (rootConnection.isManaged()) {
 			configureApplicationConnection(siteApplication.getSite(), siteApplication.getApplication(), rootConnection,
-					databaseConnection);
+					databaseConnection, databasePrefix);
 		}
 	}
 
 	private void configureApplicationConnection(Site site, Application application, DatabaseConnection rootConnection,
-			DatabaseConnection databaseConnection) {
-		String databaseName = getDatabaseName(site, application);
+			DatabaseConnection databaseConnection, String databasePrefix) {
+		String databaseName = getDatabaseName(site, application, databasePrefix);
 		String newURL = rootConnection.getDatabaseConnectionString(databaseName);
 		setConnectionProperties(site, application, databaseConnection, rootConnection.getType(), databaseName, newURL);
 		databaseConnection.setValidationQuery(rootConnection.getValidationQuery());
 	}
 
-	private DatabaseConnection configureApplicationConnection(SiteApplication siteApplication, Datasource datasource) {
+	private DatabaseConnection configureApplicationConnection(SiteApplication siteApplication, Datasource datasource,
+			String databasePrefix) {
 		Site site = siteApplication.getSite();
 		Application application = siteApplication.getApplication();
 		DatabaseConnection databaseConnection = new DatabaseConnection();
 		DatabaseType type = DatabaseType.valueOf(datasource.getType().name());
-		String databaseName = getDatabaseName(site, application);
+		String databaseName = getDatabaseName(site, application, databasePrefix);
 		String newURL = type.getTemplateUrl().replace(DatabaseConnection.DB_PLACEHOLDER, databaseName);
 
 		setConnectionProperties(site, application, databaseConnection, type, databaseName, newURL);
@@ -181,9 +183,9 @@ public class DatabaseService extends MigrationService {
 		return "site" + site.getId() + "app" + application.getId();
 	}
 
-	private String getDatabaseName(Site site, Application application) {
-		return ("appng_" + site.getName().replaceAll("-", UNDERSCORE) + UNDERSCORE + application.getName().replaceAll(
-				"-", UNDERSCORE)).toLowerCase();
+	private String getDatabaseName(Site site, Application application, String databasePrefix) {
+		return (StringUtils.trimToEmpty(databasePrefix) + "appng_" + site.getName().replaceAll("-", UNDERSCORE)
+				+ UNDERSCORE + application.getName().replaceAll("-", UNDERSCORE)).toLowerCase();
 	}
 
 	MigrationStatus migrateApplication(File sqlFolder, DatabaseConnection databaseConnection) {
@@ -192,7 +194,7 @@ public class DatabaseService extends MigrationService {
 				String typeFolder = databaseConnection.getType().name().toLowerCase();
 				File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
 				String jdbcUrl = databaseConnection.getJdbcUrl();
-				log.info("starting database migration for " + jdbcUrl + " from " + scriptFolder.getAbsolutePath());
+				log.info("starting database migration for {} from {}", jdbcUrl, scriptFolder.getAbsolutePath());
 				Flyway flyway = new Flyway();
 				flyway.setLocations("filesystem:" + scriptFolder.getAbsolutePath());
 				return migrate(flyway, databaseConnection);
@@ -247,8 +249,8 @@ public class DatabaseService extends MigrationService {
 								new String[] { PARAM_DATABASE, PARAM_USER }, new String[] { databaseName, user });
 						operation.execute(sqlScript);
 					}
-					log.info("dropped database at " + databaseConnection.getJdbcUrl());
-					log.info("dropped user  " + user);
+					log.info("dropped database at {}", databaseConnection.getJdbcUrl());
+					log.info("dropped user  {}", user);
 					return MigrationStatus.DB_MIGRATED;
 				} catch (Exception e) {
 					log.error("error while dropping database " + databaseConnection.getName(), e);
@@ -258,7 +260,7 @@ public class DatabaseService extends MigrationService {
 				return MigrationStatus.DB_SUPPORTED;
 			}
 		} else {
-			log.info(databaseConnection + " is not managed by appNG");
+			log.info("{} is not managed by appNG", databaseConnection);
 		}
 		return MigrationStatus.DB_SUPPORTED;
 	}
@@ -320,10 +322,10 @@ public class DatabaseService extends MigrationService {
 		StringBuilder dbInfo = new StringBuilder();
 		if (connection.testConnection(dbInfo)) {
 			connection.setActive(true);
-			log.info(connection.toString() + " (" + dbInfo + ") is active.");
+			log.info("{} ({}) is active.", connection.toString(), dbInfo);
 		} else {
 			connection.setActive(false);
-			log.info(connection.toString() + " is not working and will be deactivated.");
+			log.info("{} is not working and will be deactivated.", connection.toString());
 		}
 	}
 
@@ -343,8 +345,8 @@ public class DatabaseService extends MigrationService {
 	 *            the root folder for the migration-scripts provided by the {@link SiteApplication}
 	 * @return the {@link MigrationService.MigrationStatus}
 	 */
-	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication,
-			ApplicationInfo applicationInfo, File sqlFolder) {
+	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication, ApplicationInfo applicationInfo,
+			File sqlFolder, String databasePrefix) {
 		Datasources datasources = applicationInfo.getDatasources();
 		MigrationStatus status = MigrationStatus.NO_DB_SUPPORTED;
 		if (null != datasources) {
@@ -358,15 +360,15 @@ public class DatabaseService extends MigrationService {
 							StringBuilder dbInfo = new StringBuilder();
 							if (rootConnection.testConnection(dbInfo)) {
 								return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, datasource,
-										sqlFolder);
+										sqlFolder, databasePrefix);
 							} else {
 								status = MigrationStatus.DB_NOT_AVAILABLE;
-								log.warn("the connection '" + rootConnection.getName() + "' using '"
-										+ rootConnection.getDriverClass() + "' does not work");
+								log.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
+										rootConnection.getDriverClass());
 							}
 						} else {
 							DatabaseConnection databaseConnection = configureApplicationConnection(siteApplication,
-									datasource);
+									datasource, databasePrefix);
 							save(databaseConnection);
 							databaseConnection.setSite(siteApplication.getSite());
 							siteApplication.setDatabaseConnection(databaseConnection);
@@ -374,7 +376,7 @@ public class DatabaseService extends MigrationService {
 						}
 					} else {
 						status = MigrationStatus.DB_NOT_AVAILABLE;
-						log.info("connection " + rootConnection.toString() + " is inactive, skipping");
+						log.info("connection {} is inactive, skipping", rootConnection.toString());
 					}
 				}
 			}

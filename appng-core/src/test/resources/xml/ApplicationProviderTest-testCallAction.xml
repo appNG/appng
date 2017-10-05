@@ -18,7 +18,7 @@
 				<label id="name">Name</label>
 				<validation>
 					<notNull>
-						<message ref="name" class="ERROR">may not be null</message>
+						<message ref="name" class="ERROR">must not be null</message>
 					</notNull>
 				</validation>
 			</field>

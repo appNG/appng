@@ -35,14 +35,14 @@ public class PlatformPropertyControllerTest extends ControllerTest {
 
 	@Test
 	public void test() throws Exception {
-		List<Integer> ids = Arrays.asList(2, 3, 5, 7, 9, 10, 21, 29, 46, 47);
+		List<Integer> ids = Arrays.asList(2, 3, 5, 8, 10, 11, 22, 30, 47, 48);
 		this.differenceListener = new XPathDifferenceHandler(false);
 		ids.forEach(idx -> differenceListener
 				.ignoreDifference("/properties[1]/property[" + idx + "]/description[1]/text()[1]"));
 
 		// shared secret is generated
-		differenceListener.ignoreDifference("/properties[1]/property[40]/value[1]/text()[1]");
-		differenceListener.ignoreDifference("/properties[1]/property[40]/defaultValue[1]/text()[1]");
+		differenceListener.ignoreDifference("/properties[1]/property[41]/value[1]/text()[1]");
+		differenceListener.ignoreDifference("/properties[1]/property[41]/defaultValue[1]/text()[1]");
 		getAndVerify("/platform/property", "xml/platform-property-list.xml", HttpStatus.OK);
 
 		Property prop = new Property();

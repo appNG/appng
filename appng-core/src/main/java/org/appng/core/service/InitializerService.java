@@ -249,7 +249,7 @@ public class InitializerService {
 		}
 
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
-		Sender sender = Messaging.createMessageSender(env, executor);
+		Messaging.createMessageSender(env, executor);
 
 		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
 		String applicationRealDir = servletContext.getRealPath(appendSlash(applicationDir));
@@ -272,28 +272,20 @@ public class InitializerService {
 			SiteImpl site = getCoreService().getSite(id);
 			if (site.isActive()) {
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
-				loadSite(site, servletContext, false, new FieldProcessorImpl("load-platform"));
+				loadSite(site, env, false, new FieldProcessorImpl("load-platform"));
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
 				String runningSite = site.getName();
+				site.setState(SiteState.INACTIVE);
 				if (siteMap.containsKey(runningSite)) {
 					getCoreService().shutdownSite(env, runningSite);
 				} else {
 					getCoreService().setSiteStartUpTime(site, null);
 				}
-				LOGGER.info("site " + runningSite + " is inactive and will not be loaded");
-				sendSiteEvent(sender, site.getName(), SiteState.INACTIVE);
+				LOGGER.info("site {} is inactive and will not be loaded", site);
 			}
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
-		}
-
-		if (null != sender) {
-			for (Site site : siteMap.values()) {
-				((SiteImpl) site).setSender(sender);
-			}
-		} else {
-			LOGGER.error("no messaging sender available!");
 		}
 
 		if (0 == activeSites) {
@@ -385,8 +377,7 @@ public class InitializerService {
 	 */
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
-		loadSite(siteToLoad, servletContext, sendReloadEvent, fp);
+		loadSite(siteToLoad, env, sendReloadEvent, fp);
 	}
 
 	/**
@@ -401,36 +392,42 @@ public class InitializerService {
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(siteToLoad, servletContext, true, fp);
+		loadSite(siteToLoad, new DefaultEnvironment(servletContext, siteToLoad.getHost()), true, fp);
 	}
 
 	/**
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param siteToLoad
-	 *            the {@link Site} to load
-	 * @param servletContext
-	 *            the current {@link ServletContext}
+	 *            the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
+	 *            {@link CoreService#getSiteByName(String)}
+	 * @param env
+	 *            the current {@link Environment}
+	 * @param sendReloadEvent
+	 *            whether or not a {@link ReloadSiteEvent} should be sent
+	 * @param fp
+	 *            a {@link FieldProcessor} to attach messages to
 	 * @throws InvalidConfigurationException
 	 *             if an configuration error occurred
 	 */
-	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, boolean sendReloadEvent,
-			FieldProcessor fp) throws InvalidConfigurationException {
-		DefaultEnvironment env = new DefaultEnvironment(servletContext, siteToLoad.getHost());
-		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
+	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp)
+			throws InvalidConfigurationException {
+		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
+		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 
 		SiteImpl site = siteToLoad;
+		Site currentSite = siteMap.get(site.getName());
+		if (null != currentSite) {
+			LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
+			shutDownSite(env, currentSite);
+		}
+
+		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
 		site.setSender(sender);
 		List<? extends Group> groups = getCoreService().getGroups();
-		siteToLoad.setGroups(new HashSet<Named<Integer>>(groups));
+		site.setGroups(new HashSet<Named<Integer>>(groups));
 
-		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		if (siteMap.containsKey(site.getName())) {
-			LOGGER.info("prepare reload of site " + site.getName() + ", shutting down first");
-			shutDownSite(servletContext, site);
-		}
 		site.setState(SiteState.STARTING);
-		sendSiteEvent(sender, siteToLoad.getName(), SiteState.STARTING);
 		siteMap.put(site.getName(), site);
 
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
@@ -452,7 +449,7 @@ public class InitializerService {
 		Set<ApplicationProvider> applications = new HashSet<ApplicationProvider>();
 
 		// platform and application cache
-		CacheProvider cacheProvider = new CacheProvider(platformConfig);
+		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 		cacheProvider.clearCache(site);
 
 		// ehcache
@@ -684,19 +681,12 @@ public class InitializerService {
 		PlatformTransformer.clearCache();
 		coreService.setSiteStartUpTime(site, new Date());
 		if (sendReloadEvent) {
-			site.sendEvent(new ReloadSiteEvent(siteToLoad.getName()));
+			site.sendEvent(new ReloadSiteEvent(site.getName()));
 		}
 		LOGGER.info("loading site " + site.getName() + " completed");
 		site.setState(SiteState.STARTED);
 		siteMap.put(site.getName(), site);
-		sendSiteEvent(sender, siteToLoad.getName(), SiteState.STARTED);
 		debugPlatformContext(platformContext);
-	}
-
-	private void sendSiteEvent(Sender sender, String name, SiteState state) {
-		if (null != sender) {
-			sender.send(new SiteStateEvent(name, state));
-		}
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {
@@ -754,7 +744,7 @@ public class InitializerService {
 	 * 
 	 * @param ctx
 	 *            the current {@link ServletContext}
-	 * @see #shutDownSite(ServletContext, Site)
+	 * @see #shutDownSite(Environment, Site)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.get(ctx);
@@ -766,7 +756,7 @@ public class InitializerService {
 			Set<String> siteNames = new HashSet<String>(siteMap.keySet());
 			for (String siteName : siteNames) {
 				Site site = siteMap.get(siteName);
-				shutDownSite(ctx, site);
+				shutDownSite(env, site);
 			}
 		}
 		CacheManager.getInstance().shutdown();
@@ -776,18 +766,18 @@ public class InitializerService {
 	/**
 	 * Shuts down the given {@link Site}.
 	 * 
-	 * @param servletContext
-	 *            the current {@link ServletContext}.
+	 * @param env
+	 *            the current {@link Environment}.
 	 * @param site
 	 *            the {@link Site} to shut down
 	 */
-	public void shutDownSite(ServletContext servletContext, Site site) {
+	public void shutDownSite(Environment env, Site site) {
 		List<ExecutorService> executors = siteThreads.get(site.getName());
-		LOGGER.info("shutting down site threads for " + site.getName());
+		LOGGER.info("shutting down site threads for {}", site);
 		for (ExecutorService executorService : executors) {
 			executorService.shutdownNow();
 		}
-		coreService.shutdownSite(servletContext, site);
+		coreService.shutdownSite(env, site.getName());
 	}
 
 	public CoreService getCoreService() {

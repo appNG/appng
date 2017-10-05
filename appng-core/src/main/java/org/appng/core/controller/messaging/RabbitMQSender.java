@@ -27,9 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 
-import net.jodah.lyra.Connections;
+import net.jodah.lyra.ConnectionOptions;
 
 /**
  * Message sender implementing {@link Sender} to use a RabbitMQ message broker. Following platform properties are needed
@@ -51,17 +50,10 @@ public class RabbitMQSender extends RabbitMQBase implements Sender {
 	private static final String APPNG_MESSAGING_DISABLED = "appng.messaging.disabled";
 	private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQSender.class);
 
-	private ConnectionFactory factory;
-
 	@Override
 	public RabbitMQSender configure(Serializer eventDeserializer) {
 		this.eventSerializer = eventDeserializer;
 		initialize();
-		factory = new ConnectionFactory();
-		factory.setHost(this.host);
-		factory.setPort(this.port);
-		factory.setUsername(this.user);
-		factory.setPassword(this.password);
 		return this;
 	}
 
@@ -71,7 +63,7 @@ public class RabbitMQSender extends RabbitMQBase implements Sender {
 			Connection connection = null;
 			Channel channel = null;
 			try {
-				connection = Connections.create(factory, getConnectionConfig());
+				connection = getConnection(new ConnectionOptions(factory));
 				channel = connection.createChannel();
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				eventSerializer.serialize(out, event);

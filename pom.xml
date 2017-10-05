@@ -65,7 +65,7 @@
 		<poiVersion>3.16</poiVersion>
 		<jacksonVersion>2.9.0</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>8.5.16</tomcat.version>
+		<tomcat.version>8.5.20</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 		<esapi.version>2.1.0.1</esapi.version>
 		<docDir>./target/generated-docs</docDir>
@@ -201,11 +201,11 @@
 			<!-- copies the appNG jars to ${env.CATALINA_HOME}/webapps/ROOT/WEB-INF/lib/ -->
 			<id>local</id>
 			<properties>
+				<doc.skip>true</doc.skip>
+				<assembly.skipAssembly>true</assembly.skipAssembly>
 				<maven.test.skip>true</maven.test.skip>
-				<asciidoctor.skip>true</asciidoctor.skip>
 				<maven.war.skip>true</maven.war.skip>
 				<mdep.skip>true</mdep.skip>
-				<assembly.skipAssembly>true</assembly.skipAssembly>
 			</properties>
 			<modules>
 				<module>appng-tools</module>
@@ -462,6 +462,9 @@
 							<goal>jar-no-fork</goal>
 						</goals>
 						<phase>verify</phase>
+						<configuration>
+							<skipSource>${doc.skip}</skipSource>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -841,12 +844,12 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>5.4.1.Final</version>
+				<version>6.0.2.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
-				<version>1.1.0.Final</version>
+				<version>2.0.0.Final</version>
 			</dependency>
 			<!-- END HIBERNATE + JPA -->
 
@@ -874,12 +877,12 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>2.6.3</version>
+				<version>2.7.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>22.0</version>
+				<version>23.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>

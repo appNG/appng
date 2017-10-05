@@ -73,11 +73,11 @@
 										<label id="name">Name</label>
 										<validation>
 											<notNull>
-												<message class="ERROR" ref="name">may not be null</message>
+												<message class="ERROR" ref="name">must not be null</message>
 											</notNull>
 										</validation>
 										<messages ref="name">
-											<message class="ERROR" ref="name">may not be null</message>
+											<message class="ERROR" ref="name">must not be null</message>
 										</messages>
 									</field>
 									<field binding="integerValue" type="list:checkbox" name="integerValue">

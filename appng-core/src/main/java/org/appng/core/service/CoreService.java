@@ -32,10 +32,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.NoResultException;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,12 +44,12 @@ import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
+import org.appng.api.Path;
 import org.appng.api.Platform;
 import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.auth.PasswordPolicy;
-import org.appng.api.messaging.Sender;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
 import org.appng.api.model.AuthSubject;
@@ -68,9 +68,9 @@ import org.appng.api.model.UserType;
 import org.appng.api.support.ApplicationResourceHolder;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.AppngCache;
 import org.appng.core.controller.handler.SoapService;
-import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.GroupImpl;
@@ -782,7 +782,9 @@ public class CoreService {
 			applicationResources.dumpToCache(ResourceType.APPLICATION, ResourceType.SQL);
 			ApplicationInfo applicationInfo = applicationResources.getApplicationInfo();
 			File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
-			return databaseService.manageApplicationConnection(siteApplication, applicationInfo, sqlFolder);
+			String databasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
+			return databaseService.manageApplicationConnection(siteApplication, applicationInfo, sqlFolder,
+					databasePrefix);
 		} catch (Exception e) {
 			log.error("error during database setup for application " + application.getName(), e);
 		} finally {
@@ -1593,7 +1595,8 @@ public class CoreService {
 	public void resetConnection(FieldProcessor fp, Integer conId) {
 		SiteApplication siteApplication = siteApplicationRepository.findByDatabaseConnectionId(conId);
 		if (null != siteApplication) {
-			databaseService.resetApplicationConnection(siteApplication);
+			String databasePrefix = getPlatform(true).getString(Platform.Property.DATABASE_PREFIX);
+			databaseService.resetApplicationConnection(siteApplication, databasePrefix);
 		}
 	}
 
@@ -1625,20 +1628,21 @@ public class CoreService {
 
 	protected void shutdownSite(Environment env, String siteName) {
 		if (null != env) {
-			Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
 			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 			if (siteMap.containsKey(siteName) && null != siteMap.get(siteName)) {
-				if (null != sender) {
-					sender.send(new SiteStateEvent(siteName, SiteState.STOPPING));
-				}
 				SiteImpl shutdownSite = (SiteImpl) siteMap.get(siteName);
 				int requests;
 				int waited = 0;
 				Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
 				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
-				
-				while (waited < maxWaitTime && (requests = shutdownSite.getRequests()) > 1) {
+				shutdownSite.setState(SiteState.STOPPING);
+
+				log.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
+						shutdownSite.getRequests());
+				Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+				int requestLimit = null == path ? 0 : path.getSiteName().equals(siteName) ? 1 : 0;
+				while (waited < maxWaitTime && (requests = shutdownSite.getRequests()) > requestLimit) {
 					try {
 						Thread.sleep(waitTime);
 						waited += waitTime;
@@ -1648,14 +1652,12 @@ public class CoreService {
 					log.info("waiting for {} requests to finish before shutting down site {}", requests, siteName);
 				}
 
-				shutdownSite.setState(SiteState.STOPPING);
-
-				log.info("destroying site " + siteName);
+				log.info("destroying site {}", shutdownSite);
 				for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
 					shutdownApplication(siteApplication, env);
 				}
 				shutdownSite.closeSiteContext();
-				log.info("destroying site " + siteName + " complete");
+				log.info("destroying site {} complete", shutdownSite);
 				setSiteStartUpTime(shutdownSite, null);
 				SoapService.clearCache(siteName);
 				if (shutdownSite.getProperties().getBoolean(SiteProperties.EHCACHE_CLEAR_ON_SHUTDOWN)) {
@@ -1663,17 +1665,9 @@ public class CoreService {
 				}
 				shutdownSite.setState(SiteState.STOPPED);
 				shutdownSite = null;
-				if (null != sender) {
-					sender.send(new SiteStateEvent(siteName, SiteState.STOPPED));
-				}
 				siteMap.remove(siteName);
 			}
 		}
-	}
-
-	void shutdownSite(ServletContext ctx, Site site) {
-		Environment env = new DefaultEnvironment(ctx, site.getHost());
-		shutdownSite(env, site.getName());
 	}
 
 	private void shutdownApplication(SiteApplication siteApplication, Environment env) {
@@ -2027,6 +2021,24 @@ public class CoreService {
 
 	public SiteApplication getSiteApplication(String site, String application) {
 		return siteApplicationRepository.findBySiteNameAndApplicationName(site, application);
+	}
+
+	public SiteApplication getSiteApplicationWithGrantedSites(String site, String application) {
+		SiteApplication siteApplication = getSiteApplication(site, application);
+		if (null != siteApplication) {
+			siteApplication.getGrantedSites().size();
+		}
+		return siteApplication;
+	}
+
+	public SiteApplication grantApplicationForSites(String site, String application, List<String> siteNames) {
+		SiteApplication siteApplication = getSiteApplication(site, application);
+		if (CollectionUtils.isNotEmpty(siteNames)) {
+			siteApplication.getGrantedSites().clear();
+			List<SiteImpl> grantedSites = siteRepository.findByNameIn(siteNames);
+			siteApplication.getGrantedSites().addAll(grantedSites);
+		}
+		return siteApplication;
 	}
 
 }

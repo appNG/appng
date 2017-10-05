@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<application name="appng-authentication" self="http://localhost:8080/appNGizer/site/appng/application/appng-authentication"  xmlns="http://www.appng.org/schema/appngizer">
+<application name="appng-authentication" self="http://localhost:8080/appNGizer/site/appng/application/appng-authentication" xmlns="http://www.appng.org/schema/appngizer">
+	<links>
+		<link name="role" self="http://localhost:8080/appNGizer/application/appng-authentication/role" />
+		<link name="permission" self="http://localhost:8080/appNGizer/application/appng-authentication/permission" />
+		<link name="property" self="http://localhost:8080/appNGizer/site/localhost/application/appng-authentication/property" />
+		<link name="grants" self="http://localhost:8080/appNGizer/site/localhost/application/appng-authentication/grants" />
+	</links>
 	<displayName>Authentication</displayName>
 	<core>true</core>
 	<fileBased>false</fileBased>

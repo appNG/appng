@@ -77,6 +77,18 @@ public class Messaging {
 	 *         </ul>
 	 */
 	public static Sender createMessageSender(Environment env, ExecutorService executor) {
+		return createMessageSender(env, executor, getNodeId(env), null, null);
+	}
+
+	/**
+	 * Determines the node id for this node. If the system property {@value #APPNG_NODE_ID} is set, this value is used.
+	 * Otherwise, the local host name is used (from {@code java.net.InetAddress.getLocalHost().getHostName()}}).
+	 * 
+	 * @param env
+	 *            the {@link Environment} to use
+	 * @return the node id for this node
+	 */
+	public static String getNodeId(Environment env) {
 		String nodeId = System.getProperty(APPNG_NODE_ID);
 		if (null == nodeId && getPlatformConfig(env).getBoolean("messagingFallbackToHostName", Boolean.TRUE)) {
 			try {
@@ -88,7 +100,7 @@ public class Messaging {
 				LOGGER.warn("error setting system property " + APPNG_NODE_ID, e);
 			}
 		}
-		return createMessageSender(env, executor, nodeId, null, null);
+		return nodeId;
 	}
 
 	protected static Properties getPlatformConfig(Environment env) {
@@ -119,15 +131,14 @@ public class Messaging {
 	public static Sender createMessageSender(Environment env, ExecutorService executor, String nodeId,
 			EventHandler<? extends Event> defaultHandler, Iterable<EventHandler<? extends Event>> handlers) {
 		Sender sender = null;
-		Properties platformConfig = getPlatformConfig(env);
-		boolean messagingEnabled = platformConfig.getBoolean(Platform.Property.MESSAGING_ENABLED);
-		if (messagingEnabled) {
+		if (isEnabled(env)) {
 			sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
 			if (null == sender) {
 				try {
 					LOGGER.info("node id is {}", nodeId);
 					Serializer eventSerializer = new Serializer(env, nodeId);
-					String messagingReceiverClassName = platformConfig.getString(Platform.Property.MESSAGING_RECEIVER);
+					String messagingReceiverClassName = getPlatformConfig(env)
+							.getString(Platform.Property.MESSAGING_RECEIVER);
 					@SuppressWarnings("unchecked")
 					Class<? extends Receiver> messagingReceiverClass = (Class<? extends Receiver>) Class
 							.forName(messagingReceiverClassName);
@@ -156,6 +167,10 @@ public class Messaging {
 			LOGGER.info("messaging is disabled");
 		}
 		return sender;
+	}
+
+	public static boolean isEnabled(Environment env) {
+		return getPlatformConfig(env).getBoolean(Platform.Property.MESSAGING_ENABLED);
 	}
 
 	/**
