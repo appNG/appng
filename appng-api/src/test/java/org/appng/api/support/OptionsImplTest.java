@@ -18,6 +18,7 @@ package org.appng.api.support;
 import java.util.Set;
 
 import org.appng.api.Option;
+import org.appng.xml.platform.FieldType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,6 +54,28 @@ public class OptionsImplTest {
 		options.optionsMap.putAll(OptionData.getOptionsMap());
 		String optionValue = options.getOptionValue("not-exists", "attribute-4");
 		Assert.assertEquals(null, optionValue);
+	}
+
+	@Test
+	public void testGetInteger() {
+		options.optionsMap.putAll(OptionData.getOptionsMap());
+		Assert.assertEquals(Integer.valueOf(6), options.getInteger("options-6", "integer-6"));
+		Assert.assertEquals(Integer.valueOf(-7), options.getInteger("options-7", "integer-7"));
+		Assert.assertNull(options.getInteger("options-4", "attribute-4"));
+	}
+
+	@Test
+	public void testGetBoolean() {
+		options.optionsMap.putAll(OptionData.getOptionsMap());
+		Assert.assertEquals(Boolean.TRUE, options.getBoolean("options-9", "bool-9"));
+		Assert.assertEquals(Boolean.FALSE, options.getBoolean("options-7", "integer-7"));
+	}
+
+	@Test
+	public void testGetEnum() {
+		options.optionsMap.putAll(OptionData.getOptionsMap());
+		Assert.assertEquals(FieldType.TEXT, options.getEnum("options-8", "enum-8", FieldType.class));
+		Assert.assertNull(options.getEnum("options-7", "integer-7", FieldType.class));
 	}
 
 	@Test

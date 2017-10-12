@@ -26,6 +26,7 @@ import org.appng.xml.platform.BeanOption;
  * {@link FormValidator}.
  * 
  * @author Matthias Herlitzius
+ * @author Matthias Müller
  * 
  * @see ActionProvider
  * @see DataProvider
@@ -66,8 +67,59 @@ public interface Options {
 	 * @param attribute
 	 *            the name of the attribute of the {@link Option}
 	 * @return the attribute with the given name, or {@code null} if either the {@link Option} or the attribute does not
-	 *         exist,
+	 *         exist
 	 */
 	String getOptionValue(String name, String attribute);
+
+	/**
+	 * Returns the attribute with the given name for the {@link Option} with the given name.
+	 * 
+	 * @param name
+	 *            the name of the {@link Option} to get the attribute from
+	 * @param attribute
+	 *            the name of the attribute of the {@link Option}
+	 * @return the attribute with the given name, or {@code null} if either the {@link Option} or the attribute does not
+	 *         exist
+	 */
+	String getString(String name, String attribute);
+
+	/**
+	 * Returns an {@link Integer} parsed from the attribute with the given name for the {@link Option} with the given
+	 * name.
+	 * 
+	 * @param name
+	 *            the name of the {@link Option} to get the attribute from
+	 * @param attribute
+	 *            the name of the attribute of the {@link Option}
+	 * @return the integer value, or {@code null} if either the {@link Option} or the attribute does not exist or the or
+	 *         the value can not be parsed to an integer
+	 */
+	Integer getInteger(String name, String attribute);
+
+	/**
+	 * Returns a {@link Boolean} parsed from the attribute with the given name for the {@link Option} with the given
+	 * name.
+	 * 
+	 * @param name
+	 *            the name of the {@link Option} to get the attribute from
+	 * @param attribute
+	 *            the name of the attribute of the {@link Option}
+	 * @return {@link Boolean#TRUE} if the value of the attribute equals to (ignoring case) {@code true},
+	 *         {@link Boolean#FALSE} otherwise (also if no such {@link Option} exists)
+	 */
+	Boolean getBoolean(String name, String attribute);
+
+	/**
+	 * Returns the {@link Enum} constant of the given type represented by the attribute with the given name for the
+	 * {@link Option} with the given name.
+	 * 
+	 * @param name
+	 *            the name of the {@link Option} to get the attribute from
+	 * @param attribute
+	 *            the name of the attribute of the {@link Option}
+	 * @return the enum constant, if the (upper-case) attribute value represents a valid enum of the given type,
+	 *         {@code null} otherwise (also if no such {@link Option} exists)
+	 */
+	<E extends Enum<E>> E getEnum(String name, String attribute, Class<E> type);
 
 }
