@@ -170,28 +170,32 @@ public class RepositoryWatcher implements Runnable {
 
 	private void readUrlRewrites(File configFile) {
 		forwardMap = new HashMap<>();
-		try {
-			Document parseconfigFile = RedirectFilter.parseConfig(configFile.toURI().toURL());
-			XPathProcessor xPathProcessor = new XPathProcessor(parseconfigFile);
-			NodeList forwardRules = xPathProcessor.getNodes(XPATH_FORWARD_RULE);
-			for (int i = 0; i < forwardRules.getLength(); i++) {
-				org.w3c.dom.Element rule = (org.w3c.dom.Element) forwardRules.item(i);
-				String from = rule.getElementsByTagName("from").item(0).getTextContent();
-				from = from.replace("^", StringUtils.EMPTY).replace("$", StringUtils.EMPTY);
-				from = from.replace(ruleSourceSuffix, StringUtils.EMPTY);
-				String to = rule.getElementsByTagName("to").item(0).getTextContent();
-				if (to.contains(jspExtension)) {
-					to = to.substring(0, to.indexOf(jspExtension));
+		if (configFile.exists()) {
+			try {
+				Document parseconfigFile = RedirectFilter.parseConfig(configFile.toURI().toURL());
+				XPathProcessor xPathProcessor = new XPathProcessor(parseconfigFile);
+				NodeList forwardRules = xPathProcessor.getNodes(XPATH_FORWARD_RULE);
+				for (int i = 0; i < forwardRules.getLength(); i++) {
+					org.w3c.dom.Element rule = (org.w3c.dom.Element) forwardRules.item(i);
+					String from = rule.getElementsByTagName("from").item(0).getTextContent();
+					from = from.replace("^", StringUtils.EMPTY).replace("$", StringUtils.EMPTY);
+					from = from.replace(ruleSourceSuffix, StringUtils.EMPTY);
+					String to = rule.getElementsByTagName("to").item(0).getTextContent();
+					if (to.contains(jspExtension)) {
+						to = to.substring(0, to.indexOf(jspExtension));
+					}
+					if (!forwardMap.containsKey(to)) {
+						forwardMap.put(to, new ArrayList<>());
+					}
+					forwardMap.get(to).add(from);
 				}
-				if (!forwardMap.containsKey(to)) {
-					forwardMap.put(to, new ArrayList<>());
-				}
-				forwardMap.get(to).add(from);
+				LOG.info("{} has been read, {} forward rules have been processes", configFile.getAbsolutePath(),
+						forwardRules.getLength());
+			} catch (Exception e) {
+				LOG.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
 			}
-			LOG.info("{} has been read, {} forward rules have been processes", configFile.getAbsolutePath(),
-					forwardRules.getLength());
-		} catch (Exception e) {
-			LOG.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
+		} else {
+			LOG.info("config file for reading rewrite rules does not exist: {}", configFile.getAbsolutePath());
 		}
 	}
 
