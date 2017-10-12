@@ -37,6 +37,8 @@ import org.appng.api.model.Site;
 import org.appng.api.support.XSSHelper;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.forms.XSSUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A servlet filter to prevent XSS attacks.<br/>
@@ -51,28 +53,35 @@ import org.appng.forms.XSSUtil;
  */
 public class XSSFilter implements Filter {
 
+	private static final Logger log = LoggerFactory.getLogger(XSSFilter.class);
 	private XSSUtil xssUtil;
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		Site site = RequestUtil.getSite(DefaultEnvironment.get(request, response), request);
 		HttpServletRequest servletRequest = (HttpServletRequest) request;
-		boolean processXss = null != xssUtil;
-		String[] exceptions = site.getProperties().getClob(SiteProperties.XSS_EXCEPTIONS).split(StringUtils.LF);
-		if (processXss && xssUtil.doProcess(servletRequest, exceptions)) {
+		boolean processXss = null != site && null != xssUtil;
+		if (processXss) {
+			String[] exceptions = site.getProperties().getClob(SiteProperties.XSS_EXCEPTIONS).split(StringUtils.LF);
+			if (xssUtil.doProcess(servletRequest, exceptions)) {
 
-			servletRequest = new HttpServletRequestWrapper((HttpServletRequest) request) {
-				@Override
-				public String getParameter(String name) {
-					return xssUtil.stripXss(super.getParameter(name));
+				servletRequest = new HttpServletRequestWrapper((HttpServletRequest) request) {
+					@Override
+					public String getParameter(String name) {
+						return xssUtil.stripXss(super.getParameter(name));
+					}
+
+					@Override
+					public String[] getParameterValues(String name) {
+						return xssUtil.stripXss(super.getParameterValues(name));
+					}
+
+				};
+				if (log.isDebugEnabled()) {
+					log.debug("XSS protection enabled for {} {}", servletRequest.getMethod(),
+							servletRequest.getServletPath());
 				}
-
-				@Override
-				public String[] getParameterValues(String name) {
-					return xssUtil.stripXss(super.getParameterValues(name));
-				}
-
-			};
+			}
 		}
 		chain.doFilter(servletRequest, response);
 		if (processXss) {
