@@ -82,7 +82,7 @@ public class OptionsImplTest {
 	public void testGetOptionNames() {
 		options.optionsMap.putAll(OptionData.getOptionsMap());
 		Set<String> optionsKeys = options.getOptionNames();
-		Assert.assertEquals(5, optionsKeys.size());
+		Assert.assertEquals(9, optionsKeys.size());
 		Assert.assertEquals(OptionData.getOptionsMap().keySet(), optionsKeys);
 	}
 
