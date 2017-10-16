@@ -51,19 +51,19 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.10.RELEASE</springVersion>
+		<springVersion>4.3.12.RELEASE</springVersion>
 		<springWSVersion>2.4.0.RELEASE</springWSVersion>
 		<springSecurityVersion>4.2.3.RELEASE</springSecurityVersion>
-		<springDataVersion>1.13.6.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.6.RELEASE</springDataJpaVersion>
+		<springDataVersion>1.13.8.RELEASE</springDataVersion>
+		<springDataJpaVersion>1.11.8.RELEASE</springDataJpaVersion>
 		<springDataEnversVersion>1.1.6.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.1.4</queryDslVersion>
 		<luceneVersion>6.6.0</luceneVersion>
 		<tikaVersion>1.15</tikaVersion>
-		<hibernateVersion>5.2.10.Final</hibernateVersion>
+		<hibernateVersion>5.2.11.Final</hibernateVersion>
 		<slf4jVersion>1.7.25</slf4jVersion>
-		<poiVersion>3.16</poiVersion>
-		<jacksonVersion>2.9.0</jacksonVersion>
+		<poiVersion>3.17</poiVersion>
+		<jacksonVersion>2.9.1</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
 		<tomcat.version>8.5.20</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
@@ -812,7 +812,7 @@
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>
-				<version>2.2.3</version>
+				<version>2.3.0</version>
 			</dependency>
 
 			<!-- BEGIN HIBERNATE + JPA -->
@@ -842,9 +842,9 @@
 				<version>1.0.0.Final</version>
 			</dependency>
 			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-validator</artifactId>
-				<version>6.0.2.Final</version>
+    			<groupId>org.hibernate.validator</groupId>
+   				<artifactId>hibernate-validator</artifactId>
+    			<version>6.0.2.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
@@ -877,7 +877,7 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>2.7.0</version>
+				<version>2.7.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
