@@ -26,9 +26,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.appng.api.ActionProvider;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -222,15 +224,15 @@ public class CallableAction {
 				if (elementHelper.hasMessages(environment)) {
 					after.addAll(elementHelper.getMessages(environment).getMessageList());
 				}
-				
+
 				@SuppressWarnings("unchecked")
 				Collection<Message> addedMessages = CollectionUtils.disjunction(before, after);
-				
+
 				if (!addedMessages.isEmpty()) {
 					for (Message message : addedMessages) {
 						dataOk &= !MessageType.ERROR.equals(message.getClazz());
 					}
-					if(!dataOk){
+					if (!dataOk) {
 						Messages messages = elementHelper.getMessages(environment);
 						messages.getMessageList().removeAll(addedMessages);
 						Messages actionMessages = new Messages();
@@ -238,7 +240,7 @@ public class CallableAction {
 						getAction().setMessages(actionMessages);
 					}
 				}
-				
+
 				if (null != data && null != data.getResult()) {
 					Map<String, String> fieldValues = new HashMap<String, String>();
 					for (Datafield datafield : data.getResult().getFields()) {
@@ -345,16 +347,30 @@ public class CallableAction {
 						final FieldProcessor innerFieldProcessor = new FieldProcessorImpl(actionId, metaData);
 						innerFieldProcessor.addLinkPanels(action.getConfig().getLinkpanel());
 						final Locale locale = applicationRequest.getEnvironment().getLocale();
-						ExecutorService executor = Executors.newFixedThreadPool(1);
+						String pattern = String.format("%s-%s-async-%s", site.getName(), application.getName(), "%d");
+						ThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern(pattern).build();
+						ExecutorService executor = Executors.newFixedThreadPool(1, threadFactory);
 						FutureTask<Void> futureTask = new FutureTask<Void>(new Callable<Void>() {
 							public Void call() throws Exception {
-								String message = application.getMessage(locale, "backgroundTaskFinished", actionTitle);
-								innerFieldProcessor.addOkMessage(message);
-								Object innerBindObject = bindObjectWrapper.getWrappedInstance();
-								actionProvider.perform(site, application, env, options, applicationRequest,
-										innerBindObject, innerFieldProcessor);
-								ElementHelper.addMessages(env, innerFieldProcessor.getMessages());
-								log.debug("Background task '{}' finished.", actionTitle);
+								try {
+									Object innerBindObject = bindObjectWrapper.getWrappedInstance();
+									actionProvider.perform(site, application, env, options, applicationRequest,
+											innerBindObject, innerFieldProcessor);
+									String message = application.getMessage(locale, "backgroundTaskFinished",
+											actionTitle);
+									innerFieldProcessor.addOkMessage(message);
+									ElementHelper.addMessages(env, innerFieldProcessor.getMessages());
+									log.debug("Background task '{}' finished.", actionTitle);
+								} catch (Exception e) {
+									String id = String.valueOf(e.hashCode());
+									log.error(String.format("error while executing background task %s, ID: %s",
+											actionTitle, id), e);
+									String backgroundTaskError = application.getMessage(locale, "backgroundTaskError",
+											actionTitle, id);
+									innerFieldProcessor.addErrorMessage(backgroundTaskError);
+									ElementHelper.addMessages(env, innerFieldProcessor.getMessages());
+									throw e;
+								}
 								return null;
 							}
 						});
@@ -383,8 +399,8 @@ public class CallableAction {
 					String message = applicationRequest.getMessage(ElementHelper.INTERNAL_ERROR, id);
 					fieldProcessor.addErrorMessage(message);
 				}
-				throw new ProcessingException("error performing action '" + action.getId() + "' of event '"
-						+ actionRef.getEventId() + "', ID: " + id, e, fieldProcessor);
+				throw new ProcessingException(String.format("error performing action '%s' of event '%s', ID: %s",
+						action.getId(), actionRef.getEventId(), id), e, fieldProcessor);
 			}
 		}
 		return fieldProcessor;
