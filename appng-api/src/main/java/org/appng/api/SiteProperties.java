@@ -164,6 +164,8 @@ public class SiteProperties {
 	public static final String SERVICE_PATH = "service-path";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
+	/** If {@code true}, a site reload is performed when a file named {@code .reload} is created in the site's root directory */
+	public static final String SUPPORT_RELOAD_FILE = "supportReloadFile";
 	/** The prefix used for the appNG JSP-tags. */
 	public static final String TAG_PREFIX = "tagPrefix";
 	/** The name of the template to use */

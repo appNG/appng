@@ -23,6 +23,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -75,7 +80,6 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
-import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
@@ -275,6 +279,10 @@ public class InitializerService {
 				loadSite(site, env, false, new FieldProcessorImpl("load-platform"));
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
+				if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE, false)) {
+					startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
+							new SiteReloadWatcher(env, site));
+				}
 			} else {
 				String runningSite = site.getName();
 				site.setState(SiteState.INACTIVE);
@@ -295,6 +303,68 @@ public class InitializerService {
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
+		}
+	}
+
+	class SiteReloadWatcher implements Runnable {
+
+		private static final String RELOAD_FILE = ".reload";
+		private Environment env;
+		private Site site;
+
+		public SiteReloadWatcher(Environment env, Site site) {
+			this.env = env;
+			this.site = site;
+		}
+
+		public void run() {
+			try {
+				WatchService watcher = FileSystems.getDefault().newWatchService();
+
+				File rootDir = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
+				rootDir.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
+						StandardWatchEventKinds.ENTRY_MODIFY);
+				LOGGER.debug("watching for {}", new File(rootDir, RELOAD_FILE).getAbsolutePath());
+
+				for (;;) {
+					WatchKey key;
+					try {
+						key = watcher.take();
+					} catch (InterruptedException x) {
+						return;
+					}
+					for (WatchEvent<?> event : key.pollEvents()) {
+						if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+							continue;
+						}
+						java.nio.file.Path eventPath = (java.nio.file.Path) key.watchable();
+						File absoluteFile = new File(eventPath.toFile(),
+								((java.nio.file.Path) event.context()).toString());
+						if (RELOAD_FILE.equals(absoluteFile.getName())) {
+							LOGGER.info("found {}, restarting site {}", absoluteFile.getAbsolutePath(), site.getName());
+							try {
+								loadSite(env, getCoreService().getSiteByName(site.getName()), false,
+										new FieldProcessorImpl("auto-reload"));
+							} catch (InvalidConfigurationException e) {
+								LOGGER.error("error while reloading site " + site.getName(), e);
+							} finally {
+								File targetFile = new File(absoluteFile.getParentFile(),
+										RELOAD_FILE + "-" + System.currentTimeMillis() / 1000);
+								FileUtils.moveFile(absoluteFile, targetFile);
+								LOGGER.info("moved {} to {}", absoluteFile.getAbsolutePath(),
+										targetFile.getAbsolutePath());
+							}
+						}
+					}
+					boolean valid = key.reset();
+					if (!valid) {
+						break;
+					}
+				}
+
+			} catch (IOException e) {
+				LOGGER.error("error in site reload watcher", e);
+			}
 		}
 	}
 
