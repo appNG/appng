@@ -211,7 +211,7 @@ public class InitializerService {
 		ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
 		siteThreads.get(site.getName()).add(executor);
 		executor.execute(runnable);
-		LOGGER.info("starting {}", threadName);
+		LOGGER.info("started site thread [{}] with runnable of type {}", threadName, runnable.getClass().getName());
 	}
 
 	/**
@@ -279,10 +279,6 @@ public class InitializerService {
 				loadSite(site, env, false, new FieldProcessorImpl("load-platform"));
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
-				if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE, false)) {
-					startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
-							new SiteReloadWatcher(env, site));
-				}
 			} else {
 				String runningSite = site.getName();
 				site.setState(SiteState.INACTIVE);
@@ -753,6 +749,12 @@ public class InitializerService {
 		if (sendReloadEvent) {
 			site.sendEvent(new ReloadSiteEvent(site.getName()));
 		}
+
+		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE, false)) {
+			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
+					new SiteReloadWatcher(env, site));
+		}
+
 		LOGGER.info("loading site " + site.getName() + " completed");
 		site.setState(SiteState.STARTED);
 		siteMap.put(site.getName(), site);
