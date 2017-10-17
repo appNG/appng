@@ -135,6 +135,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 		HttpServletRequest servletRequest = (HttpServletRequest) pageContext.getRequest();
 
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+		ApplicationProvider applicationProvider = null;
 		try {
 			Environment environment = getEnvironment();
 			ApplicationContext ctx = environment.getAttribute(PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
@@ -143,7 +144,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 				MultiSiteSupport multiSiteSupport = getMultiSiteSupport(servletRequest, environment);
 				SiteImpl callingSite = multiSiteSupport.getCallingSite();
 				SiteImpl executingSite = multiSiteSupport.getExecutingSite();
-				ApplicationProvider applicationProvider = multiSiteSupport.getApplicationProvider();
+				applicationProvider = multiSiteSupport.getApplicationProvider();
 				HttpServletResponse servletResponse = (HttpServletResponse) pageContext.getResponse();
 				ApplicationRequest applicationRequest = applicationProvider.getApplicationRequest(servletRequest,
 						servletResponse, true);
@@ -164,6 +165,9 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 			log.error("Unable to load Taglet '" + method + "' in application '" + application + "' (path: "
 					+ servletRequest.getRequestURI() + " )", ex);
 		} finally {
+			if (null != applicationProvider) {
+				applicationProvider.setPlatformScope(true);
+			}
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
 		tagletAttributes.clear();

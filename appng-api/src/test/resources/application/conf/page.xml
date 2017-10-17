@@ -19,12 +19,13 @@
 		</url-schema>
 	</config>
 	<structure>
-		<section>
-			<element>
+		<section hidden="${isHidden}">
+			<element folded="${isFolded}" passive="${isPassive}">
 				<action id="action" eventId="event">
 					<permissions>
 						<permission ref="doesNotExist" mode="set" />
 					</permissions>
+					<condition expression="${fooo}" />
 					<params>
 						<param name="actionParam1">${urlParam}</param>
 						<param name="actionParam2">${doesNotExist}</param>
@@ -52,6 +53,7 @@
 						<param name="dsParam2">${doesNotExist}</param>
 						<param name="dsParam3" />
 					</params>
+					<condition expression="${postParam and fooo}" />
 				</datasource>
 			</element>
 			<element>

@@ -24,6 +24,7 @@ import org.appng.xml.platform.BeanOption;
  * A single option which was created from a {@link BeanOption} of a {@link Bean} .
  * 
  * @author Matthias Herlitzius
+ * @author Matthias Müller
  * 
  * @see Options
  */
@@ -51,7 +52,9 @@ public interface Option {
 	 * @param name
 	 *            the name of the attribute to get
 	 * @return the attribute, if present, {@code null} otherwise
+	 * @deprecated use {@link #getString(String)} instead
 	 */
+	@Deprecated
 	String getAttribute(String name);
 
 	/**
@@ -60,5 +63,46 @@ public interface Option {
 	 * @return the names of all attributes
 	 */
 	Set<String> getAttributeNames();
+
+	/**
+	 * Returns the attribute with the given name, if present.
+	 * 
+	 * @param name
+	 *            the name of the attribute to get
+	 * @return the attribute, if present, {@code null} otherwise
+	 */
+	String getString(String name);
+
+	/**
+	 * Returns an {@link Integer} parsed from the attribute with the given name.
+	 * 
+	 * @param name
+	 *            the name of the attribute to get
+	 * @return the integer value, or {@code null} if no such attribute exists (or the value can not be parsed to an
+	 *         integer)
+	 */
+	Integer getInteger(String name);
+
+	/**
+	 * Returns a {@link Boolean} parsed from the attribute with the given name.
+	 * 
+	 * @param name
+	 *            the name of the attribute to get
+	 * @return {@link Boolean#TRUE} if the value of the attribute equals to (ignoring case) {@code true},
+	 *         {@link Boolean#FALSE} otherwise
+	 */
+	Boolean getBoolean(String name);
+
+	/**
+	 * Returns the {@link Enum} constant represented by the attribute with the given name.
+	 * 
+	 * @param name
+	 *            the name of the attribute to get
+	 * @param type
+	 *            the type of the {@link Enum}
+	 * @return the enum constant, if the (upper-case) attribute value represents a valid enum of the given type
+	 *         ,{@code null} otherwise
+	 */
+	<E extends Enum<E>> E getEnum(String name, Class<E> type);
 
 }

@@ -18,15 +18,21 @@ package org.appng.api.support;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Option;
 
 /**
+ * The default implementation for {@link Option}
  * 
  * @author Matthias Herlitzius
+ * @author Matthias Müller
  */
 public class OptionImpl implements Option {
 
+	private static final Pattern INT_PATTERN = Pattern.compile("[+-]?[\\d]+");
 	private final String name;
 	private Map<String, String> attributeMap = new HashMap<String, String>();
 
@@ -71,6 +77,24 @@ public class OptionImpl implements Option {
 
 	public Map<String, String> getAttributeMap() {
 		return attributeMap;
+	}
+
+	public String getString(String name) {
+		return getAttribute(name);
+	}
+
+	public Integer getInteger(String name) {
+		String value = getString(name);
+		return INT_PATTERN.matcher(value).matches() ? Integer.valueOf(value) : null;
+	}
+
+	public Boolean getBoolean(String name) {
+		return Boolean.valueOf(getString(name));
+	}
+
+	public <E extends Enum<E>> E getEnum(String name, Class<E> type) {
+		String value = StringUtils.upperCase(getString(name));
+		return EnumUtils.isValidEnum(type, value) ? Enum.valueOf(type, value) : null;
 	}
 
 	public String toString() {

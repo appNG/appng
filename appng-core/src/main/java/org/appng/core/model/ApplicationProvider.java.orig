@@ -962,7 +962,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 	public void setPlatformScope(boolean enabled) {
 		DefaultEnvironment defaultEnvironment = (DefaultEnvironment) applicationRequest.getEnvironment();
+<<<<<<< HEAD
+		if (isPrivileged()) {
+=======
 		if (enabled) {
+>>>>>>> origin/appng-1.15.x
 			defaultEnvironment.enable(PLATFORM);
 		} else {
 			defaultEnvironment.disable(PLATFORM);
