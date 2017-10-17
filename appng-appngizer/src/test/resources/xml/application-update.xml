@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <application xmlns="http://www.appng.org/schema/appngizer" name="demo-application" self="/application/demo-application">
 	<displayName>ACME app</displayName>
-	<core>true</core>
+	<privileged>true</privileged>
 	<fileBased>false</fileBased>
 	<hidden>true</hidden>
 	<version>1.5.3</version>

@@ -169,15 +169,15 @@ https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.htm
 
 
 | https://github.com/appNG/appng-manager[appNG Manager^]
-| appNG core application
+| appNG privileged application
 | Provides a web-based interface to administer appNG and to access other appNG applications.
 
 | https://github.com/appNG/appng-authentication[appNG Authentication^]
-| appNG core application
+| appNG privileged application
 | Provides different authentication mechanisms for appNG.
 
 | https://github.com/appNG/appng-scheduler[appNG Scheduler^]
-| appNG core application
+| appNG privileged application
 | Provides job scheduling services.
 
 | https://github.com/appNG/appng-template[appNG Template^]
@@ -186,7 +186,7 @@ https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.htm
 
 |====================
 
-NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG applications run on the appNG platform. appNG core applications have elevated permissions to access and control the appNG platform. appNG templates define the visual appearance of appNG applications.
+NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG applications run on the appNG platform. appNG privileged applications have elevated permissions to access and control the appNG platform. appNG templates define the visual appearance of appNG applications.
 
 == Documentation
 

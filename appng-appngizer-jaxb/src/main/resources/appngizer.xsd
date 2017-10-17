@@ -112,7 +112,7 @@
 				<xs:extension base="nameable">
 					<xs:sequence>
 						<xs:element name="displayName" type="stringNotBlank" />
-						<xs:element name="core" type="xs:boolean" />
+						<xs:element name="privileged" type="xs:boolean" />
 						<xs:element name="fileBased" type="xs:boolean" />
 						<xs:element name="hidden" type="xs:boolean" />
 						<xs:element name="version" type="stringNotBlank" />

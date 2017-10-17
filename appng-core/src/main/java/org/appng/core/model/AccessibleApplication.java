@@ -57,7 +57,7 @@ public interface AccessibleApplication extends Application {
 
 	ConfigurableApplicationContext getContext();
 
-	void setCoreApplication(boolean isCoreApplication);
+	void setPrivileged(boolean isPrivileged);
 
 	void setFeatureProvider(FeatureProvider featureProvider);
 

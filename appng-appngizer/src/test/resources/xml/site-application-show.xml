@@ -8,7 +8,7 @@
 		<link name="grants" self="http://localhost/site/localhost/application/demo-application/grants" />
 	</links>
 	<displayName>Demo Application</displayName>
-	<core>false</core>
+	<privileged>false</privileged>
 	<fileBased>true</fileBased>
 	<hidden>false</hidden>
 	<version>1.5.3</version>

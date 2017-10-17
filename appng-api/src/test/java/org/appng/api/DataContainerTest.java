@@ -30,8 +30,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 
-;
-
 public class DataContainerTest {
 
 	private DataContainer dataContainer;

@@ -88,8 +88,8 @@ public final class Platform {
 	 * String platformRootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 	 * </pre>
 	 * 
-	 * <b>Note: A {@link Application} can only access the {@link Scope#PLATFORM} if it's a core-application, i.e.
-	 * {@link Application#isCoreApplication()} returns {@code true}.</b>
+	 * <b>Note: A {@link Application} can only access the {@link Scope#PLATFORM} if it's a privileged application, i.e.
+	 * {@link Application#isPrivileged()} returns {@code true}.</b>
 	 * 
 	 * @author Matthias Müller
 	 * 

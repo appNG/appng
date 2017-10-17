@@ -816,12 +816,12 @@ public class CoreService {
 	}
 
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
-			String timestamp, final boolean isCoreApplication, final boolean isHidden, final boolean isFileBased,
+			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased,
 			FieldProcessor fp) throws BusinessException {
 		PackageArchive applicationArchive = getArchive(repositoryId, name, version, timestamp);
 		switch (applicationArchive.getType()) {
 		case APPLICATION:
-			provideApplication(applicationArchive, isFileBased, isCoreApplication, isHidden, fp);
+			provideApplication(applicationArchive, isFileBased, isPrivileged, isHidden, fp);
 			break;
 		case TEMPLATE:
 			provideTemplate(applicationArchive);
@@ -830,10 +830,10 @@ public class CoreService {
 	}
 
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
-			String timestamp, final boolean isCoreApplication, final boolean isHidden, final boolean isFileBased)
+			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased)
 			throws BusinessException {
 
-		return installPackage(repositoryId, name, version, timestamp, isCoreApplication, isHidden, isFileBased, null);
+		return installPackage(repositoryId, name, version, timestamp, isPrivileged, isHidden, isFileBased, null);
 	}
 
 	private PackageArchive getArchive(final Integer repositoryId, final String applicationName,
@@ -889,7 +889,7 @@ public class CoreService {
 	}
 
 	private ApplicationImpl provideApplication(PackageArchive applicationArchive, boolean isFileBased,
-			boolean isCoreApplication, boolean isHidden, FieldProcessor fp) throws BusinessException {
+			boolean isPrivileged, boolean isHidden, FieldProcessor fp) throws BusinessException {
 		ApplicationInfo applicationInfo = (ApplicationInfo) applicationArchive.getPackageInfo();
 		String applicationName = applicationInfo.getName();
 		String applicationVersion = applicationInfo.getVersion();
@@ -899,7 +899,7 @@ public class CoreService {
 			log.info("deploying application " + applicationName + "-" + applicationVersion);
 			application = RepositoryImpl.getApplication(applicationInfo);
 			application.setFileBased(isFileBased);
-			application.setCoreApplication(isCoreApplication);
+			application.setPrivileged(isPrivileged);
 			application.setHidden(isHidden);
 			createApplication(application, applicationInfo, fp);
 		} else {

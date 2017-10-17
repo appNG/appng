@@ -47,7 +47,7 @@ Constants for the property names are available in {appng}/org/appng/api/Platform
 *Syntax:* `${platform.<propertyName>}` +
 *Example:* `${platform.devMode}`
 
-IMPORTANT: Platform properties are only available if the application is configured as a core application.
+IMPORTANT: Platform properties are only available if the application is configured as a privileged application.
 
 ===== Nested beans and profiles
 You can use nested `<beans>` inside `beans.xml`, which can nicely be combined using the `profile`-attribute and the application property <<prop-activeProfiles,activeProfiles>>.

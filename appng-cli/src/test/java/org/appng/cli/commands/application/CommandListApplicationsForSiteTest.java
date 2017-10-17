@@ -33,7 +33,7 @@ public class CommandListApplicationsForSiteTest extends AbstractCommandTest {
 
 	public void validate() {
 		String result = cliEnv.getResult();
-		Assert.assertEquals("| ID | Name | Display name | Core application |",
+		Assert.assertEquals("| ID | Name | Display name | Privileged |",
 				result.trim().replaceAll("=", "").replaceAll("\n", ""));
 	}
 }

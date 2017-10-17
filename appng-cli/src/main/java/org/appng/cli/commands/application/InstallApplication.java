@@ -38,8 +38,8 @@ import com.beust.jcommander.Parameters;
  * <pre>
  * Usage: appng install-application [options]
  *   Options:
- *     -c
- *        Install as core application.
+ *     -p
+ *        Install as privileged application.
  *        Default: false
  *     -f
  *        Application will be filebased.
@@ -76,8 +76,8 @@ public class InstallApplication implements ExecutableCliCommand {
 	@Parameter(names = "-r", required = true, description = "The name of the repository.")
 	private String repositoryName;
 
-	@Parameter(names = "-c", required = false, description = "Install as core application.")
-	private boolean isCoreApplication = false;
+	@Parameter(names = {"-p", "-c"}, required = false, description = "Install as privileged application.")
+	private boolean isPrivileged = false;
 
 	@Parameter(names = "-h", required = false, description = "Application will be hidden.")
 	private boolean isHidden = false;
@@ -95,7 +95,7 @@ public class InstallApplication implements ExecutableCliCommand {
 		}
 		CoreService coreService = cle.getCoreService();
 		PackageInfo installedPackage = coreService.installPackage(repository.getId(), applicationName,
-				applicationVersion, applicationTimestamp, isCoreApplication, isHidden, isFileBased);
+				applicationVersion, applicationTimestamp, isPrivileged, isHidden, isFileBased);
 		Application application = coreService.findApplicationByName(installedPackage.getName());
 		if (null != application) {
 			if (isFileBased && !application.isFileBased()) {
