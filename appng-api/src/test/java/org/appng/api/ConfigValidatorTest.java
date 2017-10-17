@@ -85,7 +85,7 @@ public class ConfigValidatorTest {
 //		for (String e : sorted) {
 //			System.out.println(e);
 //		}
-		Assert.assertEquals(41, detaildErrors.size());
+		Assert.assertEquals(46, detaildErrors.size());
 
 		InputStream expectedDetails = classLoader.getResourceAsStream("configvalidatorDetails.txt");
 		List<String> expectedDetailErrors = IOUtils.readLines(expectedDetails, Charset.defaultCharset());
