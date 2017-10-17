@@ -712,7 +712,7 @@ public class InitializerService {
 				application.setContext(applicationContext);
 				ConfigValidator configValidator = new ConfigValidator(application.getApplicationConfig());
 				configValidator.validateMetaData(siteClassLoader);
-				configValidator.validate(application.getName());
+				configValidator.validate(application.getName(), site.getSiteClassLoader());
 				configValidator.processErrors(application.getName());
 
 				Collection<ApplicationSubject> applicationSubjects = coreService

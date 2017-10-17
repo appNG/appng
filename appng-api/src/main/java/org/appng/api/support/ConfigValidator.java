@@ -19,6 +19,10 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,9 +131,13 @@ public class ConfigValidator {
 	}
 
 	public void validate(String applicationName) throws InvalidConfigurationException {
+		validate(applicationName, Thread.currentThread().getContextClassLoader());
+	}
+
+	public void validate(String applicationName, ClassLoader classLoader) throws InvalidConfigurationException {
 		readPermissions();
 		validateApplicationInfo();
-		validateApplication(applicationName);
+		validateApplication(applicationName, classLoader);
 	}
 
 	public void setWithDetailedErrors(boolean withDetails) {
@@ -164,10 +172,11 @@ public class ConfigValidator {
 		}
 	}
 
-	private void validateApplication(String applicationName) throws InvalidConfigurationException {
+	private void validateApplication(String applicationName, ClassLoader classLoader)
+			throws InvalidConfigurationException {
 		long start = System.currentTimeMillis();
 		validateApplicationRootConfig();
-		validateDataSources();
+		validateDataSources(classLoader);
 		validateActions();
 		Map<String, PageDefinition> pageMap = provider.getPages();
 		for (String pageId : pageMap.keySet()) {
@@ -185,10 +194,12 @@ public class ConfigValidator {
 				for (SectionelementDef sectionelement : elements) {
 					String folded = sectionelement.getFolded();
 					validateExpressionForPage(resource, page.getConfig().getUrlSchema(), folded, pageId,
-							origin + " section[" + i + "]/element[" + j + "]", "folded", "//section[" + i + "]/element[" + j + "]");
+							origin + " section[" + i + "]/element[" + j + "]", "folded",
+							"//section[" + i + "]/element[" + j + "]");
 					String passive = sectionelement.getPassive();
 					validateExpressionForPage(resource, page.getConfig().getUrlSchema(), passive, pageId,
-							origin + " section[" + i + "]/element[" + j + "]", "passive", "//section[" + i + "]/element[" + j + "]");
+							origin + " section[" + i + "]/element[" + j + "]", "passive",
+							"//section[" + i + "]/element[" + j + "]");
 					ActionRef actionRef = sectionelement.getAction();
 					DatasourceRef datasourceRef = sectionelement.getDatasource();
 					if (null != actionRef) {
@@ -459,15 +470,20 @@ public class ConfigValidator {
 			if (!condition.getExpression().startsWith("${") || !condition.getExpression().endsWith("}")) {
 				addConfigurationError(origin + " invalid condition '" + condition.getExpression() + "'");
 			} else {
-				Map<String, Object> variables = new HashMap<>();
-				for (Param p : params.getParam()) {
-					variables.put(p.getName(), p.getValue());
-				}
+				Map<String, Object> variables = getVariables(params);
 				String message = originName + " condition: '" + condition.getExpression() + "' is invalid: ";
 				ExpressionEvaluator ee = getExpressionEvaluator("action", actionId, variables);
 				validateCondition(origin, ee, condition, xpath, message);
 			}
 		}
+	}
+
+	private Map<String, Object> getVariables(Params params) {
+		Map<String, Object> variables = new HashMap<>();
+		if (params != null) {
+			params.getParam().forEach(p -> variables.put(p.getName(), p.getValue()));
+		}
+		return variables;
 	}
 
 	private void validateIncludeConditionForPage(Resource pageResource, UrlSchema params, Condition condition,
@@ -485,10 +501,22 @@ public class ConfigValidator {
 
 	private ExpressionEvaluator getPageExpressionEvaluator(UrlSchema params, String pageId) {
 		Map<String, Object> variables = new HashMap<>();
-		params.getGetParams().getParamList().forEach(p -> variables.put(p.getName(), p.getValue()));
-		params.getPostParams().getParamList().forEach(p -> variables.put(p.getName(), p.getValue()));
-		params.getUrlParams().getParamList().forEach(p -> variables.put(p.getName(), p.getValue()));
+		if (null != params.getGetParams()) {
+			addParams(variables, params.getGetParams().getParamList());
+		}
+		if (null != params.getPostParams()) {
+			addParams(variables, params.getPostParams().getParamList());
+		}
+		if (null != params.getUrlParams()) {
+			addParams(variables, params.getUrlParams().getParamList());
+		}
 		return getExpressionEvaluator("page", pageId, variables);
+	}
+
+	private void addParams(Map<String, Object> variables, List<Param> paramList) {
+		if (null != paramList) {
+			paramList.forEach(p -> variables.put(p.getName(), p.getValue()));
+		}
 	}
 
 	private void validateExpressionForPage(Resource resource, UrlSchema urlSchema, String expression, String pageId,
@@ -590,7 +618,7 @@ public class ConfigValidator {
 		return sb;
 	}
 
-	public void validateDataSources() {
+	public void validateDataSources(ClassLoader classLoader) {
 		Set<String> keySet = provider.getDataSources().keySet();
 		for (String id : keySet) {
 			String resourceName = provider.getResourceNameForDataSource(id);
@@ -610,33 +638,57 @@ public class ConfigValidator {
 				addConfigurationError(message);
 				addDetailedError(message, resource, xpathBase + "meta-data");
 			} else {
-				try {
-					Map<String, Object> variables = new HashMap<>();
-					variables.put("current", Class.forName(metaData.getBindClass()).newInstance());
-					ExpressionEvaluator ee = getExpressionEvaluator("datasource", id, variables);
-					for (FieldDef fieldDef : metaData.getFields()) {
-						String fieldXpath = xpathBase + "meta-data/field[@name='" + fieldDef.getName() + "']";
-						Condition condition = fieldDef.getCondition();
-						if (null != condition) {
-							String xpath = fieldXpath + "/condition";
-							String message = messagePrefix + " field: " + fieldDef.getName() + ", condition: '"
-									+ condition.getExpression() + "' is invalid: ";
-							validateCondition(resource, ee, condition, xpath, message);
-						}
-						String hiddenMessage = messagePrefix + " field: " + fieldDef.getName() + ", hidden: '"
-								+ fieldDef.getHidden() + "' is invalid: ";
-						validateCondition(resource, ee, fieldDef.getHidden(), fieldXpath, hiddenMessage);
-
-						String readOnlyMessage = messagePrefix + " field: " + fieldDef.getName() + ", readOnly: '"
-								+ fieldDef.getReadonly() + "' is invalid: ";
-						validateCondition(resource, ee, fieldDef.getReadonly(), fieldXpath, readOnlyMessage);
+				Map<String, Object> variables = getVariables(datasource.getConfig().getParams());
+				Object bindObject = getBindObject(classLoader, metaData.getBindClass());
+				if (null != bindObject) {
+					variables.put("current", bindObject);
+				}
+				ExpressionEvaluator ee = getExpressionEvaluator("datasource", id, variables);
+				for (FieldDef fieldDef : metaData.getFields()) {
+					String fieldXpath = xpathBase + "meta-data/field[@name='" + fieldDef.getName() + "']";
+					Condition condition = fieldDef.getCondition();
+					if (null != condition) {
+						String xpath = fieldXpath + "/condition";
+						String message = messagePrefix + " field: " + fieldDef.getName() + ", condition: '"
+								+ condition.getExpression() + "' is invalid: ";
+						validateCondition(resource, ee, condition, xpath, message);
 					}
-				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-					log.error(String.format("error creating instance of bindclass '%s' for datasource '%s'",
-							metaData.getBindClass(), id), e);
+					String hiddenMessage = messagePrefix + " field: " + fieldDef.getName() + ", hidden: '"
+							+ fieldDef.getHidden() + "' is invalid: ";
+					validateCondition(resource, ee, fieldDef.getHidden(), fieldXpath, hiddenMessage);
+
+					String readOnlyMessage = messagePrefix + " field: " + fieldDef.getName() + ", readOnly: '"
+							+ fieldDef.getReadonly() + "' is invalid: ";
+					validateCondition(resource, ee, fieldDef.getReadonly(), fieldXpath, readOnlyMessage);
 				}
 			}
 		}
+	}
+
+	private Object getBindObject(ClassLoader classLoader, String bindClassName) {
+		try {
+			Class<?> bindClass = ClassUtils.forName(bindClassName, classLoader);
+			Class<?> enclosingClass = bindClass.getEnclosingClass();
+			int modifier = bindClass.getModifiers();
+			if (bindClass.isInterface()) {
+				return Proxy.newProxyInstance(classLoader, new Class[] { bindClass }, new InvocationHandler() {
+
+					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+						return null;
+					}
+				});
+			} else if (enclosingClass == null || Modifier.isStatic(modifier)) {
+				return bindClass.newInstance();
+			} else if (Modifier.isPublic(modifier)) {
+				return bindClass.getConstructor(enclosingClass).newInstance(enclosingClass.newInstance());
+			}
+		} catch (ReflectiveOperationException o) {
+			String errorMssg = String.format(
+					"could not create instance of '%s', is it an interface or default-constructor missing?",
+					bindClassName);
+			log.debug(errorMssg);
+		}
+		return null;
 	}
 
 	private void validateCondition(Resource resource, ExpressionEvaluator ee, Condition condition, String xpath,
