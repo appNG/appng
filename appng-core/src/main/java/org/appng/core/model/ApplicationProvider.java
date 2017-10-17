@@ -952,8 +952,12 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	public void setPlatformScope() {
+		setPlatformScope(isCoreApplication());
+	}
+
+	public void setPlatformScope(boolean enabled) {
 		DefaultEnvironment defaultEnvironment = (DefaultEnvironment) applicationRequest.getEnvironment();
-		if (isCoreApplication()) {
+		if (enabled) {
 			defaultEnvironment.enable(PLATFORM);
 		} else {
 			defaultEnvironment.disable(PLATFORM);
