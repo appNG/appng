@@ -81,7 +81,7 @@ public class ApplicationController extends PropertyBase {
 			return notFound();
 		}
 		applicationByName.setHidden(application.isHidden());
-		applicationByName.setPrivileged(application.isCore());
+		applicationByName.setPrivileged(application.isPrivileged());
 		applicationByName.setDisplayName(application.getDisplayName());
 		getCoreService().updateApplication(applicationByName, application.isFileBased());
 		return ok(Application.fromDomain(applicationByName));
