@@ -11,6 +11,10 @@ datasource.xml(104) :datasource.xml: datasource 'wrongClone::': bindclass 'doesN
 datasource.xml(113) :datasource.xml: datasource '::wrongClone': bindclass 'doesNotExist' not found!
 datasource.xml(16) :datasource.xml: datasource 'datasource': references the unknown permission 'doesNotExist'.
 datasource.xml(165) :datasource.xml: datasource 'invalidValidationGroup': validation group class 'SagittariusA' not found!
+datasource.xml(182) :datasource.xml: datasource 'person': field: firstname, hidden: '${current.doDisplay}' is invalid: Property [doDisplay] not found on type [org.appng.api.Person]
+datasource.xml(182) :datasource.xml: datasource 'person': field: firstname, readOnly: '${isVisible}' is invalid: parameter 'isVisible' not found on datasource 'person'
+datasource.xml(183) :datasource.xml: datasource 'person': field: firstname, condition: '${current.dummy > 1}' is invalid: Property [dummy] not found on type [org.appng.api.Person]
+datasource.xml(186) :datasource.xml: datasource 'person': field: email, condition: '${5 ab foo}' is invalid: Failed to parse the expression [${5 ab foo}]
 datasource.xml(25) :datasource.xml: datasource 'datasource': bindclass 'doesNotExist' not found!
 datasource.xml(27) :datasource.xml: datasource 'datasource': linkpanel 'foo' link 'bar' points to an invalid target, must start with '/', '${<param>}' or '?'!
 datasource.xml(31) :datasource.xml: datasource 'datasource': linkpanel 'foo' link '/page?getParam=5&doesNotExist=7' points to page 'page' and uses the unknown get-paramter(s) [doesNotExist]. Valid get-parameters are: [getParam]
@@ -20,16 +24,23 @@ datasource.xml(58) :datasource.xml: datasource 'datasource': linkpanel 'jin' lin
 datasource.xml(70) :datasource.xml: datasource 'datasource', option 'id' references the unknown parameter 'doesNotExist'. Valid parameters are: [dsParam1, dsParam2]
 datasource.xml(70) :datasource.xml: datasource 'datasource', option 'id' references the unknown parameter 'doesNotExist'. Valid parameters are: [dsParam1, dsParam2]
 datasource.xml(95) :datasource.xml: datasource 'wrongDoubleClone::cloneDatasource::datasource': bindclass 'doesNotExist' not found!
-event.xml(18) :event.xml: action 'action': the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) doesNotExist which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
-event.xml(22) :event.xml: action 'action', option 'id' references the unknown parameter 'doesNotExist'. Valid parameters are: [actionParam2, actionParam1]
-event.xml(28) :event.xml: action 'action2':  references the unknown datasource 'doesNotExist'.
+event.xml(16) :event.xml: action 'action': condition: '${fooo}' is invalid: parameter 'fooo' not found on action 'action'
+event.xml(19) :event.xml: action 'action': the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) doesNotExist which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
+event.xml(23) :event.xml: action 'action', option 'id' references the unknown parameter 'doesNotExist'. Valid parameters are: [actionParam2, actionParam1]
+event.xml(29) :event.xml: action 'action2':  references the unknown datasource 'doesNotExist'.
 event.xml(9) :event.xml: action 'action': references the unknown permission 'doesNotExist'.
+page.xml(22) :page.xml: page 'page' section[1] attribute 'hidden': parameter 'isHidden' not found on page 'page'
+page.xml(23) :page.xml: page 'page' section[1]/element[1] attribute 'folded': parameter 'isFolded' not found on page 'page'
+page.xml(23) :page.xml: page 'page' section[1]/element[1] attribute 'passive': parameter 'isPassive' not found on page 'page'
+page.xml(24) :page.xml: page 'page', action 'action' condition: '${fooo}' is invalid: parameter 'fooo' not found on page 'page'
 page.xml(26) :page.xml: page 'page' references the unknown permission 'doesNotExist'.
-page.xml(30) :page.xml: page 'page' the reference to action 'action' uses the unknown parameter doesNotExist. Supported parameters are: [getParam, urlParam, postParam]
-page.xml(31) :page.xml: page 'page' the reference to action 'action' (from 'event.xml') uses the parameter(s) actionParam3 which are unknown in the action 'action'! Supported parameters are: [actionParam2, actionParam1]
-page.xml(40) :page.xml: page 'page' references the unknown action 'doesNotExist' (from event 'event').
-page.xml(43) :page.xml: page 'page' references the unknown event 'doesNotExist'.
-page.xml(48) :page.xml: page 'page' references the unknown permission 'doesNotExist'.
-page.xml(52) :page.xml: page 'page' the reference to dataSource 'datasource' uses the unknown parameter doesNotExist. Supported parameters are: [getParam, urlParam, postParam]
-page.xml(53) :page.xml: page 'page' the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) dsParam3 which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
-page.xml(58) :page.xml: page 'page' references the unknown datasource 'doesNotExist'.
+page.xml(31) :page.xml: page 'page' the reference to action 'action' uses the unknown parameter doesNotExist. Supported parameters are: [getParam, urlParam, postParam]
+page.xml(32) :page.xml: page 'page' the reference to action 'action' (from 'event.xml') uses the parameter(s) actionParam3 which are unknown in the action 'action'! Supported parameters are: [actionParam2, actionParam1]
+page.xml(41) :page.xml: page 'page' references the unknown action 'doesNotExist' (from event 'event').
+page.xml(44) :page.xml: page 'page' references the unknown event 'doesNotExist'.
+page.xml(44) :page.xml: page 'page', action 'action' condition: '${fooo}' is invalid: parameter 'fooo' not found on page 'page'
+page.xml(47) :page.xml: page 'page', datasource 'datasource' condition: '${postParam and fooo}' is invalid: parameter 'fooo' not found on page 'page'
+page.xml(49) :page.xml: page 'page' references the unknown permission 'doesNotExist'.
+page.xml(53) :page.xml: page 'page' the reference to dataSource 'datasource' uses the unknown parameter doesNotExist. Supported parameters are: [getParam, urlParam, postParam]
+page.xml(54) :page.xml: page 'page' the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) dsParam3 which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
+page.xml(60) :page.xml: page 'page' references the unknown datasource 'doesNotExist'.

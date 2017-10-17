@@ -1,175 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd ">
-    <datasource id="cloneCloneCloneDatasource::cloneCloneDatasource">
-        <config>
-            <title />
-            <meta-data bindClass="doesNotExist">
-            </meta-data>
-        </config>
-        <bean />
-    </datasource>
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd ">
+	<datasource id="cloneCloneCloneDatasource::cloneCloneDatasource">
+		<config>
+			<title />
+			<meta-data bindClass="doesNotExist">
+			</meta-data>
+		</config>
+		<bean />
+	</datasource>
 
-    <datasource id="datasource">
-        <config>
-            <permissions>
-                <permission ref="doesNotExist" mode="set" />
-                <permission ref="anonymous" mode="set"/>
-                <permission ref="anonymousFoo" mode="set"/>
-                <permission ref="anonymous.Bar" mode="set"/>
-            </permissions>
-            <params>
-                <param name="dsParam1" />
-                <param name="dsParam2" />
-            </params>
-            <meta-data bindClass="doesNotExist" />
-            <linkpanel location="inline" id="foo">
-                <link target="bar" mode="intern">
-                    <icon />
-                    <label />
-                </link>
-                <link target="/page&#63;getParam=5&#38;doesNotExist=7" mode="intern">
-                    <icon />
-                    <label />
-                </link>
-                <link target="${doesNotExist}" mode="intern">
-                    <icon />
-                    <label />
-                </link>
-                <link target="${doesNotExist}?foo=bar" mode="intern">
-                    <icon />
-                    <label />
-                </link>
-                <link target="/${doesNotExist}" mode="intern">
-                    <icon />
-                    <label />
-                </link>
-                <link target="/${doesNotExist}?foo=bar" mode="intern">
-                    <icon />
-                    <label />
-                </link>
-            </linkpanel>
-            <linkpanel location="inline" id="jin">
-                <permissions>
-                    <permission ref="doesNotExist" mode="set" />
-                </permissions>
-                <link target="/fizz" mode="intern">
-                    <permissions>
-                        <permission ref="doesNotExist" mode="set" />
-                    </permissions>
-                    <icon></icon>
-                    <label></label>
-                </link>
-                <link target="?foo=bar" mode="intern">
-                    <icon />
-                    <label />
-                </link>
-            </linkpanel>
-        </config>
-        <bean id="datasource">
-            <option name="id" value="${doesNotExist}" />
-        </bean>
-    </datasource>
+	<datasource id="datasource">
+		<config>
+			<permissions>
+				<permission ref="doesNotExist" mode="set" />
+				<permission ref="anonymous" mode="set" />
+				<permission ref="anonymousFoo" mode="set" />
+				<permission ref="anonymous.Bar" mode="set" />
+			</permissions>
+			<params>
+				<param name="dsParam1" />
+				<param name="dsParam2" />
+			</params>
+			<meta-data bindClass="doesNotExist" />
+			<linkpanel location="inline" id="foo">
+				<link target="bar" mode="intern">
+					<icon />
+					<label />
+				</link>
+				<link target="/page&#63;getParam=5&#38;doesNotExist=7" mode="intern">
+					<icon />
+					<label />
+				</link>
+				<link target="${doesNotExist}" mode="intern">
+					<icon />
+					<label />
+				</link>
+				<link target="${doesNotExist}?foo=bar" mode="intern">
+					<icon />
+					<label />
+				</link>
+				<link target="/${doesNotExist}" mode="intern">
+					<icon />
+					<label />
+				</link>
+				<link target="/${doesNotExist}?foo=bar" mode="intern">
+					<icon />
+					<label />
+				</link>
+			</linkpanel>
+			<linkpanel location="inline" id="jin">
+				<permissions>
+					<permission ref="doesNotExist" mode="set" />
+				</permissions>
+				<link target="/fizz" mode="intern">
+					<permissions>
+						<permission ref="doesNotExist" mode="set" />
+					</permissions>
+					<icon></icon>
+					<label></label>
+				</link>
+				<link target="?foo=bar" mode="intern">
+					<icon />
+					<label />
+				</link>
+			</linkpanel>
+		</config>
+		<bean id="datasource">
+			<option name="id" value="${doesNotExist}" />
+		</bean>
+	</datasource>
 
-    <datasource id="cloneDatasource::datasource">
-        <config>
-            <title />
-            <meta-data bindClass="doesNotExist">
-            </meta-data>
-        </config>
-        <bean />
-    </datasource>
+	<datasource id="cloneDatasource::datasource">
+		<config>
+			<title />
+			<meta-data bindClass="doesNotExist">
+			</meta-data>
+		</config>
+		<bean />
+	</datasource>
 
-    <datasource id="cloneCloneDatasource::cloneDatasource">
-        <config>
-            <title />
-            <meta-data bindClass="doesNotExist">
-            </meta-data>
-        </config>
-        <bean />
-    </datasource>
+	<datasource id="cloneCloneDatasource::cloneDatasource">
+		<config>
+			<title />
+			<meta-data bindClass="doesNotExist">
+			</meta-data>
+		</config>
+		<bean />
+	</datasource>
 
-    <datasource id="wrongDoubleClone::cloneDatasource::datasource">
-        <config>
-            <title />
-            <meta-data bindClass="doesNotExist">
-            </meta-data>
-        </config>
-        <bean />
-    </datasource>
+	<datasource id="wrongDoubleClone::cloneDatasource::datasource">
+		<config>
+			<title />
+			<meta-data bindClass="doesNotExist">
+			</meta-data>
+		</config>
+		<bean />
+	</datasource>
 
-    <datasource id="wrongClone::">
-        <config>
-            <title />
-            <meta-data bindClass="doesNotExist">
-            </meta-data>
-        </config>
-        <bean />
-    </datasource>
+	<datasource id="wrongClone::">
+		<config>
+			<title />
+			<meta-data bindClass="doesNotExist">
+			</meta-data>
+		</config>
+		<bean />
+	</datasource>
 
-    <datasource id="::wrongClone">
-        <config>
-            <title />
-            <meta-data bindClass="doesNotExist">
-            </meta-data>
-        </config>
-        <bean />
-    </datasource>
+	<datasource id="::wrongClone">
+		<config>
+			<title />
+			<meta-data bindClass="doesNotExist">
+			</meta-data>
+		</config>
+		<bean />
+	</datasource>
 
-    <datasource id="enhancedClone::datasource">
-        <config>
-            <title>testNewTitle</title>
-            <description id="blabla" />
-            <permissions>
-                <permission ref="testPermission" mode="set"></permission>
-            </permissions>
-            <params>
-                <param name="newParam">newParamValue</param>
-            </params>
-            <meta-data bindClass="anotherClassBitesTheDust">
-                <field name="foo" type="text"></field>
-            </meta-data>
-            <linkpanel location="inline" id="nintendo">
-                <link target="hyrule" mode="intern" id="legend-of-zelda">
-                    <icon />
-                    <label />
-                </link>
-            </linkpanel>
-            <linkpanel location="inline" id="foo">
-            </linkpanel>
+	<datasource id="enhancedClone::datasource">
+		<config>
+			<title>testNewTitle</title>
+			<description id="blabla" />
+			<permissions>
+				<permission ref="testPermission" mode="set"></permission>
+			</permissions>
+			<params>
+				<param name="newParam">newParamValue</param>
+			</params>
+			<meta-data bindClass="anotherClassBitesTheDust">
+				<field name="foo" type="text"></field>
+			</meta-data>
+			<linkpanel location="inline" id="nintendo">
+				<link target="hyrule" mode="intern" id="legend-of-zelda">
+					<icon />
+					<label />
+				</link>
+			</linkpanel>
+			<linkpanel location="inline" id="foo">
+			</linkpanel>
 
-        </config>
-        <bean>
-            <option name="testOption" value="foobar" />
-        </bean>
-    </datasource>
+		</config>
+		<bean>
+			<option name="testOption" value="foobar" />
+		</bean>
+	</datasource>
 
-    <datasource id="overrideBeanClone::datasource">
-        <config>
-            <title />
-            <permissions />
-            <meta-data bindClass="java.lang.String">
-            </meta-data>
-            <linkpanel location="inline" id="foo" />
-            <linkpanel location="inline" id="jin" />
-        </config>
-        <bean id="hansolo">
-            <option name="lucas" harrison="han" />
-        </bean>
-    </datasource>
+	<datasource id="overrideBeanClone::datasource">
+		<config>
+			<title />
+			<permissions />
+			<meta-data bindClass="java.lang.String">
+			</meta-data>
+			<linkpanel location="inline" id="foo" />
+			<linkpanel location="inline" id="jin" />
+		</config>
+		<bean id="hansolo">
+			<option name="lucas" harrison="han" />
+		</bean>
+	</datasource>
 
-    <datasource id="invalidValidationGroup">
-        <config>
-            <meta-data bindClass="java.lang.String">
-                <validation>
-                    <group class="SagittariusA" />
-                    <!-- this one is valid -->
-                    <group class="java.lang.String"/>
-                </validation>
-            </meta-data>
-        </config>
-        <bean>
-        </bean>
-    </datasource>
+	<datasource id="invalidValidationGroup">
+		<config>
+			<meta-data bindClass="java.lang.String">
+				<validation>
+					<group class="SagittariusA" />
+					<!-- this one is valid -->
+					<group class="java.lang.String" />
+				</validation>
+			</meta-data>
+		</config>
+		<bean>
+		</bean>
+	</datasource>
+
+	<datasource id="person">
+		<config>
+			<title />
+			<meta-data bindClass="org.appng.api.Person">
+				<field name="age" type="long">
+					<condition expression="${2 == (1+1)}" />
+				</field>
+				<field name="firstname" type="text" hidden="${current.doDisplay}" readonly="${isVisible}">
+					<condition expression="${current.dummy > 1}" />
+				</field>
+				<field name="email" type="text">
+					<condition expression="${5 ab foo}" />
+				</field>
+			</meta-data>
+		</config>
+		<bean />
+	</datasource>
 
 </datasources>

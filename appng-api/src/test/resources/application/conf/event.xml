@@ -13,6 +13,7 @@
 				<param name="actionParam2" />
 			</params>
 		</config>
+		<condition expression="${fooo}"/>
 		<datasource id="datasource">
 			<params>
 				<param name="doesNotExist" />

@@ -64,7 +64,7 @@ public final class ExpressionEvaluator {
 
 	private ExpressionFactory ef;
 	private ELContext ctx;
-	private VariableMapper variableMapper;
+	private javax.el.VariableMapper variableMapper;
 	private final Map<String, Method> methods = new HashMap<String, Method>();
 
 	/**
@@ -85,6 +85,25 @@ public final class ExpressionEvaluator {
 		((ELContextImpl) ctx).setVariableMapper(variableMapper);
 		((ELContextImpl) ctx).setFunctionMapper(getFunctionMapper());
 		this.setVariables(variables);
+	}
+
+	/**
+	 * Creates a new {@link ExpressionEvaluator} using the given {@link javax.el.VariableMapper}.
+	 * 
+	 * @param variableMapper
+	 *            the {@link javax.el.VariableMapper} to use
+	 */
+	public ExpressionEvaluator(javax.el.VariableMapper variableMapper) {
+		this.ef = ExpressionFactory.newInstance();
+		CompositeELResolver resolver = new CompositeELResolver();
+		resolver.add(new MapELResolver());
+		resolver.add(new ListELResolver());
+		resolver.add(new ArrayELResolver());
+		resolver.add(new BeanELResolver());
+		this.ctx = new ELContextImpl(resolver);
+		this.variableMapper = variableMapper;
+		((ELContextImpl) ctx).setVariableMapper(variableMapper);
+		((ELContextImpl) ctx).setFunctionMapper(getFunctionMapper());
 	}
 
 	/**
