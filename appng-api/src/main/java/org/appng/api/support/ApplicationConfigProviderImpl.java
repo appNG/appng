@@ -102,13 +102,14 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	private Resources resources;
 
 	private ApplicationConfigProviderImpl(MarshallService marshallService, String applicationName,
-			Collection<Resource> applicationResources, ApplicationInfo applicationInfo, Boolean devMode)
-			throws InvalidConfigurationException {
+			Collection<Resource> applicationResources, ApplicationInfo applicationInfo, Resources resources,
+			Boolean devMode) throws InvalidConfigurationException {
 		this.xmlFiles = applicationResources;
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationInfo;
 		this.validator = new ConfigValidator(this);
 		this.resourceMap = new HashMap<String, String>();
+		this.resources = resources;
 		setDevMode(devMode);
 		loadConfig(marshallService);
 	}
@@ -539,7 +540,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 			ApplicationConfigProvider configProvider = null;
 			if (devMode) {
 				configProvider = new ApplicationConfigProviderImpl(marshallService, applicationName, xmlFiles,
-						applicationInfo, devMode);
+						applicationInfo, resources, devMode);
 			} else {
 				configProvider = new ApplicationConfigProviderImpl(applicationName, devMode, ArrayUtils.clone(data));
 			}
