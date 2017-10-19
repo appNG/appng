@@ -15,16 +15,19 @@
  */
 package org.appng.core.repository.config;
 
-import java.util.Properties;
-
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+import ch.sla.jdbcperflogger.PerfLoggerConstants;
+import ch.sla.jdbcperflogger.driver.WrappingDriver;
 
 /**
  * 
@@ -34,13 +37,20 @@ import com.zaxxer.hikari.HikariDataSource;
  */
 public class HikariCPConfigurer implements DatasourceConfigurer {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(HikariCPConfigurer.class);
 	private HikariDataSource hikariDataSource;
+	private boolean logPerformance = false;
 
 	public HikariCPConfigurer() {
 
 	}
 
 	public HikariCPConfigurer(DatabaseConnection connection) {
+		configure(connection);
+	}
+
+	public HikariCPConfigurer(DatabaseConnection connection, boolean logPerformance) {
+		this.logPerformance = logPerformance;
 		configure(connection);
 	}
 
@@ -54,22 +64,34 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 		configuration.setPoolName(connection.getName());
 
 		DatabaseType type = connection.getType();
-		String dataSourceClassName = type.getDataSourceClassName();
-		String urlProperty = "url";
-		if (DatabaseType.MSSQL.equals(type)) {
-			urlProperty = "URL";
-		}
-
-		configuration.setDataSourceClassName(dataSourceClassName);
 		configuration.setRegisterMbeans(true);
-		Properties dsProperties = new Properties();
-		dsProperties.put(urlProperty, connection.getJdbcUrl());
-		dsProperties.put("user", connection.getUserName());
-		dsProperties.put("password", connection.getPasswordPlain());
-		configuration.setDataSourceProperties(dsProperties);
-
+		String jdbcUrl = connection.getJdbcUrl();
+		boolean isPerfLoggerUrl = jdbcUrl.startsWith(WrappingDriver.URL_PREFIX);
+		if (logPerformance || isPerfLoggerUrl) {
+			String location = System.getProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY);
+			if (location == null) {
+				System.setProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY,
+						"org/appng/core/jdbcperflogger.xml");
+			}
+			String realJdbcUrl = isPerfLoggerUrl ? jdbcUrl : WrappingDriver.URL_PREFIX + jdbcUrl;
+			configuration.setJdbcUrl(realJdbcUrl);
+			configuration.setUsername(connection.getUserName());
+			configuration.setPassword(connection.getPasswordPlain());
+			configuration.setDriverClassName(WrappingDriver.class.getName());
+			LOGGER.info("connection {} uses driver {}", realJdbcUrl, WrappingDriver.class.getName());
+		} else {
+			String dataSourceClassName = type.getDataSourceClassName();
+			String urlProperty = "url";
+			if (DatabaseType.MSSQL.equals(type)) {
+				urlProperty = "URL";
+			}
+			configuration.setDataSourceClassName(dataSourceClassName);
+			configuration.addDataSourceProperty(urlProperty, jdbcUrl);
+			configuration.addDataSourceProperty("user", connection.getUserName());
+			configuration.addDataSourceProperty("password", connection.getPasswordPlain());
+			LOGGER.info("connection {} uses datasource {}", jdbcUrl, dataSourceClassName);
+		}
 		this.hikariDataSource = new HikariDataSource(configuration);
-
 	}
 
 	public void destroy() {
@@ -79,6 +101,14 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	public DataSource getDataSource() {
 		return hikariDataSource;
+	}
+
+	public boolean isLogPerformance() {
+		return logPerformance;
+	}
+
+	public void setLogPerformance(boolean logPerformance) {
+		this.logPerformance = logPerformance;
 	}
 
 }

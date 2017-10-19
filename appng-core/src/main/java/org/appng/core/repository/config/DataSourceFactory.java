@@ -35,6 +35,7 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceCon
 	private DatasourceConfigurer configurer;
 
 	private String configurerClass;
+	private boolean logPerformance = false;
 
 	public DataSourceFactory() {
 
@@ -56,6 +57,7 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceCon
 		try {
 			Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(configurerClass);
 			this.configurer = (DatasourceConfigurer) loadClass.newInstance();
+			this.configurer.setLogPerformance(logPerformance);
 		} catch (Exception e) {
 			LOGGER.error("error creating instance of '" + configurerClass + "' ", e);
 		}
@@ -89,6 +91,14 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceCon
 
 	public void setConfigurerClass(String configurerClass) {
 		this.configurerClass = configurerClass;
+	}
+
+	public boolean isLogPerformance() {
+		return logPerformance;
+	}
+
+	public void setLogPerformance(boolean logPerformance) {
+		this.logPerformance = logPerformance;
 	}
 
 }

@@ -57,6 +57,7 @@
 						<property name="maxConnections" value="${database.maxConnections:10}" />
 					</bean>
 				</constructor-arg>
+				<constructor-arg value="${database.logPerformance:false}" />
 			</bean>
 		</constructor-arg>
 	</bean>
