@@ -229,6 +229,12 @@
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.zaxxer</groupId>
+					<artifactId>HikariCP-java6</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -363,7 +369,7 @@
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
 			<artifactId>thymeleaf-spring4</artifactId>
-			<version>3.0.6.RELEASE</version>
+			<version>3.0.8.RELEASE</version>
 		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->
