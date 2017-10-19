@@ -48,7 +48,7 @@ public class MulticastSender extends MessageHandler implements Sender {
 		String groupAddress = getGroupAddress();
 		Integer groupPort = getGroupPort();
 		DatagramSocket socket = null;
-		if (!"true".equals(System.getProperty(APPNG_MESSAGING_DISABLED))) {
+		if (!Boolean.getBoolean(APPNG_MESSAGING_DISABLED)) {
 			try {
 				String nodeAddress = System.getProperty(APPNG_MESSAGING_BIND_ADR);
 				InetAddress inetAddress;

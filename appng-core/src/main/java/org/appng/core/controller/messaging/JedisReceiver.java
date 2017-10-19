@@ -38,13 +38,12 @@ import redis.clients.jedis.Jedis;
  * Message receiver implementing {@link Receiver} to use a redis database with its build-in publish/subscribe function
  * as message broker. Following platform properties are needed (default value in brackets):
  * <ul>
- * <li>redisMessagingHost (localhost): Host of the redis server</li>
- * <li>redisMessagingPort (6379): Port of the redis server</li>
- * <li>redisMessagingPassword (): Password of the redis server</li>
- * <li>redisMessagingTimeout (): Timeout is optional. If not defined, Redis default is used</li>
- * <li>redisMessagingChannel (appng-messaging): Channel where all cluster nodes should publish and subscribe. Be aware
- * that this name must be the same for all nodes within a cluster and must be different among different clusters using
- * the same Redis server</li>
+ * <li>{@code redisMessagingHost} (localhost): Host of the redis server</li>
+ * <li>{@code redisMessagingPort} (6379): Port of the redis server</li>
+ * <li>{@code redisMessagingPassword} (): Password of the redis server</li>
+ * <li>{@code redisMessagingTimeout} (): Timeout is optional. If not defined, Redis default is used</li>
+ * <li>{@code redisMessagingChannel} (appng-messaging): Channel where all cluster nodes should publish and subscribe. Be
+ * aware that this name must be different among different clusters using the same Redis server</li>
  * </ul>
  * 
  * @author Claus Stuemke, aiticon GmbH, 2015

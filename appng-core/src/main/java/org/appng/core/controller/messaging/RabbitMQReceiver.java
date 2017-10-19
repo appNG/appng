@@ -46,11 +46,10 @@ import net.jodah.lyra.ConnectionOptions;
  * Message receiver implementing {@link Receiver} to use a RabbitMQ message broker. Following platform properties are
  * needed (default value in brackets):
  * <ul>
- * <li>rabbitMQHost (localhost): Host of the RabbitMQ server</li>
- * <li>rabbitMQPort (5672): Port of the RabbitMQ server</li>
- * <li>rabbitMQUser (guest): Username</li>
- * <li>rabbitMQPassword (guest): Password</li>
- * <li>rabbitMQExchange (appng-messaging): Name of the exchange where the receiver binds its messaging queue on. Be
+ * <li>{@code rabbitMQAdresses} (localhost:5672): A comma separated list of &lt;host&gt;:&lt;port&gt; for RabbitMQ server(s)</li>
+ * <li>{@code rabbitMQUser} (guest): Username</li>
+ * <li>{@code rabbitMQPassword} (guest): Password</li>
+ * <li>{@code rabbitMQExchange} (appng-messaging): Name of the exchange where the receiver binds its messaging queue on. Be
  * aware that this name must be different among different clusters using the same RabbitMQ server</li>
  * </ul>
  * 

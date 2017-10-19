@@ -31,18 +31,11 @@ import com.rabbitmq.client.Connection;
 import net.jodah.lyra.ConnectionOptions;
 
 /**
- * Message sender implementing {@link Sender} to use a RabbitMQ message broker. Following platform properties are needed
- * (default value in brackets):
- * <ul>
- * <li>rabbitMQHost (localhost): Host of the RabbitMQ server</li>
- * <li>rabbitMQPort (5672): Port of the RabbitMQ server</li>
- * <li>rabbitMQUser (guest): Username</li>
- * <li>rabbitMQPassword (guest): Password</li>
- * <li>rabbitMQExchange (appng-messaging): Name of the exchange where the messages are send to. Be aware that this name
- * must be the same for all nodes within a cluster and must be different among different clusters using the same
- * RabbitMQ server</li> </u>
+ * Message sender implementing {@link Sender} to use a RabbitMQ message broker. See {@link RabbitMQReceiver} for
+ * configuration details.
  * 
  * @author Claus Stümke, aiticon GmbH, 2015
+ * @see RabbitMQReceiver
  *
  */
 public class RabbitMQSender extends RabbitMQBase implements Sender {
@@ -59,7 +52,7 @@ public class RabbitMQSender extends RabbitMQBase implements Sender {
 
 	@Override
 	public boolean send(Event event) {
-		if (!"true".equals(System.getProperty(APPNG_MESSAGING_DISABLED))) {
+		if (!Boolean.getBoolean(APPNG_MESSAGING_DISABLED)) {
 			Connection connection = null;
 			Channel channel = null;
 			try {
@@ -67,7 +60,7 @@ public class RabbitMQSender extends RabbitMQBase implements Sender {
 				channel = connection.createChannel();
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				eventSerializer.serialize(out, event);
-				LOGGER.info("sending {} to rabbitMQ host {} exchange {}", event, this.host, this.exchange);
+				LOGGER.info("sending {} to rabbitMQ host(s) {} exchange {}", event, this.addresses, this.exchange);
 				channel.exchangeDeclare(this.exchange, EXCHANGE_TYPE_FANOUT);
 				channel.basicPublish(this.exchange, "", null, out.toByteArray());
 				channel.close();

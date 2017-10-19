@@ -19,7 +19,7 @@ import org.appng.api.Platform;
 import org.mockito.Mockito;
 
 /**
- * Integration test for Jedis messaging.
+ * Integration test for Multicast messaging.
  * <p>
  * Before running this test, execute the following commands:
  * 

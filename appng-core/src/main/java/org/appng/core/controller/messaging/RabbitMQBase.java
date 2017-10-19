@@ -18,7 +18,6 @@ package org.appng.core.controller.messaging;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
 
@@ -44,16 +43,12 @@ public class RabbitMQBase {
 	protected static final String RABBIT_MQ_PASSWORD = "rabbitMQPassword";
 	protected static final String RABBIT_MQ_USER = "rabbitMQUser";
 	protected static final String RABBIT_MQ_ADRESSES = "rabbitMQAdresses";
-	protected static final String RABBIT_MQ_HOST = "rabbitMQHost";
-	protected static final String RABBIT_MQ_PORT = "rabbitMQPort";
 
 	private static final int INTERVAL_RECOVER_MILLIS = 200;
 
 	protected static final String EXCHANGE_TYPE_FANOUT = "fanout";
 
 	protected Serializer eventSerializer;
-	protected int port;
-	protected String host;
 	protected String user;
 	protected String password;
 	protected String exchange;
@@ -63,9 +58,7 @@ public class RabbitMQBase {
 
 	public void initialize() {
 		Properties platformConfig = eventSerializer.getPlatformConfig();
-		port = platformConfig.getInteger(RABBIT_MQ_PORT, 5672);
-		host = platformConfig.getString(RABBIT_MQ_HOST, "localhost");
-		addresses = platformConfig.getString(RABBIT_MQ_ADRESSES);
+		addresses = platformConfig.getString(RABBIT_MQ_ADRESSES,"localhost:5672");
 		user = platformConfig.getString(RABBIT_MQ_USER, "guest");
 		password = platformConfig.getString(RABBIT_MQ_PASSWORD, "guest");
 		exchange = platformConfig.getString(RABBIT_MQ_EXCHANGE, "appng-messaging");
@@ -83,22 +76,14 @@ public class RabbitMQBase {
 
 	protected void initConnectionFactory() {
 		factory = new ConnectionFactory();
-		if (StringUtils.isBlank(addresses)) {
-			factory.setHost(this.host);
-			factory.setPort(this.port);
-		}
 		factory.setUsername(this.user);
 		factory.setPassword(this.password);
 	}
 
 	protected Connection getConnection(ConnectionOptions options) throws IOException, TimeoutException {
-		if (StringUtils.isBlank(addresses)) {
-			return Connections.create(factory, getConnectionConfig());
-		} else {
-			options.withUsername(user);
-			options.withPassword(password);
-			return Connections.create(options.withAddresses(addresses), getConnectionConfig());
-		}
+		options.withUsername(user);
+		options.withPassword(password);
+		return Connections.create(options.withAddresses(addresses), getConnectionConfig());
 	}
 
 }

@@ -15,9 +15,7 @@
  */
 package org.appng.core.controller.messaging;
 
-import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Integration test for Rabbit MQ messaging.
@@ -32,22 +30,11 @@ public class RabbitMQMessagingIT extends AbstractMessagingIT {
 	}
 
 	protected void configureMessaging() {
-		mockDefaultString(RabbitMQSender.RABBIT_MQ_HOST, "localhost");
-		mockDefaultInteger(RabbitMQSender.RABBIT_MQ_PORT, 5672);
 		mockDefaultString(RabbitMQSender.RABBIT_MQ_USER, "guest");
 		mockDefaultString(RabbitMQSender.RABBIT_MQ_PASSWORD, "guest");
 		mockDefaultString(RabbitMQSender.RABBIT_MQ_EXCHANGE, "appng-messaging");
-		Mockito.when(props.getString(RabbitMQSender.RABBIT_MQ_ADRESSES)).thenReturn(null);
-	}
-	
-	@Test
-	public void testWithAddresses() throws Exception{
-		MockitoAnnotations.initMocks(this);
-		mockDefaultString(RabbitMQSender.RABBIT_MQ_USER, "guest");
-		mockDefaultString(RabbitMQSender.RABBIT_MQ_PASSWORD, "guest");
-		mockDefaultString(RabbitMQSender.RABBIT_MQ_EXCHANGE, "appng-messaging");
-		Mockito.when(props.getString(RabbitMQSender.RABBIT_MQ_ADRESSES)).thenReturn("localhost:5672");
-		test(false);
+		Mockito.when(props.getString(Mockito.eq(RabbitMQSender.RABBIT_MQ_ADRESSES), Mockito.anyString()))
+				.thenReturn("localhost:5672");
 	}
 
 }
