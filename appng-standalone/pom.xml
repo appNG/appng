@@ -17,8 +17,8 @@
 
     <properties>
 		<repository.name>appng.org Stable</repository.name>
-        <repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
-		<repository.remoteName>appNG Stable</repository.remoteName>
+        <repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService</repository.path>
+		<repository.remoteName>appNG-Stable</repository.remoteName>
     </properties>
 
     <build>

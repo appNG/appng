@@ -16,8 +16,8 @@
 
 	<properties>
 		<repository.name>appng.org Stable</repository.name>
-		<repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService</repository.path>
-		<repository.remoteName>appNG Stable</repository.remoteName>
+		<repository.path>https://appng.org/service/manager/appng-manager/soap/repositoryService</repository.path>
+		<repository.remoteName>appNG-Stable</repository.remoteName>
 		<admin.name>admin</admin.name>
 		<admin.realName>appNG Administrator</admin.realName>
 		<admin.email>admin@example.com</admin.email>
@@ -110,6 +110,13 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>local</id>
+			<properties>
+				<maven.war.skip>false</maven.war.skip>
+			</properties>
+		</profile>
+
 		<profile>
 			<id>versioneye</id>
 			<build>
