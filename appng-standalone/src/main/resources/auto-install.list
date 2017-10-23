@@ -1,7 +1,7 @@
 # Some variable declarations
 def DEPLOY=-f
 def MANAGER_VERSION=${manager.version}
-def AUTH_VERSION=${auth.version}
+def AUTH_VERSION=${authentication.version}
 def SCHEDULER_VERSION=${scheduler.version}
 def TEMPLATE_VERSION=${template.version}
 
