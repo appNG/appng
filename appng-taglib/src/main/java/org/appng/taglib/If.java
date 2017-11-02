@@ -52,10 +52,10 @@ public class If extends TagSupport {
 		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(parameters);
 		boolean matches = expressionEvaluator.evaluate("${" + condition + "}");
 		if (matches) {
-			log.debug(condition + " = " + matches + ", evaluating body");
+			log.debug("{} = {}, evaluating body", condition, matches);
 			return EVAL_BODY_INCLUDE;
 		}
-		log.debug(condition + " = " + matches + ", skipping body");
+		log.debug("{} = {}, skipping body", condition, matches);
 		return SKIP_BODY;
 	}
 
