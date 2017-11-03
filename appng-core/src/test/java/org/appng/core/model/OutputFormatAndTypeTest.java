@@ -18,6 +18,7 @@ package org.appng.core.model;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.JAXBException;
 
@@ -63,7 +64,7 @@ public class OutputFormatAndTypeTest {
 		marshallService = MarshallService.getMarshallService();
 		processor = new PlatformProcessor();
 		MockServletContext servletContext = new MockServletContext();
-		Map<String, Object> platformScope = new HashMap<>();
+		Map<String, Object> platformScope = new ConcurrentHashMap<>();
 		platformScope.put(org.appng.api.Platform.Environment.PLATFORM_CONFIG, properties);
 		platformScope.put(org.appng.api.Platform.Environment.SITES, new HashMap<String, Site>());
 		Mockito.when(properties.getString(org.appng.api.Platform.Property.VHOST_MODE))
