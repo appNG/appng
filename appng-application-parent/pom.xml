@@ -53,10 +53,6 @@
 	<properties>
 		<outFolder>target</outFolder>
 		<appNGVersion>${project.version}</appNGVersion>
-		<springVersion>4.3.9.RELEASE</springVersion>
-		<springWSVersion>2.4.0.RELEASE</springWSVersion>
-		<springDataVersion>1.13.4.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.4.RELEASE</springDataJpaVersion>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -187,139 +183,23 @@
 		</profile>
 	</profiles>
 
-	<dependencyManagement>
-		<dependencies>
-			<!-- appNG -->
-			<dependency>
-				<groupId>org.appng</groupId>
-				<artifactId>appng-api</artifactId>
-				<version>${appNGVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.appng</groupId>
-				<artifactId>appng-core</artifactId>
-				<version>${appNGVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.appng</groupId>
-				<artifactId>appng-persistence</artifactId>
-				<version>${appNGVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.appng</groupId>
-				<artifactId>appng-search</artifactId>
-				<version>${appNGVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.appng</groupId>
-				<artifactId>appng-testsupport</artifactId>
-				<version>${appNGVersion}</version>
-				<scope>test</scope>
-			</dependency>
-			<!-- END appNG -->
-			<!-- org.springframework -->
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-aop</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-beans</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context-support</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-jdbc</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-oxm</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-tx</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-web</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-webmvc</artifactId>
-				<version>${springVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.ws</groupId>
-				<artifactId>spring-ws-core</artifactId>
-				<version>${springWSVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.data</groupId>
-				<artifactId>spring-data-jpa</artifactId>
-				<version>${springDataJpaVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.data</groupId>
-				<artifactId>spring-data-commons</artifactId>
-				<version>${springDataVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<!-- END org.springframework -->
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.43</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-api</artifactId>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.appng</groupId>
+				<artifactId>appng-application-bom</artifactId>
+				<version>${appNGVersion}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 </project>
