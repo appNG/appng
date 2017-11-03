@@ -48,6 +48,8 @@ public class EnvironmentKeys {
 	public static final String DEFAULT_PATH = "defaultPath";
 	/** FIXME wrong place for this! */
 	public static final String JAR_INFO_MAP = "jarInfoMap";
+	/** Whether or not the output format (and optionally the type) has been explicitly set in the URL */
+	public static final String EXPLICIT_FORMAT = "explicitFormat";
 	/** The {@link PathInfo} for the current {@link Request} (scope: {@link Scope#REQUEST}) */
 	public static final String PATH_INFO = "pathInfo";
 	/** */

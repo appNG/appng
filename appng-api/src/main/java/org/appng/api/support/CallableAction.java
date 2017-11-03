@@ -288,9 +288,15 @@ public class CallableAction {
 			if (doExecute()) {
 				fp = execute();
 				if (doForward() || forceForward()) {
-					site.sendRedirect(applicationRequest.getEnvironment(), getOnSuccess());
-					getAction().setOnSuccess(getOnSuccess());
-					applicationRequest.setRedirectTarget(getOnSuccess());
+					String outputPrefix = elementHelper.getOutputPrefix(applicationRequest.getEnvironment());
+					StringBuilder target = new StringBuilder();
+					if (null != outputPrefix) {
+						target.append(outputPrefix);
+					}
+					target.append(getOnSuccess());
+					site.sendRedirect(applicationRequest.getEnvironment(), target.toString());
+					getAction().setOnSuccess(target.toString());
+					applicationRequest.setRedirectTarget(target.toString());
 				} else {
 					Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
 					getAction().setMessages(messages);

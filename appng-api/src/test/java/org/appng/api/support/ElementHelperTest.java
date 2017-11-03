@@ -39,6 +39,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ApplicationConfig;
 import org.appng.xml.platform.ApplicationRootConfig;
@@ -526,6 +527,20 @@ public class ElementHelperTest {
 		Assert.assertEquals("b", result.get("postParam2"));
 		Assert.assertEquals("x|y|z", result.get("postParam3"));
 
+	}
+
+	@Test
+	public void testGetOutputPrefix() {
+		Environment env = Mockito.mock(Environment.class);
+		Mockito.when(env.removeAttribute(Scope.REQUEST, EnvironmentKeys.EXPLICIT_FORMAT)).thenReturn(true);
+		Path pathMock = Mockito.mock(Path.class);
+		Mockito.when(pathMock.getGuiPath()).thenReturn("/manager");
+		Mockito.when(pathMock.getOutputFormat()).thenReturn("html");
+		Mockito.when(pathMock.getOutputType()).thenReturn("nonav");
+		Mockito.when(pathMock.getSiteName()).thenReturn("site");
+		Mockito.when(env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathMock);
+		String outputPrefix = elementHelper.getOutputPrefix(env);
+		Assert.assertEquals("/manager/_html/_nonav/site/", outputPrefix);
 	}
 
 	private void addParam(Params params, String name, String defaultVal, String value) {

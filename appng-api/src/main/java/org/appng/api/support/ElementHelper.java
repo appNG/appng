@@ -519,4 +519,19 @@ public class ElementHelper {
 		return groups.toArray(new Class<?>[groups.size()]);
 	}
 
+	public String getOutputPrefix(Environment env) {
+		if (Boolean.TRUE.equals(env.removeAttribute(REQUEST, EnvironmentKeys.EXPLICIT_FORMAT))) {
+			Path pathInfo = env.getAttribute(REQUEST, EnvironmentKeys.PATH_INFO);
+			StringBuilder prefix = new StringBuilder().append(pathInfo.getGuiPath());
+			prefix.append("/_").append(pathInfo.getOutputFormat());
+			String outputType = pathInfo.getOutputType();
+			if (null != outputType) {
+				prefix.append("/_").append(outputType);
+			}
+			prefix.append("/").append(pathInfo.getSiteName());
+			return prefix.append("/").toString();
+		}
+		return null;
+	}
+
 }

@@ -334,6 +334,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			}
 			if (outputFormat.getId().equals(formatFromPath)) {
 				this.outputFormat = outputFormat;
+				env.setAttribute(REQUEST, EnvironmentKeys.EXPLICIT_FORMAT, true);
 				for (OutputType outputType : outputFormat.getOutputType()) {
 					if (outputType.getId().equals(typeFromPath)) {
 						this.outputType = outputType;
