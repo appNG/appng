@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.Environment;
 import org.appng.api.Options;
@@ -232,6 +233,7 @@ public class ElementHelperTest {
 				});
 		Mockito.when(path.getGuiPath()).thenReturn("/ws");
 		Mockito.when(path.getServicePath()).thenReturn("/services");
+		Mockito.when(path.getOutputPrefix()).thenReturn(StringUtils.EMPTY);
 		XmlValidator.validate(config, "-before");
 		elementHelper.initLinkpanel(applicationRequest, path, config, parameterSupport);
 		XmlValidator.validate(config);
@@ -535,8 +537,7 @@ public class ElementHelperTest {
 		Mockito.when(env.removeAttribute(Scope.REQUEST, EnvironmentKeys.EXPLICIT_FORMAT)).thenReturn(true);
 		Path pathMock = Mockito.mock(Path.class);
 		Mockito.when(pathMock.getGuiPath()).thenReturn("/manager");
-		Mockito.when(pathMock.getOutputFormat()).thenReturn("html");
-		Mockito.when(pathMock.getOutputType()).thenReturn("nonav");
+		Mockito.when(pathMock.getOutputPrefix()).thenReturn("/_html/_nonav");
 		Mockito.when(pathMock.getSiteName()).thenReturn("site");
 		Mockito.when(env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathMock);
 		String outputPrefix = elementHelper.getOutputPrefix(env);
