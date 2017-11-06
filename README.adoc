@@ -53,7 +53,7 @@ appNG is very well suited to create and operate your own application platform as
 The dollar sign ($) at the beginning of a line denotes the command prompt. Depending on your operating system and shell you might see other signs like %, # or >. This sign is not part of the command to be executed.
 ====
 
-=== Download and run the appNG standalone Version
+=== Download and run the appNG standalone version
 appNG is available as a standalone version, suitable for evaluation and testing purposes.
 
 The standalone version also comes with *appNGizer*, the REST-based administration tool for appNG.
@@ -84,6 +84,14 @@ Sign-in with the username `admin` and the password `s3cr3t`.
 When executing the jar for the next time, you *must* omit the parameters `-u` and `-i`, as they are only
 allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the appNG applications and the template).
 ====
+
+=== Download and run the appNG application version
+If you run appNG in production you should use the application version.
+Download the latest stable release from 
+https://appng.org/appng/builds/stable/appng-application-{stable}.war
+Extract the content to the ROOT directory of your tomcat8 by using unzip. For 
+futher documentation of installing AppNG go to
+https://github.com/appNG/appng/tree/master/appng-application/src/main/webapp
 
 === Create your first appNG application
 Using the *appNG Maven Archetype*, you can easily create your first own application.
