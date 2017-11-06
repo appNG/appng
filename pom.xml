@@ -56,16 +56,16 @@
 		<springSecurityVersion>4.2.3.RELEASE</springSecurityVersion>
 		<springDataVersion>1.13.8.RELEASE</springDataVersion>
 		<springDataJpaVersion>1.11.8.RELEASE</springDataJpaVersion>
-		<springDataEnversVersion>1.1.6.RELEASE</springDataEnversVersion>
+		<springDataEnversVersion>1.1.8.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.1.4</queryDslVersion>
-		<luceneVersion>6.6.0</luceneVersion>
-		<tikaVersion>1.15</tikaVersion>
-		<hibernateVersion>5.2.11.Final</hibernateVersion>
+		<luceneVersion>6.6.2</luceneVersion>
+		<tikaVersion>1.16</tikaVersion>
+		<hibernateVersion>5.2.12.Final</hibernateVersion>
 		<slf4jVersion>1.7.25</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
-		<jacksonVersion>2.9.1</jacksonVersion>
+		<jacksonVersion>2.9.2</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>8.5.20</tomcat.version>
+		<tomcat.version>8.5.23</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 		<esapi.version>2.1.0.1</esapi.version>
 		<docDir>./target/generated-docs</docDir>
@@ -760,7 +760,7 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.10.2</version>
+				<version>1.11.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -782,7 +782,7 @@
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.5</version>
+				<version>2.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -792,12 +792,12 @@
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.10</version>
+				<version>1.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.14</version>
+				<version>1.15</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-collections</groupId>
@@ -844,7 +844,7 @@
 			<dependency>
     			<groupId>org.hibernate.validator</groupId>
    				<artifactId>hibernate-validator</artifactId>
-    			<version>6.0.2.Final</version>
+    			<version>6.0.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
@@ -882,7 +882,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>23.0</version>
+				<version>23.3-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
@@ -972,7 +972,7 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.6</version>
+				<version>4.4.8</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>

@@ -16,7 +16,6 @@
 	</parent>
 
 	<properties>
-		<tomcat.version>8.0.39</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 	</properties>
 	
