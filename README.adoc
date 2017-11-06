@@ -61,7 +61,7 @@ The standalone version also comes with *appNGizer*, the REST-based administratio
 The standalone version can be found here:
 https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
 
-Check that Java 1.8 is available in your class path:
+Check that Java 1.8 is available in your system's path:
 ----
 $ java -version
 openjdk version "1.8.0_131"
@@ -85,13 +85,13 @@ When executing the jar for the next time, you *must* omit the parameters `-u` an
 allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the appNG applications and the template).
 ====
 
-=== Download and run the appNG application version
-If you run appNG in production you should use the application version.
+=== Download and run the appNG web-application version
+If you run appNG in production you should use the web-application version, which is a standard web application archive (WAR-file).
+
 Download the latest stable release from 
 https://appng.org/appng/builds/stable/appng-application-{stable}.war
-Extract the content to the ROOT directory of your tomcat8 by using unzip. For 
-futher documentation of installing AppNG go to
-https://github.com/appNG/appng/tree/master/appng-application/src/main/webapp
+
+For further documentation on installing appNG go to the  link:appng-application/README.adoc[README] of the appNG web-application.
 
 === Create your first appNG application
 Using the *appNG Maven Archetype*, you can easily create your first own application.
