@@ -35,6 +35,8 @@ import org.appng.core.controller.messaging.MulticastReceiver;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.security.DefaultPasswordPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A service offering methods for initializing and retrieving the configuration {@link Properties} of the platform, a
@@ -47,9 +49,10 @@ import org.appng.core.security.DefaultPasswordPolicy;
  */
 public class PropertySupport {
 
+	private static final Logger LOG = LoggerFactory.getLogger(PropertySupport.class);
 	private static final String PREFIX_EMPTY = "";
 	public static final String PREFIX_PLATFORM = "platform.";
-	private static final String PREFIX_SITE = "site.";
+	static final String PREFIX_SITE = "site.";
 	private static final String PREFIX_APPLICATION = "application.";
 	private static final String DOT = ".";
 
@@ -160,7 +163,10 @@ public class PropertySupport {
 
 	private void addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue,
 			boolean multilined) {
-		defaultValue = defaultOverrides.getOrDefault(PREFIX_PLATFORM + name, defaultValue);
+		if (defaultOverrides.containsKey(PREFIX_PLATFORM + name)) {
+			defaultValue = defaultOverrides.get(PREFIX_PLATFORM + name);
+			defaultOverrides.remove(PREFIX_PLATFORM + name);
+		}
 		addProperty(name, defaultValue, PREFIX_PLATFORM, multilined);
 	}
 
@@ -175,7 +181,11 @@ public class PropertySupport {
 	private String addProperty(String name, Object defaultValue, String prefix, boolean multilined) {
 		String description = bundle.getString(prefix + name);
 		Property added = propertyHolder.addProperty(name, defaultValue, description, multilined);
-		return multilined ? added.getClob() : added.getDefaultString();
+		String value = multilined ? added.getClob() : added.getDefaultString();
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("added property {}{} = {}", prefix, name, value);
+		}
+		return value;
 	}
 
 	/**
@@ -282,13 +292,17 @@ public class PropertySupport {
 	 *            the root path of the platform (see {@link org.appng.api.Platform.Property#PLATFORM_ROOT_PATH})
 	 * @param devMode
 	 *            value for the {@link org.appng.api.Platform.Property#DEV_MODE} property to set
+	 * @param immutableOverrides
+	 *            some {@link java.util.Properties} used to override the default values
 	 * @param finalize
 	 *            whether or not to call {@link PropertyHolder#setFinal()}
 	 * @see #PropertySupport(PropertyHolder)
 	 * @see org.appng.api.Platform.Property
 	 */
-	public void initPlatformConfig(String rootPath, Boolean devMode, java.util.Properties defaultOverrides,
+	public void initPlatformConfig(String rootPath, Boolean devMode, java.util.Properties immutableOverrides,
 			boolean finalize) {
+		java.util.Properties defaultOverrides = new java.util.Properties();
+		defaultOverrides.putAll(immutableOverrides);
 		bundle = ResourceBundle.getBundle("org/appng/core/platform-config");
 		if (null != rootPath) {
 			addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_ROOT_PATH, rootPath);
@@ -349,6 +363,21 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.WRITE_DEBUG_FILES, Boolean.FALSE);
 		addPlatformProperty(defaultOverrides, Platform.Property.XSS_PROTECT, Boolean.FALSE);
 		addPlatformProperty(defaultOverrides, Platform.Property.XSS_ALLOWED_TAGS, "a href class style|div align style");
+
+		if (!defaultOverrides.isEmpty()) {
+			for (Object additionalProp : defaultOverrides.keySet()) {
+				String prefixedName = (String) additionalProp;
+				if (prefixedName.startsWith(PREFIX_PLATFORM)) {
+					String value = defaultOverrides.getProperty(prefixedName);
+					String name = prefixedName.substring(PREFIX_PLATFORM.length());
+					propertyHolder.addProperty(name, value, null, value.indexOf(StringUtils.LF) > 0);
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
+					}
+				}
+			}
+		}
+
 		if (finalize) {
 			propertyHolder.setFinal();
 		}
