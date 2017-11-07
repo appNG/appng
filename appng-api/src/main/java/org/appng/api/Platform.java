@@ -247,6 +247,11 @@ public final class Platform {
 		public static final String XSS_ALLOWED_TAGS = "xssAllowedTags";
 
 		/**
+		 * When set to {@code true}, appNG waits until a {@link Site} has finished processing its requests before shutting it down.
+		 */
+		public static final String WAIT_ON_SITE_SHUTDOWN = "waitOnSiteShutdown";
+
+		/**
 		 * The time to wait for a {@link Site} to become available/to finish its requests (single run).
 		 */
 		public static final String WAIT_TIME = "waitTime";

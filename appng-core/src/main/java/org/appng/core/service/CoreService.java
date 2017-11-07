@@ -1638,18 +1638,20 @@ public class CoreService {
 				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 				shutdownSite.setState(SiteState.STOPPING);
 
-				log.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
-						shutdownSite.getRequests());
-				Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
-				int requestLimit = null == path ? 0 : path.getSiteName().equals(siteName) ? 1 : 0;
-				while (waited < maxWaitTime && (requests = shutdownSite.getRequests()) > requestLimit) {
-					try {
-						Thread.sleep(waitTime);
-						waited += waitTime;
-					} catch (InterruptedException e) {
-						log.error("error while waiting for site to finish its requests", e);
+				if (platformProperties.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
+					log.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
+							shutdownSite.getRequests());
+					Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+					int requestLimit = null == path ? 0 : path.getSiteName().equals(siteName) ? 1 : 0;
+					while (waited < maxWaitTime && (requests = shutdownSite.getRequests()) > requestLimit) {
+						try {
+							Thread.sleep(waitTime);
+							waited += waitTime;
+						} catch (InterruptedException e) {
+							log.error("error while waiting for site to finish its requests", e);
+						}
+						log.info("waiting for {} requests to finish before shutting down site {}", requests, siteName);
 					}
-					log.info("waiting for {} requests to finish before shutting down site {}", requests, siteName);
 				}
 
 				log.info("destroying site {}", shutdownSite);
