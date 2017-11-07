@@ -48,7 +48,7 @@ install-application -n ${AUTH_APP} -v ${AUTH_VERSION} -r ${REPO_NAME} -p -h ${IN
 install-application -n ${SCHEDULER_APP} -v ${SCHEDULER_VERSION} -r ${REPO_NAME} -p ${INSTALL_OPTS}
 list-applications -v
 
-# activate core applications
+# activate privileged applications
 activate-application -s ${MANAGER_SITE} -a ${MANAGER_APP}
 activate-application -s ${MANAGER_SITE} -a ${AUTH_APP}
 activate-application -s ${MANAGER_SITE} -a ${SCHEDULER_APP}
