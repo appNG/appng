@@ -112,7 +112,7 @@ public void updateEmployee(Employee formBean, Request request, FieldProcessor fp
 How does this work? Well, the `FieldProcessor` contains the {appng}/org/appng/xml/platform/MetaData.html[org.appng.xml.platform.MetaData^] with all the {appng}/org/appng/xml/platform/FieldDef.html[org.appng.xml.platform.FieldDef^]initions defined in the <<ds-employee, datasource employee>>. Because of this, the `request` can easily write those fields to the target object, including possible necessarry type conversions. 
 
 === Validation
-Validation is a first class citizen in the appNG application framework. Therefore, the http://beanvalidation.org[Bean Validation API^] as specified in *JSR-303/JSR-349* is used. Just add some validation annotations to the POJO bindclass that you datasource uses. As long as the `formBean` of an `ActionProvider` is not valid, the action will not perform and the error messages will be shown.
+Validation is a first class citizen in the appNG application framework. Therefore, the http://beanvalidation.org[Bean Validation API 2.0^] as specified in *JSR-349* is used. Just add some validation annotations to the POJO bindclass that you datasource uses. As long as the `formBean` of an `ActionProvider` is not valid, the action will not perform and the error messages will be shown.
 
 *Example:*
 [source,java]
