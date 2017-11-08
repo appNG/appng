@@ -33,7 +33,6 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.InitializerService;
-import org.hsqldb.lib.HsqlDeque;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
