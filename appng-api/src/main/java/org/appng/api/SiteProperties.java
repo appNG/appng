@@ -132,6 +132,8 @@ public class SiteProperties {
 	public static final String INDEX_CONFIG = "indexConfig";
 	/** The folder containing the Lucene-Index, relative to {@link #WWW_DIR} */
 	public static final String INDEX_DIR = "indexDir";
+	/** Set to {@code true} to enable JDBC Performance Logger */
+	public static final String LOG_JDBC_PERFORMANCE="logJdbcPerformance";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
 	/** the queue size used per directory when indexing the file system **/

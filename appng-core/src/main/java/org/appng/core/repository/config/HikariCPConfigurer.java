@@ -31,7 +31,9 @@ import ch.sla.jdbcperflogger.driver.WrappingDriver;
 
 /**
  * 
- * A {@link DatasourceConfigurer} using <a href="http://brettwooldridge.github.io/HikariCP/">HikariCP</a>.
+ * A {@link DatasourceConfigurer} using <a href="http://brettwooldridge.github.io/HikariCP/">HikariCP</a>. Also supports
+ * <a href="https://github.com/sylvainlaurent/JDBC-Performance-Logger">JDBC-Performance-Logger</a> for measuring
+ * performance of SQL statements.
  * 
  * @author Matthias Müller
  */
@@ -40,6 +42,12 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HikariCPConfigurer.class);
 	private HikariDataSource hikariDataSource;
 	private boolean logPerformance = false;
+
+	static {
+		if (null == System.getProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY)) {
+			System.setProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY, "org/appng/core/jdbcperflogger.xml");
+		}
+	}
 
 	public HikariCPConfigurer() {
 
@@ -68,11 +76,6 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 		String jdbcUrl = connection.getJdbcUrl();
 		boolean isPerfLoggerUrl = jdbcUrl.startsWith(WrappingDriver.URL_PREFIX);
 		if (logPerformance || isPerfLoggerUrl) {
-			String location = System.getProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY);
-			if (location == null) {
-				System.setProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY,
-						"org/appng/core/jdbcperflogger.xml");
-			}
 			String realJdbcUrl = isPerfLoggerUrl ? jdbcUrl : WrappingDriver.URL_PREFIX + jdbcUrl;
 			configuration.setJdbcUrl(realJdbcUrl);
 			configuration.setUsername(connection.getUserName());
