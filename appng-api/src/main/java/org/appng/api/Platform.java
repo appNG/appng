@@ -252,12 +252,12 @@ public final class Platform {
 		public static final String WAIT_ON_SITE_SHUTDOWN = "waitOnSiteShutdown";
 
 		/**
-		 * The time to wait for a {@link Site} to become available/to finish its requests (single run).
+		 * The time to wait (in a single waiting loop) for a {@link Site} to become available/to finish its requests (milliseconds).
 		 */
 		public static final String WAIT_TIME = "waitTime";
 
 		/**
-		 * The overall maximum time to wait for a {@link Site} to become available/to finish its requests.
+		 * The overall maximum time to wait for a {@link Site} to become available/to finish its requests (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
 	}
