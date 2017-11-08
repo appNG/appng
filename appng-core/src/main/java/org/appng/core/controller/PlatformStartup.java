@@ -17,6 +17,10 @@ package org.appng.core.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -148,6 +152,16 @@ public class PlatformStartup implements ServletContextListener {
 
 		org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
 
+		HsqlStarter.shutdown((Server) ctx.getAttribute(HsqlStarter.CONTEXT));
+
+		Enumeration<Driver> drivers = DriverManager.getDrivers();
+		while (drivers.hasMoreElements()) {
+			try {
+				DriverManager.deregisterDriver(drivers.nextElement());
+			} catch (SQLException e) {
+				log.error("error while deregistering  driver", e);
+			}
+		}
 		try {
 			Class<?> abandonedConnectionCleanupThread = getClass().getClassLoader()
 					.loadClass("com.mysql.jdbc.AbandonedConnectionCleanupThread");
