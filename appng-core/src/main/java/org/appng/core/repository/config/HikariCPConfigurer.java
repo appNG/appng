@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import ch.sla.jdbcperflogger.PerfLoggerConstants;
 import ch.sla.jdbcperflogger.driver.WrappingDriver;
 
 /**
@@ -42,12 +41,6 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HikariCPConfigurer.class);
 	private HikariDataSource hikariDataSource;
 	private boolean logPerformance = false;
-
-	static {
-		if (null == System.getProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY)) {
-			System.setProperty(PerfLoggerConstants.CONFIG_FILE_LOCATION_PROP_KEY, "org/appng/core/jdbcperflogger.xml");
-		}
-	}
 
 	public HikariCPConfigurer() {
 
