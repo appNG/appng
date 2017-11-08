@@ -17,6 +17,8 @@ package org.appng.core.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,6 +33,7 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.InitializerService;
+import org.hsqldb.lib.HsqlDeque;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -50,7 +53,7 @@ public class PlatformStartupTest extends PlatformStartup {
 	private InitializerService initializerService;
 
 	@Test
-	public void testPlatformStartup() throws InvalidConfigurationException {
+	public void testPlatformStartup() throws InvalidConfigurationException, SQLException {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(servContext.getRealPath("WEB-INF/lib")).thenReturn("");
 		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<String, Object>();
@@ -66,6 +69,7 @@ public class PlatformStartupTest extends PlatformStartup {
 		Mockito.verify(initializerService).shutdownPlatform(servContext);
 		Mockito.verify(platformCtx).close();
 		Assert.assertTrue(platformEnv.isEmpty());
+		DriverManager.registerDriver(new org.hsqldb.jdbc.JDBCDriver());
 	}
 
 	@Override
