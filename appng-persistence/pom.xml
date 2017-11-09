@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.14.4</version>
+		<version>1.15.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
-		<perfLoggerVersion>0.7.3</perfLoggerVersion>
+		<perfLoggerVersion>0.8.2</perfLoggerVersion>
 	</properties>
 
 	<profiles>

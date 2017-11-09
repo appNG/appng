@@ -15,6 +15,8 @@
  */
 package org.appng.appngizer.controller;
 
+import org.appng.appngizer.model.xml.Grant;
+import org.appng.appngizer.model.xml.Grants;
 import org.appng.appngizer.model.xml.Property;
 import org.appng.appngizer.model.xml.Site;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -48,6 +50,15 @@ public class SiteApplicationControllerTest extends ControllerTest {
 
 		postAndVerify("/site", "xml/site-create.xml", created, HttpStatus.CREATED);
 
+		Site anotherSite = new Site();
+		anotherSite.setName("anotherSite");
+		anotherSite.setHost("anotherHost");
+		anotherSite.setDomain("http://localhost:8082");
+		anotherSite.setDescription("none");
+		anotherSite.setActive(false);
+		anotherSite.setCreateRepositoryPath(true);
+		postAndVerify("/site", "xml/site-create2.xml", anotherSite, HttpStatus.CREATED);
+
 		MockHttpServletResponse response = postAndVerify("/site/localhost/application/demo-application", null, null,
 				HttpStatus.SEE_OTHER);
 		assertLocation("http://localhost/site/localhost/application/demo-application", response);
@@ -56,6 +67,17 @@ public class SiteApplicationControllerTest extends ControllerTest {
 
 		getAndVerify("/site/localhost/application", "xml/site-application-list.xml", HttpStatus.OK);
 		getAndVerify("/site/localhost/application/demo-application", "xml/site-application-show.xml", HttpStatus.OK);
+
+		Grants grants = new Grants();
+		Grant grant = new Grant();
+		grant.setValue(false);
+		grant.setSite("localhost");
+		Grant anotherGrant = new Grant();
+		anotherGrant.setValue(true);
+		anotherGrant.setSite("anotherSite");
+		grants.getGrant().add(anotherGrant);
+
+		putAndVerify("/site/localhost/application/demo-application/grants", "xml/site-application-grants.xml", grants, HttpStatus.OK);
 
 		String propertyPath = "/site/localhost/application/demo-application/property";
 

@@ -86,7 +86,7 @@ public class ApplicationImpl implements AccessibleApplication {
 	private Set<Resource> resources = new HashSet<Resource>();
 	private Properties properties;
 	private ConfigurableApplicationContext context;
-	private boolean isCoreApplication;
+	private boolean isPrivileged;
 	private boolean hidden;
 	private boolean isSnapshot;
 	private FeatureProvider featureProvider;
@@ -319,13 +319,24 @@ public class ApplicationImpl implements AccessibleApplication {
 		return new String[0];
 	}
 
-	@Column(name = "core_application")
-	public boolean isCoreApplication() {
-		return isCoreApplication;
+	@Column(name = "privileged")
+	public boolean isPrivileged() {
+		return isPrivileged;
 	}
 
+	@Transient
+	@Deprecated
+	public boolean isCoreApplication() {
+		return isPrivileged();
+	}
+
+	public void setPrivileged(boolean isPrivileged) {
+		this.isPrivileged = isPrivileged;
+	}
+
+	@Deprecated
 	public void setCoreApplication(boolean isCoreApplication) {
-		this.isCoreApplication = isCoreApplication;
+		setPrivileged(isCoreApplication);
 	}
 
 	public void closeContext() {

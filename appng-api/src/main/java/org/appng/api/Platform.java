@@ -88,8 +88,8 @@ public final class Platform {
 	 * String platformRootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 	 * </pre>
 	 * 
-	 * <b>Note: A {@link Application} can only access the {@link Scope#PLATFORM} if it's a core-application, i.e.
-	 * {@link Application#isCoreApplication()} returns {@code true}.</b>
+	 * <b>Note: A {@link Application} can only access the {@link Scope#PLATFORM} if it's a privileged application, i.e.
+	 * {@link Application#isPrivileged()} returns {@code true}.</b>
 	 * 
 	 * @author Matthias Müller
 	 * 
@@ -108,9 +108,18 @@ public final class Platform {
 		 */
 		public static final String CACHE_FOLDER = "cacheFolder";
 		/**
+		 * Whether validation constraints should be added as a {@link org.appng.xml.platform.Rule} to the
+		 * {@link org.appng.xml.platform.FieldDef}s {@link org.appng.xml.platform.Validation}
+		 */
+		public static final String CONSTRAINTS_AS_RULE = "constraintsAsRule";
+		/**
 		 * Set to {@code true} to enable a filter preventing CSRF-attacks
 		 */
 		public static final String CSRF_FILTER_ENABLED = "csrfFilterEnabled";
+		/**
+		 * The prefix to use when generating database names
+		 */
+		public static final String DATABASE_PREFIX = "databasePrefix";
 		/**
 		 * The idle database connection test period in minutes. If a database connection remains idle for the specified
 		 * time, the validation query defined in the database connection will be sent to prevent a database connection
@@ -238,12 +247,17 @@ public final class Platform {
 		public static final String XSS_ALLOWED_TAGS = "xssAllowedTags";
 
 		/**
-		 * The time to wait for a {@link Site} to become available/to finish its requests (single run).
+		 * When set to {@code true}, appNG waits until a {@link Site} has finished processing its requests before shutting it down.
+		 */
+		public static final String WAIT_ON_SITE_SHUTDOWN = "waitOnSiteShutdown";
+
+		/**
+		 * The time to wait (in a single waiting loop) for a {@link Site} to become available/to finish its requests (milliseconds).
 		 */
 		public static final String WAIT_TIME = "waitTime";
 
 		/**
-		 * The overall maximum time to wait for a {@link Site} to become available/to finish its requests.
+		 * The overall maximum time to wait for a {@link Site} to become available/to finish its requests (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
 	}

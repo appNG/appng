@@ -5,7 +5,7 @@
 	<artifactId>appng-application-bom</artifactId>
 	<packaging>pom</packaging>
 	<name>appNG application BOM</name>
-	<version>1.14.4</version>
+	<version>1.15.0</version>
 	<description>the bill of materials for an appNG application, defining all provided dependencies</description>
 	<organization>
 		<name>aiticon GmbH</name>
@@ -106,12 +106,6 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>c3p0</groupId>
-				<artifactId>c3p0</artifactId>
-				<version>0.9.1.1</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>com.adobe.xmp</groupId>
 				<artifactId>xmpcore</artifactId>
 				<version>5.1.2</version>
@@ -132,19 +126,19 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.0.pr4</version>
+				<version>2.9.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -162,7 +156,7 @@
 			<dependency>
 				<groupId>com.github.sylvainlaurent.jdbcperflogger</groupId>
 				<artifactId>jdbc-perf-logger-driver</artifactId>
-				<version>0.7.3</version>
+				<version>0.8.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -180,7 +174,7 @@
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.2.4</version>
+				<version>2.8.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -192,7 +186,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>22.0</version>
+				<version>23.3-jre</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -222,13 +216,13 @@
 			<dependency>
 				<groupId>com.healthmarketscience.jackcess</groupId>
 				<artifactId>jackcess-encrypt</artifactId>
-				<version>2.1.1</version>
+				<version>2.1.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.healthmarketscience.jackcess</groupId>
 				<artifactId>jackcess</artifactId>
-				<version>2.1.4</version>
+				<version>2.1.8</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -238,21 +232,21 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.intellij</groupId>
-				<artifactId>annotations</artifactId>
-				<version>12.0</version>
+				<groupId>com.mchange</groupId>
+				<artifactId>c3p0</artifactId>
+				<version>0.9.5.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.mchange</groupId>
+				<artifactId>mchange-commons-java</artifactId>
+				<version>0.2.11</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.mysema.commons</groupId>
 				<artifactId>mysema-commons-lang</artifactId>
 				<version>0.2.4</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.optimaize.languagedetector</groupId>
-				<artifactId>language-detector</artifactId>
-				<version>0.5</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -292,9 +286,15 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.tdunning</groupId>
+				<artifactId>json</artifactId>
+				<version>1.8</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>2.6.3</version>
+				<version>2.7.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -306,7 +306,7 @@
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.10</version>
+				<version>1.11</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -336,7 +336,7 @@
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.5</version>
+				<version>2.6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -379,12 +379,6 @@
 				<groupId>edu.ucar</groupId>
 				<artifactId>httpservices</artifactId>
 				<version>4.5.5</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>edu.ucar</groupId>
-				<artifactId>jj2000</artifactId>
-				<version>5.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -438,7 +432,7 @@
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
-				<version>1.1.0.Final</version>
+				<version>2.0.0.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -460,15 +454,9 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>net.arnx</groupId>
-				<artifactId>jsonic</artifactId>
-				<version>1.2.11</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.6.6</version>
+				<version>1.6.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -528,7 +516,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.14</version>
+				<version>1.15</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -600,7 +588,7 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.6</version>
+				<version>4.4.8</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -612,67 +600,67 @@
 			<dependency>
 				<groupId>org.apache.james</groupId>
 				<artifactId>apache-mime4j-core</artifactId>
-				<version>0.7.2</version>
+				<version>0.8.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.james</groupId>
 				<artifactId>apache-mime4j-dom</artifactId>
-				<version>0.7.2</version>
+				<version>0.8.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-analyzers-common</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-core</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-facet</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-highlighter</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-join</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-memory</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queries</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queryparser</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-sandbox</artifactId>
-				<version>6.6.0</version>
+				<version>6.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -732,25 +720,25 @@
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-ooxml-schemas</artifactId>
-				<version>3.16</version>
+				<version>3.17</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-ooxml</artifactId>
-				<version>3.16</version>
+				<version>3.17</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-scratchpad</artifactId>
-				<version>3.16</version>
+				<version>3.17</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi</artifactId>
-				<version>3.16</version>
+				<version>3.17</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -786,73 +774,13 @@
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-core</artifactId>
-				<version>1.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tika</groupId>
-				<artifactId>tika-langdetect</artifactId>
-				<version>1.13</version>
+				<version>1.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-parsers</artifactId>
-				<version>1.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-api</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-el-api</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-jasper-el</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-jasper</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-jsp-api</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-juli</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-servlet-api</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-util-scan</artifactId>
-				<version>8.5.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-util</artifactId>
-				<version>8.5.15</version>
+				<version>1.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -888,79 +816,79 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-api</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-cli</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-core</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-forms</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-formtags</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-mail</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-persistence</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-search</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-taglib</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-tomcat7</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-tomcat8</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-tools</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-xmlapi</artifactId>
-				<version>1.14.4</version>
+				<version>1.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1036,12 +964,6 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.eclipse.jdt</groupId>
-				<artifactId>ecj</artifactId>
-				<version>3.12.3</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
 				<version>4.2.0</version>
@@ -1078,27 +1000,27 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.hibernate.validator</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>6.0.4.Final</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>5.2.10.Final</version>
+				<version>5.2.12.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-entitymanager</artifactId>
-				<version>5.2.10.Final</version>
+				<version>5.2.12.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-envers</artifactId>
-				<version>5.2.10.Final</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-validator</artifactId>
-				<version>5.4.1.Final</version>
+				<version>5.2.12.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1150,15 +1072,15 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.json</groupId>
-				<artifactId>json</artifactId>
-				<version>20140107</version>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>1.11.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.jsoup</groupId>
-				<artifactId>jsoup</artifactId>
-				<version>1.10.2</version>
+				<groupId>org.objenesis</groupId>
+				<artifactId>objenesis</artifactId>
+				<version>2.6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1188,7 +1110,7 @@
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>
-				<version>2.2.3</version>
+				<version>2.3.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1218,19 +1140,19 @@
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-commons</artifactId>
-				<version>1.13.4.RELEASE</version>
+				<version>1.13.8.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-envers</artifactId>
-				<version>1.1.4.RELEASE</version>
+				<version>1.1.8.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
-				<version>1.11.4.RELEASE</version>
+				<version>1.11.8.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1260,79 +1182,73 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>4.3.9.RELEASE</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-test</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-webmvc</artifactId>
-				<version>4.3.9.RELEASE</version>
+				<version>4.3.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1344,13 +1260,13 @@
 			<dependency>
 				<groupId>org.thymeleaf</groupId>
 				<artifactId>thymeleaf-spring4</artifactId>
-				<version>3.0.6.RELEASE</version>
+				<version>3.0.8.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.thymeleaf</groupId>
 				<artifactId>thymeleaf</artifactId>
-				<version>3.0.6.RELEASE</version>
+				<version>3.0.8.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1368,7 +1284,7 @@
 			<dependency>
 				<groupId>org.unbescape</groupId>
 				<artifactId>unbescape</artifactId>
-				<version>1.1.4.RELEASE</version>
+				<version>1.1.5.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1410,6 +1326,60 @@
 			<!-- END generated dependencies -->
 
 			<!-- BEGIN other dependencies -->
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-api</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-el-api</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-jasper-el</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-jasper</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-jsp-api</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-juli</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-servlet-api</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-util-scan</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-util</artifactId>
+				<version>8.5.23</version>
+				<scope>provided</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-testsupport</artifactId>

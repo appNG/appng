@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller.filter;
 
+import java.io.File;
 import java.net.URL;
 import java.util.List;
 
@@ -34,9 +35,9 @@ public class JspExtensionFilterTest {
 	private CachedUrlRewriter cachedUrlRewriter;
 
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
 		URL resource = getClass().getClassLoader().getResource("conf/urlrewrite.xml");
-		UrlRewriteConfig conf = new UrlRewriteConfig(resource);
+		UrlRewriteConfig conf = new UrlRewriteConfig(new File(resource.toURI()));
 		RedirectFilter redirectFilter = new RedirectFilter();
 		cachedUrlRewriter = redirectFilter.new CachedUrlRewriter(conf, domain, ".jsp");
 	}

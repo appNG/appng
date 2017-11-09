@@ -64,6 +64,8 @@ include::parts/testing.adoc[]
 
 include::parts/api.adoc[]
 
+include::parts/urlrewriting.adoc[]
+
 == The appNG Maven Archetype
 An appNG application uses https://maven.apache.org/[Apache Maven^] as a build system, thus the fastest way to setup an appNG application is to use the appNG Maven Archetype as shown below:
 [source,subs="normal"]

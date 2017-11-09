@@ -94,10 +94,20 @@ public class SiteProperties {
 	public static final String EHCACHE_ENABLED = "ehcacheEnabled";
 	/** URL path prefixes which are never cached. Contains one prefix per line (CLOB value). */
 	public static final String EHCACHE_EXCEPTIONS = "ehcacheExceptions";
-	/** The time, in milliseconds, to wait for the filter before a {@code net.sf.ehcache.constructs.blocking.LockTimeoutException} is thrown */
+	/**
+	 * The time, in milliseconds, to wait for the filter before a
+	 * {@code net.sf.ehcache.constructs.blocking.LockTimeoutException} is thrown
+	 */
 	public static final String EHCACHE_BLOCKING_TIMEOUT = "ehcacheBlockingTimeout";
 	/** Set to true to enable Ehcache statistics */
 	public static final String EHCACHE_STATISTICS = "ehcacheStatistics";
+	/**
+	 * The suffix to be removed from a <rule><from> element when parsing the rules from urlrewrite.xml for the
+	 * repository watchers
+	 */
+	public static final String EHCACHE_WATCHER_RULE_SOURCE_SUFFIX = "ehcacheWatcherRuleSourceSuffix";
+	/** Whether or not to watch the repository folder for changes and invalidate cache elements, if necessary */
+	public static final String EHCACHE_WATCH_REPOSITORY = "ehcacheWatchRepository";
 	/** Whether or not the Ehcache is cleared on a site shutdown/reload */
 	public static final String EHCACHE_CLEAR_ON_SHUTDOWN = "ehcacheClearOnShutdown";
 	/** Set to true to enforce the protocol used by the site (http or https) */
@@ -122,6 +132,8 @@ public class SiteProperties {
 	public static final String INDEX_CONFIG = "indexConfig";
 	/** The folder containing the Lucene-Index, relative to {@link #WWW_DIR} */
 	public static final String INDEX_DIR = "indexDir";
+	/** Set to {@code true} to enable JDBC Performance Logger */
+	public static final String LOG_JDBC_PERFORMANCE="logJdbcPerformance";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
 	/** the queue size used per directory when indexing the file system **/
@@ -143,9 +155,9 @@ public class SiteProperties {
 	public static final String SEARCH_CHUNK_SIZE = "searchChunkSize";
 	/** The maximum number of hits for the search-tag */
 	public static final String SEARCH_MAX_HITS = "searchMaxHits";
-	/** The output format to be used when actions/datasources are being called through service URLs*/
+	/** The output format to be used when actions/datasources are being called through service URLs */
 	public static final String SERVICE_OUTPUT_FORMAT = "serviceOutputFormat";
-	/** The output type to be used when actions/datasources are being called through service URLs*/
+	/** The output type to be used when actions/datasources are being called through service URLs */
 	public static final String SERVICE_OUTPUT_TYPE = "serviceOutputType";
 	/**
 	 * The path-suffix for the services offered by appNG (such as {@link Webservice}s, {@link SoapService}s,
@@ -154,6 +166,8 @@ public class SiteProperties {
 	public static final String SERVICE_PATH = "service-path";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
+	/** If {@code true}, a site reload is performed when a file named {@code .reload} is created in the site's root directory */
+	public static final String SUPPORT_RELOAD_FILE = "supportReloadFile";
 	/** The prefix used for the appNG JSP-tags. */
 	public static final String TAG_PREFIX = "tagPrefix";
 	/** The name of the template to use */
@@ -165,7 +179,7 @@ public class SiteProperties {
 	 * configured in the appNG base configuration
 	 */
 	public static final String WWW_DIR = "wwwDir";
-	
+
 	/**
 	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (CLOB value). Supports blank
 	 * lines and comments (#).

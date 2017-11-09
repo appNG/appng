@@ -1,7 +1,7 @@
 # Some variable declarations
 def DEPLOY=-f
 def MANAGER_VERSION=${manager.version}
-def AUTH_VERSION=${auth.version}
+def AUTH_VERSION=${authentication.version}
 def SCHEDULER_VERSION=${scheduler.version}
 def TEMPLATE_VERSION=${template.version}
 
@@ -39,13 +39,13 @@ list-repositories -v
 create-site -n ${MANAGER_SITE} -h localhost -d http://localhost:8080 -e
 list-sites -v
 
-# import core applications
-install-application -n ${MANAGER_APP} -v ${MANAGER_VERSION} -r ${REPOSITORY} -c ${DEPLOY}
-install-application -n ${AUTH_APP} -v ${AUTH_VERSION} -r ${REPOSITORY} -c -h ${DEPLOY}
-install-application -n ${SCHEDULER_APP} -v ${SCHEDULER_VERSION} -r ${REPOSITORY} -c ${DEPLOY}
+# install privileged applications
+install-application -n ${MANAGER_APP} -v ${MANAGER_VERSION} -r ${REPOSITORY} -p ${DEPLOY}
+install-application -n ${AUTH_APP} -v ${AUTH_VERSION} -r ${REPOSITORY} -p -h ${DEPLOY}
+install-application -n ${SCHEDULER_APP} -v ${SCHEDULER_VERSION} -r ${REPOSITORY} -p ${DEPLOY}
 list-applications -v
 
-# activate core applications
+# activate privileged applications
 activate-application -s ${MANAGER_SITE} -a ${MANAGER_APP}
 activate-application -s ${MANAGER_SITE} -a ${AUTH_APP}
 activate-application -s ${MANAGER_SITE} -a ${SCHEDULER_APP}

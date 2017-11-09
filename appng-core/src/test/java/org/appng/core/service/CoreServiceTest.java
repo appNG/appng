@@ -855,7 +855,7 @@ public class CoreServiceTest {
 		assertEquals(appngVersion, application.getAppNGVersion());
 		assertEquals(applicationVersion, application.getPackageVersion());
 		assertEquals(applicationTimestamp, application.getTimestamp());
-		assertTrue(application.isCoreApplication());
+		assertTrue(application.isPrivileged());
 		assertTrue(application.isFileBased());
 		assertFalse(application.isHidden());
 		assertTrue(application.isInstalled());

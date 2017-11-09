@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<grants xmlns="http://www.appng.org/schema/appngizer" self="http://localhost:8080/appNGizer/site/appng/application/appng-authentication/grants">
+	<grant site="site-a">false</grant>
+	<grant site="site-b">true</grant>
+	<grant site="site-c">true</grant>
+</grants>

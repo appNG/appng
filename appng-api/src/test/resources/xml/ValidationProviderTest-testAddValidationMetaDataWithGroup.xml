@@ -1,56 +1,60 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <metaData xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.Person">
-	<field name="name" type="text" binding="name">
-		<sort order="desc" prio="1" />
-		<validation>
-			<notNull>
-				<message ref="name" class="ERROR">may not be null</message>
-			</notNull>
-		</validation>
-	</field>
-	<field name="firstname" type="text" binding="firstname">
-		<sort order="asc" prio="0" />
-		<validation>
-			<notNull>
-				<message ref="firstname" class="ERROR">may not be null</message>
-			</notNull>
-			<size min="1" max="5">
-				<message ref="firstname" class="ERROR">Value must be between 1 and 5</message>
-			</size>
-		</validation>
-	</field>
-	<field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate">
-		<validation />
-	</field>
-	<field name="size" type="decimal" binding="size" />
-	<field name="savings" type="decimal" format="###,###.###" binding="savings" />
-	<field name="age" type="long" binding="age">
-		<condition expression="${1 eq 2}" />
-		<validation>
-			<type>
-				<message ref="age" class="ERROR">invalid.integer</message>
-			</type>
-		</validation>
-	</field>
-	<field name="offsprings" type="list:select" binding="offsprings">
-		<condition expression="${not empty current.offsprings}" />
-	</field>
-	<field name="integerList" type="list:checkbox" binding="integerList" />
-	<field name="picture" type="file" binding="picture" />
-	<field name="morePictures" type="file-multiple" binding="morePictures" />
-	<field name="strings" type="list:text" binding="strings" />
-	<field name="thepanel" type="linkpanel" binding="thepanel" />
-	<field name="coordinate" type="coordinate" binding="coordinate">
-		<field name="latitude" type="decimal" binding="coordinate.latitude" />
-		<field name="longitude" type="decimal" binding="coordinate.longitude" />
-	</field>
-	<field name="images" type="image" binding="images">
-		<icon>/foo/bar1.jpg</icon>
-		<icon condition="${true}">/foo/bar2.jpg</icon>
-		<icon condition="${1 eq 2}">/foo/bar3.jpg</icon>
-	</field>
-	<field name="father" binding="father">
-		<field name="name" type="text" binding="father.name" />
-		<field name="firstname" type="text" binding="father.firstname" />
-	</field>
+    <field name="name" type="text" binding="name">
+        <sort order="desc" prio="1"/>
+        <validation>
+            <notNull>
+                <message ref="name" class="ERROR">must not be null</message>
+            </notNull>
+        </validation>
+    </field>
+    <field name="firstname" type="text" binding="firstname">
+        <sort order="asc" prio="0"/>
+        <validation>
+            <notNull>
+                <message ref="firstname" class="ERROR">must not be null</message>
+            </notNull>
+            <size min="1" max="5">
+                <message ref="firstname" class="ERROR">Value must be between 1 and 5</message>
+            </size>
+        </validation>
+    </field>
+    <field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate">
+        <validation/>
+    </field>
+    <field name="size" type="decimal" binding="size"/>
+    <field name="savings" type="decimal" format="###,###.###" binding="savings"/>
+    <field name="age" type="long" binding="age">
+        <condition expression="${1 eq 2}"/>
+        <validation>
+            <type>
+                <message ref="age" class="ERROR">invalid.integer</message>
+            </type>
+        </validation>
+    </field>
+    <field name="offsprings" type="list:select" binding="offsprings">
+        <condition expression="${not empty current.offsprings}"/>
+    </field>
+    <field name="integerList" type="list:checkbox" binding="integerList"/>
+    <field name="picture" type="file" binding="picture">
+        <validation/>
+    </field>
+    <field name="morePictures" type="file-multiple" binding="morePictures">
+        <validation/>
+    </field>
+    <field name="strings" type="list:text" binding="strings"/>
+    <field name="thepanel" type="linkpanel" binding="thepanel"/>
+    <field name="coordinate" type="coordinate" binding="coordinate">
+        <field name="latitude" type="decimal" binding="coordinate.latitude"/>
+        <field name="longitude" type="decimal" binding="coordinate.longitude"/>
+    </field>
+    <field name="images" type="image" binding="images">
+        <icon>/foo/bar1.jpg</icon>
+        <icon condition="${true}">/foo/bar2.jpg</icon>
+        <icon condition="${1 eq 2}">/foo/bar3.jpg</icon>
+    </field>
+    <field name="father" binding="father">
+        <field name="name" type="text" binding="father.name"/>
+        <field name="firstname" type="text" binding="father.firstname"/>
+    </field>
 </metaData>

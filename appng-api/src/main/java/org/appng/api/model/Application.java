@@ -125,11 +125,22 @@ public interface Application extends Identifier {
 	boolean isFileBased();
 
 	/**
-	 * Returns {@code true} if this {@link Application} is a core-application, which means it has access to the
-	 * platform's root-context and the platform-scoped {@link Environment}.
+	 * Returns {@code true} if this {@link Application} is a privileged application, which means it has access to the
+	 * platform's root context and the platform-scoped {@link Environment}.
 	 * 
-	 * @return {@code true} if this {@code Application} is a core-application, {@code false} otherwise
+	 * @return {@code true} if this {@code Application} is a privileged application, {@code false} otherwise
 	 */
+	boolean isPrivileged();
+
+	/**
+	 * Returns {@code true} if this {@link Application} is a privileged application, which means it has access to the
+	 * platform's root context and the platform-scoped {@link Environment}.
+	 *
+	 * @deprecated As of appNG 2.0.0, this method will be removed. It has been renamed to {@link #isPrivileged()}.
+	 *
+	 * @return {@code true} if this {@code Application} is a privileged application, {@code false} otherwise
+	 */
+	@Deprecated
 	boolean isCoreApplication();
 
 	/**

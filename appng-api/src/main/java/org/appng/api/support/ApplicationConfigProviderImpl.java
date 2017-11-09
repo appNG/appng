@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -99,13 +102,14 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	private Resources resources;
 
 	private ApplicationConfigProviderImpl(MarshallService marshallService, String applicationName,
-			Collection<Resource> applicationResources, ApplicationInfo applicationInfo, Boolean devMode)
-			throws InvalidConfigurationException {
+			Collection<Resource> applicationResources, ApplicationInfo applicationInfo, Resources resources,
+			Boolean devMode) throws InvalidConfigurationException {
 		this.xmlFiles = applicationResources;
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationInfo;
 		this.validator = new ConfigValidator(this);
 		this.resourceMap = new HashMap<String, String>();
+		this.resources = resources;
 		setDevMode(devMode);
 		loadConfig(marshallService);
 	}
@@ -177,9 +181,28 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		processInheritance(marshallService);
 		writeData();
 		if (devMode) {
-			validator.validate(applicationName);
+			validate();
 		}
 		loaded = true;
+	}
+
+	private void validate() throws MalformedURLException, InvalidConfigurationException, IOException {
+		URLClassLoader classLoader;
+		Set<Resource> jars = resources.getResources(ResourceType.JAR);
+		URL[] urls = new URL[jars.size()];
+		int i = 0;
+		for (Resource resource : jars) {
+			urls[i++] = resource.getCachedFile().toURI().toURL();
+		}
+		classLoader = new URLClassLoader(urls, getClass().getClassLoader());
+		try {
+			validator.validate(applicationName, classLoader);
+		} finally {
+			if (null != classLoader) {
+				classLoader.close();
+				classLoader = null;
+			}
+		}
 	}
 
 	private void processInheritance(MarshallService marshallService) {
@@ -517,7 +540,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 			ApplicationConfigProvider configProvider = null;
 			if (devMode) {
 				configProvider = new ApplicationConfigProviderImpl(marshallService, applicationName, xmlFiles,
-						applicationInfo, devMode);
+						applicationInfo, resources, devMode);
 			} else {
 				configProvider = new ApplicationConfigProviderImpl(applicationName, devMode, ArrayUtils.clone(data));
 			}

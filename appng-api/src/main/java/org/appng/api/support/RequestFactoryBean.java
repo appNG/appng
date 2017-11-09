@@ -86,15 +86,16 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 	public void afterPropertiesSet() {
 		RequestSupportImpl requestSupport = new RequestSupportImpl(conversionService, environment, messageSource);
 		requestSupport.afterPropertiesSet();
+		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		boolean isPlatformPresent = null != platformProperties;
+		boolean contraintsAsRule = isPlatformPresent
+				&& platformProperties.getBoolean(Platform.Property.CONSTRAINTS_AS_RULE, false);
 		MessageInterpolator messageInterpolator = new LocalizedMessageInterpolator(environment.getLocale(),
 				messageSource);
 		ValidationProvider validationProvider = new DefaultValidationProvider(messageInterpolator, messageSource,
-				environment.getLocale());
-		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-
+				environment.getLocale(), contraintsAsRule);
 		org.appng.forms.Request formRequest = (org.appng.forms.Request) httpServletRequest
 				.getAttribute(org.appng.forms.Request.REQUEST_PARSED);
-		boolean isPlatformPresent = null != platformProperties;
 		if (null == formRequest) {
 			formRequest = new RequestBean();
 			if (isPlatformPresent) {

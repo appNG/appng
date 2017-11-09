@@ -21,17 +21,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
 
+import org.appng.api.FileUpload.Unit;
 import org.appng.api.model.Named;
 import org.appng.forms.FormUpload;
 import org.appng.tools.locator.Coordinate;
-import org.hibernate.validator.constraints.Email;
 
 public class Person implements Named<Integer> {
 
@@ -80,7 +82,7 @@ public class Person implements Named<Integer> {
 	public interface GroupA {
 
 	}
-	
+
 	public Person(Integer id, String firstname, String name) {
 		this.id = id;
 		this.firstname = firstname;
@@ -99,6 +101,7 @@ public class Person implements Named<Integer> {
 	}
 
 	@NotNull(groups = GroupA.class)
+	@NotBlank
 	@Size(min = 1, max = 5, message = "{custom.message}", groups = GroupA.class)
 	public String getFirstname() {
 		return firstname;
@@ -108,6 +111,7 @@ public class Person implements Named<Integer> {
 		this.firstname = firstname;
 	}
 
+	@NotBlank
 	@NotNull(groups = { GroupA.class, Default.class })
 	public String getName() {
 		return name;
@@ -208,6 +212,7 @@ public class Person implements Named<Integer> {
 		this.description = description;
 	}
 
+	@FileUpload(maxSize = 10, unit = Unit.MB, fileTypes = "jpg,bmp")
 	public FormUpload getPicture() {
 		return picture;
 	}
@@ -216,6 +221,7 @@ public class Person implements Named<Integer> {
 		this.picture = picture;
 	}
 
+	@FileUpload(minCount = 0, maxCount = 5, maxSize = 10, unit = Unit.MB, fileTypes = "jpg,bmp")
 	public List<FormUpload> getMorePictures() {
 		return morePictures;
 	}

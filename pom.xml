@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.14.4</version>
+	<version>1.15.0</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
@@ -51,26 +51,31 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.9.RELEASE</springVersion>
+		<springVersion>4.3.12.RELEASE</springVersion>
 		<springWSVersion>2.4.0.RELEASE</springWSVersion>
 		<springSecurityVersion>4.2.3.RELEASE</springSecurityVersion>
-		<springDataVersion>1.13.4.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.4.RELEASE</springDataJpaVersion>
-		<springDataEnversVersion>1.1.4.RELEASE</springDataEnversVersion>
+		<springDataVersion>1.13.8.RELEASE</springDataVersion>
+		<springDataJpaVersion>1.11.8.RELEASE</springDataJpaVersion>
+		<springDataEnversVersion>1.1.8.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.1.4</queryDslVersion>
-		<luceneVersion>6.6.0</luceneVersion>
-		<tikaVersion>1.15</tikaVersion>
-		<hibernateVersion>5.2.10.Final</hibernateVersion>
+		<luceneVersion>6.6.2</luceneVersion>
+		<tikaVersion>1.16</tikaVersion>
+		<hibernateVersion>5.2.12.Final</hibernateVersion>
 		<slf4jVersion>1.7.25</slf4jVersion>
-		<poiVersion>3.16</poiVersion>
-		<jacksonVersion>2.9.0.pr4</jacksonVersion>
+		<poiVersion>3.17</poiVersion>
+		<jacksonVersion>2.9.2</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>8.5.15</tomcat.version>
+		<tomcat.version>8.5.23</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 		<esapi.version>2.1.0.1</esapi.version>
 		<docDir>./target/generated-docs</docDir>
 		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
+		<manager.version>1.12.3</manager.version>
+		<scheduler.version>1.11.3</scheduler.version>
+		<authentication.version>1.11.1</authentication.version>
+		<template.name>appng-template</template.name>
+		<template.version>1.14.3</template.version>
 	</properties>
 	<scm>
 		<connection>scm:git:ssh://git@github.com:appNG/appng.git</connection>
@@ -196,7 +201,11 @@
 			<!-- copies the appNG jars to ${env.CATALINA_HOME}/webapps/ROOT/WEB-INF/lib/ -->
 			<id>local</id>
 			<properties>
+				<doc.skip>true</doc.skip>
+				<assembly.skipAssembly>true</assembly.skipAssembly>
 				<maven.test.skip>true</maven.test.skip>
+				<maven.war.skip>true</maven.war.skip>
+				<mdep.skip>true</mdep.skip>
 			</properties>
 			<modules>
 				<module>appng-tools</module>
@@ -453,6 +462,9 @@
 							<goal>jar-no-fork</goal>
 						</goals>
 						<phase>verify</phase>
+						<configuration>
+							<skipSource>${doc.skip}</skipSource>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -748,7 +760,7 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.10.2</version>
+				<version>1.11.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -770,7 +782,7 @@
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.5</version>
+				<version>2.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -780,12 +792,12 @@
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.10</version>
+				<version>1.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.14</version>
+				<version>1.15</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-collections</groupId>
@@ -800,7 +812,7 @@
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>
-				<version>2.2.3</version>
+				<version>2.3.0</version>
 			</dependency>
 
 			<!-- BEGIN HIBERNATE + JPA -->
@@ -830,14 +842,14 @@
 				<version>1.0.0.Final</version>
 			</dependency>
 			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-validator</artifactId>
-				<version>5.4.1.Final</version>
+    			<groupId>org.hibernate.validator</groupId>
+   				<artifactId>hibernate-validator</artifactId>
+    			<version>6.0.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
-				<version>1.1.0.Final</version>
+				<version>2.0.0.Final</version>
 			</dependency>
 			<!-- END HIBERNATE + JPA -->
 
@@ -865,12 +877,12 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>2.6.3</version>
+				<version>2.7.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>22.0</version>
+				<version>23.3-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
@@ -960,7 +972,7 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.6</version>
+				<version>4.4.8</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>

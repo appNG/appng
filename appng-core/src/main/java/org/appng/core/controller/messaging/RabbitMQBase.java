@@ -15,9 +15,17 @@
  */
 package org.appng.core.controller.messaging;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
 
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import net.jodah.lyra.ConnectionOptions;
+import net.jodah.lyra.Connections;
 import net.jodah.lyra.config.Config;
 import net.jodah.lyra.config.RecoveryPolicies;
 import net.jodah.lyra.config.RetryPolicy;
@@ -29,30 +37,32 @@ import net.jodah.lyra.util.Duration;
  * @author Claus Stümke, aiticon GmbH, 2015
  *
  */
-
 public class RabbitMQBase {
 
-	/**
-	 * 
-	 */
+	protected static final String RABBIT_MQ_EXCHANGE = "rabbitMQExchange";
+	protected static final String RABBIT_MQ_PASSWORD = "rabbitMQPassword";
+	protected static final String RABBIT_MQ_USER = "rabbitMQUser";
+	protected static final String RABBIT_MQ_ADRESSES = "rabbitMQAdresses";
+
 	private static final int INTERVAL_RECOVER_MILLIS = 200;
 
 	protected static final String EXCHANGE_TYPE_FANOUT = "fanout";
 
 	protected Serializer eventSerializer;
-	protected int port;
-	protected String host;
 	protected String user;
 	protected String password;
 	protected String exchange;
+	protected String addresses;
+
+	protected ConnectionFactory factory;
 
 	public void initialize() {
 		Properties platformConfig = eventSerializer.getPlatformConfig();
-		port = platformConfig.getInteger("rabbitMQPort", 5672);
-		host = platformConfig.getString("rabbitMQHost", "localhost");
-		user = platformConfig.getString("rabbitMQUser", "guest");
-		password = platformConfig.getString("rabbitMQPassword", "guest");
-		exchange = platformConfig.getString("rabbitMQExchange", "appng-messaging");
+		addresses = platformConfig.getString(RABBIT_MQ_ADRESSES,"localhost:5672");
+		user = platformConfig.getString(RABBIT_MQ_USER, "guest");
+		password = platformConfig.getString(RABBIT_MQ_PASSWORD, "guest");
+		exchange = platformConfig.getString(RABBIT_MQ_EXCHANGE, "appng-messaging");
+		initConnectionFactory();
 	}
 
 	protected Config getConnectionConfig() {
@@ -62,6 +72,18 @@ public class RabbitMQBase {
 				.withRetryPolicy(new RetryPolicy().withMaxAttempts(20).withInterval(Duration.seconds(1))
 						.withMaxDuration(Duration.minutes(5)));
 		return config;
+	}
+
+	protected void initConnectionFactory() {
+		factory = new ConnectionFactory();
+		factory.setUsername(this.user);
+		factory.setPassword(this.password);
+	}
+
+	protected Connection getConnection(ConnectionOptions options) throws IOException, TimeoutException {
+		options.withUsername(user);
+		options.withPassword(password);
+		return Connections.create(options.withAddresses(addresses), getConnectionConfig());
 	}
 
 }

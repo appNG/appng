@@ -31,7 +31,7 @@ public class ApplicationControllerTest extends ControllerTest {
 		Application app=new Application();
 		app.setName("this has no effect");
 		app.setDisplayName("ACME app");
-		app.setCore(true);
+		app.setPrivileged(true);
 		app.setHidden(true);
 		app.setFileBased(false);
 		app.setVersion("this has no effect");

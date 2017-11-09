@@ -28,19 +28,10 @@ import redis.clients.jedis.Jedis;
 
 /**
  * Message sender implementing {@link Sender} to use a redis database with its build-in publish/subscribe function as
- * message broker. Following platform properties are needed (default value in brackets):
- * <ul>
- * <li>redisMessagingHost (localhost): Host of the redis server</li>
- * <li>redisMessagingPort (6379): Port of the redis server</li>
- * <li>redisMessagingPassword (): Password of the redis server</li>
- * <li>redisMessagingTimeout (): Timeout is optional. If not defined, Redis default is used</li>
- * <li>redisMessagingChannel (appng-messaging): Channel where all cluster nodes should publish and subscribe. Be aware
- * that this name must be the same for all nodes within a cluster and must be different among different clusters using
- * the same Redis server</li>
- * </ul>
+ * message broker. See {@link JedisReceiver} for configuration details.
  * 
  * @author Claus Stuemke, aiticon GmbH, 2015
- *
+ * @see {@link JedisReceiver}
  */
 
 public class JedisSender extends JedisBase implements Sender {
@@ -60,8 +51,9 @@ public class JedisSender extends JedisBase implements Sender {
 			eventSerializer.serialize(outMessage, event);
 			jedis.publish(channel.getBytes(), outMessage.toByteArray());
 			LOGGER.debug("Successfully published event {}", event);
+			return true;
 		} catch (IOException e) {
-			LOGGER.error("", e);
+			LOGGER.error("error while sending event " + event, e);
 		} finally {
 			jedis.close();
 		}

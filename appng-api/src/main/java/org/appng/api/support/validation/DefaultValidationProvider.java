@@ -18,7 +18,10 @@ package org.appng.api.support.validation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -82,6 +85,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private MessageInterpolator messageInterpolator;
 	private MessageSource messageSource;
 	private Locale locale;
+	private boolean contraintsAsRule;
 
 	/**
 	 * Creates a new {@link DefaultValidationProvider}.
@@ -95,6 +99,24 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 */
 	public DefaultValidationProvider(MessageInterpolator messageInterpolator, MessageSource messageSource,
 			Locale locale) {
+		this(messageInterpolator, messageSource, locale, false);
+	}
+
+	/**
+	 * Creates a new {@link DefaultValidationProvider}.
+	 * 
+	 * @param messageInterpolator
+	 *            the {@link MessageInterpolator} used when adding validation messages
+	 * @param messageSource
+	 *            the {@link MessageSource} used when adding validation messages
+	 * @param locale
+	 *            the {@link Locale} used when adding validation messages
+	 * @param contraintsAsRule
+	 *            whether validation constraints should be added as a {@link Rule} to the {@link FieldDef}s
+	 *            {@link Validation}
+	 */
+	public DefaultValidationProvider(MessageInterpolator messageInterpolator, MessageSource messageSource,
+			Locale locale, boolean contraintsAsRule) {
 		Configuration<?> configuration = javax.validation.Validation.byDefaultProvider().configure();
 		ValidatorFactory validatorFactory = configuration.messageInterpolator(messageInterpolator)
 				.buildValidatorFactory();
@@ -102,6 +124,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 		this.messageInterpolator = messageInterpolator;
 		this.locale = locale;
 		this.messageSource = messageSource;
+		this.contraintsAsRule = contraintsAsRule;
 	}
 
 	/**
@@ -209,7 +232,9 @@ public class DefaultValidationProvider implements ValidationProvider {
 		}
 
 		if (doAdd) {
-			if (annotation instanceof NotNull || containsType(annotation, NotNull.class)) {
+			if (contraintsAsRule) {
+				addRule(fieldDef, constraintDescriptor, annotation, validation);
+			} else if (annotation instanceof NotNull || containsType(annotation, NotNull.class)) {
 				org.appng.xml.platform.NotNull notNull = new org.appng.xml.platform.NotNull();
 				validationRule = notNull;
 				validation.setNotNull(notNull);
@@ -258,16 +283,24 @@ public class DefaultValidationProvider implements ValidationProvider {
 				validationRule = fileUpload;
 				validation.setFileUpload(fileUpload);
 			} else {
-				validationRule = getRule(annotation, null);
-				if (null != validationRule) {
-					validation.getRules().add((Rule) validationRule);
-				}
-
+				addRule(fieldDef, constraintDescriptor, annotation, validation);
 			}
+			Collections.sort(fieldDef.getValidation().getRules(), new Comparator<Rule>() {
+				public int compare(Rule r1, Rule r2) {
+					return r1.getName().compareTo(r2.getName());
+				}
+			});
 			if (null != validationRule) {
 				addMessage(fieldDef, constraintDescriptor, validationRule);
 			}
 		}
+	}
+
+	private void addRule(FieldDef fieldDef, final ConstraintDescriptor<?> constraintDescriptor, Annotation annotation,
+			Validation validation) {
+		Rule rule = getRule(annotation, null);
+		validation.getRules().add(rule);
+		addMessage(fieldDef, constraintDescriptor, rule);
 	}
 
 	protected Rule getRule(Annotation annotation, String type) {
@@ -278,14 +311,25 @@ public class DefaultValidationProvider implements ValidationProvider {
 			rule.setName(StringUtils.uncapitalize(annotationType.getSimpleName()));
 			List<String> ignoredMethods = Arrays.asList("message", "flags", "annotationType", "groups", "payload",
 					"hashCode", "toString");
-			Method[] methods = annotationType.getMethods();
+			List<Method> methods = new ArrayList<Method>(Arrays.asList(annotationType.getMethods()));
+			Collections.sort(methods, new Comparator<Method>() {
+				public int compare(Method o1, Method o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
 			for (Method method : methods) {
 				String name = method.getName();
 				if (method.getParameterTypes().length == 0 && !ignoredMethods.contains(name)) {
-					Object invoked = method.invoke(annotation);
 					Rule.Option option = new Rule.Option();
+					Object invoked = method.invoke(annotation);
+					if (invoked.getClass().isArray()) {
+						option.setValue(StringUtils.join((Object[]) invoked, ','));
+					} else if (Iterable.class.isAssignableFrom(invoked.getClass())) {
+						option.setValue(StringUtils.join((Iterable<?>) invoked, ','));
+					} else {
+						option.setValue(invoked.toString());
+					}
 					option.setName(name);
-					option.setValue(invoked.toString());
 					rule.getOption().add(option);
 				}
 			}

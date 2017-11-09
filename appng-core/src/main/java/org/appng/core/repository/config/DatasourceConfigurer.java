@@ -54,4 +54,9 @@ public interface DatasourceConfigurer {
 	 */
 	DataSource getDataSource();
 
+	/**
+	 * Whether or not JDBC performance logger should be used
+	 */
+	void setLogPerformance(boolean logPerformance);
+
 }

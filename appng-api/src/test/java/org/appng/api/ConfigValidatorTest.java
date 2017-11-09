@@ -64,10 +64,10 @@ public class ConfigValidatorTest {
 		Collection<String> errors = configValidator.getErrors();
 		List<String> sorted = new ArrayList<String>(errors);
 		Collections.sort(sorted);
-		// System.out.println("");
-		// for (String e : sorted) {
-		// System.out.println(e);
-		// }
+//		System.out.println("");
+//		for (String e : sorted) {
+//			System.out.println(e);
+//		}
 		InputStream expected = classLoader.getResourceAsStream("configvalidator.txt");
 		List<String> expectedErrors = IOUtils.readLines(expected, Charset.defaultCharset());
 		for (int i = 0; i < expectedErrors.size(); i++) {
@@ -81,11 +81,11 @@ public class ConfigValidatorTest {
 			sorted.add(error.toString());
 		}
 		Collections.sort(sorted);
-		// System.out.println("");
-		// for (String e : sorted) {
-		// System.out.println(e);
-		// }
-		Assert.assertEquals(35, detaildErrors.size());
+//		System.out.println("");
+//		for (String e : sorted) {
+//			System.out.println(e);
+//		}
+		Assert.assertEquals(46, detaildErrors.size());
 
 		InputStream expectedDetails = classLoader.getResourceAsStream("configvalidatorDetails.txt");
 		List<String> expectedDetailErrors = IOUtils.readLines(expectedDetails, Charset.defaultCharset());

@@ -60,6 +60,7 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.Redirect;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.model.AccessibleApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -307,7 +308,7 @@ public class SiteImpl implements Site {
 		return new File(siteRootDirectory, relativePath);
 	}
 
-	//@Column(name = "startup_time")
+	// @Column(name = "startup_time")
 	@Transient
 	public Date getStartupTime() {
 		return startupTime;
@@ -319,11 +320,11 @@ public class SiteImpl implements Site {
 
 	@Override
 	public String toString() {
-		return "Site#" + getId() + "_" + getName();
+		return getName() + " [" + getState() + "] (#" + System.identityHashCode(this) + ")";
 	}
 
 	public void closeSiteContext() {
-		log.info("closing context for site " + getName());
+		log.info("closing context for site {}", this);
 		for (SiteApplication p : getSiteApplications()) {
 			((AccessibleApplication) p.getApplication()).closeContext();
 		}
@@ -385,7 +386,10 @@ public class SiteImpl implements Site {
 	}
 
 	public void setState(SiteState state) {
+		SiteState oldState = getState();
 		this.state.set(state);
+		log.debug("set state for site {} (was: {})", toString(), oldState);
+		sendEvent(new SiteStateEvent(getName(), state));
 	}
 
 	public boolean hasState(SiteState... states) {
@@ -400,16 +404,16 @@ public class SiteImpl implements Site {
 		return false;
 	}
 
-	public int addRequest(){
+	public int addRequest() {
 		return requests.incrementAndGet();
 	}
-	
-	public int removeRequest(){
+
+	public int removeRequest() {
 		return requests.decrementAndGet();
 	}
-	
+
 	@Transient
-	public int getRequests(){
+	public int getRequests() {
 		return requests.get();
 	}
 }

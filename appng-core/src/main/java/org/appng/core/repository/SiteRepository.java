@@ -43,4 +43,6 @@ public interface SiteRepository extends SearchRepository<SiteImpl, Integer> {
 	@Query("select s from SiteImpl s join s.siteApplications p where p.application.id= ?1 and s.active=?2")
 	List<SiteImpl> findSitesForApplication(Integer applicationId, boolean active);
 
+	List<SiteImpl> findByNameIn(Iterable<String> siteNames);
+
 }

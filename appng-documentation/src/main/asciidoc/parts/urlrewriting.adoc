@@ -1,0 +1,97 @@
+== Beautifying URLs
+When serving JSPs or static content from a site's repository folder, it is often a requirement to rewrite the URLs for some of
+those contents.
+
+For example, a JSP located at `/en/an-ugly-url` should be available at `/a-beauty-url`.
+
+To solve this problem, appNG uses https://github.com/paultuckey/urlrewritefilter[UrlRewriteFilter].
+For configuration, the file `urlrewrite.xml` is used, usually located at `/meta/conf/urlrewrite.xml` of a site's root directory.
+
+[TIP]
+====
+The configuration file `urlrewrite.xml` is reloaded every minute. +
+More about the configuration of UrlRewriteFilter can be found in it's
+http://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html[user manual].
+====
+
+This file needs to contain a `forward` rule and a `redirect` rule for each URL to be rewritten.
+
+The `urlrewrite.xml` for the above example would look like this:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN" "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+<urlrewrite>
+  <rule> <!--1-->
+    <from>/en/an-ugly-url</from>
+    <to type="redirect" last="true">/a-beauty-url</to>
+  </rule>
+  <rule> <!--2-->
+    <from>/a-beauty-url</from>
+    <to type="forward" last="true">/en/an-ugly-url</to>
+  </rule>
+</urlrewrite>
+----
+<1> Define a `redirect` rule `<from>` the ugly URL `<to>` the rewritten one.
+<2> Define a `forward`  rule `<from>` the rewritten URL `<to>` the ugly one.
+
+[TIP]
+====
+The `<from>` element _may_ use the caret (`^`) and the dollar sign (`$`) (so called 'anchors' in terms of regular expressions) to mark
+the beginning and the end of the expression. Either both or none of the must be used.
+====
+
+[IMPORTANT]
+====
+Note that the order of the rules (from the same type) is essential.
+Also make sure to use `last="true"` for the `<to>` part of the final rule (of each type), otherwise you may create an endless loop of forwards and redirects.
+====
+
+The `forward` rule is needed for _internally_ forwarding the rewritten URL to the real resource. The user will not take notice of this.
+
+The `redirect` rule is needed for actually redirecting the user (a.k.a. browser) from the ugly URL to the desired rewritten URL.
+Therefore, HTTP status `302` (found) will be used. If HTTP status `301` (moved permanently) is needed, use `type="permanent-redirect"`.
+
+Additionally, the `redirect` rule is used for replacing textual matches of the ugly URL in other JSPs with their rewritten value.
+
+For example, if a JSP contains a `<a href="/en/an-ugly-url">Beautiful!</a>`, the `redirect` rule is being applied here,
+resulting in `<a href="/a-beauty-url">Beautiful!</a>`.
+
+[IMPORTANT]
+====
+The feature of replacing textual matches of the ugly URL with the rewritten one *only* applies to `.jsp` files
+ and *not* to static content (like CSS, HTML JavaScript etc.).
+====
+
+=== Dealing with file extensions and GET parameters
+If the rewritten resource is a JSP and/or if it must support HTTP GET parameters, the rules need to be enhanced.
+
+Take a look at this example:
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN" "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+<urlrewrite use-query-string="true"> <!--1-->
+  <rule>
+    <from>/en/an-ugly-url(\.jsp)?((\?\S+)?)</from> <!--2-->
+    <to type="redirect" last="true">/a-beauty-url$2</to> <!--3-->
+  </rule>
+  <rule>
+    <from>/a-beauty-url((\?\S+)?)</from> <!--4-->
+    <to type="forward" last="true">/en/an-ugly-url$1</to> <!--5-->
+  </rule>
+</urlrewrite>
+----
+<1> We need the query string to be part of the `<from>` element, thus we need to set `use-query-string="true"`.
+<2> The ugly URL _may_ contain the extension `.jsp`, therefore we add a capturing group `(\.jsp)?`. Also it _may_ contain GET parameters,
+e.g. `?foo=bar&jin=fizz`. For this case, add a capturing group `((\?\S+)?)`.
+<3> The GET parameters need to be kept, so append them using `$<number-of-capturing-group>`
+<4> The rewritten URL also _may_ contain GET parameters. so capture them with `((\?\S+)?)`.
+<5> Again, append the GET parameters by referring to the capturing group.
+
+[IMPORTANT]
+====
+As you can see, the rewrite rules do intensely use regular expressions. Therefore, understanding those is essential.
+A good website for testing your expressions and getting additional explanations is https://regexr.com/[regexr.com].
+====

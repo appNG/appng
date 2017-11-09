@@ -161,9 +161,11 @@ public class ElementHelper {
 							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
 									+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
 						}
-						String proposedPath = guiPath + SLASH + site.getName() + SLASH + application.getName()
-								+ newTarget;
-						if (null != pathInfo && pathInfo.isPathSelected(proposedPath)) {
+						StringBuilder proposedPath = new StringBuilder();
+						proposedPath.append(guiPath).append(pathInfo.getOutputPrefix()).append(SLASH);
+						proposedPath.append(site.getName()).append(SLASH).append(application.getName());
+						proposedPath.append(newTarget);
+						if (pathInfo.isPathSelected(proposedPath.toString())) {
 							link.setActive(Boolean.TRUE.toString());
 						}
 						link.setTarget(newTarget);
@@ -517,6 +519,16 @@ public class ElementHelper {
 			}
 		}
 		return groups.toArray(new Class<?>[groups.size()]);
+	}
+
+	public String getOutputPrefix(Environment env) {
+		if (Boolean.TRUE.equals(env.removeAttribute(REQUEST, EnvironmentKeys.EXPLICIT_FORMAT))) {
+			Path pathInfo = env.getAttribute(REQUEST, EnvironmentKeys.PATH_INFO);
+			StringBuilder prefix = new StringBuilder().append(pathInfo.getGuiPath());
+			prefix.append(pathInfo.getOutputPrefix()).append(Path.SEPARATOR).append(pathInfo.getSiteName());
+			return prefix.append(Path.SEPARATOR).toString();
+		}
+		return null;
 	}
 
 }

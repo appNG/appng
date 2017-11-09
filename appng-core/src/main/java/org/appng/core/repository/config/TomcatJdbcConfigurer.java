@@ -45,7 +45,7 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 
 	public void configure(DatabaseConnection connection) {
 		// see
-		// http://tomcat.apache.org/tomcat-7.0-doc/api/index.html?org/apache/tomcat/jdbc/pool/DataSource.html
+		// http://tomcat.apache.org/tomcat-8.5-doc/api/index.html?org/apache/tomcat/jdbc/pool/DataSource.html
 		this.tomcatDatasource = new org.apache.tomcat.jdbc.pool.DataSource();
 		tomcatDatasource.setUrl(connection.getJdbcUrl());
 		tomcatDatasource.setUsername(connection.getUserName());
@@ -75,6 +75,10 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 
 	public DataSource getDataSource() {
 		return tomcatDatasource;
+	}
+
+	public void setLogPerformance(boolean logPerformance) {
+		// not supported
 	}
 
 }

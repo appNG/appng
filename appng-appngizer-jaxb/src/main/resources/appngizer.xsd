@@ -112,7 +112,7 @@
 				<xs:extension base="nameable">
 					<xs:sequence>
 						<xs:element name="displayName" type="stringNotBlank" />
-						<xs:element name="core" type="xs:boolean" />
+						<xs:element name="privileged" type="xs:boolean" />
 						<xs:element name="fileBased" type="xs:boolean" />
 						<xs:element name="hidden" type="xs:boolean" />
 						<xs:element name="version" type="stringNotBlank" />
@@ -121,6 +121,26 @@
 			</xs:complexContent>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:element name="grants">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="linkable">
+					<xs:sequence>
+						<xs:element name="grant" type="grant" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="grant">
+		<xs:simpleContent>
+			<xs:extension base="xs:boolean">
+				<xs:attribute name="site" type="xs:string" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
 
 	<xs:element name="roles">
 		<xs:complexType>

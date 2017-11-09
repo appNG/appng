@@ -15,9 +15,12 @@
  */
 package org.appng.core.controller.filter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +61,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXParseException;
+import org.xml.sax.SAXException;
 
 /**
  * A {@link Filter} extending <a href="http://www.tuckey.org/urlrewrite/">UrlRewriteFilter</a> that supports
@@ -139,75 +142,17 @@ public class RedirectFilter extends UrlRewriteFilter {
 
 	public static class UrlRewriteConfig extends Conf {
 
-		public UrlRewriteConfig(URL resource) {
-			super(resource);
+		public UrlRewriteConfig(File file) throws IOException, SAXException, ParserConfigurationException {
+			super(null, new FileInputStream(file), file.getName(), file.toURI().toURL().toString(), false);
+			processConfDoc(parseConfig(file.toURI().toURL()));
+			initialise();
+			getLoadedDate().setTime(System.currentTimeMillis());
 		}
 
 		@Override
 		/* Since org.tuckey.web.filters.urlrewrite.Conf is not designed for extension, we need a little hack here. */
 		protected synchronized void loadDom(InputStream inputStream) {
-
-			if (inputStream == null) {
-				LOGGER.error("inputstream is null");
-				return;
-			}
-			DocumentBuilder parser;
-			try {
-				Field confSystemIdField = Conf.class.getDeclaredField("confSystemId");
-				confSystemIdField.setAccessible(true);
-				Object object = confSystemIdField.get(this);
-				String confSystemId = (String) object;
-				ConfHandler handler = new ConfHandler(confSystemId);
-
-				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-				LOGGER.trace("XML builder factory is: " + factory.getClass().getName());
-				factory.setValidating(true);
-				factory.setNamespaceAware(true);
-				factory.setXIncludeAware(true);
-				factory.setIgnoringComments(true);
-				factory.setIgnoringElementContentWhitespace(true);
-				try {
-					parser = factory.newDocumentBuilder();
-				} catch (ParserConfigurationException e) {
-					LOGGER.error("Unable to setup XML parser for reading conf", e);
-					return;
-				}
-				LOGGER.trace("XML Parser: " + parser.getClass().getName());
-
-				parser.setErrorHandler(handler);
-				parser.setEntityResolver(handler);
-
-				LOGGER.debug("about to parse conf");
-				Document doc = parser.parse(inputStream, confSystemId);
-
-				Element rootElement = doc.getDocumentElement();
-				NodeList children = rootElement.getChildNodes();
-				List<Node> deprecatedNodes = new ArrayList<Node>();
-				for (int i = 0; i < children.getLength(); i++) {
-					Node node = children.item(i);
-					if (node.getNodeType() == Node.ELEMENT_NODE && !"rule".equals(node.getNodeName())) {
-						NodeList rulesNode = node.getChildNodes();
-						for (int j = 0; j < rulesNode.getLength(); j++) {
-							Node ruleNode = rulesNode.item(j);
-							if (ruleNode.getNodeType() == Node.ELEMENT_NODE && "rule".equals(ruleNode.getNodeName())) {
-								rootElement.appendChild(ruleNode);
-							}
-						}
-						deprecatedNodes.add(node);
-					}
-				}
-				for (Node node : deprecatedNodes) {
-					rootElement.removeChild(node);
-				}
-				processConfDoc(doc);
-
-			} catch (SAXParseException e) {
-				String errorMsg = "Parse error on line " + e.getLineNumber() + " " + e.getMessage();
-				LOGGER.error(errorMsg, e);
-			} catch (Exception e) {
-				String errorMsg = "Exception loading conf " + " " + e.getMessage();
-				LOGGER.error(errorMsg, e);
-			}
+			// do nothing, work is done in constructor
 		}
 
 		@Override
@@ -216,6 +161,44 @@ public class RedirectFilter extends UrlRewriteFilter {
 			return super.getRules();
 		}
 
+	}
+
+	public static Document parseConfig(URL resource) throws ParserConfigurationException, SAXException, IOException {
+		String confSystemId = resource.toString();
+		ConfHandler handler = new ConfHandler(confSystemId);
+
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setValidating(true);
+		factory.setNamespaceAware(true);
+		factory.setXIncludeAware(true);
+		factory.setIgnoringComments(true);
+		factory.setIgnoringElementContentWhitespace(true);
+
+		DocumentBuilder parser = factory.newDocumentBuilder();
+		parser.setErrorHandler(handler);
+		parser.setEntityResolver(handler);
+		Document doc = parser.parse(resource.openStream(), confSystemId);
+
+		Element rootElement = doc.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		List<Node> deprecatedNodes = new ArrayList<Node>();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node node = children.item(i);
+			if (node.getNodeType() == Node.ELEMENT_NODE && !"rule".equals(node.getNodeName())) {
+				NodeList rulesNode = node.getChildNodes();
+				for (int j = 0; j < rulesNode.getLength(); j++) {
+					Node ruleNode = rulesNode.item(j);
+					if (ruleNode.getNodeType() == Node.ELEMENT_NODE && "rule".equals(ruleNode.getNodeName())) {
+						rootElement.appendChild(ruleNode);
+					}
+				}
+				deprecatedNodes.add(node);
+			}
+		}
+		for (Node node : deprecatedNodes) {
+			rootElement.removeChild(node);
+		}
+		return doc;
 	}
 
 	@Override
@@ -240,15 +223,21 @@ public class RedirectFilter extends UrlRewriteFilter {
 			if (reload) {
 				URL resource = getConfPath(env, site);
 				if (null != resource) {
-					UrlRewriteConfig conf = new UrlRewriteConfig(resource);
-					checkConf(conf);
-					if (conf.isOk()) {
-						CachedUrlRewriter cachedUrlRewriter = new CachedUrlRewriter(conf, site.getDomain(), jspType);
-						REWRITERS.put(siteName, cachedUrlRewriter);
-						LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, resource,
-								conf.getRules().size());
-					} else {
-						LOGGER.warn("invalid config-file for site '" + siteName + "': " + resource);
+					UrlRewriteConfig conf;
+					try {
+						conf = new UrlRewriteConfig(new File(resource.toURI()));
+						checkConf(conf);
+						if (conf.isOk()) {
+							CachedUrlRewriter cachedUrlRewriter = new CachedUrlRewriter(conf, site.getDomain(),
+									jspType);
+							REWRITERS.put(siteName, cachedUrlRewriter);
+							LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, resource,
+									conf.getRules().size());
+						} else {
+							LOGGER.warn("invalid config-file for site '" + siteName + "': " + resource);
+						}
+					} catch (IOException | SAXException | ParserConfigurationException | URISyntaxException e) {
+						LOGGER.error("error processing " + resource);
 					}
 				}
 			}

@@ -194,7 +194,7 @@ public class AppNGTestDataProvider implements TestDataProvider {
 
 	ApplicationImpl getApplication(String name, EntityManager em) {
 		ApplicationImpl application = new ApplicationImpl();
-		application.setCoreApplication(false);
+		application.setPrivileged(false);
 		application.setDescription("description");
 		application.setFileBased(false);
 		application.setName(name);

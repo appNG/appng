@@ -41,9 +41,14 @@ datasource.xml: datasource 'enhancedClone': linkpanel 'jin' references the unkno
 datasource.xml: datasource 'enhancedClone': linkpanel 'nintendo' link 'hyrule' points to an invalid target, must start with '/', '${<param>}' or '?'!
 datasource.xml: datasource 'enhancedClone': references the unknown permission 'testPermission'.
 datasource.xml: datasource 'invalidValidationGroup': validation group class 'SagittariusA' not found!
+datasource.xml: datasource 'person': field: email, condition: '${5 ab foo}' is invalid: Failed to parse the expression [${5 ab foo}]
+datasource.xml: datasource 'person': field: firstname, condition: '${current.dummy > 1}' is invalid: Property [dummy] not found on type [org.appng.api.Person]
+datasource.xml: datasource 'person': field: firstname, hidden: '${current.doDisplay}' is invalid: Property [doDisplay] not found on type [org.appng.api.Person]
+datasource.xml: datasource 'person': field: firstname, readOnly: '${isVisible}' is invalid: parameter 'isVisible' not found on datasource 'person'
 datasource.xml: datasource 'wrongClone::': bindclass 'doesNotExist' not found!
 datasource.xml: datasource 'wrongDoubleClone::cloneDatasource::datasource': bindclass 'doesNotExist' not found!
 event.xml: action 'action', option 'id' references the unknown parameter 'doesNotExist'. Valid parameters are: [actionParam2, actionParam1]
+event.xml: action 'action': condition: '${fooo}' is invalid: parameter 'fooo' not found on action 'action'
 event.xml: action 'action': references the unknown permission 'doesNotExist'.
 event.xml: action 'action': the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) [doesNotExist] which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
 event.xml: action 'action2':  references the unknown datasource 'doesNotExist'.
@@ -51,7 +56,12 @@ page.xml: page 'page' references the unknown action 'doesNotExist' (from event '
 page.xml: page 'page' references the unknown datasource 'doesNotExist'.
 page.xml: page 'page' references the unknown event 'doesNotExist'.
 page.xml: page 'page' references the unknown permission 'doesNotExist'.
+page.xml: page 'page' section[1] attribute 'hidden': parameter 'isHidden' not found on page 'page'
+page.xml: page 'page' section[1]/element[1] attribute 'folded': parameter 'isFolded' not found on page 'page'
+page.xml: page 'page' section[1]/element[1] attribute 'passive': parameter 'isPassive' not found on page 'page'
 page.xml: page 'page' the reference to action 'action' (from 'event.xml') uses the parameter(s) [actionParam3] which are unknown in the action 'action'! Supported parameters are: [actionParam2, actionParam1]
 page.xml: page 'page' the reference to action 'action' uses the unknown parameter(s) [doesNotExist]. Supported parameters are: [getParam, urlParam, postParam]
 page.xml: page 'page' the reference to dataSource 'datasource' (from 'datasource.xml') uses the parameter(s) [dsParam3] which are unknown in the dataSource 'datasource'! Supported parameters are: [dsParam1, dsParam2]
 page.xml: page 'page' the reference to dataSource 'datasource' uses the unknown parameter(s) [doesNotExist]. Supported parameters are: [getParam, urlParam, postParam]
+page.xml: page 'page', action 'action' condition: '${fooo}' is invalid: parameter 'fooo' not found on page 'page'
+page.xml: page 'page', datasource 'datasource' condition: '${postParam and fooo}' is invalid: parameter 'fooo' not found on page 'page'

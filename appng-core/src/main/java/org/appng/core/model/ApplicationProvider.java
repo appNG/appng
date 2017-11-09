@@ -693,12 +693,17 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		return application.getBeanNames(clazz);
 	}
 
-	public boolean isCoreApplication() {
-		return application.isCoreApplication();
+	public boolean isPrivileged() {
+		return application.isPrivileged();
 	}
 
-	public void setCoreApplication(boolean isCoreApplication) {
-		application.setCoreApplication(isCoreApplication);
+	@Deprecated
+	public boolean isCoreApplication() {
+		return isPrivileged();
+	}
+
+	public void setPrivileged(boolean isPrivileged) {
+		application.setPrivileged(isPrivileged);
 	}
 
 	public String getMessage(Locale locale, String key, Object... args) {
@@ -952,8 +957,12 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	public void setPlatformScope() {
+		setPlatformScope(isCoreApplication());
+	}
+
+	public void setPlatformScope(boolean enabled) {
 		DefaultEnvironment defaultEnvironment = (DefaultEnvironment) applicationRequest.getEnvironment();
-		if (isCoreApplication()) {
+		if (enabled) {
 			defaultEnvironment.enable(PLATFORM);
 		} else {
 			defaultEnvironment.disable(PLATFORM);

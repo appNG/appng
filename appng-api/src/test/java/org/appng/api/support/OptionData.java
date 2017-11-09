@@ -35,6 +35,10 @@ public class OptionData {
 		optionsMap.put("options-3", new OptionImpl("op-3").addAttribute("attribute-3", "value-3"));
 		optionsMap.put("options-4", new OptionImpl("op-4").addAttribute("attribute-4", "value-4"));
 		optionsMap.put("options-5", new OptionImpl("op-5").addAttribute("attribute-5", "value-5"));
+		optionsMap.put("options-6", new OptionImpl("op-6").addAttribute("integer-6", "6"));
+		optionsMap.put("options-7", new OptionImpl("op-7").addAttribute("integer-7", "-7"));
+		optionsMap.put("options-8", new OptionImpl("op-8").addAttribute("enum-8", "text"));
+		optionsMap.put("options-9", new OptionImpl("op-9").addAttribute("bool-9", "tRuE"));
 		return optionsMap;
 	}
 
@@ -45,6 +49,10 @@ public class OptionData {
 		attributesMap.put("attribute-3", "value-3");
 		attributesMap.put("attribute-4", "value-4");
 		attributesMap.put("attribute-5", "value-5");
+		attributesMap.put("integer-6", "6");
+		attributesMap.put("integer-7", "-7");
+		attributesMap.put("enum-8", "text");
+		attributesMap.put("bool-9", "tRuE");
 		return attributesMap;
 	}
 }

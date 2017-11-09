@@ -43,12 +43,12 @@ create-site -n ${MANAGER_SITE} -h localhost -d http://localhost:8080 -e
 list-sites -v
 
 # install core applications
-install-application -n ${MANAGER_APP} -v ${MANAGER_VERSION} -r ${REPO_NAME} -c ${INSTALL_OPTS}
-install-application -n ${AUTH_APP} -v ${AUTH_VERSION} -r ${REPO_NAME} -c -h ${INSTALL_OPTS}
-install-application -n ${SCHEDULER_APP} -v ${SCHEDULER_VERSION} -r ${REPO_NAME} -c ${INSTALL_OPTS}
+install-application -n ${MANAGER_APP} -v ${MANAGER_VERSION} -r ${REPO_NAME} -p ${INSTALL_OPTS}
+install-application -n ${AUTH_APP} -v ${AUTH_VERSION} -r ${REPO_NAME} -p -h ${INSTALL_OPTS}
+install-application -n ${SCHEDULER_APP} -v ${SCHEDULER_VERSION} -r ${REPO_NAME} -p ${INSTALL_OPTS}
 list-applications -v
 
-# activate core applications
+# activate privileged applications
 activate-application -s ${MANAGER_SITE} -a ${MANAGER_APP}
 activate-application -s ${MANAGER_SITE} -a ${AUTH_APP}
 activate-application -s ${MANAGER_SITE} -a ${SCHEDULER_APP}

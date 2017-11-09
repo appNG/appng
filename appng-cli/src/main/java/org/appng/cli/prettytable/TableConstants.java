@@ -38,7 +38,7 @@ public class TableConstants {
 	public static final String IS_ACTIVE = "Is active";
 	public static final String IS_ALIAS = "Is alias";
 	public static final String DISPLAY_NAME = "Display name";
-	public static final String CORE_APPLICATION = "Core application";
+	public static final String PRIVILEGED = "Privileged";
 	public static final String FILEBASED = "Filebased";
 	public static final String HIDDEN = "Hidden";
 	public static final String VALUE = "Value";

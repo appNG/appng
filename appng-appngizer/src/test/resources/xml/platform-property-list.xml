@@ -33,6 +33,11 @@
 		<defaultValue>false</defaultValue>
 		<description>Set to true to enable a filter preventing CSRF-attacks</description>
 	</property>
+	<property name="databasePrefix" self="http://localhost/platform/property/databasePrefix">
+		<value></value>
+		<defaultValue></defaultValue>
+		<description>The prefix to use when generating database names</description>
+	</property>
 	<property name="databaseValidationPeriod" self="http://localhost/platform/property/databaseValidationPeriod">
 		<value>15</value>
 		<defaultValue>15</defaultValue>

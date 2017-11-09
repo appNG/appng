@@ -16,11 +16,18 @@
 package org.appng.core.model;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.JAXBException;
 
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
+import org.appng.api.Scope;
+import org.appng.api.VHostMode;
+import org.appng.api.model.Properties;
+import org.appng.api.model.Site;
 import org.appng.core.service.TemplateService;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.OutputFormat;
@@ -33,11 +40,17 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 
 public class OutputFormatAndTypeTest {
 
 	@Mock
 	private Path path;
+
+	@Mock
+	private Properties properties;
 
 	private PlatformProcessor processor;
 
@@ -50,8 +63,16 @@ public class OutputFormatAndTypeTest {
 		MockitoAnnotations.initMocks(this);
 		marshallService = MarshallService.getMarshallService();
 		processor = new PlatformProcessor();
+		MockServletContext servletContext = new MockServletContext();
+		Map<String, Object> platformScope = new ConcurrentHashMap<>();
+		platformScope.put(org.appng.api.Platform.Environment.PLATFORM_CONFIG, properties);
+		platformScope.put(org.appng.api.Platform.Environment.SITES, new HashMap<String, Site>());
+		Mockito.when(properties.getString(org.appng.api.Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.name());
+		servletContext.setAttribute(Scope.PLATFORM.name(), platformScope);
 		processor.setPlatformTransformer(new PlatformTransformer());
 		processor.setTemplatePath(PlatformTransformerTest.TEMPLATE_PATH);
+		processor.init(new MockHttpServletRequest(servletContext), new MockHttpServletResponse(), null, PlatformTransformerTest.TEMPLATE_PATH);
 	}
 
 	@Test

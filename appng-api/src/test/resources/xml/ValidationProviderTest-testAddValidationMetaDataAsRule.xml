@@ -3,27 +3,35 @@
     <field name="name" type="text" binding="name">
         <sort order="desc" prio="1"/>
         <validation>
-            <notNull>
-                <message ref="name" class="ERROR">may not be null</message>
-            </notNull>
+            <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                <message ref="name" class="ERROR">must not be blank</message>
+            </rule>
+            <rule type="javax.validation.constraints.NotNull" name="notNull">
+                <message ref="name" class="ERROR">must not be null</message>
+            </rule>
         </validation>
     </field>
     <field name="firstname" type="text" binding="firstname">
         <sort order="asc" prio="0"/>
         <validation>
-            <notNull>
-                <message ref="firstname" class="ERROR">may not be null</message>
-            </notNull>
-            <size min="1" max="5">
+            <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                <message ref="firstname" class="ERROR">must not be blank</message>
+            </rule>
+            <rule type="javax.validation.constraints.NotNull" name="notNull">
+                <message ref="firstname" class="ERROR">must not be null</message>
+            </rule>
+            <rule type="javax.validation.constraints.Size" name="size">
                 <message ref="firstname" class="ERROR">Value must be between 1 and 5</message>
-            </size>
+                <option name="max" value="5"/>
+                <option name="min" value="1"/>
+            </rule>
         </validation>
     </field>
     <field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate">
         <validation>
-            <past>
-                <message ref="birthDate" class="ERROR">must be in the past</message>
-            </past>
+            <rule type="javax.validation.constraints.Past" name="past">
+                <message ref="birthDate" class="ERROR">must be a past date</message>
+            </rule>
         </validation>
     </field>
     <field name="size" type="decimal" binding="size"/>
@@ -34,20 +42,48 @@
             <type>
                 <message ref="age" class="ERROR">invalid.integer</message>
             </type>
-            <min value="0">
-                <message ref="age" class="ERROR">Value must be greater than or equal to 0</message>
-            </min>
-            <max value="100">
+            <rule type="javax.validation.constraints.Max" name="max">
                 <message ref="age" class="ERROR">Value must be less than or equal to 100</message>
-            </max>
+                <option name="value" value="100"/>
+            </rule>
+            <rule type="javax.validation.constraints.Min" name="min">
+                <message ref="age" class="ERROR">Value must be greater than or equal to 0</message>
+                <option name="value" value="0"/>
+            </rule>
         </validation>
     </field>
     <field name="offsprings" type="list:select" binding="offsprings">
         <condition expression="${not empty current.offsprings}"/>
     </field>
     <field name="integerList" type="list:checkbox" binding="integerList"/>
-    <field name="picture" type="file" binding="picture"/>
-    <field name="morePictures" type="file-multiple" binding="morePictures"/>
+    <field name="picture" type="file" binding="picture">
+        <validation>
+            <rule type="org.appng.api.FileUpload" name="fileUpload">
+                <message ref="picture" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+                <option name="fileTypes" value="jpg,bmp"/>
+                <option name="maxCount" value="1"/>
+                <option name="maxSize" value="10"/>
+                <option name="minCount" value="1"/>
+                <option name="minSize" value="0"/>
+                <option name="unit" value="MB"/>
+                <option name="uploadValidators" value=""/>
+            </rule>
+        </validation>
+    </field>
+    <field name="morePictures" type="file-multiple" binding="morePictures">
+        <validation>
+            <rule type="org.appng.api.FileUpload" name="fileUpload">
+                <message ref="morePictures" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+                <option name="fileTypes" value="jpg,bmp"/>
+                <option name="maxCount" value="5"/>
+                <option name="maxSize" value="10"/>
+                <option name="minCount" value="0"/>
+                <option name="minSize" value="0"/>
+                <option name="unit" value="MB"/>
+                <option name="uploadValidators" value=""/>
+            </rule>
+        </validation>
+    </field>
     <field name="strings" type="list:text" binding="strings"/>
     <field name="thepanel" type="linkpanel" binding="thepanel"/>
     <field name="coordinate" type="coordinate" binding="coordinate">
@@ -65,7 +101,7 @@
     </field>
     <field name="email" type="text" binding="email">
         <validation>
-            <rule type="org.hibernate.validator.constraints.Email" name="email">
+            <rule type="javax.validation.constraints.Email" name="email">
                 <message ref="email" class="ERROR">Please enter a valid e-mail address</message>
                 <option name="regexp" value=".*"/>
             </rule>

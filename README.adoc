@@ -1,7 +1,16 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
-:snapshot: 1.15.0-SNAPSHOT
-:stable: 1.14.4
+:snapshot: 1.15.1-SNAPSHOT
+:stable: 1.15.0
 :current: {stable}
+
+[caption="Apache License 2.0",link=LICENSE]
+image::https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat-square[]
+
+[caption="Maven Central",link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.appng%22%20AND%20a%3A%22appng-application%22]
+image::https://img.shields.io/maven-central/v/org.appng/appng-application.svg?style=flat-square[]
+
+[caption="Dependency Status",link=https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc]
+image::https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc/badge.svg?style=flat-square[]
 
 == Welcome to appNG
 appNG is a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat^] and the https://spring.io[Spring Framework^].
@@ -38,7 +47,13 @@ appNG is very well suited to create and operate your own application platform as
 * *Rapid protoyping* enables you to design your user interface without writing one line of Java code
 
 == Getting started
-=== Download and run the appNG standalone Version
+
+[NOTE]
+====
+The dollar sign ($) at the beginning of a line denotes the command prompt. Depending on your operating system and shell you might see other signs like %, # or >. This sign is not part of the command to be executed.
+====
+
+=== Download and run the appNG standalone version
 appNG is available as a standalone version, suitable for evaluation and testing purposes.
 
 The standalone version also comes with *appNGizer*, the REST-based administration tool for appNG.
@@ -46,10 +61,18 @@ The standalone version also comes with *appNGizer*, the REST-based administratio
 The standalone version can be found here:
 https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
 
+Check that Java 1.8 is available in your system's path:
+----
+$ java -version
+openjdk version "1.8.0_131"
+OpenJDK Runtime Environment (build 1.8.0_131-8u131-b11-1~bpo8+1-b11)
+OpenJDK 64-Bit Server VM (build 25.131-b11, mixed mode)
+----
+
 Unzip the file, change into the extracted folder and run
 [source,subs=normal]
 ----
-java -jar appng-standalone-{stable}.jar -i -u
+$ java -jar appng-standalone-{stable}.jar -i -u
 ----
 
 Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
@@ -62,13 +85,21 @@ When executing the jar for the next time, you *must* omit the parameters `-u` an
 allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the appNG applications and the template).
 ====
 
+=== Download and run the appNG web-application version
+If you run appNG in production you should use the web-application version, which is a standard web application archive (WAR-file).
+
+Download the latest stable release from 
+https://appng.org/appng/builds/stable/appng-application-{stable}.war
+
+For further documentation on installing appNG go to the  link:appng-application/README.adoc[README] of the appNG web-application.
+
 === Create your first appNG application
 Using the *appNG Maven Archetype*, you can easily create your first own application.
 
 Therefore, the following command must be used (replace `mygroupid` and `myartifactid` with the desired values):
 [source,subs=normal]
 ----
-mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={stable} -DinteractiveMode=false
+$ mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={stable} -DinteractiveMode=false
 ----
 
 Next, change into the created project folder and run `mvn package`.
@@ -93,8 +124,8 @@ In `/path/to/appng-standalone-{stable}/appng/WEB-INF/bin`, execute the following
 
 [source]
 ----
-./appng install-application -n myartifactid -v 1.0-SNAPSHOT -r Local
-./appng activate-application -s manager -a myartifactid
+$ ./appng install-application -n myartifactid -v 1.0-SNAPSHOT -r Local
+$ ./appng activate-application -s manager -a myartifactid
 ----
 
 Both commands should return without any message, meaning they where successful.
@@ -121,10 +152,10 @@ For the following updates of your application, this step is therefore not necess
 
 === What's next?
 You should import the Maven project into your favorite IDE. Then start browsing the code to get an idea of how an appNG application works.
-You should also take a look at the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[Developer Guide].
+You should also take a look at the https://appng.org/appng/docs/{current}/reference/html/developerguide.html[Developer Guide].
 
 You may also want to check out *appNGizer* at http://localhost:8080/appNGizer. The user manual can be found here:
-https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.html
+https://appng.org/appng/docs/{current}/appngizer/html/appngizer-user-manual.html
 
 == Components
 
@@ -146,15 +177,15 @@ https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.htm
 
 
 | https://github.com/appNG/appng-manager[appNG Manager^]
-| appNG core application
+| appNG privileged application
 | Provides a web-based interface to administer appNG and to access other appNG applications.
 
 | https://github.com/appNG/appng-authentication[appNG Authentication^]
-| appNG core application
+| appNG privileged application
 | Provides different authentication mechanisms for appNG.
 
 | https://github.com/appNG/appng-scheduler[appNG Scheduler^]
-| appNG core application
+| appNG privileged application
 | Provides job scheduling services.
 
 | https://github.com/appNG/appng-template[appNG Template^]
@@ -163,7 +194,7 @@ https://appng.org/appng/docs/{snapshot}/appngizer/html/appngizer-user-manual.htm
 
 |====================
 
-NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG applications run on the appNG platform. appNG core applications have elevated permissions to access and control the appNG platform. appNG templates define the visual appearance of appNG applications.
+NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG applications run on the appNG platform. appNG privileged applications have elevated permissions to access and control the appNG platform. appNG templates define the visual appearance of appNG applications.
 
 == Documentation
 
