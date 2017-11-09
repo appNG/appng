@@ -174,7 +174,7 @@
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.2.4</version>
+				<version>2.8.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -216,25 +216,19 @@
 			<dependency>
 				<groupId>com.healthmarketscience.jackcess</groupId>
 				<artifactId>jackcess-encrypt</artifactId>
-				<version>2.1.1</version>
+				<version>2.1.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.healthmarketscience.jackcess</groupId>
 				<artifactId>jackcess</artifactId>
-				<version>2.1.4</version>
+				<version>2.1.8</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.infradna.tool</groupId>
 				<artifactId>bridge-method-annotation</artifactId>
 				<version>1.13</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.intellij</groupId>
-				<artifactId>annotations</artifactId>
-				<version>12.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -253,12 +247,6 @@
 				<groupId>com.mysema.commons</groupId>
 				<artifactId>mysema-commons-lang</artifactId>
 				<version>0.2.4</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.optimaize.languagedetector</groupId>
-				<artifactId>language-detector</artifactId>
-				<version>0.5</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -295,6 +283,12 @@
 				<groupId>com.rometools</groupId>
 				<artifactId>rome</artifactId>
 				<version>1.5.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.tdunning</groupId>
+				<artifactId>json</artifactId>
+				<version>1.8</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -389,12 +383,6 @@
 			</dependency>
 			<dependency>
 				<groupId>edu.ucar</groupId>
-				<artifactId>jj2000</artifactId>
-				<version>5.2</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>edu.ucar</groupId>
 				<artifactId>netcdf4</artifactId>
 				<version>4.5.5</version>
 				<scope>provided</scope>
@@ -463,12 +451,6 @@
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>1.2.17</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>net.arnx</groupId>
-				<artifactId>jsonic</artifactId>
-				<version>1.2.11</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -618,13 +600,13 @@
 			<dependency>
 				<groupId>org.apache.james</groupId>
 				<artifactId>apache-mime4j-core</artifactId>
-				<version>0.7.2</version>
+				<version>0.8.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.james</groupId>
 				<artifactId>apache-mime4j-dom</artifactId>
-				<version>0.7.2</version>
+				<version>0.8.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -792,19 +774,13 @@
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-core</artifactId>
-				<version>1.15</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tika</groupId>
-				<artifactId>tika-langdetect</artifactId>
-				<version>1.13</version>
+				<version>1.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-parsers</artifactId>
-				<version>1.15</version>
+				<version>1.16</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1096,15 +1072,15 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.json</groupId>
-				<artifactId>json</artifactId>
-				<version>20140107</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
 				<version>1.11.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.objenesis</groupId>
+				<artifactId>objenesis</artifactId>
+				<version>2.6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
