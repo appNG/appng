@@ -16,14 +16,19 @@
 This is a standalone version of appNG - the [app]lication platform of the [N]ext [G]eneration!
 ==============================================================================================
 
+Prerequisites:
+=============
+* JRE/JDK 1.8
+
 Usage:
 ======
 * unzip appng-standalone-x.y.z.zip
 * on the FIRST start, run
 	java -jar appng-standalone-x.y.z.jar -i -u
- and go to http://localhost:8080/manager in your browser
- User: admin
- Password: tester
+  (when running under Windows, you have to add the option `-Dfile.encoding=UTF-8` before the `-jar` option)
+* go to http://localhost:8080/manager in your browser
+  User: admin
+  Password: s3cr3t
 * on the following starts, run
 	java -jar appng-standalone-x.y.z.jar
 
