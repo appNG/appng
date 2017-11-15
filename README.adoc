@@ -78,7 +78,7 @@ $ java -jar appng-standalone-{stable}.jar -i -u
 [NOTE]
 ====
 When running under Windows, you have to add the option `-Dfile.encoding=UTF-8` before the `-jar` option.
-===
+====
 
 Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
 
