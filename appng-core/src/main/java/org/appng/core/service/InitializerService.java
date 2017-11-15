@@ -322,7 +322,8 @@ public class InitializerService {
 						StandardWatchEventKinds.ENTRY_MODIFY);
 				LOGGER.debug("watching for {}", new File(rootDir, RELOAD_FILE).getAbsolutePath());
 
-				for (;;) {
+				File absoluteFile = null;
+				do {
 					WatchKey key;
 					try {
 						key = watcher.take();
@@ -334,33 +335,30 @@ public class InitializerService {
 							continue;
 						}
 						java.nio.file.Path eventPath = (java.nio.file.Path) key.watchable();
-						File absoluteFile = new File(eventPath.toFile(),
-								((java.nio.file.Path) event.context()).toString());
-						if (RELOAD_FILE.equals(absoluteFile.getName())) {
-							LOGGER.info("found {}, restarting site {}", absoluteFile.getAbsolutePath(), site.getName());
-							try {
-								loadSite(env, getCoreService().getSiteByName(site.getName()), false,
-										new FieldProcessorImpl("auto-reload"));
-							} catch (InvalidConfigurationException e) {
-								LOGGER.error("error while reloading site " + site.getName(), e);
-							} finally {
-								File targetFile = new File(absoluteFile.getParentFile(),
-										RELOAD_FILE + "-" + System.currentTimeMillis() / 1000);
-								FileUtils.moveFile(absoluteFile, targetFile);
-								LOGGER.info("moved {} to {}", absoluteFile.getAbsolutePath(),
-										targetFile.getAbsolutePath());
-							}
+						String fileName = ((java.nio.file.Path) event.context()).toString();
+						if (RELOAD_FILE.equals(fileName)) {
+							absoluteFile = new File(eventPath.toFile(), fileName);
+							LOGGER.info("found {}", absoluteFile.getAbsolutePath());
 						}
 					}
-					boolean valid = key.reset();
-					if (!valid) {
-						break;
-					}
+				} while (null == absoluteFile);
+
+				File targetFile = new File(absoluteFile.getParentFile(),
+						RELOAD_FILE + "-" + System.currentTimeMillis() / 1000);
+				FileUtils.moveFile(absoluteFile, targetFile);
+				LOGGER.info("moved {} to {}", absoluteFile.getAbsolutePath(), targetFile.getAbsolutePath());
+				LOGGER.info("restarting site {}", site.getName());
+				try {
+					loadSite(env, getCoreService().getSiteByName(site.getName()), false,
+							new FieldProcessorImpl("auto-reload"));
+				} catch (InvalidConfigurationException e) {
+					LOGGER.error("error while reloading site " + site.getName(), e);
 				}
 
-			} catch (IOException e) {
+			} catch (Exception e) {
 				LOGGER.error("error in site reload watcher", e);
 			}
+			LOGGER.info("done watching for reload file.");
 		}
 	}
 
