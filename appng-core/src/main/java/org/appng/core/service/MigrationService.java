@@ -186,7 +186,7 @@ public class MigrationService {
 	protected MigrationStatus initDatabase(DatabaseConnection rootConnection, Boolean doRepair) {
 		StringBuilder dbInfo = new StringBuilder();
 		String jdbcUrl = rootConnection.getJdbcUrl();
-		if (rootConnection.testConnection(dbInfo)) {
+		if (rootConnection.testConnection(dbInfo, true)) {
 			log.info("connected to " + jdbcUrl + " (" + dbInfo.toString() + ")");
 			Flyway flyway = new Flyway();
 			String location = LOCATION_PREFIX + rootConnection.getType().name().toLowerCase();
