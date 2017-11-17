@@ -74,6 +74,10 @@ public class RoleController extends ControllerBase {
 	@RequestMapping(value = "/application/{app}/role", method = RequestMethod.POST)
 	public ResponseEntity<Role> createRole(@PathVariable("app") String app,
 			@RequestBody org.appng.appngizer.model.xml.Role role) {
+		org.appng.api.model.Role existing = getCoreService().getApplicationRoleForApplication(app, role.getName());
+		if (null != existing) {
+			return conflict();
+		}
 		RoleImpl roleImpl = Role.toDomain(role);
 		ApplicationImpl applicationByName = getApplicationByName(app);
 		roleImpl.setApplication(applicationByName);
