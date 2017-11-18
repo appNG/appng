@@ -21,7 +21,7 @@ Without JPA support:
 @org.springframework.test.context.ContextConfiguration(initializers = MyTest.class)
 public class EmployeesTest extends TestBase {
 
-    public MyTest() {
+    public EmployeesTest() {
         super("myapp", "application-home");
     }
     
@@ -35,7 +35,7 @@ With JPA support:
     locations = { TestBase.TESTCONTEXT_JPA }, initializers = MyTest.class)
 public class EmployeesTest extends TestBase {
 
-    public MyTest() {
+    public EmployeesTest() {
         super("myapp", "application-home");
         setEntityPackage("com.myapp.domain");
         setRepositoryBase("com.myapp.repository");
