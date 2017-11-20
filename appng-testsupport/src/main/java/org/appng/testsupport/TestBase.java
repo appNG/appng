@@ -380,7 +380,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	/**
-	 * Initializes the {@link prg.appng.api.Request} for the testcase. Before, some paramters can be added using
+	 * Initializes the {@link org.appng.api.Request} for the testcase. Before, some paramters can be added using
 	 * {@link #addParameter(String, String)}
 	 */
 	protected void initParameters() {
