@@ -31,7 +31,7 @@ import redis.clients.jedis.Jedis;
  * message broker. See {@link JedisReceiver} for configuration details.
  * 
  * @author Claus Stuemke, aiticon GmbH, 2015
- * @see {@link JedisReceiver}
+ * @see JedisReceiver
  */
 
 public class JedisSender extends JedisBase implements Sender {
