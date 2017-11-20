@@ -22,13 +22,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.appng.tools.os.OperatingSystem;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -40,18 +40,33 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class CliShell {
 
+	/**
+	 * Starts the shell
+	 * 
+	 * @param args
+	 *            May contain the path to the appNG installation ({@code APPNG_HOME}) (optional). If empty, the system
+	 *            property {@value CliBootstrap#APPNG_HOME} is used.
+	 * @throws Exception
+	 *             if an error occurs while initializing /executing the shell
+	 */
 	public static void main(String[] args) throws Exception {
-		System.out.println("\033[31m");
+		if (!OperatingSystem.isWindows()) {
+			System.out.println("\033[31m");
+		}
 
 		ClassLoader classLoader = CliShell.class.getClassLoader();
 		List<String> logo = IOUtils.readLines(classLoader.getResourceAsStream("cli-shell.txt"), StandardCharsets.UTF_8);
 		logo.forEach(l -> System.out.println(l));
-		System.out.println("##########################################################");
-		System.out.print("Loading appNG shell");
 
 		CliBootstrapEnvironment env = new CliBootstrapEnvironment();
 		File platformRootPath = null;
-		String appngHome = System.getProperty(CliBootstrap.APPNG_HOME);
+		String appngHome = null;
+
+		if (args.length == 1) {
+			appngHome = args[0];
+		} else {
+			appngHome = System.getProperty(CliBootstrap.APPNG_HOME);
+		}
 		if (null != appngHome) {
 			platformRootPath = new File(appngHome).getAbsoluteFile();
 		}
@@ -68,9 +83,8 @@ public class CliShell {
 					}
 				});
 
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-		executor.execute(futureTask);
-
+		System.out.print("Loading appNG shell");
+		Executors.newFixedThreadPool(1).execute(futureTask);
 		long start = System.currentTimeMillis();
 		while (!futureTask.isDone()) {
 			System.out.print(".");
