@@ -102,7 +102,7 @@ public class RepositoryController extends ControllerBase {
 	@RequestMapping(value = "/repository/{name}/{package}", method = RequestMethod.GET)
 	public ResponseEntity<Packages> getRepositoryPackages(@PathVariable("name") String name,
 			@PathVariable("package") String packageName) {
-		RepositoryImpl r = getCoreService().getApplicationRepositoryByName(name);
+		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
 		if (null == r) {
 			return notFound();
 		}
