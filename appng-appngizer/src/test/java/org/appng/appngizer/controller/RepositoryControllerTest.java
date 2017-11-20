@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -92,13 +93,44 @@ public class RepositoryControllerTest extends ControllerTest {
 	}
 
 	@Test
-	public void testUpload() throws Exception {
-		String originalFilename = "demo-application-1.5.3-2013-01-13-1303.zip";
+	public void testUploadAndDeletePackage() throws Exception {
+		String name = "demo-application";
+		String version = "1.5.3";
+		String timestamp = "2013-01-13-1303";
+		String originalFilename = String.format("%s-%s-%s.zip", name, version, timestamp);
 		File file = new File(new File("").getAbsolutePath(),
 				"../appng-core/src/test/resources/zip/" + originalFilename);
 		MockMultipartHttpServletRequestBuilder post = MockMvcRequestBuilders
 				.fileUpload(new URI("/repository/local/upload"));
 		post.file(new MockMultipartFile("file", originalFilename, null, FileUtils.readFileToByteArray(file)));
 		sendBodyAndVerify(post, null, HttpStatus.OK, "xml/archive-upload.xml");
+
+		MockHttpServletRequestBuilder delete = MockMvcRequestBuilders
+				.delete(new URI("/repository/local/" + name + "/" + version + "/" + timestamp));
+		sendBodyAndVerify(delete, null, HttpStatus.OK, "xml/archive-delete.xml");
 	}
+
+	@Test
+	public void testRetrieveInvalid() throws Exception {
+		Repository repo = new Repository();
+		repo.setName("dummy repo");
+		repo.setEnabled(true);
+		repo.setStrict(false);
+		repo.setPublished(false);
+		repo.setMode(RepositoryMode.ALL);
+		repo.setType(RepositoryType.LOCAL);
+		repo.setUri(getUri());
+		postAndVerify("/repository", null, repo, HttpStatus.CREATED);
+
+		getAndVerify("/repository/doesNotExist", null, HttpStatus.NOT_FOUND);
+		getAndVerify("/repository/dummy%20repo/dummy", null, HttpStatus.NOT_FOUND);
+		getAndVerify("/repository/doesNotExist/dummy", null, HttpStatus.NOT_FOUND);
+		getAndVerify("/repository/dummy%20repo/demo-application/1.2.3", null, HttpStatus.NOT_FOUND);
+		getAndVerify("/repository/doesNotExist/demo-application/1.2.3", null, HttpStatus.NOT_FOUND);
+		getAndVerify("/repository/dummy%20repo/demo-application/1.5.2-SNAPSHOT/2011-01-13-1303", null,
+				HttpStatus.NOT_FOUND);
+		deleteAndVerify("/repository/dummy%20repo/demo-application/1.5.2-SNAPSHOT/2011-01-13-1303", null,
+				HttpStatus.NOT_FOUND);
+	}
+
 }
