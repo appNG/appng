@@ -15,14 +15,20 @@
  */
 package org.appng.appngizer.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
+import org.appng.api.Environment;
+import org.appng.api.SiteProperties;
 import org.appng.api.messaging.Messaging;
 import org.appng.api.messaging.Sender;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.appngizer.model.Link;
 import org.appng.appngizer.model.Site;
 import org.appng.appngizer.model.Sites;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
@@ -31,6 +37,7 @@ import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Controller
 @Slf4j
 @RestController
 public class SiteController extends ControllerBase {
@@ -63,18 +71,44 @@ public class SiteController extends ControllerBase {
 			return notFound();
 		}
 		Site fromDomain = Site.fromDomain(site);
+		if (null != getSender(DefaultEnvironment.get(context)) || supportsReloadFile(site)) {
+			fromDomain.addLink(new Link("reload", "/site/" + name + "/reload"));
+		}
 		fromDomain.applyUriComponents(getUriBuilder());
 		return ok(fromDomain);
 	}
 
 	@RequestMapping(value = "/site/{name}/reload", method = RequestMethod.PUT)
-	public ResponseEntity<Void> reloadSite(@PathVariable("name") String name) {
-		Sender sender = Messaging.getMessageSender(DefaultEnvironment.get(context));
-		if (null == sender) {
+	public ResponseEntity<Void> reloadSite(@PathVariable("name") String name) throws BusinessException {
+		SiteImpl site = getSiteByName(name);
+		if (null == site) {
 			return notFound();
 		}
-		sender.send(new ReloadSiteEvent(name));
+		Sender sender = getSender(DefaultEnvironment.get(context));
+		if (null != sender) {
+			log.debug("messaging is active, sending ReloadSiteEvent");
+			sender.send(new ReloadSiteEvent(name));
+		} else if (supportsReloadFile(site)) {
+			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
+			File reloadFile = new File(rootDir, ".reload");
+			try {
+				log.debug("Created reload marker {}", reloadFile.getAbsolutePath());
+				FileUtils.touch(reloadFile);
+			} catch (IOException e) {
+				throw new BusinessException(e);
+			}
+		} else {
+			return reply(HttpStatus.METHOD_NOT_ALLOWED);
+		}
 		return ok(null);
+	}
+
+	private Sender getSender(Environment env) {
+		return Messaging.getMessageSender(env);
+	}
+
+	private boolean supportsReloadFile(org.appng.api.model.Site site) {
+		return Boolean.TRUE.equals(site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE));
 	}
 
 	@RequestMapping(value = "/site", method = RequestMethod.POST)
