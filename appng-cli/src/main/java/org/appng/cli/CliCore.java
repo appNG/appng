@@ -49,6 +49,7 @@ import org.appng.cli.commands.site.CheckSiteRunning;
 import org.appng.cli.commands.site.CreateSite;
 import org.appng.cli.commands.site.DeleteSite;
 import org.appng.cli.commands.site.ListSites;
+import org.appng.cli.commands.site.ReloadSite;
 import org.appng.cli.commands.site.SetSiteActive;
 import org.appng.cli.commands.subject.CreateSubject;
 import org.appng.cli.commands.subject.DeleteSubject;
@@ -123,6 +124,7 @@ public class CliCore {
 		commands.add("delete-site", new DeleteSite());
 		commands.add("check-site", new CheckSiteRunning());
 		commands.add("site-setactive", new SetSiteActive());
+		commands.add("reload-site", new ReloadSite());
 
 		commands.add("list-subjects", new ListSubjects());
 		commands.add("create-subject", new CreateSubject());
