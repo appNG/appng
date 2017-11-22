@@ -74,6 +74,7 @@ import org.appng.xml.platform.Link;
 import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.MetaData;
+import org.appng.xml.platform.PageConfig;
 import org.appng.xml.platform.PageDefinition;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
@@ -151,7 +152,7 @@ public class ConfigValidator {
 		String xpathBase = "//action[@id='" + action.getId() + "']";
 		validateConditionForAction(resource, action.getId(), action.getConfig().getParams(), action.getCondition(),
 				actionOrigin, xpathBase + "/condition");
-		checkPermissions(new PermissionOwner(action), actionOrigin, resource, xpathBase + "/config/permissions/");
+		checkPermissions(new PermissionOwner(action), actionOrigin, resource, xpathBase + "/config");
 
 		DatasourceRef datasourceRef = action.getDatasource();
 		if (null != datasourceRef) {
@@ -162,7 +163,6 @@ public class ConfigValidator {
 			Datasource datasource = provider.getDatasource(dsId);
 			if (null == datasource) {
 				String error = actionOrigin + "  references the unknown datasource '" + dsId + "'.";
-				addConfigurationError(error);
 				addDetailedError(error, resource, xpathBase + "/datasource");
 			} else {
 				Params params = action.getConfig().getParams();
@@ -183,36 +183,36 @@ public class ConfigValidator {
 			Resource resource = getResourceIfPresent(ResourceType.XML, provider.getResourceNameForPage(pageId));
 			String origin = getPagePrefix(pageId);
 			PageDefinition page = provider.getPage(pageId);
-			List<SectionDef> sectionDefs = page.getStructure().getSection();
+			PageConfig config = page.getConfig();
+			checkPermissions(new PermissionOwner(page), origin, resource, "//page[@id='" + pageId + "']/config");
 			int i = 1;
-			for (SectionDef sectionDef : sectionDefs) {
+			for (SectionDef sectionDef : page.getStructure().getSection()) {
 				String hidden = sectionDef.getHidden();
-				validateExpressionForPage(resource, page.getConfig().getUrlSchema(), hidden, pageId,
+				validateExpressionForPage(resource, config.getUrlSchema(), hidden, pageId,
 						origin + " section[" + i + "]", "hidden", "//section[" + i + "]");
 				List<SectionelementDef> elements = sectionDef.getElement();
 				int j = 1;
 				for (SectionelementDef sectionelement : elements) {
 					String folded = sectionelement.getFolded();
-					validateExpressionForPage(resource, page.getConfig().getUrlSchema(), folded, pageId,
+					validateExpressionForPage(resource, config.getUrlSchema(), folded, pageId,
 							origin + " section[" + i + "]/element[" + j + "]", "folded",
 							"//section[" + i + "]/element[" + j + "]");
 					String passive = sectionelement.getPassive();
-					validateExpressionForPage(resource, page.getConfig().getUrlSchema(), passive, pageId,
+					validateExpressionForPage(resource, config.getUrlSchema(), passive, pageId,
 							origin + " section[" + i + "]/element[" + j + "]", "passive",
 							"//section[" + i + "]/element[" + j + "]");
 					ActionRef actionRef = sectionelement.getAction();
 					DatasourceRef datasourceRef = sectionelement.getDatasource();
 					if (null != actionRef) {
 						String xpathBase = "//action[@id='" + actionRef.getId() + "']";
-						validateIncludeConditionForPage(resource, page.getConfig().getUrlSchema(),
-								actionRef.getCondition(), pageId, origin + ", action '" + actionRef.getId() + "'",
-								xpathBase);
-						checkPermissions(new PermissionOwner(actionRef), origin, resource, xpathBase + "/permissions/");
+						String actionOrigin = origin + ", action '" + actionRef.getId() + "'";
+						validateIncludeConditionForPage(resource, config.getUrlSchema(), actionRef.getCondition(),
+								pageId, actionOrigin, xpathBase);
+						checkPermissions(new PermissionOwner(actionRef), actionOrigin, resource, xpathBase);
 						String eventId = actionRef.getEventId();
 						Event event = provider.getEvent(eventId);
 						if (null == event) {
 							String message = origin + " references the unknown event '" + eventId + "'.";
-							addConfigurationError(message);
 							addDetailedError(message, resource, xpathBase + "[@eventId='" + eventId + "']");
 						} else {
 							String actionId = actionRef.getId();
@@ -220,7 +220,6 @@ public class ConfigValidator {
 								String message = getPagePrefix(pageId);
 								message += " references the unknown action '" + actionId + "' (from event '" + eventId
 										+ "').";
-								addConfigurationError(message);
 								addDetailedError(message, resource, xpathBase + "[@eventId='" + eventId + "']");
 							} else {
 								validateActionParameters(pageId, actionRef);
@@ -230,16 +229,14 @@ public class ConfigValidator {
 					} else if (null != datasourceRef) {
 						String dsId = datasourceRef.getId();
 						String xpathBase = "//datasource[@id='" + dsId + "']";
-						validateIncludeConditionForPage(resource, page.getConfig().getUrlSchema(),
-								datasourceRef.getCondition(), pageId, origin + ", datasource '" + dsId + "'",
-								xpathBase);
-						checkPermissions(new PermissionOwner(datasourceRef), origin, resource,
-								xpathBase + "/permissions/");
+						String dsOrigin = origin + ", datasource '" + dsId + "'";
+						validateIncludeConditionForPage(resource, config.getUrlSchema(), datasourceRef.getCondition(),
+								pageId, dsOrigin, xpathBase);
+						checkPermissions(new PermissionOwner(datasourceRef), dsOrigin, resource, xpathBase);
 						Datasource datasource = provider.getDatasource(dsId);
 						if (null == datasource) {
 							String message = getPagePrefix(pageId);
 							message += " references the unknown datasource '" + dsId + "'.";
-							addConfigurationError(message);
 							addDetailedError(message, resource, xpathBase);
 						} else {
 							validateDataSourceParameters(origin, datasourceRef, getAllPageParams(page),
@@ -293,7 +290,7 @@ public class ConfigValidator {
 		ApplicationRootConfig applicationRootConfig = provider.getApplicationRootConfig();
 		if (null == applicationRootConfig) {
 			if (!provider.getPages().isEmpty()) {
-				addConfigurationError("No <applicationRootConfig> found, application will not work!");
+				this.errors.add("No <applicationRootConfig> found, application will not work!");
 				return;
 			}
 		} else {
@@ -307,7 +304,7 @@ public class ConfigValidator {
 		if (null != linkpanel) {
 			Resource resource = getResourceIfPresent(ResourceType.XML, originResourceName);
 			checkPermissions(new PermissionOwner(linkpanel), origin + " linkpanel '" + linkpanel.getId() + "'",
-					resource, linkpanelXPath + "permissions/");
+					resource, linkpanelXPath);
 			for (Link link : linkpanel.getLinks()) {
 				String target = link.getTarget();
 				String linkOrigin = origin + " linkpanel '" + linkpanel.getId() + "' link '" + target + "'";
@@ -326,7 +323,6 @@ public class ConfigValidator {
 						} else if (!target.startsWith("?") && !target.startsWith("$")) {
 							String message = linkOrigin
 									+ " points to an invalid target, must start with '/', '${<param>}' or '?'!";
-							addConfigurationError(message);
 							addDetailedError(message, resource, linkpanelXPath + xpathBase);
 						}
 					}
@@ -334,7 +330,6 @@ public class ConfigValidator {
 						PageDefinition page = provider.getPage(pageName);
 						if (page == null) {
 							String message = linkOrigin + " points to the unknown page '" + pageName + "'";
-							addConfigurationError(message);
 							addDetailedError(message, resource, linkpanelXPath + xpathBase);
 
 						} else if (StringUtils.isNotBlank(target)) {
@@ -356,14 +351,12 @@ public class ConfigValidator {
 								String message = linkOrigin + " points to page '" + pageName
 										+ "' and uses the unknown get-paramter(s) " + unknownGetParams
 										+ ". Valid get-parameters are: " + getParamNames;
-								addConfigurationError(message);
 								addDetailedError(message, resource, linkpanelXPath + xpathBase);
 							}
 						}
 					}
 				}
-				checkPermissions(new PermissionOwner(link), linkOrigin, resource,
-						linkpanelXPath + xpathBase + "/permissions/");
+				checkPermissions(new PermissionOwner(link), linkOrigin, resource, linkpanelXPath + xpathBase);
 			}
 		}
 	}
@@ -377,7 +370,6 @@ public class ConfigValidator {
 			for (Role role : roles.getRole()) {
 				if (!rolesNames.add(role.getName())) {
 					String message = ResourceType.APPLICATION_XML_NAME + ": Duplicate role: " + role.getName();
-					addConfigurationError(message);
 					addDetailedError(message, resource, "//role/name[text()='" + role.getName() + "']");
 				}
 				Set<String> rolePermissions = new HashSet<String>();
@@ -388,12 +380,10 @@ public class ConfigValidator {
 					if (!permissionNames.contains(permissionId)) {
 						String message = ResourceType.APPLICATION_XML_NAME + ": The role '" + role.getName()
 								+ "' references the unknown permission '" + permissionId + "'.";
-						addConfigurationError(message);
 						addDetailedError(message, resource, xpath);
 					} else if (!rolePermissions.add(permissionId)) {
 						String message = ResourceType.APPLICATION_XML_NAME + ": The role '" + role.getName()
 								+ "' references the permission '" + permissionId + "' more than once!";
-						addConfigurationError(message);
 						addDetailedError(message, resource, xpath);
 					}
 				}
@@ -424,7 +414,6 @@ public class ConfigValidator {
 					if (!this.permissionNames.add(permission.getId())) {
 						String message = ResourceType.APPLICATION_XML_NAME + ": Duplicate permission '"
 								+ permission.getId() + "'.";
-						addConfigurationError(message);
 						addDetailedError(message, resource,
 								"//permissions/permission[@id='" + permission.getId() + "']");
 					}
@@ -442,7 +431,6 @@ public class ConfigValidator {
 			for (Property p : properties.getProperty()) {
 				if (!propertyIds.add(p.getId())) {
 					String message = ResourceType.APPLICATION_XML_NAME + ": Duplicate property '" + p.getId() + "'.";
-					addConfigurationError(message);
 					addDetailedError(message, resource, "//properties/property[@id='" + p.getId() + "']");
 				}
 			}
@@ -457,8 +445,7 @@ public class ConfigValidator {
 				if (!permName.startsWith(DefaultPermissionProcessor.PREFIX_ANONYMOUS)
 						&& !permissionNames.contains(permName)) {
 					String message = origin + " references the unknown permission '" + permName + "'.";
-					addConfigurationError(message);
-					addDetailedError(message, resource, xpathBase + "permission[@ref='" + permName + "']");
+					addDetailedError(message, resource, xpathBase + "/permissions/permission[@ref='" + permName + "']");
 				}
 			}
 		}
@@ -468,7 +455,7 @@ public class ConfigValidator {
 			String originName, String xpath) {
 		if (null != condition && StringUtils.isNotBlank(condition.getExpression())) {
 			if (!condition.getExpression().startsWith("${") || !condition.getExpression().endsWith("}")) {
-				addConfigurationError(origin + " invalid condition '" + condition.getExpression() + "'");
+				addDetailedError(originName + " invalid condition '" + condition.getExpression() + "'", origin, xpath);
 			} else {
 				Map<String, Object> variables = getVariables(params);
 				String message = originName + " condition: '" + condition.getExpression() + "' is invalid: ";
@@ -490,7 +477,7 @@ public class ConfigValidator {
 			String pageId, String originName, String xpath) {
 		if (null != condition && StringUtils.isNotBlank(condition.getExpression())) {
 			if (!condition.getExpression().startsWith("${") || !condition.getExpression().endsWith("}")) {
-				addConfigurationError(pageResource + " invalid condition '" + condition.getExpression() + "'");
+				addDetailedError(originName + " invalid condition '" + condition.getExpression() + "'", pageResource, xpath);
 			} else {
 				ExpressionEvaluator ee = getPageExpressionEvaluator(params, pageId);
 				String message = originName + " condition: '" + condition.getExpression() + "' is invalid: ";
@@ -626,7 +613,7 @@ public class ConfigValidator {
 			Datasource datasource = provider.getDatasource(id);
 			String xpathBase = "//datasource[@id='" + id + "']/config/";
 			Resource resource = getResourceIfPresent(ResourceType.XML, resourceName);
-			checkPermissions(new PermissionOwner(datasource), messagePrefix, resource, xpathBase + "permissions/");
+			checkPermissions(new PermissionOwner(datasource), messagePrefix, resource, xpathBase);
 			List<Linkpanel> linkpanels = datasource.getConfig().getLinkpanel();
 			for (Linkpanel linkpanel : linkpanels) {
 				validateLinkPanel(linkpanel, messagePrefix, resourceName, xpathBase + "linkpanel/");
@@ -635,7 +622,6 @@ public class ConfigValidator {
 			MetaData metaData = datasource.getConfig().getMetaData();
 			if (StringUtils.isBlank(metaData.getBindClass())) {
 				String message = messagePrefix + " no bindclass given!";
-				addConfigurationError(message);
 				addDetailedError(message, resource, xpathBase + "meta-data");
 			} else {
 				Map<String, Object> variables = getVariables(datasource.getConfig().getParams());
@@ -703,7 +689,6 @@ public class ConfigValidator {
 				ee.evaluate(expression);
 			} catch (ELException ele) {
 				message += ele.getMessage();
-				addConfigurationError(message);
 				addDetailedError(message, resource, xpath);
 			}
 		}
@@ -713,6 +698,10 @@ public class ConfigValidator {
 		Set<String> eventIds = provider.getEventIds();
 		for (String eventId : eventIds) {
 			Event event = provider.getEvent(eventId);
+			String origin = provider.getResourceNameForEvent(eventId);
+			Resource resource = getResourceIfPresent(ResourceType.XML, origin);
+			checkPermissions(new PermissionOwner(event), origin + ": event '" + eventId + "'", resource,
+					"//event[@id='" + eventId + "']/config");
 			for (Action action : event.getActions()) {
 				validateAction(eventId, action);
 			}
@@ -747,7 +736,6 @@ public class ConfigValidator {
 				} catch (ClassNotFoundException e) {
 					String message = messagePrefix + " validation group class '" + validationGroupClassName
 							+ "' not found!";
-					addConfigurationError(message);
 					addDetailedError(message, getResourceIfPresent(ResourceType.XML, resourceName), "//datasource[@id='"
 							+ id + "']/config/meta-data/validation/group[@class='" + validationGroupClassName + "']");
 				}
@@ -757,6 +745,7 @@ public class ConfigValidator {
 
 	private void checkBindClass(URLClassLoader classLoader, String id, String resourceName, String messagePrefix,
 			MetaData metaData) throws LinkageError {
+		String xpath = "//datasource[@id='" + id + "']/config/meta-data";
 		String bindClassName = metaData.getBindClass();
 		try {
 			Class<?> bindClass = ClassUtils.forName(bindClassName, classLoader);
@@ -774,6 +763,8 @@ public class ConfigValidator {
 						String message = messagePrefix + " property '" + property + "' of class '" + bindClassName
 								+ "' is not readable!";
 						getWarnings().add(message);
+						// addDetailedError(message, getResourceIfPresent(ResourceType.XML, resourceName),
+						// xpath + "/field[@name='" + name + "']");
 					}
 					if (!"true".equals(fieldDef.getReadonly())) {
 						boolean isWritable = wrapper.isWritableProperty(property);
@@ -787,9 +778,7 @@ public class ConfigValidator {
 			}
 		} catch (ClassNotFoundException e) {
 			String message = messagePrefix + " bindclass '" + bindClassName + "' not found!";
-			addConfigurationError(message);
-			addDetailedError(message, getResourceIfPresent(ResourceType.XML, resourceName),
-					"//datasource[@id='" + id + "']/config/meta-data");
+			addDetailedError(message, getResourceIfPresent(ResourceType.XML, resourceName), xpath);
 		}
 	}
 
@@ -839,9 +828,6 @@ public class ConfigValidator {
 		Resource resource = getResourceIfPresent(ResourceType.XML, resourceFileName);
 		String xpathBase = "//" + type.toLowerCase() + "[@id='" + refId + "']/params/";
 		if (!missingRefParameters.isEmpty()) {
-			addConfigurationError(
-					origin + " the reference to " + type + " '" + refId + "' uses the unknown parameter(s) "
-							+ missingRefParameters + ". Supported parameters are: " + availableParams.keySet());
 			for (String missing : missingRefParameters) {
 				// we need the type and id of the origin
 				String message = origin + " the reference to " + type + " '" + refId + "' uses the unknown parameter "
@@ -853,13 +839,9 @@ public class ConfigValidator {
 		@SuppressWarnings("unchecked")
 		Collection<String> unsupportedParameters = CollectionUtils.subtract(paramsFromRef.keySet(), execParamNames);
 		if (!unsupportedParameters.isEmpty()) {
-
-			addConfigurationError(origin + " the reference to " + type + " '" + refId + "' (from '" + resourceName
-					+ "') uses the parameter(s) " + unsupportedParameters + " which are unknown in the " + type + " '"
-					+ refId + "'! Supported parameters are: " + execParamNames);
 			for (String unsupported : unsupportedParameters) {
 				String message = origin + " the reference to " + type + " '" + refId + "' (from '" + resourceName
-						+ "') uses the parameter(s) " + unsupported + " which are unknown in the " + type + " '" + refId
+						+ "') uses the parameter " + unsupported + " which is unknown in the " + type + " '" + refId
 						+ "'! Supported parameters are: " + execParamNames;
 				addDetailedError(message, resource, xpathBase + "param[@name='" + unsupported + "']");
 			}
@@ -882,7 +864,6 @@ public class ConfigValidator {
 							String message = origin + ", option '" + option.getName()
 									+ "' references the unknown parameter '" + paramName + "'. Valid parameters are: "
 									+ parameterSupport.getParameterNames();
-							addConfigurationError(message);
 							addDetailedError(message, getResourceIfPresent(ResourceType.XML, resourceName),
 									"//" + originType.toLowerCase() + "[@id='" + originId + "']/bean/option[@" + key
 											+ "='" + value + "']");
@@ -928,11 +909,8 @@ public class ConfigValidator {
 		return provider.getResourceNameForPage(pageId) + ": page '" + pageId + "'";
 	}
 
-	private void addConfigurationError(String message) {
-		this.errors.add(message);
-	}
-
 	private void addDetailedError(String error, Resource resource, String xpath) {
+		this.errors.add(error);
 		if (withDetailedErrors) {
 			NodeList nodes = getNodesWithPositionForXpath(resource, xpath);
 			if (null != nodes && nodes.getLength() > 0) {
