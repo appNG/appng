@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<action xmlns="http://www.appng.org/schema/platform" id="create" eventId="employeeEvent" async="false">
+    <config>
+        <meta-data bindClass="org.example.Employee">
+            <field name="name" type="text" binding="name">
+                <label id="name">name</label>
+            </field>
+            <field name="lastname" type="text" binding="lastname">
+                <label id="lastname">lastname</label>
+            </field>
+        </meta-data>
+    </config>
+    <messages>
+        <message ref="create" class="OK">Employee created!</message>
+    </messages>
+    <datasource id="employee"/>
+    <data>
+        <result>
+            <field name="name" type="text">
+                <value>John</value>
+            </field>
+            <field name="lastname" type="text">
+                <value>Doe</value>
+            </field>
+        </result>
+    </data>
+    <bean id="employees"/>
+</action>

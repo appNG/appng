@@ -84,9 +84,20 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.jsoup</groupId>
-			<artifactId>jsoup</artifactId>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-api</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-persistence</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-testsupport</artifactId>
+			<scope>test</scope>
+		</dependency>
+	
 	</dependencies>
 </project>

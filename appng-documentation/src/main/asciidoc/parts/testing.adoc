@@ -1,3 +1,5 @@
+:sources: ../../../../src/test/java/
+
 == Testing
 === General
 AppNG also offers support for unit- and integration testing your appNG applications. Therefore, it uses the testing capabilities of the Spring framework. See the {spring}/spring-framework-reference/htmlsingle/#testing[Reference Documentation^] for details on testing with Spring.
@@ -48,7 +50,7 @@ public class EmployeesTest extends TestBase {
 === Testing a datasource:
 [source,java]
 ----
-include::../listing/EmployeesTest.java[tag=datasource,indent=0]
+include::{sources}org/example/EmployeesTest.java[tag=datasource,indent=0]
 ----
 <1> adds a parameter
 <2> initialize the parameters, must be called after parameters have been added
@@ -64,7 +66,7 @@ NOTE: For initially creating and later updating your control files, just set `Wr
 === Testing an action:
 [source,java]
 ----
-include::../listing/EmployeesTest.java[tag=action,indent=0]
+include::{sources}org/example//EmployeesTest.java[tag=action,indent=0]
 ----
 <1> retrieve an `ActionCall` representing the action by its event-id and id
 <2> add required parameters to the action

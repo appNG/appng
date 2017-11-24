@@ -4,14 +4,14 @@ those contents.
 
 For example, a JSP located at `/en/an-ugly-url` should be available at `/a-beauty-url`.
 
-To solve this problem, appNG uses https://github.com/paultuckey/urlrewritefilter[UrlRewriteFilter].
+To solve this problem, appNG uses https://github.com/paultuckey/urlrewritefilter[UrlRewriteFilter^].
 For configuration, the file `urlrewrite.xml` is used, usually located at `/meta/conf/urlrewrite.xml` of a site's root directory.
 
 [TIP]
 ====
 The configuration file `urlrewrite.xml` is reloaded every minute. +
 More about the configuration of UrlRewriteFilter can be found in it's
-http://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html[user manual].
+http://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html[user manual^].
 ====
 
 This file needs to contain a `forward` rule and a `redirect` rule for each URL to be rewritten.
@@ -93,5 +93,5 @@ e.g. `?foo=bar&jin=fizz`. For this case, add a capturing group `((\?\S+)?)`.
 [IMPORTANT]
 ====
 As you can see, the rewrite rules do intensely use regular expressions. Therefore, understanding those is essential.
-A good website for testing your expressions and getting additional explanations is https://regexr.com/[regexr.com].
+A good website for testing your expressions and getting additional explanations is https://regexr.com/[regexr.com^].
 ====

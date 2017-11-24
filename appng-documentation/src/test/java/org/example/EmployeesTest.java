@@ -1,3 +1,5 @@
+package org.example;
+
 import java.io.IOException;
 
 import org.appng.api.FieldProcessor;
@@ -5,11 +7,16 @@ import org.appng.api.ProcessingException;
 import org.appng.api.support.CallableAction;
 import org.appng.api.support.CallableDataSource;
 import org.appng.testsupport.TestBase;
+import org.appng.testsupport.validation.WritingXmlValidator;
 
 // tag::all[]
 @org.springframework.test.context.ContextConfiguration(locations = {
         TestBase.TESTCONTEXT_JPA }, initializers = EmployeesTest.class)
 public class EmployeesTest extends TestBase {
+
+    static {
+        WritingXmlValidator.writeXml = false;
+    }
 
     // tag::contructor[]
     public EmployeesTest() {
