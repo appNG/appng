@@ -15,11 +15,13 @@
  */
 package org.appng.appngizer.controller;
 
+import java.io.File;
 import java.util.List;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.appng.api.model.Application;
+import org.appng.api.model.ResourceType;
 import org.appng.appngizer.model.Database;
 import org.appng.appngizer.model.Databases;
 import org.appng.appngizer.model.Link;
@@ -27,6 +29,7 @@ import org.appng.appngizer.model.xml.Links;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
+import org.appng.core.model.CacheProvider;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
@@ -102,7 +105,14 @@ public class DatabaseController extends ControllerBase {
 		if (null == dbc) {
 			return notFound();
 		}
-		Database fromDomain = Database.fromDomain(dbc, databaseService.statusComplete(dbc), getSharedSecret());
+
+		CacheProvider cacheProvider = new CacheProvider(getCoreService().getPlatformProperties());
+		File platformCache = cacheProvider.getPlatformCache(siteApplication.getSite(),
+				siteApplication.getApplication());
+		File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
+
+		MigrationInfoService dbStatus = databaseService.statusComplete(dbc, sqlFolder);
+		Database fromDomain = Database.fromDomain(dbc, dbStatus, getSharedSecret());
 		addApplicationLink(site, dbc, fromDomain);
 		fromDomain.setSelf("/site/" + site + "/application/" + app + "/database/");
 		fromDomain.applyUriComponents(getUriBuilder());
