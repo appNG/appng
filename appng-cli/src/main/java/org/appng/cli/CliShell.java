@@ -102,7 +102,7 @@ public class CliShell {
 		while (true) {
 			System.out.print("appng> ");
 			String commandLine = console.readLine();
-			if ("exit".equals(commandLine.trim())) {
+			if ("exit".equals(StringUtils.trimToEmpty(commandLine))) {
 				System.out.println("bye");
 				System.exit(0);
 			}
