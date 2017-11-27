@@ -366,6 +366,8 @@ If set to `true` and the `cronExpression` property is properly set, the job will
 If set to `true`, this job will only run once per appNG cluster, i.e. it is not executed on each node, which is the default behavior.
 * `hardInterruptable` +
 If set to `true`, this job can safely be interrupted, e.g when a `Site` is being reloaded. This is achieved by running the job in a separate thread and calling {jse}/java/lang/Thread.html#interrupt--[Thread.interrupt^].
+* `allowConcurrentExecutions` +
+If set to `true`, multiple instances of this job can run concurrently (default is `false`).
 
 The best way to configure a job is in `beans.xml`:
 [source,xml]
