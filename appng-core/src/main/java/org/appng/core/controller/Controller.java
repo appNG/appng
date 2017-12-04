@@ -149,6 +149,34 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	@Override
+	protected void doPut(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+			throws ServletException, IOException {
+		if (isServiceRequest(servletRequest, servletResponse)) {
+			doGet(servletRequest, servletResponse);
+		} else {
+			LOGGER.debug("PUT not allowed for {}", servletRequest.getServletPath());
+			servletResponse.sendError(HttpStatus.FORBIDDEN.value());
+		}
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+			throws ServletException, IOException {
+		if (isServiceRequest(servletRequest, servletResponse)) {
+			doGet(servletRequest, servletResponse);
+		} else {
+			LOGGER.debug("DELETE not allowed for {}", servletRequest.getServletPath());
+			servletResponse.sendError(HttpStatus.FORBIDDEN.value());
+		}
+	}
+
+	private boolean isServiceRequest(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+		Environment env = DefaultEnvironment.get(getServletContext());
+		Site site = RequestUtil.getSiteByHost(env, RequestUtil.getHostIdentifier(servletRequest, env));
+		return RequestUtil.getPathInfo(env, site, servletRequest.getServletPath()).isService();
+	}
+
+	@Override
 	protected void doGet(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws ServletException, IOException {
 		String servletPath = servletRequest.getServletPath();

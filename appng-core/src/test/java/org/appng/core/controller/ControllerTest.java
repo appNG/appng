@@ -61,6 +61,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 
 public class ControllerTest extends Controller implements Controller.Support {
 
@@ -147,24 +149,51 @@ public class ControllerTest extends Controller implements Controller.Support {
 
 	@Test
 	public void testWebservice() {
-		when(base.request.getServletPath()).thenReturn("/services/manager/application1/webservice/foobar");
+		prepareWebserice(HttpMethod.GET);
 		try {
-			base.provider.registerBean("foobar", new Webservice() {
-
-				public byte[] processRequest(Site site, Application application, Environment environment,
-						Request request) throws BusinessException {
-					return "webservice call".getBytes();
-				}
-
-				public String getContentType() {
-					return null;
-				}
-			});
 			doGet(base.request, base.response);
-			Assert.assertEquals("webservice call", new String(base.out.toByteArray()));
+			Assert.assertEquals("GET webservice call", new String(base.out.toByteArray()));
 		} catch (Exception e) {
 			fail(e);
 		}
+	}
+
+	@Test
+	public void testWebservicePut() {
+		prepareWebserice(HttpMethod.PUT);
+		try {
+			doPut(base.request, base.response);
+			Assert.assertEquals("PUT webservice call", new String(base.out.toByteArray()));
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testWebserviceDelete() {
+		prepareWebserice(HttpMethod.DELETE);
+		try {
+			doDelete(base.request, base.response);
+			Assert.assertEquals("DELETE webservice call", new String(base.out.toByteArray()));
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	private void prepareWebserice(HttpMethod method) {
+		when(base.request.getServletPath()).thenReturn("/services/manager/application1/webservice/foobar");
+		when(base.request.getMethod()).thenReturn(method.name());
+		base.provider.registerBean("foobar", new Webservice() {
+
+			public byte[] processRequest(Site site, Application application, Environment environment, Request request)
+					throws BusinessException {
+				return (method.name() + " webservice call").getBytes();
+			}
+
+			public String getContentType() {
+				return null;
+			}
+		});
 	}
 
 	@Test
@@ -186,6 +215,30 @@ public class ControllerTest extends Controller implements Controller.Support {
 			doGet(base.request, base.response);
 			String actual = new String(base.out.toByteArray());
 			Assert.assertEquals("/test.txt", actual);
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testStaticPut() {
+		when(base.request.getServletPath()).thenReturn("/test.txt");
+		try {
+			doPut(base.request, base.response);
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).sendError(HttpStatus.FORBIDDEN.value());
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testStaticDelete() {
+		when(base.request.getServletPath()).thenReturn("/test.txt");
+		try {
+			doDelete(base.request, base.response);
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).sendError(HttpStatus.FORBIDDEN.value());
 		} catch (Exception e) {
 			fail(e);
 		}
