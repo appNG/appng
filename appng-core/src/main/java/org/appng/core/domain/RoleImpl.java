@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -49,7 +50,8 @@ import org.appng.api.model.Role;
  */
 @Entity
 @Table(name = "role")
-public class RoleImpl implements Role {
+@EntityListeners(PlatformEventListener.class)
+public class RoleImpl implements Role, Auditable<Integer> {
 
 	private Integer id;
 	private String name;

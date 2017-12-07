@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -46,7 +47,8 @@ import org.appng.xml.application.TemplateType;
  */
 @Entity
 @Table(name = "template")
-public class Template implements Identifier {
+@EntityListeners(PlatformEventListener.class)
+public class Template implements Identifier, Auditable<Integer> {
 
 	private Integer id;
 	private String name;

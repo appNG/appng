@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -54,7 +55,8 @@ import org.appng.api.model.UserType;
  */
 @Entity
 @Table(name = "subject")
-public class SubjectImpl implements Subject {
+@EntityListeners(PlatformEventListener.class)
+public class SubjectImpl implements Subject, Auditable<Integer> {
 
 	private Integer id;
 	private String name;
@@ -165,7 +167,8 @@ public class SubjectImpl implements Subject {
 	}
 
 	@ManyToMany(targetEntity = GroupImpl.class)
-	@JoinTable(joinColumns = { @JoinColumn(name = "subject_Id") }, inverseJoinColumns = { @JoinColumn(name = "group_id") })
+	@JoinTable(joinColumns = { @JoinColumn(name = "subject_Id") }, inverseJoinColumns = {
+			@JoinColumn(name = "group_id") })
 	public List<Group> getGroups() {
 		return groups;
 	}

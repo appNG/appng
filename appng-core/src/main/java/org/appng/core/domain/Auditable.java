@@ -13,18 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.core.repository;
+package org.appng.core.domain;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.Date;
 
-import javax.persistence.Persistence;
+import org.appng.api.model.Named;
+import org.appng.api.model.Versionable;
 
-public class SchemaGen {
+/**
+ * Marker interface for domain objects that should be audited using {@link PlatformEventListener}.
+ * 
+ * @author Matthias Müller
+ *
+ * @param <T>
+ *            the type of the ID
+ */
+public interface Auditable<T extends Serializable> extends Named<T>, Versionable<Date> {
 
-	public static void main(String[] args) {
-		Map<String, String> props = new HashMap<String, String>();
-		Persistence.generateSchema("mysql-testdb", props);
+	default String getAuditName() {
+		return getClass().getSimpleName().replace("Impl", "");
 	}
 
 }

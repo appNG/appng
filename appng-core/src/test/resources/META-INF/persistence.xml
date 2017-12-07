@@ -18,6 +18,7 @@
 		<class>org.appng.core.domain.SubjectImpl</class>
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
+		<class>org.appng.core.domain.PlatformEvent</class>
 		<properties>
 			<!-- this works because hibernate replaces system-properties -->
 			<property name="hibernate.connection.url" value="jdbc:hsqldb:hsql://localhost:${hsqlPort}/hsql-testdb" />
@@ -46,6 +47,7 @@
 		<class>org.appng.core.domain.SubjectImpl</class>
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
+		<class>org.appng.core.domain.PlatformEvent</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/appng" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57InnoDBDialect" />
@@ -55,6 +57,7 @@
 			<property name="hibernate.hbm2ddl.auto" value="create" />
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
+			<property name="hibernate.id.new_generator_mappings" value="false"/>
 		</properties>
 	</persistence-unit>
 	
@@ -73,15 +76,17 @@
 		<class>org.appng.core.domain.SubjectImpl</class>
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
+		<class>org.appng.core.domain.PlatformEvent</class>
 		<properties>
-			<property name="hibernate.connection.url" value="jdbc:sqlserver://localhost:1433;databaseName=appng" />
-			<property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2008Dialect" />
-			<property name="hibernate.connection.driver_class" value="net.sourceforge.jtds.jdbc.Driver" />
-			<property name="hibernate.connection.username" value="sqlserver" />
-			<property name="hibernate.connection.password" value="Sqlserver2008" />
+			<property name="hibernate.connection.url" value="jdbc:sqlserver://localhost:1433;databaseName=appng_migration" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2012Dialect" />
+			<property name="hibernate.connection.driver_class" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+			<property name="hibernate.connection.username" value="user" />
+			<property name="hibernate.connection.password" value="password" />
 			<property name="hibernate.hbm2ddl.auto" value="create" />
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
+			<property name="hibernate.id.new_generator_mappings" value="false"/>
 		</properties>
 	</persistence-unit>
 
@@ -100,6 +105,7 @@
 		<class>org.appng.core.domain.SubjectImpl</class>
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
+		<class>org.appng.core.domain.PlatformEvent</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/appng" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect" />

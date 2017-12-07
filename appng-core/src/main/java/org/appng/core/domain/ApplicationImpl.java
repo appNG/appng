@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -68,7 +69,8 @@ import org.springframework.context.MessageSource;
  */
 @Entity
 @Table(name = "application")
-public class ApplicationImpl implements AccessibleApplication {
+@EntityListeners(PlatformEventListener.class)
+public class ApplicationImpl implements AccessibleApplication, Auditable<Integer> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationImpl.class);
 	private Integer id;

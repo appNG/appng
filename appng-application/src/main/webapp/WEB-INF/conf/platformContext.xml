@@ -30,6 +30,11 @@
 	-->
 
 	<context:component-scan base-package="org.appng.core" />
+
+	<bean class="org.appng.core.domain.PlatformEventListener">
+		<property name="auditUser" value="appNG platform" />
+	</bean>
+
 	<jpa:repositories base-package="org.appng.core.repository" entity-manager-factory-ref="entityManagerFactory"
 		base-class="org.appng.persistence.repository.SearchRepositoryImpl" transaction-manager-ref="coreTxManager" />
 

@@ -30,6 +30,7 @@ import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -76,7 +77,8 @@ import org.appng.xml.application.PackageInfo;
  */
 @Entity
 @Table(name = "repository")
-public class RepositoryImpl implements Repository {
+@EntityListeners(PlatformEventListener.class)
+public class RepositoryImpl implements Repository, Auditable<Integer> {
 
 	private static final String UNDEFINED = "undefined";
 	private Integer id;
