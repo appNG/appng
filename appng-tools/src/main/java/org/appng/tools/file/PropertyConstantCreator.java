@@ -69,8 +69,10 @@ public class PropertyConstantCreator {
 		Set<Object> keySet = props.keySet();
 		SortedSet<Object> sorted = new TreeSet<Object>(keySet);
 		for (Object object : sorted) {
+			String key = (String) object;
+			sb.append("\t/** " + props.getProperty(key).replace("*/", "*&#47;") + " */\r\n");
 			sb.append("\tpublic static final String ");
-			String constantName = ((String) object).replaceAll("\\.", "_").replaceAll("-", "_");
+			String constantName = key.replaceAll("\\.", "_").replaceAll("-", "_");
 			String[] tokens = StringUtils.splitByCharacterTypeCamelCase(constantName);
 			for (int i = 0; i < tokens.length; i++) {
 				String s = tokens[i];
@@ -81,7 +83,7 @@ public class PropertyConstantCreator {
 					sb.append(s.toUpperCase());
 				}
 			}
-			sb.append(" = \"" + (String) object + "\";\r\n");
+			sb.append(" = \"" + key + "\";\r\n");
 		}
 		sb.append("\r\n");
 		sb.append("}");
