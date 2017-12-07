@@ -29,6 +29,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -168,7 +172,7 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		return repo;
 	}
 
-	protected ResponseEntity<Package> upload() throws URISyntaxException {
+	protected ResponseEntity<Package> upload() throws URISyntaxException, InterruptedException, ExecutionException {
 		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 		multipartRequest.add("file", new FileSystemResource(file));
 		HttpHeaders uploadHeader = getHeader();
@@ -176,8 +180,22 @@ abstract class AppNGizerMojo extends AbstractMojo {
 
 		getLog().info("Uploading file " + file);
 
-		return send(multipartRequest, uploadHeader, HttpMethod.POST, "repository/" + repository + "/upload",
-				Package.class);
+		FutureTask<ResponseEntity<Package>> futureTask = new FutureTask<ResponseEntity<Package>>(
+				new Callable<ResponseEntity<Package>>() {
+					public ResponseEntity<Package> call() throws Exception {
+						return send(multipartRequest, uploadHeader, HttpMethod.POST,
+								"repository/" + repository + "/upload", Package.class);
+					}
+				});
+
+		Executors.newFixedThreadPool(1).execute(futureTask);
+		long start = System.currentTimeMillis();
+		while (!futureTask.isDone()) {
+			Thread.sleep(1000);
+			getLog().info("Uploading since " + (System.currentTimeMillis() - start) / 1000 + "s");
+		}
+		getLog().info("Upload took " + (System.currentTimeMillis() - start) / 1000 + "s");
+		return futureTask.get();
 	}
 
 	protected ResponseEntity<Void> install(Package uploadPackage, String cookie) throws URISyntaxException {
