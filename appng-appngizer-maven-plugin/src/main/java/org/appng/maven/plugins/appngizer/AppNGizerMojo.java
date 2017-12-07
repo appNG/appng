@@ -50,6 +50,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -90,6 +91,9 @@ abstract class AppNGizerMojo extends AbstractMojo {
 	protected AppNGizerMojo() {
 		restTemplate = new RestTemplate();
 		this.jaxbConverter = new Jaxb2RootElementHttpMessageConverter();
+		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
+		stringHttpMessageConverter.setSupportedMediaTypes(Arrays.asList(MediaType.TEXT_HTML));
+		restTemplate.getMessageConverters().add(stringHttpMessageConverter);
 		restTemplate.getMessageConverters().add(jaxbConverter);
 		restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
 			@Override
@@ -100,12 +104,22 @@ abstract class AppNGizerMojo extends AbstractMojo {
 	}
 
 	protected <T> ResponseEntity<T> send(Object requestObject, HttpHeaders header, HttpMethod method, String path,
-			Class<T> resultType) throws URISyntaxException {
-		return send(requestObject, header, method, new URI(endpoint + path), resultType);
+			Class<T> resultType) throws URISyntaxException, MojoExecutionException {
+		return send(requestObject, header, method, path, resultType, true);
+	}
+
+	protected <T> ResponseEntity<T> send(Object requestObject, HttpHeaders header, HttpMethod method, String path,
+			Class<T> resultType, boolean throwErrorOn4xx) throws URISyntaxException, MojoExecutionException {
+		return send(requestObject, header, method, new URI(endpoint + path), resultType, throwErrorOn4xx);
 	}
 
 	private <T> ResponseEntity<T> send(Object requestObject, HttpHeaders headers, HttpMethod method, URI path,
-			Class<T> resultType) throws URISyntaxException {
+			Class<T> resultType) throws MojoExecutionException {
+		return send(requestObject, headers, method, path, resultType, true);
+	}
+
+	private <T> ResponseEntity<T> send(Object requestObject, HttpHeaders headers, HttpMethod method, URI path,
+			Class<T> resultType, boolean throwErrorOn4xx) throws MojoExecutionException {
 		RequestEntity<?> req = new RequestEntity<>(requestObject, headers, method, path);
 		getLog().debug("out: " + req);
 		if (null != requestObject) {
@@ -113,9 +127,15 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		}
 		ResponseEntity<T> response = restTemplate.exchange(req.getUrl(), req.getMethod(), req, resultType);
 		getLog().debug("in: " + response);
+		HttpStatus statusCode = response.getStatusCode();
 		if (null != response.getBody()) {
 			debugBody(response.getBody(), response.getHeaders().getContentType());
+		} else if ((throwErrorOn4xx && statusCode.is4xxClientError()) || statusCode.is5xxServerError()) {
+			String message = String.format("[%s] on %s returned HTTP status %s (%s)", method, path, statusCode,
+					statusCode.getReasonPhrase());
+			throw new MojoExecutionException(message);
 		}
+
 		List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
 		if (null != cookies) {
 			cookie = cookies.stream().collect(Collectors.joining(";"));
@@ -158,14 +178,14 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		return headers;
 	}
 
-	protected void login() throws URISyntaxException {
+	protected void login() throws URISyntaxException, MojoExecutionException {
 		HttpHeaders loginHeader = getHeader();
 		loginHeader.setContentType(MediaType.TEXT_PLAIN);
 		getLog().info("Connecting to " + endpoint);
 		send(sharedSecret, loginHeader, HttpMethod.POST, endpoint.toURI(), Home.class);
 	}
 
-	protected ResponseEntity<Repository> getRepository() throws URISyntaxException {
+	protected ResponseEntity<Repository> getRepository() throws URISyntaxException, MojoExecutionException {
 		ResponseEntity<Repository> repo = send(null, getHeader(), HttpMethod.GET, "repository/" + repository,
 				Repository.class);
 		getLog().info("Retrieved repo " + repo.getBody().getName() + " at " + repo.getBody().getSelf());
@@ -198,7 +218,8 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		return futureTask.get();
 	}
 
-	protected ResponseEntity<Void> install(Package uploadPackage, String cookie) throws URISyntaxException {
+	protected ResponseEntity<Void> install(Package uploadPackage, String cookie)
+			throws URISyntaxException, MojoExecutionException {
 		getLog().info(String.format("Installing %s %s %s", uploadPackage.getName(), uploadPackage.getVersion(),
 				uploadPackage.getTimestamp()));
 		HttpHeaders installHeader = getHeader();
