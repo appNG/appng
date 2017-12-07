@@ -106,7 +106,8 @@ public class CliShell {
 				System.out.println("bye");
 				System.exit(0);
 			}
-			if (cliCore.processCommand(commandLine.split(StringUtils.SPACE))) {
+			if (null != StringUtils.trimToNull(commandLine)
+					&& cliCore.processCommand(commandLine.split(StringUtils.SPACE))) {
 				cliCore.perform(cliConfig);
 			}
 		}
