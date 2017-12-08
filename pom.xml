@@ -127,6 +127,7 @@
 		<module>appng-appngizer-jaxb</module>
 		<module>appng-appngizer</module>
 		<module>appng-appngizer-maven-plugin</module>
+		<module>appng-camunda</module>
 		<module>appng-application-camunda</module>
 	</modules>
 
