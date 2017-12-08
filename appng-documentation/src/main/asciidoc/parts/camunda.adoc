@@ -1,0 +1,61 @@
+== Using Camunda BPMN
+There is a version of appNG (`appng-application-camunda-{project-version}.war`) that ships with the libraries for the https://camunda.com[Camunda BPMN workflow enigne^].
+When using this version of appNG, your application can easily integrate camunda. Therefore, add the following to your  `pom.xml`:
+[source,xml]
+----
+<dependencies>
+	<dependency>
+		<groupId>org.camunda.bpm</groupId>
+		<artifactId>camunda-engine-spring</artifactId>
+		<scope>provided</scope>
+	</dependency>
+</dependencies>
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.camunda.bpm</groupId>
+			<artifactId>camunda-bom</artifactId>
+			<version>7.8.0</version>
+			<scope>import</scope>
+			<type>pom</type>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+----
+
+Next, you have to define some camunda specific beans in you `beans.xml`:
+[source,xml]
+----
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"><!--1-->
+  <property name="dataSource" ref="datasource" /> <!--2-->
+</bean>
+
+<bean id="processEngineConfiguration" class="org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration">
+	<property name="processEngineName" value="engine" />
+    <property name="dataSource" ref="datasource" />
+	<property name="transactionManager" ref="transactionManager" />
+	<property name="databaseSchemaUpdate" value="true" />
+	<property name="jobExecutorActivate" value="false" />
+	<property name="deploymentResources" value="classpath*:*.bpmn" />
+</bean>
+
+<bean id="processEngine" class="org.camunda.bpm.engine.spring.ProcessEngineFactoryBean">
+	<property name="processEngineConfiguration" ref="processEngineConfiguration" />
+</bean>
+
+<bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+<bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+<bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+<bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+<bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+<bean id="caseService" factory-bean="processEngine" factory-method="getCaseService" />
+<bean id="formService" factory-bean="processEngine" factory-method="getFormService" />
+----
+<1> We need a `org.springframework.transaction.PlatformTransactionManager`. If your application uses JPA, use `JpaTransactionManager` here instead!
+<2> Refers to the predefined `javax.sql.DataSource`, see section <<pre-defined-beans,pre-defined beans>>.
+ 
+
+NOTE: Your application needs a database to make camunda work, even if the application itself does not store anything in that database.
+
+
+For more details about Spring and camunda, check out the their guide https://docs.camunda.org/get-started/spring/[Get started with Camunda and the Spring Framework^].

@@ -1,0 +1,12 @@
+== The appNG Maven Archetype
+An appNG application uses https://maven.apache.org/[Apache Maven^] as a build system, thus the fastest way to setup an appNG application is to use the appNG Maven Archetype as shown below:
+[source,subs="normal"]
+----
+mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion={project-version} -DinteractiveMode=false
+----
+
+Using this archetype will result in the following `pom.xml`
+[source,xml,subs="normal"]
+----
+include::../listing/pom-archetype.xml[]
+----
