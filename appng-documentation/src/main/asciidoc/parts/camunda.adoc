@@ -1,3 +1,8 @@
+:camunda: https://docs.camunda.org/javadoc/camunda-bpm-platform/7.8
+ifndef::appng[]
+:appng: https://appng.org/appng/docs/1.15.1-SNAPSHOT/javadoc/
+endif::<appng[]
+
 == Using Camunda BPMN
 There is a version of appNG (`appng-application-camunda-{project-version}.war`) that ships with the libraries for the https://camunda.org[Camunda BPMN workflow enigne^].
 When using this version of appNG, your application can easily integrate camunda. Therefore, add the following to your  `pom.xml`:
@@ -57,5 +62,82 @@ Next, you have to define some camunda specific beans in you `beans.xml`:
 
 NOTE: Your application needs a database to make camunda work, even if the application itself does not store anything in that database.
 
-
 For more details about Spring and camunda, check out the their guide https://docs.camunda.org/get-started/spring/[Get started with Camunda and the Spring Framework^].
+
+=== Implementing user tasks
+BPM user tasks can easily be implemented using standard appNG actions and datasources.
+
+In your datasource, you can use a {appng}/org/appng/camunda/bpm/TaskWrapper.html[org.appng.camunda.bpm.TaskWrapper^] to wrap a {camunda}/org/camunda/bpm/engine/task/Task.html[org.camunda.bpm.engine.task.Task^].
+[source,java]
+----
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.appng.api.ActionProvider;
+import org.appng.api.DataContainer;
+import org.appng.api.DataProvider;
+import org.appng.api.Environment;
+import org.appng.api.FieldProcessor;
+import org.appng.api.Options;
+import org.appng.api.Request;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
+import org.appng.camunda.bpm.TaskWrapper;
+import org.camunda.bpm.engine.FormService;
+import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.form.TaskFormData;
+import org.camunda.bpm.engine.task.IdentityLink;
+import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.engine.variable.VariableMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserTasks implements DataProvider, ActionProvider<TaskWrapper> {
+
+	private TaskService taskService;
+	private FormService formService;
+
+	@Autowired//<1>
+	public UserTasks(TaskService taskService, FormService formService) {
+		this.taskService = taskService;
+		this.formService = formService;
+	}
+
+	public DataContainer getData(Site site, Application application, Environment environment, Options options,
+			Request request, FieldProcessor fp) {
+		String taskId = options.getString("task", "id");
+
+		Task task = taskService.createTaskQuery().taskId(taskId).initializeFormKeys().singleResult();
+		List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(taskId);
+		VariableMap variables = taskService.getVariablesTyped(taskId);
+		TaskWrapper taskWrapper = new TaskWrapper(task, identityLinks, variables);//<2>
+
+		TaskFormData taskFormData = formService.getTaskFormData(taskId);
+		taskWrapper.addFormFields(fp, taskFormData, "Mandatory!");//<3>
+		
+		DataContainer dataContainer = new DataContainer(fp);
+		dataContainer.setItem(taskWrapper);
+		return dataContainer;
+	}
+
+	public void perform(Site site, Application application, Environment environment, Options options, Request request,
+			TaskWrapper formBean, FieldProcessor fieldProcessor) {
+		String taskId = options.getString("task", "id");
+		Map<String, Object> variables = new HashMap<>();
+		Map<String, Object> formFields = formBean.getFormFields();
+		// process form fields //<4>
+		variables.put("assignee", "John Doe");
+		taskService.complete(taskId, variables);//<5>
+		fieldProcessor.addOkMessage("Task " + taskId + " completed!");
+	}
+
+}
+----
+<1> Use camunda's `TaskService` and `FormService`
+<2> create a `TaskWrapper` from a `Task`, the `identityLinks` and the `VariableMap`
+<3> Dynamically add the form fields defined for this usertask to the `FieldProcessor`. See {appng}/org/appng/camunda/bpm/TaskWrapper.html#addFormFields-org.appng.api.FieldProcessor-org.camunda.bpm.engine.form.TaskFormData-java.lang.String-[TaskWrapper#addFormFields^] for details.
+<4> Retrieve the values for the dynamically added form fields an process them.
+<5> Complete the task.
+
