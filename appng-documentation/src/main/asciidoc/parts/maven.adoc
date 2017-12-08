@@ -6,7 +6,7 @@ mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -Darchetype
 ----
 
 Using this archetype will result in the following `pom.xml`
-[source,xml,subs="normal"]
+[source,xml,subs="verbatim,attributes"]
 ----
 include::../listing/pom-archetype.xml[]
 ----
