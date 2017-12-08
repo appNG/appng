@@ -60,7 +60,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.camunda.bpm</groupId>
-			<artifactId>camunda-engine</artifactId>
+			<artifactId>camunda-engine-spring</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -82,4 +82,5 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 </project>
