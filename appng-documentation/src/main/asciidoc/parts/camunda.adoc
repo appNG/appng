@@ -9,6 +9,12 @@ When using this version of appNG, your application can easily integrate camunda.
 [source,xml]
 ----
 <dependencies>
+    <dependency>
+		<groupId>org.appng</groupId>
+		<artifactId>appng-camunda</artifactId>
+		<version>${appNGVersion}</version>
+		<scope>provided</scope>
+	</dependency>
 	<dependency>
 		<groupId>org.camunda.bpm</groupId>
 		<artifactId>camunda-engine-spring</artifactId>
@@ -67,7 +73,7 @@ For more details about Spring and camunda, check out the their guide https://doc
 === Implementing user tasks
 BPM user tasks can easily be implemented using standard appNG actions and datasources.
 
-In your datasource, you can use a {appng}/org/appng/camunda/bpm/TaskWrapper.html[org.appng.camunda.bpm.TaskWrapper^] to wrap a {camunda}/org/camunda/bpm/engine/task/Task.html[org.camunda.bpm.engine.task.Task^].
+You can use a {appng}/org/appng/camunda/bpm/TaskWrapper.html[org.appng.camunda.bpm.TaskWrapper^] to wrap a {camunda}/org/camunda/bpm/engine/task/Task.html[org.camunda.bpm.engine.task.Task^].
 [source,java]
 ----
 import java.util.HashMap;
