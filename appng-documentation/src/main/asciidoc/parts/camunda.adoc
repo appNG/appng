@@ -1,7 +1,7 @@
 :camunda: https://docs.camunda.org/javadoc/camunda-bpm-platform/7.8
 ifndef::appng[]
 :appng: https://appng.org/appng/docs/1.15.1-SNAPSHOT/javadoc/
-endif::<appng[]
+endif::appng[]
 
 == Using Camunda BPMN
 There is a version of appNG (`appng-application-camunda-{project-version}.war`) that ships with the libraries for the https://camunda.org[Camunda BPMN workflow enigne^].
