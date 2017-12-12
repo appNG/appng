@@ -15,6 +15,24 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
+	<properties>
+		<camunda.version>7.8.0</camunda.version>
+		<camunda.javadoc.version>7.8</camunda.javadoc.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<links>
+						<link>https://docs.camunda.org/javadoc/camunda-bpm-platform/${camunda.javadoc.version}/</link>
+					</links>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.appng</groupId>
@@ -22,19 +40,34 @@
 		</dependency>
 		<dependency>
 			<groupId>org.camunda.bpm</groupId>
-			<artifactId>camunda-engine</artifactId>
-			<version>7.8.0</version>
-			<scope>provided</scope>
+			<artifactId>camunda-engine-spring</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.16.18</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.appng</groupId>
+				<artifactId>appng-application-bom</artifactId>
+				<type>pom</type>
+				<scope>import</scope>
+				<version>${appNGVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.camunda.bpm</groupId>
+				<artifactId>camunda-bom</artifactId>
+				<version>${camunda.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

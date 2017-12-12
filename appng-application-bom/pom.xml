@@ -821,6 +821,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
+				<artifactId>appng-camunda</artifactId>
+				<version>1.15.1-SNAPSHOT</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.appng</groupId>
 				<artifactId>appng-cli</artifactId>
 				<version>1.15.1-SNAPSHOT</version>
 				<scope>provided</scope>

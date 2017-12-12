@@ -14,10 +14,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<properties>
-		<camunda.version>7.8.0</camunda.version>
-	</properties>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -61,29 +57,17 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-camunda</artifactId>
-			<version>${appNGVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.camunda.bpm</groupId>
-			<artifactId>camunda-engine-spring</artifactId>
 		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.camunda.bpm</groupId>
-				<artifactId>camunda-bom</artifactId>
-				<version>${camunda.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-application-bom</artifactId>
-				<version>${project.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+				<version>${appNGVersion}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
