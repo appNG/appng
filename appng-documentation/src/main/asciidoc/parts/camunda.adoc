@@ -4,8 +4,8 @@ ifndef::appng[]
 endif::appng[]
 
 == Using Camunda BPMN
-There is a version of appNG (`appng-application-camunda-{project-version}.war`) that ships with the libraries for the https://camunda.org[Camunda BPMN workflow enigne^].
-When using this version of appNG, your application can easily integrate camunda. Therefore, add the following to your  `pom.xml`:
+A version of appNG is available that ships with the libraries for the https://camunda.org[Camunda BPMN workflow enigne^]: `appng-application-camunda-{project-version}.war`.
+When using this version of appNG, your application can easily leverage the power of Camunda, without worrying about bundling the right libraries. To use Camunda, add the following to the `pom.xml` of your application:
 [source,xml]
 ----
 <dependencies>
@@ -34,7 +34,7 @@ When using this version of appNG, your application can easily integrate camunda.
 </dependencyManagement>
 ----
 
-Next, you have to define some camunda specific beans in you `beans.xml`:
+Next, you have to define some Camunda specific beans in your `beans.xml`:
 [source,xml]
 ----
 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"><!--1-->
@@ -64,11 +64,10 @@ Next, you have to define some camunda specific beans in you `beans.xml`:
 ----
 <1> We need a `org.springframework.transaction.PlatformTransactionManager`. If your application uses JPA, use `JpaTransactionManager` here instead!
 <2> Refers to the predefined `javax.sql.DataSource`, see section <<pre-defined-beans,pre-defined beans>>.
- 
 
-NOTE: Your application needs a database to make camunda work, even if the application itself does not store anything in that database.
+NOTE: Your application needs a database to make Camunda work, even if the application itself does not store anything in that database.
 
-For more details about Spring and camunda, check out the their guide https://docs.camunda.org/get-started/spring/[Get started with Camunda and the Spring Framework^].
+For more details about Spring and Camunda, check out the guide https://docs.camunda.org/get-started/spring/[Get started with Camunda and the Spring Framework^].
 
 === Implementing user tasks
 BPM user tasks can easily be implemented using standard appNG actions and datasources.
@@ -141,9 +140,9 @@ public class UserTasks implements DataProvider, ActionProvider<TaskWrapper> {
 
 }
 ----
-<1> Use camunda's `TaskService` and `FormService`
-<2> create a `TaskWrapper` from a `Task`, the `identityLinks` and the `VariableMap`
+<1> Use Camunda's `TaskService` and `FormService`
+<2> Create a `TaskWrapper` from a `Task`, the `identityLinks` and the `VariableMap`
 <3> Dynamically add the form fields defined for this usertask to the `FieldProcessor`. See {appng}/org/appng/camunda/bpm/TaskWrapper.html#addFormFields-org.appng.api.FieldProcessor-org.camunda.bpm.engine.form.TaskFormData-java.lang.String-[TaskWrapper#addFormFields^] for details.
-<4> Retrieve the values for the dynamically added form fields an process them.
+<4> Retrieve the values for the dynamically added form fields and process them.
 <5> Complete the task.
 

@@ -3,7 +3,7 @@ image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 :stable: 1.15.0
 :current: {snapshot}
 
-Welcome to appNG, the **app**lication platform of the **N**ext **G**eneration!
+Welcome to appNG, the **N**ext **G**eneration **app**lication platform!
 
 This version of appNG bundles the https://camunda.org[Camunda BPMN^] process engine.
 
@@ -12,9 +12,7 @@ You can download this version here:
 *Latest Release:* {stable} +
 https://appng.org/appng/builds/stable/appng-application-camunda-{stable}.war
 
-
 *Latest Snapshot:* {snapshot} +
 https://appng.org/appng/builds/snapshot/appng-application-camunda-{snapshot}.war
 
-
-For getting started, read the https://appng.org/appng/docs/{current}/reference/html/developerguide.html#using-camunda-bpmn[section about integrating camunda^] in the https://appng.org/appng/docs/{current}/reference/html/developerguide.html[developer guide^].
+For getting started, read the https://appng.org/appng/docs/{current}/reference/html/developerguide.html#using-camunda-bpmn[section about integrating Camunda^] in the https://appng.org/appng/docs/{current}/reference/html/developerguide.html[developer guide^].

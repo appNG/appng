@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>appng-application-camunda</artifactId>
 	<packaging>war</packaging>
-	<name>appNG Application with camunda BMP process engine</name>
+	<name>appNG Application, including Camunda BPM process engine libraries</name>
 
 	<parent>
 		<groupId>org.appng</groupId>
