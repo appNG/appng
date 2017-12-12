@@ -39,8 +39,9 @@ import lombok.Data;
 import lombok.experimental.Delegate;
 
 /**
- * A wrapper for a {@link Task}, providing the ability of dynamically adding {@link FieldDef}initions based on a the
- * {@link TaskFormData} that is <br/>
+ * A wrapper for a {@link org.camunda.bpm.engine.task.Task}, providing the ability of dynamically adding
+ * {@link FieldDef}initions based on the {@link org.camunda.bpm.engine.form.TaskFormData} that has been defined for that
+ * task.<br/>
  * This class can easily be used as the bind-class of an appNG {@link Datasource}.
  * 
  * 
