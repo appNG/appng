@@ -9,30 +9,25 @@ When using this version of appNG, your application can easily leverage the power
 [source,xml]
 ----
 <dependencies>
-    <dependency>
+    <dependency><!--1-->
 		<groupId>org.appng</groupId>
 		<artifactId>appng-camunda</artifactId>
-		<version>${appNGVersion}</version>
-		<scope>provided</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.camunda.bpm</groupId>
-		<artifactId>camunda-engine-spring</artifactId>
-		<scope>provided</scope>
 	</dependency>
 </dependencies>
 <dependencyManagement>
 	<dependencies>
-		<dependency>
-			<groupId>org.camunda.bpm</groupId>
-			<artifactId>camunda-bom</artifactId>
-			<version>7.8.0</version>
-			<scope>import</scope>
+		<dependency><!--2-->
+			<groupId>org.appng</groupId>
+			<artifactId>appng-application-bom</artifactId>
 			<type>pom</type>
+			<scope>import</scope>
+			<version>${appNGVersion}</version>
 		</dependency>
 	</dependencies>
 </dependencyManagement>
 ----
+<1> Add a dependency to `appng-camunda`.
+<2> Use appNG's bill of materials (BOM).
 
 Next, you have to define some Camunda specific beans in your `beans.xml`:
 [source,xml]
