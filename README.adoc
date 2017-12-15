@@ -265,7 +265,7 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |https://appng.org/appng/builds/snapshot/appng-application-{snapshot}.war[WAR^]
 
 |appNG with https://camunda.org/[Camunda BPMN^]
-|{stable}
+|{snapshot}
 |https://appng.org/appng/builds/snapshot/appng-application-camunda-{snapshot}.war[WAR^]
 
 |appNGizer
