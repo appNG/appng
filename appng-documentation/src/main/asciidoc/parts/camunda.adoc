@@ -1,6 +1,6 @@
 :camunda: https://docs.camunda.org/javadoc/camunda-bpm-platform/7.8
 ifndef::appng[]
-:appng: https://appng.org/appng/docs/1.15.1-SNAPSHOT/javadoc/
+:appng: https://appng.org/appng/docs/1.16.0-SNAPSHOT/javadoc/
 endif::appng[]
 
 == Using Camunda BPMN
