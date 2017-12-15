@@ -9,7 +9,7 @@ When using this version of appNG, your application can easily leverage the power
 [source,xml]
 ----
 <dependencies>
-    <dependency><!--1-->
+	<dependency><!--1-->
 		<groupId>org.appng</groupId>
 		<artifactId>appng-camunda</artifactId>
 	</dependency>
