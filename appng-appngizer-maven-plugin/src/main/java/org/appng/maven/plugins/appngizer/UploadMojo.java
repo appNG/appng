@@ -16,6 +16,7 @@
 package org.appng.maven.plugins.appngizer;
 
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -31,7 +32,7 @@ public class UploadMojo extends AppNGizerMojo {
 			login();
 			getRepository();
 			upload();
-		} catch (URISyntaxException e) {
+		} catch (URISyntaxException | InterruptedException | ExecutionException e) {
 			throw new MojoExecutionException("error during upload", e);
 		}
 

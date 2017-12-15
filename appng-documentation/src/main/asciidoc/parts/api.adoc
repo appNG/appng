@@ -1,3 +1,5 @@
+:sources: ../../../../src/test/java/
+
 == Implementing services
 
 [[webservices]]
@@ -22,7 +24,7 @@ public class ImageService implements Webservice {
       Image image = getImage(id)
       return image.getData(id);
   }
-  
+
   public String getContentType() {
     return "image/jpg";
   }
@@ -38,7 +40,7 @@ Example: http://localhost:8080/service/manager/myapp/webservice/myWebservice
 
 
 === SOAP services
-The interface {appng}/org/appng/api/SoapService.html[org.appng.api.SoapService^] is used to implement a https://en.wikipedia.org/wiki/SOAP[SOAP^] compliant service based on http://projects.spring.io/spring-ws/[Spring WS^]. For more information on Spring WS, see the http://docs.spring.io/spring-ws/site/reference/html/tutorial.html[Reference Documentation^] and this https://spring.io/guides/gs/producing-web-service/[Getting Started Guide^].
+The interface {appng}/org/appng/api/SoapService.html[org.appng.api.SoapService^] is used to implement a https://en.wikipedia.org/wiki/SOAP[SOAP^] compliant service based on http://projects.spring.io/spring-ws/[Spring WS^]. For more information on Spring WS, see the https://docs.spring.io/spring-ws/site/reference/html/tutorial.html[Reference Documentation^] and this https://spring.io/guides/gs/producing-web-service/[Getting Started Guide^].
 
 The following steps are required to build a SOAP service:
 
@@ -213,7 +215,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController //<1>
 public class CalculatorService {
-    
+
     @RequestMapping(value = "/add/{a}/{b}", //<2>
         method = RequestMethod.GET, //<3>
         produces = MediaType.TEXT_PLAIN_VALUE) //<4>
@@ -228,7 +230,7 @@ public class CalculatorService {
 <3> Define the HTTP method
 <4> Define the media-type this method produces
 <5> Return a `ResponseEntity` of the desired type
-<6> Map the path variables to the parameters 
+<6> Map the path variables to the parameters
 <7> Return the response
 
 In order to make the necessary conversion of the `ResponseEntity` work, there needs to be an appropriate {spring}/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html[HttpMessageConverter^] present in your application.
@@ -248,7 +250,7 @@ public class IntegerMessageConverter implements HttpMessageConverter<Integer> {
 	public boolean canWrite(Class<?> clazz, MediaType mediaType) {
 		return Integer.class.equals(clazz);
 	}
-	
+
 	public void write(Integer t, MediaType contentType, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 		outputMessage.getBody().write(String.valueOf(t).getBytes());
@@ -257,7 +259,7 @@ public class IntegerMessageConverter implements HttpMessageConverter<Integer> {
 	public boolean canRead(Class<?> clazz, MediaType mediaType) {
 		return false;
 	}
-	
+
 	public Integer read(Class<? extends Integer> clazz, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException {
 		return null;
@@ -281,6 +283,50 @@ The URL schema for the REST service is
 Example:
 http://localhost:8080/service/manager/myapp/rest/add/3/4
 
+==== JSON REST services
+[source,java]
+----
+include::{sources}org/example/CalculatorService.java[indent=0]
+----
+<1> Map to the path `/add`
+<2> Only allow the `POST` method
+<3> Use constant from {spring}/javadoc-api/org/springframework/http/MediaType.html[MediaType^] to set the returned content type
+<4> Use an `Operators` object as a parameter and annotate it with {spring}/javadoc-api/org/springframework/web/bind/annotation/RequestBody.html[RequestBody^].
+
+[TIP]
+====
+A method annotated with `@RequestMapping` can use appNG's {appng}/org/appng/api/model/Site.html[Site^], {appng}/org/appng/api/model/Application.html[Application^] and {appng}/org/appng/api/Environment.html[Environment^] interfaces as a parameter.
+
+Also note that there are many built-in {spring}/javadoc-api/org/springframework/web/method/support/HandlerMethodArgumentResolver.html[HandlerMethodArgumentResolver^]s that add support for additional parameter types.
+====
+
+To support JSON format, you have to register the aforementioned `MappingJackson2HttpMessageConverter` in your `beans.xml`:
+[source,xml]
+----
+<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+  <property name="prettyPrint" value="true" /> <!--1-->
+</bean>
+----
+<1> Use  `prettyPrint` for a better readability.
+
+The *request* will be use the `POST` method and use JSON formatting:
+[source,json]
+----
+{
+  "a" : 39,
+  "b" : 3
+}
+----
+
+The *response* to this request looks like this:
+[source,json]
+----
+{
+  "a" : 39,
+  "b" : 3,
+  "result" : 42
+}
+----
 
 For more details on this topic, see {spring}/spring-framework-reference/htmlsingle/#mvc-ann-restcontroller[section 22.3.3^] of Spring's reference documentation.
 
@@ -320,6 +366,8 @@ If set to `true` and the `cronExpression` property is properly set, the job will
 If set to `true`, this job will only run once per appNG cluster, i.e. it is not executed on each node, which is the default behavior.
 * `hardInterruptable` +
 If set to `true`, this job can safely be interrupted, e.g when a `Site` is being reloaded. This is achieved by running the job in a separate thread and calling {jse}/java/lang/Thread.html#interrupt--[Thread.interrupt^].
+* `allowConcurrentExecutions` +
+If set to `true`, multiple instances of this job can run concurrently (default is `false`).
 
 The best way to configure a job is in `beans.xml`:
 [source,xml]

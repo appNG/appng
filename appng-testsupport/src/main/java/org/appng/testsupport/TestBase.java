@@ -90,9 +90,13 @@ import org.appng.xml.BaseObject;
 import org.appng.xml.MarshallService;
 import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.PermissionRef;
+import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ActionRef;
+import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
+import org.appng.xml.platform.Event;
 import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
 import org.custommonkey.xmlunit.DifferenceListener;
@@ -193,6 +197,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	public static final String BEANS_PATH = "file:application-home/beans.xml";
 
+	protected static final String APPLICATION_HOME = "application-home";
+
 	protected static final String FORM_ACTION = "form_action";
 
 	private static final String SITE_MANAGER_PATH = "/manager";
@@ -253,7 +259,11 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	private Map<String, String> parameters = new HashMap<String, String>();
 
 	public TestBase() {
-		this("application", "application-home");
+		this("application", APPLICATION_HOME);
+	}
+
+	public TestBase(String name) {
+		this(name, APPLICATION_HOME);
 	}
 
 	protected void subjectWithRole(String roleName) {
@@ -320,6 +330,18 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		return properties;
 	}
 
+	/**
+	 * Adds a parameter to the {@link org.appng.api.Request} used in the testcase.<br/>
+	 * After all parameters have been added, {@link #initParameters()} (or {@link #initParameters(boolean)}) has to be
+	 * called.<br/>
+	 * <strong>Not to confiuse with {@link DataSourceCall#withParam(String, String)} and
+	 * {@link ActionCall#withParam(String, String)}!</strong>
+	 * 
+	 * @param name
+	 *            the name of the parameter
+	 * @param value
+	 *            the value of the parameter
+	 */
 	protected void addParameter(String name, String value) {
 		parameters.put(name, value);
 	}
@@ -357,6 +379,10 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		request.setApplicationConfig(applicationConfigProvider);
 	}
 
+	/**
+	 * Initializes the {@link org.appng.api.Request} for the testcase. Before, some paramters can be added using
+	 * {@link #addParameter(String, String)}
+	 */
 	protected void initParameters() {
 		initParameters(false);
 	}
@@ -540,14 +566,34 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		}
 	}
 
+	/**
+	 * Returns a {@link DataSourceCall} that wraps a {@link DatasourceRef}, using the given id for a {@link Datasource}
+	 * 
+	 * @param id
+	 *            the id of the {@link Datasource}
+	 * @return the {@link DataSourceCall}
+	 */
 	protected DataSourceCall getDataSource(String id) {
 		return new DataSourceCall(id);
 	}
 
+	/**
+	 * Returns an {@link ActionCall} that wraps an {@link ActionRef}, using the given id for an {@link Action}.
+	 * 
+	 * @param eventId
+	 *            the id of the {@link Event}
+	 * @param id
+	 *            the id of the {@link Action}
+	 * @return the {@link ActionCall}
+	 */
 	protected ActionCall getAction(String eventId, String id) {
 		return new ActionCall(eventId, id);
 	}
 
+	/**
+	 * A wrapper for a {@link DatasourceRef}, allowing to add {@link Param}eters and to retrieve the actual
+	 * {@link CallableDataSource}.
+	 */
 	protected class DataSourceCall extends DatasourceRef {
 
 		private ParametrizedCall parametrizedCall;
@@ -572,16 +618,36 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			return this;
 		}
 
+		/**
+		 * Adds a {@link Param} to the wrapped {@link DatasourceRef}.
+		 * 
+		 * @param name
+		 *            the name of the {@link Param}
+		 * @param value
+		 *            the value
+		 * @return
+		 */
 		public DataSourceCall withParam(String name, String value) {
 			parametrizedCall.withParam(name, value);
 			return this;
 		}
 
+		/**
+		 * Returns the {@link CallableDataSource}.
+		 * 
+		 * @return the {@link CallableDataSource}
+		 * @throws ProcessingException
+		 *             if an error occurs while assembling the CallableDataSource
+		 */
 		public CallableDataSource getCallableDataSource() throws ProcessingException {
 			return new CallableDataSource(site, application, request, getParameterSupport(), this);
 		}
 	}
 
+	/**
+	 * A wrapper for an {@link ActionRef}, allowing to add {@link Param}eters and to retrieve the actual
+	 * {@link CallableAction}.
+	 */
 	protected class ActionCall extends ActionRef {
 
 		private ParametrizedCall parametrizedCall;
@@ -607,11 +673,30 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			return this;
 		}
 
+		/**
+		 * Adds a {@link Param} to the wrapped {@link ActionRef}.
+		 * 
+		 * @param name
+		 *            the name of the {@link Param}
+		 * @param value
+		 *            the value
+		 * @return
+		 */
 		public ActionCall withParam(String name, String value) {
 			parametrizedCall.withParam(name, value);
 			return this;
 		}
 
+		/**
+		 * Returns the {@link CallableAction}.
+		 * 
+		 * @param form
+		 *            an instance of the bind-object used by the {@link Action}. The type must be compatible with
+		 *            {@link MetaData#getBindClass()} of the {@link Datasource} that is used by the {@link Action}.
+		 * @return the {@link CallableAction}
+		 * @throws ProcessingException
+		 *             if an error occurs while assembling the CallableAction
+		 */
 		public CallableAction getCallableAction(Object form) throws ProcessingException {
 			return new CallableTestAction(site, application, request, this, form);
 		}
@@ -662,7 +747,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 				String propName = prop.getId();
 				String value = overrides.containsKey(propName) ? overrides.getProperty(propName) : prop.getValue();
 				SimpleProperty property;
-				if(Boolean.TRUE.equals(prop.isClob())){
+				if (Boolean.TRUE.equals(prop.isClob())) {
 					property = new SimpleProperty(propName, null);
 					property.setClob(value);
 				} else {

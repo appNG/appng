@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.15.0</version>
+	<version>1.16.0</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
@@ -71,9 +71,9 @@
 		<docDir>./target/generated-docs</docDir>
 		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
-		<manager.version>1.12.3</manager.version>
-		<scheduler.version>1.11.3</scheduler.version>
-		<authentication.version>1.11.1</authentication.version>
+		<manager.version>1.12.4</manager.version>
+		<scheduler.version>1.11.4</scheduler.version>
+		<authentication.version>1.11.2</authentication.version>
 		<template.name>appng-template</template.name>
 		<template.version>1.14.3</template.version>
 	</properties>
@@ -127,6 +127,8 @@
 		<module>appng-appngizer-jaxb</module>
 		<module>appng-appngizer</module>
 		<module>appng-appngizer-maven-plugin</module>
+		<module>appng-camunda</module>
+		<module>appng-application-camunda</module>
 	</modules>
 
 	<profiles>

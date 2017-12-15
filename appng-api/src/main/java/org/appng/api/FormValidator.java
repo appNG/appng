@@ -21,10 +21,10 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Message;
 
 /**
- * Interface that can be implemented by a {@link DataProvider} or the formBean that is used by an {@link ActionProvider}
+ * Interface that can be implemented by an {@link ActionProvider} or the formBean that is used by an {@link ActionProvider}
  * . A {@link FormValidator} is used for contextual validation, e.g. to verify that one value is greater than the other
  * or that two given passwords match. For all other basic validations, use <a
- * href="http://jcp.org/en/jsr/detail?id=303">JSR-303</a> annotations.<br/>
+ * href="https://jcp.org/en/jsr/detail?id=380">JSR-380 (Bean Validtion 2.0)</a> annotations.<br/>
  * The {@code validate()}-method is being called before the {@link ActionProvider}s {@code perform}-method. Only if
  * there are no errors (see {@link FieldProcessor#hasErrors()}), the {@link ActionProvider} is being actually called.
  * 

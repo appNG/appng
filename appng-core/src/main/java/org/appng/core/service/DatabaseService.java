@@ -39,6 +39,7 @@ import org.appng.xml.application.Datasource;
 import org.appng.xml.application.DatasourceType;
 import org.appng.xml.application.Datasources;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.util.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -196,7 +197,7 @@ public class DatabaseService extends MigrationService {
 				String jdbcUrl = databaseConnection.getJdbcUrl();
 				log.info("starting database migration for {} from {}", jdbcUrl, scriptFolder.getAbsolutePath());
 				Flyway flyway = new Flyway();
-				flyway.setLocations("filesystem:" + scriptFolder.getAbsolutePath());
+				flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
 				return migrate(flyway, databaseConnection);
 			} else {
 				return MigrationStatus.ERROR;

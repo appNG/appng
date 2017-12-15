@@ -38,6 +38,8 @@ import org.appng.api.model.Site;
  * <li>{@code hardInterruptable}<br/>
  * If set to {@code true}, this job can safely be interrupted, e.g when a {@link Site} is being reloaded. This is
  * achieved by running the job in a separate thread and calling {@link Thread#interrupt()}.
+ * <li>{@code allowConcurrentExecutions}<br/>
+ * If set to {@code true}, multiple instances of this job can run concurrently (default is {@code false}).
  * </ul>
  * 
  * @author Matthias Müller

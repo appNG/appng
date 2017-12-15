@@ -101,25 +101,29 @@ public class RepositoryController extends ControllerBase {
 
 	@RequestMapping(value = "/repository/{name}/{package}", method = RequestMethod.GET)
 	public ResponseEntity<Packages> getRepositoryPackages(@PathVariable("name") String name,
-			@PathVariable("package") String packageName) throws BusinessException {
+			@PathVariable("package") String packageName) {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
 		if (null == r) {
 			return notFound();
 		}
-		PackageVersions packageVersions = r.getPackageVersions(packageName);
-		Identifier installedApp = getApplicationByName(packageName);
-		Identifier installedTemplate = templateService.getTemplateByName(packageName);
-		Packages packages = new Packages();
-		for (PackageInfo pkg : packageVersions.getPackage()) {
-			Package p = getPackage(installedApp, installedTemplate, pkg);
-			packages.getPackage().add(p);
+		try {
+			PackageVersions packageVersions = r.getPackageVersions(packageName);
+			Identifier installedApp = getApplicationByName(packageName);
+			Identifier installedTemplate = templateService.getTemplateByName(packageName);
+			Packages packages = new Packages();
+			for (PackageInfo pkg : packageVersions.getPackage()) {
+				Package p = getPackage(installedApp, installedTemplate, pkg);
+				packages.getPackage().add(p);
+			}
+			Comparator<org.appng.appngizer.model.xml.Package> propertyComparator = new PropertyComparator<org.appng.appngizer.model.xml.Package>(
+					"timestamp", false, false);
+			Collections.sort(packages.getPackage(), propertyComparator);
+			packages.setSelf("/repository/" + packages.encode(name) + "/" + packageName);
+			packages.applyUriComponents(getUriBuilder());
+			return ok(packages);
+		} catch (BusinessException e) {
+			return notFound();
 		}
-		Comparator<org.appng.appngizer.model.xml.Package> propertyComparator = new PropertyComparator<org.appng.appngizer.model.xml.Package>(
-				"timestamp", false, false);
-		Collections.sort(packages.getPackage(), propertyComparator);
-		packages.setSelf("/repository/" + packages.encode(name) + "/" + packageName);
-		packages.applyUriComponents(getUriBuilder());
-		return ok(packages);
 	}
 
 	protected Package getPackage(Identifier installedApp, Identifier installedTemplate, PackageInfo pkg) {
@@ -132,25 +136,51 @@ public class RepositoryController extends ControllerBase {
 		return p;
 	}
 
-	@RequestMapping(value = "/repository/{name}/{package}/{version}/{timestmap}", method = RequestMethod.GET)
+	@RequestMapping(value = "/repository/{name}/{package}/{version}/{timestamp}", method = RequestMethod.GET)
 	public ResponseEntity<Package> getRepositoryPackage(@PathVariable("name") String name,
 			@PathVariable("package") String packageName, @PathVariable("version") String packageVersion,
-			@PathVariable("timestmap") String packageTimestamp) throws BusinessException {
+			@PathVariable("timestamp") String packageTimestamp) {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
 		if (null == r) {
 			return notFound();
 		}
-		PackageArchive packageArchive = r.getPackageArchive(packageName, packageVersion, packageTimestamp);
-		if (null == packageArchive) {
+		try {
+			PackageArchive packageArchive = r.getPackageArchive(packageName, packageVersion, packageTimestamp);
+			if (null == packageArchive) {
+				return notFound();
+			}
+			Identifier installedApp = getApplicationByName(packageName);
+			Identifier installedTemplate = templateService.getTemplateByName(packageName);
+			Package pkg = getPackage(installedApp, installedTemplate, packageArchive.getPackageInfo());
+			URI uri = getUriBuilder().path("/repository/{name}/{package}/{version}/{timestamp}")
+					.buildAndExpand(name, pkg.getName(), pkg.getVersion(), pkg.getTimestamp()).toUri();
+			pkg.setSelf(uri.toString());
+			return ok(pkg);
+		} catch (BusinessException e) {
 			return notFound();
 		}
-		Identifier installedApp = getApplicationByName(packageName);
-		Identifier installedTemplate = templateService.getTemplateByName(packageName);
-		Package pkg = getPackage(installedApp, installedTemplate, packageArchive.getPackageInfo());
-		URI uri = getUriBuilder().path("/repository/{name}/{package}/{version}/{timestmap}")
-				.buildAndExpand(name, pkg.getName(), pkg.getVersion(), pkg.getTimestamp()).toUri();
-		pkg.setSelf(uri.toString());
-		return ok(pkg);
+	}
+
+	@RequestMapping(value = "/repository/{name}/{package}/{version}/{timestamp}", method = RequestMethod.DELETE)
+	public ResponseEntity<Packages> deleteRepositoryPackage(@PathVariable("name") String name,
+			@PathVariable("package") String packageName, @PathVariable("version") String packageVersion,
+			@PathVariable("timestamp") String packageTimestamp) throws BusinessException {
+		RepositoryImpl r = (RepositoryImpl) getCoreService().getApplicationRepositoryByName(name);
+		if (null == r) {
+			return notFound();
+		}
+		if (r.isActive() && RepositoryType.LOCAL.equals(r.getRepositoryType())) {
+			try {
+				r.deletePackageVersion(packageName, packageVersion, packageTimestamp);
+			} catch (BusinessException be) {
+				return notFound();
+			} catch (Exception e) {
+				throw new BusinessException(e);
+			}
+			return getRepositoryPackages(name, packageName);
+		} else {
+			return reply(HttpStatus.METHOD_NOT_ALLOWED);
+		}
 	}
 
 	protected boolean isInstalled(Identifier installed, PackageInfo pkg) {

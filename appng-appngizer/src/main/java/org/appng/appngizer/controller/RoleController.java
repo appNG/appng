@@ -58,7 +58,7 @@ public class RoleController extends ControllerBase {
 
 	@RequestMapping(value = "/application/{app}/role/{name}", method = RequestMethod.GET)
 	public ResponseEntity<Role> getRole(@PathVariable("app") String app, @PathVariable("name") String name) {
-		org.appng.api.model.Role role = getCoreService().getApplicationRoleForApplication(app, name);
+		org.appng.api.model.Role role = getApplicationRole(app, name);
 		if (null == role) {
 			return notFound();
 		}
@@ -74,6 +74,10 @@ public class RoleController extends ControllerBase {
 	@RequestMapping(value = "/application/{app}/role", method = RequestMethod.POST)
 	public ResponseEntity<Role> createRole(@PathVariable("app") String app,
 			@RequestBody org.appng.appngizer.model.xml.Role role) {
+		org.appng.api.model.Role existing = getApplicationRole(app, role.getName());
+		if (null != existing) {
+			return conflict();
+		}
 		RoleImpl roleImpl = Role.toDomain(role);
 		ApplicationImpl applicationByName = getApplicationByName(app);
 		roleImpl.setApplication(applicationByName);
@@ -84,7 +88,7 @@ public class RoleController extends ControllerBase {
 	@RequestMapping(value = "/application/{app}/role/{name}", method = RequestMethod.PUT)
 	public ResponseEntity<Role> updateRole(@PathVariable("app") String app, @PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Role role) {
-		org.appng.core.domain.RoleImpl appRole = getCoreService().getApplicationRoleForApplication(app, name);
+		org.appng.core.domain.RoleImpl appRole = getApplicationRole(app, name);
 		if (null == appRole) {
 			return notFound();
 		}
@@ -112,7 +116,7 @@ public class RoleController extends ControllerBase {
 	@RequestMapping(value = "/application/{app}/role/{name}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> deleteRole(@PathVariable("app") String app, @PathVariable("name") String name)
 			throws BusinessException {
-		org.appng.api.model.Role appRole = getCoreService().getApplicationRoleForApplication(app, name);
+		org.appng.api.model.Role appRole = getApplicationRole(app, name);
 		if (null == appRole) {
 			return notFound();
 		}
@@ -120,6 +124,10 @@ public class RoleController extends ControllerBase {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(getUriBuilder().path("/application/{app}/role").buildAndExpand(app).toUri());
 		return noContent(headers);
+	}
+
+	private RoleImpl getApplicationRole(String application, String role) {
+		return getCoreService().getApplicationRoleForApplication(application, role);
 	}
 
 	Logger logger() {

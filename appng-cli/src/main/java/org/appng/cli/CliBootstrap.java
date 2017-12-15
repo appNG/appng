@@ -47,7 +47,7 @@ public class CliBootstrap {
 
 	public static final String APPNG_HOME = "APPNG_HOME";
 	private static final Logger LOG = LoggerFactory.getLogger(CliBootstrap.class);
-	private static final String CLI_CONTEXT_XML = "cliContext.xml";
+	static final String CLI_CONTEXT_XML = "cliContext.xml";
 
 	/**
 	 * Runs the command line interface and calls {@code System#exit(int)} with the status provided by
@@ -122,7 +122,7 @@ public class CliBootstrap {
 		return cliCore.getStatus();
 	}
 
-	private static ConfigurableApplicationContext getContext(final Properties config, String location)
+	static ConfigurableApplicationContext getContext(final Properties config, String location)
 			throws BeansException {
 		PropertyResourceConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		appNGConfigurer.setProperties(config);
@@ -151,7 +151,7 @@ public class CliBootstrap {
 		return file;
 	}
 
-	private static Properties getCliConfig(CliBootstrapEnvironment env, boolean logInfo, File platformRootPath) throws FileNotFoundException,
+	static Properties getCliConfig(CliBootstrapEnvironment env, boolean logInfo, File platformRootPath) throws FileNotFoundException,
 			IOException {
 		Properties config = new Properties();
 		File properties = env.getAbsoluteFile(new File(platformRootPath, PlatformStartup.CONFIG_LOCATION));

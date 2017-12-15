@@ -17,6 +17,7 @@ package org.appng.core.domain;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Date;
@@ -319,9 +320,13 @@ public class DatabaseConnection implements Named<Integer> {
 	}
 
 	public boolean testConnection(StringBuilder dbInfo) {
+		return testConnection(dbInfo, false);
+	}
+
+	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver) {
 		Connection connection = null;
 		try {
-			connection = getConnection();
+			connection = getConnection(registerDriver);
 			DatabaseMetaData metaData = connection.getMetaData();
 			if (null != dbInfo) {
 				dbInfo.append(metaData.getDatabaseProductName() + " " + metaData.getDatabaseProductVersion());
@@ -337,8 +342,17 @@ public class DatabaseConnection implements Named<Integer> {
 	}
 
 	@Transient
-	public Connection getConnection() throws SQLException, ClassNotFoundException {
-		Class.forName(driverClass);
+	public Connection getConnection() throws SQLException, ReflectiveOperationException {
+		return getConnection(false);
+	}
+
+	@Transient
+	@SuppressWarnings("unchecked")
+	public Connection getConnection(boolean registerDriver) throws SQLException, ReflectiveOperationException {
+		Class<? extends Driver> realClass = (Class<? extends Driver>) Class.forName(driverClass);
+		if (registerDriver) {
+			DriverManager.registerDriver(realClass.newInstance());
+		}
 		return DriverManager.getConnection(jdbcUrl, userName, new String(password));
 	}
 

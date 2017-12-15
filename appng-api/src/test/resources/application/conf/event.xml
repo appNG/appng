@@ -2,7 +2,11 @@
 <event id="event" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
 
-	<config></config>
+	<config>
+		<permissions>
+			<permission ref="doesNotExist" mode="set" />
+		</permissions>
+	</config>
 	<action id="action">
 		<config>
 			<permissions>
@@ -13,7 +17,7 @@
 				<param name="actionParam2" />
 			</params>
 		</config>
-		<condition expression="${fooo}"/>
+		<condition expression="${fooo}" />
 		<datasource id="datasource">
 			<params>
 				<param name="doesNotExist" />

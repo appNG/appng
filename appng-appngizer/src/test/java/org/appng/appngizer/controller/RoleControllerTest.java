@@ -44,6 +44,7 @@ public class RoleControllerTest extends ControllerTest {
 		p2.setApplication("demo-application");
 		role.getPermissions().getPermission().add(p2);
 		postAndVerify("/application/demo-application/role", "xml/role-create.xml", role, HttpStatus.CREATED);
+		postAndVerify("/application/demo-application/role", null, role, HttpStatus.CONFLICT);
 
 		role.setDescription("The editor role");
 		role.getPermissions().getPermission().remove(1);

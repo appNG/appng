@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<messages xmlns="http://www.appng.org/schema/platform" ref="create">
+    <message ref="create" class="OK">Employee created!</message>
+</messages>

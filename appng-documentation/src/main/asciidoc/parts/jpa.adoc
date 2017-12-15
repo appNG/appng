@@ -192,7 +192,7 @@ Adding support for http://hibernate.org/orm/envers[Hibernate Envers^] can be don
 You can extend the aforementioned class and override {appng}/org/appng/persistence/repository/EnversSearchRepositoryImpl.html#getRevisionEntity--[getRevisionEntity()^] for providing you own revision entity.
 . Provide the DDL scripts for the auditing tables and place them in `application-home/sql/<type>`.
 
-Your repository then offers theses methods, defined by http://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/history/RevisionRepository.html[org.springframework.data.repository.history.RevisionRepository^]
+Your repository then offers theses methods, defined by {spring-data}/api/org/springframework/data/repository/history/RevisionRepository.html[org.springframework.data.repository.history.RevisionRepository^]
 
 * `Revision<N,T> findLastChangeRevision(ID id)`
 * `Revision<N,T> findRevision(ID id, N revisionNumber)`

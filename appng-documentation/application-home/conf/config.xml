@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applicationRootConfig xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<name>demo</name>
+	<config>
+		<session>
+			<session-params />
+		</session>
+	</config>
+</applicationRootConfig>
+

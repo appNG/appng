@@ -15,6 +15,7 @@
  */
 package org.appng.core.service;
 
+import java.io.File;
 import java.util.Arrays;
 
 import javax.sql.DataSource;
@@ -22,17 +23,19 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
+import org.appng.core.domain.SiteApplication;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.internal.util.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
- * A service offering methods for configuring and initializing {@link DatabaseConnection}s using <a
- * href="http://www.flywaydb.org">Flyway</a>.
+ * A service offering methods for configuring and initializing {@link DatabaseConnection}s using
+ * <a href="http://www.flywaydb.org">Flyway</a>.
  * 
  * @author Matthias Müller
  */
@@ -160,7 +163,8 @@ public class MigrationService {
 	}
 
 	/**
-	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection}
+	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection} (the appNG root
+	 * connection).
 	 * 
 	 * @param connection
 	 *            a {@link DatabaseConnection}
@@ -183,10 +187,33 @@ public class MigrationService {
 		return null;
 	}
 
+	/**
+	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection}, which must be owned by
+	 * a {@link SiteApplication}.
+	 * 
+	 * @param connection
+	 *            a {@link DatabaseConnection} owned by a {@link SiteApplication}
+	 * @param sqlFolder
+	 *            the path to migration scripts
+	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @see MigrationInfoService
+	 */
+	public MigrationInfoService statusComplete(DatabaseConnection connection, File sqlFolder) {
+		if (null != connection && connection.testConnection(null)) {
+			String typeFolder = connection.getType().name().toLowerCase();
+			File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
+			Flyway flyway = new Flyway();
+			flyway.setDataSource(getDataSource(connection));
+			flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
+			return flyway.info();
+		}
+		return null;
+	}
+
 	protected MigrationStatus initDatabase(DatabaseConnection rootConnection, Boolean doRepair) {
 		StringBuilder dbInfo = new StringBuilder();
 		String jdbcUrl = rootConnection.getJdbcUrl();
-		if (rootConnection.testConnection(dbInfo)) {
+		if (rootConnection.testConnection(dbInfo, true)) {
 			log.info("connected to " + jdbcUrl + " (" + dbInfo.toString() + ")");
 			Flyway flyway = new Flyway();
 			String location = LOCATION_PREFIX + rootConnection.getType().name().toLowerCase();
@@ -216,8 +243,8 @@ public class MigrationService {
 	}
 
 	protected DataSource getDataSource(DatabaseConnection databaseConnection) {
-		return getDataSource(databaseConnection.getJdbcUrl(), databaseConnection.getUserName(), new String(
-				databaseConnection.getPassword()));
+		return getDataSource(databaseConnection.getJdbcUrl(), databaseConnection.getUserName(),
+				new String(databaseConnection.getPassword()));
 	}
 
 	protected DataSource getDataSource(String url, String username, String password) {

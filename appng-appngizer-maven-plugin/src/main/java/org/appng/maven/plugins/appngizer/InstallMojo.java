@@ -16,6 +16,7 @@
 package org.appng.maven.plugins.appngizer;
 
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -74,16 +75,17 @@ public class InstallMojo extends AppNGizerMojo {
 								getLog().info(
 										"Activating application " + installedPackage.getName() + " for site " + site);
 								ResponseEntity<Void> response = send(null, getHeader(), HttpMethod.POST,
-										"site/" + site + "/application/" + installedPackage.getName(), Void.class);
+										"site/" + site + "/application/" + installedPackage.getName(), Void.class,
+										false);
 
 								HttpStatus statusCode = response.getStatusCode();
 
 								if (statusCode.is3xxRedirection()) {
-									getLog().info(
-											"Activated application " + installedPackage.getName() + " for site " + site);
-								} else if (HttpStatus.METHOD_NOT_ALLOWED.equals(statusCode)) {
-									getLog().info("Application " + installedPackage.getName() + " already active for site "
+									getLog().info("Activated application " + installedPackage.getName() + " for site "
 											+ site);
+								} else if (HttpStatus.METHOD_NOT_ALLOWED.equals(statusCode)) {
+									getLog().info("Application " + installedPackage.getName()
+											+ " already active for site " + site);
 								} else {
 									doReload = false;
 									getLog().error("error installing package " + installedPackage.getName()
@@ -109,7 +111,7 @@ public class InstallMojo extends AppNGizerMojo {
 				getLog().error("error uploading package , return code was " + uploaded.getStatusCode());
 			}
 
-		} catch (URISyntaxException e) {
+		} catch (URISyntaxException | InterruptedException | ExecutionException e) {
 			throw new MojoExecutionException("error during upload", e);
 		}
 

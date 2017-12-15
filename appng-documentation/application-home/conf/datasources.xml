@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+
+	<datasource id="employees">
+		<config>
+			<title>employees</title>
+			<meta-data bindClass="org.example.Employee">
+				<field name="name" type="text">
+					<label id="name" />
+				</field>
+				<field name="lastname" type="text">
+					<label id="lastname" />
+				</field>
+			</meta-data>
+
+		</config>
+		<bean id="employees" />
+	</datasource>
+
+	<datasource id="employee">
+		<config>
+			<meta-data bindClass="org.example.Employee">
+				<field name="name" type="text">
+					<label id="name" />
+				</field>
+				<field name="lastname" type="text">
+					<label id="lastname" />
+				</field>
+			</meta-data>
+		</config>
+		<bean id="employees">
+			<option name="mode" value="single" />
+		</bean>
+	</datasource>
+
+</datasources>
