@@ -57,6 +57,7 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-camunda</artifactId>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
