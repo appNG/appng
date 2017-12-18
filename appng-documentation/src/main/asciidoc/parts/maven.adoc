@@ -10,3 +10,112 @@ Using this archetype will result in the following `pom.xml`
 ----
 include::../listing/pom-archetype.xml[]
 ----
+
+=== Using the appNGizer Maven plugin
+The appNGizer Maven Plugin can be used to upload and install your application to several (local or remote) appNG instances.
+
+By default, it binds to the `package` phase.
+
+==== Goals
+
+`upload` +
+This goal uploads the application to a local repository, but does not install it.
+
+`install` +
+This goal uploads the application to a local repository and can also install it for a site. Optionally, this site can the be reloaded.
+
+
+==== Configuration
+
+General (default in braces):
+
+* `endpoint` (`http://localhost:8080/appNGizer/`) +
+the endpoint URL of appNGizer
+
+* `sharedSecret` (_none_) +
+the platform's shared secret to authenticate with
+
+* `repository`  (`Local`) +
+the name of the *local* repository
+
+* `baseauthUser` (_none_) +
+the user name for basic authentication
+
+* `baseauthPassword` (_none_) +
+the password for basic authentication
+
+`install` goal only:
+
+* `activate` (`false`) +
+if the installed archive should be activated for the site
+
+* `site` (_none_) +
+the name of the site to reload after installing the application +
++
+[NOTE]
+====
+In a local environment, you usually do not set up cluster communication. In order to make reloading sites with the appNGizer maven plugin work,
+you have to set the site property `supportReloadFile` to `true`. The site reload will then be triggered by the existence of a marker file instead of a cluster event.
+====
+
+==== Example
+
+[source,xml]
+----
+<plugin>
+    <groupId>org.appng.maven</groupId>
+    <artifactId>appng-appngizer-maven-plugin</artifactId>
+    <version>${appNGVersion}</version>
+    <configuration>
+        <endpoint>http://localhost:8080/appNGizer/</endpoint>
+        <sharedSecret>TheSecret</sharedSecret>
+        <repository>Local</repository>
+        <activate>true</activate>
+        <site>manager</site>
+    </configuration>
+    <executions>
+        <execution>
+            <goals>
+                <goal>install</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+----
+
+=== Using the `local` profile
+As an alternative deployment mechanism, you can use the `local` profile that builds an expanded version of your application directly into `${env.CATALINA_HOME}/webapps/ROOT/applications/`.
+
+To make this work, these three preconditions must be fulfilled:
+
+. The environment variable `CATALINA_HOME` must be set correctly.
+. The application must have been installed through a local repository for at least one time.
+. The platform property `filebasedDeployment` must be set to `true`.
+
+
+You can even achieve to reload the site, as if using the appNGizer Maven Plugin.
+
+Therefore, set the site property `supportReloadFile` to `true` and let the `local` profile
+create the required marker-file. This can be done by using the `maven-antrun-plugin` with a `<touch>` target:
+
+[source,xml]
+----
+<plugin>
+  <artifactId>maven-antrun-plugin</artifactId>
+  <version>1.8</version>
+  <executions>
+    <execution>
+      <goals>
+        <goal>run</goal>
+      </goals>
+      <phase>package</phase>
+      <configuration>
+        <target>
+          <touch file="${env.CATALINA_HOME}/webapps/ROOT/repository/manager/.reload" /> <!--1-->
+        </target>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+----
+<1> The path to the marker-file, where `manger` represents the name of the site to reload.
