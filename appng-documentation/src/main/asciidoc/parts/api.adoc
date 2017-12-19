@@ -309,7 +309,7 @@ To support JSON format, you have to register the aforementioned `MappingJackson2
 ----
 <1> Use  `prettyPrint` for a better readability.
 
-The *request* will be use the `POST` method and use JSON formatting:
+The *request* will use the `POST` method and JSON formatting for it's content:
 [source,json]
 ----
 {
@@ -329,6 +329,25 @@ The *response* to this request looks like this:
 ----
 
 For more details on this topic, see {spring}/spring-framework-reference/htmlsingle/#mvc-ann-restcontroller[section 22.3.3^] of Spring's reference documentation.
+
+===== Multipart requests
+When using multipart requests (`enctype="multipart/form-data"`) in a `@RestController`, it is not possible to use a {spring}/javadoc-api/org/springframework/web/multipart/MultipartFile.html[MultipartFile^] as a parameter. The reason for that is the fact that appNG parses
+the request by itself and wraps it in a {appng}/org/appng/forms/Request.html[org.appng.forms.Request^].
+
+You can access this interal `org.appng.forms.Request` to retrieve the uploaded files as shown below (the `httpServletRequest` is a parameter of a RESTful method):
+[source,java]
+----
+@PostMapping("/file-upload")
+public ResponseEntity<String> handleFileUpload(HttpServletRequest httpServletRequest) {
+    org.appng.forms.Request request = (org.appng.forms.Request)
+        httpServletRequest.getAttribute(org.appng.forms.Request.REQUEST_PARSED);
+    List<org.appng.forms.FormUpload> formUploads = request.getFormUploads("file");
+  ...
+}
+----
+
+As an alternative, you can just implement a {appng}/org/appng/api/Webservice.html[Webservice^] and use {appng}/org/appng/forms/RequestContainer.html#getFormUploads--[RequestContainer.getFormUploads()^] to retrieve the uploaded files.
+
 
 
 === Job scheduling
