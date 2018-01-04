@@ -1,6 +1,6 @@
 == Home
 === Show appNGizer Home
-*URL:* http://localhost:8080/appNGizer
+*URL:* http://localhost:8080/appNGizer/
 
 *Method:* GET
 
@@ -14,9 +14,11 @@ include::../xml/home_response.xml[]
 The appNG platform property `sharedSecret` is needed to login into appNGizer. The client needs to accept cookies to proceed after login.
 
 
-*URL:* http://localhost:8080/appNGizer
+*URL:* http://localhost:8080/appNGizer/
 
 *Method:* POST
+
+IMPORTANT: The tailing slash is mandatory otherwise the request gets redirected as GET request to that location and the authentication procedure is not performed!
 
 *Request Body:* (plain text format!)
 [source,text,indent=0]
