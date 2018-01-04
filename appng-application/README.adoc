@@ -3,7 +3,7 @@ image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 :stable: 1.16.1
 :current: {snapshot}
 
-Welcome to appNG, the **app**lication platform of the **N**ext **G**eneration!
+Welcome to appNG, the **N**ext **G**eneration **app**lication platform!
 
 '''
 

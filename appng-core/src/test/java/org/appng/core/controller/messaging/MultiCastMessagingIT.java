@@ -24,11 +24,12 @@ import org.mockito.Mockito;
  * Before running this test, execute the following commands:
  * 
  * <pre>
- * sudo ifconfig lo multicast
- * sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev lo
+ * # enable multicast traffic for loopback interface
+ * sudo ip link set multicast on dev lo
+ *
+ * # route traffic to multicast address range over loopback interface
+ * sudo ip route add 224.0.0.0/4 dev lo
  * </pre>
- * 
- * This enables multicast for the loopback device.
  * </p>
  * 
  * @author Matthias Müller
