@@ -343,10 +343,8 @@ public class InitializerService {
 					}
 				} while (null == absoluteFile);
 
-				File targetFile = new File(absoluteFile.getParentFile(),
-						RELOAD_FILE + "-" + System.currentTimeMillis() / 1000);
-				FileUtils.moveFile(absoluteFile, targetFile);
-				LOGGER.info("moved {} to {}", absoluteFile.getAbsolutePath(), targetFile.getAbsolutePath());
+				FileUtils.deleteQuietly(absoluteFile);
+				LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
 				LOGGER.info("restarting site {}", site.getName());
 				try {
 					loadSite(env, getCoreService().getSiteByName(site.getName()), false,
