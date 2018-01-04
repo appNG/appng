@@ -120,7 +120,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 			}
 		};
 
-		String nodeId = System.getProperty(Messaging.APPNG_NODE_ID) + "_appGNizer";
+		String nodeId = Messaging.getNodeId(env) + "_appNGizer";
 		Messaging.createMessageSender(env, executor, nodeId, defaultHandler, null);
 	}
 
