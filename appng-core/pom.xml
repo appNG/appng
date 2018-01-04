@@ -318,12 +318,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>4.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.jodah</groupId>
-			<artifactId>lyra</artifactId>
-			<version>0.5.4</version>
+			<version>5.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
