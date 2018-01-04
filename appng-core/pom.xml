@@ -85,32 +85,6 @@
 		</resources>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>versioneye</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.versioneye</groupId>
-						<artifactId>versioneye-maven-plugin</artifactId>
-						<configuration>
-							<projectId>5975e151368b08000e6d14c2</projectId>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>update</goal>
-									<goal>securityAndLicenseCheck</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<!-- BEGIN DEPENDENCY MANAGEMENT -->
 	<dependencies>
 		<dependency>
