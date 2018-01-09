@@ -137,7 +137,7 @@ public class CallableActionTest {
 
 		try {
 			CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
-			action.perform(false);
+			action.perform();
 			fail();
 		} catch (ProcessingException e) {
 			String message = e.getMessage();

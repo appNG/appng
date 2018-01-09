@@ -274,6 +274,24 @@ public class CallableAction {
 	 * and {@link #doExecute()}. If the {@link Action} is executed and a forward-path exists, a redirect is send via
 	 * {@link Site#sendRedirect(Environment, String)}.
 	 * 
+	 * @return a {@link FieldProcessor}, only non-{@code null} if the {@link Action} has been executed successfully
+	 * @throws ProcessingException
+	 *             if an error occurred while performing
+	 * @see #doInclude()
+	 * @see #doExecute()
+	 * @see #doForward()
+	 * @see #getOnSuccess()
+	 */
+	public FieldProcessor perform() throws ProcessingException {
+		return perform(false);
+	}
+
+	/**
+	 * Performs this {@link CallableAction}.<br/>
+	 * If the {@link Action} is actually included and/or executed depends on the returns values of {@link #doInclude()}
+	 * and {@link #doExecute()}. If the {@link Action} is executed and a forward-path exists, a redirect is send via
+	 * {@link Site#sendRedirect(Environment, String)}.
+	 * 
 	 * @param isSectionHidden
 	 *            whether this action is part of a hidden {@link Section}, meaning no {@link Messages} should be set for
 	 *            the action.
