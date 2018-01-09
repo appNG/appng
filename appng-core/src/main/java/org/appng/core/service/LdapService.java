@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * 
  * @author Matthias Müller
+ * @author Dirk Heuvels
  */
 public class LdapService {
 	private static final Logger LOG = LoggerFactory.getLogger(LdapService.class);
@@ -212,11 +213,8 @@ public class LdapService {
 		try {
 			getContext(ldapCredentials);
 			return true;
-		} catch (IOException ioe) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ioe);
-			return false;
-		} catch (NamingException ne) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ne);
+		} catch (IOException | NamingException ex) {
+			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
 			return false;
 		} finally {
 			closeContext();
@@ -281,10 +279,8 @@ public class LdapService {
 					}
 				}
 			}
-		} catch (IOException ioe) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ioe);
-		} catch (NamingException ne) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ne);
+		} catch (IOException | NamingException ex) {
+			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
 		} finally {
 			closeContext();
 		}
@@ -327,10 +323,8 @@ public class LdapService {
 				ldapSubject.setEmail(email.toLowerCase());
 				subjects.add(ldapSubject);
 			}
-		} catch (IOException ioe) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ioe);
-		} catch (NamingException ne) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ne);
+		} catch (IOException | NamingException ex) {
+			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
 		} finally {
 			closeContext();
 		}

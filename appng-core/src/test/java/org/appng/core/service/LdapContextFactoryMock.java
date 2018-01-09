@@ -27,10 +27,6 @@ public class LdapContextFactoryMock implements InitialContextFactory {
 
 	private static HashMap<String, LdapContextMock> contexts = new HashMap<String, LdapContextMock>();
 
-	public LdapContextFactoryMock() {
-		// JNDI needs a public default constructor.
-	}
-
 	public static LdapContextMock setup(String userPrincipal, String userPassword, String servicePrincipal,
 			String servicePassword, HashMap<String, Object> siteProperties) throws NamingException, IOException {
 		// We need something to identify the context to be returned, when JNDI calls getInitialContext().

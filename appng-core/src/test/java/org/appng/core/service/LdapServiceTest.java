@@ -203,7 +203,9 @@ public class LdapServiceTest {
 
 	@Test
 	public void testUsersOfGroup() throws NamingException, IOException {
-		List<SubjectImpl> resultGroups;
+		List<SubjectImpl> resultSubjects;
+		String[] expectSubjNames = new String[] { "aziz", "aziz' brother" };
+		String[] expectSubjRealNames = new String[] { "Dummy", "Dummy" };
 
 		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "UPN");
 		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
@@ -213,17 +215,20 @@ public class LdapServiceTest {
 		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "ou=groups,l=egypt");
 
 		setup("aziz@egypt", "light", "mondoshawan@egypt", "stones");
-		resultGroups = ldapService.getMembersOfGroup(mockedSite, LdapContextMock.MOCKED_GROUP_NAME);
+		resultSubjects = ldapService.getMembersOfGroup(mockedSite, LdapContextMock.MOCKED_GROUP_NAME);
 
-		// FIXME: This is not a valid comparison, but works as long as some assumptions remain stable.
-		Assert.assertEquals("[Subject#null_aziz, Subject#null_aziz' brother]", resultGroups.toString());
+		Assert.assertEquals(resultSubjects.size(), 2);
+		for (int idx = 0; idx < 2; idx++) {
+			Assert.assertEquals(resultSubjects.get(idx).getName(), expectSubjNames[idx]);
+			Assert.assertEquals(resultSubjects.get(idx).getRealname(), expectSubjRealNames[idx]);
+			Assert.assertFalse(resultSubjects.get(idx).isAuthenticated());
+		}
 	}
 
 	@Test
 	public void testLoginUserStartTls() throws NamingException, IOException {
 		boolean success;
 
-		// DN
 		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "DN");
 		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "l=egypt");
 		sitePropertyMocks.put(LdapService.LDAP_ID_ATTRIBUTE, "uid");
