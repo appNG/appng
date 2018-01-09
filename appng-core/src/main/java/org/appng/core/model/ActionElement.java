@@ -23,6 +23,7 @@ import org.appng.api.support.CallableAction;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ActionRef;
 import org.appng.xml.platform.PageDefinition;
+import org.appng.xml.platform.SectionDef;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.SectionelementDef;
 
@@ -62,11 +63,13 @@ class ActionElement extends Sectionelement {
 	 * 
 	 * @param sectionelement
 	 *            the origin {@link SectionelementDef} of the {@code ActionElement}
+	 * @param isSectionHidden
+	 *            whether the {@link SectionDef} including the action is hidden, i.e. the action will not be visible
 	 * @throws ProcessingException
 	 *             if an error occurred while while performing
 	 */
-	void perform(SectionelementDef sectionelement) throws ProcessingException {
-		callableAction.perform();
+	void perform(SectionelementDef sectionelement, boolean isSectionHidden) throws ProcessingException {
+		callableAction.perform(isSectionHidden);
 		if (doExecute() && !callableAction.doForward() && hasErrors()
 				&& Boolean.TRUE.toString().equalsIgnoreCase(sectionelement.getFolded())) {
 			setFolded(Boolean.FALSE.toString());

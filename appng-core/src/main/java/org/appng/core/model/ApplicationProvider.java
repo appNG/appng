@@ -396,6 +396,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			Section section, List<SectionelementDef> elements, final PageReference pageReference,
 			List<DataSourceElement> dataSourceWrappers) throws ProcessingException {
 		boolean hasRedirect = false;
+		boolean isSectionHidden = Boolean.parseBoolean(section.getHidden());
+		
 		for (final SectionelementDef sectionelement : elements) {
 
 			String folded = applicationRequest.getExpressionEvaluator().getString(sectionelement.getFolded());
@@ -420,7 +422,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 					public void perform() throws ProcessingException {
 						this.result = getActionSectionElement(applicationRequest, applicationConfig, sectionelement,
-								pageReference);
+								pageReference, isSectionHidden);
 					}
 
 					public ActionElement getResult() {
@@ -432,7 +434,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 				if (null != actionElement) {
 					if (actionElement.doExecute()) {
-						hasRedirect |= !actionElement.hasErrors() && actionElement.getOnSuccess() != null;
+						hasRedirect |= actionElement.getOnSuccess() != null
+								&& (!actionElement.hasErrors() || sectionelement.getAction().isForceForward());
 					}
 					if (actionElement.doInclude()) {
 						actionElement.setTitle(sectionelement.getTitle());
@@ -522,12 +525,12 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private ActionElement getActionSectionElement(ApplicationRequest applicationRequest,
-			ApplicationConfig applicationConfig, SectionelementDef sectionelement, PageReference pageReference)
+			ApplicationConfig applicationConfig, SectionelementDef sectionelement, PageReference pageReference, boolean isSectionHidden)
 			throws ProcessingException {
 		ActionRef actionRef = sectionelement.getAction();
 		if (null != actionRef) {
 			ActionElement actionElement = new ActionElement(site, application, applicationRequest, actionRef);
-			actionElement.perform(sectionelement);
+			actionElement.perform(sectionelement, isSectionHidden);
 			return actionElement;
 		}
 		return null;
@@ -858,7 +861,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableAction callableAction = new CallableAction(site, application, applicationRequest, actionRef);
 
 			if (callableAction.doInclude() || callableAction.doExecute()) {
-				callableAction.perform();
+				callableAction.perform(false);
 				Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
 				if (null != messages) {
 					messages.setRef(actionId);

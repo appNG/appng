@@ -64,6 +64,7 @@ import org.appng.xml.platform.OptionGroup;
 import org.appng.xml.platform.PageDefinition;
 import org.appng.xml.platform.PageReference;
 import org.appng.xml.platform.Permissions;
+import org.appng.xml.platform.Section;
 import org.appng.xml.platform.SectionelementDef;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.UserData;
@@ -273,6 +274,10 @@ public class CallableAction {
 	 * and {@link #doExecute()}. If the {@link Action} is executed and a forward-path exists, a redirect is send via
 	 * {@link Site#sendRedirect(Environment, String)}.
 	 * 
+	 * @param isSectionHidden
+	 *            whether this action is part of a hidden {@link Section}, meaning no {@link Messages} should be set for
+	 *            the action.
+	 * 
 	 * @return a {@link FieldProcessor}, only non-{@code null} if the {@link Action} has been executed successfully
 	 * @throws ProcessingException
 	 *             if an error occurred while performing
@@ -281,7 +286,7 @@ public class CallableAction {
 	 * @see #doForward()
 	 * @see #getOnSuccess()
 	 */
-	public FieldProcessor perform() throws ProcessingException {
+	public FieldProcessor perform(boolean isSectionHidden) throws ProcessingException {
 		FieldProcessor fp = null;
 		if (doExecute()) {
 			execute = retrieveData(false);
@@ -297,7 +302,7 @@ public class CallableAction {
 					site.sendRedirect(applicationRequest.getEnvironment(), target.toString());
 					getAction().setOnSuccess(target.toString());
 					applicationRequest.setRedirectTarget(target.toString());
-				} else {
+				} else if (!isSectionHidden) {
 					Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
 					getAction().setMessages(messages);
 				}
