@@ -15,16 +15,13 @@
  */
 package org.appng.core.service;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 
-import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.domain.SubjectImpl;
 import org.junit.Assert;
@@ -33,108 +30,211 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class LdapServiceTest extends LdapService {
+public class LdapServiceTest {
 
-	private static final String USERS = "users";
-	private static final String PASSWORD = "password";
-	private static final String USERNAME = "username";
-	private static final String SERVICEUSER = "serviceuser";
+	private HashMap<String, Object> sitePropertyMocks;
+	private LdapService ldapService;
 
 	@Mock
-	private DirContext dirContext;
+	private Site mockedSite;
 
 	@Mock
-	private Site site;
+	private SubjectImpl mockedSubject;
 
 	@Mock
-	private Properties properties;
+	private org.appng.api.model.Properties mockedProperties;
 
-	private java.util.Properties env;
+	public LdapServiceTest() {
+		ldapService = new LdapService();
+		ldapService.setLdapCtxFactory("org.appng.core.service.LdapContextFactoryMock");
 
-	public java.util.Properties setup(String password) {
+		sitePropertyMocks = new HashMap<String, Object>();
+		sitePropertyMocks.put(LdapService.LDAP_HOST, "ldap://localhost:389");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "ou=users,dc=example,dc=com");
+		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
+		sitePropertyMocks.put(LdapService.LDAP_USER, "serviceuser");
+		sitePropertyMocks.put(LdapService.LDAP_PASSWORD, "inferno");
+		sitePropertyMocks.put(LdapService.LDAP_PRINCIPAL_SCHEME, "SAM");
+		sitePropertyMocks.put(LdapService.LDAP_START_TLS, false);
+		sitePropertyMocks.put(LdapService.LDAP_DOMAIN, "EXAMPLE");
+		sitePropertyMocks.put(LdapService.LDAP_ID_ATTRIBUTE, LdapContextMock.MOCKED_ID_ATTR);
+	}
+
+	public LdapContextMock setup(String userPrincipal, String userPassword, String servicePrincipal,
+			String servicePassword) throws NamingException, IOException {
 		MockitoAnnotations.initMocks(this);
-		Mockito.when(site.getProperties()).thenReturn(properties);
-		Mockito.when(properties.getString(LDAP_DOMAIN)).thenReturn("EXAMPLE");
-		Mockito.when(properties.getString(LDAP_GROUP_BASE_DN)).thenReturn("OU=Groups,DC=example,DC=com");
-		Mockito.when(properties.getString(LDAP_HOST)).thenReturn("ldap:localhost:389");
-		Mockito.when(properties.getString(LDAP_ID_ATTRIBUTE)).thenReturn("cn");
-		Mockito.when(properties.getString(LDAP_PASSWORD)).thenReturn(password);
-		Mockito.when(properties.getString(LDAP_USER)).thenReturn(SERVICEUSER);
-		Mockito.when(properties.getString(LDAP_USER_BASE_DN)).thenReturn("OU=Users,DC=example,DC=com");
+		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 
-		java.util.Properties expected = new java.util.Properties();
-		expected.put(Context.PROVIDER_URL, "ldap:localhost:389");
-		expected.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		expected.put(Context.SECURITY_PRINCIPAL, "EXAMPLE\\username");
-		expected.put(Context.SECURITY_AUTHENTICATION, "simple");
-		expected.put(Context.SECURITY_CREDENTIALS, password);
-		return expected;
-	}
+		String testId = caller.getMethodName() + ":" + caller.getLineNumber();
+		sitePropertyMocks.replace(LdapService.LDAP_HOST, "ldaps://" + testId);
 
-	@Test
-	public void testLoginUser() {
-		java.util.Properties expected = setup(PASSWORD);
-		boolean success = this.loginUser(site, USERNAME, PASSWORD.toCharArray());
-		Assert.assertTrue(success);
-		Assert.assertEquals(expected, env);
-	}
-
-	@Test
-	public void testLoginUserFail() {
-		String password = "wrongPassword";
-		java.util.Properties expected = setup(password);
-		boolean success = this.loginUser(site, "EXAMPLE\\username", password.toCharArray());
-		Assert.assertFalse(success);
-		Assert.assertEquals(expected, env);
-	}
-
-	@Test
-	public void testLoginGroup() throws NamingException {
-		java.util.Properties expected = setup(PASSWORD);
-		expected.put(Context.SECURITY_PRINCIPAL, SERVICEUSER);
-		setAttributes(USERNAME);
-		SubjectImpl subject = new SubjectImpl();
-		List<String> loginGroup = this
-				.loginGroup(site, USERNAME, PASSWORD.toCharArray(), subject, Arrays.asList(USERS));
-		Assert.assertEquals(Arrays.asList(USERS), loginGroup);
-		Assert.assertEquals(expected, env);
-		Assert.assertEquals("username", subject.getName());
-		Assert.assertEquals("username", subject.getRealname());
-	}
-
-	@Test
-	public void testLoginGroupFail() throws NamingException {
-		java.util.Properties expected = setup(PASSWORD);
-		expected.put(Context.SECURITY_PRINCIPAL, SERVICEUSER);
-		setAttributes("");
-		SubjectImpl subject = new SubjectImpl();
-		List<String> loginGroups = this.loginGroup(site, USERNAME, PASSWORD.toCharArray(), subject,
-				Arrays.asList(USERS));
-		Assert.assertTrue(loginGroups.isEmpty());
-		Assert.assertEquals(expected, env);
-		Assert.assertNull(subject.getName());
-		Assert.assertNull(subject.getRealname());
-	}
-
-	public void setAttributes(String userName) throws NamingException {
-		Attributes attributes = Mockito.mock(Attributes.class);
-		Mockito.when(dirContext.getAttributes(USERS)).thenReturn(attributes);
-		Attribute attribute = Mockito.mock(Attribute.class);
-		Mockito.when(attributes.get("cn")).thenReturn(attribute);
-		Mockito.when(attribute.get()).thenReturn(userName);
-	}
-
-	@Override
-	protected DirContext getContext(java.util.Properties env) throws NamingException {
-		this.env = env;
-		if (!env.get(Context.SECURITY_CREDENTIALS).equals(PASSWORD)) {
-			throw new NamingException("wrong password");
+		Mockito.when(mockedSite.getName()).thenReturn(caller.getMethodName());
+		Mockito.when(mockedSite.getProperties()).thenReturn(mockedProperties);
+		for (String propName : sitePropertyMocks.keySet()) {
+			Object propVal = sitePropertyMocks.get(propName);
+			if (propVal instanceof String) {
+				Mockito.when(mockedProperties.getString(propName)).thenReturn((String) propVal);
+			} else if (propVal instanceof Boolean) {
+				Mockito.when(mockedProperties.getBoolean(propName)).thenReturn(((Boolean) propVal).booleanValue());
+			}
 		}
-		return dirContext;
+
+		return LdapContextFactoryMock.setup(userPrincipal, userPassword, servicePrincipal, servicePassword,
+				sitePropertyMocks);
 	}
 
-	@Override
-	protected List<String> getMemberNames(Attributes attributes) throws NamingException {
-		return Arrays.asList(USERS);
+	@Test
+	public void testLoginUserSucces() throws NamingException, IOException {
+		boolean success;
+
+		// DN
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "DN");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "l=egypt");
+		sitePropertyMocks.put(LdapService.LDAP_ID_ATTRIBUTE, "uid");
+		setup("uid=aziz,l=egypt", "light", null, null);
+		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
+		Assert.assertTrue(success);
+
+		// UPN
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "UPN");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		setup("aziz@egypt", "light", null, null);
+		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
+		Assert.assertTrue(success);
+
+		// SAM
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "SAM");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		setup("egypt\\aziz", "light", null, null);
+		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
+		Assert.assertTrue(success);
+
+		// Fallback to plain name
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "bogus");
+		setup("aziz", "light", null, null);
+		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
+		Assert.assertTrue(success);
+	}
+
+	@Test
+	public void testLoginUserFailure() throws NamingException, IOException {
+		boolean success;
+		List<Exception> exList;
+		Exception ex;
+		LdapContextMock ldapContextMock;
+
+		// Principal wrong
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "SAM");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		ldapContextMock = setup("bielefeld\\aziz", "light", null, null);
+		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
+		exList = ldapContextMock.exceptionHistory;
+		ex = exList.size() > 0 ? exList.get(exList.size() - 1) : new Exception("Placeholder - nothing was thrown.");
+		Assert.assertFalse(success);
+		Assert.assertEquals(LdapContextMock.MSG_WRONG_USER, ex.getMessage());
+
+		// Password wrong
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "SAM");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		ldapContextMock = setup("egypt\\aziz", "shadow", null, null);
+		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
+		Assert.assertFalse(success);
+		exList = ldapContextMock.exceptionHistory;
+		ex = exList.size() > 0 ? exList.get(exList.size() - 1) : new Exception("Placeholder - nothing was thrown.");
+		Assert.assertFalse(success);
+		Assert.assertEquals(LdapContextMock.MSG_WRONG_PASS, ex.getMessage());
+	}
+
+	@Test
+	public void testLoginGroupExistent() throws NamingException, IOException {
+		List<String> searchedGroups;
+		List<String> resultGroups;
+
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "UPN");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		sitePropertyMocks.put(LdapService.LDAP_USER, "mondoshawan");
+		sitePropertyMocks.put(LdapService.LDAP_PASSWORD, "stones");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "ou=users,l=egypt");
+		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "ou=groups,l=egypt");
+
+		setup("aziz@egypt", "light", "mondoshawan@egypt", "stones");
+		searchedGroups = Arrays.asList(LdapContextMock.MOCKED_GROUP_NAME);
+		resultGroups = ldapService.loginGroup(mockedSite, "aziz", "light".toCharArray(), mockedSubject, searchedGroups);
+		Assert.assertArrayEquals(searchedGroups.toArray(new String[0]), resultGroups.toArray(new String[0]));
+	}
+
+	@Test
+	// The same as testLoginGroupExistent(), but additionally tests, if service user logins with DN do work.
+	public void testLoginGroupExistentServiceUserDirectDN() throws NamingException, IOException {
+		List<String> searchedGroups;
+		List<String> resultGroups;
+
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "UPN");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		sitePropertyMocks.put(LdapService.LDAP_USER, "cn=mondoshawan,l=homeplanet");
+		sitePropertyMocks.put(LdapService.LDAP_PASSWORD, "stones");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "ou=users,l=egypt");
+		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "ou=groups,l=egypt");
+
+		setup("aziz@egypt", "light", "cn=mondoshawan,l=homeplanet", "stones");
+		searchedGroups = Arrays.asList(LdapContextMock.MOCKED_GROUP_NAME);
+		resultGroups = ldapService.loginGroup(mockedSite, "aziz", "light".toCharArray(), mockedSubject, searchedGroups);
+		Assert.assertArrayEquals(searchedGroups.toArray(new String[0]), resultGroups.toArray(new String[0]));
+	}
+
+	@Test
+	public void testLoginGroupMissing() throws NamingException, IOException {
+		List<String> searchedGroups;
+		List<String> resultGroups;
+
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "UPN");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		sitePropertyMocks.put(LdapService.LDAP_USER, "mondoshawan");
+		sitePropertyMocks.put(LdapService.LDAP_PASSWORD, "stones");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "ou=users,l=egypt");
+		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "ou=groups,l=egypt");
+
+		setup("aziz@egypt", "light", "mondoshawan@egypt", "stones");
+		searchedGroups = Arrays.asList(
+				"Well, if there's a bright center to the universe, you're on the usergroup that it's farthest from.");
+		resultGroups = ldapService.loginGroup(mockedSite, "aziz", "light".toCharArray(), mockedSubject, searchedGroups);
+		Assert.assertArrayEquals(new String[0], resultGroups.toArray(new String[0]));
+	}
+
+	@Test
+	public void testUsersOfGroup() throws NamingException, IOException {
+		List<SubjectImpl> resultSubjects;
+		String[] expectSubjNames = new String[] { "aziz", "aziz' brother" };
+		String[] expectSubjRealNames = new String[] { "Dummy", "Dummy" };
+
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "UPN");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		sitePropertyMocks.put(LdapService.LDAP_USER, "mondoshawan");
+		sitePropertyMocks.put(LdapService.LDAP_PASSWORD, "stones");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "ou=users,l=egypt");
+		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "ou=groups,l=egypt");
+
+		setup("aziz@egypt", "light", "mondoshawan@egypt", "stones");
+		resultSubjects = ldapService.getMembersOfGroup(mockedSite, LdapContextMock.MOCKED_GROUP_NAME);
+
+		Assert.assertEquals(resultSubjects.size(), 2);
+		for (int idx = 0; idx < 2; idx++) {
+			Assert.assertEquals(resultSubjects.get(idx).getName(), expectSubjNames[idx]);
+			Assert.assertEquals(resultSubjects.get(idx).getRealname(), expectSubjRealNames[idx]);
+			Assert.assertFalse(resultSubjects.get(idx).isAuthenticated());
+		}
+	}
+
+	@Test
+	public void testLoginUserStartTls() throws NamingException, IOException {
+		boolean success;
+
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "DN");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "l=egypt");
+		sitePropertyMocks.put(LdapService.LDAP_ID_ATTRIBUTE, "uid");
+		sitePropertyMocks.put(LdapService.LDAP_START_TLS, true);
+		setup("uid=aziz,l=egypt", "light", null, null);
+		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
+		Assert.assertTrue(success);
 	}
 }

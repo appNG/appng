@@ -269,13 +269,15 @@ public class PropertySupport {
 		xssExceptions.append(managerPath + "/" + site.getName() + "/appng-manager" + StringUtils.LF);
 		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), true);
 
-		addSiteProperty(LdapService.LDAP_HOST, "ldap:<host>:<port>");
+		addSiteProperty(LdapService.LDAP_HOST, "ldap(s):<host>:<port>");
 		addSiteProperty(LdapService.LDAP_USER_BASE_DN, "OU=Users,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_GROUP_BASE_DN, "OU=Groups,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_USER, "serviceUser");
 		addSiteProperty(LdapService.LDAP_PASSWORD, "secret");
 		addSiteProperty(LdapService.LDAP_DOMAIN, "EXAMPLE");
 		addSiteProperty(LdapService.LDAP_ID_ATTRIBUTE, "sAMAccountName");
+		addSiteProperty(LdapService.LDAP_PRINCIPAL_SCHEME, "SAM");
+		addSiteProperty(LdapService.LDAP_START_TLS, false);
 
 		propertyHolder.setFinal();
 	}
