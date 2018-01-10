@@ -37,7 +37,11 @@ import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
 import org.appng.xml.platform.Event;
+import org.appng.xml.platform.Message;
+import org.appng.xml.platform.MessageType;
+import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Params;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -143,5 +147,81 @@ public class CallableActionTest {
 			String message = e.getMessage();
 			assertTrue(message.matches("error performing action 'myAction' of event 'myEvent', ID: \\d{6,12}"));
 		}
+	}
+
+	@Test
+	public void testHiddenAction() throws ProcessingException {
+		CallableAction callableAction = getCallableAction(false, null);
+		callableAction.perform(true);
+		Assert.assertNull(callableAction.getAction().getMessages());
+		Assert.assertNull(callableAction.getAction().getOnSuccess());
+	}
+
+	@Test
+	public void testForward() throws ProcessingException {
+		CallableAction callableAction = getCallableAction(true, "foo");
+		callableAction.perform(false);
+		Assert.assertNull(callableAction.getAction().getMessages());
+		Assert.assertEquals("/prefix/foo", callableAction.getAction().getOnSuccess());
+	}
+
+	@Test
+	public void testNoForward() throws ProcessingException {
+		CallableAction callableAction = getCallableAction(false, null);
+		callableAction.perform(false);
+		Assert.assertNotNull(callableAction.getAction().getMessages());
+		Assert.assertNull(callableAction.getAction().getOnSuccess());
+	}
+
+	private CallableAction getCallableAction(boolean forward, String onSuccess) {
+		Action action = new Action();
+		action.setOnSuccess(onSuccess);
+		ElementHelper elementHelper = new ElementHelper(null, null) {
+			@Override
+			public Messages removeMessages(Environment environment) {
+				Messages messages = new Messages();
+				Message message = new Message();
+				message.setClazz(MessageType.ERROR);
+				message.setContent("Foo!");
+				messages.getMessageList().add(message);
+				return messages;
+			}
+
+			@Override
+			public String getOutputPrefix(Environment env) {
+				return "/prefix/";
+			}
+		};
+
+		Site site = Mockito.mock(Site.class);
+		ApplicationRequest req = Mockito.mock(ApplicationRequest.class);
+		CallableAction callableAction = new CallableAction(site, req, elementHelper) {
+			@Override
+			public boolean doExecute() {
+				return true;
+			}
+
+			@Override
+			public boolean doForward() {
+				return forward;
+			}
+
+			@Override
+			public Action getAction() {
+				return action;
+			}
+
+			@Override
+			public String getOnSuccess() {
+				return onSuccess;
+			}
+
+			@Override
+			protected boolean retrieveData(boolean setBeanNull) throws ProcessingException {
+				return true;
+			}
+		};
+
+		return callableAction;
 	}
 }

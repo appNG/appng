@@ -142,6 +142,13 @@ public class CallableAction {
 		}
 	}
 
+	// for testing
+	protected CallableAction(Site site, ApplicationRequest applicationRequest, ElementHelper elementHelper) {
+		this.site = site;
+		this.applicationRequest = applicationRequest;
+		this.elementHelper = elementHelper;
+	}
+
 	private void initializeAction(Event event) throws ProcessingException {
 		String actionId = actionRef.getId();
 		String eventId = event.getId();
@@ -200,7 +207,7 @@ public class CallableAction {
 		return action;
 	}
 
-	private boolean retrieveData(boolean setBeanNull) throws ProcessingException {
+	protected boolean retrieveData(boolean setBeanNull) throws ProcessingException {
 		boolean dataOk = true;
 		ParameterSupport fieldParams = null;
 		DatasourceRef datasourceRef = action.getDatasource();
@@ -548,7 +555,7 @@ public class CallableAction {
 	/**
 	 * Returns the forward-path that was defined by the {@link ActionRef} this {@link CallableAction} was build from.
 	 * 
-	 * @return the forward-path, may by {@code null}
+	 * @return the forward-path, may be {@code null}
 	 */
 	public String getOnSuccess() {
 		return onSuccess;
