@@ -89,10 +89,6 @@
 		<property name="platformTransformer" ref="platformTransformer" />
 	</bean>
 
-	<bean class="org.appng.core.model.ThymeleafProcessor" scope="request">
-		<property name="marshallService" ref="marshallService" />
-	</bean>
-
 	<bean id="thymeleafProcessor" class="org.appng.core.model.ThymeleafProcessor" scope="request">
 		<property name="marshallService" ref="marshallService" />
 	</bean>
