@@ -18,6 +18,7 @@ package org.appng.core.model;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,8 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Site;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.templating.ThymeleafReplaceInterceptor;
+import org.appng.core.templating.ThymeleafTemplateEngine;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.Config;
@@ -76,12 +79,12 @@ import org.appng.xml.platform.ValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.thymeleaf.cache.StandardCacheManager;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.context.IExpressionContext;
 import org.thymeleaf.linkbuilder.AbstractLinkBuilder;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 import org.w3c.dom.Document;
@@ -115,12 +118,33 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		platform.setVersion(env.getAttributeAsString(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
 
 		ApplicationProvider applicationProvider = getApplicationProvider(applicationSite);
+		ConfigurableApplicationContext context = applicationProvider.getContext();
+		Collection<ThymeleafReplaceInterceptor> interceptors = null;
 
-		SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+		if (null != context) {
+			interceptors = context.getBeansOfType(ThymeleafReplaceInterceptor.class).values();
+		}
+
+		// SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+		ThymeleafTemplateEngine templateEngine = new ThymeleafTemplateEngine(interceptors);
 		StandardCacheManager cacheManager = new StandardCacheManager();
 		cacheManager.setExpressionCacheInitialSize(500);
 		cacheManager.setExpressionCacheMaxSize(1000);
 		templateEngine.setCacheManager(cacheManager);
+		if (null != interceptors) {
+			for (ThymeleafReplaceInterceptor interceptor : interceptors) {
+				// An interceptor can define some template resource to be added to the template
+				// resolver
+				if (null != interceptor.getAdditionalTemplateResourceNames()) {
+					for (String resource : interceptor.getAdditionalTemplateResourceNames()) {
+						Template template = new Template();
+						template.setPath(resource);
+						templates.add(template);
+					}
+				}
+
+			}
+		}
 
 		if (!templates.isEmpty()) {
 			// assumes that custom template files are located in the 'tpl'-folder!
@@ -143,7 +167,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				FileTemplateResolver appTplResolver = new FileTemplateResolver();
 				appTplResolver.setName("Template Resolver for " + applicationProvider.getName());
 				appTplResolver.setResolvablePatterns(patterns);
-				appTplResolver.setPrefix(tplFolder.getPath() + File.separator);
+//				appTplResolver.setPrefix(tplFolder.getPath() + File.separator);
 				appTplResolver.setTemplateMode(TemplateMode.HTML);
 				appTplResolver.setCharacterEncoding(charset.name());
 				appTplResolver.setCacheable(!devMode);
@@ -174,10 +198,10 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		globalTemplateResolver.setCacheable(!devMode);
 		globalTemplateResolver.setOrder(1);
 		templateEngine.addTemplateResolver(globalTemplateResolver);
-
-		MessageSource ms = getApplicationProvider(applicationSite).getBean(MessageSource.class);
-		templateEngine.setTemplateEngineMessageSource(ms);
-
+		if (null != context) {
+			MessageSource ms = context.getBean(MessageSource.class);
+			templateEngine.setTemplateEngineMessageSource(ms);
+		}
 		AbstractLinkBuilder globalLinkBuilder = new AbstractLinkBuilder() {
 
 			public String buildLink(IExpressionContext context, String base, Map<String, Object> parameters) {
@@ -212,8 +236,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	/**
-	 * This is a helper class to make it easier for the thymeleaf template tom interact with appNG's
-	 * {@link org.appng.xml.platform.Platform} object.
+	 * This is a helper class to make it easier for the thymeleaf template to
+	 * interact with appNG's {@link org.appng.xml.platform.Platform} object.
 	 * 
 	 * @author Matthias Müller
 	 */
