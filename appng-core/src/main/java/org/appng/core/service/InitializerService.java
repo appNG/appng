@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -343,10 +343,8 @@ public class InitializerService {
 					}
 				} while (null == absoluteFile);
 
-				File targetFile = new File(absoluteFile.getParentFile(),
-						RELOAD_FILE + "-" + System.currentTimeMillis() / 1000);
-				FileUtils.moveFile(absoluteFile, targetFile);
-				LOGGER.info("moved {} to {}", absoluteFile.getAbsolutePath(), targetFile.getAbsolutePath());
+				FileUtils.deleteQuietly(absoluteFile);
+				LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
 				LOGGER.info("restarting site {}", site.getName());
 				try {
 					loadSite(env, getCoreService().getSiteByName(site.getName()), false,

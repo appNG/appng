@@ -15,34 +15,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<profiles>
-		<profile>
-			<id>versioneye</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.versioneye</groupId>
-						<artifactId>versioneye-maven-plugin</artifactId>
-						<configuration>
-							<projectId>5975f71a6725bd001ad5feeb</projectId>
-							<organisation>appNG</organisation>
-							<team>Owners</team>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>update</goal>
-									<goal>securityAndLicenseCheck</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.appng</groupId>

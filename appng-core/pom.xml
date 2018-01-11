@@ -85,32 +85,6 @@
 		</resources>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>versioneye</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.versioneye</groupId>
-						<artifactId>versioneye-maven-plugin</artifactId>
-						<configuration>
-							<projectId>5975e151368b08000e6d14c2</projectId>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>update</goal>
-									<goal>securityAndLicenseCheck</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<!-- BEGIN DEPENDENCY MANAGEMENT -->
 	<dependencies>
 		<dependency>
@@ -344,12 +318,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>4.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.jodah</groupId>
-			<artifactId>lyra</artifactId>
-			<version>0.5.4</version>
+			<version>5.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>

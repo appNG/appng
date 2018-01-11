@@ -13,32 +13,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<profiles>
-		<profile>
-			<id>versioneye</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.versioneye</groupId>
-						<artifactId>versioneye-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>update</goal>
-									<goal>securityAndLicenseCheck</goal>
-								</goals>
-								<configuration>
-									<projectId>5975f7d96725bd00164c955a</projectId>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<dependencies>
 		<dependency>
 			<groupId>javax.mail</groupId>

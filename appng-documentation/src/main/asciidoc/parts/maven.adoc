@@ -92,8 +92,12 @@ To make this work, these three preconditions must be fulfilled:
 . The application must have been installed through a local repository for at least one time.
 . The platform property `filebasedDeployment` must be set to `true`.
 
+[WARNING]
+====
+Note that changes in `application.xml` (`<roles>`, `<permissions>`, `<properties>`) do not get applied when using the `local` profile. You *must* deploy through a repository to apply these kind of changes.
+====
 
-You can even achieve to reload the site, as if using the appNGizer Maven Plugin.
+You can even achieve to reload the site, as if using the appNGizer Maven Plugin (see above).
 
 Therefore, set the site property `supportReloadFile` to `true` and let the `local` profile
 create the required marker-file. This can be done by using the `maven-antrun-plugin` with a `<touch>` target:

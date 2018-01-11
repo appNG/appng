@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1703,8 +1703,7 @@ public class CoreService {
 			initializeSubject(subject);
 			subject.getApplicationroles(application);
 			if (UserType.GLOBAL_GROUP.equals(subject.getUserType())) {
-				List<SubjectImpl> membersOfGroup = ldapService.getMembersOfGroup(site.getProperties(),
-						subject.getAuthName());
+				List<SubjectImpl> membersOfGroup = ldapService.getMembersOfGroup(site, subject.getAuthName());
 				for (SubjectImpl ldapSubject : membersOfGroup) {
 					String timeZone = subject.getTimeZone();
 					if (null == timeZone) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -227,7 +227,7 @@ public class SoapService {
 		String servicePath = site.getProperties().getString(SiteProperties.SERVICE_PATH);
 		String domain = site.getDomain();
 		if (!domain.startsWith(HTTPS) && HttpHeaders.isRequestSecure(request)) {
-			domain = HTTPS + domain.substring(5, domain.length());
+			domain = HTTPS + domain.substring(4, domain.length());
 		}
 		return domain + servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
 				+ Platform.SERVICE_TYPE_SOAP + SLASH + serviceName;
