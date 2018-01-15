@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.GetParams;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Labels;
 import org.appng.xml.platform.Link;
@@ -64,9 +65,12 @@ import org.appng.xml.platform.Rule;
 import org.appng.xml.platform.Section;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.Selection;
+import org.appng.xml.platform.Session;
+import org.appng.xml.platform.SessionParams;
 import org.appng.xml.platform.Sort;
 import org.appng.xml.platform.Subject;
 import org.appng.xml.platform.Template;
+import org.appng.xml.platform.UrlParams;
 import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationRule;
 import org.slf4j.Logger;
@@ -208,8 +212,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	/**
-	 * This is a helper class to make it easier for the thymeleaf template tom interact with appNG's {@link org.appng.xml.platform.Platform} object.
-	 *  
+	 * This is a helper class to make it easier for the thymeleaf template tom interact with appNG's
+	 * {@link org.appng.xml.platform.Platform} object.
+	 * 
 	 * @author Matthias Müller
 	 */
 	public static class AppNG {
@@ -307,7 +312,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 
 		private void setSectionTitle(Section section, Sectionelement element) {
-			if (null == section.getTitle() && !Boolean.TRUE.equals(element.getPassive())) {
+			if (null == section.getTitle() && !Boolean.TRUE.toString().equalsIgnoreCase(element.getPassive())) {
 				DataConfig config = null;
 				String id;
 				if (null == element.getAction()) {
@@ -472,6 +477,15 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			return null;
 		}
 
+		public FieldDef childField(FieldDef parent, String name) {
+			for (FieldDef fieldDef : parent.getFields()) {
+				if (fieldDef.getName().equals(name)) {
+					return fieldDef;
+				}
+			}
+			return null;
+		}
+
 		public Datafield data(String eventId, String id, String name) {
 			return data(action(eventId, id).getData().getResult(), name);
 		}
@@ -494,6 +508,15 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			return null;
 		}
 
+		public Datafield childData(Datafield parent, String name) {
+			for (Datafield datafield : parent.getFields()) {
+				if (datafield.getName().equals(name)) {
+					return datafield;
+				}
+			}
+			return null;
+		}
+
 		public Selection selection(Data data, String name) {
 			for (Selection selection : data.getSelections()) {
 				if (selection.getId().equals(name)) {
@@ -507,11 +530,58 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			return pages_.get(id);
 		}
 
+		public String getParam(String pageId, String name) {
+			PageReference page = page(pageId);
+			if (null != page) {
+				GetParams getParams = page.getConfig().getUrlSchema().getGetParams();
+				if (null != getParams) {
+					List<Param> paramList = getParams.getParamList();
+					for (Param param : paramList) {
+						if (param.getName().equals(name)) {
+							return param.getValue();
+						}
+					}
+				}
+			}
+			return null;
+		}
+
+		public String urlParam(String pageId, String name) {
+			PageReference page = page(pageId);
+			if (null != page) {
+				UrlParams urlParams = page.getConfig().getUrlSchema().getUrlParams();
+				if (null != urlParams) {
+					List<Param> paramList = urlParams.getParamList();
+					for (Param param : paramList) {
+						if (param.getName().equals(name)) {
+							return param.getValue();
+						}
+					}
+				}
+			}
+			return null;
+		}
+
 		public Link defaultLink(Linkpanel panel) {
 			if (null != panel) {
 				for (Link l : panel.getLinks()) {
 					if (Boolean.parseBoolean(l.getDefault())) {
 						return l;
+					}
+				}
+			}
+			return null;
+		}
+
+		public String sessionParam(String name) {
+			Session session = platform.getContent().getApplication().getConfig().getSession();
+			if (null != session) {
+				SessionParams sessionParams = session.getSessionParams();
+				if (null != sessionParams) {
+					for (Param param : sessionParams.getSessionParam()) {
+						if (param.getName().equals(name)) {
+							return param.getValue();
+						}
 					}
 				}
 			}

@@ -187,9 +187,9 @@
 		<description>The base-DN for LDAP-groups</description>
 	</property>
 	<property name="ldapHost" self="http://localhost/site/localhost/property/ldapHost">
-		<value>ldap:&lt;host&gt;:&lt;port&gt;</value>
-		<defaultValue>ldap:&lt;host&gt;:&lt;port&gt;</defaultValue>
-		<description>The LDAP host</description>
+		<value>ldap(s):&lt;host&gt;:&lt;port&gt;</value>
+		<defaultValue>ldap(s):&lt;host&gt;:&lt;port&gt;</defaultValue>
+		<description>The LDAP host in provider URL format ("ldap(s)://&lt;host&gt;:&lt;port&gt;"). Note that you might need to add CA certificates to the truststore of the executing JVM if you enable "ldaps://".</description>
 	</property>
 	<property name="ldapIdAttribute" self="http://localhost/site/localhost/property/ldapIdAttribute">
 		<value>sAMAccountName</value>
@@ -201,15 +201,25 @@
 		<defaultValue>secret</defaultValue>
 		<description>Password of the LDAP service-user</description>
 	</property>
+  <property name="ldapPrincipalScheme" self="http://localhost/site/localhost/property/ldapPrincipalScheme">
+    <value>SAM</value>
+    <defaultValue>SAM</defaultValue>
+    <description>How the LDAP principal is built from a given username when logging in. ["DN": results in "${site.ldapIdAttribute}=&gt;username&lt;,${site.ldapUserBaseDn}" - "UPN": results in "&gt;username&lt;@${site.ldapDomain}" - "SAM": results in "${site.ldapDomain}\\\\&gt;username&lt;"]. "UPN" and "SAM" are ActiveDirectory specific and "SAM" is the default to stay backward compatible.</description>
+  </property>
+  <property name="ldapStartTls" self="http://localhost/site/localhost/property/ldapStartTls">
+    <value>false</value>
+    <defaultValue>false</defaultValue>
+    <description>Use STARTTLS for the LDAP connection.</description>
+  </property>
 	<property name="ldapUser" self="http://localhost/site/localhost/property/ldapUser">
 		<value>serviceUser</value>
 		<defaultValue>serviceUser</defaultValue>
-		<description>The name of the LDAP service-user</description>
+		<description>The name of the LDAP service-user for general LDAP lookups. If the value is a Distinguished Name (e.g. "cn=Service User,dc=mycompany,dc=com") it will be used directly as LDAP principal. Otherwise the principal will be derived according to the value specified for ${site.ldapPrincipalScheme}.</description>
 	</property>
 	<property name="ldapUserBaseDn" self="http://localhost/site/localhost/property/ldapUserBaseDn">
 		<value>OU=Users,DC=example,DC=com</value>
 		<defaultValue>OU=Users,DC=example,DC=com</defaultValue>
-		<description>The base-DN for LDAP-users</description>
+		<description>The base-DN which is used to map a plain username to a Distinguished Name, if "DN" is used as principal scheme (see property "ldapPrincipalScheme").</description>
 	</property>
 	<property name="locale" self="http://localhost/site/localhost/property/locale">
 		<value>en</value>

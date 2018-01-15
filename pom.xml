@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.16.1</version>
+	<version>1.16.2</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
@@ -426,11 +426,6 @@
 						</dependency>
 					</dependencies>
 				</plugin>
-				<plugin>
-					<groupId>com.versioneye</groupId>
-					<artifactId>versioneye-maven-plugin</artifactId>
-					<version>3.11.4</version>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -530,14 +525,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>com.versioneye</groupId>
-				<artifactId>versioneye-maven-plugin</artifactId>
-				<configuration>
-					<organisation>appNG</organisation>
-					<team>Owners</team>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

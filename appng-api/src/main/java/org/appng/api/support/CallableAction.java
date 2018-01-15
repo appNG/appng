@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 the original author or authors.
+ * Copyright 2011-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ import org.appng.xml.platform.OptionGroup;
 import org.appng.xml.platform.PageDefinition;
 import org.appng.xml.platform.PageReference;
 import org.appng.xml.platform.Permissions;
+import org.appng.xml.platform.Section;
 import org.appng.xml.platform.SectionelementDef;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.UserData;
@@ -141,6 +142,13 @@ public class CallableAction {
 		}
 	}
 
+	// for testing
+	protected CallableAction(Site site, ApplicationRequest applicationRequest, ElementHelper elementHelper) {
+		this.site = site;
+		this.applicationRequest = applicationRequest;
+		this.elementHelper = elementHelper;
+	}
+
 	private void initializeAction(Event event) throws ProcessingException {
 		String actionId = actionRef.getId();
 		String eventId = event.getId();
@@ -199,7 +207,7 @@ public class CallableAction {
 		return action;
 	}
 
-	private boolean retrieveData(boolean setBeanNull) throws ProcessingException {
+	protected boolean retrieveData(boolean setBeanNull) throws ProcessingException {
 		boolean dataOk = true;
 		ParameterSupport fieldParams = null;
 		DatasourceRef datasourceRef = action.getDatasource();
@@ -282,6 +290,28 @@ public class CallableAction {
 	 * @see #getOnSuccess()
 	 */
 	public FieldProcessor perform() throws ProcessingException {
+		return perform(false);
+	}
+
+	/**
+	 * Performs this {@link CallableAction}.<br/>
+	 * If the {@link Action} is actually included and/or executed depends on the returns values of {@link #doInclude()}
+	 * and {@link #doExecute()}. If the {@link Action} is executed and a forward-path exists, a redirect is send via
+	 * {@link Site#sendRedirect(Environment, String)}.
+	 * 
+	 * @param isSectionHidden
+	 *            whether this action is part of a hidden {@link Section}, meaning no {@link Messages} should be set for
+	 *            the action.
+	 * 
+	 * @return a {@link FieldProcessor}, only non-{@code null} if the {@link Action} has been executed successfully
+	 * @throws ProcessingException
+	 *             if an error occurred while performing
+	 * @see #doInclude()
+	 * @see #doExecute()
+	 * @see #doForward()
+	 * @see #getOnSuccess()
+	 */
+	public FieldProcessor perform(boolean isSectionHidden) throws ProcessingException {
 		FieldProcessor fp = null;
 		if (doExecute()) {
 			execute = retrieveData(false);
@@ -297,7 +327,7 @@ public class CallableAction {
 					site.sendRedirect(applicationRequest.getEnvironment(), target.toString());
 					getAction().setOnSuccess(target.toString());
 					applicationRequest.setRedirectTarget(target.toString());
-				} else {
+				} else if (!isSectionHidden) {
 					Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
 					getAction().setMessages(messages);
 				}
@@ -525,7 +555,7 @@ public class CallableAction {
 	/**
 	 * Returns the forward-path that was defined by the {@link ActionRef} this {@link CallableAction} was build from.
 	 * 
-	 * @return the forward-path, may by {@code null}
+	 * @return the forward-path, may be {@code null}
 	 */
 	public String getOnSuccess() {
 		return onSuccess;

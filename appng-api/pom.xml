@@ -11,37 +11,9 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.16.1</version>
+		<version>1.16.2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-
-	<profiles>
-		<profile>
-			<id>versioneye</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.versioneye</groupId>
-						<artifactId>versioneye-maven-plugin</artifactId>
-						<configuration>
-							<projectId>5975f38b6725bd00164c9435</projectId>
-							<organisation>appNG</organisation>
-							<team>Owners</team>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>update</goal>
-									<goal>securityAndLicenseCheck</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 	<!-- BEGIN DEPENDENCY MANAGEMENT -->
 	<dependencies>
