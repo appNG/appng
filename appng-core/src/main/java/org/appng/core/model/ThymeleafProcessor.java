@@ -312,7 +312,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 
 		private void setSectionTitle(Section section, Sectionelement element) {
-			if (null == section.getTitle() && !Boolean.TRUE.equals(element.getPassive())) {
+			if (null == section.getTitle() && !Boolean.TRUE.toString().equalsIgnoreCase(element.getPassive())) {
 				DataConfig config = null;
 				String id;
 				if (null == element.getAction()) {

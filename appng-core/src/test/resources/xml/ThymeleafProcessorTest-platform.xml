@@ -112,26 +112,11 @@
 			<item hidden="false" ref="appng-manager" selected="true" site="manager" type="application">
 				<label><![CDATA[Manager]]></label>
 			</item>
-			<item hidden="false" ref="mainova-os-orderlead" site="manager" type="application">
-				<label><![CDATA[ORDERLEAD]]></label>
-			</item>
 			<item hidden="false" ref="personregister" site="manager" type="application">
 				<label><![CDATA[Person Register]]></label>
 			</item>
 			<item hidden="false" ref="appng-scheduler" site="manager" type="application">
 				<label><![CDATA[Scheduler]]></label>
-			</item>
-			<item hidden="false" ref="upload-bill" site="manager" type="application">
-				<label><![CDATA[Upload Bill]]></label>
-			</item>
-			<item hidden="false" ref="session-debug" site="manager" type="application">
-				<label><![CDATA[myapplication]]></label>
-			</item>
-			<item hidden="false" ref="demo-application" site="manager" type="application">
-				<label><![CDATA[myapplication]]></label>
-			</item>
-			<item hidden="false" ref="recruitment" site="manager" type="application">
-				<label><![CDATA[recruitment]]></label>
 			</item>
 		</item>
 	</navigation>
@@ -320,7 +305,6 @@
 											<title id="template"><![CDATA[Template]]></title>
 											<option name="appng" selected="true" value="appng" />
 											<option name="appng-bootstrap-gentelella" selected="false" value="appng-bootstrap-gentelella" />
-											<option name="mainova-template" selected="false" value="mainova-template" />
 										</selection>
 										<result>
 											<field name="id" type="int">
@@ -362,6 +346,74 @@
 							</element>
 						</section>
 						<section>
+							<element passive="true">
+								<action eventId="propertyEvent" id="update-site-property" onSuccess="appng-manager/sites/update/2#tab_site-properties">
+									<config>
+										<title id="property.edit"><![CDATA[Edit property]]></title>
+										<permissions>
+											<permission mode="set" ref="site.property.edit">true</permission>
+										</permissions>
+										<params>
+											<param name="siteid">2</param>
+											<param name="propertyid">platform.site.manager.appendTabId</param>
+											<param name="form_action" />
+										</params>
+										<meta-data bindClass="org.appng.application.manager.form.PropertyForm" binding="property">
+											<field binding="property.shortName" name="shortName" readonly="true" type="text">
+												<label id="name"><![CDATA[Name]]></label>
+											</field>
+											<field binding="property.string" name="string" readonly="true" type="text">
+												<label id="activeValue"><![CDATA[Active Value]]></label>
+											</field>
+											<field binding="property.defaultString" name="defaultString" readonly="true" type="text">
+												<label id="defaultvalue"><![CDATA[Default-Value]]></label>
+											</field>
+											<field binding="property.actualString" name="actualString" type="text">
+												<label id="value"><![CDATA[Value]]></label>
+											</field>
+											<field binding="property.clob" format="auto" name="clob" type="longtext">
+												<label id="clobvalue"><![CDATA[Multilined value]]></label>
+											</field>
+											<field binding="property.description" name="description" readonly="true" type="longtext">
+												<label id="description"><![CDATA[Description]]></label>
+											</field>
+										</meta-data>
+									</config>
+									<condition expression="${form_action eq 'update-site-property'}" />
+									<datasource id="property">
+										<params>
+											<param name="id">platform.site.manager.appendTabId</param>
+										</params>
+									</datasource>
+									<data>
+										<result>
+											<field name="shortName" type="text">
+												<value><![CDATA[appendTabId]]></value>
+											</field>
+											<field name="string" type="text">
+												<value><![CDATA[false]]></value>
+											</field>
+											<field name="defaultString" type="text">
+												<value><![CDATA[false]]></value>
+											</field>
+											<field name="actualString" type="text">
+												<value />
+											</field>
+											<field name="clob" type="longtext">
+												<value />
+											</field>
+											<field name="description" type="longtext">
+												<value><![CDATA[If set to true, the name of the currently selected tab is being appended to the URL as a get-parameter. Addresses the issue that IE loses the anchor on a redirect.]]></value>
+											</field>
+										</result>
+									</data>
+									<bean id="properties">
+										<option id="platform.site.manager.appendTabId" name="property" />
+										<option id="2" name="siteId" />
+										<option id="update" name="action" />
+									</bean>
+								</action>
+							</element>
 							<element>
 								<datasource id="site-properties">
 									<config>
@@ -1201,7 +1253,7 @@
 										</linkpanel>
 									</config>
 									<data>
-										<resultset chunk="0" chunkname="select-site-application" chunksize="25" firstchunk="0" hits="12"
+										<resultset chunk="0" chunkname="select-site-application" chunksize="25" firstchunk="0" hits="6"
 											lastchunk="0" nextchunk="0" previouschunk="0">
 											<result>
 												<field name="id" type="int">
@@ -1301,54 +1353,6 @@
 											</result>
 											<result>
 												<field name="id" type="int">
-													<value><![CDATA[8]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[demo-application]]></value>
-												</field>
-												<field name="displayName" type="text">
-													<value><![CDATA[myapplication]]></value>
-												</field>
-												<field name="privileged" type="checkbox">
-													<value><![CDATA[false]]></value>
-												</field>
-												<field name="fileBased" type="checkbox">
-													<value><![CDATA[true]]></value>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern"
-														target="/sites/update/1?selectedappid=8#tab_select-site-application">
-														<label id="select"><![CDATA[Select]]></label>
-														<icon>edit</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[9]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[mainova-os-orderlead]]></value>
-												</field>
-												<field name="displayName" type="text">
-													<value><![CDATA[ORDERLEAD]]></value>
-												</field>
-												<field name="privileged" type="checkbox">
-													<value><![CDATA[false]]></value>
-												</field>
-												<field name="fileBased" type="checkbox">
-													<value><![CDATA[true]]></value>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern"
-														target="/sites/update/1?selectedappid=9#tab_select-site-application">
-														<label id="select"><![CDATA[Select]]></label>
-														<icon>edit</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
 													<value><![CDATA[10]]></value>
 												</field>
 												<field name="name" type="text">
@@ -1373,78 +1377,6 @@
 											</result>
 											<result>
 												<field name="id" type="int">
-													<value><![CDATA[15]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[recruitment]]></value>
-												</field>
-												<field name="displayName" type="text">
-													<value><![CDATA[recruitment]]></value>
-												</field>
-												<field name="privileged" type="checkbox">
-													<value><![CDATA[false]]></value>
-												</field>
-												<field name="fileBased" type="checkbox">
-													<value><![CDATA[true]]></value>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern"
-														target="/sites/update/1?selectedappid=15#tab_select-site-application">
-														<label id="select"><![CDATA[Select]]></label>
-														<icon>edit</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[16]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[session-debug]]></value>
-												</field>
-												<field name="displayName" type="text">
-													<value><![CDATA[myapplication]]></value>
-												</field>
-												<field name="privileged" type="checkbox">
-													<value><![CDATA[false]]></value>
-												</field>
-												<field name="fileBased" type="checkbox">
-													<value><![CDATA[true]]></value>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern"
-														target="/sites/update/1?selectedappid=16#tab_select-site-application">
-														<label id="select"><![CDATA[Select]]></label>
-														<icon>edit</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[17]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[upload-bill]]></value>
-												</field>
-												<field name="displayName" type="text">
-													<value><![CDATA[Upload Bill]]></value>
-												</field>
-												<field name="privileged" type="checkbox">
-													<value><![CDATA[false]]></value>
-												</field>
-												<field name="fileBased" type="checkbox">
-													<value><![CDATA[true]]></value>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern"
-														target="/sites/update/1?selectedappid=17#tab_select-site-application">
-														<label id="select"><![CDATA[Select]]></label>
-														<icon>edit</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
 													<value><![CDATA[18]]></value>
 												</field>
 												<field name="name" type="text">
@@ -1462,30 +1394,6 @@
 												<linkpanel id="actions" location="inline">
 													<link default="true" id="actions[1]" mode="intern"
 														target="/sites/update/1?selectedappid=18#tab_select-site-application">
-														<label id="select"><![CDATA[Select]]></label>
-														<icon>edit</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[19]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[tupperware-web]]></value>
-												</field>
-												<field name="displayName" type="text">
-													<value><![CDATA[Tupperware Web]]></value>
-												</field>
-												<field name="privileged" type="checkbox">
-													<value><![CDATA[false]]></value>
-												</field>
-												<field name="fileBased" type="checkbox">
-													<value><![CDATA[true]]></value>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern"
-														target="/sites/update/1?selectedappid=19#tab_select-site-application">
 														<label id="select"><![CDATA[Select]]></label>
 														<icon>edit</icon>
 													</link>
@@ -1578,7 +1486,7 @@
 										</linkpanel>
 									</config>
 									<data>
-										<resultset chunk="0" chunkname="site-applications" chunksize="25" firstchunk="0" hits="13"
+										<resultset chunk="0" chunkname="site-applications" chunksize="25" firstchunk="0" hits="6"
 											lastchunk="0" nextchunk="0" previouschunk="0">
 											<result>
 												<field name="application.id" type="int">
@@ -1699,32 +1607,6 @@
 											</result>
 											<result>
 												<field name="application.id" type="int">
-													<value><![CDATA[4]]></value>
-												</field>
-												<field name="application.name" type="text">
-													<value><![CDATA[tupperware-remis]]></value>
-												</field>
-												<field name="application.applicationVersion" type="text">
-													<value><![CDATA[2.1.1-SNAPSHOT]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_red</icon>
-												</field>
-												<field name="reloadRequired" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link id="actions[1]" mode="intern"
-														target="/sites/update/1?form_action=activateApplication&amp;appid=4#tab_site-applications">
-														<label id="activate"><![CDATA[Activate]]></label>
-														<icon>activate</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="application.id" type="int">
 													<value><![CDATA[7]]></value>
 												</field>
 												<field name="application.name" type="text">
@@ -1757,84 +1639,6 @@
 													</link>
 													<link id="actions[4]" mode="intern"
 														target="/sites/update/1?appid=appng-camunda-demo&amp;sitename=manager#tab_site-applications">
-														<label id="beans.show"><![CDATA[Show Beans]]></label>
-														<icon>preview</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="application.id" type="int">
-													<value><![CDATA[8]]></value>
-												</field>
-												<field name="application.name" type="text">
-													<value><![CDATA[demo-application]]></value>
-												</field>
-												<field name="application.applicationVersion" type="text">
-													<value><![CDATA[1.0-SNAPSHOT]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<field name="reloadRequired" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link id="actions[2]" mode="intern"
-														target="/sites/update/1?form_action=deactivateApplication&amp;appid=8#tab_site-applications">
-														<label id="deactivate"><![CDATA[Deactivate]]></label>
-														<icon>deactivate</icon>
-														<confirmation id="application.deactivate.confirm" params="${current.application.name}, ${current.site.name}">Do you really want to deactivate the
-															application "demo-application" for the site "manager"? This causes the loss of the application's
-															configuration for this site and -if the root database connection is manged- also of its data!
-														</confirmation>
-													</link>
-													<link id="actions[3]" mode="intern" target="/sites/update/1/application/grant/8#tab_site-applications">
-														<label id="grant"><![CDATA[Grant]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[4]" mode="intern"
-														target="/sites/update/1?appid=demo-application&amp;sitename=manager#tab_site-applications">
-														<label id="beans.show"><![CDATA[Show Beans]]></label>
-														<icon>preview</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="application.id" type="int">
-													<value><![CDATA[9]]></value>
-												</field>
-												<field name="application.name" type="text">
-													<value><![CDATA[mainova-os-orderlead]]></value>
-												</field>
-												<field name="application.applicationVersion" type="text">
-													<value><![CDATA[1.0.0-SNAPSHOT]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<field name="reloadRequired" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link id="actions[2]" mode="intern"
-														target="/sites/update/1?form_action=deactivateApplication&amp;appid=9#tab_site-applications">
-														<label id="deactivate"><![CDATA[Deactivate]]></label>
-														<icon>deactivate</icon>
-														<confirmation id="application.deactivate.confirm" params="${current.application.name}, ${current.site.name}">Do you really want to deactivate the
-															application "mainova-os-orderlead" for the site "manager"? This causes the loss of the application's
-															configuration for this site and -if the root database connection is manged- also of its data!
-														</confirmation>
-													</link>
-													<link id="actions[3]" mode="intern" target="/sites/update/1/application/grant/9#tab_site-applications">
-														<label id="grant"><![CDATA[Grant]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[4]" mode="intern"
-														target="/sites/update/1?appid=mainova-os-orderlead&amp;sitename=manager#tab_site-applications">
 														<label id="beans.show"><![CDATA[Show Beans]]></label>
 														<icon>preview</icon>
 													</link>
@@ -1881,121 +1685,6 @@
 											</result>
 											<result>
 												<field name="application.id" type="int">
-													<value><![CDATA[15]]></value>
-												</field>
-												<field name="application.name" type="text">
-													<value><![CDATA[recruitment]]></value>
-												</field>
-												<field name="application.applicationVersion" type="text">
-													<value><![CDATA[0.1.0-SNAPSHOT]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<field name="reloadRequired" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link id="actions[2]" mode="intern"
-														target="/sites/update/1?form_action=deactivateApplication&amp;appid=15#tab_site-applications">
-														<label id="deactivate"><![CDATA[Deactivate]]></label>
-														<icon>deactivate</icon>
-														<confirmation id="application.deactivate.confirm" params="${current.application.name}, ${current.site.name}">Do you really want to deactivate the
-															application "recruitment" for the site "manager"? This causes the loss of the application's configuration
-															for this site and -if the root database connection is manged- also of its data!</confirmation>
-													</link>
-													<link id="actions[3]" mode="intern" target="/sites/update/1/application/grant/15#tab_site-applications">
-														<label id="grant"><![CDATA[Grant]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[4]" mode="intern"
-														target="/sites/update/1?appid=recruitment&amp;sitename=manager#tab_site-applications">
-														<label id="beans.show"><![CDATA[Show Beans]]></label>
-														<icon>preview</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="application.id" type="int">
-													<value><![CDATA[16]]></value>
-												</field>
-												<field name="application.name" type="text">
-													<value><![CDATA[session-debug]]></value>
-												</field>
-												<field name="application.applicationVersion" type="text">
-													<value><![CDATA[1.0-SNAPSHOT]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<field name="reloadRequired" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link id="actions[2]" mode="intern"
-														target="/sites/update/1?form_action=deactivateApplication&amp;appid=16#tab_site-applications">
-														<label id="deactivate"><![CDATA[Deactivate]]></label>
-														<icon>deactivate</icon>
-														<confirmation id="application.deactivate.confirm" params="${current.application.name}, ${current.site.name}">Do you really want to deactivate the
-															application "session-debug" for the site "manager"? This causes the loss of the application's
-															configuration for this site and -if the root database connection is manged- also of its data!
-														</confirmation>
-													</link>
-													<link id="actions[3]" mode="intern" target="/sites/update/1/application/grant/16#tab_site-applications">
-														<label id="grant"><![CDATA[Grant]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[4]" mode="intern"
-														target="/sites/update/1?appid=session-debug&amp;sitename=manager#tab_site-applications">
-														<label id="beans.show"><![CDATA[Show Beans]]></label>
-														<icon>preview</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="application.id" type="int">
-													<value><![CDATA[17]]></value>
-												</field>
-												<field name="application.name" type="text">
-													<value><![CDATA[upload-bill]]></value>
-												</field>
-												<field name="application.applicationVersion" type="text">
-													<value><![CDATA[1.0-SNAPSHOT]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<field name="reloadRequired" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link id="actions[2]" mode="intern"
-														target="/sites/update/1?form_action=deactivateApplication&amp;appid=17#tab_site-applications">
-														<label id="deactivate"><![CDATA[Deactivate]]></label>
-														<icon>deactivate</icon>
-														<confirmation id="application.deactivate.confirm" params="${current.application.name}, ${current.site.name}">Do you really want to deactivate the
-															application "upload-bill" for the site "manager"? This causes the loss of the application's configuration
-															for this site and -if the root database connection is manged- also of its data!</confirmation>
-													</link>
-													<link id="actions[3]" mode="intern" target="/sites/update/1/application/grant/17#tab_site-applications">
-														<label id="grant"><![CDATA[Grant]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[4]" mode="intern"
-														target="/sites/update/1?appid=upload-bill&amp;sitename=manager#tab_site-applications">
-														<label id="beans.show"><![CDATA[Show Beans]]></label>
-														<icon>preview</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="application.id" type="int">
 													<value><![CDATA[18]]></value>
 												</field>
 												<field name="application.name" type="text">
@@ -2028,45 +1717,6 @@
 													</link>
 													<link id="actions[4]" mode="intern"
 														target="/sites/update/1?appid=personregister&amp;sitename=manager#tab_site-applications">
-														<label id="beans.show"><![CDATA[Show Beans]]></label>
-														<icon>preview</icon>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="application.id" type="int">
-													<value><![CDATA[19]]></value>
-												</field>
-												<field name="application.name" type="text">
-													<value><![CDATA[tupperware-web]]></value>
-												</field>
-												<field name="application.applicationVersion" type="text">
-													<value><![CDATA[2.4.1-SNAPSHOT]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<field name="reloadRequired" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link id="actions[2]" mode="intern"
-														target="/sites/update/1?form_action=deactivateApplication&amp;appid=19#tab_site-applications">
-														<label id="deactivate"><![CDATA[Deactivate]]></label>
-														<icon>deactivate</icon>
-														<confirmation id="application.deactivate.confirm" params="${current.application.name}, ${current.site.name}">Do you really want to deactivate the
-															application "tupperware-web" for the site "manager"? This causes the loss of the application's
-															configuration for this site and -if the root database connection is manged- also of its data!
-														</confirmation>
-													</link>
-													<link id="actions[3]" mode="intern" target="/sites/update/1/application/grant/19#tab_site-applications">
-														<label id="grant"><![CDATA[Grant]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[4]" mode="intern"
-														target="/sites/update/1?appid=tupperware-web&amp;sitename=manager#tab_site-applications">
 														<label id="beans.show"><![CDATA[Show Beans]]></label>
 														<icon>preview</icon>
 													</link>
@@ -2139,46 +1789,8 @@
 										</linkpanel>
 									</config>
 									<data>
-										<resultset chunk="0" chunkname="databaseConnections" chunksize="25" firstchunk="0" hits="12"
+										<resultset chunk="0" chunkname="databaseConnections" chunksize="25" firstchunk="0" hits="5"
 											lastchunk="0" nextchunk="0" previouschunk="0">
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[4]]></value>
-												</field>
-												<field name="type" type="text">
-													<value><![CDATA[MYSQL]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[appng_manager_tupperware_remis]]></value>
-												</field>
-												<field name="jdbcUrl" type="text">
-													<value><![CDATA[jdbc:mysql://localhost:3306/appng_manager_tupperware_remis]]></value>
-												</field>
-												<field name="userName" type="text">
-													<value><![CDATA[root]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1/database/update/4#tab_databaseConnections">
-														<label id="edit"><![CDATA[Edit]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[3]" mode="intern"
-														target="/sites/update/1?form_action=testConnection&amp;conId=4#tab_databaseConnections">
-														<label id="test"><![CDATA[Test]]></label>
-														<icon>start</icon>
-													</link>
-													<link id="actions[4]" mode="intern" target="/sites/update/1?form_action=resetConnection&amp;conId=4">
-														<label id="reset"><![CDATA[Reset]]></label>
-														<icon>reload</icon>
-														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
-															connection "appng_manager_tupperware_remis"?</confirmation>
-													</link>
-												</linkpanel>
-											</result>
 											<result>
 												<field name="id" type="int">
 													<value><![CDATA[10]]></value>
@@ -2252,234 +1864,6 @@
 														<icon>reload</icon>
 														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
 															connection "appng_manager_demo_application"?</confirmation>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[13]]></value>
-												</field>
-												<field name="type" type="text">
-													<value><![CDATA[MYSQL]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[appng_manager_recruitment]]></value>
-												</field>
-												<field name="jdbcUrl" type="text">
-													<value><![CDATA[jdbc:mysql://localhost:3306/appng_manager_recruitment]]></value>
-												</field>
-												<field name="userName" type="text">
-													<value><![CDATA[site1app15]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_red</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1/database/update/13#tab_databaseConnections">
-														<label id="edit"><![CDATA[Edit]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[3]" mode="intern"
-														target="/sites/update/1?form_action=testConnection&amp;conId=13#tab_databaseConnections">
-														<label id="test"><![CDATA[Test]]></label>
-														<icon>start</icon>
-													</link>
-													<link id="actions[4]" mode="intern" target="/sites/update/1?form_action=resetConnection&amp;conId=13">
-														<label id="reset"><![CDATA[Reset]]></label>
-														<icon>reload</icon>
-														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
-															connection "appng_manager_recruitment"?</confirmation>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[14]]></value>
-												</field>
-												<field name="type" type="text">
-													<value><![CDATA[MYSQL]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[appng_manager_recruitment]]></value>
-												</field>
-												<field name="jdbcUrl" type="text">
-													<value><![CDATA[jdbc:mysql://localhost:3306/appng_manager_recruitment]]></value>
-												</field>
-												<field name="userName" type="text">
-													<value><![CDATA[site1app15]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_red</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1/database/update/14#tab_databaseConnections">
-														<label id="edit"><![CDATA[Edit]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[3]" mode="intern"
-														target="/sites/update/1?form_action=testConnection&amp;conId=14#tab_databaseConnections">
-														<label id="test"><![CDATA[Test]]></label>
-														<icon>start</icon>
-													</link>
-													<link id="actions[4]" mode="intern" target="/sites/update/1?form_action=resetConnection&amp;conId=14">
-														<label id="reset"><![CDATA[Reset]]></label>
-														<icon>reload</icon>
-														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
-															connection "appng_manager_recruitment"?</confirmation>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[15]]></value>
-												</field>
-												<field name="type" type="text">
-													<value><![CDATA[MYSQL]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[appng_manager_recruitment]]></value>
-												</field>
-												<field name="jdbcUrl" type="text">
-													<value><![CDATA[jdbc:mysql://localhost:3306/appng_manager_recruitment]]></value>
-												</field>
-												<field name="userName" type="text">
-													<value><![CDATA[site1app15]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_red</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1/database/update/15#tab_databaseConnections">
-														<label id="edit"><![CDATA[Edit]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[3]" mode="intern"
-														target="/sites/update/1?form_action=testConnection&amp;conId=15#tab_databaseConnections">
-														<label id="test"><![CDATA[Test]]></label>
-														<icon>start</icon>
-													</link>
-													<link id="actions[4]" mode="intern" target="/sites/update/1?form_action=resetConnection&amp;conId=15">
-														<label id="reset"><![CDATA[Reset]]></label>
-														<icon>reload</icon>
-														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
-															connection "appng_manager_recruitment"?</confirmation>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[16]]></value>
-												</field>
-												<field name="type" type="text">
-													<value><![CDATA[MYSQL]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[appng_manager_recruitment]]></value>
-												</field>
-												<field name="jdbcUrl" type="text">
-													<value><![CDATA[jdbc:mysql://localhost:3306/appng_manager_recruitment]]></value>
-												</field>
-												<field name="userName" type="text">
-													<value><![CDATA[site1app15]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1/database/update/16#tab_databaseConnections">
-														<label id="edit"><![CDATA[Edit]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[3]" mode="intern"
-														target="/sites/update/1?form_action=testConnection&amp;conId=16#tab_databaseConnections">
-														<label id="test"><![CDATA[Test]]></label>
-														<icon>start</icon>
-													</link>
-													<link id="actions[4]" mode="intern" target="/sites/update/1?form_action=resetConnection&amp;conId=16">
-														<label id="reset"><![CDATA[Reset]]></label>
-														<icon>reload</icon>
-														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
-															connection "appng_manager_recruitment"?</confirmation>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[17]]></value>
-												</field>
-												<field name="type" type="text">
-													<value><![CDATA[MYSQL]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[appng_manager_upload_bill]]></value>
-												</field>
-												<field name="jdbcUrl" type="text">
-													<value><![CDATA[jdbc:mysql://localhost:3306/appng_manager_upload_bill]]></value>
-												</field>
-												<field name="userName" type="text">
-													<value><![CDATA[site1app17]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[false]]></value>
-													<icon type="class">led_red</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1/database/update/17#tab_databaseConnections">
-														<label id="edit"><![CDATA[Edit]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[3]" mode="intern"
-														target="/sites/update/1?form_action=testConnection&amp;conId=17#tab_databaseConnections">
-														<label id="test"><![CDATA[Test]]></label>
-														<icon>start</icon>
-													</link>
-													<link id="actions[4]" mode="intern" target="/sites/update/1?form_action=resetConnection&amp;conId=17">
-														<label id="reset"><![CDATA[Reset]]></label>
-														<icon>reload</icon>
-														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
-															connection "appng_manager_upload_bill"?</confirmation>
-													</link>
-												</linkpanel>
-											</result>
-											<result>
-												<field name="id" type="int">
-													<value><![CDATA[18]]></value>
-												</field>
-												<field name="type" type="text">
-													<value><![CDATA[MYSQL]]></value>
-												</field>
-												<field name="name" type="text">
-													<value><![CDATA[appng_manager_upload_bill]]></value>
-												</field>
-												<field name="jdbcUrl" type="text">
-													<value><![CDATA[jdbc:mysql://localhost:3306/appng_manager_upload_bill]]></value>
-												</field>
-												<field name="userName" type="text">
-													<value><![CDATA[site1app17]]></value>
-												</field>
-												<field name="active" type="image">
-													<value><![CDATA[true]]></value>
-													<icon type="class">led_green</icon>
-												</field>
-												<linkpanel id="actions" location="inline">
-													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1/database/update/18#tab_databaseConnections">
-														<label id="edit"><![CDATA[Edit]]></label>
-														<icon>edit</icon>
-													</link>
-													<link id="actions[3]" mode="intern"
-														target="/sites/update/1?form_action=testConnection&amp;conId=18#tab_databaseConnections">
-														<label id="test"><![CDATA[Test]]></label>
-														<icon>start</icon>
-													</link>
-													<link id="actions[4]" mode="intern" target="/sites/update/1?form_action=resetConnection&amp;conId=18">
-														<label id="reset"><![CDATA[Reset]]></label>
-														<icon>reload</icon>
-														<confirmation id="connection.confirm.reset" params="#{name}">Do you really want to reset the database
-															connection "appng_manager_upload_bill"?</confirmation>
 													</link>
 												</linkpanel>
 											</result>

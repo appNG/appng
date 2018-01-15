@@ -29,6 +29,7 @@ import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.PageReference;
 import org.appng.xml.platform.Platform;
 import org.appng.xml.platform.Result;
+import org.appng.xml.platform.Section;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.ValidationRule;
 import org.junit.Assert;
@@ -44,9 +45,16 @@ public class ThymeleafProcessorTest {
 	public static void setup() throws Exception {
 		MarshallService ms = MarshallService.getMarshallService();
 		ClassLoader classLoader = ThymeleafProcessorTest.class.getClassLoader();
-		InputStream is = classLoader.getResourceAsStream("xml/platform.xml");
+		InputStream is = classLoader.getResourceAsStream("xml/ThymeleafProcessorTest-platform.xml");
 		platform = ms.unmarshall(is, org.appng.xml.platform.Platform.class);
 		appNG = new ThymeleafProcessor.AppNG(platform, null);
+	}
+
+	@Test
+	public void testSectionTitle() {
+		PageReference page = appNG.page("sites");
+		List<Section> sections = page.getStructure().getSection();
+		Assert.assertEquals("Site properties", sections.get(1).getTitle().getValue());
 	}
 
 	@Test
