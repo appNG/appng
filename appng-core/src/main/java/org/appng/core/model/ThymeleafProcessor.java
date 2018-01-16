@@ -154,7 +154,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			File config = new File(platformCache, ResourceType.XML.getFolder());
 			File tplFolder = new File(platformCache, ResourceType.TPL.getFolder());
 			for (Template tpl : templates) {
-				String tplPath = FilenameUtils.normalize(new File(config, tpl.getPath()).getAbsolutePath());
+				String tplPath = FilenameUtils.normalize(new File(tplFolder, tpl.getPath()).getAbsolutePath());
 				File tplFile = new File(tplPath);
 				if (tplFile.exists()) {
 					patterns.add(tplFile.getName());
@@ -167,7 +167,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				FileTemplateResolver appTplResolver = new FileTemplateResolver();
 				appTplResolver.setName("Template Resolver for " + applicationProvider.getName());
 				appTplResolver.setResolvablePatterns(patterns);
-//				appTplResolver.setPrefix(tplFolder.getPath() + File.separator);
+				appTplResolver.setPrefix(tplFolder.getPath() + File.separator);
 				appTplResolver.setTemplateMode(TemplateMode.HTML);
 				appTplResolver.setCharacterEncoding(charset.name());
 				appTplResolver.setCacheable(!devMode);
