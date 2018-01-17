@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -47,7 +48,8 @@ import org.appng.api.model.Subject;
  */
 @Entity
 @Table(name = "authgroup")
-public class GroupImpl implements Group {
+@EntityListeners(PlatformEventListener.class)
+public class GroupImpl implements Group, Auditable<Integer> {
 
 	private Integer id;
 	private String name;

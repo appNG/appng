@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -74,7 +75,8 @@ import org.slf4j.LoggerFactory;
  */
 @Entity
 @Table(name = "site")
-public class SiteImpl implements Site {
+@EntityListeners(PlatformEventListener.class)
+public class SiteImpl implements Site, Auditable<Integer> {
 
 	private static final Logger log = LoggerFactory.getLogger(SiteImpl.class);
 	private static final String SLASH = "/";

@@ -25,6 +25,10 @@
 		<property name="location" value="file://${APPNG_HOME}/WEB-INF/conf/appNG.properties" />
 	</bean>
 
+	<bean class="org.appng.core.domain.PlatformEventListener">
+		<property name="auditUser" value="appNGizer" />
+	</bean>
+
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
     	<property name="maxUploadSize" value="25000000"/>
 	</bean>
@@ -56,7 +60,7 @@
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="persistenceUnitName" value="appng" />
+		<property name="persistenceUnitName" value="appNGizer" />
 		<property name="persistenceProviderClass" value="org.hibernate.jpa.HibernatePersistenceProvider" />
 		<property name="dataSource" ref="datasource" />
 		<property name="jpaProperties">
@@ -67,6 +71,11 @@
 				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto:}</prop>
 				<prop key="hibernate.id.new_generator_mappings">false</prop>
 			</props>
+		</property>
+		<property name="packagesToScan">
+			<list>
+				<value>org.appng.core.domain</value>
+			</list>
 		</property>
 	</bean>
 

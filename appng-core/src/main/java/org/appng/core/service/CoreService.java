@@ -72,6 +72,8 @@ import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.AppngCache;
 import org.appng.core.controller.handler.SoapService;
 import org.appng.core.domain.ApplicationImpl;
+import org.appng.core.domain.PlatformEvent.Type;
+import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.GroupImpl;
 import org.appng.core.domain.PermissionImpl;
@@ -181,6 +183,9 @@ public class CoreService {
 
 	@Autowired
 	protected TemplateService templateService;
+
+	@Autowired
+	protected PlatformEventListener auditableListener;
 
 	public Subject createSubject(SubjectImpl subject) {
 		return subjectRepository.save(subject);
@@ -589,15 +594,17 @@ public class CoreService {
 			initAuthenticatedSubject(subject);
 			log.info("successfully logged in user '" + subject.getName() + "'");
 			((DefaultEnvironment) env).setSubject(subject);
+			auditableListener.createEvent(Type.INFO, "logged in");
 			return true;
 		}
 		return false;
 	}
 
 	public void logoutSubject(Environment env) {
-		String subjectName = env.getSubject().getName();
+		Subject subject = env.getSubject();
+		auditableListener.createEvent(Type.INFO, "logged out");
 		((DefaultEnvironment) env).logoutSubject();
-		log.info("'" + subjectName + "' logged out");
+		log.info("'{}' logged out", subject.getName());
 	}
 
 	public PropertyImpl getProperty(String propertyId) {
@@ -740,9 +747,16 @@ public class CoreService {
 		siteApplication.setReloadRequired(true);
 		siteApplication.setMarkedForDeletion(false);
 		MigrationStatus migrationStatus = createDatabaseConnection(siteApplication);
+		DatabaseConnection dbc = siteApplication.getDatabaseConnection();
 		if (!migrationStatus.isErroneous()) {
 			siteApplicationRepository.save(siteApplication);
 			site.getSiteApplications().add(siteApplication);
+			auditableListener.createEvent(Type.INFO,
+					String.format("Assigned application %s to site %s", application.getName(), site.getName()));
+			if (MigrationStatus.DB_MIGRATED.equals(migrationStatus)) {
+				auditableListener.createEvent(Type.INFO,
+						String.format("Created database %s with user %s", dbc.getJdbcUrl(), dbc.getUserName()));
+			}
 			if (createProperties) {
 				String prefix = PropertySupport.getPropertyPrefix(site, application);
 				Iterable<PropertyImpl> properties = getProperties(prefix);
@@ -766,7 +780,16 @@ public class CoreService {
 					}
 				}
 			}
+		} else if (null != dbc) {
+			auditableListener.createEvent(Type.ERROR,
+					String.format("Error creating database %s with user %s for application %s on site %s",
+							dbc.getJdbcUrl(), dbc.getUserName(), application.getName(), site.getName()));
+		} else {
+			auditableListener.createEvent(Type.ERROR,
+					String.format("Error creating database and/or user for application %s on site %s",
+							application.getName(), site.getName()));
 		}
+
 		return migrationStatus;
 	}
 
@@ -1297,8 +1320,18 @@ public class CoreService {
 			databaseConnectionRepository.delete(databaseConnection);
 			status = databaseService.dropDataBaseAndUser(databaseConnection);
 		}
-		log.info("unlinking application {} from site {}, status of database-connection is {}",
-				siteApplication.getApplication().getName(), site.getName(), status);
+		String applicationName = siteApplication.getApplication().getName();
+		log.info("unlinking application {} from site {}, status of database-connection is {}", applicationName,
+				site.getName(), status);
+		auditableListener.createEvent(Type.INFO,
+				String.format("Removed application %s from site %s", applicationName, site.getName()));
+		if (MigrationStatus.DB_MIGRATED.equals(status)) {
+			auditableListener.createEvent(Type.INFO, String.format("Dropped database %s and user %s",
+					databaseConnection.getJdbcUrl(), databaseConnection.getUserName()));
+		} else if (MigrationStatus.ERROR.equals(status)) {
+			auditableListener.createEvent(Type.ERROR, String.format("Error while dropping database %s and user %s",
+					databaseConnection.getJdbcUrl(), databaseConnection.getUserName()));
+		}
 		return status;
 	}
 
@@ -1666,6 +1699,7 @@ public class CoreService {
 					CacheService.clearCache(shutdownSite);
 				}
 				shutdownSite.setState(SiteState.STOPPED);
+				auditableListener.createEvent(Type.INFO, "Shut down site " + shutdownSite.getName());
 				shutdownSite = null;
 				siteMap.remove(siteName);
 			}

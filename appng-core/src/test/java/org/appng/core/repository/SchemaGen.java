@@ -24,7 +24,7 @@ public class SchemaGen {
 
 	public static void main(String[] args) {
 		Map<String, String> props = new HashMap<String, String>();
-		Persistence.generateSchema("mssql-testdb", props);
+		Persistence.generateSchema("mysql-testdb", props);
 	}
 
 }

@@ -80,6 +80,8 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
+import org.appng.core.domain.PlatformEvent.Type;
+import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
@@ -106,6 +108,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -142,6 +145,9 @@ public class InitializerService {
 	@Autowired
 	private MarshallService marshallService;
 
+	@Autowired
+	protected PlatformEventListener auditableListener;
+
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
@@ -157,6 +163,7 @@ public class InitializerService {
 	 *             if an configuration error occurred
 	 * @see #loadPlatform(java.util.Properties, Environment, String, String, ExecutorService)
 	 */
+	@Transactional
 	public void initPlatform(java.util.Properties defaultOverrides, Environment env, DatabaseConnection rootConnection,
 			ServletContext ctx, ExecutorService executor) throws InvalidConfigurationException {
 		logEnvironment();
@@ -755,6 +762,7 @@ public class InitializerService {
 		site.setState(SiteState.STARTED);
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
+		auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {

@@ -19,6 +19,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -28,7 +29,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.appng.api.ValidationMessages;
-import org.appng.api.model.Identifiable;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 
@@ -41,7 +41,8 @@ import org.appng.api.model.SimpleProperty;
  */
 @Entity
 @Table(name = "property")
-public class PropertyImpl extends SimpleProperty implements Property, Identifiable<String>, Comparable<Property> {
+@EntityListeners(PlatformEventListener.class)
+public class PropertyImpl extends SimpleProperty implements Property, Auditable<String>, Comparable<Property> {
 
 	public PropertyImpl() {
 		setMandatory(false);

@@ -28,7 +28,12 @@
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 		<qualifier value="coreTxManager" />
 	</bean>
-	
+
+	<bean class="org.appng.core.domain.PlatformEventListener">
+		<property name="auditUser" value="appNG platform" />
+		<property name="persist" value="false" />
+	</bean>
+
 	<bean class="org.appng.core.service.AppNGTestDataProvider" depends-on="entityManager" />
 
 	<bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">

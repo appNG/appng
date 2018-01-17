@@ -75,6 +75,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
+		validateSchemaVersion(platformConnection, "2.0.0");
 
 		DatabaseConnection mssql = new DatabaseConnection(DatabaseType.MSSQL, rootName, "", "".getBytes());
 		mssql.setName(rootName);
@@ -114,8 +115,8 @@ public class DatabaseServiceTest extends TestInitializer {
 	@Ignore("run locally")
 	public void testInitDatabaseMysql() throws Exception {
 		String jdbcUrl = "jdbc:mysql://localhost:3306/appng_migration";
-		String password = "user";
-		String user = "password";
+		String user = "user";
+		String password = "password";
 		Properties platformProperties = getProperties(DatabaseType.MYSQL, jdbcUrl, user, password,
 				DatabaseType.MYSQL.getDefaultDriver());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
@@ -124,13 +125,13 @@ public class DatabaseServiceTest extends TestInitializer {
 		Assert.assertTrue(dbInfo.toString().startsWith("MySQL 5.6"));
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.MYSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "2.9.2");
+		validateSchemaVersion(platformConnection, "3.0.0");
 	}
 
 	@Test
 	@Ignore("run locally")
 	public void testInitDatabaseMssql() throws Exception {
-		String jdbcUrl = "jdbc:sqlserver://localhost\\TEST;databaseName=appng_migration";
+		String jdbcUrl = "jdbc:sqlserver://localhost:1433;databaseName=appng_migration";
 		String user = "user";
 		String password = "password";
 		Properties platformProperties = getProperties(DatabaseType.MSSQL, jdbcUrl, user, password,
@@ -141,7 +142,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		Assert.assertTrue(dbInfo.toString().startsWith("Microsoft SQL Server"));
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.MSSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "2.9.2");
+		validateSchemaVersion(platformConnection, "3.0.0");
 		DataSource sqlDataSource = new HikariCPConfigurer(platformConnection).getDataSource();
 		DatabaseMetaData metaData = sqlDataSource.getConnection().getMetaData();
 		Assert.assertTrue(metaData.getDatabaseProductName().startsWith("Microsoft SQL Server"));
@@ -161,18 +162,7 @@ public class DatabaseServiceTest extends TestInitializer {
 	}
 
 	private void validateSchemaVersion(DatabaseConnection connection, String version) throws SQLException {
-		DataSource dataSource = new DriverManagerDataSource(connection.getJdbcUrl(), connection.getUserName(),
-				new String(connection.getPassword()));
-
-		Connection conn = dataSource.getConnection();
-		PreparedStatement st = conn.prepareStatement("select * from schema_version order by version desc");
-		ResultSet rs = st.executeQuery();
-		rs.next();
-		String currentVersion = rs.getString("version");
-		Assert.assertEquals(version, currentVersion);
-		rs.close();
-		st.close();
-		conn.close();
+		Assert.assertEquals(version, databaseService.status(connection).getVersion().toString());
 	}
 
 	@Test

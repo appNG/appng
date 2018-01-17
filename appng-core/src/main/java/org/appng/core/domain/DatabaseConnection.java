@@ -24,6 +24,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -40,7 +41,6 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.appng.api.ValidationMessages;
-import org.appng.api.model.Named;
 import org.appng.api.model.Site;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,8 @@ import org.slf4j.LoggerFactory;
  */
 @Entity
 @Table(name = "database_connection")
-public class DatabaseConnection implements Named<Integer> {
+@EntityListeners(PlatformEventListener.class)
+public class DatabaseConnection implements Auditable<Integer> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnection.class);
 

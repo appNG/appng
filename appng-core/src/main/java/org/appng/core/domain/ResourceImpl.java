@@ -21,6 +21,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -47,7 +48,8 @@ import org.appng.api.model.ResourceType;
  */
 @Entity
 @Table(name = "resource")
-public class ResourceImpl implements Resource, Closeable {
+@EntityListeners(PlatformEventListener.class)
+public class ResourceImpl implements Resource, Auditable<Integer>, Closeable {
 
 	private Integer id;
 	private String name;
