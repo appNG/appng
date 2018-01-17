@@ -15,10 +15,13 @@
  */
 package org.appng.api.support;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Person;
 import org.appng.api.model.NameProvider;
 import org.appng.api.support.OptionOwner.Selector;
@@ -151,6 +154,19 @@ public class SelectionFactoryTest {
 	}
 
 	@Test
+	public void testGetDateSelectionFastDateFormat() throws ParseException {
+		FastDateFormat fdf = FastDateFormat.getInstance("dd.MM.yyyy");
+		Date date = fdf.parse("17.01.2017");
+		Selection selection = selectionFactory.getDateSelection("id", "title", date, fdf);
+		Assert.assertEquals("id", selection.getId());
+		Assert.assertEquals("title", selection.getTitle().getId());
+		Assert.assertEquals("id", selection.getOptions().get(0).getName());
+		Assert.assertEquals(fdf.format(date), selection.getOptions().get(0).getValue());
+		Assert.assertEquals(SelectionType.DATE, selection.getType());
+		Assert.assertEquals("dd.MM.yyyy", selection.getFormat());
+	}
+
+	@Test
 	public void testGetTextSelection() {
 		Selection selection = selectionFactory.getTextSelection("id", "title", "abc");
 		Assert.assertEquals("id", selection.getId());
@@ -159,7 +175,7 @@ public class SelectionFactoryTest {
 		Assert.assertEquals("abc", selection.getOptions().get(0).getValue());
 		Assert.assertEquals(SelectionType.TEXT, selection.getType());
 	}
-
+	
 	private void assertSelectionEquals(Selection s1, Selection s2) {
 		assertSelectionEquals(s1, s2, true);
 	}

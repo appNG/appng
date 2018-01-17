@@ -15,6 +15,9 @@
  */
 package org.appng.api.support;
 
+import java.util.Date;
+
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Option;
 import org.appng.xml.platform.Section;
@@ -86,6 +89,24 @@ public class SelectionFactory extends OptionFactory<SelectionFactory.Selection> 
 		Selection selection = getSimpleSelection(id, title, value, SelectionType.DATE);
 		selection.setFormat(dateFormat);
 		return selection;
+	}
+
+	/**
+	 * Creates a {@link Selection} of type {@link SelectionType#DATE} with only one {@link Option}. This option uses the
+	 * given id as its name and the given value which is being formatted. {@link FastDateFormat#getPattern()} is used
+	 * for {@link Selection#setFormat(String)}.
+	 * 
+	 * @param id
+	 *            the id for the {@link Selection} and also the name of the single {@link Option}
+	 * @param title
+	 *            the title for the {@link Section}
+	 * @param value
+	 *            the {@link Option}'s value as a {@link Date}
+	 * @param dateFormat
+	 * @return a {@link Selection} of type {@link SelectionType#DATE} with one {@link Option}
+	 */
+	public Selection getDateSelection(String id, String title, Date value, FastDateFormat dateFormat) {
+		return getDateSelection(id, title, value == null ? null : dateFormat.format(value), dateFormat.getPattern());
 	}
 
 	/**
