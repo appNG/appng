@@ -16,8 +16,14 @@
         http://www.springframework.org/schema/data/jpa
         http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
-	<tx:annotation-driven transaction-manager="coreTxManager" />	
-	<bean id="coreTxManager" class="org.springframework.orm.jpa.JpaTransactionManager" lazy-init="true">
+	<tx:annotation-driven transaction-manager="coreTxManager" />
+
+	<bean class="org.appng.core.domain.PlatformEventListener">
+		<property name="auditUser" value="appNG testsupport" />
+		<property name="persist" value="false" />
+	</bean>
+
+	<bean id="coreTxManager" class="org.springframework.orm.jpa.JpaTransactionManager" lazy-init="true" primary="true">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 
@@ -27,7 +33,7 @@
 	<bean id="databaseService" class="org.appng.core.service.DatabaseService" />
 	<bean id="ldapService" class="org.appng.core.service.LdapService" />
 	<bean id="coreService" class="org.appng.core.service.CoreService" />
-	<bean id="initializerService" class="org.appng.core.service.InitializerService"/>
+	<bean id="initializerService" class="org.appng.core.service.InitializerService" />
 	<bean id="templateService" class="org.appng.core.service.TemplateService" />
 
 </beans>

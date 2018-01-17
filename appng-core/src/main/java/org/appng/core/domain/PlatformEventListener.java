@@ -21,8 +21,8 @@ import java.util.Date;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
-import javax.persistence.PreRemove;
 import javax.servlet.http.HttpServletRequest;
 
 import org.appng.api.Scope;
@@ -35,15 +35,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * An entity listener that creates a new {@link PlatformEvent} on {@link PostPersist}, {@link PostUpdate} and
- * {@link PreRemove}. Also, a {@link PlatformEvent} can be created manually by calling
+ * {@link PostRemove}. Also, a {@link PlatformEvent} can be created manually by calling
  * {@link #createEvent(Type, String)}
  * 
  * @author Matthias Müller
@@ -65,17 +63,17 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	@PostPersist
-	public void afterCreate(Object o) {
+	public void onCreate(Object o) {
 		createEvent(o, PlatformEvent.Type.CREATE);
 	}
 
 	@PostUpdate
-	public void afterUpdate(Object o) {
+	public void onUpdate(Object o) {
 		createEvent(o, PlatformEvent.Type.UPDATE);
 	}
 
-	@PreRemove
-	public void afterDelete(Object o) {
+	@PostRemove
+	public void onDelete(Object o) {
 		createEvent(o, PlatformEvent.Type.DELETE);
 	}
 
@@ -124,12 +122,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 			event.setServletPath(request.getServletPath());
 		}
 		if (persist) {
-			PlatformTransactionManager txMngr = CONTEXT.getBean(PlatformTransactionManager.class);
-			TransactionStatus tx = txMngr.getTransaction(null);
 			getEntityManager().persist(event);
-			if (tx.isNewTransaction()) {
-				txMngr.commit(tx);
-			}
 		}
 		LOG.info("Created entry {}", event);
 	}
