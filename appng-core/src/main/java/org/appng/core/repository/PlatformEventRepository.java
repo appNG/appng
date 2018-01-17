@@ -13,26 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.core.domain;
+package org.appng.core.repository;
 
-import java.io.Serializable;
-import java.util.Date;
+import org.appng.core.domain.PlatformEvent;
+import org.appng.persistence.repository.SearchRepository;
 
-import org.appng.api.model.Named;
-import org.appng.api.model.Versionable;
-
-/**
- * Marker interface for domain objects that should be audited using {@link PlatformEventListener}.
- * 
- * @author Matthias Müller
- *
- * @param <T>
- *            the type of the ID
- */
-public interface Auditable<T extends Serializable> extends Named<T>, Versionable<Date> {
-
-	default String getAuditName() {
-		return getClass().getSimpleName().replace("Impl", "");
-	}
-
+public interface PlatformEventRepository extends SearchRepository<PlatformEvent, Integer> {
 }
