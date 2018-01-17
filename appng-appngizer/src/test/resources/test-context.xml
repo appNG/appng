@@ -26,6 +26,11 @@
 		<property name="location" value="classpath:/test-context.properties" />
 	</bean>
 
+	<bean class="org.appng.core.domain.PlatformEventListener">
+		<property name="auditUser" value="appNGizer" />
+		<property name="persist" value="false" />
+	</bean>
+
 	<jdbc:embedded-database id="datasource" type="HSQL" database-name="${database.name}" />
 
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
