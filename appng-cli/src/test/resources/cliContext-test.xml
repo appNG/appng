@@ -22,6 +22,11 @@
 
 	<tx:annotation-driven transaction-manager="coreTxManager" />
 
+	<bean class="org.appng.core.domain.PlatformEventListener">
+		<property name="auditUser" value="appNG CLI" />
+		<property name="persist" value="false" />
+	</bean>
+
 	<bean id="coreTxManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 		<qualifier value="coreTxManager" />
@@ -34,7 +39,7 @@
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean" depends-on="server">
-		<property name="persistenceUnitName" value="appng" />
+		<property name="persistenceUnitName" value="appNG CLI" />
 		<property name="persistenceProviderClass" value="org.hibernate.jpa.HibernatePersistenceProvider" />
 		<property name="jpaProperties">
 			<props>
