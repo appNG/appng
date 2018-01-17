@@ -18,8 +18,8 @@ package org.appng.core.model;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -119,12 +119,15 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 		ApplicationProvider applicationProvider = getApplicationProvider(applicationSite);
 		ConfigurableApplicationContext context = applicationProvider.getContext();
-		Collection<ThymeleafReplaceInterceptor> interceptors = null;
+		List<ThymeleafReplaceInterceptor> interceptors = null;
 
 		if (null != context) {
-			// TODO : how is the order of the beans. Maybe we can find a way to guarantee an
-			// order in which the interceptors are called.
-			interceptors = context.getBeansOfType(ThymeleafReplaceInterceptor.class).values();
+			interceptors = new ArrayList<>(context.getBeansOfType(ThymeleafReplaceInterceptor.class).values());
+			Collections.sort(interceptors, new Comparator<ThymeleafReplaceInterceptor>() {
+				public int compare(ThymeleafReplaceInterceptor o1, ThymeleafReplaceInterceptor o2) {
+					return Integer.compare(o1.getOrder(), o2.getOrder());
+				}
+			});
 		}
 
 		// SpringTemplateEngine templateEngine = new SpringTemplateEngine();

@@ -108,4 +108,16 @@ public interface ThymeleafReplaceInterceptor {
 	 */
 	Collection<String> getAdditionalTemplateResourceNames();
 
+	/**
+	 * In case that an application has different interceptors intercepting on the
+	 * same replace call, the first interceptor will win. The order of interceptors
+	 * can be affected by setting a high priority to interceptors which shall be
+	 * processed first
+	 * 
+	 * @return
+	 */
+	default int getPriority() {
+		return 0;
+	}
+
 }

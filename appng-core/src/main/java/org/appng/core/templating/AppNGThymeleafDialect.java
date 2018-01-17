@@ -53,13 +53,13 @@ public class AppNGThymeleafDialect extends SpringStandardDialect {
 		for (IProcessor proc : springStandardProcessorsSet) {
 			if (proc instanceof StandardReplaceTagProcessor) {
 				origReplaceProc = proc;
+				break;
 			}
 		}
 		if (null != origReplaceProc) {
 			springStandardProcessorsSet.remove(origReplaceProc);
 		}
-		springStandardProcessorsSet
-				.add(new ReplaceTagProcessor(TemplateMode.HTML, dialectPrefix, interceptors));
+		springStandardProcessorsSet.add(new ReplaceTagProcessor(TemplateMode.HTML, dialectPrefix, interceptors));
 
 		return springStandardProcessorsSet;
 	}
