@@ -125,7 +125,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			interceptors = new ArrayList<>(context.getBeansOfType(ThymeleafReplaceInterceptor.class).values());
 			Collections.sort(interceptors, new Comparator<ThymeleafReplaceInterceptor>() {
 				public int compare(ThymeleafReplaceInterceptor o1, ThymeleafReplaceInterceptor o2) {
-					return Integer.compare(o1.getOrder(), o2.getOrder());
+					return Integer.compare(o1.getPriority(), o2.getPriority());
 				}
 			});
 		}
