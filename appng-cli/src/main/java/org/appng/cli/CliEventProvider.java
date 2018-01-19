@@ -13,26 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.core.domain;
+package org.appng.cli;
 
-import java.io.Serializable;
-import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
 
-import org.appng.api.model.Named;
-import org.appng.api.model.Versionable;
+import org.appng.core.domain.PlatformEventListener.EventProvider;
 
-/**
- * Marker interface for domain objects that should be audited using {@link PlatformEventListener}.
- * 
- * @author Matthias Müller
- *
- * @param <T>
- *            the type of the ID
- */
-public interface Auditable<T extends Serializable> extends Named<T>, Versionable<Date> {
+public class CliEventProvider extends EventProvider {
 
-	default String getAuditName() {
-		return getClass().getSimpleName().replace("Impl", "") + " " + getName();
+	@Override
+	public String getUser(HttpServletRequest request) {
+		return System.getProperty("user.name");
+	}
+
+	@Override
+	public String getContext(HttpServletRequest request) {
+		return CliBootstrap.CURRENT_COMMAND;
+	}
+
+	@Override
+	public String getApplication(HttpServletRequest servletRequest) {
+		return "appNG CLI";
 	}
 
 }

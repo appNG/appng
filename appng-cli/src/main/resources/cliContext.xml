@@ -24,7 +24,10 @@
 
 	<bean class="org.appng.core.domain.PlatformEventListener">
 		<property name="auditUser" value="appNG CLI" />
+		<property name="eventProvider" ref="cliEventProvider" />
 	</bean>
+
+	<bean id="cliEventProvider" class="org.appng.cli.CliEventProvider" />
 
 	<bean id="coreTxManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />

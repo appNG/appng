@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
 import org.appng.core.controller.PlatformStartup;
 import org.appng.core.service.DatabaseService;
@@ -45,6 +46,7 @@ import org.springframework.util.StopWatch;
  */
 public class CliBootstrap {
 
+	public static String CURRENT_COMMAND;
 	public static final String APPNG_HOME = "APPNG_HOME";
 	private static final Logger LOG = LoggerFactory.getLogger(CliBootstrap.class);
 	static final String CLI_CONTEXT_XML = "cliContext.xml";
@@ -87,43 +89,47 @@ public class CliBootstrap {
 		cliWatch.start();
 
 		CliCore cliCore = new CliCore();
+
 		if (cliCore.processCommand(args)) {
-
-			CliBootstrapEnvironment env = new CliBootstrapEnvironment();
-
-			File platformRootPath = null;
-			String appngHome = System.getProperty(APPNG_HOME);
-			if (null != appngHome) {
-				platformRootPath = new File(appngHome).getAbsoluteFile();
-			}
-			if (null == platformRootPath || !platformRootPath.exists()) {
-				platformRootPath = getPlatformRootPath(env);
-				LOG.info("{}: {}", APPNG_HOME, platformRootPath);
-			}
-			Properties cliConfig = getCliConfig(env, true, platformRootPath);
-
-			Server hsqlServer = HsqlStarter.startHsql(cliConfig, platformRootPath.getAbsolutePath());
-
 			try {
-				ConfigurableApplicationContext context = getContext(cliConfig, CLI_CONTEXT_XML);
-				cliCore.setContext(context);
-				cliCore.perform(cliConfig);
+				CURRENT_COMMAND = StringUtils.join(args, StringUtils.SPACE);
+				CliBootstrapEnvironment env = new CliBootstrapEnvironment();
 
-				cliWatch.stop();
-				LOG.info("duration: {}ms", cliWatch.getTotalTimeMillis());
-				context.close();
-				HsqlStarter.shutdown(hsqlServer);
-			} catch (BeansException e) {
-				cliCore.logError("error while building context, see logs for details.");
-				LOG.error("error while building context", e);
-				return CliCore.COMMAND_EXECUTION_ERROR;
+				File platformRootPath = null;
+				String appngHome = System.getProperty(APPNG_HOME);
+				if (null != appngHome) {
+					platformRootPath = new File(appngHome).getAbsoluteFile();
+				}
+				if (null == platformRootPath || !platformRootPath.exists()) {
+					platformRootPath = getPlatformRootPath(env);
+					LOG.info("{}: {}", APPNG_HOME, platformRootPath);
+				}
+				Properties cliConfig = getCliConfig(env, true, platformRootPath);
+
+				Server hsqlServer = HsqlStarter.startHsql(cliConfig, platformRootPath.getAbsolutePath());
+
+				try {
+					ConfigurableApplicationContext context = getContext(cliConfig, CLI_CONTEXT_XML);
+					cliCore.setContext(context);
+					cliCore.perform(cliConfig);
+
+					cliWatch.stop();
+					LOG.info("duration: {}ms", cliWatch.getTotalTimeMillis());
+					context.close();
+					HsqlStarter.shutdown(hsqlServer);
+				} catch (BeansException e) {
+					cliCore.logError("error while building context, see logs for details.");
+					LOG.error("error while building context", e);
+					return CliCore.COMMAND_EXECUTION_ERROR;
+				}
+			} finally {
+				CURRENT_COMMAND = null;
 			}
 		}
 		return cliCore.getStatus();
 	}
 
-	static ConfigurableApplicationContext getContext(final Properties config, String location)
-			throws BeansException {
+	static ConfigurableApplicationContext getContext(final Properties config, String location) throws BeansException {
 		PropertyResourceConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		appNGConfigurer.setProperties(config);
 		ConfigurableApplicationContext platformContext = new ClassPathXmlApplicationContext(new String[] { location },
@@ -138,21 +144,21 @@ public class CliBootstrap {
 			throw new IllegalArgumentException(name + " is not defined!");
 		}
 		if (!file.exists()) {
-			throw new IllegalArgumentException("The path specified in " + name + " does not exist: "
-					+ file.getAbsolutePath());
+			throw new IllegalArgumentException(
+					"The path specified in " + name + " does not exist: " + file.getAbsolutePath());
 		}
 		if (isDirectory && !file.isDirectory()) {
-			throw new IllegalArgumentException("The path specified in " + name + " must point to a directory: "
-					+ file.getAbsolutePath());
+			throw new IllegalArgumentException(
+					"The path specified in " + name + " must point to a directory: " + file.getAbsolutePath());
 		} else if (!isDirectory && !file.isFile()) {
-			throw new IllegalArgumentException("The path specified in " + name + " must point to a file: "
-					+ file.getAbsolutePath());
+			throw new IllegalArgumentException(
+					"The path specified in " + name + " must point to a file: " + file.getAbsolutePath());
 		}
 		return file;
 	}
 
-	static Properties getCliConfig(CliBootstrapEnvironment env, boolean logInfo, File platformRootPath) throws FileNotFoundException,
-			IOException {
+	static Properties getCliConfig(CliBootstrapEnvironment env, boolean logInfo, File platformRootPath)
+			throws FileNotFoundException, IOException {
 		Properties config = new Properties();
 		File properties = env.getAbsoluteFile(new File(platformRootPath, PlatformStartup.CONFIG_LOCATION));
 		if (properties.exists()) {

@@ -24,7 +24,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  * A platform event.
@@ -39,14 +43,21 @@ public class PlatformEvent {
 	private Date created;
 	private String user;
 	private String event;
-	private String servletPath;
-	private String contextPath;
-	private String host;
+	private String application;
+	private String context;
+	private String origin;
 	private String hostName;
+	private String requestId;
+	private String sessionId;
 	private Type type;
 
 	public enum Type {
 		CREATE, UPDATE, DELETE, INFO, ERROR, WARN;
+	}
+
+	@PreUpdate
+	private void preUpdate() {
+		throw new UnsupportedOperationException("Can not update an event!");
 	}
 
 	@Id
@@ -59,6 +70,8 @@ public class PlatformEvent {
 		this.id = id;
 	}
 
+	@Version
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getCreated() {
 		return created;
 	}
@@ -84,28 +97,28 @@ public class PlatformEvent {
 		this.event = event;
 	}
 
-	public String getServletPath() {
-		return servletPath;
+	public String getApplication() {
+		return application;
 	}
 
-	public void setServletPath(String servletPath) {
-		this.servletPath = servletPath;
+	public void setApplication(String application) {
+		this.application = application;
 	}
 
-	public String getContextPath() {
-		return contextPath;
+	public String getContext() {
+		return context;
 	}
 
-	public void setContextPath(String contextPath) {
-		this.contextPath = contextPath;
+	public void setContext(String context) {
+		this.context = context;
 	}
 
-	public String getHost() {
-		return host;
+	public String getOrigin() {
+		return origin;
 	}
 
-	public void setHost(String host) {
-		this.host = host;
+	public void setOrigin(String origin) {
+		this.origin = origin;
 	}
 
 	public String getHostName() {
@@ -124,6 +137,22 @@ public class PlatformEvent {
 
 	public void setType(Type type) {
 		this.type = type;
+	}
+
+	public String getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 
 	@Override

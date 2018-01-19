@@ -1659,7 +1659,7 @@ public class CoreService {
 		subjectRepository.delete(subject.getId());
 	}
 
-	protected void shutdownSite(Environment env, String siteName) {
+	public void shutdownSite(Environment env, String siteName) {
 		if (null != env) {
 			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 			if (siteMap.containsKey(siteName) && null != siteMap.get(siteName)) {

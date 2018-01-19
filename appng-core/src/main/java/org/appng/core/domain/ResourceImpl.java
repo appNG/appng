@@ -172,4 +172,9 @@ public class ResourceImpl implements Resource, Auditable<Integer>, Closeable {
 		this.cachedFile = null;
 	}
 
+	@Override
+	@Transient
+	public String getAuditName() {
+		return Auditable.super.getAuditName() + " of application " + application.getName();
+	}
 }
