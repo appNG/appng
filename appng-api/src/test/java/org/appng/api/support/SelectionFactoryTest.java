@@ -175,7 +175,7 @@ public class SelectionFactoryTest {
 		Assert.assertEquals("abc", selection.getOptions().get(0).getValue());
 		Assert.assertEquals(SelectionType.TEXT, selection.getType());
 	}
-	
+
 	private void assertSelectionEquals(Selection s1, Selection s2) {
 		assertSelectionEquals(s1, s2, true);
 	}
