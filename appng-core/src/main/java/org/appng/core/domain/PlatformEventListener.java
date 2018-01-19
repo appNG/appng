@@ -169,7 +169,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 
 		public String getSessionId(HttpServletRequest servletRequest) {
 			if (null != servletRequest) {
-				return servletRequest.getSession().getId().substring(0, 8);
+				return StringUtils.substring(servletRequest.getSession().getId(), 0, 8);
 			}
 			return null;
 		}
