@@ -288,6 +288,11 @@
 		<defaultValue>target/webapps/ROOT/repository/localhost</defaultValue>
 		<description>The absolute path to the sites root-directory</description>
 	</property>
+	<property name="supportReloadFile" self="http://localhost/site/localhost/property/supportReloadFile">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>If true, a site reload is performed when a file named .reload is created in the site's root directory.</description>
+	</property>
 	<property name="supportedLanguages" self="http://localhost/site/localhost/property/supportedLanguages">
 		<value>en, de</value>
 		<defaultValue>en, de</defaultValue>
