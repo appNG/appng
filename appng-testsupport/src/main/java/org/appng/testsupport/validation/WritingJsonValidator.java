@@ -56,8 +56,8 @@ public class WritingJsonValidator {
 	public static boolean logJson = false;
 
 	/**
-	 * Set to {@code true} to let the object mapper sort the properties of an object alphabetically more details at
-	 * {@link MapperFeature}.SORT_PROPERTIES_ALPHABETICALLY
+	 * Set to {@code true} to let the object mapper sort the properties of an object alphabetically. For further
+	 * information see {@link MapperFeature}.SORT_PROPERTIES_ALPHABETICALLY
 	 */
 	public static boolean sortPropertiesAlphabetically = false;
 
