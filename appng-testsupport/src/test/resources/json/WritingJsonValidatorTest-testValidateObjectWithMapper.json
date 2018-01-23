@@ -1,6 +1,6 @@
 {
   "birthDate" : "2015-04-27",
-  "firstName" : "John",
   "name" : "Doe",
+  "firstName" : "John",
   "nullValue" : null
 }
