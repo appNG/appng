@@ -2,7 +2,7 @@
 
 == Testing
 === General
-AppNG also offers support for unit- and integration testing your appNG applications. Therefore, it uses the testing capabilities of the Spring framework. See the {spring}/spring-framework-reference/htmlsingle/#testing[Reference Documentation^] for details on testing with Spring.
+appNG also offers support for unit- and integration testing your appNG applications. Therefore, it uses the testing capabilities of the Spring framework. See the {spring}/spring-framework-reference/htmlsingle/#testing[Reference Documentation^] for details on testing with Spring.
 
 To enable test support, just add the following dependency to your `pom.xml`:
 
@@ -112,9 +112,7 @@ In your testcase, you just need to add `beans-test.xml` to the `@ContextConfigur
 appNG comes along with some handy test utilities. 
 
 ==== Writing JSON Validator
-The class {appng}/org/appng/testsupport/validation/WritingJsonValidator.html[org.appng.testsupport.validation.WritingJsonValidator^] is 
-a utility to map Java objects into JSON and compare it against a reference file. It provides also the functionality to easily create reference files.
-It creates them at `src/test/resources/json` in your project.  
+The class {appng}/org/appng/testsupport/validation/WritingJsonValidator.html[org.appng.testsupport.validation.WritingJsonValidator^] is a utility to map Java objects to JSON and compare it against a reference file. It also provides the functionality to easily create the reference files at `src/test/resources/json` in your project.
 
 NOTE: The folder for reference files must be created manually before creating reference files.
 
@@ -137,10 +135,9 @@ public class MyTest {
 }  
 
 ---- 
-<1> its handy to do some general property setting in a static block for all test methods in a test case. 
+<1> it is handy to configure general properties in a static block for all test methods of a test case.
 <2> if the reference file does not exist or is outdated, set this property to `true` to create a new reference file.
-<3> the order of object properties in a JSON file is not clear defined. Set this property to `true` for a alphabetical order
-<4> call the validate method with the object and the file name of the reference file to map the object into JSON and compare it against the JSON in the compare file
+<3> the order of object properties in a JSON file is not clearly defined. Set this property to `true` for an alphabetically ordered output.
+<4> call the `validate`-method of {appng}/org/appng/testsupport/validation/WritingJsonValidator.html[WritingJsonValidator] with the object and the file name of the reference file to map the object to JSON and compare it against the JSON provided in the compare file.
 
-
-NOTE: In Eclipse, a new created reference file might not be available immediately after creation. The project must be refreshed first.  
+NOTE: In Eclipse, a newly created reference file might not be available immediately after creation. The project must be refreshed first.
