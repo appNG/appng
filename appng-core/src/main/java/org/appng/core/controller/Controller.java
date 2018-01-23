@@ -50,7 +50,6 @@ import org.appng.core.Redirect;
 import org.appng.core.controller.handler.ErrorPageHandler;
 import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.handler.JspHandler;
-import org.appng.core.controller.handler.ProxyHandler;
 import org.appng.core.controller.handler.RequestHandler;
 import org.appng.core.controller.handler.ServiceRequestHandler;
 import org.appng.core.controller.handler.StaticContentHandler;
@@ -238,10 +237,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 					RequestHandler requestHandler = null;
 
-					Boolean isProxyEnabled = site.getProperties().getBoolean("proxyEnabled", Boolean.valueOf(false));
-					if (isProxyEnabled.booleanValue()) {
-						requestHandler = new ProxyHandler();
-					} else if (("/".equals(servletPath)) || ("".equals(servletPath)) || (null == servletPath)) {
+					if (("/".equals(servletPath)) || ("".equals(servletPath)) || (null == servletPath)) {
 						if (!pathInfo.getDocumentDirectories().isEmpty()) {
 							String defaultPage = site.getProperties().getString(SiteProperties.DEFAULT_PAGE);
 							String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
