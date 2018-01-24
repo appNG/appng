@@ -200,9 +200,9 @@ For further reference, have a look at the corresponding recommendations from the
 * https://www.w3.org/TR/xpath-functions[^]
 
 ==== Referencing custom resources
-If your custom XSL stylesheets need to include custom resources from `application-home/resources`, the schema to build the path for this resources is:
+If your custom XSL stylesheets need to include custom resources from `application-home/resources`, the schema to build the path for these resources is:
 
-`/template_<applicaton-name>/<relative-resource-path>`
+`/template_<application-name>/<relative-resource-path>`
 
 This example assumes that `jquery.colorpicker.js` is located at `application-home/resources/colorpicker`
 [source,xml]

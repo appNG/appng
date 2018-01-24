@@ -44,9 +44,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link RequestHandler} responsible for serving static resources.<br/>Those resources may belong to a template or
- * reside inside a document-folder of a {@link Site} (see {@link SiteProperties#DOCUMENT_DIR} and
- * {@link org.appng.api.Path#isDocument()}).
+ * A {@link RequestHandler} responsible for serving static resources.<br/>
+ * Those resources may belong to a template or reside inside a document-folder of a {@link Site} (see
+ * {@link SiteProperties#DOCUMENT_DIR} and {@link org.appng.api.Path#isDocument()}).
  * 
  * @author Matthias Müller
  */
@@ -54,7 +54,7 @@ public class StaticContentHandler implements RequestHandler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StaticContentHandler.class);
 
-	private static final List<String> TEMPLATE_FOLDERS = Arrays.asList("assets","resources");
+	private static final List<String> TEMPLATE_FOLDERS = Arrays.asList("assets", "resources");
 
 	private static final String SLASH = "/";
 
@@ -84,8 +84,8 @@ public class StaticContentHandler implements RequestHandler {
 		} else if (servletPath.startsWith(templatePrefix)) {
 			CacheProvider cacheProvider = new CacheProvider(platformProperties);
 			String applicationDir = platformProperties.getString(Platform.Property.APPLICATION_DIR);
-			serveTemplateResource(servletRequest, servletResponse, site, applicationDir, templatePrefix,
-					templateFolder, activeTemplate, defaultTemplate, repoPath, cacheProvider);
+			serveTemplateResource(servletRequest, servletResponse, site, applicationDir, templatePrefix, templateFolder,
+					activeTemplate, defaultTemplate, repoPath, cacheProvider);
 		} else if (pathInfo.isDocument()) {
 			if (pathInfo.isRootIgnoreTrailingSlash()) {
 				String target = pathInfo.getRootPath() + SLASH + defaultPage;
@@ -102,8 +102,8 @@ public class StaticContentHandler implements RequestHandler {
 	}
 
 	private void serveJsp(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
-			Environment environment, Site site, PathInfo pathInfo, String wwwRootPath) throws ServletException,
-			IOException {
+			Environment environment, Site site, PathInfo pathInfo, String wwwRootPath)
+			throws ServletException, IOException {
 		File wwwRootFile = new File(servletRequest.getServletContext().getRealPath(wwwRootPath));
 		final String forwardPath = pathInfo.getForwardPath(wwwRootPath, wwwRootFile);
 		List<String> urlParameters = pathInfo.getJspUrlParameters();
@@ -159,7 +159,8 @@ public class StaticContentHandler implements RequestHandler {
 					return null;
 				}
 			};
-			String relativePlatformCache = cacheProvider.getRelativePlatformCache(site, application);
+			String relativePlatformCache = cacheProvider.getRelativePlatformCache(site, application).replaceAll("\\\\",
+					SLASH);
 			String resourcePath = relativePlatformCache + SLASH + ResourceType.RESOURCE.getFolder();
 			path = servletPath.replaceFirst(templatePrefix, resourcePath);
 		} else {
