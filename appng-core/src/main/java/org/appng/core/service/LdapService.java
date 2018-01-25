@@ -272,7 +272,7 @@ public class LdapService {
 					Attributes userAttrs = ctx.getAttributes(member);
 					String id = (String) userAttrs.get(idAttribute).get();
 					String realName = (String) userAttrs.get(CN_ATTRIBUTE).get();
-					if (username.equals(id)) {
+					if (username.equalsIgnoreCase(id)) {
 						userGroups.add(group);
 						subject.setName(username);
 						subject.setRealname(realName);
