@@ -7,7 +7,7 @@
 
 ```xml
 <properties>
-	<appNG.version>1.16.2</appNG.version>
+	<appNGVersion>1.16.2</appNGVersion>
 	<application.homeFolder>${project.basedir}/application-home</application.homeFolder>
 	<application.constants.generatedOutputFolder>target/generated-sources/constants</application.constants.generatedOutputFolder>
 </properties>
@@ -48,7 +48,7 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-xmlapi</artifactId>
-				<version>${appNG.version}</version>
+				<version>${appNGVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
