@@ -1,1 +1,27 @@
 == Contributing to appNG
+
+First of all, we would like to thank you for your interest and commitment to contribute to and improve appNG.
+
+Respect our Code of Conduct: https://github.com/appNG/appng/blob/master/CODE_OF_CONDUCT.adoc
+
+=== Getting started
+* Create a ticket at https://appng.org/jira
+* Fork and clone the repository
+* Create a branch. Usually the branch should be based on the master branch. If you are sure your changes will be applied to a development branch, base your feature branch on that development branch. Use the ticket number as branch name (e.g. feature/appng-123 or bugfix/appng-manager-234)
+
+=== Making changes
+* Apply the license header
+* Add yourself as author (`@author`) for significant changes
+* Usually, you should retain the original author of the file, unless you did a complete rewrite of the file in question.
+
+=== Code style / source code formatting
+* Unix line endings
+* All files should be UTF-8 encoded
+* Line breaks after 120 characters
+* Format source code and organize imports (useful: Eclipse Preferences - Java - Editor - Save Actions - Format source code and Organize imports)
+
+=== Submitting changes
+* Make sure you configured `user.name` and `user.email` appropriately in your `.gitconfig`
+* Prefix your commit message with the (main) ticket number. Further ticket numbers may be mentioned in the commit message, if appropriate. The commit message should at least equal the ticket name. If there are multiple commits to the same ticket, describe what you changed in the current commit.
+* Update the documentation. Javadoc, README, user documentation
+* Submit a pull request. Use the ticket id and name as title for the pull request.
