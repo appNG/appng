@@ -15,6 +15,8 @@
  */
 package org.appng.maven.plugin.mojo;
 
+import java.io.IOException;
+
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -24,7 +26,7 @@ import org.appng.tools.file.PropertyConstantCreator;
 public class GenerateMessageConstantsMojo extends AbstractGeneratorMojo {
 
     @Override
-    protected void createConstantClass() throws Exception {
+    protected void createConstantClass() throws IOException {
         PropertyConstantCreator.main(getArgs());
     }
 

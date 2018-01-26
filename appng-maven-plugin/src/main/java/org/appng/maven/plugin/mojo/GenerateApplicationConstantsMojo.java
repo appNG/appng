@@ -15,6 +15,10 @@
  */
 package org.appng.maven.plugin.mojo;
 
+import java.io.IOException;
+
+import javax.xml.bind.JAXBException;
+
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -31,7 +35,7 @@ public class GenerateApplicationConstantsMojo extends AbstractGeneratorMojo {
     private String prefix;
 
     @Override
-    protected void createConstantClass() throws Exception {
+    protected void createConstantClass() throws IOException, JAXBException {
         ApplicationPropertyConstantCreator.main(getArgs());
     }
 

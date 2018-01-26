@@ -16,7 +16,10 @@
 package org.appng.maven.plugin.mojo;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+
+import javax.xml.bind.JAXBException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -77,7 +80,7 @@ abstract class AbstractGeneratorMojo extends AbstractMojo {
         getLog().debug("incremental: " + buildContext.isIncremental());
     }
 
-    protected abstract void createConstantClass() throws Exception;
+    protected abstract void createConstantClass() throws IOException, JAXBException;
 
     protected abstract String getMessage();
 
