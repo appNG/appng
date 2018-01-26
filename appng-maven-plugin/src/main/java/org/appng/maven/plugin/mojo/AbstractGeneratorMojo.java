@@ -43,6 +43,7 @@ abstract class AbstractGeneratorMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             getLog().info("skipping " + getMessage());
+            return;
         }
         if (needsToBeExecuted()) {
             try {
