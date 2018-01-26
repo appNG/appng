@@ -16,7 +16,7 @@
 
 <plugins>
 	<plugin>
-		<groupId>de.mainova.appng</groupId>
+		<groupId>org.appng</groupId>
 		<artifactId>appng-maven-plugin</artifactId>
 		<version>${appng-maven-plugin.version}</version>
 		<executions>
