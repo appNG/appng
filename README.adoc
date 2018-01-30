@@ -9,9 +9,6 @@ image::https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat-squar
 [caption="Maven Central",link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.appng%22%20AND%20a%3A%22appng-application%22]
 image::https://img.shields.io/maven-central/v/org.appng/appng-application.svg?style=flat-square[]
 
-[caption="Dependency Status",link=https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc]
-image::https://www.versioneye.com/user/projects/5975fd11368b08000e6d1ddc/badge.svg?style=flat-square[]
-
 == Welcome to appNG
 appNG is a *web application platform* and a *web application framework*, based on http://tomcat.apache.org/[Apache Tomcat^] and the https://spring.io[Spring Framework^].
 
@@ -42,6 +39,7 @@ appNG is very well suited to create and operate your own application platform as
 * Provides *job scheduling* powered by http://www.quartz-scheduler.org/[Quartz^]
 * Provides *tooling for common tasks* like resizing images, sending emails, geo-locating, report generation etc.
 * Provides a large set of commonly used *libraries* such as https://commons.apache.org/[Apache Commons^] or https://github.com/FasterXML/jackson[Jackson^]
+* *Workflow* and *business process management* support by embedding the https://camunda.org/[Camunda BPMN Process Engine^]
 * Can serve *JSP*-content that can make use of the appNG *tag library*
 * *Multi-tenancy* allows to separate or group applications
 * *Rapid protoyping* enables you to design your user interface without writing one line of Java code
@@ -96,7 +94,7 @@ If you run appNG in production you should use the web-application version, which
 Download the latest stable release from 
 https://appng.org/appng/builds/stable/appng-application-{stable}.war
 
-For further documentation on installing appNG go to the  link:appng-application/README.adoc[README] of the appNG web-application.
+For further documentation on installing appNG go to the link:appng-application/README.adoc[README] of the appNG web-application.
 
 === Create your first appNG application
 Using the *appNG Maven Archetype*, you can easily create your first own application.
@@ -289,7 +287,7 @@ If you think you found a bug or want to propose a new feature, please create a t
 If you require an *Enterprise Support Plan*, please contact https://www.aiticon.com[aiticon GmbH^] for further information. aiticon also offers trainings, consulting, development and hosting for appNG.
 
 == How to contribute
-Coming soon.
+See link:CONTRIBUTING.adoc[Contributing to appNG]
 
 == Developer Links
 * https://appng.org/jira/[Issue Tracker^]
@@ -298,7 +296,7 @@ Coming soon.
 * https://appng.org/schema/[XSD Schemata^]
 * Maven Repository - Stable
 * Maven Repository - Snapshot
-* appNG Application Repository - Stable
+* appNG Application Repository - Stable: https://appng.org/service/manager/appng-manager/soap/repositoryService[SOAP Endpoint^], https://appng.org/service/manager/appng-manager/soap/repositoryService/repositoryService.wsdl[WSDL^], remote repository name: 'appNG-Stable'
 * appNG Application Repository - Snapshot
 
 == License
