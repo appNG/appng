@@ -7,7 +7,7 @@
 
 ```xml
 <properties>
-	<appNGVersion>1.16.2</appNGVersion>
+	<appNGVersion>1.17.0-SNAPSHOT</appNGVersion>
 	<application.homeFolder>${project.basedir}/application-home</application.homeFolder>
 	<application.constants.generatedOutputFolder>target/generated-sources/constants</application.constants.generatedOutputFolder>
 </properties>
@@ -18,7 +18,7 @@
 	<plugin>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-maven-plugin</artifactId>
-		<version>${appng-maven-plugin.version}</version>
+		<version>${appNGVersion}</version>
 		<executions>
           <execution>
             <id>applicationConstants</id>

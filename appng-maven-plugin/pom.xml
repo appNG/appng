@@ -5,18 +5,17 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.16.2</version>
+		<version>1.17.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>appng-maven-plugin</artifactId>
-	<name>appNG maven plugin</name>
+	<name>appNG Maven Plugin</name>
 	<packaging>maven-plugin</packaging>
 
 	<properties>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<appNG.version>1.16.2</appNG.version>
 		<maven.version>3.3.9</maven.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -95,7 +94,7 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-application-bom</artifactId>
-				<version>${appNG.version}</version>
+				<version>${appNGVersion}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

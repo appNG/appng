@@ -247,6 +247,7 @@
 												<exclude name="appng-appngizer-maven-plugin-*" />
 												<exclude name="appng-archetype-application-*" />
 												<exclude name="appng-documentation-*" />
+												<exclude name="appng-maven-plugin-*" />
 												<exclude name="appng-template-assembly-*" />
 												<exclude name="appng-testsupport-*" />
 												<exclude name="*-sources.jar" />
