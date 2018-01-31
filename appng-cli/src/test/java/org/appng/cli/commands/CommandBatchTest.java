@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.appng.tools.os.OperatingSystem;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -57,18 +58,27 @@ public class CommandBatchTest {
 
 	@Test
 	public void testSysEnvVariables() {
-		String osName = System.getProperty("os.name");
-		boolean isLinux = StringUtils.containsIgnoreCase(osName, "linux");
-		boolean isWindows = StringUtils.containsIgnoreCase(osName, "windows");
-		if (isLinux) {
+		OperatingSystem os = OperatingSystem.detect();
+
+		switch (os) {
+		case LINUX:
 			Set<String> validResults = new HashSet<String>(Arrays.asList("en_US.UTF-8", "de_DE.UTF-8"));
 			Assert.assertArrayEquals(new String[0], batch.parseLine("def LANG = ${systemEnv['LANG']}"));
 			Assert.assertTrue(validResults.contains(variables.get("LANG")));
-		} else if (isWindows) {
+			break;
+
+		case WINDOWS:
 			Assert.assertArrayEquals(new String[0], batch.parseLine("def SYSTEMROOT = ${systemEnv['SystemRoot']}"));
 			Assert.assertTrue(StringUtils.equalsIgnoreCase(variables.get("SYSTEMROOT"), "c:\\windows"));
-		} else {
-			Assert.fail("No test found for Operating System: " + osName);
+			break;
+
+		case MACOSX:
+			Assert.assertArrayEquals(new String[0], batch.parseLine("def HOME = ${systemEnv['HOME']}"));
+			Assert.assertTrue(StringUtils.containsIgnoreCase(variables.get("HOME"), "users"));
+			break;
+
+		case OTHER:
+			Assert.fail("Unsupported operating system found: " + os);
 		}
 	}
 

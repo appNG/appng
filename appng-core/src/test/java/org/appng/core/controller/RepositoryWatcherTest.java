@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.commons.io.FileUtils;
+import org.appng.tools.os.OperatingSystem;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,7 +67,13 @@ public class RepositoryWatcherTest {
 
 		FileUtils.touch(new File(rootDir, fehlerJsp));
 		FileUtils.touch(new File(rootDir, testJsp));
-		Thread.sleep(200);
+		if (OperatingSystem.isMac()) {
+			// APPNG-2122: It seems it takes much longer on a Mac until the watcher is notified, or OS X behaves
+			// differently than Linux or Windows.
+			Thread.sleep(20000);
+		} else {
+			Thread.sleep(200);
+		}
 		Assert.assertNull(ehcache.get(keyFehlerJsp));
 		Assert.assertNull(ehcache.get(keyTestJsp));
 		Assert.assertNull(ehcache.get("GET/de/error"));

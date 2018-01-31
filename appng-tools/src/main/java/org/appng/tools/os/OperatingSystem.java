@@ -15,6 +15,11 @@
  */
 package org.appng.tools.os;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Enum type for different operating systems.
  * 
@@ -23,15 +28,38 @@ package org.appng.tools.os;
  */
 public enum OperatingSystem {
 
-	LINUX, MAC, WINDOWS;
+	LINUX("linux", "nix"), WINDOWS("windows"), MACOSX("mac"), OTHER("");
+
+	private String[] searchString;
+	private static final List<OperatingSystem> operatingSystems = Arrays.asList(values());
+
+	private OperatingSystem(String... searchString) {
+		this.searchString = searchString;
+	}
 
 	/**
-	 * Checks if {@code System.getProperty("os.name")} returns a value that contains {@code "linux"} (ignoring case).
+	 * Detects the current operating system.
+	 *
+	 * @return The enum depicting the current operating system.
+	 */
+	public static OperatingSystem detect() {
+		return detect(System.getProperty("os.name"));
+	}
+
+	static OperatingSystem detect(String osName) {
+		String name = null != osName ? osName.toLowerCase() : "";
+		return operatingSystems.stream().filter(os -> StringUtils.containsAny(name, os.searchString)).findFirst()
+				.orElse(OTHER);
+	}
+
+	/**
+	 * Checks if {@code System.getProperty("os.name")} returns a value that contains {@code "linux"} or {@code "nix"}
+	 * (ignoring case).
 	 * 
 	 * @return {@code true} if this is the case, {@code false} otherwise
 	 */
 	public static boolean isLinux() {
-		return isOs(LINUX);
+		return LINUX.equals(detect());
 	}
 
 	/**
@@ -40,7 +68,7 @@ public enum OperatingSystem {
 	 * @return {@code true} if this is the case, {@code false} otherwise
 	 */
 	public static boolean isMac() {
-		return isOs(MAC);
+		return MACOSX.equals(detect());
 	}
 
 	/**
@@ -49,11 +77,21 @@ public enum OperatingSystem {
 	 * @return {@code true} if this is the case, {@code false} otherwise
 	 */
 	public static boolean isWindows() {
-		return isOs(WINDOWS);
+		return WINDOWS.equals(detect());
+	}
+
+	/**
+	 * Checks if {@code System.getProperty("os.name")} returns a value that does not match the other operating system
+	 * name patterns.
+	 *
+	 * @return {@code true} if this is the case, {@code false} otherwise
+	 */
+	public static boolean isOther() {
+		return OTHER.equals(detect());
 	}
 
 	static boolean isOs(OperatingSystem os) {
-		return System.getProperty("os.name").toLowerCase().contains(os.name().toLowerCase());
+		return os.equals(detect());
 	}
 
 }
