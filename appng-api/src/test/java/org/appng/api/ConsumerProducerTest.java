@@ -65,7 +65,7 @@ public class ConsumerProducerTest {
 		}
 	}
 
-	@Test
+	@Test(timeout = 5000)
 	public void test() throws Exception {
 		StringProducer producer = new StringProducer(5);
 		StringConsumer consumer = new StringConsumer();
@@ -73,7 +73,9 @@ public class ConsumerProducerTest {
 
 		new Thread(producer).start();
 		new Thread(consumer).start();
-		Thread.sleep(500);
+		while (!passed) {
+			Thread.sleep(100);
+		}
 		Assert.assertTrue(passed);
 	}
 }
