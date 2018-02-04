@@ -19,31 +19,31 @@ public class OperatingSystemTest {
 		OperatingSystem os = OperatingSystem.detect();
 		if (OperatingSystem.isLinux()) {
 			Assert.assertEquals(OperatingSystem.LINUX, os);
-			Assert.assertEquals(true, OperatingSystem.isOs(OperatingSystem.LINUX));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.WINDOWS));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.MACOSX));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.OTHER));
+			Assert.assertTrue(OperatingSystem.isOs(OperatingSystem.LINUX));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.WINDOWS));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.MACOSX));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.OTHER));
 		}
 		if (OperatingSystem.isWindows()) {
 			Assert.assertEquals(OperatingSystem.WINDOWS, os);
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.LINUX));
-			Assert.assertEquals(true, OperatingSystem.isOs(OperatingSystem.WINDOWS));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.MACOSX));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.OTHER));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.LINUX));
+			Assert.assertTrue(OperatingSystem.isOs(OperatingSystem.WINDOWS));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.MACOSX));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.OTHER));
 		}
 		if (OperatingSystem.isMac()) {
 			Assert.assertEquals(OperatingSystem.MACOSX, os);
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.LINUX));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.WINDOWS));
-			Assert.assertEquals(true, OperatingSystem.isOs(OperatingSystem.MACOSX));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.OTHER));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.LINUX));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.WINDOWS));
+			Assert.assertTrue(OperatingSystem.isOs(OperatingSystem.MACOSX));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.OTHER));
 		}
 		if (OperatingSystem.isOther()) {
 			Assert.assertEquals(OperatingSystem.OTHER, os);
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.LINUX));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.WINDOWS));
-			Assert.assertEquals(false, OperatingSystem.isOs(OperatingSystem.MACOSX));
-			Assert.assertEquals(true, OperatingSystem.isOs(OperatingSystem.OTHER));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.LINUX));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.WINDOWS));
+			Assert.assertFalse(OperatingSystem.isOs(OperatingSystem.MACOSX));
+			Assert.assertTrue(OperatingSystem.isOs(OperatingSystem.OTHER));
 		}
 	}
 
