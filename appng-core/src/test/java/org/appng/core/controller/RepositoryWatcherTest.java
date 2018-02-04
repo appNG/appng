@@ -22,7 +22,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.commons.io.FileUtils;
-import org.appng.tools.os.OperatingSystem;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 public class RepositoryWatcherTest {
 
-	@Test
+	@Test(timeout = 20000)
 	public void test() throws Exception {
 		ClassLoader classLoader = RepositoryWatcherTest.class.getClassLoader();
 		String rootDir = classLoader.getResource("repository/manager/www").getFile();
@@ -67,12 +66,8 @@ public class RepositoryWatcherTest {
 
 		FileUtils.touch(new File(rootDir, fehlerJsp));
 		FileUtils.touch(new File(rootDir, testJsp));
-		if (OperatingSystem.isMac()) {
-			// APPNG-2122: It seems it takes much longer on a Mac until the watcher is notified, or OS X behaves
-			// differently than Linux or Windows.
-			Thread.sleep(20000);
-		} else {
-			Thread.sleep(200);
+		while (ehcache.getSize() != 0) {
+			Thread.sleep(100);
 		}
 		Assert.assertNull(ehcache.get(keyFehlerJsp));
 		Assert.assertNull(ehcache.get(keyTestJsp));
