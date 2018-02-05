@@ -156,7 +156,6 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			Set<String> patterns = new HashSet<>();
 			CacheProvider cacheProvider = new CacheProvider(platformProperties);
 			File platformCache = cacheProvider.getPlatformCache(applicationSite, applicationProvider);
-			File config = new File(platformCache, ResourceType.XML.getFolder());
 			File tplFolder = new File(platformCache, ResourceType.TPL.getFolder());
 			for (Template tpl : templates) {
 				String tplPath = FilenameUtils.normalize(new File(tplFolder, tpl.getPath()).getAbsolutePath());
