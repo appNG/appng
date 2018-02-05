@@ -39,6 +39,7 @@ import org.appng.xml.application.Datasource;
 import org.appng.xml.application.DatasourceType;
 import org.appng.xml.application.Datasources;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.internal.util.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -267,6 +268,29 @@ public class DatabaseService extends MigrationService {
 	}
 
 	/**
+	 * Configures and (optionally) migrates the appNG root {@link DatabaseConnection} from the given
+	 * {@link java.util.Properties}.
+	 * 
+	 * @param config
+	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * @param setActive
+	 *            if the connection should be set as he active root connection, creating a new
+	 *            {@link DatabaseConnection} if necessary. Only applied if {@link #status(DatabaseConnection)} returns a
+	 *            non-null value.
+	 * @return the appNG root {@link DatabaseConnection}
+	 */
+	public DatabaseConnection initDatabase(java.util.Properties config, boolean managed, boolean setActive) {
+		DatabaseConnection platformConnection = initDatabase(config);
+		MigrationInfoService statusComplete = platformConnection.getMigrationInfoService();
+		if (setActive && statusComplete != null && null != statusComplete.current()) {
+			platformConnection.setManaged(managed);
+			platformConnection = setActiveConnection(platformConnection, true);
+			platformConnection.setMigrationInfoService(statusComplete);
+		}
+		return platformConnection;
+	}
+
+	/**
 	 * Configures the appNG root {@link DatabaseConnection}s by either creating a new one or updating the existing
 	 * {@link DatabaseConnection} for each {@link DatabaseType}. Also checks if the connections are working and calls
 	 * {@code DatabaseConnection#setActive(false)} if this is not the case.
@@ -278,7 +302,7 @@ public class DatabaseService extends MigrationService {
 	 *            {@code rootConnection#isManaged()}
 	 */
 	@Transactional
-	public void setActiveConnection(DatabaseConnection rootConnection, boolean changeManagedState) {
+	public DatabaseConnection setActiveConnection(DatabaseConnection rootConnection, boolean changeManagedState) {
 		DatabaseType rootType = rootConnection.getType();
 		DatabaseConnection conn = getRootConnectionOfType(rootType);
 		if (conn == null) {
@@ -317,6 +341,7 @@ public class DatabaseService extends MigrationService {
 				}
 			}
 		}
+		return conn;
 	}
 
 	private void setConnectionActive(DatabaseConnection connection) {
@@ -330,7 +355,7 @@ public class DatabaseService extends MigrationService {
 		}
 	}
 
-	private DatabaseConnection getRootConnectionOfType(DatabaseType type) {
+	public DatabaseConnection getRootConnectionOfType(DatabaseType type) {
 		return databaseConnectionRepository.findBySiteIsNullAndType(type);
 	}
 

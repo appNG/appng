@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,7 @@ public class DatabaseController extends ControllerBase {
 		if (null == platformConnection) {
 			return notFound();
 		}
+		platformConnection.setMigrationInfoService(databaseService.statusComplete(platformConnection));
 		if (database.isManaged() != null && !database.isManaged().booleanValue() == platformConnection.isManaged()) {
 			platformConnection.setManaged(true);
 			databaseService.save(platformConnection);
@@ -68,13 +70,16 @@ public class DatabaseController extends ControllerBase {
 	}
 
 	@RequestMapping(value = "/platform/database/initialize", method = RequestMethod.POST)
-	public ResponseEntity<Database> initialize() throws Exception {
-		return info(databaseService.initDatabase(configurer.getProps()));
+	public ResponseEntity<Database> initialize(
+			@RequestParam(name = "managed", required = false, defaultValue = "false") boolean isManaged)
+			throws Exception {
+		DatabaseConnection platformConnection = databaseService.initDatabase(configurer.getProps(), isManaged, true);
+		return info(platformConnection);
 	}
 
 	protected ResponseEntity<Database> info(DatabaseConnection platformConnection)
 			throws DatatypeConfigurationException {
-		MigrationInfoService statusComplete = databaseService.statusComplete(platformConnection);
+		MigrationInfoService statusComplete = platformConnection.getMigrationInfoService();
 		Database db = Database.fromDomain(platformConnection, statusComplete, getSharedSecret(), true);
 
 		db.setSelf("/platform/database");

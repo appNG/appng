@@ -42,6 +42,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.ArrayUtils;
 import org.appng.api.ValidationMessages;
 import org.appng.api.model.Site;
+import org.flywaydb.core.api.MigrationInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,6 +136,8 @@ public class DatabaseConnection implements Auditable<Integer> {
 	private Integer maxConnections = 20;
 	private String validationQuery;
 	private Integer validationPeriod;
+
+	private MigrationInfoService migrationInfoService;
 
 	public DatabaseConnection() {
 
@@ -386,6 +389,15 @@ public class DatabaseConnection implements Auditable<Integer> {
 	@Transient
 	public boolean isRootConnection() {
 		return getSite() == null;
+	}
+
+	@Transient
+	public MigrationInfoService getMigrationInfoService() {
+		return migrationInfoService;
+	}
+
+	public void setMigrationInfoService(MigrationInfoService migrationInfoService) {
+		this.migrationInfoService = migrationInfoService;
 	}
 
 	@Override

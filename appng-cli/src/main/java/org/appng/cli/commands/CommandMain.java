@@ -123,13 +123,8 @@ public class CommandMain {
 	 *         {@link MigrationInfoService#current()})
 	 */
 	public MigrationInfo doInitDatabase(DatabaseService databaseService, Properties config) {
-		DatabaseConnection platformConnection = databaseService.initDatabase(config);
-		MigrationInfo status = databaseService.status(platformConnection);
-		if (null != status) {
-			platformConnection.setManaged(isConnectionManaged());
-			databaseService.setActiveConnection(platformConnection, true);
-		}
-		return status;
+		DatabaseConnection platformConnection = databaseService.initDatabase(config, isConnectionManaged(), true);
+		return databaseService.status(platformConnection);
 	}
 
 }

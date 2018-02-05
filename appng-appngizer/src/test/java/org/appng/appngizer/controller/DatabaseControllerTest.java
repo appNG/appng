@@ -39,16 +39,16 @@ public class DatabaseControllerTest extends ControllerTest {
 
 	@Test
 	public void testInitialize() throws Exception {
+		String sql = IOUtils.resourceToString("init-db.sql", StandardCharsets.UTF_8, getClass().getClassLoader());
+		datasource.getConnection().prepareStatement(sql).execute();
 		ignorePasswordAndInstalledDate();
 		postAndVerify("/platform/database/initialize", "xml/database-init.xml", null, HttpStatus.OK);
+		postAndVerify("/platform/database/initialize?managed=true", "xml/database-root-update.xml", null, HttpStatus.OK);
 
 		testUpdateRoot();
 	}
 
 	public void testUpdateRoot() throws Exception {
-		String sql = IOUtils.resourceToString("init-db.sql", StandardCharsets.UTF_8, getClass().getClassLoader());
-		datasource.getConnection().prepareStatement(sql).execute();
-		ignorePasswordAndInstalledDate();
 		Database database = new Database();
 		database.setType(DatabaseType.HSQL.name());
 		database.setManaged(true);

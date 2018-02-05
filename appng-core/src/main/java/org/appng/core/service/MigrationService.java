@@ -131,6 +131,7 @@ public class MigrationService {
 		conn.setName(DATABASE_NAME_PREFIX + databaseType.name());
 		conn.setDescription(APP_NG_ROOT_DATABASE);
 		conn.setValidationPeriod(validationPeriod);
+		conn.setMigrationInfoService(statusComplete(conn));
 		return conn;
 	}
 
@@ -180,7 +181,9 @@ public class MigrationService {
 			flyway.setDataSource(dataSource);
 			String location = LOCATION_PREFIX + connection.getType().name().toLowerCase();
 			flyway.setLocations(location);
-			return flyway.info();
+			MigrationInfoService info = flyway.info();
+			connection.setMigrationInfoService(info);
+			return info;
 		} else {
 			log.error(connection.toString() + " is not working, unable to retrieve connection status.");
 		}
