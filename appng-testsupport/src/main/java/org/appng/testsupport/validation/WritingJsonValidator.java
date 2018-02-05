@@ -31,13 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Utility class that supports testing if two JSON documents have the same content.
- * 
+ *
  * @author Matthias Müller
- * 
+ *
  */
 public class WritingJsonValidator {
 
@@ -55,6 +56,12 @@ public class WritingJsonValidator {
 	public static boolean logJson = false;
 
 	/**
+	 * Set to {@code true} to let the object mapper sort the properties of an object alphabetically. For further
+	 * information see {@link MapperFeature}.SORT_PROPERTIES_ALPHABETICALLY
+	 */
+	public static boolean sortPropertiesAlphabetically = false;
+
+	/**
 	 * The default relative path to write control-files to when {@link #writeJson} is {@code true} (default:
 	 * {@code src/test/resources/}).
 	 */
@@ -62,7 +69,7 @@ public class WritingJsonValidator {
 
 	/**
 	 * Writes the document represented by {@code data} to a {@link File}.
-	 * 
+	 *
 	 * @param data
 	 *            a {@link JsonWrapper}
 	 * @param name
@@ -77,7 +84,7 @@ public class WritingJsonValidator {
 
 	/**
 	 * Writes the document represented by {@code json} to a {@link File}.
-	 * 
+	 *
 	 * @param json
 	 *            a JSON string
 	 * @param controlFile
@@ -97,7 +104,7 @@ public class WritingJsonValidator {
 	/**
 	 * Validates that the JSON created from the {@code action} is equal to the document parsed from the
 	 * {@code controlFile}.
-	 * 
+	 *
 	 * @param action
 	 *            the {@link Action} to create JSON from
 	 * @param controlFile
@@ -112,7 +119,7 @@ public class WritingJsonValidator {
 	/**
 	 * Validates that the JSON created from the {@code datasource} is equal to the document parsed from the
 	 * {@code controlFile}.
-	 * 
+	 *
 	 * @param datasource
 	 *            the {@link Datasource} to create JSON from
 	 * @param controlFile
@@ -127,7 +134,7 @@ public class WritingJsonValidator {
 	/**
 	 * Validates that the JSON created from the {@code object} is equal to the document parsed from the
 	 * {@code controlFile}.
-	 * 
+	 *
 	 * @param object
 	 *            the object to create JSON from
 	 * @param controlFile
@@ -142,7 +149,7 @@ public class WritingJsonValidator {
 	/**
 	 * Validates that the JSON created from the {@code object} is equal to the document parsed from the
 	 * {@code controlFile}.
-	 * 
+	 *
 	 * @param objectMapper
 	 *            the custom {@link ObjectMapper} to use
 	 * @param object
@@ -162,7 +169,7 @@ public class WritingJsonValidator {
 
 	/**
 	 * Validates that {@code json}-string is equal to the document parsed from the {@code controlFile}.
-	 * 
+	 *
 	 * @param json
 	 *            the JSON string
 	 * @param controlFile
@@ -179,7 +186,7 @@ public class WritingJsonValidator {
 
 	/**
 	 * Reads the given control file from the classpath
-	 * 
+	 *
 	 * @param controlFile
 	 *            the path to the control file (relative to the classpath)
 	 * @return the file
@@ -196,7 +203,7 @@ public class WritingJsonValidator {
 
 	/**
 	 * Maps the given {@code object} to a JSON string.
-	 * 
+	 *
 	 * @param object
 	 *            the object to be mapped
 	 * @return the JSON mapped from the object
@@ -204,13 +211,14 @@ public class WritingJsonValidator {
 	 *             if an error occurs while mapping the object to JSON
 	 */
 	public static String toJSON(Object object) throws IOException {
-		ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
+		ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY)
+				.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, sortPropertiesAlphabetically);
 		return toJSON(objectMapper, object);
 	}
 
 	/**
 	 * Maps the given {@code object} to a JSON string using the given {@link ObjectMapper}.
-	 * 
+	 *
 	 * @param objectMapper
 	 *            the the custom {@link ObjectMapper} to use
 	 * @param object
@@ -231,7 +239,7 @@ public class WritingJsonValidator {
 
 	/**
 	 * A wrapper class for {@link Action}s and {@link Datasource}s
-	 * 
+	 *
 	 * @author Matthias Müller
 	 *
 	 */

@@ -52,6 +52,15 @@ public class WritingJsonValidatorTest {
 	}
 
 	@Test
+	public void testValidateObjectStrictOrder() throws Exception {
+		WritingJsonValidator.sortPropertiesAlphabetically = true;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Person p = getPerson(sdf);
+		WritingJsonValidator.validate(p, "json/WritingJsonValidatorTest-testValidateObjectStrictOrder.json");
+		WritingJsonValidator.sortPropertiesAlphabetically = false;
+	}
+
+	@Test
 	public void testValidateObjectWithMapper() throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Person p = getPerson(sdf);
@@ -66,8 +75,8 @@ public class WritingJsonValidatorTest {
 	class Person {
 
 		private Date birthDate;
-		private String firstName;
 		private String name;
+		private String firstName;
 		private Object nullValue;
 
 		public Person(String firstName, String name, Date birthDate) {

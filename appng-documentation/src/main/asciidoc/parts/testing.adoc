@@ -2,7 +2,7 @@
 
 == Testing
 === General
-AppNG also offers support for unit- and integration testing your appNG applications. Therefore, it uses the testing capabilities of the Spring framework. See the {spring}/spring-framework-reference/htmlsingle/#testing[Reference Documentation^] for details on testing with Spring.
+appNG also offers support for unit- and integration testing your appNG applications. Therefore, it uses the testing capabilities of the Spring framework. See the {spring}/spring-framework-reference/htmlsingle/#testing[Reference Documentation^] for details on testing with Spring.
 
 To enable test support, just add the following dependency to your `pom.xml`:
 
@@ -47,7 +47,7 @@ public class EmployeesTest extends TestBase {
 }
 ----
 
-=== Testing a datasource:
+=== Testing a datasource
 [source,java]
 ----
 include::{sources}org/example/EmployeesTest.java[tag=datasource,indent=0]
@@ -63,7 +63,7 @@ In step 6, a {appng}/org/appng/testsupport/validation/WritingXmlValidator.html[o
 
 NOTE: For initially creating and later updating your control files, just set `WritingXmlValidator.writeXml = true` and the control files will be written to `src/test/resources/xml`.
 
-=== Testing an action:
+=== Testing an action
 [source,java]
 ----
 include::{sources}org/example//EmployeesTest.java[tag=action,indent=0]
@@ -107,3 +107,37 @@ In your testcase, you just need to add `beans-test.xml` to the `@ContextConfigur
 ----
 @ContextConfiguration(locations = { TestBase.TESTCONTEXT_JPA, "classpath:/beans-test.xml" }
 ----
+
+=== Test utilities
+appNG comes along with some handy test utilities. 
+
+==== Writing JSON Validator
+The class {appng}/org/appng/testsupport/validation/WritingJsonValidator.html[org.appng.testsupport.validation.WritingJsonValidator^] is a utility to map Java objects to JSON and compare it against a reference file. It also provides the functionality to easily create the reference files at `src/test/resources/json` in your project.
+
+NOTE: The folder for reference files must be created manually before creating reference files.
+
+[source,java]
+----
+
+public class MyTest {
+
+  static { <!-- 1 -->
+    WritingJsonValidator.writeJSON = false; <!-- 2 -->
+    WritingJsonValidator.sortPropertiesAlphabetically = true; <!-- 3 -->
+  }
+
+  @Test
+  public void testWithJSON(){
+    ComplexObject co = new ObjectProviderUnderTest().getObject();
+    WritingJsonValidator.validate(co,"/filename.json"); <!-- 4 -->
+  }
+
+}  
+
+---- 
+<1> It is handy to configure general properties in a static block for all test methods of a test case.
+<2> If the reference file does not exist or is outdated, set this property to `true` to create a new reference file.
+<3> The order of object properties in a JSON file is not clearly defined. Set this property to `true` for an alphabetically ordered output.
+<4> Call the `validate`-method of {appng}/org/appng/testsupport/validation/WritingJsonValidator.html[WritingJsonValidator] with the object and the file name of the reference file to map the object to JSON and compare it against the JSON provided in the compare file.
+
+NOTE: In Eclipse, a newly created reference file might not be available immediately after creation. The project must be refreshed first.
