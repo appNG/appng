@@ -36,7 +36,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 public class RepositoryWatcherTest {
 
-	@Test
+	@Test(timeout = 20000)
 	public void test() throws Exception {
 		ClassLoader classLoader = RepositoryWatcherTest.class.getClassLoader();
 		String rootDir = classLoader.getResource("repository/manager/www").getFile();
@@ -66,7 +66,9 @@ public class RepositoryWatcherTest {
 
 		FileUtils.touch(new File(rootDir, fehlerJsp));
 		FileUtils.touch(new File(rootDir, testJsp));
-		Thread.sleep(200);
+		while (ehcache.getSize() != 0) {
+			Thread.sleep(100);
+		}
 		Assert.assertNull(ehcache.get(keyFehlerJsp));
 		Assert.assertNull(ehcache.get(keyTestJsp));
 		Assert.assertNull(ehcache.get("GET/de/error"));
