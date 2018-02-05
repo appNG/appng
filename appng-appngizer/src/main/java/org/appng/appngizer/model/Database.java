@@ -44,6 +44,11 @@ public class Database extends org.appng.appngizer.model.xml.Database implements 
 	}
 
 	public static Database fromDomain(DatabaseConnection dbc, MigrationInfoService status, String salt) {
+		return fromDomain(dbc, status, salt, false);
+	}
+
+	public static Database fromDomain(DatabaseConnection dbc, MigrationInfoService status, String salt,
+			boolean withManagedState) {
 		Database db = new org.appng.appngizer.model.Database();
 		StringBuilder dbInfo = new StringBuilder();
 		boolean isOK = dbc.testConnection(dbInfo);
@@ -77,6 +82,9 @@ public class Database extends org.appng.appngizer.model.xml.Database implements 
 		db.setDriver(dbc.getDriverClass());
 		db.setUrl(dbc.getJdbcUrl());
 		db.setType(dbc.getType().name());
+		if (withManagedState) {
+			db.setManaged(dbc.isManaged());
+		}
 
 		return db;
 	}

@@ -27,6 +27,7 @@ import org.appng.appngizer.model.Databases;
 import org.appng.appngizer.model.Link;
 import org.appng.appngizer.model.xml.Links;
 import org.appng.core.domain.DatabaseConnection;
+import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.CacheProvider;
@@ -51,6 +52,21 @@ public class DatabaseController extends ControllerBase {
 		return info(platformConnection);
 	}
 
+	@RequestMapping(value = "/platform/database", method = RequestMethod.PUT)
+	public ResponseEntity<Database> updateRootConnection(@RequestBody org.appng.appngizer.model.xml.Database database)
+			throws Exception {
+		DatabaseConnection platformConnection = databaseService
+				.getRootConnectionOfType(DatabaseType.valueOf(database.getType()));
+		if (null == platformConnection) {
+			return notFound();
+		}
+		if (database.isManaged() != null && !database.isManaged().booleanValue() == platformConnection.isManaged()) {
+			platformConnection.setManaged(true);
+			databaseService.save(platformConnection);
+		}
+		return info(platformConnection);
+	}
+
 	@RequestMapping(value = "/platform/database/initialize", method = RequestMethod.POST)
 	public ResponseEntity<Database> initialize() throws Exception {
 		return info(databaseService.initDatabase(configurer.getProps()));
@@ -59,7 +75,7 @@ public class DatabaseController extends ControllerBase {
 	protected ResponseEntity<Database> info(DatabaseConnection platformConnection)
 			throws DatatypeConfigurationException {
 		MigrationInfoService statusComplete = databaseService.statusComplete(platformConnection);
-		Database db = Database.fromDomain(platformConnection, statusComplete, getSharedSecret());
+		Database db = Database.fromDomain(platformConnection, statusComplete, getSharedSecret(), true);
 
 		db.setSelf("/platform/database");
 		db.setLinks(new Links());

@@ -15,10 +15,21 @@
  */
 package org.appng.appngizer.controller;
 
+import java.nio.charset.StandardCharsets;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.io.IOUtils;
+import org.appng.appngizer.model.xml.Database;
+import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 public class DatabaseControllerTest extends ControllerTest {
+
+	@Autowired
+	DataSource datasource;
 
 	@Test
 	public void test() throws Exception {
@@ -30,6 +41,23 @@ public class DatabaseControllerTest extends ControllerTest {
 	public void testInitialize() throws Exception {
 		ignorePasswordAndInstalledDate();
 		postAndVerify("/platform/database/initialize", "xml/database-init.xml", null, HttpStatus.OK);
+
+		testUpdateRoot();
+	}
+
+	public void testUpdateRoot() throws Exception {
+		String sql = IOUtils.resourceToString("init-db.sql", StandardCharsets.UTF_8, getClass().getClassLoader());
+		datasource.getConnection().prepareStatement(sql).execute();
+		ignorePasswordAndInstalledDate();
+		Database database = new Database();
+		database.setType(DatabaseType.HSQL.name());
+		database.setManaged(true);
+		database.setUser("");
+		database.setPassword("");
+		database.setDbVersion("");
+		database.setDriver("");
+		database.setUrl("");
+		putAndVerify("/platform/database", "xml/database-root-update.xml", database, HttpStatus.OK);
 	}
 
 	private void ignorePasswordAndInstalledDate() {
