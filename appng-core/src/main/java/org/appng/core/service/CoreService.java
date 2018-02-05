@@ -72,12 +72,12 @@ import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.AppngCache;
 import org.appng.core.controller.handler.SoapService;
 import org.appng.core.domain.ApplicationImpl;
-import org.appng.core.domain.PlatformEvent.Type;
-import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.GroupImpl;
 import org.appng.core.domain.PermissionImpl;
 import org.appng.core.domain.PersistentPropertyHolder;
+import org.appng.core.domain.PlatformEvent.Type;
+import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.RepositoryImpl;
 import org.appng.core.domain.ResourceImpl;
@@ -985,12 +985,14 @@ public class CoreService {
 		Roles roles = applicationInfo.getRoles();
 		if (null != roles) {
 			for (org.appng.xml.application.Role role : roles.getRole()) {
-				Role applicationRole = roleRepository.findByApplicationIdAndName(application.getId(), role.getName());
+				RoleImpl applicationRole = roleRepository.findByApplicationIdAndName(application.getId(),
+						role.getName());
 				if (null == applicationRole) {
 					applicationRole = createApplicationRole(application, role);
 					application.getRoles().add(applicationRole);
 				} else {
 					addPermissionsToRole(application.getId(), role, applicationRole);
+					applicationRole.setDescription(role.getDescription());
 				}
 			}
 		}
