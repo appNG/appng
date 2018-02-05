@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,7 +62,6 @@ public class DatabaseService extends MigrationService {
 	private static final String SCRIPT_DROP = "drop.sql";
 
 	private static final String UNDERSCORE = "_";
-	private static final String ENC_UTF_8 = "UTF-8";
 	private static final String TABLE_CAT = "TABLE_CAT";
 
 	private static final String MIGRATION_PATH = "db/init/";
@@ -206,11 +206,12 @@ public class DatabaseService extends MigrationService {
 		}
 		return MigrationStatus.NO_DB_SUPPORTED;
 	}
-
+	
+	
 	private List<String> getScript(DatabaseType type, String name) throws IOException, URISyntaxException {
 		String resourcePath = MIGRATION_PATH + type.name().toLowerCase() + "/" + name;
 		InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath);
-		return IOUtils.readLines(is, ENC_UTF_8);
+		return IOUtils.readLines(is, StandardCharsets.UTF_8);
 	}
 
 	private String generatePassword(String databaseName) {

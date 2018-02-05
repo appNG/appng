@@ -173,9 +173,24 @@ public class MigrationService {
 	 * @see MigrationInfoService
 	 */
 	public MigrationInfoService statusComplete(DatabaseConnection connection) {
+		return statusComplete(connection, true);
+	}
+
+	/**
+	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection} (the appNG root
+	 * connection).
+	 * 
+	 * @param connection
+	 *            a {@link DatabaseConnection}
+	 * @param testConnection
+	 *            if the connection needs to be tested
+	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @see MigrationInfoService
+	 */
+	public MigrationInfoService statusComplete(DatabaseConnection connection, boolean testConnection) {
 		StringBuilder dbInfo = new StringBuilder();
-		if (connection.testConnection(dbInfo)) {
-			log.info("connected to " + connection.getJdbcUrl() + " (" + dbInfo.toString() + ")");
+		if (!testConnection || connection.testConnection(dbInfo)) {
+			log.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
 			Flyway flyway = new Flyway();
 			DataSource dataSource = getDataSource(connection);
 			flyway.setDataSource(dataSource);
@@ -208,7 +223,9 @@ public class MigrationService {
 			Flyway flyway = new Flyway();
 			flyway.setDataSource(getDataSource(connection));
 			flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
-			return flyway.info();
+			MigrationInfoService info = flyway.info();
+			connection.setMigrationInfoService(info);
+			return info;
 		}
 		return null;
 	}

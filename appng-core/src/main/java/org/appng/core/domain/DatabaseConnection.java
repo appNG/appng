@@ -51,6 +51,8 @@ import org.appng.api.model.Site;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -340,20 +342,33 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver, boolean determineSize) {
-		Connection connection = null;
-		try {
-			connection = getConnection(registerDriver);
-			DatabaseMetaData metaData = connection.getMetaData();
-			if (null != dbInfo) {
-				dbInfo.append(metaData.getDatabaseProductName() + " " + metaData.getDatabaseProductVersion());
+		ConnectionCallback<Void> infoCallback = new ConnectionCallback<Void>() {
+			public Void doInConnection(Connection con) throws SQLException, DataAccessException {
+				if (null != dbInfo) {
+					DatabaseMetaData metaData = con.getMetaData();
+					dbInfo.append(metaData.getDatabaseProductName() + " " + metaData.getDatabaseProductVersion());
+				}
+				return null;
 			}
+		};
+		return testConnection(registerDriver, determineSize, infoCallback);
+	}
+
+	public boolean testConnection(boolean registerDriver, boolean determineSize, ConnectionCallback<?>... callbacks) {
+		try {
+			registerDriver(registerDriver);
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(getDataSource());
+			for (ConnectionCallback<?> connectionCallback : callbacks) {
+				jdbcTemplate.execute(connectionCallback);
+			}
+
 			if (determineSize) {
 				String resource = String.format("db/init/%s/size.sql", getType().name().toLowerCase());
 				InputStream sqlFile = getClass().getClassLoader().getResourceAsStream(resource);
 				if (null != sqlFile) {
 					String sizeStatement = StringUtils.replace(IOUtils.toString(sqlFile, StandardCharsets.UTF_8),
 							"<database>", getDatabaseName());
-					new JdbcTemplate(getDataSource()).query(sizeStatement, new RowMapper<Void>() {
+					jdbcTemplate.query(sizeStatement, new RowMapper<Void>() {
 						public Void mapRow(ResultSet rs, int rowNum) throws SQLException {
 							setDatabaseSize(rs.getDouble(1));
 							return null;
@@ -362,12 +377,8 @@ public class DatabaseConnection implements Auditable<Integer> {
 				}
 			}
 			return true;
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			LOGGER.warn("error while connecting to {} ({}: {})", jdbcUrl, e.getClass().getName(), e.getMessage());
-		} finally {
-			closeConnection(connection);
 		}
 		return false;
 	}
@@ -378,13 +389,17 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	@Transient
-	@SuppressWarnings("unchecked")
 	public Connection getConnection(boolean registerDriver) throws SQLException, ReflectiveOperationException {
+		registerDriver(registerDriver);
+		return DriverManager.getConnection(jdbcUrl, userName, new String(password));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void registerDriver(boolean registerDriver) throws SQLException, ReflectiveOperationException {
 		Class<? extends Driver> realClass = (Class<? extends Driver>) Class.forName(driverClass);
 		if (registerDriver) {
 			DriverManager.registerDriver(realClass.newInstance());
 		}
-		return DriverManager.getConnection(jdbcUrl, userName, new String(password));
 	}
 
 	public void closeConnection(Connection connection) {

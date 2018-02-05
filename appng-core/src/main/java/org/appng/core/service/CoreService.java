@@ -1543,23 +1543,49 @@ public class CoreService {
 
 	public Page<DatabaseConnection> getDatabaseConnections(Integer siteId, FieldProcessor fp) {
 		SearchQuery<DatabaseConnection> query = new SearchQuery<DatabaseConnection>(DatabaseConnection.class);
+		CacheProvider cacheProvider = null;
 		if (siteId == null) {
 			query.isNull("site.id");
 		} else {
 			query.equals("site.id", siteId);
+			cacheProvider = new CacheProvider(getPlatformProperties());
 		}
 		Page<DatabaseConnection> connections = databaseConnectionRepository.search(query, fp.getPageable());
 		for (DatabaseConnection databaseConnection : connections) {
-			clearConnectionPassword(databaseConnection);
+			prepareConnection(databaseConnection, true, cacheProvider);
 		}
 		return connections;
 	}
 
+	private void prepareConnection(DatabaseConnection databaseConnection, boolean clearPassword,
+			CacheProvider cacheProvider) {
+		if (databaseConnection.isActive()) {
+			boolean isWorking = databaseConnection.testConnection(false, true);
+			if (isWorking) {
+				if (null == databaseConnection.getSite()) {
+					databaseConnection
+							.setMigrationInfoService(databaseService.statusComplete(databaseConnection, false));
+				} else {
+					SiteApplication siteApplication = siteApplicationRepository
+							.findByDatabaseConnectionId(databaseConnection.getId());
+					if (null != siteApplication) {
+						File platformCache = cacheProvider.getPlatformCache(siteApplication.getSite(),
+								siteApplication.getApplication());
+						File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
+						databaseService.statusComplete(databaseConnection, sqlFolder);
+					}
+				}
+			}
+		}
+		if (clearPassword) {
+			clearConnectionPassword(databaseConnection);
+		}
+	}
+
 	public DatabaseConnection getDatabaseConnection(Integer dcId, boolean clearPassword) {
 		DatabaseConnection conn = databaseConnectionRepository.findOne(dcId);
-		if (clearPassword) {
-			clearConnectionPassword(conn);
-		}
+		CacheProvider cacheProvider = null == conn.getSite() ? null : new CacheProvider(getPlatformProperties());
+		prepareConnection(conn, clearPassword, cacheProvider);
 		return conn;
 	}
 
