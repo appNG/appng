@@ -250,6 +250,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
 		addSiteProperty(SiteProperties.TAG_PREFIX, "appNG");
 		addSiteProperty(SiteProperties.REWRITE_CONFIG, "/meta/conf/urlrewrite.xml");
+		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE, false);
 
 		addSiteProperty(SiteProperties.AUTH_APPLICATION, "appng-authentication");
 		addSiteProperty(SiteProperties.AUTH_LOGIN_PAGE, "webform");
