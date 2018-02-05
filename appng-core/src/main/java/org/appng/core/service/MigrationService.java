@@ -246,8 +246,7 @@ public class MigrationService {
 	}
 
 	protected DataSource getDataSource(DatabaseConnection databaseConnection) {
-		return getDataSource(databaseConnection.getJdbcUrl(), databaseConnection.getUserName(),
-				new String(databaseConnection.getPassword()));
+		return databaseConnection.getDataSource();
 	}
 
 	protected DataSource getDataSource(String url, String username, String password) {

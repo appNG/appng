@@ -15,10 +15,13 @@
  */
 package org.appng.core.domain;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -36,15 +39,21 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+import javax.sql.DataSource;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.ValidationMessages;
 import org.appng.api.model.Site;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * 
@@ -70,16 +79,13 @@ public class DatabaseConnection implements Auditable<Integer> {
 	public enum DatabaseType {
 
 		/** MySQL */
-		MYSQL("com.mysql.jdbc.Driver", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
-				"jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
+		MYSQL("com.mysql.jdbc.Driver", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
 
 		/** Microsoft SQL Server */
-		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
-				"jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
+		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource", "jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
 
 		/** HSQL DB */
-		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource",
-				"jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
+		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
 
 		private final String defaultDriver;
 		private final String templateUrl;
@@ -117,6 +123,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 		public String getDataSourceClassName() {
 			return dataSourceClassName;
 		}
+
 	}
 
 	private Integer id;
@@ -136,6 +143,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 	private Integer maxConnections = 20;
 	private String validationQuery;
 	private Integer validationPeriod;
+	private Double databaseSize;
 
 	private MigrationInfoService migrationInfoService;
 
@@ -328,6 +336,10 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver) {
+		return testConnection(dbInfo, registerDriver, false);
+	}
+
+	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver, boolean determineSize) {
 		Connection connection = null;
 		try {
 			connection = getConnection(registerDriver);
@@ -335,10 +347,25 @@ public class DatabaseConnection implements Auditable<Integer> {
 			if (null != dbInfo) {
 				dbInfo.append(metaData.getDatabaseProductName() + " " + metaData.getDatabaseProductVersion());
 			}
+			if (determineSize) {
+				String resource = String.format("db/init/%s/size.sql", getType().name().toLowerCase());
+				InputStream sqlFile = getClass().getClassLoader().getResourceAsStream(resource);
+				if (null != sqlFile) {
+					String sizeStatement = StringUtils.replace(IOUtils.toString(sqlFile, StandardCharsets.UTF_8),
+							"<database>", getDatabaseName());
+					new JdbcTemplate(getDataSource()).query(sizeStatement, new RowMapper<Void>() {
+						public Void mapRow(ResultSet rs, int rowNum) throws SQLException {
+							setDatabaseSize(rs.getDouble(1));
+							return null;
+						}
+					});
+				}
+			}
 			return true;
-		} catch (Exception e) {
-			LOGGER.warn("error while connecting to " + jdbcUrl + " (" + e.getClass().getName() + ":" + e.getMessage()
-					+ ")");
+		} catch (
+
+		Exception e) {
+			LOGGER.warn("error while connecting to {} ({}: {})", jdbcUrl, e.getClass().getName(), e.getMessage());
 		} finally {
 			closeConnection(connection);
 		}
@@ -387,6 +414,20 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	@Transient
+	public String getDatabaseName() {
+		int paramStart = jdbcUrl.indexOf('?') < 0 ? jdbcUrl.length() : jdbcUrl.indexOf('?');
+		switch (type) {
+
+		case MSSQL:
+			String databaseName = "databaseName=";
+			return jdbcUrl.substring(getJdbcUrl().lastIndexOf(databaseName) + databaseName.length(), paramStart);
+
+		default:
+			return jdbcUrl.substring(getJdbcUrl().lastIndexOf('/') + 1, paramStart);
+		}
+	}
+
+	@Transient
 	public boolean isRootConnection() {
 		return getSite() == null;
 	}
@@ -400,9 +441,23 @@ public class DatabaseConnection implements Auditable<Integer> {
 		this.migrationInfoService = migrationInfoService;
 	}
 
+	@Transient
+	public Double getDatabaseSize() {
+		return databaseSize;
+	}
+
+	public void setDatabaseSize(Double databaseSize) {
+		this.databaseSize = databaseSize;
+	}
+
 	@Override
 	public String toString() {
 		return (type == null ? "Unknown" : type.toString()) + " " + getJdbcUrl();
+	}
+
+	@Transient
+	public DataSource getDataSource() {
+		return new DriverManagerDataSource(jdbcUrl, userName, getPasswordPlain());
 	}
 
 }
