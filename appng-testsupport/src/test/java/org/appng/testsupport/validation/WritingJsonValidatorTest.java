@@ -56,7 +56,7 @@ public class WritingJsonValidatorTest {
 		WritingJsonValidator.sortPropertiesAlphabetically = true;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Person p = getPerson(sdf);
-		WritingJsonValidator.validate(p, "json/WritingJsonValidatorTest-testValidateObjectAlphabeticallyOrder.json");
+		WritingJsonValidator.validate(p, "json/WritingJsonValidatorTest-testValidateObjectStrictOrder.json");
 		WritingJsonValidator.sortPropertiesAlphabetically = false;
 	}
 

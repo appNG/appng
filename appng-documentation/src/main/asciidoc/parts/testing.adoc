@@ -130,17 +130,17 @@ public class MyTest {
 
   @Test
   public void testWithJSON(){
-    KomplexObject ko = new ObjectProviderUnderTest().getObject();
-    WritingJsonValidator.validate(ko,"/filename.json"); <!-- 4 -->
+    ComplexObject co = new ObjectProviderUnderTest().getObject();
+    WritingJsonValidator.validate(co,"/filename.json"); <!-- 4 -->
   }
 
 }  
 
 ---- 
-<1> its handy to do some general property setting in a static block for all test methods in a test case. 
-<2> if the reference file does not exist or is outdated, set this property to `true` to create a new reference file.
-<3> the order of object properties in a JSON file is not clear defined. Set this property to `true` for a alphabetical order
-<4> call the validate method with the object and the file name of the reference file to map the object into JSON and compare it against the JSON in the compare file
+<1> Its handy to do some general property setting in a static block for all test methods in a test case. 
+<2> If the reference file does not exist or is outdated, set this property to `true` to create a new reference file.
+<3> The order of object properties in a JSON file is not clear defined. Set this property to `true` for a alphabetical order
+<4> Call the validate method with the object and the file name of the reference file to map the object into JSON and compare it against the JSON in the compare file
 
 
 NOTE: In Eclipse, a new created reference file might not be available immediately after creation. The project must be refreshed first.  
