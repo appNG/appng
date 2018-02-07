@@ -15,43 +15,48 @@
  */
 package org.appng.appngizer.controller;
 
-import java.nio.charset.StandardCharsets;
-
 import javax.sql.DataSource;
 
-import org.apache.commons.io.IOUtils;
 import org.appng.appngizer.model.xml.Database;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DatabaseControllerTest extends ControllerTest {
 
 	@Autowired
 	DataSource datasource;
 
 	@Test
-	public void test() throws Exception {
+	public void testInitialize() throws Exception {
 		ignorePasswordAndInstalledDate();
-		getAndVerify("/platform/database", "xml/database.xml", HttpStatus.OK);
+		postAndVerify("/platform/database/initialize", "xml/database-init.xml", null, HttpStatus.OK);
 	}
 
 	@Test
-	public void testInitialize() throws Exception {
-		String sql = IOUtils.resourceToString("init-db.sql", StandardCharsets.UTF_8, getClass().getClassLoader());
-		datasource.getConnection().prepareStatement(sql).execute();
+	public void testInitialized() throws Exception {
 		ignorePasswordAndInstalledDate();
-		postAndVerify("/platform/database/initialize", "xml/database-init.xml", null, HttpStatus.OK);
-		postAndVerify("/platform/database/initialize?managed=true", "xml/database-root-update.xml", null, HttpStatus.OK);
-
-		testUpdateRoot();
+		getAndVerify("/platform/database", "xml/database-init.xml", HttpStatus.OK);
 	}
 
+	@Test
+	public void testInitializeManaged() throws Exception {
+		ignorePasswordAndInstalledDate();
+		postAndVerify("/platform/database/initialize?managed=true", "xml/database-init-managed.xml", null,
+				HttpStatus.OK);
+
+	}
+
+	@Test
 	public void testUpdateRoot() throws Exception {
+		ignorePasswordAndInstalledDate();
 		Database database = new Database();
 		database.setType(DatabaseType.HSQL.name());
-		database.setManaged(true);
+		database.setManaged(false);
 		database.setUser("");
 		database.setPassword("");
 		database.setDbVersion("");
