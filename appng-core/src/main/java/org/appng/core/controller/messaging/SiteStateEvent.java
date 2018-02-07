@@ -42,8 +42,12 @@ public class SiteStateEvent extends Event {
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
-		Map<String, SiteState> stateMap = getStateMap(environment); 
-		stateMap.put(getSiteName(), this.state);
+		Map<String, SiteState> stateMap = getStateMap(environment);
+		if (SiteState.DELETED.equals(this.state)) {
+			stateMap.remove(getSiteName());
+		} else {
+			stateMap.put(getSiteName(), this.state);
+		}
 		new RequestNodeState(getSiteName()).perform(environment, site);
 	}
 
@@ -59,7 +63,7 @@ public class SiteStateEvent extends Event {
 	public String toString() {
 		return super.toString() + " - State: " + state;
 	}
-	
+
 	static Map<String, SiteState> getStateMap(Environment env) {
 		Map<String, SiteState> stateMap = env.getAttribute(Scope.PLATFORM, SITE_STATE);
 		if (null == stateMap) {

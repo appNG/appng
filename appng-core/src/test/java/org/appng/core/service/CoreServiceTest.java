@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -36,6 +37,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 
 import javax.persistence.EntityManager;
 
@@ -44,6 +47,9 @@ import org.appng.api.FieldProcessor;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
+import org.appng.api.messaging.Sender;
+import org.appng.api.messaging.TestReceiver;
+import org.appng.api.messaging.TestReceiver.TestSerializer;
 import org.appng.api.model.Application;
 import org.appng.api.model.AuthSubject;
 import org.appng.api.model.Group;
@@ -52,11 +58,15 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
 import org.appng.api.model.Role;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.model.Subject;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.core.controller.messaging.NodeEvent;
+import org.appng.core.controller.messaging.NodeEvent.NodeState;
+import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
@@ -353,10 +363,37 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	@Test
-	public void testDeleteSiteWithEnvironment() throws BusinessException {
+	@Test(timeout = 2000)
+	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
+		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
+		TestReceiver receiver = new TestReceiver();
+		receiver.runWith(Executors.newSingleThreadExecutor());
+		String nodeId = "test";
+		receiver.configure(new TestSerializer(environment, nodeId));
+		Sender sender = receiver.createSender();
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER)).thenReturn(sender);
+		Map<String, NodeState> nodeStates = new ConcurrentHashMap<>();
+		Map<String, SiteState> stateMap = new ConcurrentHashMap<>();
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE)).thenReturn(nodeStates);
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, SiteStateEvent.SITE_STATE)).thenReturn(stateMap);
+		SiteImpl realSite = (SiteImpl) siteMap.get(site.getName());
+		realSite.setSender(sender);
+		realSite.setState(SiteState.STARTING);
+		realSite.setState(SiteState.STARTED);
+		while (null == nodeStates.get(nodeId)) {
+			Thread.sleep(100);
+		}
 		coreService.deleteSite(environment, site, new FieldProcessorImpl("delete"), null, null, null);
+		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
+		// 5x NodeEvent
+		while (10 != receiver.getProcessed().size()) {
+			Thread.sleep(100);
+		}
+		
+		Map<String, SiteState> siteStates = nodeStates.get(nodeId).getSiteStates();
+		Assert.assertNull(siteStates.get(realSite.getName()));
+		receiver.close();
 	}
 
 	@Test
