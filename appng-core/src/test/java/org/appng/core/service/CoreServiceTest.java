@@ -373,6 +373,7 @@ public class CoreServiceTest {
 		receiver.configure(new TestSerializer(environment, nodeId));
 		Sender sender = receiver.createSender();
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER)).thenReturn(sender);
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT)).thenReturn(context);
 		Map<String, NodeState> nodeStates = new ConcurrentHashMap<>();
 		Map<String, SiteState> stateMap = new ConcurrentHashMap<>();
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE)).thenReturn(nodeStates);
@@ -384,10 +385,11 @@ public class CoreServiceTest {
 		while (null == nodeStates.get(nodeId)) {
 			Thread.sleep(100);
 		}
-		coreService.deleteSite(environment, site, new FieldProcessorImpl("delete"), null, null, null);
+		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
 		// 5x NodeEvent
-		while (10 != receiver.getProcessed().size()) {
+		// 1x SiteDeletedEvent
+		while (11 != receiver.getProcessed().size()) {
 			Thread.sleep(100);
 		}
 		
