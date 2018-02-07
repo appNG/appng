@@ -444,6 +444,7 @@ public class InitializerService {
 	 * @throws InvalidConfigurationException
 	 *             if an configuration error occurred
 	 */
+	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
 		loadSite(siteToLoad, env, sendReloadEvent, fp);

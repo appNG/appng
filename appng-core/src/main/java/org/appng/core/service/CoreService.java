@@ -71,6 +71,7 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.AppngCache;
 import org.appng.core.controller.handler.SoapService;
+import org.appng.core.controller.messaging.SiteDeletedEvent;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.GroupImpl;
@@ -1243,7 +1244,7 @@ public class CoreService {
 		if (null == siteByName) {
 			throw new BusinessException("No such site " + name);
 		}
-		deleteSite(null, siteByName, fp, null, null, null);
+		deleteSite(null, siteByName);
 	}
 
 	public void setSiteActive(String name, boolean active) throws BusinessException {
@@ -1254,8 +1255,13 @@ public class CoreService {
 		siteByName.setActive(active);
 	}
 
+	@Deprecated
 	protected void deleteSite(Environment env, SiteImpl site, FieldProcessor fp, Request request,
 			final String siteAliasDeleted, final String siteDeleteError) throws BusinessException {
+		deleteSite(env, site);
+	}
+
+	public void deleteSite(Environment env, SiteImpl site) throws BusinessException {
 		log.info("starting deletion of site {}", site.getName());
 		List<SiteApplication> grantedApplications = siteApplicationRepository.findByGrantedSitesIn(site);
 		for (SiteApplication siteApplication : grantedApplications) {
@@ -1271,21 +1277,29 @@ public class CoreService {
 		log.info("deleting {} orphaned database connections", connections.size());
 		databaseConnectionRepository.delete(connections);
 		siteRepository.delete(site);
-		Properties platformConfig = getPlatformConfig(env);
-		if (site.isCreateRepository()) {
-			File siteRootFolder = new File(getRepositoryRootFolder(env), site.getName());
-			try {
-				FileUtils.deleteDirectory(siteRootFolder);
-			} catch (IOException e) {
-				log.error("error while deleting site's folder " + siteRootFolder.getName(), e);
+		cleanupSite(env, shutdownSite, true);
+		log.info("done deleting site {}", site.getName());
+	}
+
+	public void cleanupSite(Environment env, SiteImpl site, boolean sendDeletedEvent) {
+		if (null != site) {
+			Properties platformConfig = getPlatformConfig(env);
+			if (site.isCreateRepository()) {
+				File siteRootFolder = new File(getRepositoryRootFolder(env), site.getName());
+				try {
+					FileUtils.deleteDirectory(siteRootFolder);
+					log.info("deleted site repository {}", siteRootFolder.getPath());
+				} catch (IOException e) {
+					log.error("error while deleting site's folder " + siteRootFolder.getName(), e);
+				}
+			}
+			CacheProvider cacheProvider = new CacheProvider(platformConfig);
+			cacheProvider.clearCache(site);
+			site.setState(SiteState.DELETED);
+			if (sendDeletedEvent) {
+				site.sendEvent(new SiteDeletedEvent(site.getName()));
 			}
 		}
-		CacheProvider cacheProvider = new CacheProvider(platformConfig);
-		cacheProvider.clearCache(site);
-		if (null != shutdownSite) {
-			shutdownSite.setState(SiteState.DELETED);
-		}
-		log.info("done deleting site {}", site.getName());
 	}
 
 	private void detachApplications(SiteImpl site) throws BusinessException {
