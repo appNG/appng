@@ -17,6 +17,7 @@ package org.appng.appngizer.controller;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
@@ -31,6 +32,7 @@ import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.CacheProvider;
+import org.appng.core.service.MigrationService;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +51,10 @@ public class DatabaseController extends ControllerBase {
 
 	@RequestMapping(value = "/platform/database", method = RequestMethod.GET)
 	public ResponseEntity<Database> info() throws Exception {
-		DatabaseConnection platformConnection = databaseService.getPlatformConnection(configurer.getProps());
+		Properties props = configurer.getProps();
+		DatabaseType type = DatabaseType.valueOf(props.getProperty(MigrationService.DATABASE_TYPE).toUpperCase());
+		DatabaseConnection platformConnection = databaseService.getRootConnectionOfType(type);
+		databaseService.statusComplete(platformConnection);
 		return info(platformConnection);
 	}
 
@@ -63,7 +68,7 @@ public class DatabaseController extends ControllerBase {
 		}
 		platformConnection.setMigrationInfoService(databaseService.statusComplete(platformConnection));
 		if (database.isManaged() != null && !database.isManaged().booleanValue() == platformConnection.isManaged()) {
-			platformConnection.setManaged(true);
+			platformConnection.setManaged(database.isManaged().booleanValue());
 			databaseService.save(platformConnection);
 		}
 		return info(platformConnection);
