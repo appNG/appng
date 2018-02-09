@@ -159,7 +159,7 @@ public class LdapServiceTest {
 
 		setup("aziz@egypt", "light", "mondoshawan@egypt", "stones");
 		searchedGroups = Arrays.asList(LdapContextMock.MOCKED_GROUP_NAME);
-		resultGroups = ldapService.loginGroup(mockedSite, "aziz", "light".toCharArray(), mockedSubject, searchedGroups);
+		resultGroups = ldapService.loginGroup(mockedSite, "aZiZ", "light".toCharArray(), mockedSubject, searchedGroups);
 		Assert.assertArrayEquals(searchedGroups.toArray(new String[0]), resultGroups.toArray(new String[0]));
 	}
 

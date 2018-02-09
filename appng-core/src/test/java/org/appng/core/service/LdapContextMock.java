@@ -163,11 +163,11 @@ public class LdapContextMock implements LdapContext {
 		String envPrincipal = (String) env.get(Context.SECURITY_PRINCIPAL);
 		String envPassword = (String) env.get(Context.SECURITY_CREDENTIALS);
 
-		if (mockedServicePrincipal.equals(envPrincipal)) {
+		if (mockedServicePrincipal.equalsIgnoreCase(envPrincipal)) {
 			if (!mockedServicePassword.equals(envPassword))
 				stackAndThrow(new NamingException(MSG_WRONG_PASS));
 		} else {
-			if (!mockedUserPrincipal.equals(envPrincipal))
+			if (!mockedUserPrincipal.equalsIgnoreCase(envPrincipal))
 				stackAndThrow(new NamingException(MSG_WRONG_USER));
 			if (!mockedUserPassword.equals(envPassword))
 				stackAndThrow(new NamingException(MSG_WRONG_PASS));
