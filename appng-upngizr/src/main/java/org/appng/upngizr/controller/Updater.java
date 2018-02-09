@@ -1,0 +1,419 @@
+/*
+ * Copyright 2011-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.appng.upngizr.controller;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.catalina.Container;
+import org.apache.catalina.Host;
+import org.apache.catalina.LifecycleException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * The controller performing the update operation.
+ * 
+ * @author Matthias Müller
+ *
+ */
+@Slf4j
+@RestController
+public class Updater {
+
+	private static final String APPNG_APPLICATION = "appng-application-%s.war";
+	private static final String INIT_PARAM_BLOCK_REMOTE_IPS = "blockRemoteIPs";
+	private static final String INIT_PARAM_BUILD_REPOSITORY = "buildRepository";
+	private static final String INIT_PARAM_REPLACE_BIN = "replaceBin";
+	private static final String INIT_PARAM_REPLACE_PLATFORMCONTEXT = "replacePlatformContext";
+	private static final String INIT_PARAM_REPLACE_WEB_XML = "replaceWebXml";
+	private static final String WEB_INF = "WEB-INF/";
+	private static final String WEB_INF_CLASSES = WEB_INF + "classes/";
+	private static final String WEB_INF_LIB = WEB_INF + "lib/";
+	private ServletContext context;
+	private String buildRepository = "https://appng.org/appng/builds/%s/";
+	private boolean replacePlatformContext = true;
+	private boolean replaceWebXml = true;
+	private boolean replaceBin = false;
+	private boolean blockRemoteIps = true;
+	private List<String> localAdresses = new ArrayList<>();
+	private AtomicBoolean isUpdateRunning = new AtomicBoolean(false);
+	private AtomicReference<Double> completed = new AtomicReference<Double>(0.0d);
+	private AtomicReference<String> status = new AtomicReference<String>("Starting update");
+
+	@Autowired
+	public Updater(ServletContext context) {
+		this.context = context;
+		if (null != context.getInitParameter(INIT_PARAM_BUILD_REPOSITORY)) {
+			this.buildRepository = context.getInitParameter(INIT_PARAM_BUILD_REPOSITORY);
+		}
+		if (null != context.getInitParameter(INIT_PARAM_REPLACE_PLATFORMCONTEXT)) {
+			this.replacePlatformContext = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_PLATFORMCONTEXT));
+		}
+		if (null != context.getInitParameter(INIT_PARAM_REPLACE_WEB_XML)) {
+			this.replaceWebXml = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_WEB_XML));
+		}
+		if (null != context.getInitParameter(INIT_PARAM_REPLACE_BIN)) {
+			this.replaceWebXml = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_BIN));
+		}
+		if (null != context.getInitParameter(INIT_PARAM_BLOCK_REMOTE_IPS)) {
+			this.blockRemoteIps = Boolean.valueOf(context.getInitParameter(INIT_PARAM_BLOCK_REMOTE_IPS));
+		}
+		if (blockRemoteIps) {
+			try {
+				Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+				while (networkInterfaces.hasMoreElements()) {
+					NetworkInterface networkInterface = networkInterfaces.nextElement();
+					Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+					while (inetAddresses.hasMoreElements()) {
+						String hostAddress = inetAddresses.nextElement().getHostAddress();
+						int idx = hostAddress.indexOf('%');
+						localAdresses.add(hostAddress.substring(0, idx > 0 ? idx : hostAddress.length()));
+					}
+				}
+			} catch (SocketException e) {
+				log.error("error retrieving networkinterfaces", e);
+			}
+		}
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/update/start/{version:.+}", produces = MediaType.TEXT_HTML_VALUE)
+	public ResponseEntity<String> getStartPage(@PathVariable("version") String version, HttpServletRequest request)
+			throws IOException, URISyntaxException {
+		if (isUpdateRunning.get()) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+		if (isBlocked(request)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+
+		ClassPathResource resource = new ClassPathResource("updater.html");
+		String content = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
+		String onSuccess = "";
+		String uppNGizrBase = String.format("//%s:%s/upNGizr", request.getServerName(), request.getServerPort());
+
+		Resource artifactResource = getArtifact(version, APPNG_APPLICATION);
+		if (artifactResource.exists()) {
+			content = content.replace("<target>", onSuccess).replace("<path>", uppNGizrBase);
+			content = content.replace("<version>", version).replace("<button>", "Update to " + version);
+			return new ResponseEntity<>(content, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/update/status", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Status> getStatus() {
+		Status status = new Status(this.status.get(), completed.get());
+		return new ResponseEntity<Updater.Status>(status, HttpStatus.OK);
+	}
+
+	@RequestMapping(path = "/checkVersionAvailable/{version:.+}", method = RequestMethod.GET)
+	public ResponseEntity<Void> checkVersionAvailable(@PathVariable("version") String version,
+			HttpServletRequest request) throws MalformedURLException {
+		if (isBlocked(request)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+		Resource resource = getArtifact(version, APPNG_APPLICATION);
+		if (!resource.exists()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@RequestMapping(path = "/update/{version:.+}", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.POST)
+	public ResponseEntity<String> updateAppng(@PathVariable("version") String version,
+			@RequestParam(required = false) String onSuccess, HttpServletRequest request) {
+		if (isUpdateRunning.get()) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+		if (isBlocked(request)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+		isUpdateRunning.set(true);
+		try {
+			Resource resource = getArtifact(version, APPNG_APPLICATION);
+			if (!resource.exists()) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+			Container appNGContext = getAppNGContext();
+			status.set("Stopping appNG");
+			completed.set(5.0d);
+			log.info("stopping {}", appNGContext);
+			stopContexts();
+			completed.set(30.0d);
+			updateAppNG(resource, UpNGizr.appNGHome);
+			updateAppNGizr(getArtifact(version, "appng-appngizer-%s.war"), UpNGizr.appNGizerHome);
+			log.info("starting {}", appNGContext);
+			status.set("Starting appNG");
+			appNGContext.start();
+			startContexts();
+			completed.set(100.0d);
+			String statusLink = StringUtils.isEmpty(onSuccess) ? ""
+					: ("<br/>Forwarding to <a href=\"" + onSuccess + "\">" + onSuccess + "</a>");
+			status.set("Update complete" + statusLink);
+			return new ResponseEntity<>("OK", HttpStatus.OK);
+		} catch (Exception e) {
+			log.error("error", e);
+		} finally {
+			isUpdateRunning.set(false);
+		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private boolean isBlocked(HttpServletRequest request) {
+		log.info("Source: {}", request.getRemoteAddr());
+		boolean isBlocked = blockRemoteIps && !localAdresses.isEmpty()
+				&& !localAdresses.contains(request.getRemoteAddr());
+		if (isBlocked) {
+			log.info("remote address {} is not in list of allowed addresses ({})", request.getRemoteAddr(),
+					StringUtils.collectionToDelimitedString(localAdresses, " "));
+		}
+		return isBlocked;
+	}
+
+	private Resource getArtifact(String version, String filename) throws MalformedURLException {
+		boolean isSnapshot = version.endsWith("-SNAPSHOT");
+		String url = String.format(buildRepository + filename, isSnapshot ? "snapshot" : "stable", version);
+		return new UrlResource(url);
+	}
+
+	private void stopContexts() {
+		stopContext(getAppNGizerContext());
+		stopContext(getAppNGContext());
+	}
+
+	private void startContexts() {
+		startContext(getAppNGizerContext());
+		startContext(getAppNGContext());
+	}
+
+	private void stopContext(Container context) {
+		if (null != context) {
+			try {
+				context.stop();
+			} catch (LifecycleException e) {
+				log.error("error starting contexts", e);
+			}
+		}
+	}
+
+	private void startContext(Container context) {
+		if (null != context) {
+			try {
+				context.start();
+			} catch (LifecycleException e) {
+				log.error("error starting contexts", e);
+			}
+		}
+	}
+
+	protected void updateAppNG(Resource resource, String appNGHome)
+			throws IOException, ZipException, FileNotFoundException {
+		status.set(String.format("Downloading update %s", resource.getFilename()));
+
+		long contentLength = resource.contentLength();
+		long sizeMB = contentLength / 1024 / 1024;
+		log.info("reading {} MB from {}", sizeMB, resource.getDescription());
+
+		long start = System.currentTimeMillis();
+		InputStream is = resource.getInputStream();
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		byte[] bytes = new byte[8192];
+		int count = -1;
+		long read = 0;
+		int progress = 0;
+		while ((count = is.read(bytes, 0, bytes.length)) != -1) {
+			os.write(bytes, 0, count);
+			read += count;
+			int currentProgress = ((int) (((double) read / (double) contentLength) * 100));
+			if (progress != currentProgress && currentProgress % 5 == 0) {
+				long readMB = read / 1024 / 1024;
+				log.info("retrieved {}/{} MB ({}%)", readMB, sizeMB, currentProgress);
+				completed.set(30.0d + currentProgress / 2.0d);
+				status.set(String.format("Downloaded " + readMB + " of " + sizeMB + "MB"));
+			}
+			progress = currentProgress;
+		}
+		System.err.println("");
+		long duration = (System.currentTimeMillis() - start) / 1000;
+		log.debug("downloading {} MB took {}s ({}MB/s)", sizeMB, duration, sizeMB / (duration == 0 ? 1 : duration));
+
+		byte[] data = os.toByteArray();
+
+		Path warArchive = Files.createTempFile(null, null);
+		IOUtils.write(data, new FileOutputStream(warArchive.toFile()));
+
+		File libFolder = new File(appNGHome, WEB_INF_LIB);
+		if (libFolder.exists()) {
+			org.apache.commons.io.FileUtils.cleanDirectory(libFolder);
+			log.info("cleaning {}", libFolder);
+		}
+		completed.set(90.0d);
+		status.set("Extracting files");
+		ZipFile zip = new ZipFile(warArchive.toFile());
+		Enumeration<? extends ZipEntry> entries = zip.entries();
+		while (entries.hasMoreElements()) {
+			ZipEntry entry = entries.nextElement();
+			String name = entry.getName();
+			String folder = name.substring(0, name.lastIndexOf('/') + 1);
+			if (!entry.isDirectory()) {
+				switch (folder) {
+				case WEB_INF:
+					if (replaceWebXml) {
+						writeFile(appNGHome, zip.getInputStream(entry), name);
+					}
+					break;
+				case WEB_INF_LIB:
+				case WEB_INF_CLASSES:
+					writeFile(appNGHome, zip.getInputStream(entry), name);
+					break;
+				case "WEB-INF/conf/":
+					if (replacePlatformContext && name.endsWith("platformContext.xml")) {
+						writeFile(appNGHome, zip.getInputStream(entry), name);
+					}
+					break;
+				case "WEB-INF/bin/":
+					if (replaceBin) {
+						writeFile(appNGHome, zip.getInputStream(entry), name);
+					}
+					break;
+				default:
+					log.info("Skipping {}", name);
+					break;
+				}
+			}
+
+		}
+		zip.close();
+		warArchive.toFile().delete();
+		completed.set(90.0d);
+	}
+
+	private void updateAppNGizr(Resource resource, String appNGizerHome) throws RestClientException, IOException {
+		if (!(resource.exists() && new File(appNGizerHome).exists())) {
+			return;
+		}
+		byte[] data = new RestTemplate().getForEntity(resource.getURI(), byte[].class).getBody();
+		Path warArchive = Files.createTempFile(null, null);
+		try (FileOutputStream out = new FileOutputStream(warArchive.toFile())) {
+			IOUtils.write(data, out);
+			try (ZipFile zip = new ZipFile(warArchive.toFile())) {
+				Enumeration<? extends ZipEntry> entries = zip.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry entry = entries.nextElement();
+					String name = entry.getName();
+					String folder = name.substring(0, name.lastIndexOf('/') + 1);
+					if (!entry.isDirectory()) {
+						switch (folder) {
+						case WEB_INF:
+							if (!(WEB_INF + "web.xml").equals(name)) {
+								writeFile(appNGizerHome, zip.getInputStream(entry), name);
+							}
+							break;
+						case WEB_INF_LIB:
+						case WEB_INF_CLASSES:
+							writeFile(appNGizerHome, zip.getInputStream(entry), name);
+							break;
+						default:
+							log.info("Skipping {}", name);
+							break;
+						}
+					}
+				}
+			}
+		}
+		warArchive.toFile().delete();
+	}
+
+	private void writeFile(String parentFolder, InputStream is, String name) throws IOException, FileNotFoundException {
+		byte[] data = org.apache.commons.io.IOUtils.toByteArray(is);
+		File targetFile = new File(parentFolder, name);
+		String normalizedName = FilenameUtils.normalize(targetFile.getAbsolutePath());
+		targetFile.getParentFile().mkdirs();
+		FileOutputStream fos = new FileOutputStream(normalizedName);
+		org.apache.commons.io.IOUtils.write(data, fos);
+		fos.close();
+		log.info("wrote {}", normalizedName);
+	}
+
+	protected Container getAppNGContext() {
+		return getContext("");
+	}
+
+	protected Container getAppNGizerContext() {
+		return getContext("appNGizer");
+	}
+
+	protected Container getContext(String name) {
+		Host host = (Host) context.getAttribute(UpNGizr.HOST);
+		return host.findChild(name);
+	}
+
+	@Data
+	class Status {
+		private final double completed;
+		private final String taskName;
+		private boolean done = false;
+
+		Status(String taskName, double completed) {
+			this.taskName = taskName;
+			this.completed = completed;
+			done = completed >= 100.00d;
+		}
+
+	}
+}

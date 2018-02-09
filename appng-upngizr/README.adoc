@@ -1,0 +1,50 @@
+:snapshot: 1.17.0-SNAPSHOT
+:stable: 1.16.2
+:current: {snapshot}
+
+== upNGizr
+
+*upNGizr* is a privileged Tomcat web-application that is able to update your appNG instance including appNGizer.
+
+Therefore, it *must* be deployed in the same Tomcat installation as appNG itself.
+
+
+=== Installation
+Just drop `uppNGizer.war` into your Tomcat's `webapps` folder and you are read to go.
+
+=== Usage
+First, check if the desired version is available at http://localhost:8080/upNGizr/checkVersionAvailable/{current}.
+
+To update your appNG installation, then go to http://localhost:8080/upNGizr/update/start/{current} and press the button "Update to {current}".
+
+
+=== Configuration
+
+The following configuration parameters are available, add them as `<context-param>` to `WEB-INF/web.xml` (defaults in brackets):
+
+Example:
+[source,xml]
+----
+<context-param>
+    <param-name>blockRemoteIPs</param-name>
+    <param-value>false</param-value>
+</context-param>
+----
+
+* buildRepository (`https://appng.org/appng/builds/%s/`) +
+The URI pointing to the location where the appNG artifacts reside. This can be another (proxy) server or even a path in the file system (use file-protocol in this case).
+Note that `%s` is replaced with either `stable` or `snapshot`, depending on the version you want to update to.)
+
+* replacePlatformContext  (`true`) +
+Whether or not `WEB-INF/conf/platformContext.xml` should be replaced during the update.
+
+* replaceBin (`false`) +
+Whether or not `WEB-INF/bin` should be replaced during the update.
+
+* blockRemoteIPs  (`true`) +
+For security reasons, by default, upNGizr only allows request originating from the local machine. Set to `false` to also allow remote origins. +
++
+[WARNING]
+====
+In this case, further actions to secure upNGizer are required, e.g. using basic authentication (enable the  `<security-contraint>` in `web.xml`) or due to some firewall rules.
+====
