@@ -32,6 +32,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
@@ -44,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.catalina.Container;
 import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleState;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,12 +181,10 @@ public class Updater {
 	@RequestMapping(path = "/update/{version:.+}", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.POST)
 	public ResponseEntity<String> updateAppng(@PathVariable("version") String version,
 			@RequestParam(required = false) String onSuccess, HttpServletRequest request) {
-		if (isUpdateRunning.get()) {
+		if (isBlocked(request) || isUpdateRunning.get()) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
-		if (isBlocked(request)) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-		}
+
 		isUpdateRunning.set(true);
 		try {
 			Resource appNGArchive = getArtifact(version, APPNG_APPLICATION);
@@ -191,12 +193,35 @@ public class Updater {
 			}
 			status.set("Stopping appNG");
 			completed.set(5.0d);
+			getHost().setAutoDeploy(false);
+			Container appNGizerContext = stopContext(getAppNGizerContext());
+			Container appNGContext = stopContext(getAppNGContext());
 			completed.set(30.0d);
-			boolean autoDeploy = stopContexts();
 			updateAppNG(appNGArchive, UpNGizr.appNGHome);
 			updateAppNGizr(getArtifact(version, "appng-appngizer-%s.war"), UpNGizr.appNGizerHome);
+			if (null != appNGizerContext) {
+				status.set("Starting appNGizer");
+				log.info(status.get());
+				startContext(appNGizerContext);
+			}
 			status.set("Starting appNG");
-			startContexts(autoDeploy);
+			completed.set(91.0d);
+			log.info(status.get());
+
+			FutureTask<Void> startAppNG = new FutureTask<>(new Callable<Void>() {
+				public Void call() throws Exception {
+					startContext(appNGContext);
+					return null;
+				}
+			});
+			Executors.newFixedThreadPool(1).submit(startAppNG);
+			while (!startAppNG.isDone()) {
+				Thread.sleep(3000);
+				if (completed.get().compareTo(99.0d) == -1) {
+					completed.set(completed.get() + 1.0d);
+				}
+			}
+
 			completed.set(100.0d);
 			String statusLink = StringUtils.isEmpty(onSuccess) ? ""
 					: ("<br/>Forwarding to <a href=\"" + onSuccess + "\">" + onSuccess + "</a>");
@@ -227,28 +252,16 @@ public class Updater {
 		return new UrlResource(url);
 	}
 
-	private boolean stopContexts() {
-		boolean autoDeploy = getHost().getAutoDeploy();
-		getHost().setAutoDeploy(false);
-		stopContext(getAppNGizerContext());
-		stopContext(getAppNGContext());
-		return autoDeploy;
-	}
-
-	private void startContexts(boolean autoDeploy) {
-		startContext(getAppNGizerContext());
-		startContext(getAppNGContext());
-		getHost().setAutoDeploy(autoDeploy);
-	}
-
-	private void stopContext(Container context) {
+	private Container stopContext(Container context) {
 		if (null != context) {
 			try {
 				context.stop();
+				return context;
 			} catch (LifecycleException e) {
-				log.error("error starting contexts", e);
+				log.error("error stopping context", e);
 			}
 		}
+		return null;
 	}
 
 	private void startContext(Container context) {
@@ -256,7 +269,7 @@ public class Updater {
 			try {
 				context.start();
 			} catch (LifecycleException e) {
-				log.error("error starting contexts", e);
+				log.error("error starting context", e);
 			}
 		}
 	}
@@ -302,7 +315,7 @@ public class Updater {
 			org.apache.commons.io.FileUtils.cleanDirectory(libFolder);
 			log.info("cleaning {}", libFolder);
 		}
-		completed.set(90.0d);
+		completed.set(85.0d);
 		status.set("Extracting files");
 		ZipFile zip = new ZipFile(warArchive.toFile());
 		Enumeration<? extends ZipEntry> entries = zip.entries();
