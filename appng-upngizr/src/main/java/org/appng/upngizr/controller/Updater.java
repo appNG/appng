@@ -192,11 +192,11 @@ public class Updater {
 			status.set("Stopping appNG");
 			completed.set(5.0d);
 			completed.set(30.0d);
-			boolean autodeploy = stopContexts();
+			boolean autoDeploy = stopContexts();
 			updateAppNG(appNGArchive, UpNGizr.appNGHome);
 			updateAppNGizr(getArtifact(version, "appng-appngizer-%s.war"), UpNGizr.appNGizerHome);
 			status.set("Starting appNG");
-			startContexts(autodeploy);
+			startContexts(autoDeploy);
 			completed.set(100.0d);
 			String statusLink = StringUtils.isEmpty(onSuccess) ? ""
 					: ("<br/>Forwarding to <a href=\"" + onSuccess + "\">" + onSuccess + "</a>");

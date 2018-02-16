@@ -10,7 +10,7 @@ Therefore, it *must* be deployed in the same Tomcat installation as appNG itself
 
 
 === Installation
-Just drop `uppNGizer.war` into your Tomcat's `webapps` folder and you are read to go.
+Just drop `uppNGizr.war` into your Tomcat's `webapps` folder and you are read to go.
 
 === Usage
 First, check if the desired version is available at http://localhost:8080/upNGizr/checkVersionAvailable/{current}.
@@ -46,5 +46,5 @@ For security reasons, by default, upNGizr only allows requests originating from 
 +
 [WARNING]
 ====
-In this case, further actions to secure upNGizer are required, e.g. using basic authentication (enable the  `<security-contraint>` in `web.xml`) or due to some firewall rules.
+In this case, further actions to secure upNGizr are required, e.g. using basic authentication (enable the  `<security-contraint>` in `web.xml`) or due to some firewall rules.
 ====
