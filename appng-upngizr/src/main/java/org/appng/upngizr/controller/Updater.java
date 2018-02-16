@@ -185,22 +185,18 @@ public class Updater {
 		}
 		isUpdateRunning.set(true);
 		try {
-			Resource resource = getArtifact(version, APPNG_APPLICATION);
-			if (!resource.exists()) {
+			Resource appNGArchive = getArtifact(version, APPNG_APPLICATION);
+			if (!appNGArchive.exists()) {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
-			Container appNGContext = getAppNGContext();
 			status.set("Stopping appNG");
 			completed.set(5.0d);
-			log.info("stopping {}", appNGContext);
-			stopContexts();
 			completed.set(30.0d);
-			updateAppNG(resource, UpNGizr.appNGHome);
+			boolean autodeploy = stopContexts();
+			updateAppNG(appNGArchive, UpNGizr.appNGHome);
 			updateAppNGizr(getArtifact(version, "appng-appngizer-%s.war"), UpNGizr.appNGizerHome);
-			log.info("starting {}", appNGContext);
 			status.set("Starting appNG");
-			appNGContext.start();
-			startContexts();
+			startContexts(autodeploy);
 			completed.set(100.0d);
 			String statusLink = StringUtils.isEmpty(onSuccess) ? ""
 					: ("<br/>Forwarding to <a href=\"" + onSuccess + "\">" + onSuccess + "</a>");
@@ -231,14 +227,18 @@ public class Updater {
 		return new UrlResource(url);
 	}
 
-	private void stopContexts() {
+	private boolean stopContexts() {
+		boolean autoDeploy = getHost().getAutoDeploy();
+		getHost().setAutoDeploy(false);
 		stopContext(getAppNGizerContext());
 		stopContext(getAppNGContext());
+		return autoDeploy;
 	}
 
-	private void startContexts() {
+	private void startContexts(boolean autoDeploy) {
 		startContext(getAppNGizerContext());
 		startContext(getAppNGContext());
+		getHost().setAutoDeploy(autoDeploy);
 	}
 
 	private void stopContext(Container context) {
@@ -391,16 +391,15 @@ public class Updater {
 	}
 
 	protected Container getAppNGContext() {
-		return getContext("");
+		return getHost().findChild("");
 	}
 
 	protected Container getAppNGizerContext() {
-		return getContext("appNGizer");
+		return getHost().findChild("appNGizer");
 	}
 
-	protected Container getContext(String name) {
-		Host host = (Host) context.getAttribute(UpNGizr.HOST);
-		return host.findChild(name);
+	private Host getHost() {
+		return (Host) context.getAttribute(UpNGizr.HOST);
 	}
 
 	@Data
