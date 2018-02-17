@@ -15,13 +15,18 @@
  */
 package org.appng.testsupport.persistence;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 import org.hsqldb.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-public class HsqlServerFactoryBean implements FactoryBean<Server>, InitializingBean {
+public class HsqlServerFactoryBean implements FactoryBean<Server>, InitializingBean, DisposableBean {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HsqlServerFactoryBean.class);
 
@@ -43,13 +48,21 @@ public class HsqlServerFactoryBean implements FactoryBean<Server>, InitializingB
 	}
 
 	public void destroy() {
-		server.stop();
-		LOG.debug("Server stopped:" + toString());
+		LOG.debug("shutting down HSQL Server {} at {} on port {}", server.getProductVersion(),
+				server.getDatabasePath(0, false), server.getPort());
+		String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", server.getPort(), databaseName);
+		try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "")) {
+			connection.createStatement().execute("SHUTDOWN");
+		} catch (SQLException e) {
+			LOG.warn("error while shutting down server", e);
+		}
+		server.shutdown();
 	}
 
 	public void init() {
+		LOG.debug("starting HSQL Server {} at {} on port {}", server.getProductVersion(),
+				server.getDatabasePath(0, false), server.getPort());
 		server.start();
-		LOG.debug("Server started:" + toString());
 	}
 
 	public void afterPropertiesSet() throws Exception {

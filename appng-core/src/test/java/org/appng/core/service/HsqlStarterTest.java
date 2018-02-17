@@ -52,10 +52,11 @@ public class HsqlStarterTest {
 			Assert.fail("getConnection() should fail");
 		} catch (SQLException e) {
 		}
-		
+
 		List<Thread> timerThreads = Thread.getAllStackTraces().keySet().parallelStream()
-		.filter(t -> t.getName().startsWith("HSQLDB Timer")).collect(Collectors.toList());
-		Assert.assertTrue("Timer Threads should be empty", timerThreads.isEmpty());
+				.filter(t -> t.getName().startsWith("HSQLDB Timer")).collect(Collectors.toList());
+		Assert.assertTrue("Timer Threads should be empty, but there are " + timerThreads.size(),
+				timerThreads.isEmpty());
 	}
 
 }
