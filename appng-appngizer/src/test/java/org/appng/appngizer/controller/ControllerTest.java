@@ -112,7 +112,7 @@ public abstract class ControllerTest {
 		File path = new File(new File("").getAbsolutePath(), "../appng-core/src/test/resources/zip");
 		File repoFolder = new File("target/repo");
 		FileUtils.copyDirectory(path, repoFolder);
-		return "file://" + repoFolder.getAbsolutePath();
+		return repoFolder.toURI().toString();
 	}
 
 	@Before
