@@ -68,8 +68,8 @@ public class CommandBatchTest {
 			break;
 
 		case WINDOWS:
-			Assert.assertArrayEquals(new String[0], batch.parseLine("def SYSTEMROOT = ${systemEnv['SystemRoot']}"));
-			Assert.assertTrue(StringUtils.equalsIgnoreCase(variables.get("SYSTEMROOT"), "c:\\windows"));
+			Assert.assertArrayEquals(new String[0], batch.parseLine("def temp = ${systemEnv['TEMP']}"));
+			Assert.assertTrue(StringUtils.isNotBlank(variables.get("temp")));
 			break;
 
 		case MACOSX:
