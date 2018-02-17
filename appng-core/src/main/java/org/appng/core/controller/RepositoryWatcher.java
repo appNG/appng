@@ -189,7 +189,7 @@ public class RepositoryWatcher implements Runnable {
 					}
 					forwardMap.get(to).add(from);
 				}
-				LOG.info("{} has been read, {} forward rules have been processes", configFile.getAbsolutePath(),
+				LOG.info("{} has been read, {} forward rules have been processed", configFile.getAbsolutePath(),
 						forwardRules.getLength());
 			} catch (Exception e) {
 				LOG.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
