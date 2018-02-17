@@ -836,7 +836,7 @@ public class InitializerService {
 				shutDownSite(env, site);
 			}
 		}
-		CacheManager.getInstance().shutdown();
+		CacheService.shutdown();
 		env.removeAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 	}
 
