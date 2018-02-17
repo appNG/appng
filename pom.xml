@@ -396,6 +396,9 @@
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.20</version>
+					<configuration>
+						<argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
+					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-report-plugin</artifactId>
