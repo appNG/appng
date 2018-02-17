@@ -103,6 +103,7 @@ public class HsqlStarter {
 			} catch (SQLException e) {
 				LOGGER.warn("error while shutting down server", e);
 			}
+			server.shutdown();
 		} else {
 			LOGGER.debug("not running on HSQL, nothing to shutdown");
 		}
