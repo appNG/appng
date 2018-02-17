@@ -113,7 +113,7 @@ public class CacheProviderTest {
 	@Test
 	public void testGetRelativePlatformCache() {
 		String cache = cacheProvider.getRelativePlatformCache(site, application);
-		Assert.assertEquals("/WEB-INF/cache/platform/appNG/foobar", cache);
+		Assert.assertEquals(new File("/WEB-INF/cache/platform/appNG/foobar").getPath(), cache);
 	}
 
 	@Test
