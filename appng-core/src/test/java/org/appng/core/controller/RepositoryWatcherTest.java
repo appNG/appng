@@ -16,12 +16,14 @@
 package org.appng.core.controller;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,7 +41,8 @@ public class RepositoryWatcherTest {
 	@Test(timeout = 20000)
 	public void test() throws Exception {
 		ClassLoader classLoader = RepositoryWatcherTest.class.getClassLoader();
-		String rootDir = classLoader.getResource("repository/manager/www").getFile();
+		URL url = classLoader.getResource("repository/manager/www");
+		String rootDir = FilenameUtils.normalize(new File(url.toURI()).getPath(), true);
 		String urlrewrite = classLoader.getResource("conf/urlrewrite.xml").getFile();
 
 		RepositoryWatcher repositoryWatcher = new RepositoryWatcher();

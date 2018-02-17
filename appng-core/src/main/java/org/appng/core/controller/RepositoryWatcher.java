@@ -95,7 +95,7 @@ public class RepositoryWatcher implements Runnable {
 			throws Exception {
 		this.cache = cache;
 		this.watcher = FileSystems.getDefault().newWatchService();
-		this.wwwDir = FilenameUtils.normalize(wwwDir);
+		this.wwwDir = FilenameUtils.normalize(wwwDir, true);
 		this.configFile = configFile;
 		this.ruleSourceSuffix = ruleSourceSuffix;
 		readUrlRewrites(configFile);
@@ -128,10 +128,10 @@ public class RepositoryWatcher implements Runnable {
 					readUrlRewrites(absoluteFile);
 				}
 				LOG.debug("received event {} for {}", event.kind(), absoluteFile);
-				String absolutePath = absoluteFile.toPath().toString();
+				String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
 				String relativePathName = absolutePath.substring(wwwDir.length());
 				if (relativePathName.endsWith(jspExtension)) {
-					relativePathName = relativePathName.substring(0, relativePathName.length() - 4);
+					relativePathName = relativePathName.substring(0, relativePathName.length() - jspExtension.length());
 				}
 				removeFromCache(relativePathName);
 				if (forwardMap.containsKey(relativePathName)) {
