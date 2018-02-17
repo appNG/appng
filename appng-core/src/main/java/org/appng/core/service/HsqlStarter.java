@@ -18,6 +18,9 @@ package org.appng.core.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -94,7 +97,12 @@ public class HsqlStarter {
 		if (null != server) {
 			LOGGER.info("shutting down HSQL Server {} at {} on port {}", server.getProductVersion(),
 					server.getDatabasePath(0, false), server.getPort());
-			server.shutdown();
+			String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", server.getPort(), DATABASE_NAME);
+			try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "")) {
+				connection.createStatement().execute("SHUTDOWN");
+			} catch (SQLException e) {
+				LOGGER.warn("error while shutting down server", e);
+			}
 		} else {
 			LOGGER.debug("not running on HSQL, nothing to shutdown");
 		}
