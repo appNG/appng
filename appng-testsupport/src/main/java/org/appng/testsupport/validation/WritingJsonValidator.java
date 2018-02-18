@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.Datasource;
 import org.junit.Assert;
@@ -164,7 +165,8 @@ public class WritingJsonValidator {
 		if (writeJson) {
 			writeToDiskPlain(json, controlFile);
 		}
-		Assert.assertEquals(FileUtils.readFileToString(getControlFile(controlFile), StandardCharsets.UTF_8), json);
+		String expected = FileUtils.readFileToString(getControlFile(controlFile), StandardCharsets.UTF_8);
+		Assert.assertEquals(normalizeLines(expected), json);
 	}
 
 	/**
@@ -181,7 +183,13 @@ public class WritingJsonValidator {
 		if (writeJson) {
 			writeToDiskPlain(json, controlFile);
 		}
-		Assert.assertEquals(FileUtils.readFileToString(getControlFile(controlFile), StandardCharsets.UTF_8), json);
+		String expected = FileUtils.readFileToString(getControlFile(controlFile), StandardCharsets.UTF_8);
+		Assert.assertEquals(normalizeLines(expected), json);
+	}
+
+	private static String normalizeLines(String string) {
+		return StringUtils.LF.equals(System.lineSeparator()) ? string
+				: string.replace(StringUtils.LF, System.lineSeparator());
 	}
 
 	/**
