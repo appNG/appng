@@ -187,9 +187,15 @@ public class WritingJsonValidator {
 		Assert.assertEquals(normalizeLines(expected), json);
 	}
 
-	private static String normalizeLines(String string) {
-		return StringUtils.LF.equals(System.lineSeparator()) ? string
-				: string.replace(StringUtils.LF, System.lineSeparator());
+	/**
+	 * Normalizes the line breaks of the string to use {@link System#lineSeparator()}.
+	 * 
+	 * @param string
+	 *            the string to normalize
+	 * @return the normalized string
+	 */
+	public static String normalizeLines(String string) {
+		return string.replaceAll("\\n|\\r\\n", System.lineSeparator());
 	}
 
 	/**

@@ -51,6 +51,7 @@ import org.appng.search.json.Part;
 import org.appng.search.json.Result;
 import org.appng.search.searcher.SearchFormatter;
 import org.appng.search.searcher.StandardSearcher;
+import org.appng.testsupport.validation.WritingJsonValidator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -221,6 +222,6 @@ public class StandardSearcherTest {
 			throws URISyntaxException, IOException {
 		File controlFile = new File(classLoader.getResource(controlPath).toURI());
 		String control = FileUtils.readFileToString(controlFile, StandardCharsets.UTF_8);
-		Assert.assertEquals(control, result);
+		Assert.assertEquals(WritingJsonValidator.normalizeLines(control), WritingJsonValidator.normalizeLines(result));
 	}
 }
