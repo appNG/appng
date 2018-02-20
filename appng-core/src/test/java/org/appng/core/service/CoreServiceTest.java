@@ -70,10 +70,13 @@ import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
+import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.GroupImpl;
+import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.RepositoryImpl;
 import org.appng.core.domain.RoleImpl;
+import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.model.AccessibleApplication;
@@ -81,6 +84,7 @@ import org.appng.core.model.Repository;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.model.RepositoryMode;
 import org.appng.core.model.RepositoryType;
+import org.appng.core.repository.DatabaseConnectionRepository;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.appng.core.security.DefaultPasswordPolicy;
 import org.appng.core.security.DigestUtil;
@@ -220,6 +224,25 @@ public class CoreServiceTest {
 		assertEquals("foobaz", prop.getString());
 		assertEquals("platform.site." + site.getName() + ".application." + application.getName() + ".foobar",
 				prop.getName());
+	}
+
+	@Test
+	public void testAssignApplicationToSiteErroneous() {
+		SiteImpl site = coreService.getSite(1);
+		Application application = coreService.findApplicationByName("foobar");
+		DatabaseConnection dbc = new DatabaseConnection();
+		CoreService mockedCoreService = new CoreService() {
+			protected MigrationStatus createDatabaseConnection(SiteApplication siteApplication) {
+				siteApplication.setDatabaseConnection(dbc);
+				return MigrationStatus.ERROR;
+			}
+		};
+		mockedCoreService.databaseConnectionRepository = Mockito.mock(DatabaseConnectionRepository.class);
+		mockedCoreService.auditableListener = Mockito.mock(PlatformEventListener.class);
+		MigrationStatus state = mockedCoreService.assignApplicationToSite(site, application, true);
+		assertEquals(MigrationStatus.ERROR, state);
+		Mockito.verify(mockedCoreService.databaseConnectionRepository).delete(dbc);
+		Mockito.verify(mockedCoreService.auditableListener).createEvent(Mockito.eq(Type.ERROR), Mockito.anyString());
 	}
 
 	@Test
@@ -392,7 +415,7 @@ public class CoreServiceTest {
 		while (11 != receiver.getProcessed().size()) {
 			Thread.sleep(100);
 		}
-		
+
 		Map<String, SiteState> siteStates = nodeStates.get(nodeId).getSiteStates();
 		Assert.assertNull(siteStates.get(realSite.getName()));
 		receiver.close();

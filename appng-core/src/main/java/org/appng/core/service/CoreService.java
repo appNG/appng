@@ -785,6 +785,7 @@ public class CoreService {
 			auditableListener.createEvent(Type.ERROR,
 					String.format("Error creating database %s with user %s for application %s on site %s",
 							dbc.getJdbcUrl(), dbc.getUserName(), application.getName(), site.getName()));
+			databaseConnectionRepository.delete(dbc);
 		} else {
 			auditableListener.createEvent(Type.ERROR,
 					String.format("Error creating database and/or user for application %s on site %s",
@@ -794,7 +795,7 @@ public class CoreService {
 		return migrationStatus;
 	}
 
-	private MigrationStatus createDatabaseConnection(SiteApplication siteApplication) {
+	protected MigrationStatus createDatabaseConnection(SiteApplication siteApplication) {
 		Application application = siteApplication.getApplication();
 		Site site = siteApplication.getSite();
 		Properties platformConfig = getPlatformProperties();
