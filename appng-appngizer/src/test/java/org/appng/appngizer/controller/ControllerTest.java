@@ -17,17 +17,14 @@ package org.appng.appngizer.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,10 +37,8 @@ import org.appng.appngizer.model.xml.Repository;
 import org.appng.appngizer.model.xml.RepositoryMode;
 import org.appng.appngizer.model.xml.RepositoryType;
 import org.appng.core.service.CoreService;
+import org.appng.testsupport.validation.WritingXmlValidator;
 import org.appng.testsupport.validation.XPathDifferenceHandler;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLAssert;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -82,8 +77,6 @@ public abstract class ControllerTest {
 
 	protected XPathDifferenceHandler differenceListener;
 
-	public static boolean write = false;
-
 	static boolean platformInitialized = false;
 
 	void installApplication() throws Exception {
@@ -121,7 +114,8 @@ public abstract class ControllerTest {
 		this.differenceListener = new XPathDifferenceHandler();
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		if (!platformInitialized) {
-			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true, true);
+			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true,
+					true);
 			platformInitialized = true;
 		}
 	}
@@ -151,8 +145,13 @@ public abstract class ControllerTest {
 
 	protected MockHttpServletResponse deleteAndVerify(String uri, String controlSource, HttpStatus status)
 			throws Exception {
-		MockHttpServletRequestBuilder get = MockMvcRequestBuilders.delete(new URI(uri));
-		return verify(get, status, controlSource);
+		return deleteAndVerify(uri, controlSource, null, status);
+	}
+
+	protected MockHttpServletResponse deleteAndVerify(String uri, String controlSource, Object content,
+			HttpStatus status) throws Exception {
+		MockHttpServletRequestBuilder delete = MockMvcRequestBuilders.delete(new URI(uri));
+		return sendBodyAndVerify(delete, content, status, controlSource);
 	}
 
 	protected MockHttpServletResponse sendBodyAndVerify(MockHttpServletRequestBuilder builder, Object content,
@@ -188,26 +187,9 @@ public abstract class ControllerTest {
 		return platformProperties;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <T> void validate(String response, String controlSource) throws SAXException, IOException {
 		if (StringUtils.isNoneBlank(response, controlSource)) {
-			if (write) {
-				FileUtils.writeByteArrayToFile(new File("src/test/resources", controlSource), response.getBytes());
-			}
-			InputStream rs = getClass().getClassLoader().getResourceAsStream(controlSource);
-			if (null == rs) {
-				FileUtils.write(new File("src/test/resources", controlSource), response, StandardCharsets.UTF_8);
-				rs = getClass().getClassLoader().getResourceAsStream(controlSource);
-			}
-			T expexted = (T) marshaller.unmarshal(new StreamSource(rs));
-			StringResult expected = new StringResult();
-			marshaller.marshal(expexted, expected);
-
-			Diff diff = XMLUnit.compareXML(expected.toString(), response);
-			if (null != differenceListener) {
-				diff.overrideDifferenceListener(differenceListener);
-			}
-			XMLAssert.assertXMLIdentical("must be identical", diff, true);
+			WritingXmlValidator.validateXml(response, controlSource, differenceListener);
 		}
 	}
 

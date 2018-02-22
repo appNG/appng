@@ -15,10 +15,14 @@
  */
 package org.appng.appngizer.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.appng.appngizer.model.Properties;
 import org.appng.appngizer.model.Property;
 import org.appng.core.domain.SiteImpl;
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,13 +36,73 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SitePropertyController extends PropertyBase {
 
-	@RequestMapping(value = "/site/{site}/property", method = RequestMethod.GET)
+	@RequestMapping(value = { "/site/{site}/property", "/site/{site}/properties" }, method = RequestMethod.GET)
 	public ResponseEntity<Properties> listProperties(@PathVariable("site") String site) {
 		SiteImpl siteByName = getSiteByName(site);
 		if (null == siteByName) {
 			return notFound();
 		}
 		return getProperties(siteByName, null);
+	}
+
+	@RequestMapping(value = "/site/{site}/properties", method = RequestMethod.PUT)
+	public ResponseEntity<Properties> updateProperties(@PathVariable("site") String site,
+			@RequestBody org.appng.appngizer.model.xml.Properties properties) {
+		SiteImpl siteByName = getSiteByName(site);
+		if (null == siteByName) {
+			return notFound();
+		}
+
+		List<Property> propsList = new ArrayList<Property>();
+		for (org.appng.appngizer.model.xml.Property property : properties.getProperty()) {
+			ResponseEntity<Property> updated = updateProperty(property, siteByName, null);
+			collectProperties(propsList, updated, property.getName(), HttpStatus.OK);
+		}
+		return new ResponseEntity<Properties>(new Properties(propsList, site, null), HttpStatus.OK);
+	}
+
+	private void collectProperties(List<Property> propsList, ResponseEntity<Property> updatedProperty, String name,
+			HttpStatus expected) {
+		Property prop;
+		if (expected.equals(updatedProperty.getStatusCode())) {
+			prop = updatedProperty.getBody();
+		} else {
+			prop = new Property();
+			prop.setName(name);
+		}
+		prop.setStatusCode(updatedProperty.getStatusCode().value());
+		prop.setStatusMessage(updatedProperty.getStatusCode().getReasonPhrase());
+		propsList.add(prop);
+	}
+
+	@RequestMapping(value = "/site/{site}/properties", method = RequestMethod.POST)
+	public ResponseEntity<Properties> createProperties(@PathVariable("site") String site,
+			@RequestBody org.appng.appngizer.model.xml.Properties properties) {
+		SiteImpl siteByName = getSiteByName(site);
+		if (null == siteByName) {
+			return notFound();
+		}
+		List<Property> propsList = new ArrayList<Property>();
+		for (org.appng.appngizer.model.xml.Property property : properties.getProperty()) {
+			ResponseEntity<Property> created = createProperty(property, siteByName, null);
+			collectProperties(propsList, created, property.getName(), HttpStatus.CREATED);
+		}
+		return new ResponseEntity<Properties>(new Properties(propsList, site, null), HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/site/{site}/properties", method = RequestMethod.DELETE)
+	public ResponseEntity<Properties> deleteProperties(@PathVariable("site") String site,
+			@RequestBody org.appng.appngizer.model.xml.Properties properties) {
+		SiteImpl siteByName = getSiteByName(site);
+		if (null == siteByName) {
+			return notFound();
+		}
+		List<Property> propsList = new ArrayList<Property>();
+		for (org.appng.appngizer.model.xml.Property property : properties.getProperty()) {
+			ResponseEntity<Property> deleted = deleteProperty(property.getName(), siteByName, null);
+			collectProperties(propsList, deleted, property.getName(), HttpStatus.OK);
+		}
+		return new ResponseEntity<Properties>(new Properties(propsList, site, null), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/site/{site}/property/{prop}", method = RequestMethod.GET)

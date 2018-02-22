@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties xmlns="http://www.appng.org/schema/appngizer" self="/site/localhost/property">
+	<property status-code="204" status-message="No Content" name="myNewProp" />
+	<property status-code="404" status-message="Not Found" name="notExisting" />
+</properties>

@@ -16,6 +16,7 @@
 package org.appng.appngizer.controller;
 
 import org.appng.api.SiteProperties;
+import org.appng.appngizer.model.xml.Properties;
 import org.appng.appngizer.model.xml.Property;
 import org.appng.appngizer.model.xml.Site;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -29,6 +30,7 @@ public class SitePropertyControllerTest extends ControllerTest {
 
 	static {
 		XMLUnit.setIgnoreWhitespace(true);
+		write = false;
 	}
 
 	@Test
@@ -68,6 +70,23 @@ public class SitePropertyControllerTest extends ControllerTest {
 		getAndVerify("/site/localhost/property/theAnswer", "xml/site-property-create.xml", HttpStatus.OK);
 
 		deleteAndVerify("/site/localhost/property/theAnswer", null, HttpStatus.NO_CONTENT);
+
+		Properties properties = new Properties();
+		prop.setName("myNewProp");
+		properties.getProperty().add(prop);
+
+		Property existing = new Property();
+		existing.setName(prop.getName());
+		properties.getProperty().add(existing);
+		postAndVerify("/site/localhost/properties", "xml/site-properties-create.xml", properties, HttpStatus.OK);
+
+		properties.getProperty().remove(existing);
+		Property notExisting = new Property();
+		notExisting.setName("notExisting");
+		properties.getProperty().add(notExisting);
+		putAndVerify("/site/localhost/properties", "xml/site-properties-update.xml", properties, HttpStatus.OK);
+
+		deleteAndVerify("/site/localhost/properties", "xml/site-properties-delete.xml", properties, HttpStatus.OK);
 	}
 
 }
