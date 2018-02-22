@@ -25,6 +25,7 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
+import org.appng.api.Environment;
 import org.appng.api.ParameterSupport;
 import org.appng.api.model.Application;
 import org.appng.api.support.ParameterSupportBase;
@@ -94,51 +95,54 @@ public class FormConfirmation extends BodyTagSupport implements ParameterOwner {
 
 	@Override
 	public int doAfterBody() throws JspException {
-		JspWriter writer = getBodyContent().getEnclosingWriter();
-		try {
-			String providerProperties = getBodyContent().getString();
-			org.appng.formtags.Form wrappedForm = getForm().getWrappedForm();
-			if (wrappedForm.getFormConfirmation().getMode().equals(FormConfirmationMode.ALWAYS)) {
-				writer.write(providerProperties);
-			}
-
-			if (wrappedForm.isSubmitted()) {
-				if (!wrappedForm.hasErrors()) {
-					DefaultEnvironment env = DefaultEnvironment.get(pageContext);
-					MultiSiteSupport multiSiteSupport = new MultiSiteSupport();
-					HttpServletRequest servletRequest = (HttpServletRequest) pageContext.getRequest();
-					multiSiteSupport.process(env, application, method, servletRequest);
-					SiteImpl callingSite = multiSiteSupport.getCallingSite();
-					ApplicationProvider applicationProvider = multiSiteSupport.getApplicationProvider();
-					ParameterSupport parameterSupport = new ParameterSupportBase("#\\[", "\\]", wrappedForm
-							.getRequest().getParameters()) {
-					};
-
-					Map<String, Object> parameters = new HashMap<String, Object>();
-					for (String paramName : tagletAttributes.keySet()) {
-						parameters.put(paramName, parameterSupport.replaceParameters(tagletAttributes.get(paramName)));
-					}
-
-					Object formProcessProvider = applicationProvider.getBean(method);
-					if (null == formProcessProvider) {
-						throw new JspException("no FormProcessProvider '" + method + "' for application '"
-								+ getApplication() + "'!");
-					}
-					if (formProcessProvider instanceof org.appng.api.FormProcessProvider) {
-						((org.appng.api.FormProcessProvider) formProcessProvider).onFormSuccess(env, callingSite,
-								applicationProvider, writer, wrappedForm, parameters);
-					} else if (formProcessProvider instanceof FormProcessProvider) {
-						wrappedForm.addFormProcessProvider((FormProcessProvider) formProcessProvider);
-					}
-					wrappedForm.runProcessProviders(writer, parameters);
-				}
-			}
-		} catch (JspException e) {
-			throw e;
-		} catch (IOException e) {
-			throw new JspException(e);
+		writeBodyContent(FormConfirmationMode.ALWAYS);
+		if (getForm().getWrappedForm().isSubmitted() && !getForm().getWrappedForm().hasErrors()) {
+			writeBodyContent(FormConfirmationMode.SUBMITTED);
+			doProcess();
 		}
 		return super.doAfterBody();
+	}
+
+	protected void doProcess() throws JspException {
+		org.appng.formtags.Form wrappedForm = getForm().getWrappedForm();
+		MultiSiteSupport multiSiteSupport = new MultiSiteSupport();
+		Environment env = DefaultEnvironment.get(pageContext);
+		HttpServletRequest servletRequest = (HttpServletRequest) pageContext.getRequest();
+		multiSiteSupport.process(env, application, method, servletRequest);
+		SiteImpl callingSite = multiSiteSupport.getCallingSite();
+		ApplicationProvider applicationProvider = multiSiteSupport.getApplicationProvider();
+		ParameterSupport parameterSupport = new ParameterSupportBase("#\\[", "\\]",
+				wrappedForm.getRequest().getParameters()) {
+		};
+
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		for (String paramName : tagletAttributes.keySet()) {
+			parameters.put(paramName, parameterSupport.replaceParameters(tagletAttributes.get(paramName)));
+		}
+
+		Object formProcessProvider = applicationProvider.getBean(method);
+		if (null == formProcessProvider) {
+			throw new JspException(
+					"no FormProcessProvider '" + method + "' for application '" + getApplication() + "'!");
+		}
+		JspWriter writer = getBodyContent().getEnclosingWriter();
+		if (formProcessProvider instanceof org.appng.api.FormProcessProvider) {
+			((org.appng.api.FormProcessProvider) formProcessProvider).onFormSuccess(env, callingSite,
+					applicationProvider, writer, wrappedForm, parameters);
+		} else if (formProcessProvider instanceof FormProcessProvider) {
+			wrappedForm.addFormProcessProvider((FormProcessProvider) formProcessProvider);
+		}
+		wrappedForm.runProcessProviders(writer, parameters);
+	}
+
+	protected void writeBodyContent(FormConfirmationMode mode) throws JspException {
+		if (getForm().getWrappedForm().getFormConfirmation().getMode().equals(mode)) {
+			try {
+				getBodyContent().getEnclosingWriter().write(getBodyContent().getString());
+			} catch (IOException e) {
+				throw new JspException(e);
+			}
+		}
 	}
 
 	@Override

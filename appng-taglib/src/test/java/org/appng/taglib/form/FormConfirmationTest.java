@@ -15,38 +15,63 @@
  */
 package org.appng.taglib.form;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
 
+import org.apache.jasper.runtime.BodyContentImpl;
 import org.appng.formtags.FormConfirmation.FormConfirmationMode;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.mock.web.MockJspWriter;
 
 public class FormConfirmationTest {
 
 	@Test
-	public void testSubmittedOk() throws JspException {
-		runTest(true, true, BodyTag.EVAL_BODY_BUFFERED);
+	public void testSubmittedOk() throws JspException, IOException {
+		runTest(true, true, BodyTag.EVAL_BODY_BUFFERED, FormConfirmationMode.SUBMITTED, true);
 	}
 
 	@Test
-	public void testSubmittedWithErrors() throws JspException {
-		runTest(false, true, BodyTag.SKIP_BODY);
+	public void testSubmittedWithErrors() throws JspException, IOException {
+		runTest(false, true, BodyTag.SKIP_BODY, FormConfirmationMode.SUBMITTED, false);
 	}
 
 	@Test
-	public void testNotSubmitted() throws JspException {
-		runTest(true, false, BodyTag.SKIP_BODY);
+	public void testNotSubmitted() throws JspException, IOException {
+		runTest(true, false, BodyTag.SKIP_BODY, FormConfirmationMode.SUBMITTED, false);
 	}
 
-	private void runTest(boolean valid, boolean submitted, int returnCode) throws JspException {
-		FormConfirmation formConfirmation = new FormConfirmation();
+	private void runTest(boolean valid, boolean submitted, int returnCode, FormConfirmationMode mode,
+			boolean withContent) throws JspException, IOException {
+		FormConfirmation formConfirmation = new FormConfirmation() {
+			@Override
+			protected void doProcess() throws JspException {
+			}
+		};
+		StringWriter contentWriter = new StringWriter();
+		String content = "<p>This is content!</p>";
+		if (withContent) {
+			JspWriter enclosingWriter = new MockJspWriter(contentWriter);
+			BodyContentImpl bodyContent = new BodyContentImpl(enclosingWriter);
+			bodyContent.write(content);
+			formConfirmation.setBodyContent(bodyContent);
+		}
+
 		Form form = new Form();
 		formConfirmation.setParent(form);
 		form.getWrappedForm().getFormData().addFormElement().setValid(valid);
-		form.getWrappedForm().getFormConfirmation().setMode(FormConfirmationMode.SUBMITTED);
+		form.getWrappedForm().getFormConfirmation().setMode(mode);
 		form.getWrappedForm().setSubmitted(submitted);
 		int doStartTag = formConfirmation.doStartTag();
 		Assert.assertEquals(returnCode, doStartTag);
+
+		formConfirmation.doAfterBody();
+		if (withContent) {
+			Assert.assertEquals(content, contentWriter.toString());
+		}
 	}
 }
