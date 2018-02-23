@@ -189,7 +189,7 @@ public class MigrationService {
 	 */
 	public MigrationInfoService statusComplete(DatabaseConnection connection, boolean testConnection) {
 		StringBuilder dbInfo = new StringBuilder();
-		if (!testConnection || connection.testConnection(dbInfo)) {
+		if (!testConnection || connection.testConnection(dbInfo, false, true)) {
 			log.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
 			Flyway flyway = new Flyway();
 			DataSource dataSource = getDataSource(connection);

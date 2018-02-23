@@ -85,7 +85,9 @@ public class Database extends org.appng.appngizer.model.xml.Database implements 
 		if (withManagedState) {
 			db.setManaged(dbc.isManaged());
 		}
-
+		if (null != dbc.getDatabaseSize()) {
+			db.setSize(dbc.getDatabaseSize());
+		}
 		return db;
 	}
 
