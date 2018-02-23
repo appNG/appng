@@ -30,7 +30,6 @@ public class SitePropertyControllerTest extends ControllerTest {
 
 	static {
 		XMLUnit.setIgnoreWhitespace(true);
-		write = false;
 	}
 
 	@Test
