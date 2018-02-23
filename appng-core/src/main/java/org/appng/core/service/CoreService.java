@@ -785,6 +785,14 @@ public class CoreService {
 			auditableListener.createEvent(Type.ERROR,
 					String.format("Error creating database %s with user %s for application %s on site %s",
 							dbc.getJdbcUrl(), dbc.getUserName(), application.getName(), site.getName()));
+			MigrationStatus droppedState = databaseService.dropDataBaseAndUser(dbc);
+			if (MigrationStatus.ERROR.equals(droppedState)) {
+				String message = String.format(
+						"Failed to delete database and user for connection %s, manual cleanup might be required!",
+						dbc.getJdbcUrl());
+				log.warn(message);
+				auditableListener.createEvent(Type.ERROR, message);
+			}
 			databaseConnectionRepository.delete(dbc);
 		} else {
 			auditableListener.createEvent(Type.ERROR,

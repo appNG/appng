@@ -239,8 +239,10 @@ public class CoreServiceTest {
 		};
 		mockedCoreService.databaseConnectionRepository = Mockito.mock(DatabaseConnectionRepository.class);
 		mockedCoreService.auditableListener = Mockito.mock(PlatformEventListener.class);
+		mockedCoreService.databaseService = Mockito.mock(DatabaseService.class);
 		MigrationStatus state = mockedCoreService.assignApplicationToSite(site, application, true);
 		assertEquals(MigrationStatus.ERROR, state);
+		Mockito.verify(mockedCoreService.databaseService).dropDataBaseAndUser(dbc);
 		Mockito.verify(mockedCoreService.databaseConnectionRepository).delete(dbc);
 		Mockito.verify(mockedCoreService.auditableListener).createEvent(Mockito.eq(Type.ERROR), Mockito.anyString());
 	}
