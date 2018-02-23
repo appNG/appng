@@ -22,7 +22,9 @@ Respect our Code of Conduct: https://github.com/appNG/appng/blob/master/CODE_OF_
 
 === Building
 Build appNG using the following command:
+
 `mvn install -Djavax.xml.accessExternalSchema=all`
+
 The build must complete with a `BUILD SUCCESS` message.
 
 === Submitting changes
