@@ -13,12 +13,20 @@ Respect our Code of Conduct: https://github.com/appNG/appng/blob/master/CODE_OF_
 * Apply the license header (https://github.com/appNG/appng/blob/master/license-header.txt)
 * Add yourself as author (`@author`) for significant changes
 * Usually, you should retain the original author of the file, unless you did a complete rewrite of the file in question.
+* Provide a unit test covering your changes
 
 === Code style / source code formatting
 * Unix line endings
 * All files should be UTF-8 encoded
 * Line breaks after 120 characters
 * Format source code and organize imports (useful: Eclipse Preferences - Java - Editor - Save Actions - Format source code and Organize imports)
+
+=== Building
+Build appNG using the following command:
+
+`mvn install -Djavax.xml.accessExternalSchema=all`
+
+The build must complete with a `BUILD SUCCESS` message.
 
 === Submitting changes
 * Make sure you configured `user.name` and `user.email` appropriately in your `.gitconfig`
