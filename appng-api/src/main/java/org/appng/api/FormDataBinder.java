@@ -37,10 +37,9 @@ import org.springframework.validation.DataBinder;
  * <pre>
  * public void onFormSuccess(Environment environment, Site site, Application application, Writer writer, Form form,
  * 		Map<String, Object> properties) {
- * 	Person person = new Person();
- * 	FormDataBinder<Person> formDataBinder = new FormDataBinder<Person>(person, form);
- * formDataBinder.setExternalParams(properties);
- * 	formDataBinder.bind();
+ * 	FormDataBinder<Person> formDataBinder = new FormDataBinder<Person>(new Person(), form);
+ *  formDataBinder.setExternalParams(properties);
+ * 	Person person = formDataBinder.bind();
  * 	// proceed with person
  * }
  * </pre>

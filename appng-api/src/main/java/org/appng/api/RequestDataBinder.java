@@ -29,9 +29,8 @@ import org.springframework.validation.DataBinder;
  * <pre>
 byte[] processRequest(Site site, Application application, Environment environment, Request request)
         throws BusinessException;
-    Person person = new Person();
-    FormDataBinder<Person> formDataBinder = new FormDataBinder<Person>(person, request);
-    formDataBinder.bind();
+    RequestDataBinder<Person> requestDataBinder = new RequestDataBinder<Person>(new Person(), request);
+    Person person = requestDataBinder.bind();
     // proceed with person
 }
  * </pre>
@@ -60,7 +59,7 @@ public class RequestDataBinder<T> extends DataBinder {
 	}
 
 	/**
-	 * Constructs a new {@link RequestDataBinder} using a {@link DefaultConversionService}
+	 * Constructs a new {@link RequestDataBinder} using the given {@link ConversionService}
 	 * 
 	 * @param target
 	 *            the target object
