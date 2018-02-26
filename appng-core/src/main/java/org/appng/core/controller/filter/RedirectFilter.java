@@ -204,7 +204,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 	@Override
 	protected UrlRewriter getUrlRewriter(ServletRequest request, ServletResponse response, FilterChain chain) {
 		ServletContext context = filterConfig.getServletContext();
-		Environment env = DefaultEnvironment.get(context, request);
+		Environment env = DefaultEnvironment.get(context);
 		String jspType = getJspType(env);
 		Site site = RequestUtil.getSite(env, request);
 

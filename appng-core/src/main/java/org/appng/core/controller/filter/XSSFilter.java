@@ -58,7 +58,7 @@ public class XSSFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		Site site = RequestUtil.getSite(DefaultEnvironment.get(request, response), request);
+		Site site = RequestUtil.getSite(DefaultEnvironment.get(request.getServletContext()), request);
 		HttpServletRequest servletRequest = (HttpServletRequest) request;
 		boolean processXss = null != site && null != xssUtil;
 		if (processXss) {

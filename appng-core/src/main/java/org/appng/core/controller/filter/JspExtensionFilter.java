@@ -101,7 +101,7 @@ public class JspExtensionFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		ServletContext servletContext = filterConfig.getServletContext();
-		Environment env = DefaultEnvironment.get(servletContext, request, response);
+		Environment env = DefaultEnvironment.get(servletContext);
 		String hostIdentifier = RequestUtil.getHostIdentifier(request, env);
 		Site site = RequestUtil.getSiteByHost(env, hostIdentifier);
 		String servletPath = ((HttpServletRequest) request).getServletPath();

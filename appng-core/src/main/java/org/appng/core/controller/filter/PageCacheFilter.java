@@ -77,7 +77,7 @@ public class PageCacheFilter extends CachingFilter {
 		}
 
 		ServletContext servletContext = filterConfig.getServletContext();
-		Environment env = DefaultEnvironment.get(servletContext, request, response);
+		Environment env = DefaultEnvironment.get(servletContext);
 		String hostIdentifier = RequestUtil.getHostIdentifier(request, env);
 		Site site = RequestUtil.getSiteByHost(env, hostIdentifier);
 		boolean ehcacheEnabled = false;
