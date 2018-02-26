@@ -76,10 +76,14 @@ public class FormDataBinderTest extends RequestDataBinderTest {
 		ConfigurableConversionService conversionService = getConversionService();
 		FormDataBinder<Person> formDataBinder = new FormDataBinder<Person>(new Person(), form, conversionService);
 		formDataBinder.setBindAdditionalParams(true);
+		HashMap<String, Object> externalParams = new HashMap<>();
+		externalParams.put("description", "a description");
+		formDataBinder.setExternalParams(externalParams);
 
 		Person person = formDataBinder.bind();
 		validate(pictures, person);
 		Assert.assertEquals("John", person.getFirstname());
+		Assert.assertEquals(externalParams.get("description"), person.getDescription());
 	}
 
 	private FormElement mockElement(String name, List<String> values) {

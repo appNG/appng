@@ -16,6 +16,7 @@
 package org.appng.api;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.appng.forms.Request;
@@ -24,13 +25,13 @@ import org.appng.formtags.FormElement;
 import org.appng.formtags.FormElement.InputType;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.validation.DataBinder;
 
 /**
  * A {@link DataBinder} that uses a {@link Form} to bind its values to the target object. Additional parameters that are
- * not part of the form can also be used using {@link #setBindAdditionalParams(boolean)}.<br/>
+ * not part of the form can also be used using {@link #setBindAdditionalParams(boolean)}. Also, some additional
+ * properties can be used by calling {@link #setExternalParams(Map)}.<br/>
  * This class is especially useful inside a {@link FormProcessProvider}, as shown below:
  * 
  * <pre>
@@ -38,6 +39,7 @@ import org.springframework.validation.DataBinder;
  * 		Map<String, Object> properties) {
  * 	Person person = new Person();
  * 	FormDataBinder<Person> formDataBinder = new FormDataBinder<Person>(person, form);
+ * formDataBinder.setExternalParams(properties);
  * 	formDataBinder.bind();
  * 	// proceed with person
  * }
@@ -54,17 +56,45 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 
 	private Form form;
 	private boolean bindAdditionalParams;
+	private Map<String, Object> externalParams;
 
+	/**
+	 * Constructs a new {@link FormDataBinder} using a {@link DefaultConversionService}
+	 * 
+	 * @param target
+	 *            the target object
+	 * @param form
+	 *            the {@link Form}
+	 */
 	public FormDataBinder(T target, Form form) {
 		this(target, form, new DefaultConversionService());
 	}
 
+	/**
+	 * * Constructs a new {@link FormDataBinder} using the given {@link ConversionService}
+	 * 
+	 * @param target
+	 *            the target object
+	 * @param form
+	 *            the {@link Form}
+	 * @param conversionService
+	 *            the {@link ConversionService} to use
+	 */
 	public FormDataBinder(T target, Form form, ConversionService conversionService) {
 		super(target);
 		this.form = form;
 		setConversionService(conversionService);
 	}
 
+	/**
+	 * Performs the actual binding. Therefore, all {@link FormElement}s are retrieved from the {@link Form}. Also,
+	 * additional and external parameters might be used.
+	 * 
+	 * @return the object where the binding has been applied to
+	 * 
+	 * @see #setBindAdditionalParams(boolean)
+	 * @see #setExternalParams(Map)
+	 */
 	@SuppressWarnings("unchecked")
 	public T bind() {
 		MutablePropertyValues mpvs = new MutablePropertyValues();
@@ -84,6 +114,11 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 				addValue(mpvs, name, request.getParameterList(name));
 			}
 		}
+		if (null != externalParams) {
+			for (String externalParam : externalParams.keySet()) {
+				mpvs.addPropertyValue(externalParam, externalParams.get(externalParam));
+			}
+		}
 		doBind(mpvs);
 		return (T) getTarget();
 	}
@@ -92,8 +127,29 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 		return bindAdditionalParams;
 	}
 
+	/**
+	 * Whether to use all request parameters for binding, including those that are not defined through a
+	 * {@link FormElement} of the given {@link Form}
+	 * 
+	 * @param bindAdditionalParams
+	 *            whether to use all request parameters for binding
+	 */
 	public void setBindAdditionalParams(boolean bindAdditionalParams) {
 		this.bindAdditionalParams = bindAdditionalParams;
+	}
+
+	/**
+	 * Sets some additional external parameters used for binding
+	 * 
+	 * @param externalParams
+	 *            the external parameters
+	 */
+	public void setExternalParams(Map<String, Object> externalParams) {
+		this.externalParams = externalParams;
+	}
+
+	public Map<String, Object> getExternalParams() {
+		return externalParams;
 	}
 
 }

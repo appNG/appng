@@ -47,10 +47,28 @@ public class RequestDataBinder<T> extends DataBinder {
 
 	private Request request;
 
+	/**
+	 * Constructs a new {@link RequestDataBinder} using a {@link DefaultConversionService}
+	 * 
+	 * @param target
+	 *            the target object
+	 * @param request
+	 *            the {@link Request}
+	 */
 	public RequestDataBinder(T target, Request request) {
 		this(target, request, new DefaultConversionService());
 	}
 
+	/**
+	 * Constructs a new {@link RequestDataBinder} using a {@link DefaultConversionService}
+	 * 
+	 * @param target
+	 *            the target object
+	 * @param request
+	 *            the {@link Request}
+	 * @param conversionService
+	 *            the {@link ConversionService} to use
+	 */
 	public RequestDataBinder(T target, Request request, ConversionService conversionService) {
 		super(target);
 		this.request = request;
@@ -61,6 +79,12 @@ public class RequestDataBinder<T> extends DataBinder {
 		super(target);
 	}
 
+	/**
+	 * Performs the actual binding. Therefore {@link Request#getParameterNames()} and {@link Request#getFormUploads()}
+	 * is used.
+	 * 
+	 * @return the object where the binding has been applied to
+	 */
 	@SuppressWarnings("unchecked")
 	public T bind() {
 		MutablePropertyValues mpvs = new MutablePropertyValues();
