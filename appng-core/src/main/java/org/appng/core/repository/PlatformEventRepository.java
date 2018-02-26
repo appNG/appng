@@ -15,8 +15,24 @@
  */
 package org.appng.core.repository;
 
+import java.util.List;
+
 import org.appng.core.domain.PlatformEvent;
 import org.appng.persistence.repository.SearchRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface PlatformEventRepository extends SearchRepository<PlatformEvent, Integer> {
+
+	@Query("select distinct(e.user) from PlatformEvent e order by e.user")
+	List<String> findDistinctUsers();
+
+	@Query("select distinct(e.application) from PlatformEvent e order by e.application")
+	List<String> findDistinctApplications();
+
+	@Query("select distinct(e.origin) from PlatformEvent e order by e.origin")
+	List<String> findDistinctOrigins();
+
+	@Query("select distinct(e.hostName) from PlatformEvent e order by e.hostName")
+	List<String> findDistinctHostNames();
+
 }
