@@ -32,7 +32,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.appng.api.Environment;
 import org.appng.api.Path;
 import org.appng.api.Platform;
@@ -70,6 +69,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * 
  * @author Matthias Herlitzius
+ * @author Matthias Müller
  * 
  */
 public class JspExtensionFilter implements Filter {
@@ -107,10 +107,16 @@ public class JspExtensionFilter implements Filter {
 		String servletPath = ((HttpServletRequest) request).getServletPath();
 		if (null != site) {
 			Path pathInfo = RequestUtil.getPathInfo(env, site, servletPath);
-			String encoding = site.getProperties().getString(Platform.Property.ENCODING);
+			boolean isDocument = pathInfo.isDocument();
+
+			if (!(isDocument || pathInfo.isService())) {
+				chain.doFilter(request, response);
+				return;
+			}
 
 			// Respect the client-specified character encoding
 			// (see HTTP specification section 3.4.1)
+			String encoding = site.getProperties().getString(Platform.Property.ENCODING);
 			if (request.getCharacterEncoding() == null) {
 				request.setCharacterEncoding(encoding);
 			}
@@ -121,20 +127,14 @@ public class JspExtensionFilter implements Filter {
 
 			if (!response.isCommitted() && wrapper.hasResponse()) {
 				Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-				boolean isDocument = pathInfo.isDocument();
 				if (wrapper.getResponseType().equals(ResponseType.CHARACTER)) {
-					Writer writer = response.getWriter();
-					try {
-						String output;
+					try (Writer writer = response.getWriter()) {
+						String output = wrapper.getContent();
 						if (isDocument || isFilterService(response, pathInfo, platformProperties)) {
-							output = replaceUrls(site, platformProperties, servletPath, wrapper.getContent());
+							output = replaceUrls(site, platformProperties, servletPath, output);
 							output = replaceOtherStuff(output);
-						} else {
-							output = wrapper.getContent();
 						}
 						writer.write(output);
-					} finally {
-						IOUtils.closeQuietly(writer);
 					}
 				}
 			}
