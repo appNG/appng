@@ -41,10 +41,12 @@ import org.springframework.http.HttpStatus;
  * </pre>
  * 
  * For providing files to download, see {@link AttachmentWebservice}.<br/>
- * For 'real' SOAP-Webservices, use {@link SoapService} instead.
+ * For 'real' SOAP-Webservices, use {@link SoapService} instead. <br/>
+ * Consider using a {@link RequestDataBinder} for binding {@link Request} parameters to a target object.
  * 
  * @author Matthias Müller
  * @see AttachmentWebservice
+ * @see RequestDataBinder
  * @see SoapService
  */
 public interface Webservice {

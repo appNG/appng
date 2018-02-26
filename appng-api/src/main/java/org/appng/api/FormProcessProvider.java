@@ -25,9 +25,12 @@ import org.appng.formtags.Form;
 /**
  * When using the appNG-Taglibrary to define a HTLM-form inside a JSP, a {@link FormProcessProvider} is used to handle
  * the submitted data. It can write to a database, send an email or whatever else you want to do with the form data.
+ * <br/>
+ * Consider using a {@link FormDataBinder} for binding {@link Form} parameters to a target object.
  * 
  * @author Matthias Müller
  * 
+ * @see FormDataBinder
  */
 public interface FormProcessProvider {
 
