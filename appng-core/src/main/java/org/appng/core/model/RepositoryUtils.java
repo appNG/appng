@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.core.domain.PackageArchiveImpl;
 import org.appng.xml.application.PackageInfo;
 
@@ -44,36 +45,38 @@ public class RepositoryUtils {
 	}
 
 	/**
-	 * Checks whether {@code currentPackage} is newer than {@code latestPackage}
+	 * Checks whether {@code versionA} is newer than {@code versionB}
 	 * 
-	 * @param currentPackage
-	 * @param latestPackage
-	 * @return {@code true} if {@code currentPackage} is newer than {@code latestPackage}, {@code false} otherwise
+	 * @param versionA
+	 * @param versionB
+	 * @return {@code true} if {@code versionA} is newer than {@code versionB}, {@code false} otherwise
 	 * @see #isNewer(PackageInfo, PackageInfo)
 	 */
-	public static boolean isNewer(PackageVersion currentPackage, PackageVersion latestPackage) {
-		if (null == latestPackage) {
+	public static boolean isNewer(PackageVersion versionA, PackageVersion versionB) {
+		if (null == versionB) {
 			return true;
 		} else {
-			return isNewer(currentPackage.getPackageInfo(), latestPackage.getPackageInfo());
+			return isNewer(versionA.getPackageInfo(), versionB.getPackageInfo());
 		}
 	}
 
 	/**
-	 * Checks whether {@code currentPackage} is newer than {@code latestPackage}
+	 * Checks whether {@code packageA} is newer than {@code packageB}. Comparison is first done by the version and then
+	 * by the timestamp of the {@link PackageInfo}.
 	 * 
-	 * @param currentPackage
-	 * @param latestPackage
+	 * @param packageA
+	 * @param packageB
 	 * @return {@code true} if {@code currentPackage} is newer than {@code latestPackage}, {@code false} otherwise
 	 * @see #getDate(PackageInfo)
 	 */
-	public static boolean isNewer(PackageInfo currentPackage, PackageInfo latestPackage) {
-		if (null == latestPackage) {
+	public static boolean isNewer(PackageInfo packageA, PackageInfo packageB) {
+		if (null == packageB) {
 			return true;
 		} else {
-			Long currentTimestamp = getDate(currentPackage).getTime();
-			Long latestTimestamp = getDate(latestPackage).getTime();
-			return (currentTimestamp > latestTimestamp);
+			Long timestampA = getDate(packageA).getTime();
+			Long timestampB = getDate(packageB).getTime();
+			int isVersionNewer = StringUtils.compare(packageA.getVersion(), packageB.getVersion());
+			return (0 == isVersionNewer) ? (timestampA > timestampB) : (0 > isVersionNewer ? false : true);
 		}
 	}
 
@@ -116,8 +119,8 @@ public class RepositoryUtils {
 	 *            the file containing the archive
 	 * @param archiveName
 	 *            the name of the archive
-	 * @return the {@link PackageArchive}, if the given file is a valid archive and matches the {@link RepositoryMode} of
-	 *         the {@link Repository}.
+	 * @return the {@link PackageArchive}, if the given file is a valid archive and matches the {@link RepositoryMode}
+	 *         of the {@link Repository}.
 	 */
 	public static PackageArchive getPackage(Repository repo, File file, String archiveName) {
 		PackageArchive packageArchive = new PackageArchiveImpl(file, archiveName);
