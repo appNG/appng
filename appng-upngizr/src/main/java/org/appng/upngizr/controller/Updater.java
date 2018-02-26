@@ -47,7 +47,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.catalina.Container;
 import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleState;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +128,7 @@ public class Updater {
 						localAdresses.add(hostAddress.substring(0, idx > 0 ? idx : hostAddress.length()));
 					}
 				}
+				log.info("Allowed local addresses: {}", StringUtils.collectionToCommaDelimitedString(localAdresses));
 			} catch (SocketException e) {
 				log.error("error retrieving networkinterfaces", e);
 			}
@@ -138,25 +138,22 @@ public class Updater {
 	@RequestMapping(method = RequestMethod.GET, path = "/update/start/{version:.+}", produces = MediaType.TEXT_HTML_VALUE)
 	public ResponseEntity<String> getStartPage(@PathVariable("version") String version, HttpServletRequest request)
 			throws IOException, URISyntaxException {
-		if (isUpdateRunning.get()) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		if (isBlocked(request) || isUpdateRunning.get()) {
+			return forbidden();
 		}
-		if (isBlocked(request)) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+		Resource artifactResource = getArtifact(version, APPNG_APPLICATION);
+		if (!artifactResource.exists()) {
+			return notFound(artifactResource);
 		}
 
 		ClassPathResource resource = new ClassPathResource("updater.html");
 		String content = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
 		String onSuccess = "";
 		String uppNGizrBase = String.format("//%s:%s/upNGizr", request.getServerName(), request.getServerPort());
-
-		Resource artifactResource = getArtifact(version, APPNG_APPLICATION);
-		if (artifactResource.exists()) {
-			content = content.replace("<target>", onSuccess).replace("<path>", uppNGizrBase);
-			content = content.replace("<version>", version).replace("<button>", "Update to " + version);
-			return new ResponseEntity<>(content, HttpStatus.OK);
-		}
-		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		content = content.replace("<target>", onSuccess).replace("<path>", uppNGizrBase);
+		content = content.replace("<version>", version).replace("<button>", "Update to " + version);
+		return new ResponseEntity<>(content, HttpStatus.OK);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/update/status", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -167,13 +164,13 @@ public class Updater {
 
 	@RequestMapping(path = "/checkVersionAvailable/{version:.+}", method = RequestMethod.GET)
 	public ResponseEntity<Void> checkVersionAvailable(@PathVariable("version") String version,
-			HttpServletRequest request) throws MalformedURLException {
+			HttpServletRequest request) throws IOException {
 		if (isBlocked(request)) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			return forbidden();
 		}
 		Resource resource = getArtifact(version, APPNG_APPLICATION);
 		if (!resource.exists()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return notFound(resource);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -182,14 +179,14 @@ public class Updater {
 	public ResponseEntity<String> updateAppng(@PathVariable("version") String version,
 			@RequestParam(required = false) String onSuccess, HttpServletRequest request) {
 		if (isBlocked(request) || isUpdateRunning.get()) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			return forbidden();
 		}
 
 		isUpdateRunning.set(true);
 		try {
 			Resource appNGArchive = getArtifact(version, APPNG_APPLICATION);
 			if (!appNGArchive.exists()) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				return notFound(appNGArchive);
 			}
 			status.set("Stopping appNG");
 			completed.set(5.0d);
@@ -233,6 +230,15 @@ public class Updater {
 			isUpdateRunning.set(false);
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private <T> ResponseEntity<T> forbidden() {
+		return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+	}
+
+	private <T> ResponseEntity<T> notFound(Resource resource) throws IOException {
+		log.warn("{} does not exist!", resource.getURL());
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	private boolean isBlocked(HttpServletRequest request) {
