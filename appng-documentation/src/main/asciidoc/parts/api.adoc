@@ -526,7 +526,7 @@ String queryString = environment.getAttribute(Scope.REQUEST, EnvironmentKeys.QUE
 
 
 ==== `URL` scope
-The `URL` scope has solely purpose of accessing URL parameters in a JSP with `<appNG:attribute scope="URL">`. See <<appNG:attribute>> for details.
+The `URL` scope has solely purpose of accessing URL parameters in a JSP with the <<appng-attribute,appNG:attribute>> tag.
 
 
 === `org.appng.api.model.Properties`
