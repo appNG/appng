@@ -8,6 +8,10 @@
 
 Therefore, it *must* be deployed in the same Tomcat installation as appNG itself.
 
+WARNING: Currently, *upNGizr* is considered [big red]*experimental*, so it's not recommended to be used in production environments.
+
+WARNING: *upNGizr* does not (yet?) support clustered environments!
+
 
 === Installation
 Just drop `uppNGizr.war` into your Tomcat's `webapps` folder and you are read to go.
@@ -20,7 +24,7 @@ To update your appNG installation, then go to http://localhost:8080/upNGizr/upda
 
 === Configuration
 
-The following configuration parameters are available, add them as `<context-param>` to `WEB-INF/web.xml` (defaults in brackets):
+The following configuration parameters are available, add them as `<context-param>` to `WEB-INF/web.xml`:
 
 Example:
 [source,xml]
@@ -37,7 +41,7 @@ Default: `https://appng.org/appng/builds/{build}/`
 The URI pointing to the location where the appNG artifacts reside. This can be another (proxy) server or even a path in the file system (use file-protocol in this case).
 Note that `{build}` is replaced with either `stable` or `snapshot`, depending on the version you want to update to.)
 
-If you want to use a *Maven repository* as the source for the artifacts, you can do this by specifying `buildRepository`:
+If you want to use a *Maven repository* as the source for the artifacts, you can do this by specifying `buildRepository` as follows:
 
 [source,xml]
 ----
