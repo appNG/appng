@@ -25,14 +25,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 /**
- * Configuration for upNGizer
+ * Configuration for upNGizr
  * 
  * @author Matthias Müller
  *
  */
 @Configuration
 @EnableWebMvc
-public class UpNGizerConfig extends WebMvcConfigurerAdapter {
+public class UpNGizrConfig extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public StringHttpMessageConverter stringHttpMessageConverter() {

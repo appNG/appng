@@ -27,21 +27,16 @@
 	<!-- enable this to activate BASIC AUTHENTICATION -->
 	<!--security-constraint>
 		<web-resource-collection>
-			<web-resource-name>upNGizer</web-resource-name>
+			<web-resource-name>upNGizr</web-resource-name>
 			<url-pattern>/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
-			<role-name>upNGizer</role-name>
+			<role-name>upNGizr</role-name>
 		</auth-constraint>
 	</security-constraint>
 	<login-config>
 		<auth-method>BASIC</auth-method>
-		<realm-name>upNGizer</realm-name>
+		<realm-name>upNGizr</realm-name>
 	</login-config-->
-
-<context-param>
-    <param-name>blockRemoteIPs</param-name>
-    <param-value>false</param-value>
-</context-param>
 
 </web-app>
