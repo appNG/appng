@@ -11,7 +11,7 @@ For configuration, the file `urlrewrite.xml` is used, usually located at `/meta/
 ====
 The configuration file `urlrewrite.xml` is reloaded every minute. +
 More about the configuration of UrlRewriteFilter can be found in it's
-http://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html[user manual^].
+https://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html[user manual^].
 ====
 
 This file needs to contain a `forward` rule and a `redirect` rule for each URL to be rewritten.

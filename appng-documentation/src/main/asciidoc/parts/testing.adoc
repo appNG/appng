@@ -121,15 +121,15 @@ NOTE: The folder for reference files must be created manually before creating re
 
 public class MyTest {
 
-  static { <!-- 1 -->
-    WritingJsonValidator.writeJSON = false; <!-- 2 -->
-    WritingJsonValidator.sortPropertiesAlphabetically = true; <!-- 3 -->
+  static { // <1>
+    WritingJsonValidator.writeJSON = false; // <2>
+    WritingJsonValidator.sortPropertiesAlphabetically = true; // <3>
   }
 
   @Test
   public void testWithJSON(){
     ComplexObject co = new ObjectProviderUnderTest().getObject();
-    WritingJsonValidator.validate(co,"/filename.json"); <!-- 4 -->
+    WritingJsonValidator.validate(co,"/filename.json"); // <4>
   }
 
 }  
@@ -138,6 +138,6 @@ public class MyTest {
 <1> It is handy to configure general properties in a static block for all test methods of a test case.
 <2> If the reference file does not exist or is outdated, set this property to `true` to create a new reference file.
 <3> The order of object properties in a JSON file is not clearly defined. Set this property to `true` for an alphabetically ordered output.
-<4> Call the `validate`-method of {appng}/org/appng/testsupport/validation/WritingJsonValidator.html[WritingJsonValidator] with the object and the file name of the reference file to map the object to JSON and compare it against the JSON provided in the compare file.
+<4> Call the `validate`-method of {appng}/org/appng/testsupport/validation/WritingJsonValidator.html[WritingJsonValidator^] with the object and the file name of the reference file to map the object to JSON and compare it against the JSON provided in the compare file.
 
 NOTE: In Eclipse, a newly created reference file might not be available immediately after creation. The project must be refreshed first.

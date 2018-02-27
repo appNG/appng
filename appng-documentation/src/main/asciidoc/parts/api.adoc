@@ -406,17 +406,211 @@ The best way to configure a job is in `beans.xml`:
 <1> add the standard predefined parameters
 <2> add some custom parameters
 
+== Commonly used API
 
-== Interfaces to be used
+As you may have noticed, there are a handfull of interfaces that occur quiet often when imlementing functionality with appNG:
+
+* {appng}/org/appng/api/model/Site.html[org.appng.api.model.Site^]
+
+* {appng}/org/appng/api/model/Application.html[org.appng.api.model.Application^]
+
+* {appng}/org/appng/api/Request.html[org.appng.api.Request^]
+
+* {appng}/org/appng/api/Environment.html[org.appng.api.Environment^]
+
+* {appng}/org/appng/api/model/Properties.html[org.appng.api.model.Properties^]
+
+The following section will explain those in more detail.
 
 === `org.appng.api.model.Site`
-{appng}/org/appng/api/model/Site.html[Javadoc^]
+
+A {appng}/org/appng/api/model/Site.html[Site^] first and foremost is used for aggregating several applications under a corporate domain. Most frequently, `site.getProperties()` is used to retrieve the site's
+configuration in order to build some (relative or absolute) links, for example to a `WebService`:
+
+The constants for the available property names can be found at {appng}/org/appng/api/SiteProperties.html[org.appng.api.SiteProperties^].
+
+[source,java]
+----
+String servicePath = site.getProperties().getString(SiteProperties.SERVICE_PATH);
+String absolutePath = String.format("%s/%s/%s/%s/webservice/pictureService?id=4711", site.getDomain(), servicePath, site.getName(), application.getName()));
+----
+
+Another common use-case for a site is to redirect the user to another location using  `site.sendRedirect()`.
+
 
 === `org.appng.api.model.Application`
-{appng}/org/appng/api/model/Application.html[Javadoc^]
+Trough the {appng}/org/appng/api/model/Application.html[Application^] interface, any relevant information about the current application can be retrieved.
+This includes
 
-=== `org.appng.api.Request`
-{appng}/org/appng/api/Request.html[Javadoc^]
+* {appng}/org/appng/api/model/Properties.html[Properties^] (`getProperties()`)
+* {appng}/org/appng/api/model/Resources.html[Resources^] (`getResources()`)
+* {appng}/org/appng/api/model/Permission.html[Permission^]s  (`getPermissions()`)
+* {appng}/org/appng/api/model/Role.html[Role^]s  (`getRoles()`)
+* {appng}/org/appng/api/model/ApplicationSubject.html[ApplicationSubject^]s  (`getApplicationSubjects()`)
+* {appng}/org/appng/api/model/FeatureProvider.html[FeatureProvider^]  (`getFeatureProvider()`)
+
+Please check the corresponding JavaDoc for details.
+
+=== `org.appng.api.model.Request`
+The {appng}/org/appng/api/Request.html[Request^] offers a large number of methods which serve one of the following purposes:
+
+* retrieving request values (`getParameter()`, `getParameterList()`, `getParameterNames()`, `getParameters()`, `getParametersList()`, `getFormUploads()`)
+* validating objects (`validateBean()`, `validateField()`)
+* binding data (`fillBindObject()`, `setPropertyValue()`, `setPropertyValues()`)
+* converting values (`canConvert()`, `convert()`)
+* internationalization (`getMessage()`, `getMessageSource()`)
+* retrieving information about the  environment (`getEnvironment()`, `getSubject()`, `getLocale()`)
+
+Please check the corresponding JavaDoc for details.
 
 === `org.appng.api.Environment`
-{appng}/org/appng/api/Environment.html[Javadoc^]
+
+The {appng}/org/appng/api/Environment.html[Environment^] is used for storing and retrieving differently scoped attributes using `getAttribute(Scope scope, String name)` and
+`setAttribute(Scope scope, String name, Object value)`.
+
+Below you can find a description of the available {appng}/org/appng/api/Scope.html[org.appng.api.Scope^]s.
+
+==== `PLATFORM` scope
+This scope is mainly used for exchanging platform related configuration across different core components and is bound to
+the {jee}/javax/servlet/ServletContext.html[javax.servlet.ServletContext^] appNG is executed in.
+Therefore, this scope is only accessible from the appNG core and *privileged* applications.
+
+The constants used as attributes names can be found at {appng}/org/appng/api/Platform.Environment.html[org.appng.api.Platform.Environment^].
+
+Example usage:
+[source,java]
+----
+Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
+----
+
+WARNING: Even for privileged applications, the `PLATFORM` scope should be considered as 'read only', because it contains data that is critical for executing appNG correctly.
+
+==== `SITE` scope
+The `SITE` scope can be used to store and retrieve data that is *not* bound to a particular session and thus needs to be available on a more global level.
+As the `PLATFORM` scope, it is bound to the {jee}/javax/servlet/ServletContext.html[javax.servlet.ServletContext^] appNG is executed in. There are no buil-in attributes that
+are stored in the `SITE` scope.
+
+
+==== `SESSION` scope
+This is propably the most commonly used scope when developing an appNG applications. It is bound the {jee}/javax/servlet/http/HttpSession.html[javax.servlet.http.HttpSession^] and
+therefore keeps track of the user's session state. For example, you can use it to store the current workflow state within your application.
+
+The built-in constants used as attributes names can be found at {appng}/org/appng/api/Session.html[org.appng.api.Session^].
+
+Example usage:
+[source,java]
+----
+String sessionId = environment.getAttribute(Scope.SESSION, Session.SID);
+MyApplicationState state = environment.getAttribute(Scope.SESSION, "myApplicationState");
+if ( null == state ) {
+  state = new MyApplicationState();
+  environment.setAttribute(Scope.SESSION, "myApplicationState", state);
+}
+----
+
+
+==== `REQUEST` scope
+The `REQUEST` scope is bound to the {jee}/javax/servlet/ServletRequest.html[javax.servlet.ServletRequest^] and therefore can be used to track the state of the request.
+If at all, you will most  likely access this scope in a reading way.
+
+The built-in constants used as attributes names can be found at
+{appng}/org/appng/api/support/environment/EnvironmentKeys.html[org.appng.api.support.environment.EnvironmentKeys^]
+
+Example usage:
+[source,java]
+----
+Path path = environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+String servletPath = environment.getAttribute(Scope.REQUEST, EnvironmentKeys.SERVLETPATH);
+String queryString = environment.getAttribute(Scope.REQUEST, EnvironmentKeys.QUERY_STRING);
+----
+
+
+==== `URL` scope
+The `URL` scope has solely purpose of accessing URL parameters in a JSP with `<appNG:attribute scope="URL">`. See <<appNG:attribute>> for details.
+
+
+=== `org.appng.api.model.Properties`
+To configure an `Application` and a `Site`, both of these offer the `getProperties()`-method, returning some
+{appng}/org/appng/api/model/Properties.html[org.appng.api.model.Properties^]. These can be used to retrieve type-safe configuration values, optionally providing a
+default value.
+
+[source,java]
+----
+Integer foo = properties.getInteger("foo");
+Integer bar = properties.getInteger("bar", 42);
+List<String> values = properties.getList("values", "foo;bar", ";");
+----
+
+You can also inject single property values into a bean using Spring's {spring}/javadoc-api/org/springframework/beans/factory/annotation/Value.html[@Value^] annotation:
+[source,java]
+----
+@Value("${foo}")
+private String foo;
+private String servicePath;
+
+public MyService(@Value("${site.service-path}") servicePath){
+  this.servicePath = servicePath;
+}
+
+----
+Be sure you've read the section about <<placeholders>>.
+
+
+
+=== Sending emails
+With the classes contained in {appng}/org/appng/mail/package-summary.html[org.appng.mail^], it very is easy to send plain text and also HTML mails.
+First a `MailTransport` needs to be defined in `beans.xml`:
+
+[source,xml]
+----
+<bean id="mailTransport" class="org.appng.mail.impl.DefaultTransport">
+  <constructor-arg>
+    <props>
+      <prop key="mail.smtp.host">example.com</prop>
+      <prop key="mail.smtp.port">25</prop>
+      <prop key="mail.smtp.starttls.enable">true</prop>
+      <prop key="mail.smtp.auth">true</prop>
+    </props>
+  </constructor-arg>
+  <constructor-arg value="user" />
+  <constructor-arg value="password" />
+</bean>
+----
+
+This can than be used to send emails:
+[source,java]
+----
+Mail mail = mailTransport.createMail();
+mail.setFrom(mailSender);
+mail.setSubject(mailSubject);
+mail.addReceiver("johndoe@example.com", RecipientType.TO);
+mail.addReceiver("janedoe@example.com", RecipientType.CC);
+mail.setTextContent("Hello from appNG");
+mail.setHTMLContent("Hello from <strong>appNG</strong>")
+mailTransport.send(mail);
+----
+
+=== Working with images
+Often applications are required to resize or crop images, hence appNG offers some tooling for that.
+
+NOTE: Note that https://www.imagemagick.org[ImageMagick^] 6.9.9 needs to be installed and be availble in the system's path (7.x is currently not supported).
+Furthermore the <<configurable-application-features,built-in application property>>  `featureImageProcessing` must be enabled.
+
+The following example shows how to make an image fit to 120x0120 pixel:
+[source,java]
+----
+FeatureProvider featureProvider = application.getFeatureProvider(); //<1>
+File imageCache = featureProvider.getImageCache(); //<2>
+File sourceFile = new File(imageCache, "tempfile"); //<3>
+byte[] pictureData = getPictureData(); //<4>
+org.apache.commons.io.FileUtils.writeByteArrayToFile(sourceFile, pictureData); //<5>
+ImageProcessor imageProcessor = featureProvider.getImageProcessor(sourceFile, "tempfile-resized"); //<6>
+File result = imageProcessor.resize(120, 120).quality(0.8).getImage(); //<7>
+----
+<1> Retrieve a `FeatureProvider` from the `Application`.
+<2> Retrieve a folder used for caching the image data.
+<3> In that folder, create a new file.
+<4> Retrieve the binary data of the image.
+<5> Write the original image data to the `sourceFile`.
+<6> Retrieve a new {appng}/org/appng/tools/image/ImageProcessor.html[ImageProcessor^] using `sourceFile` as a source an definin the name of the target file (which will be located in folder `imageCache`).
+<7> Resize the image so it fit's into 120x120 pixel (aspect ratio is kept!), set the qualitiy to 80%, and finally  return the target file.
