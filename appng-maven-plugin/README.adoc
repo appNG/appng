@@ -9,7 +9,7 @@
 
 == Example usage
 
-[source,xml]
+[source,xml,subs="normal"]
 ----
 <properties>
 	<appNGVersion>{current}</appNGVersion>
