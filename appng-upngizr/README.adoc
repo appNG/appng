@@ -31,19 +31,49 @@ Example:
 </context-param>
 ----
 
-* buildRepository (`https://appng.org/appng/builds/%s/`) +
-The URI pointing to the location where the appNG artifacts reside. This can be another (proxy) server or even a path in the file system (use file-protocol in this case).
-Note that `%s` is replaced with either `stable` or `snapshot`, depending on the version you want to update to.)
+==== buildRepository
+Default: `https://appng.org/appng/builds/{build}/`
 
-* replacePlatformContext  (`true`) +
+The URI pointing to the location where the appNG artifacts reside. This can be another (proxy) server or even a path in the file system (use file-protocol in this case).
+Note that `{build}` is replaced with either `stable` or `snapshot`, depending on the version you want to update to.)
+
+If you want to use a *Maven repository* as the source for the artifacts, you can do this by specifying `buildRepository`:
+
+[source,xml]
+----
+<context-param>
+    <param-name>buildRepository</param-name>
+    <param-value>http://repo1.maven.org/maven2/org/appng/appng-application/{version}/</param-value>
+</context-param>
+----
+NOTE: The placeholder `{version}` is being replaced with the version you try to install.
+
+You can also use the *local filesystem*:
+
+[source,xml]
+----
+<context-param>
+    <param-name>buildRepository</param-name>
+    <param-value>file:///path/to/appng-artifacts/</param-value>
+</context-param>
+----
+
+
+==== replacePlatformContext
+Default: `true`
+
 Whether or not `WEB-INF/conf/platformContext.xml` should be replaced during the update.
 
-* replaceBin (`false`) +
+==== replaceBin
+Default: `false`
+
 Whether or not `WEB-INF/bin` should be replaced during the update.
 
-* blockRemoteIPs  (`true`) +
-For security reasons, by default, upNGizr only allows requests originating from the local machine. Set to `false` to also allow remote origins. +
-+
+==== blockRemoteIPs
+Default: `true`
+
+For security reasons, by default, upNGizr only allows requests originating from the local machine. Set to `false` to also allow remote origins. 
+
 [WARNING]
 ====
 In this case, further actions to secure upNGizr are required, e.g. using basic authentication (enable the  `<security-contraint>` in `web.xml`) or due to some firewall rules.

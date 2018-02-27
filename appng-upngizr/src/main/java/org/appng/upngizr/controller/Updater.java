@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.catalina.Container;
 import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +79,10 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class Updater {
 
-	private static final String APPNG_APPLICATION = "appng-application-%s.war";
+	private static final String BUILD = "{build}";
+	private static final String VERSION = "{version}";
+	private static final String APPNG_APPLICATION = String.format("appng-application-%s.war", VERSION);
+	private static final String APPNGIZER_APPLICATION = String.format("appng-appngizer-%s.war", VERSION);
 	private static final String INIT_PARAM_BLOCK_REMOTE_IPS = "blockRemoteIPs";
 	private static final String INIT_PARAM_BUILD_REPOSITORY = "buildRepository";
 	private static final String INIT_PARAM_REPLACE_BIN = "replaceBin";
@@ -88,7 +92,7 @@ public class Updater {
 	private static final String WEB_INF_CLASSES = WEB_INF + "classes/";
 	private static final String WEB_INF_LIB = WEB_INF + "lib/";
 	private ServletContext context;
-	private String buildRepository = "https://appng.org/appng/builds/%s/";
+	private String buildRepository = String.format("https://appng.org/appng/builds/%s/", BUILD);
 	private boolean replacePlatformContext = true;
 	private boolean replaceWebXml = true;
 	private boolean replaceBin = false;
@@ -195,7 +199,7 @@ public class Updater {
 			Container appNGContext = stopContext(getAppNGContext());
 			completed.set(30.0d);
 			updateAppNG(appNGArchive, UpNGizr.appNGHome);
-			updateAppNGizr(getArtifact(version, "appng-appngizer-%s.war"), UpNGizr.appNGizerHome);
+			updateAppNGizr(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
 			if (null != appNGizerContext) {
 				status.set("Starting appNGizer");
 				log.info(status.get());
@@ -253,8 +257,9 @@ public class Updater {
 	}
 
 	private Resource getArtifact(String version, String filename) throws MalformedURLException {
-		boolean isSnapshot = version.endsWith("-SNAPSHOT");
-		String url = String.format(buildRepository + filename, isSnapshot ? "snapshot" : "stable", version);
+		CharSequence build = version.endsWith("-SNAPSHOT") ? "snapshot" : "stable";
+		String url = buildRepository.replace(BUILD, build).replace(VERSION, version)
+				+ filename.replace(VERSION, version);
 		return new UrlResource(url);
 	}
 
@@ -318,7 +323,7 @@ public class Updater {
 
 		File libFolder = new File(appNGHome, WEB_INF_LIB);
 		if (libFolder.exists()) {
-			org.apache.commons.io.FileUtils.cleanDirectory(libFolder);
+			FileUtils.cleanDirectory(libFolder);
 			log.info("cleaning {}", libFolder);
 		}
 		completed.set(85.0d);
@@ -340,12 +345,12 @@ public class Updater {
 				case WEB_INF_CLASSES:
 					writeFile(appNGHome, zip.getInputStream(entry), name);
 					break;
-				case "WEB-INF/conf/":
+				case WEB_INF + "conf/":
 					if (replacePlatformContext && name.endsWith("platformContext.xml")) {
 						writeFile(appNGHome, zip.getInputStream(entry), name);
 					}
 					break;
-				case "WEB-INF/bin/":
+				case WEB_INF + "/bin/":
 					if (replaceBin) {
 						writeFile(appNGHome, zip.getInputStream(entry), name);
 					}
@@ -399,12 +404,12 @@ public class Updater {
 	}
 
 	private void writeFile(String parentFolder, InputStream is, String name) throws IOException, FileNotFoundException {
-		byte[] data = org.apache.commons.io.IOUtils.toByteArray(is);
+		byte[] data = IOUtils.toByteArray(is);
 		File targetFile = new File(parentFolder, name);
 		String normalizedName = FilenameUtils.normalize(targetFile.getAbsolutePath());
 		targetFile.getParentFile().mkdirs();
 		FileOutputStream fos = new FileOutputStream(normalizedName);
-		org.apache.commons.io.IOUtils.write(data, fos);
+		IOUtils.write(data, fos);
 		fos.close();
 		log.info("wrote {}", normalizedName);
 	}
