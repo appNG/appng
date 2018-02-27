@@ -1,13 +1,18 @@
-# appNG maven plugin
+:snapshot: 1.17.0-SNAPSHOT
+:stable: 1.16.2
+:current: {snapshot}
+
+= appNG maven plugin
 
 * replaces maven exec plugin to generate constant classes for properties and messages
 * support for eclipse m2e lifecylce
 
-## Example usage
+== Example usage
 
-```xml
+[source,xml]
+----
 <properties>
-	<appNGVersion>1.17.0-SNAPSHOT</appNGVersion>
+	<appNGVersion>{current}</appNGVersion>
 	<application.homeFolder>${project.basedir}/application-home</application.homeFolder>
 	<application.constants.generatedOutputFolder>target/generated-sources/constants</application.constants.generatedOutputFolder>
 </properties>
@@ -78,4 +83,4 @@
 		</executions>
 	</plugin>
 </plugins>
-```
+----
