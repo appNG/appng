@@ -20,12 +20,13 @@ http://tomcat.apache.org/
 = Configuration & Installation
 
 * Download and unpack Apache Tomcat. The target folder is referred to as `$CATALINA_HOME` in the following.
-* Download the appNG web application from https://appng.org/appng/builds/snapshot/appng-application-{snapshot}.war
+* Download the appNG web application: https://appng.org/appng/builds/stable/appng-application-{stable}.war[appng-application-{stable}.war^] +
+(The latest SNAPSHOT Version is available here: https://appng.org/appng/builds/snapshot/appng-application-{snapshot}.war[appng-application-{snapshot}.war^]) 
 * Delete all folders from `$CATALINA_HOME/webapps`
-* Expand `appng-application-{snapshot}.war` to `$CATALINA_HOME/webapps/ROOT`
+* Expand `appng-application-{stable}.war` to `$CATALINA_HOME/webapps/ROOT`
 * Create a new database with the DB management tool of your choice and set your database connection properties in the file
 		`WEB-INF/conf/appNG.properties`
-* Download Connector/J from here http://dev.mysql.com/downloads/connector/j/ and save `mysql-connector-java-5.1.44.jar` to `$CATALINA_HOME/lib`
+* Download Connector/J from here http://dev.mysql.com/downloads/connector/j/ and save `mysql-connector-java-5.1.45.jar` to `$CATALINA_HOME/lib`
 * Verify that `CATALINA_HOME` and `APPNG_HOME` in `WEB-INF/bin/appng` (for unix/linux based systems) or `WEB-INF/bin/appng.bat` (for windows based systems) match your local machine settings (change/uncomment the respective lines if necessary)
 * in `WEB-INF/conf/install.list`
 	** set the variable `ADMIN_SUBJECT` (#15) to your desired username
@@ -68,11 +69,11 @@ $CATALINA_HOME/bin/catalina.sh run
 	
 * Check `WEB-INF/log/appNG.log` +
 	if you see the line
-		 `appNG X.Y.Z started in xxx ms.`
+		 `appNG {stable} started in xxx ms.`
 	at the end, startup was successful
 
 * Browse to	http://localhost:8080/manager to login with your username/password
 
 * Enjoy!
 
-* Start developing your own applications! Check out the https://appng.org/appng/docs/{snapshot}/reference/html/developerguide.html[developer guide].
+* Start developing your own applications! Check out the https://appng.org/appng/docs/current/reference/html/developerguide.html[developer guide].
