@@ -4,6 +4,7 @@ node {
         // maven_opts- additional maven opts, e.g -Pjavadocs
     
         def mvnHome = tool 'Maven 3.5.0'
+        def BRANCH_NAME = env.BRANCH_NAME
         
         stage ('notifyStart'){
             emailext (
@@ -13,6 +14,10 @@ node {
                 recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
                 mimeType: 'text/html'
             )
+        }
+
+        stage('clone') {
+          git([url: 'git@github.com:appNG/appng.git', branch: '$BRANCH_NAME'])
         }
 
         stage('Maven Build') {
