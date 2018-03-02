@@ -201,6 +201,17 @@
 		</profile>
 
 		<profile>
+			<id>ci</id>
+			<distributionManagement>
+				<repository>
+					<id>appng-snapshot</id>
+					<name>appNG Snapshots</name>
+					<url>https://appng.org/nexus/repository/appng-snapshot/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+
+		<profile>
 			<!-- a profile for local development -->
 			<!-- copies the appNG jars to ${env.CATALINA_HOME}/webapps/ROOT/WEB-INF/lib/ -->
 			<id>local</id>
@@ -837,9 +848,9 @@
 				<version>1.0.0.Final</version>
 			</dependency>
 			<dependency>
-    			<groupId>org.hibernate.validator</groupId>
-   				<artifactId>hibernate-validator</artifactId>
-    			<version>6.0.4.Final</version>
+				<groupId>org.hibernate.validator</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>6.0.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
