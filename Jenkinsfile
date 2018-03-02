@@ -38,6 +38,7 @@ node {
         currentBuild.result = 'SUCCESS'
     } catch (Exception err) {
         currentBuild.result = 'FAILURE'
+        throw err
     }
 
     stage ('notifyFinish'){
