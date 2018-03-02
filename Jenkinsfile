@@ -24,7 +24,7 @@ node {
        		sh "pwd"
             sh "ls -ll"
         	sh "'${mvnHome}/bin/mvn' -version"
-            sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all -Pci -Dbuild.version=${GIT_BRANCH}"
+            sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all -Pci -Dbuild.version=$BRANCH_NAME"
             sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
         }
 
