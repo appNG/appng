@@ -1,12 +1,11 @@
 node {
     try {
-        // parameters:
-        // maven_opts- additional maven opts, e.g -Pjavadocs
-    
         def mvnHome = tool 'Maven 3.5.0'
         def BRANCH_NAME = env.BRANCH_NAME
         def BUILD_VERSION =  BRANCH_NAME.replaceAll("\\W","_")
-        
+        def readme = 'README.adoc **/README.adoc'
+        def resources = 'pom.xml **/pom.xml appng-archetype-application/src/main/resources/archetype-resources/pom.xml appng-archetype-application/readme.txt appng-documentation/src/main/asciidoc/listing/dependencies.txt'
+
         stage ('notifyStart'){
             emailext (
                 subject: "[appNG Jenkins] STARTED: Job ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
@@ -22,11 +21,14 @@ node {
         }
 
         stage('Maven Build') {
-       		sh "pwd"
-            sh "ls -ll"
-        	sh "'${mvnHome}/bin/mvn' -version"
-            sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all -Pci -Dbuild.version=$BUILD_VERSION"
-            sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
+          def CURRENT = sh (
+              script: "mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version|grep -Ev '(^\\[|Download\\w+:)'",
+              returnStdout: true
+          ).trim()
+          replaceVersionInResources($CURRENT, $CURRENT + '_' + BUILD_VERSION, readme)          
+          replaceVersionInResources($CURRENT, $CURRENT + '_' + BUILD_VERSION, resources)
+          sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all "
+          sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
         }
 
         stage('Results') {
@@ -48,4 +50,10 @@ node {
             mimeType: 'text/html'
         )
     }
+}
+
+def replaceVersionInResources(String source_version, String target_version, String resources){
+  def sed_source = source_version.replaceAll("\\.", "\\\\.")
+  def sed_target = target_version.replaceAll("\\.", "\\\\.")
+  sh "sed -i 's/${sed_source}/${sed_target}/g' ${resources}"
 }
