@@ -5,6 +5,7 @@ node {
     
         def mvnHome = tool 'Maven 3.5.0'
         def BRANCH_NAME = env.BRANCH_NAME
+        def BUILD_VERSION =  BRANCH_NAME.replaceAll("\\W","_")
         
         stage ('notifyStart'){
             emailext (
@@ -24,7 +25,7 @@ node {
        		sh "pwd"
             sh "ls -ll"
         	sh "'${mvnHome}/bin/mvn' -version"
-            sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all -Pci -Dbuild.version=$BRANCH_NAME"
+            sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all -Pci -Dbuild.version=$BUILD_VERSION"
             sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
         }
 
