@@ -17,18 +17,18 @@ node {
         }
 
         stage('clone') {
-          git([url: 'git@github.com:appNG/appng.git', branch: '$BRANCH_NAME'])
+            git([url: 'git@github.com:appNG/appng.git', branch: '$BRANCH_NAME'])
         }
 
         stage('Maven Build') {
-          def CURRENT = sh (
-              script: "mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version|grep -Ev '(^\\[|Download\\w+:)'",
-              returnStdout: true
-          ).trim()
-          replaceVersionInResources(CURRENT, CURRENT + '_' + BUILD_VERSION, readme)          
-          replaceVersionInResources(CURRENT, CURRENT + '_' + BUILD_VERSION, resources)
-          sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all "
-          sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
+            def CURRENT = sh (
+                script: "mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version|grep -Ev '(^\\[|Download\\w+:)'",
+                returnStdout: true
+            ).trim()
+            replaceVersionInResources(CURRENT, CURRENT + '_' + BUILD_VERSION, readme)
+            replaceVersionInResources(CURRENT, CURRENT + '_' + BUILD_VERSION, resources)
+            sh "'${mvnHome}/bin/mvn' clean install -Djavax.xml.accessExternalSchema=all"
+            sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
         }
 
         stage('Results') {
@@ -38,7 +38,6 @@ node {
         currentBuild.result = 'SUCCESS'
     } catch (Exception err) {
         currentBuild.result = 'FAILURE'
-        throw err
     }
 
     stage ('notifyFinish'){
@@ -54,7 +53,7 @@ node {
 }
 
 def replaceVersionInResources(String source_version, String target_version, String resources){
-  def sed_source = source_version.replaceAll("\\.", "\\\\.")
-  def sed_target = target_version.replaceAll("\\.", "\\\\.")
-  sh "sed -i 's/${sed_source}/${sed_target}/g' ${resources}"
+    def sed_source = source_version.replaceAll("\\.", "\\\\.")
+    def sed_target = target_version.replaceAll("\\.", "\\\\.")
+    sh "sed -i 's/${sed_source}/${sed_target}/g' ${resources}"
 }
