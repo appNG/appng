@@ -204,9 +204,9 @@
 			<id>ci</id>
 			<distributionManagement>
 				<repository>
-					<id>appng-snapshot</id>
-					<name>appNG Snapshots</name>
-					<url>https://appng.org/nexus/repository/appng-snapshot/</url>
+					<id>appng-ci-builds</id>
+					<name>appNG CI Builds</name>
+					<url>https://appng.org/nexus/repository/appng-ci-builds/</url>
 				</repository>
 			</distributionManagement>
 		</profile>
