@@ -39,9 +39,8 @@ public class CliCoreDBNotInitializedTest extends AbstractCommandTest implements
 	private Properties cliConfig;
 
 	public void initialize(ConfigurableApplicationContext applicationContext) {
-		Properties properties = CommandTestInitializer.getProperties();
+		Properties properties = CommandTestInitializer.getProperties(getClass());
 		properties.remove("hibernate.hbm2ddl.auto");
-		properties.put("databaseName", getClass().getSimpleName());
 		PropertyResourceConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		configurer.setProperties(properties);
 		applicationContext.addBeanFactoryPostProcessor(configurer);
@@ -82,7 +81,7 @@ public class CliCoreDBNotInitializedTest extends AbstractCommandTest implements
 	public void setup() {
 		cliCore = new CliCore();
 		cliCore.setContext(context);
-		cliConfig = CommandTestInitializer.getProperties();
+		cliConfig = CommandTestInitializer.getProperties(getClass());
 		cliConfig.setProperty(Platform.Property.PLATFORM_ROOT_PATH, CliBootstrapTest.TARGET
 				+ CliBootstrapTest.BOOTSTRAP_ROOT);
 	}

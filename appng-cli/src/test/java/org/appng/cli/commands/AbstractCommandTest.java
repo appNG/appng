@@ -25,7 +25,6 @@ import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest.CommandTestInitializer;
 import org.appng.cli.prettytable.PrettyTable;
 import org.appng.cli.prettytable.TableRow;
-import org.appng.testsupport.persistence.ConnectionHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,17 +62,15 @@ public abstract class AbstractCommandTest {
 		}
 
 		public void initialize(ConfigurableApplicationContext platformContext) {
-			Properties config = getProperties();
+			Properties config = getProperties(getClass());
 			PropertyResourceConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 			configurer.setProperties(config);
 			platformContext.addBeanFactoryPostProcessor(configurer);
 		}
 
-		public static Properties getProperties() {
+		public static Properties getProperties(Class<?> caller) {
 			Properties config = new Properties();
-			int hsqlPort = ConnectionHelper.getHsqlPort();
-			config.put("hsqlPort", hsqlPort);
-			config.put("hibernate.connection.url", "jdbc:hsqldb:hsql://localhost:" + hsqlPort + "/hsql-testdb");
+			config.put("hibernate.connection.url", "jdbc:hsqldb:mem://" + caller.getSimpleName());
 			config.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
 			config.put("hibernate.connection.driver_class", "org.hsqldb.jdbc.JDBCDriver");
 			config.put("hibernate.connection.username", "sa");
