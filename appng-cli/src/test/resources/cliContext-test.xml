@@ -32,13 +32,11 @@
 		<qualifier value="coreTxManager" />
 	</bean>
 
-	<bean id="server" class="org.appng.testsupport.persistence.HsqlServerFactoryBean" init-method="init"
-		destroy-method="destroy">
-		<property name="port" value="${hsqlPort:9001}" />
-		<property name="databasePath" value="file:target/hsql/${databaseName:hsql-testdb}" />
+	<bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    	<constructor-arg type="java.lang.String" value="${hibernate.connection.url}" />
 	</bean>
 
-	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean" depends-on="server">
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean" depends-on="datasource">
 		<property name="persistenceUnitName" value="appNG CLI" />
 		<property name="persistenceProviderClass" value="org.hibernate.jpa.HibernatePersistenceProvider" />
 		<property name="jpaProperties">

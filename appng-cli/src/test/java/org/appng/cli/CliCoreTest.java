@@ -50,8 +50,7 @@ public class CliCoreTest extends AbstractCommandTest
 	private int status;
 
 	public void initialize(ConfigurableApplicationContext applicationContext) {
-		Properties properties = CommandTestInitializer.getProperties();
-		properties.put("databaseName", getClass().getSimpleName());
+		Properties properties = CommandTestInitializer.getProperties(getClass());
 		properties.remove("hibernate.hbm2ddl.auto");
 		PropertyResourceConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		configurer.setProperties(properties);
@@ -88,7 +87,7 @@ public class CliCoreTest extends AbstractCommandTest
 			}
 		};
 		cliCore.setContext(context);
-		cliConfig = CommandTestInitializer.getProperties();
+		cliConfig = CommandTestInitializer.getProperties(getClass());
 		cliConfig.setProperty(Platform.Property.PLATFORM_ROOT_PATH,
 				CliBootstrapTest.TARGET + CliBootstrapTest.BOOTSTRAP_ROOT);
 	}
