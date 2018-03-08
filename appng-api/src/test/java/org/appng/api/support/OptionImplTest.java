@@ -46,7 +46,7 @@ public class OptionImplTest {
 		option.addAttribute("key", "value");
 		Assert.assertEquals("value", option.getAttribute("key"));
 	}
-	
+
 	@Test
 	public void testGetInteger() {
 		option.addAttribute("key", "value");
