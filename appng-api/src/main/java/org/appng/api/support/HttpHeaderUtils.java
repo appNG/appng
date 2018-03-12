@@ -242,12 +242,14 @@ public class HttpHeaderUtils {
 	 */
 	public static HttpHeaders parse(HttpServletRequest httpServletRequest) {
 		BodyBuilder builder = RequestEntity.method(null, null);
-		Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String header = headerNames.nextElement();
-			@SuppressWarnings("unchecked")
-			List<String> headerValues = EnumerationUtils.toList(httpServletRequest.getHeaders(header));
-			builder.header(header, headerValues.toArray(new String[headerValues.size()]));
+		if (null != httpServletRequest) {
+			Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+			while (headerNames.hasMoreElements()) {
+				String header = headerNames.nextElement();
+				@SuppressWarnings("unchecked")
+				List<String> headerValues = EnumerationUtils.toList(httpServletRequest.getHeaders(header));
+				builder.header(header, headerValues.toArray(new String[headerValues.size()]));
+			}
 		}
 		return HttpHeaders.readOnlyHttpHeaders(builder.build().getHeaders());
 	}
