@@ -48,7 +48,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.ApplicationRequest;
-import org.appng.core.controller.HttpHeaders;
+import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.AbstractRequestProcessor;
 import org.appng.core.model.AccessibleApplication;
@@ -70,7 +70,9 @@ import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.Structure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -125,7 +127,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * </ul>
  * 
  * <li><b>rest</b><br/>
- * Used for addressing a {@link org.springframework.web.bind.annotation.RestController} offered by an {@link Application}<br/>
+ * Used for addressing a {@link org.springframework.web.bind.annotation.RestController} offered by an
+ * {@link Application}<br/>
  * Example:
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-manager/rest/sites
@@ -178,7 +181,8 @@ public class ServiceRequestHandler implements RequestHandler {
 				String result = null;
 				String contenttype = null;
 
-				boolean applyPermissionsOnServiceRef = site.getProperties().getBoolean("applyPermissionsOnServiceRef", true);
+				boolean applyPermissionsOnServiceRef = site.getProperties().getBoolean("applyPermissionsOnServiceRef",
+						true);
 
 				if (SERVICE_TYPE_ACTION.equals(serviceType)) {
 					path.checkPathLength(8);
@@ -192,13 +196,13 @@ public class ServiceRequestHandler implements RequestHandler {
 								actionId, applicationName, format);
 						if (FORMAT_XML.equals(format)) {
 							result = marshallService.marshallNonRoot(action);
-							contenttype = HttpHeaders.CONTENT_TYPE_TEXT_XML;
+							contenttype = MediaType.TEXT_XML_VALUE;
 						} else if (FORMAT_HTML.equals(format)) {
 							result = processPlatform(environment, path, siteToUse, application, action);
-							contenttype = HttpHeaders.CONTENT_TYPE_TEXT_HTML;
+							contenttype = MediaType.TEXT_HTML_VALUE;
 						} else if (FORMAT_JSON.equals(format)) {
 							result = writeJson(new JsonWrapper(action));
-							contenttype = HttpHeaders.CONTENT_TYPE_APPLICATION_JSON;
+							contenttype = MediaType.APPLICATION_JSON_VALUE;
 						} else {
 							servletResponse.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
 						}
@@ -217,13 +221,13 @@ public class ServiceRequestHandler implements RequestHandler {
 								applicationName, format);
 						if (FORMAT_XML.equals(format)) {
 							result = marshallService.marshallNonRoot(datasource);
-							contenttype = HttpHeaders.CONTENT_TYPE_TEXT_XML;
+							contenttype = MediaType.TEXT_XML_VALUE;
 						} else if (FORMAT_HTML.equals(format)) {
 							result = processPlatform(environment, path, siteToUse, application, datasource);
-							contenttype = HttpHeaders.CONTENT_TYPE_TEXT_HTML;
+							contenttype = MediaType.TEXT_HTML_VALUE;
 						} else if (FORMAT_JSON.equals(format)) {
 							result = writeJson(new JsonWrapper(datasource));
-							contenttype = HttpHeaders.CONTENT_TYPE_APPLICATION_JSON;
+							contenttype = MediaType.APPLICATION_JSON_VALUE;
 						} else {
 							servletResponse.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
 						}
@@ -257,7 +261,7 @@ public class ServiceRequestHandler implements RequestHandler {
 			servletResponse.getWriter().write("an error occured");
 			servletResponse.getWriter().close();
 			servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-			servletResponse.setContentType(HttpHeaders.CONTENT_TYPE_TEXT_PLAIN);
+			servletResponse.setContentType(MediaType.TEXT_PLAIN_VALUE);
 		} finally {
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
@@ -356,6 +360,8 @@ public class ServiceRequestHandler implements RequestHandler {
 
 		byte[] data = webservice.processRequest(site, application, env, applicationRequest);
 		servletResponse.setStatus(webservice.getStatus());
+		HttpHeaderUtils.applyHeaders(servletResponse, webservice.getHeaders());
+
 		if (null != data) {
 			int contentLength = data.length;
 			servletResponse.setContentLength(contentLength);

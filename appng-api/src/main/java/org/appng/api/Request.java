@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.appng.api.model.Subject;
 import org.appng.el.ExpressionEvaluator;
 import org.appng.forms.RequestContainer;
+import org.springframework.http.HttpHeaders;
 
 /**
  * 
@@ -100,5 +101,12 @@ public interface Request extends RequestContainer, RequestSupport, ValidationPro
 	 * @return {@code true} if this {@link Request} originates of a HTTP POST-request, {@code false} otherwise
 	 */
 	boolean isPost();
+
+	/**
+	 * Returns the {@link HttpHeaders} for the underlying {@link HttpServletRequest}.
+	 * 
+	 * @return the headers
+	 */
+	HttpHeaders headers();
 
 }
