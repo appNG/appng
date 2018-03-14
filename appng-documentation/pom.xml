@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.17.1-SNAPSHOT</version>
+		<version>1.17.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -58,6 +58,7 @@
 							<outputDirectory>${project.build.directory}/generated-docs/html</outputDirectory>
 							<sourceDocumentName>developerguide.adoc</sourceDocumentName>
 							<attributes>
+								<toc>left</toc>
 								<linkcss>true</linkcss>
 								<icons>font</icons>
 								<sectanchors>true</sectanchors>
