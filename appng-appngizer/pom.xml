@@ -128,6 +128,7 @@
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-user-manual.adoc</sourceDocumentName>
 							<attributes>
+								<toc>left</toc>
 								<linkcss>true</linkcss>
 								<icons>font</icons>
 								<sectanchors>true</sectanchors>
@@ -157,6 +158,7 @@
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-platform-installation-guide.adoc</sourceDocumentName>
 							<attributes>
+								<toc>left</toc>
 								<linkcss>true</linkcss>
 								<icons>font</icons>
 								<sectanchors>true</sectanchors>
@@ -186,6 +188,7 @@
 							<outputDirectory>target/generated-docs/html</outputDirectory>
 							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
 							<attributes>
+								<toc>left</toc>
 								<linkcss>true</linkcss>
 								<icons>font</icons>
 								<sectanchors>true</sectanchors>
