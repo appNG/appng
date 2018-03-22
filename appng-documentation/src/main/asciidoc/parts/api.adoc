@@ -408,7 +408,7 @@ The best way to configure a job is in `beans.xml`:
 
 == Commonly used API
 
-As you may have noticed, there are a handfull of interfaces that occur quiet often when imlementing functionality with appNG:
+As you may have noticed, there are a handful of interfaces that occur quite often when implementing functionality with appNG:
 
 * {appng}/org/appng/api/model/Site.html[org.appng.api.model.Site^]
 
@@ -420,7 +420,7 @@ As you may have noticed, there are a handfull of interfaces that occur quiet oft
 
 * {appng}/org/appng/api/model/Properties.html[org.appng.api.model.Properties^]
 
-The following section will explain those in more detail.
+The following section explains those in more detail.
 
 === `org.appng.api.model.Site`
 
@@ -435,11 +435,11 @@ String servicePath = site.getProperties().getString(SiteProperties.SERVICE_PATH)
 String absolutePath = String.format("%s/%s/%s/%s/webservice/pictureService?id=4711", site.getDomain(), servicePath, site.getName(), application.getName()));
 ----
 
-Another common use-case for a site is to redirect the user to another location using  `site.sendRedirect()`.
+Another common use-case for a site is to redirect the user to another location using `site.sendRedirect()`.
 
 
 === `org.appng.api.model.Application`
-Trough the {appng}/org/appng/api/model/Application.html[Application^] interface, any relevant information about the current application can be retrieved.
+Through the {appng}/org/appng/api/model/Application.html[Application^] interface, any relevant information about the current application can be retrieved.
 This includes
 
 * {appng}/org/appng/api/model/Properties.html[Properties^] (`getProperties()`)
@@ -487,15 +487,15 @@ WARNING: Even for privileged applications, the `PLATFORM` scope should be consid
 
 ==== `SITE` scope
 The `SITE` scope can be used to store and retrieve data that is *not* bound to a particular session and thus needs to be available on a more global level.
-As the `PLATFORM` scope, it is bound to the {jee}/javax/servlet/ServletContext.html[javax.servlet.ServletContext^] appNG is executed in. There are no buil-in attributes that
+As the `PLATFORM` scope, it is bound to the {jee}/javax/servlet/ServletContext.html[javax.servlet.ServletContext^] appNG is executed in. There are no build-in attributes that
 are stored in the `SITE` scope.
 
 
 ==== `SESSION` scope
-This is propably the most commonly used scope when developing an appNG applications. It is bound the {jee}/javax/servlet/http/HttpSession.html[javax.servlet.http.HttpSession^] and
+This is propably the most commonly used scope when developing appNG applications. It is bound to the {jee}/javax/servlet/http/HttpSession.html[javax.servlet.http.HttpSession^] and
 therefore keeps track of the user's session state. For example, you can use it to store the current workflow state within your application.
 
-The built-in constants used as attributes names can be found at {appng}/org/appng/api/Session.html[org.appng.api.Session^].
+The built-in constants used as attribute names can be found at {appng}/org/appng/api/Session.html[org.appng.api.Session^].
 
 Example usage:
 [source,java]
@@ -511,9 +511,9 @@ if ( null == state ) {
 
 ==== `REQUEST` scope
 The `REQUEST` scope is bound to the {jee}/javax/servlet/ServletRequest.html[javax.servlet.ServletRequest^] and therefore can be used to track the state of the request.
-If at all, you will most  likely access this scope in a reading way.
+If, at all, you will most likely access this scope in a reading way.
 
-The built-in constants used as attributes names can be found at
+The built-in constants used as attribute names can be found at
 {appng}/org/appng/api/support/environment/EnvironmentKeys.html[org.appng.api.support.environment.EnvironmentKeys^]
 
 Example usage:
@@ -526,7 +526,7 @@ String queryString = environment.getAttribute(Scope.REQUEST, EnvironmentKeys.QUE
 
 
 ==== `URL` scope
-The `URL` scope has solely purpose of accessing URL parameters in a JSP with the <<appng-attribute,appNG:attribute>> tag.
+The `URL` scope has solely the purpose of accessing URL parameters in a JSP with the <<appng-attribute,appNG:attribute>> tag.
 
 
 === `org.appng.api.model.Properties`
@@ -558,8 +558,8 @@ Be sure you've read the section about <<placeholders>>.
 
 
 === Sending emails
-With the classes contained in {appng}/org/appng/mail/package-summary.html[org.appng.mail^], it very is easy to send plain text and also HTML mails.
-First a `MailTransport` needs to be defined in `beans.xml`:
+Using the classes contained in {appng}/org/appng/mail/package-summary.html[org.appng.mail^], it very is easy to send plain text and also HTML mails.
+First, a `MailTransport` needs to be defined in `beans.xml`:
 
 [source,xml]
 ----
@@ -593,10 +593,10 @@ mailTransport.send(mail);
 === Working with images
 Often applications are required to resize or crop images, hence appNG offers some tooling for that.
 
-NOTE: Note that https://www.imagemagick.org[ImageMagick^] 6.9.9 needs to be installed and be availble in the system's path (7.x is currently not supported).
-Furthermore the <<configurable-application-features,built-in application property>>  `featureImageProcessing` must be enabled.
+NOTE: Note that https://www.imagemagick.org[ImageMagick^] 6.9.9 needs to be installed and be available in the system's path (7.x is currently not supported).
+Furthermore, the <<configurable-application-features,built-in application property>>  `featureImageProcessing` must be enabled.
 
-The following example shows how to make an image fit to 120x0120 pixel:
+The following example demonstrates how to fit an image into a (imaginary) box sized 120x120 pixel:
 [source,java]
 ----
 FeatureProvider featureProvider = application.getFeatureProvider(); //<1>
@@ -612,5 +612,5 @@ File result = imageProcessor.resize(120, 120).quality(0.8).getImage(); //<7>
 <3> In that folder, create a new file.
 <4> Retrieve the binary data of the image.
 <5> Write the original image data to the `sourceFile`.
-<6> Retrieve a new {appng}/org/appng/tools/image/ImageProcessor.html[ImageProcessor^] using `sourceFile` as a source an definin the name of the target file (which will be located in folder `imageCache`).
-<7> Resize the image so it fit's into 120x120 pixel (aspect ratio is kept!), set the qualitiy to 80%, and finally  return the target file.
+<6> Retrieve a new {appng}/org/appng/tools/image/ImageProcessor.html[ImageProcessor^] using `sourceFile` as a source and defining the name of the target file (which will be located in the folder `imageCache`).
+<7> Resize the image to make it fit into a (imaginary) box with a size of 120x120 pixel (aspect ratio is kept!), set the quality to 80%, and finally return the target file.
