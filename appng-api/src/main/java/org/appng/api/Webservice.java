@@ -19,6 +19,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.xml.platform.Link;
 import org.appng.xml.platform.Linkmode;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -78,12 +79,21 @@ public interface Webservice {
 	String getContentType();
 
 	/**
-	 * returns the HTTP status code for this service
+	 * Returns the HTTP status code for this service
 	 * 
 	 * @return the HTTP status code
 	 */
 	default int getStatus() {
 		return HttpStatus.OK.value();
+	}
+
+	/**
+	 * Returns the response headers for this service
+	 * 
+	 * @return the response headers
+	 */
+	default HttpHeaders getHeaders() {
+		return null;
 	}
 
 }

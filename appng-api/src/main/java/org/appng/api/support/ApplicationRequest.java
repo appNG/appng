@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.FieldConverter;
@@ -31,7 +32,6 @@ import org.appng.api.FieldProcessor;
 import org.appng.api.MessageParam;
 import org.appng.api.ParameterSupport;
 import org.appng.api.PermissionProcessor;
-import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.Request;
 import org.appng.api.RequestSupport;
 import org.appng.api.ValidationProvider;
@@ -45,6 +45,7 @@ import org.appng.xml.platform.Labels;
 import org.appng.xml.platform.MetaData;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.http.HttpHeaders;
 
 /**
  * 
@@ -65,6 +66,7 @@ public class ApplicationRequest implements Request {
 	private String redirectTarget;
 	private ApplicationConfigProvider applicationConfigProvider;
 	private List<String> urlParameters;
+	private HttpHeaders headers;
 
 	public ApplicationRequest() {
 
@@ -74,6 +76,7 @@ public class ApplicationRequest implements Request {
 			RequestSupport requestSupport) {
 		this.permissionProcessor = permissionProcessor;
 		this.wrappedRequest = request;
+		this.headers = HttpHeaderUtils.parse(request.getHttpServletRequest());
 		setRequestSupport(requestSupport);
 	}
 
@@ -347,8 +350,13 @@ public class ApplicationRequest implements Request {
 		validationProvider.validateField(bean, fp, fieldBinding, groups);
 	}
 
-	public void addValidationMetaData(MetaData metaData, ClassLoader classLoader, Class<?>... groups) throws ClassNotFoundException {
+	public void addValidationMetaData(MetaData metaData, ClassLoader classLoader, Class<?>... groups)
+			throws ClassNotFoundException {
 		validationProvider.addValidationMetaData(metaData, classLoader, groups);
+	}
+
+	public HttpHeaders headers() {
+		return headers;
 	}
 
 }
