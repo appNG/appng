@@ -66,7 +66,7 @@ With the form tags it it possible to build HTML forms, validate them on the serv
  </appNG:form>
 ----
 <1> Start with `<appNG:form>`.
-<2> Next, define the content of the form using `<appNG:formData>`. The `mode` controls whether the form is always shown (`always`) or only as long it hasn't been submitted (`not_submitted`).
+<2> Next, define the content of the form using `<appNG:formData>`. The `mode` controls whether the form is always shown (`always`) or only as long as it hasn't been submitted (`not_submitted`).
 <3> A regular HTML `<form>` needs to be defined.
 <4> Adds a `<appNG:formElement>` for the user's email address (attributes explained below).
 <5> Nest the regular HTML `<input>`-tag inside `<appNG:formElement>`.
