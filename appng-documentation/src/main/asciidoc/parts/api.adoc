@@ -487,7 +487,7 @@ WARNING: Even for privileged applications, the `PLATFORM` scope should be consid
 
 ==== `SITE` scope
 The `SITE` scope can be used to store and retrieve data that is *not* bound to a particular session and thus needs to be available on a more global level.
-As the `PLATFORM` scope, it is bound to the {jee}/javax/servlet/ServletContext.html[javax.servlet.ServletContext^] appNG is executed in. There are no build-in attributes that
+As the `PLATFORM` scope, it is bound to the {jee}/javax/servlet/ServletContext.html[javax.servlet.ServletContext^] appNG is executed in. There are no built-in attributes that
 are stored in the `SITE` scope.
 
 
