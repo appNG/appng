@@ -48,6 +48,15 @@ public class OptionImplTest {
 	}
 
 	@Test
+	public void testGetInteger() {
+		option.addAttribute("key", "value");
+		option.addAttribute("int", "1");
+		Assert.assertEquals(Integer.valueOf(1), option.getInteger("int"));
+		Assert.assertNull(option.getInteger("key"));
+		Assert.assertNull(option.getInteger("not-exists"));
+	}
+
+	@Test
 	public void testToString() {
 		option = new OptionImpl("option");
 		option.addAttribute("key", "value");

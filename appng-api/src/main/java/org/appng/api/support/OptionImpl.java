@@ -85,7 +85,7 @@ public class OptionImpl implements Option {
 
 	public Integer getInteger(String name) {
 		String value = getString(name);
-		return INT_PATTERN.matcher(value).matches() ? Integer.valueOf(value) : null;
+		return null == value ? null : INT_PATTERN.matcher(value).matches() ? Integer.valueOf(value) : null;
 	}
 
 	public Boolean getBoolean(String name) {
