@@ -95,6 +95,12 @@ public class ThymeleafProcessorTest {
 
 		Assert.assertTrue(appNG.hasSort(datasource.getConfig()));
 	}
+	
+	@Test
+	public void testHasSort(){
+		Datasource datasource = appNG.datasource("cacheElements");
+		Assert.assertTrue(appNG.hasSort(datasource.getConfig()));
+	}
 
 	@Test
 	public void testDataFromResult() {

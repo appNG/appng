@@ -2050,7 +2050,7 @@
 												<label id="id"><![CDATA[ID]]></label>
 											</field>
 											<field binding="type" name="type" type="text">
-												<sort />
+												<sort prio="0" order="asc"/>
 												<label id="type"><![CDATA[Type]]></label>
 											</field>
 											<field binding="size" format="#,##0 KB" name="size" type="decimal">

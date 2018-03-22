@@ -304,8 +304,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			List<FieldDef> fields = dataConfig.getMetaData().getFields();
 			for (FieldDef fieldDef : fields) {
 				Sort sort = fieldDef.getSort();
-				if (null != sort) {
-					return null != sort.getOrder() && null != sort.getPrio();
+				if (null != sort && null != sort.getOrder() && null != sort.getPrio()) {
+					return true;
 				}
 			}
 			return false;
