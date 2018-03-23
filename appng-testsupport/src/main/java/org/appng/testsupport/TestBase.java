@@ -62,7 +62,6 @@ import org.appng.api.model.Group;
 import org.appng.api.model.Permission;
 import org.appng.api.model.Property;
 import org.appng.api.model.Resource;
-import org.appng.api.model.ResourceType;
 import org.appng.api.model.Resources;
 import org.appng.api.model.Role;
 import org.appng.api.model.SimpleProperty;
@@ -267,8 +266,6 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	private Map<String, String> parameters = new HashMap<String, String>();
 
-	protected boolean applyPropertiesFromApplicationXml = false;
-
 	public TestBase() {
 		this("application", APPLICATION_HOME);
 	}
@@ -298,16 +295,6 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	public void initialize(GenericApplicationContext applicationContext) {
 		Properties properties = getProperties();
-		if (applyPropertiesFromApplicationXml = false) {
-			try {
-				File applicationXml = new File(applicationLocation, ResourceType.APPLICATION_XML_NAME);
-				ApplicationInfo appInfo = applicationMarshallService.unmarshall(applicationXml, ApplicationInfo.class);
-				appInfo.getProperties().getProperty().stream().filter(p -> !properties.containsKey(p.getId()))
-						.forEach(p -> properties.put(p.getId(), p.getValue()));
-			} catch (JAXBException e) {
-				//
-			}
-		}
 		PropertySourcesPlaceholderConfigurer placeholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 		placeholderConfigurer.setProperties(properties);
 		applicationContext.addBeanFactoryPostProcessor(placeholderConfigurer);
