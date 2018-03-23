@@ -62,6 +62,7 @@ import org.appng.api.model.Group;
 import org.appng.api.model.Permission;
 import org.appng.api.model.Property;
 import org.appng.api.model.Resource;
+import org.appng.api.model.ResourceType;
 import org.appng.api.model.Resources;
 import org.appng.api.model.Role;
 import org.appng.api.model.SimpleProperty;
@@ -118,13 +119,21 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.stereotype.Controller;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
  * Base class for integration-testing an {@link Application}.<br />
@@ -258,6 +267,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	private Map<String, String> parameters = new HashMap<String, String>();
 
+	protected boolean applyPropertiesFromApplicationXml = false;
+
 	public TestBase() {
 		this("application", APPLICATION_HOME);
 	}
@@ -287,6 +298,16 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	public void initialize(GenericApplicationContext applicationContext) {
 		Properties properties = getProperties();
+		if (applyPropertiesFromApplicationXml = false) {
+			try {
+				File applicationXml = new File(applicationLocation, ResourceType.APPLICATION_XML_NAME);
+				ApplicationInfo appInfo = applicationMarshallService.unmarshall(applicationXml, ApplicationInfo.class);
+				appInfo.getProperties().getProperty().stream().filter(p -> !properties.containsKey(p.getId()))
+						.forEach(p -> properties.put(p.getId(), p.getValue()));
+			} catch (JAXBException e) {
+				//
+			}
+		}
 		PropertySourcesPlaceholderConfigurer placeholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 		placeholderConfigurer.setProperties(properties);
 		applicationContext.addBeanFactoryPostProcessor(placeholderConfigurer);
@@ -588,6 +609,53 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 */
 	protected ActionCall getAction(String eventId, String id) {
 		return new ActionCall(eventId, id);
+	}
+
+	/**
+	 * Returns a {@link HandlerMethodArgumentResolver} that can resolve a(n)
+	 * <ul>
+	 * <li>{@link Environment}
+	 * <li>{@link Site}
+	 * <li>{@link Application}
+	 * </ul>
+	 * Useful when testing a {@link Controller}/ {@link RestController} with {@link MockMvc}:
+	 * 
+	 * <pre>
+	 * MockMvc mockMvc = MockMvcBuilders.standaloneSetup(context.getBean(MyRestController.class))
+	 * 		.setCustomArgumentResolvers(getHandlerMethodArgumentResolver()).build();
+	 * </pre>
+	 * 
+	 * @return the resolver
+	 */
+	public HandlerMethodArgumentResolver getHandlerMethodArgumentResolver() {
+		return new HandlerMethodArgumentResolver() {
+
+			public boolean supportsParameter(MethodParameter parameter) {
+				return isSite(parameter) || isEnvironment(parameter) || isApplication(parameter);
+			}
+
+			public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+					NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+				return isSite(parameter) ? site
+						: (isEnvironment(parameter) ? environment : (isApplication(parameter) ? application : null));
+			}
+
+			private boolean isParameterType(MethodParameter parameter, Class<?> type) {
+				return parameter.getParameterType().equals(type);
+			}
+
+			private boolean isEnvironment(MethodParameter parameter) {
+				return isParameterType(parameter, Environment.class);
+			}
+
+			protected boolean isSite(MethodParameter parameter) {
+				return isParameterType(parameter, Site.class);
+			}
+
+			private boolean isApplication(MethodParameter parameter) {
+				return isParameterType(parameter, Application.class);
+			}
+		};
 	}
 
 	/**
