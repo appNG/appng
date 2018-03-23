@@ -27,7 +27,6 @@ import org.appng.api.model.Site;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -81,9 +80,6 @@ public class TestBaseTest extends TestBase {
 		Assert.assertEquals(site, siteMap.get("localhost"));
 		Assert.assertFalse(site.getProperties().getPlainProperties().isEmpty());
 
-		ApplicationContext context = environment.getAttribute(Scope.PLATFORM,
-				Platform.Environment.CORE_PLATFORM_CONTEXT);
-		Assert.assertNotNull(context);
 	}
 
 	public void setApplication(Environment environment, Site site, Application application, String foo) {
