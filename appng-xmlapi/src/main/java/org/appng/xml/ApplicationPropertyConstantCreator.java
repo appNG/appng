@@ -34,11 +34,15 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.Property;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class ApplicationPropertyConstantCreator {
+
+	private static final Logger log = LoggerFactory.getLogger(ApplicationPropertyConstantCreator.class);
 
 	/**
 	 * Generates a .java file containing constants for all the {@link org.appng.xml.application.Properties} defined in
@@ -121,6 +125,7 @@ public class ApplicationPropertyConstantCreator {
 		FileOutputStream fos = new FileOutputStream(outFile);
 		fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
 		fos.close();
+		log.debug("Wrote {}", outFile.getAbsolutePath());
 	}
 
 	private static void readNameAndVersionFromPom(ApplicationInfo application, File appXml) {
@@ -132,7 +137,7 @@ public class ApplicationPropertyConstantCreator {
 				application.setName(xpath.evaluate("/project/name", doc));
 				application.setVersion(xpath.evaluate("/project/version", doc));
 			} catch (ParserConfigurationException | SAXException | XPathExpressionException | IOException e) {
-				e.printStackTrace();
+				log.error("error while extracting project name/version from pom.xml", e);
 			}
 
 		}
