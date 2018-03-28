@@ -19,22 +19,35 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.Property;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class ApplicationPropertyConstantCreator {
 
+	private static final Logger log = LoggerFactory.getLogger(ApplicationPropertyConstantCreator.class);
+
 	/**
 	 * Generates a .java file containing constants for all the {@link org.appng.xml.application.Properties} defined in
-	 * the given {@code application.xml}.
+	 * the given {@code application.xml}. Tries to read the name and the version from {@code pom.xml} that should be
+	 * located two folders above ({@code ../../}) of the {@code application.xml}.
 	 * 
 	 * @param args
 	 *            args[0] - the path to {@code application.xml} (required)<br/>
@@ -63,12 +76,13 @@ public class ApplicationPropertyConstantCreator {
 			throw new IllegalArgumentException("not a valid classname: " + targetClass);
 		}
 
-		File file = new File(filePath);
-		Properties props = new Properties();
-		props.load(new FileInputStream(file));
+		File appXml = new File(filePath);
 
-		ApplicationInfo application = MarshallService.getApplicationMarshallService().unmarshall(file,
-				ApplicationInfo.class);
+		MarshallService applicationMarshallService = MarshallService.getApplicationMarshallService();
+		ApplicationInfo application = applicationMarshallService.unmarshall(appXml, ApplicationInfo.class);
+
+		readNameAndVersionFromPom(application, appXml);
+
 		List<Property> properties = application.getProperties().getProperty();
 		Collections.sort(properties, new Comparator<Property>() {
 			public int compare(Property o1, Property o2) {
@@ -94,7 +108,7 @@ public class ApplicationPropertyConstantCreator {
 			String[] tokens = StringUtils.splitByCharacterTypeCamelCase(property.getId());
 			for (int i = 0; i < tokens.length; i++) {
 				String s = tokens[i];
-				if (!"_".equals(s)) {
+				if (StringUtils.containsNone(s, '_', '-', '.')) {
 					if (i > 0) {
 						sb.append("_");
 					}
@@ -109,7 +123,23 @@ public class ApplicationPropertyConstantCreator {
 		File outFile = new File(new File(outfolder).getAbsoluteFile(), fileName);
 		outFile.getParentFile().mkdirs();
 		FileOutputStream fos = new FileOutputStream(outFile);
-		fos.write(sb.toString().getBytes());
+		fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
 		fos.close();
+		log.debug("Wrote {}", outFile.getAbsolutePath());
+	}
+
+	private static void readNameAndVersionFromPom(ApplicationInfo application, File appXml) {
+		File pomXml = new File(appXml.getParentFile().getParentFile(), "pom.xml");
+		if (pomXml.exists()) {
+			XPath xpath = XPathFactory.newInstance().newXPath();
+			try (FileInputStream fis = new FileInputStream(pomXml)) {
+				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(fis));
+				application.setName(xpath.evaluate("/project/name", doc));
+				application.setVersion(xpath.evaluate("/project/version", doc));
+			} catch (ParserConfigurationException | SAXException | XPathExpressionException | IOException e) {
+				log.error("error while extracting project name/version from pom.xml", e);
+			}
+
+		}
 	}
 }
