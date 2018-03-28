@@ -31,6 +31,16 @@
 
 	<profiles>
 		<profile>
+			<id>ci</id>
+			<distributionManagement>
+				<repository>
+					<id>appng-ci-builds</id>
+					<name>appNG CI Builds</name>
+					<url>https://appng.org/nexus/repository/appng-ci-builds/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+		<profile>
 			<id>maven-central</id>
 			<build>
 				<plugins>
