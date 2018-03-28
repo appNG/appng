@@ -51,6 +51,7 @@ import org.appng.api.model.ResourceType;
 @EntityListeners(PlatformEventListener.class)
 public class ResourceImpl implements Resource, Auditable<Integer>, Closeable {
 
+	private static final String CHECKSUM_NO_DATA = DigestUtils.sha256Hex(new byte[0]);
 	private Integer id;
 	private String name;
 	private String description;
@@ -163,9 +164,7 @@ public class ResourceImpl implements Resource, Auditable<Integer>, Closeable {
 	}
 
 	public void calculateChecksum() {
-		if (getSize() > 0) {
-			setCheckSum(DigestUtils.sha256Hex(getBytes()));
-		}
+		setCheckSum(getSize() > 0 ? DigestUtils.sha256Hex(getBytes()) : CHECKSUM_NO_DATA);
 	}
 
 	public void close() {
