@@ -16,8 +16,6 @@
 package org.appng.core.repository;
 
 import org.appng.core.service.TestInitializer;
-import org.appng.testsupport.persistence.ConnectionHelper;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -29,14 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Rollback(true)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:platformContext.xml")
+@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT)
 @DirtiesContext
 public abstract class AbstractRepositoryTest extends TestInitializer {
-
-	@BeforeClass
-	public static void setup() {
-		ConnectionHelper.getHsqlPort();
-	}
 
 	@Test
 	public abstract void test();

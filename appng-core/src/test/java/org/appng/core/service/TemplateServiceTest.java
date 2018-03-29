@@ -34,7 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:platformContext.xml", initializers = TemplateServiceTest.class)
+@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TemplateServiceTest.class)
 @DirtiesContext
 public class TemplateServiceTest extends TestSupport
 		implements ApplicationContextInitializer<GenericApplicationContext> {
