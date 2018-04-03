@@ -46,7 +46,7 @@
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
 				<prop key="hibernate.connection.driver_class">org.hsqldb.jdbc.JDBCDriver</prop>
-				<prop key="hibernate.connection.url">jdbc:hsqldb:mem://${database:hsql-testdb}</prop>
+				<prop key="hibernate.connection.url">jdbc:hsqldb:mem:${database:hsql-testdb}</prop>
 				<prop key="hibernate.connection.username">${hibernate.connection.username:sa}</prop>
 				<prop key="hibernate.connection.password">${hibernate.connection.password:}</prop>
 				<prop key="hibernate.show_sql">${hibernate.show_sql:false}</prop>
@@ -58,7 +58,7 @@
 	</bean>
 	
 	<bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-   		<constructor-arg type="java.lang.String" value="jdbc:hsqldb:mem://${database:hsql-testdb}" />
+   		<constructor-arg type="java.lang.String" value="jdbc:hsqldb:mem:${database:hsql-testdb}" />
 	</bean>
 
 	<bean id="requestProcessor" class="org.appng.core.model.PlatformProcessor">

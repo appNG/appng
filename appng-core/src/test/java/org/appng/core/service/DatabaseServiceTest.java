@@ -52,7 +52,7 @@ public class DatabaseServiceTest extends TestInitializer {
 
 	@Test
 	public void testInitDatabase() throws Exception {
-		String jdbcUrl = "jdbc:hsqldb:mem://testInitDatabase";
+		String jdbcUrl = "jdbc:hsqldb:mem:testInitDatabase";
 		Properties platformProperties = getProperties(DatabaseType.HSQL, jdbcUrl, "sa", "", JDBCDriver.class.getName());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
 		StringBuilder dbInfo = new StringBuilder();
