@@ -77,20 +77,8 @@ public class TemplateServiceTest extends TestSupport
 		Assert.assertEquals(6, processed.getResources().size());
 	}
 
-	@Override
 	public void initialize(GenericApplicationContext applicationContext) {
-		new TestInitializer() {
-
-			@Override
-			protected java.util.Properties getProperties() {
-				java.util.Properties properties = super.getProperties();
-				properties.put("entityPackage", "org.appng.testapplication");
-				properties.put("hsqlPort", "9010");
-				properties.put("hsqlPath", "file:target/hsql/" + InitializerServiceTest.class.getSimpleName());
-				properties.put("repositoryBase", "org.appng.testapplication");
-				return properties;
-			}
-		}.initialize(applicationContext);
+		new TestInitializer().initialize(applicationContext);
 	}
 
 }
