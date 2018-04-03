@@ -8,7 +8,7 @@
 		<class>org.appng.persistence.model.TestEntity</class>
 		<properties>
 			<!-- this works because hibernate replaces system-properties -->
-			<property name="hibernate.connection.url" value="jdbc:hsqldb:hsql://localhost:${hsqlPort}/hsql-testdb" />
+			<property name="hibernate.connection.url" value="jdbc:hsqldb:mem:hsql-testdb" />
 			<property name="hibernate.dialect" value="org.appng.persistence.dialect.HSQLDialect" />
 			<property name="hibernate.connection.driver_class" value="org.hsqldb.jdbc.JDBCDriver" />
 			<property name="hibernate.connection.username" value="sa" />

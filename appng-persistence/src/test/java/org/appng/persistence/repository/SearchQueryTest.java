@@ -25,8 +25,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.appng.persistence.model.TestEntity;
-import org.appng.testsupport.persistence.ConnectionHelper;
-import org.appng.testsupport.persistence.HsqlServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,7 +44,6 @@ public class SearchQueryTest {
 
 	private static final String INTEGER_VALUE = "integerValue";
 
-	private int hsqlPort;
 
 	private EntityManager em;
 
@@ -54,8 +51,6 @@ public class SearchQueryTest {
 
 	@Before
 	public void setup() {
-		this.hsqlPort = ConnectionHelper.getHsqlPort();
-		HsqlServer.start(hsqlPort);
 		EntityManagerFactory emf = Persistence.createEntityManagerFactory("hsql-testdb");
 		em = emf.createEntityManager();
 		em.getTransaction().begin();
@@ -70,7 +65,6 @@ public class SearchQueryTest {
 	public void tearDown() {
 		em.getTransaction().commit();
 		em.close();
-		HsqlServer.stop(hsqlPort);
 	}
 
 	@Test
