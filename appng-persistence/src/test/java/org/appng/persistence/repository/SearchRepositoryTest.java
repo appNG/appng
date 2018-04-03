@@ -26,8 +26,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.appng.persistence.model.TestEntity;
-import org.appng.testsupport.persistence.ConnectionHelper;
-import org.appng.testsupport.persistence.HsqlServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,13 +46,10 @@ public class SearchRepositoryTest {
 	private Sort sort;
 	private SearchQuery<TestEntity> searchQuery;
 
-	private int hsqlPort;
 	private AnnotationConfigApplicationContext ctx;
 
 	@Before
 	public void setup() {
-		this.hsqlPort = ConnectionHelper.getHsqlPort();
-		HsqlServer.start(hsqlPort);
 		ctx = new AnnotationConfigApplicationContext();
 		ctx.register(RepositoryConfiguration.class);
 		ctx.refresh();
@@ -85,7 +80,6 @@ public class SearchRepositoryTest {
 	@After
 	public void tearDown() {
 		ctx.close();
-		HsqlServer.stop(hsqlPort);
 	}
 
 	@Test

@@ -118,7 +118,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = BusinessException.class)
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:platformContext.xml", initializers = TestInitializer.class)
+@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
 @DirtiesContext
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoreServiceTest {
@@ -398,7 +398,8 @@ public class CoreServiceTest {
 		receiver.configure(new TestSerializer(environment, nodeId));
 		Sender sender = receiver.createSender();
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER)).thenReturn(sender);
-		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT)).thenReturn(context);
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT))
+				.thenReturn(context);
 		Map<String, NodeState> nodeStates = new ConcurrentHashMap<>();
 		Map<String, SiteState> stateMap = new ConcurrentHashMap<>();
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE)).thenReturn(nodeStates);

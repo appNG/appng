@@ -15,7 +15,6 @@
  */
 package org.appng.core.service;
 
-import org.appng.testsupport.persistence.ConnectionHelper;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,6 +23,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 public class TestInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
 	protected boolean showSql = false;
+	public static final String PLATFORM_CONTEXT = "classpath:platformContext.xml";
 
 	public void initialize(ConfigurableApplicationContext applicationContext) {
 		java.util.Properties properties = getProperties();
@@ -34,8 +34,7 @@ public class TestInitializer implements ApplicationContextInitializer<Configurab
 
 	protected java.util.Properties getProperties() {
 		java.util.Properties properties = new java.util.Properties();
-		properties.put("hsqlPort", ConnectionHelper.getHsqlPort());
-		properties.put("hsqlPath", "file:target/hsql/" + getClass().getSimpleName() + "/db");
+		properties.put("database", getClass().getSimpleName());
 		properties.put("hibernate.show_sql", showSql);
 		return properties;
 	}

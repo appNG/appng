@@ -15,10 +15,7 @@
  */
 package org.appng.core.service;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +28,6 @@ import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.repository.DatabaseConnectionRepository;
 import org.appng.core.repository.config.HikariCPConfigurer;
-import org.appng.testsupport.persistence.ConnectionHelper;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -39,13 +35,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:platformContext.xml", initializers = DatabaseServiceTest.class)
+@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = DatabaseServiceTest.class)
 @DirtiesContext
 public class DatabaseServiceTest extends TestInitializer {
 
@@ -55,19 +50,10 @@ public class DatabaseServiceTest extends TestInitializer {
 	@Autowired
 	DatabaseConnectionRepository databaseConnectionRepository;
 
-	@Override
-	protected Properties getProperties() {
-		Properties properties = super.getProperties();
-		properties.setProperty("hibernate.hbm2ddl.auto", "");
-		String targetFolder = "target/hsql/hsql-testdb/DatabaseServiceTest";
-		properties.setProperty("hsqlPath", "file:" + targetFolder);
-		return properties;
-	}
-
 	@Test
 	public void testInitDatabase() throws Exception {
-		Properties platformProperties = getPlatformProperties();
-
+		String jdbcUrl = "jdbc:hsqldb:mem:testInitDatabase";
+		Properties platformProperties = getProperties(DatabaseType.HSQL, jdbcUrl, "sa", "", JDBCDriver.class.getName());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
 		StringBuilder dbInfo = new StringBuilder();
 		Assert.assertTrue(platformConnection.testConnection(dbInfo, false, true));
@@ -101,14 +87,6 @@ public class DatabaseServiceTest extends TestInitializer {
 			}
 		}
 
-	}
-
-	private Properties getPlatformProperties() {
-		int hsqlPort = ConnectionHelper.getHsqlPort();
-		String jdbcUrl = "jdbc:hsqldb:hsql://localhost:" + hsqlPort + "/hsql-testdb";
-		Properties platformProperties = getProperties(DatabaseType.HSQL, jdbcUrl, "sa", "", JDBCDriver.class.getName());
-		platformProperties.setProperty("database.port", String.valueOf(hsqlPort));
-		return platformProperties;
 	}
 
 	@Test
