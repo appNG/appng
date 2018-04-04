@@ -19,8 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.appng.persistence.model.EnversTestEntity;
-import org.appng.testsupport.persistence.ConnectionHelper;
-import org.appng.testsupport.persistence.HsqlServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,7 +28,6 @@ import org.springframework.data.history.Revision;
 
 public class EnversSearchRepositoryTest {
 
-	private int hsqlPort;
 
 	private TestEntityEnversRepo repo;
 
@@ -38,9 +35,6 @@ public class EnversSearchRepositoryTest {
 
 	@Before
 	public void setup() {
-		this.hsqlPort = ConnectionHelper.getHsqlPort();
-		HsqlServer.start(hsqlPort);
-
 		ctx = new AnnotationConfigApplicationContext();
 		ctx.register(EnversRepositoryConfiguration.class);
 		ctx.refresh();
@@ -61,7 +55,6 @@ public class EnversSearchRepositoryTest {
 	@After
 	public void tearDown() {
 		ctx.close();
-		HsqlServer.stop(hsqlPort);
 	}
 
 	@Test

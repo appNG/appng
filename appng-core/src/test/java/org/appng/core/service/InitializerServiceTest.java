@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -32,7 +31,6 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Application;
-import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.PropertyHolder;
@@ -63,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:platformContext.xml", initializers = InitializerServiceTest.class)
+@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = InitializerServiceTest.class)
 @DirtiesContext
 public class InitializerServiceTest extends TestSupport
 		implements ApplicationContextInitializer<GenericApplicationContext> {
@@ -141,17 +139,17 @@ public class InitializerServiceTest extends TestSupport
 		File templateRoot = new File("target/test-classes/repository/site-1/www/template/");
 		FileUtils.deleteQuietly(templateRoot);
 		Mockito.when(ctx.getRealPath("/uploads")).thenReturn("target/uploads");
-		
-		
-		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES)).thenReturn(new HashMap<String, Site>());
-		
+
+		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES))
+				.thenReturn(new HashMap<String, Site>());
+
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);
 		service.loadPlatform(new java.util.Properties(), env, null, null, null);
 		Mockito.verify(ctx, Mockito.atLeastOnce()).getRealPath(Mockito.anyString());
-		Mockito.verify(env,VerificationModeFactory.atLeast(1)).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.anyString(),
-				Mockito.any());
-	
+		Mockito.verify(env, VerificationModeFactory.atLeast(1)).setAttribute(Mockito.eq(Scope.PLATFORM),
+				Mockito.anyString(), Mockito.any());
+
 		Assert.assertTrue(new File(templateRoot, "assets/favicon.ico").exists());
 		Assert.assertTrue(new File(templateRoot, "resources/dummy.txt").exists());
 		Assert.assertFalse(new File(templateRoot, "xsl").exists());
@@ -175,20 +173,8 @@ public class InitializerServiceTest extends TestSupport
 		service.shutDownSite(env, siteToLoad);
 	}
 
-	@Override
 	public void initialize(GenericApplicationContext applicationContext) {
-		new TestInitializer() {
-
-			@Override
-			protected java.util.Properties getProperties() {
-				java.util.Properties properties = super.getProperties();
-				properties.put("entityPackage", "org.appng.testapplication");
-				properties.put("hsqlPort", "9010");
-				properties.put("hsqlPath", "file:target/hsql/" + InitializerServiceTest.class.getSimpleName());
-				properties.put("repositoryBase", "org.appng.testapplication");
-				return properties;
-			}
-		}.initialize(applicationContext);
+		new TestInitializer().initialize(applicationContext);
 	}
 
 }

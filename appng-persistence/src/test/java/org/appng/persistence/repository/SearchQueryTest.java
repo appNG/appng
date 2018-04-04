@@ -28,13 +28,11 @@ import org.appng.persistence.model.TestEntity;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 public class SearchQueryTest {
 
@@ -49,11 +47,6 @@ public class SearchQueryTest {
 	private EntityManager em;
 
 	private TestEntity testEntity;
-
-	@BeforeClass
-	public static void startDataBase() {
-		new DriverManagerDataSource("jdbc:hsqldb:mem:hsql-testdb", "sa", "");
-	}
 
 	@Before
 	public void setup() {
