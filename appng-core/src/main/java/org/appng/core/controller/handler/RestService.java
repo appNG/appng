@@ -15,11 +15,12 @@
  */
 package org.appng.core.controller.handler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -84,8 +85,8 @@ public class RestService {
 		rmhm.afterPropertiesSet();
 
 		List<HandlerMethodArgumentResolver> argumentResolvers = Arrays.asList(getArgumentResolver());
-		List<HttpMessageConverter<?>> messageConverters = new ArrayList<>(
-				context.getBeansOfType(HttpMessageConverter.class).values());
+		List<HttpMessageConverter<?>> messageConverters = context.getBeansOfType(HttpMessageConverter.class).values()
+				.stream().map(m -> m).collect(Collectors.toList());
 
 		HandlerMethod handlerMethod = null;
 		try {
@@ -110,7 +111,9 @@ public class RestService {
 			eher.setCustomArgumentResolvers(argumentResolvers);
 			eher.setMessageConverters(messageConverters);
 			Collection<Object> advices = context.getBeansWithAnnotation(ControllerAdvice.class).values();
-			eher.setMappedHandlers(new HashSet<>(advices));
+			Set<Object> mappedHandlers = new HashSet<>(advices);
+			mappedHandlers.add(handlerMethod.getBean());
+			eher.setMappedHandlers(mappedHandlers);
 			eher.afterPropertiesSet();
 			eher.resolveException(wrapped, servletResponse, handlerMethod, e);
 		}

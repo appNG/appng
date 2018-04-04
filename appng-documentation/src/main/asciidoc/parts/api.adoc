@@ -283,6 +283,16 @@ The URL schema for the REST service is
 Example:
 http://localhost:8080/service/manager/myapp/rest/add/3/4
 
+==== Exception handling
+
+For handling exceptions, you can (and should) use Spring's {spring}/javadoc-api/org/springframework/web/bind/annotation/ExceptionHandler.html[@ExceptionHandler]. You may also use 
+a bean annotated with {spring}/javadoc-api/org/springframework/web/bind/annotation/ControllerAdvice.html[@ControllerAdvice] for centralized exceptiong handling. More details can be found in the {spring}/spring-framework-reference/htmlsingle/#mvc-exceptionhandlers[corresponding section] of Spring's reference documentation.
+
+[TIP]
+====
+A method annotated with `@ExceptionHandler` can use a {appng}/org/appng/api/model/Site.html[Site^], {appng}/org/appng/api/model/Application.html[Application^] and {appng}/org/appng/api/Environment.html[Environment^] as a parameter.
+====
+
 ==== JSON REST services
 [source,java]
 ----
