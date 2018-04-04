@@ -86,7 +86,7 @@ public class RestService {
 
 		List<HandlerMethodArgumentResolver> argumentResolvers = Arrays.asList(getArgumentResolver());
 		List<HttpMessageConverter<?>> messageConverters = context.getBeansOfType(HttpMessageConverter.class).values()
-				.stream().map(m -> m).collect(Collectors.toList());
+				.stream().map(m -> (HttpMessageConverter<?>) m).collect(Collectors.toList());
 
 		HandlerMethod handlerMethod = null;
 		try {
