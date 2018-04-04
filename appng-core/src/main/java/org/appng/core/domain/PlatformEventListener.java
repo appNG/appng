@@ -27,6 +27,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Scope;
@@ -103,12 +104,22 @@ public class PlatformEventListener implements ApplicationContextAware {
 		createEvent(type, message, new Date());
 	}
 
-	private void createEvent(Type type, String message, Date created) {
-		PlatformEvent event = getEventProvider().provide(type, message);
+	private void createEvent(Type type, String message, Date version) {
+		HttpServletRequest servletRequest = getServletRequest();
+		HttpSession session = null == servletRequest ? null : servletRequest.getSession();
+		createEvent(type, message, version, session, servletRequest);
+	}
+
+	public void createEvent(Type type, String message, HttpSession session) {
+		createEvent(type, message, new Date(), session, null);
+	}
+
+	private void createEvent(Type type, String message, Date created, HttpSession session, HttpServletRequest request) {
+		PlatformEvent event = getEventProvider().provide(type, message, session, request);
 		if (persist) {
 			if (null == entityManager) {
 				CONTEXT.getAutowireCapableBeanFactory().autowireBean(this);
-			}			
+			}
 			entityManager.persist(event);
 		}
 		LOG.info("Created entry {}", event);
@@ -134,7 +145,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 	public static class EventProvider {
 		public static final String EVENT_UUID = "eventUUID";
 
-		public String getExecutionId(HttpServletRequest servletRequest) {
+		String getExecutionId(HttpServletRequest servletRequest) {
 			if (null != servletRequest) {
 				String eventUUID = (String) servletRequest.getAttribute(EVENT_UUID);
 				if (null == eventUUID) {
@@ -145,15 +156,14 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return UUID.randomUUID().toString();
 		}
 
-		public PlatformEvent provide(Type type, String message) {
-			HttpServletRequest request = getServletRequest();
+		PlatformEvent provide(Type type, String message, HttpSession session, HttpServletRequest request) {
 			PlatformEvent event = new PlatformEvent();
 			event.setType(type);
 			event.setEvent(message);
-			event.setUser(getUser(request));
+			event.setUser(getUser(session));
 			event.setRequestId(getExecutionId(request));
-			event.setSessionId(getSessionId(request));
-			event.setApplication(getApplication(request));
+			event.setSessionId(getSessionId(session));
+			event.setApplication(getApplication(session));
 			event.setContext(getContext(request));
 			try {
 				event.setHostName(InetAddress.getLocalHost().getHostName());
@@ -167,45 +177,37 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return event;
 		}
 
-		public String getSessionId(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				return StringUtils.substring(servletRequest.getSession().getId(), 0, 8);
+		private String getSessionId(HttpSession session) {
+			if (null != session) {
+				return StringUtils.substring(session.getId(), 0, 8);
 			}
 			return null;
 		}
 
-		public String getUser(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				DefaultEnvironment env = DefaultEnvironment.get(servletRequest.getSession());
-				Subject s = env.getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
-				if (s != null) {
-					return s.getRealname();
-				}
+		private String getUser(HttpSession session) {
+			Subject s = null;
+			if (null != session) {
+				s = DefaultEnvironment.get(session).getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
 			}
-			return auditUser;
+			return s == null ? auditUser : s.getRealname();
 		}
 
-		public String getApplication(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				String contextPath = servletRequest.getContextPath();
-				if (StringUtils.isBlank(contextPath)) {
-					return "appNG";
-				}
-				return contextPath;
+		private String getApplication(HttpSession session) {
+			if (null != session) {
+				String contextPath = session.getServletContext().getContextPath();
+				return StringUtils.isBlank(contextPath) ? "appNG" : contextPath;
 			}
 			return null;
 		}
 
-		public String getContext(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				return servletRequest.getServletPath();
-			}
-			return null;
+		private String getContext(HttpServletRequest request) {
+			return null == request ? null : request.getServletPath();
 		}
 
-		public HttpServletRequest getServletRequest() {
-			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-			return null == requestAttributes ? null : ((ServletRequestAttributes) requestAttributes).getRequest();
-		}
+	}
+
+	private HttpServletRequest getServletRequest() {
+		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+		return null == requestAttributes ? null : ((ServletRequestAttributes) requestAttributes).getRequest();
 	}
 }

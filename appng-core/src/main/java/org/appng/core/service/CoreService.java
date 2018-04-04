@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -2129,6 +2130,10 @@ public class CoreService {
 			siteApplication.getGrantedSites().addAll(grantedSites);
 		}
 		return siteApplication;
+	}
+
+	public void createEvent(Type type, String message, HttpSession session) {
+		auditableListener.createEvent(type, message, session);
 	}
 
 }
