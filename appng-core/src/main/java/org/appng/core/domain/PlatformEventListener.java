@@ -184,7 +184,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return null;
 		}
 
-		private String getUser(HttpSession session) {
+		protected String getUser(HttpSession session) {
 			Subject s = null;
 			if (null != session) {
 				s = DefaultEnvironment.get(session).getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
@@ -192,7 +192,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return s == null ? auditUser : s.getRealname();
 		}
 
-		private String getApplication(HttpSession session) {
+		protected String getApplication(HttpSession session) {
 			if (null != session) {
 				String contextPath = session.getServletContext().getContextPath();
 				return StringUtils.isBlank(contextPath) ? "appNG" : contextPath;
@@ -200,7 +200,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return null;
 		}
 
-		private String getContext(HttpServletRequest request) {
+		protected String getContext(HttpServletRequest request) {
 			return null == request ? null : request.getServletPath();
 		}
 
