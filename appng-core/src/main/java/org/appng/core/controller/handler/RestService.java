@@ -17,8 +17,9 @@ package org.appng.core.controller.handler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -37,6 +38,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -44,11 +47,13 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
- * Adds support for detecting and handling {@link RestController}s.
+ * Adds support for detecting and handling {@link RestController}s. Also detects {@link ExceptionHandler}s on beans
+ * annotated with {@link ControllerAdvice}.
  * 
  * @see ServiceRequestHandler
  * 
@@ -72,10 +77,17 @@ public class RestService {
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 		HttpServletRequestWrapper wrapped = getWrappedRequest(servletRequest);
-		RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
 		ApplicationContext context = application.getContext();
+
+		RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
 		rmhm.setApplicationContext(context);
 		rmhm.afterPropertiesSet();
+
+		List<HandlerMethodArgumentResolver> argumentResolvers = Arrays.asList(getArgumentResolver());
+		List<HttpMessageConverter<?>> messageConverters = new ArrayList<>(
+				context.getBeansOfType(HttpMessageConverter.class).values());
+
+		HandlerMethod handlerMethod = null;
 		try {
 			HandlerExecutionChain handler = rmhm.getHandler(wrapped);
 			if (null == handler) {
@@ -83,21 +95,24 @@ public class RestService {
 				servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 				return;
 			}
-			HandlerMethod handlerMethod = (HandlerMethod) handler.getHandler();
+			handlerMethod = (HandlerMethod) handler.getHandler();
 
 			RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
 			rmha.setApplicationContext(context);
-			rmha.setCustomArgumentResolvers(Arrays.asList(getArgumentResolver()));
-			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-			@SuppressWarnings("rawtypes")
-			Map<String, HttpMessageConverter> converterMap = context.getBeansOfType(HttpMessageConverter.class);
-			converterMap.values().forEach(hmc -> messageConverters.add(hmc));
+			rmha.setCustomArgumentResolvers(argumentResolvers);
 			rmha.setMessageConverters(messageConverters);
 			rmha.afterPropertiesSet();
 			rmha.handle(wrapped, servletResponse, handlerMethod);
 		} catch (Exception e) {
-			LOGGER.error("error while calling @RestController", e);
 			servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			ExceptionHandlerExceptionResolver eher = new ExceptionHandlerExceptionResolver();
+			eher.setApplicationContext(context);
+			eher.setCustomArgumentResolvers(argumentResolvers);
+			eher.setMessageConverters(messageConverters);
+			Collection<Object> advices = context.getBeansWithAnnotation(ControllerAdvice.class).values();
+			eher.setMappedHandlers(new HashSet<>(advices));
+			eher.afterPropertiesSet();
+			eher.resolveException(wrapped, servletResponse, handlerMethod, e);
 		}
 
 	}
@@ -147,9 +162,9 @@ public class RestService {
 			}
 
 			protected String getMappedPath(String servletPath) {
-				String[] splitted = servletPath.split(Path.SEPARATOR);
-				String path = Path.SEPARATOR + StringUtils
-						.join(ArrayUtils.subarray(splitted, REST_PATH_START_INDEX, splitted.length), Path.SEPARATOR);
+				String[] pathSegments = servletPath.split(Path.SEPARATOR);
+				String path = Path.SEPARATOR + StringUtils.join(
+						ArrayUtils.subarray(pathSegments, REST_PATH_START_INDEX, pathSegments.length), Path.SEPARATOR);
 				return path;
 			}
 		};
