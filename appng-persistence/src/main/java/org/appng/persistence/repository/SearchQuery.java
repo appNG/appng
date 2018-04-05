@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
@@ -66,12 +67,13 @@ import org.springframework.data.domain.Sort.Order;
  */
 public class SearchQuery<T> {
 
-	private List<SearchCriteria> criteria = new ArrayList<SearchCriteria>();
-	private Class<T> domainClass;
-	private boolean distinct;
-	private String joinQuery;
-	private boolean appendEntityAlias = true;
-	private List<Clause> andClauses = new ArrayList<SearchQuery<T>.Clause>();
+	protected List<SearchCriteria> criteria = new ArrayList<SearchCriteria>();
+	protected Class<T> domainClass;
+	protected boolean distinct;
+	protected String joinQuery;
+	protected boolean appendEntityAlias = true;
+	protected String entityAlias = "e";
+	protected List<Clause> andClauses = new ArrayList<SearchQuery<T>.Clause>();
 
 	/**
 	 * Creates a new {@link SearchQuery} for the given type.
@@ -140,9 +142,29 @@ public class SearchQuery<T> {
 	 * 
 	 * @param appendEntityAlias
 	 * @see #isAppendEntityAlias()
+	 * @see #setEntityAlias(String)
 	 */
 	public void setAppendEntityAlias(boolean appendEntityAlias) {
 		this.appendEntityAlias = appendEntityAlias;
+	}
+
+	/**
+	 * Gets the entity alias to by used in JPQL queries
+	 * 
+	 * @return the alias
+	 */
+	public String getEntityAlias() {
+		return entityAlias;
+	}
+
+	/**
+	 * Sets the entity alias to by used in JPQL queries
+	 * 
+	 * @param entityAlias
+	 *            the alias
+	 */
+	public void setEntityAlias(String entityAlias) {
+		this.entityAlias = entityAlias;
 	}
 
 	/**
@@ -450,17 +472,42 @@ public class SearchQuery<T> {
 		}
 	}
 
-	private void appendOrder(Pageable pageable, StringBuilder queryBuilder, String entityName) {
+	/**
+	 * Appends an {@code ORDER BY} clause, derived from the {@code pageable}, to the {@code queryBuilder}, using the
+	 * given {@code entityName}.
+	 * 
+	 * @param pageable
+	 *            the {@link Pageable}, may be {@code null}
+	 * @param queryBuilder
+	 *            the query builder
+	 * @param entityName
+	 *            the name for the entity
+	 */
+	protected void appendOrder(Pageable pageable, StringBuilder queryBuilder, String entityName) {
 		if (null != pageable) {
-			Sort pageSort = pageable.getSort();
-			if (null != pageSort) {
-				boolean firstOrder = true;
-				for (Order order : pageSort) {
-					queryBuilder.append(firstOrder ? " order by " : ", ");
-					queryBuilder.append(StringUtils.isBlank(entityName) ? entityName : entityName + ".");
-					queryBuilder.append(order.getProperty() + " " + order.getDirection().name());
-					firstOrder = false;
-				}
+			appendOrder(pageable.getSort(), queryBuilder, entityName);
+		}
+	}
+
+	/**
+	 * Appends an {@code ORDER BY} clause, derived from the {@code sort}, to the {@code queryBuilder}, using the given
+	 * {@code entityName}.
+	 * 
+	 * @param sort
+	 *            the {@link Sort}, may be {@code null}
+	 * @param queryBuilder
+	 *            the query builder
+	 * @param entityName
+	 *            the name for the entity
+	 */
+	protected void appendOrder(Sort sort, StringBuilder queryBuilder, String entityName) {
+		if (null != sort) {
+			boolean firstOrder = true;
+			for (Order order : sort) {
+				queryBuilder.append(firstOrder ? " order by " : ", ");
+				queryBuilder.append(StringUtils.isBlank(entityName) ? entityName : entityName + ".");
+				queryBuilder.append(order.getProperty() + StringUtils.SPACE + order.getDirection().name());
+				firstOrder = false;
 			}
 		}
 	}
@@ -489,7 +536,7 @@ public class SearchQuery<T> {
 
 	@Override
 	public String toString() {
-		return criteria.toString() + " " + andClauses.toString();
+		return criteria.toString() + StringUtils.SPACE + andClauses.toString();
 	}
 
 	/**
@@ -499,7 +546,7 @@ public class SearchQuery<T> {
 	 *            the {@link EntityManager}
 	 * @return the result-list
 	 */
-	public final List<T> execute(EntityManager entityManager) {
+	public List<T> execute(EntityManager entityManager) {
 		return execute(null, entityManager).getContent();
 	}
 
@@ -515,19 +562,56 @@ public class SearchQuery<T> {
 	 * 
 	 * @see SearchRepository#search(SearchQuery, Pageable)
 	 */
-	public final Page<T> execute(Pageable pageable, EntityManager entityManager) {
+	public Page<T> execute(Pageable pageable, EntityManager entityManager) {
+		StringBuilder sb = buildQueryString();
+
+		String distinctPart = distinct ? "distinct " + entityAlias : entityAlias;
+		TypedQuery<Long> countQuery = entityManager.createQuery("select count(" + distinctPart + ") " + sb.toString(),
+				Long.class);
+		appendOrder(pageable, sb, appendEntityAlias ? entityAlias : StringUtils.EMPTY);
+		TypedQuery<T> query = entityManager.createQuery("select " + distinctPart + StringUtils.SPACE + sb.toString(),
+				domainClass);
+		setQueryParameters(countQuery, query);
+
+		Long total = null;
+		if (null != pageable) {
+			total = countQuery.getSingleResult();
+			pageable = applyPagination(query, total, pageable);
+		}
+
+		List<T> content = query.getResultList();
+		if (null == total) {
+			total = new Integer(content.size()).longValue();
+		}
+
+		return new PageImpl<T>(content, pageable, total);
+	}
+
+	/**
+	 * Builds and return the JPQL query string based on
+	 * <ul>
+	 * <li>the {@link #domainClass}
+	 * <li>the {@link #entityAlias} and {@link #appendEntityAlias}
+	 * <li>the {@link #joinQuery}
+	 * <li>the {@link #criteria}
+	 * <li>the {@link #andClauses}
+	 * </ul>
+	 * 
+	 * @return a {@link StringBuilder} containing the query string.
+	 */
+	protected StringBuilder buildQueryString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("from " + domainClass.getSimpleName() + " e");
+		sb.append("from " + domainClass.getSimpleName() + StringUtils.SPACE + entityAlias);
 		if (StringUtils.isNotBlank(joinQuery)) {
-			sb.append(" " + joinQuery.trim() + " ");
+			sb.append(StringUtils.SPACE + joinQuery.trim() + StringUtils.SPACE);
 		}
 		for (int i = 0; i < criteria.size(); i++) {
 			SearchCriteria criterion = criteria.get(i);
 			sb.append(i == 0 ? " where " : " and ");
 			if (appendEntityAlias) {
-				sb.append("e.");
+				sb.append(entityAlias + ".");
 			}
-			sb.append(criterion.getName() + " " + criterion.getOperand().getPresentation());
+			sb.append(criterion.getName() + StringUtils.SPACE + criterion.getOperand().getPresentation());
 			if (null != criterion.getValue()) {
 				sb.append(" ?" + i);
 			}
@@ -535,48 +619,60 @@ public class SearchQuery<T> {
 		boolean addWhere = criteria.size() == 0;
 		for (Clause clause : andClauses) {
 			sb.append(addWhere ? " where " : " and ");
-			sb.append(" " + clause.clause + " ");
+			sb.append(StringUtils.SPACE + clause.clause + StringUtils.SPACE);
 			addWhere = false;
 		}
+		return sb;
+	}
 
-		String distinctPart = distinct ? "distinct" : "";
-		TypedQuery<Long> countQuery = entityManager.createQuery("select count(" + distinctPart + " e) " + sb.toString(),
-				Long.class);
-		appendOrder(pageable, sb, appendEntityAlias ? "e" : "");
-		TypedQuery<T> query = entityManager.createQuery("select " + distinctPart + " e " + sb.toString(), domainClass);
+	/**
+	 * Sets the parameters defined by {@link #criteria} for the given queries.
+	 * 
+	 * @param queries
+	 */
+	protected void setQueryParameters(Query... queries) {
 		for (int i = 0; i < criteria.size(); i++) {
 			SearchCriteria criterion = criteria.get(i);
 			Object value = criterion.getValue();
 			if (null != value) {
-				countQuery.setParameter(i, value);
-				query.setParameter(i, value);
+				for (Query query : queries) {
+					query.setParameter(i, value);
+				}
 			}
 		}
 		for (Clause clause : andClauses) {
 			for (Entry<String, Object> entry : clause.params.entrySet()) {
-				countQuery.setParameter(entry.getKey(), entry.getValue());
-				query.setParameter(entry.getKey(), entry.getValue());
+				for (Query query : queries) {
+					query.setParameter(entry.getKey(), entry.getValue());
+				}
 			}
 		}
-
-		Long total = null;
-		if (null != pageable) {
-			total = countQuery.getSingleResult();
-			if (pageable.getOffset() >= total) {
-				pageable = new PageRequest(0, pageable.getPageSize(), pageable.getSort());
-			}
-			query.setFirstResult(pageable.getOffset());
-			query.setMaxResults(pageable.getPageSize());
-		}
-		List<T> content = query.getResultList();
-		if (null == total) {
-			total = new Integer(content.size()).longValue();
-		}
-
-		Page<T> page = new PageImpl<T>(content, pageable, total);
-		return page;
 	}
 
+	/**
+	 * Applies the given {@code pageable} to the query. If the pageable's offset is >= {@code total}, a new
+	 * {@link Pageable} starting at page 0 is returned.
+	 * 
+	 * @param query
+	 *            the {@link Query}
+	 * @param total
+	 *            the total number of items
+	 * @param pageable
+	 *            the {@link Pageable}
+	 * @return a (possibly new) {@link Pageable}
+	 */
+	protected Pageable applyPagination(TypedQuery<T> query, Long total, Pageable pageable) {
+		if (pageable.getOffset() >= total) {
+			pageable = new PageRequest(0, pageable.getPageSize(), pageable.getSort());
+		}
+		query.setFirstResult(pageable.getOffset());
+		query.setMaxResults(pageable.getPageSize());
+		return pageable;
+	}
+
+	/**
+	 * An operand that is applied to a {@link SearchCriteria}.
+	 */
 	enum Operand {
 		EQ("="), NE("!="), LE("<="), GE(">="), LT("<"), GT(">"), IN("in"), NOT_IN("not in"), LIKE("like"), NOT_LIKE(
 				"not like"), NOT_NULL("is not null"), NULL("is null");
@@ -592,7 +688,10 @@ public class SearchQuery<T> {
 		}
 	}
 
-	private class Clause {
+	/**
+	 * A part of a JPQL query that provides it's own parameters.
+	 */
+	class Clause {
 		String clause;
 		Map<String, Object> params;
 
@@ -607,7 +706,11 @@ public class SearchQuery<T> {
 		}
 	}
 
-	private class SearchCriteria {
+	/**
+	 * A search criterion consisting of the property's name and and {@link Operand}, optionally providing a value (it
+	 * depends on the operand if a value is needed).
+	 */
+	class SearchCriteria {
 
 		private final String name;
 		private final Object value;
@@ -643,8 +746,8 @@ public class SearchQuery<T> {
 
 		@Override
 		public String toString() {
-			return "e." + getName() + " " + getOperand().getPresentation() + " "
-					+ (isValueMandatory() ? getValue() : "");
+			return entityAlias + "." + getName() + StringUtils.SPACE + getOperand().getPresentation()
+					+ StringUtils.SPACE + (isValueMandatory() ? getValue() : StringUtils.EMPTY);
 		}
 
 	}
