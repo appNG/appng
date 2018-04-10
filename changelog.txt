@@ -1,0 +1,156 @@
+
+Release Notes - appNG - Version 1.17.0 (2018-02-28)
+--------------------------------------
+* [APPNG-2144] - Release appNG 1.17.0
+* [APPNG-2143] - Convert README.md to README.adoc
+* [APPNG-2142] - Comparison of package version should be done by version string first, then by timestamp
+* [APPNG-2141] - JspExtensionFilter should only wrap the response if necessary
+* [APPNG-2140] - For Filters, it is sufficient to have an Environment that is built from the ServletContext
+* [APPNG-2139] - <appNG:formConfirmation> does not display it's body content with mode="submitted"
+* [APPNG-2138] - Failed activation of an application leaves orphaned database connection
+* [APPNG-2137] - WritingJsonValidator must respect System.lineSeparator() when comparing
+* [APPNG-2136] - ConsumerProducerTest fails under windows
+* [APPNG-2135] - CacheProviderTest.testGetRelativePlatformCache() fails under windows
+* [APPNG-2134] - CommandBatchTest.testSysEnvVariables() fails under windows
+* [APPNG-2133] - RepositoryWatcher and -test don't work under windows
+* [APPNG-2132] - AuthToolsTest fails under windows
+* [APPNG-2131] - appNGizer tests do not run under windows
+* [APPNG-2130] - Thread [Replication Thread] not stopped on application shutdown
+* [APPNG-2129] - Thread [HSQLDB Timer] not stopped on application shutdown
+* [APPNG-2127] - upNGizer: Provide an update mechanism for appNG
+* [APPNG-2126] - Site status wrong for deleted sites
+* [APPNG-2123] - Provide a possibility for easily binding request and form parameters to a target object
+* [APPNG-2122] - Compatibility of unit tests with Mac OS X (maven build results in failing RepositoryWatcherTest.test:70)
+* [APPNG-2121] - Maven plugin to generate application- and message-constants
+* [APPNG-2120] - Remove experimental and imperfect ProxyHandler feature
+* [APPNG-2119] - Application resource path is not resolved correctly under Windows
+* [APPNG-2118] - WritingJsonValidator should write object attributes in a reproducible order
+* [APPNG-2117] - Description of existing role not updated from application.xml
+* [APPNG-2116] - supportReloadFile property should be created by default
+* [APPNG-2115] - Documentation improvement for 1.17.0
+* [APPNG-2114] - LDAP group authentication is case sensitive
+* [APPNG-2113] - Provide a method to create a date selection using FastDateFormat
+* [APPNG-2112] - appNGizer should support CLI parameter -m (DB Root Connection managed by appNG)
+* [APPNG-2111] - Manually move to next development branch appng-1.17.x 
+* [APPNG-2109] - Overwrite single fragments in Thymeleaf template
+* [APPNG-2083] - Determine and output database sizes
+* [APPNG-2082] - Provide an event protocol/auditing for system relevant events
+* [APPNG-2075] - appNGizer bulk operations for managing site properties
+* [APPNG-2005] - add "contributing" file
+
+Release Notes - appNG - Version 1.16.2 (2018-01-15)
+--------------------------------------
+* [APPNG-2110] - Error in determination of section title
+* [APPNG-2108] - Release appNG 1.16.2
+* [APPNG-2107] - Update license header to 2018
+* [APPNG-2106] - Duplicate bean of type ThymeleafProcessor in platformContext.xml
+* [APPNG-2105] - Missing ":" in secure URL of SOAP Webservice
+* [APPNG-2104] - Error-Messages added to a hidden action are not being displayed
+* [APPNG-2103] - ThymeleafProcessor must offer proper methods to retrieve the children of a field
+* [APPNG-2102] - Delete reload marker file
+* [APPNG-2101] - Minor documentation updates
+* [APPNG-2100] - Remove Maven Versioneye Plugin
+* [APPNG-2099] - System property appng.node.id is not set when appNGizer starts before appNG
+* [APPNG-2098] - mvn install -Plocal fails
+* [APPNG-2097] - LDAP Implementation lacks support for other Directory Servers than MS ADS
+* [APPNG-2095] - RabbitMQReceiver hangs in Object.wait when closing
+* [APPNG-2059] - Enhancement for developer guide
+
+Release Notes - appNG - Version 1.16.1 (2017-12-18)
+--------------------------------------
+* [APPNG-2094] - Build and release 1.16.1
+* [APPNG-2093] - Use appng-scheduler in version 1.11.5
+
+Release Notes - appNG - Version 1.16.0 (2017-12-15)
+--------------------------------------
+* [APPNG-2092] - Update scheduler version to 1.11.4
+* [APPNG-2091] - Build and release 1.16.0
+* [APPNG-2090] - RestService use wrong import for HttpServletRequestWrapper
+* [APPNG-2089] - Upgrade versions for appng-manager and appng-authentication
+* [APPNG-2088] - PropertyConstantCreator should add the property value as JavaDoc comment
+* [APPNG-2087] - appNGizer Maven Plugin should show a progress when uploading artifacts
+* [APPNG-2086] - appNGizer Maven Plugin creates cryptic messages when Server returns 4xx or 5xx status
+* [APPNG-2085] - Fix JavaDoc of o.a.a.FormValidator
+* [APPNG-2084] - Controller must allow PUT and DELETE for service-requests
+* [APPNG-2081] - Documentation of 'allowConcurrentExecutions' for ScheduledJob
+* [APPNG-2080] - Wrong schema_version items
+* [APPNG-2078] - Enhance documentation about REST services
+* [APPNG-2076] - ConfigValidator does not validate permission names at //page/config/permissions and //event/config/permissions
+* [APPNG-2074] - Support site-reload triggered by marker file in CLI
+* [APPNG-2073] - Support site-reload triggered by marker file in appNGizer
+* [APPNG-2071] - Repository/Package HTTP Status Code
+* [APPNG-2069] - Illegal @link in JavaDoc of JedisSender
+* [APPNG-2068] - Errors in documentation of unit tests
+* [APPNG-2067] - Duplicate role
+* [APPNG-2066] - appNGizer should support deleting packages from local repositories
+* [APPNG-2065] - Provide the command line interface as a shell
+* [APPNG-2064] - JDBC Driver needs to be re-registered when the ServletContext is being restarted
+* [APPNG-2063] - Faulty behavior in SiteReloadWatcher
+* [APPNG-2062] - Provide a version of the appNG web application that contains Camunda BPM libraries
+* [APPNG-2053] - Standalone execution fails with MalformedByteSequenceException
+
+Release Notes - appNG - Version 1.15.0 (2017-11-09)
+---------------------------------------------------
+* [APPNG-2061] - Release version 1.15.0
+* [APPNG-2060] - Improve PlatformStartup#contextDestroyed
+* [APPNG-2058] - It should be possible to create platform properties via appNG.properties
+* [APPNG-2057] - Update README with information about how to install the appNG web-application
+* [APPNG-2056] - Application's navigaton links do net get selected when output-format/-type is used
+* [APPNG-2055] - Explicitly set output-format/-type is lost when an action has onSuccess
+* [APPNG-2054] - Application parent pom should use bill of materials
+* [APPNG-2052] - Add missing unit test for <appNG:if> taglet
+* [APPNG-2051] - Fix path and name to appNG's remote application repository in install scripts
+* [APPNG-2050] - "What's next?" of README.adoc should point to current version, not snapshot
+* [APPNG-2049] - Add documentation for URL rewriting
+* [APPNG-2048] - Enhance configuration possibilities to use JDBC performance logger
+* [APPNG-2047] - Use EnhancedPatternLayout in log4j.properties
+* [APPNG-2046] - Platform scope not accessible when using multiple appNG taglets for non-privileged applications
+* [APPNG-2045] - ConfigValidator should validate that a condition's expression is parseable 
+* [APPNG-2044] - Provide a possibility to reload a site triggered by a marker file
+* [APPNG-2043] - XSSFilter should check for site to be available to avoid an NPE
+* [APPNG-2042] - Add convenience methods to org.appng.api.Options and  org.appng.api.Option
+* [APPNG-2040] - Exceptions get swallowed when asynchronously executing actions
+* [APPNG-2039] - Enhance handling of a site's state and of shutting down a site
+* [APPNG-2038] - Javadoc errors in RepositoryImpl#setTrustedCertChain
+* [APPNG-2037] - Grant application access to site via appNGizer
+* [APPNG-2036] - Upgrade to Bean Validation API 2.0
+* [APPNG-2035] - Database prefix for running multiple appNG instances accessing the same database server
+* [APPNG-2034] - o.a.a.m.Messaging should provide utility methods to check if messaging is enabled and to get the id of the current node
+* [APPNG-2033] - RabbitMQ based messaging should allow to configure multiple hosts
+* [APPNG-2032] - JedisSender.send always returns false
+* [APPNG-2031] - CacheProvider should set directory owner only on site startup
+* [APPNG-2030] - appNG application definition is stored in application.xml
+* [APPNG-2028] - Provide possibility to skip the generation of the documentation
+* [APPNG-2027] - Rename core application --> privileged
+* [APPNG-2026] - Dependency upgrades for 1.15.0
+* [APPNG-2025] - Move properties representing application versions to parent pom
+* [APPNG-2017] - Automatically remove cache elements from a site's cache if file changes
+
+Release Notes - appNG - Version 1.14.4 (2017-07-28)
+---------------------------------------------------
+* [APPNG-2024] - Release version 1.14.4
+* [APPNG-2023] - In README.adoc, use a variable 'current' to reflect the version on the current branch/tag
+* [APPNG-2021] - Add versioneye-maven-plugin in a separate build-profile
+* [APPNG-2020] - Bump version of mysql-connector-java to 5.1.43
+* [APPNG-2019] - Fix support for Microsoft SQL Server
+* [APPNG-2018] - appNGizer does not start in standalone version under windows because of wrong file-URL
+* [APPNG-2016] - Use StringEscapeUtils from commons-text
+* [APPNG-2015] - CLI: install-template fails because repository cache is not initialized
+* [APPNG-2014] - Use domain appng.org in pom files
+* [APPNG-2013] - Improve dependency handling in assembly descriptors for an appNG application
+* [APPNG-2012] - Links to other appNGizer documents are broken
+* [APPNG-2011] - Add maven-source-plugin to pluginManagement
+* [APPNG-2010] - Cleanup parent pom
+* [APPNG-2009] - Maven Archetype: unit test failure: PersonDataSourceTest.testPersons:29 XML does not match control XML
+* [APPNG-2008] - Enhance README.adoc: add link to standalone, add getting-started section
+* [APPNG-2007] - Upgrade Version information of applications and template
+* [APPNG-2006] - Test failure in application generated with appng-archetype-application
+
+Release Notes - appNG - Version 1.14.1 (2017-07-03)
+---------------------------------------------------
+* [APPNG-2002] - update readme.adoc
+* [APPNG-2001] - Deploy version 1.14.1 to Maven Central
+
+Release Notes - appNG - Version 1.14.0 (2017-06-29)
+--------------------------------------------------
+* [APPNG-2000] - Push appNG Sources to Github
