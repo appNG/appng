@@ -134,7 +134,7 @@
 						<session-param name="f_name" />
 						<session-param name="fSess" />
 						<session-param name="fAgnt" />
-						<session-param name="fCrAf" />
+						<session-param name="fCrAf">2018-04-13 14:32</session-param>
 						<session-param name="fCrBf" />
 						<session-param name="fDmn" />
 						<session-param name="fUsr" />
@@ -176,7 +176,7 @@
 								<get-param name="cacheElement" />
 								<get-param name="fSess" />
 								<get-param name="fAgnt" />
-								<get-param name="fCrAf" />
+								<get-param name="fCrAf">2018-04-13 14:32</get-param>
 								<get-param name="fCrBf" />
 								<get-param name="fDmn" />
 								<get-param name="fUsr" />
@@ -329,7 +329,7 @@
 												<value />
 											</field>
 											<field name="location" type="coordinate">
-												<field name="location.longitude" type="decimal" >
+												<field name="location.longitude" type="decimal">
 													<value>50.0000</value>
 												</field>
 												<field name="location.latitude" type="decimal">
@@ -1486,8 +1486,8 @@
 										</linkpanel>
 									</config>
 									<data>
-										<resultset chunk="0" chunkname="site-applications" chunksize="25" firstchunk="0" hits="6"
-											lastchunk="0" nextchunk="0" previouschunk="0">
+										<resultset chunk="0" chunkname="site-applications" chunksize="25" firstchunk="0" hits="6" lastchunk="0"
+											nextchunk="0" previouschunk="0">
 											<result>
 												<field name="application.id" type="int">
 													<value><![CDATA[1]]></value>
@@ -2050,7 +2050,7 @@
 												<label id="id"><![CDATA[ID]]></label>
 											</field>
 											<field binding="type" name="type" type="text">
-												<sort prio="0" order="asc"/>
+												<sort prio="0" order="asc" />
 												<label id="type"><![CDATA[Type]]></label>
 											</field>
 											<field binding="size" format="#,##0 KB" name="size" type="decimal">
@@ -2199,7 +2199,7 @@
 											</selection>
 											<selection format="yyyy-MM-dd HH:mm" id="fCrAf" type="date">
 												<title id="createdAfter"><![CDATA[Created after]]></title>
-												<option name="fCrAf" value="" />
+												<option name="fCrAf" value="2018-04-13 14:32" />
 											</selection>
 											<selection format="yyyy-MM-dd HH:mm" id="fCrBf" type="date">
 												<title id="createdBefore"><![CDATA[Created before]]></title>
