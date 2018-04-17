@@ -15,7 +15,7 @@ public class UpdaterTest {
 	private File target = new File("target/appNG");
 
 	@Test
-	public void testExtraction() throws Exception {
+	public void testUpdateAppNG() throws Exception {
 		File[] files = new File("../appng-application/target").listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.startsWith("appng-application-") && name.endsWith(".war");
@@ -26,6 +26,23 @@ public class UpdaterTest {
 		new Updater(new MockServletContext()).updateAppNG(resource, target.getAbsolutePath());
 		assertFolderNotEmpty("WEB-INF");
 		assertFolderNotEmpty("WEB-INF/classes");
+		assertFolderNotEmpty("WEB-INF/conf");
+		assertFolderNotEmpty("WEB-INF/lib");
+	}
+	
+	@Test
+	public void testUpdateAppNGizer() throws Exception {
+		File[] files = new File("../appng-appngizer/target").listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.startsWith("appng-appngizer-") && name.endsWith(".war");
+			}
+		});
+		Assume.assumeTrue(files.length == 1);
+		Resource resource = new FileSystemResource(files[0]);
+		new Updater(new MockServletContext()).updateAppNGizer(resource, target.getAbsolutePath());
+		assertFolderNotEmpty("WEB-INF");
+		assertFolderNotEmpty("WEB-INF/classes/org/appng/appngizer/model/");
+		assertFolderNotEmpty("WEB-INF/classes/org/appng/appngizer/controller/");
 		assertFolderNotEmpty("WEB-INF/conf");
 		assertFolderNotEmpty("WEB-INF/lib");
 	}
