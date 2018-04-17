@@ -80,10 +80,14 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 
@@ -118,12 +122,44 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 
 	@Test
 	public void testRest() throws Exception {
-		String servletPath = "/services/site1/appng-demoapplication/rest/add/3/4";
+		handleRestCall(3, 4, "{\"operation\":\"add\",\"result\":7}", MediaType.APPLICATION_JSON_UTF8_VALUE,
+				HttpStatus.OK);
+	}
+
+	@Test
+	public void testRestWringURL() throws Exception {
+		handleRestCall("", null, HttpStatus.NOT_FOUND, "/services/site1/appng-demoapplication/rest/notfound");
+	}
+
+	@Test
+	public void testHandleBusinessException() throws Exception {
+		handleRestCall(11, 47, "{\"message\":\"BOOOM!\"}", MediaType.APPLICATION_JSON_UTF8_VALUE,
+				HttpStatus.METHOD_NOT_ALLOWED);
+	}
+
+	@Test
+	public void testHandleNullPointerException() throws Exception {
+		handleRestCall(47, 12, "{\"message\":\"NPE\"}", MediaType.APPLICATION_JSON_UTF8_VALUE,
+				HttpStatus.I_AM_A_TEAPOT);
+	}
+
+	@Test
+	public void testHandleIllegalArgumentException() throws Exception {
+		handleRestCall(-1, 12, "", null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private void handleRestCall(int a, int b, String content, String contentType, HttpStatus status)
+			throws JAXBException, IOException {
+		String servletPath = String.format("/services/site1/appng-demoapplication/rest/add/%s/%s", a, b);
+		handleRestCall(content, contentType, status, servletPath);
+	}
+
+	private void handleRestCall(String content, String contentType, HttpStatus status, String servletPath)
+			throws JAXBException, IOException, UnsupportedEncodingException {
 		BeanFactoryPostProcessor beanFactoryPostProcessor = new BeanFactoryPostProcessor() {
 			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 				beanFactory.registerSingleton("foobarRest", new FoobarRest());
 				beanFactory.registerSingleton("jsonConverter", new MappingJackson2HttpMessageConverter());
-
 			}
 		};
 		ConfigurableApplicationContext ac = new GenericApplicationContext();
@@ -136,16 +172,54 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 				emptyList, emptyList, "", "");
 		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathInfo);
 		handle(servletRequest, servletResponse, environment, site, pathInfo);
-		Assert.assertEquals("{\"operation\":\"add\",\"result\":7}", servletResponse.getContentAsString());
-		Assert.assertEquals(MediaType.APPLICATION_JSON_UTF8_VALUE, servletResponse.getContentType());
+
+		Assert.assertEquals(content, servletResponse.getContentAsString());
+		Assert.assertEquals(contentType, servletResponse.getContentType());
+		Assert.assertEquals(status.value(), servletResponse.getStatus());
 	}
 
 	@RestController
-	class FoobarRest {
+	@ControllerAdvice
+	static class FoobarRest extends ResponseEntityExceptionHandler {
 
 		@RequestMapping(value = "/add/{a}/{b}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-		public ResponseEntity<Result> add(@PathVariable("a") Integer a, @PathVariable("b") Integer b) {
+		public ResponseEntity<Result> add(@PathVariable("a") Integer a, @PathVariable("b") Integer b)
+				throws BusinessException {
+			if (a < 0) {
+				throw new IllegalArgumentException("IAE");
+			}
+			if (a == 47) {
+				throw new NullPointerException("NPE");
+			}
+			if (b == 47) {
+				throw new BusinessException("BOOOM!");
+			}
 			return new ResponseEntity<Result>(new Result("add", a + b), HttpStatus.OK);
+		}
+
+		@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+		@ExceptionHandler(BusinessException.class)
+		public Error handleBusinessException(Environment environment, Site site, Application application,
+				HttpServletRequest request, HttpServletResponse response, Exception e) {
+			return new Error(e.getMessage());
+		}
+
+		@ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
+		@ExceptionHandler(NullPointerException.class)
+		public Error handleNullPointerException(Exception e) {
+			return new Error(e.getMessage());
+		}
+
+		static class Error {
+			final String message;
+
+			public Error(String message) {
+				this.message = message;
+			}
+
+			public String getMessage() {
+				return message;
+			}
 		}
 
 		class Result {
