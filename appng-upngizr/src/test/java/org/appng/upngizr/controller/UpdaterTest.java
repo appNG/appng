@@ -12,10 +12,11 @@ import org.springframework.mock.web.MockServletContext;
 
 public class UpdaterTest {
 
-	private File target = new File("target/appNG");
+	private File target;
 
 	@Test
 	public void testUpdateAppNG() throws Exception {
+		target = new File("target/appNG");
 		File[] files = new File("../appng-application/target").listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.startsWith("appng-application-") && name.endsWith(".war");
@@ -29,9 +30,11 @@ public class UpdaterTest {
 		assertFolderNotEmpty("WEB-INF/conf");
 		assertFolderNotEmpty("WEB-INF/lib");
 	}
-	
+
 	@Test
 	public void testUpdateAppNGizer() throws Exception {
+		target = new File("target/appNGizer");
+		target.mkdirs();
 		File[] files = new File("../appng-appngizer/target").listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.startsWith("appng-appngizer-") && name.endsWith(".war");
@@ -43,14 +46,13 @@ public class UpdaterTest {
 		assertFolderNotEmpty("WEB-INF");
 		assertFolderNotEmpty("WEB-INF/classes/org/appng/appngizer/model/");
 		assertFolderNotEmpty("WEB-INF/classes/org/appng/appngizer/controller/");
-		assertFolderNotEmpty("WEB-INF/conf");
 		assertFolderNotEmpty("WEB-INF/lib");
 	}
 
 	private void assertFolderNotEmpty(String path) {
 		File folder = new File(target, path);
-		Assert.assertTrue(folder.exists());
-		Assert.assertTrue(folder.listFiles().length > 0);
+		Assert.assertTrue(folder.getAbsolutePath() + " does not exist!", folder.exists());
+		Assert.assertTrue(folder.getAbsolutePath() + " is empty!", folder.listFiles().length > 0);
 	}
 
 }
