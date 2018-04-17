@@ -375,9 +375,7 @@ public class Updater {
 		try (
 				FileOutputStream out = new FileOutputStream(warArchive.toFile());
 				InputStream is = resource.getInputStream()) {
-			byte[] data = new byte[(int) resource.contentLength()];
-			is.read(data);
-			IOUtils.write(data, out);
+			IOUtils.copy(is, out);
 			try (ZipFile zip = new ZipFile(warArchive.toFile())) {
 				Enumeration<? extends ZipEntry> entries = zip.entries();
 				while (entries.hasMoreElements()) {
@@ -405,8 +403,9 @@ public class Updater {
 					}
 				}
 			}
+		} finally {
+			warArchive.toFile().delete();
 		}
-		warArchive.toFile().delete();
 	}
 
 	private void writeFile(String parentFolder, InputStream is, String name) throws IOException, FileNotFoundException {
