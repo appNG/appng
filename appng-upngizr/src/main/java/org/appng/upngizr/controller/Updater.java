@@ -199,7 +199,7 @@ public class Updater {
 			Container appNGContext = stopContext(getAppNGContext());
 			completed.set(30.0d);
 			updateAppNG(appNGArchive, UpNGizr.appNGHome);
-			updateAppNGizr(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
+			updateAppNGizer(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
 			if (null != appNGizerContext) {
 				status.set("Starting appNGizer");
 				log.info(status.get());
@@ -367,13 +367,16 @@ public class Updater {
 		completed.set(90.0d);
 	}
 
-	private void updateAppNGizr(Resource resource, String appNGizerHome) throws RestClientException, IOException {
+	protected void updateAppNGizer(Resource resource, String appNGizerHome) throws RestClientException, IOException {
 		if (!(resource.exists() && new File(appNGizerHome).exists())) {
 			return;
 		}
-		byte[] data = new RestTemplate().getForEntity(resource.getURI(), byte[].class).getBody();
 		Path warArchive = Files.createTempFile(null, null);
-		try (FileOutputStream out = new FileOutputStream(warArchive.toFile())) {
+		try (
+				FileOutputStream out = new FileOutputStream(warArchive.toFile());
+				InputStream is = resource.getInputStream()) {
+			byte[] data = new byte[(int) resource.contentLength()];
+			is.read(data);
 			IOUtils.write(data, out);
 			try (ZipFile zip = new ZipFile(warArchive.toFile())) {
 				Enumeration<? extends ZipEntry> entries = zip.entries();
@@ -382,19 +385,22 @@ public class Updater {
 					String name = entry.getName();
 					String folder = name.substring(0, name.lastIndexOf('/') + 1);
 					if (!entry.isDirectory()) {
-						switch (folder) {
-						case WEB_INF:
-							if (!(WEB_INF + "web.xml").equals(name)) {
-								writeFile(appNGizerHome, zip.getInputStream(entry), name);
-							}
-							break;
-						case WEB_INF_LIB:
-						case WEB_INF_CLASSES:
+						if (folder.startsWith(WEB_INF_CLASSES)) {
 							writeFile(appNGizerHome, zip.getInputStream(entry), name);
-							break;
-						default:
-							log.info("Skipping {}", name);
-							break;
+						} else {
+							switch (folder) {
+							case WEB_INF:
+								if (!(WEB_INF + "web.xml").equals(name)) {
+									writeFile(appNGizerHome, zip.getInputStream(entry), name);
+								}
+								break;
+							case WEB_INF_LIB:
+								writeFile(appNGizerHome, zip.getInputStream(entry), name);
+								break;
+							default:
+								log.info("Skipping {}", name);
+								break;
+							}
 						}
 					}
 				}
