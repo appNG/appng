@@ -22,9 +22,9 @@ body {
 
       <fieldset>
         <legend>appNG Updater</legend>
-        <img src="<path>/assets/logo.png" /> <br /> <input type="button" id="startProcessButton" value="<button>" /><br />
+        <img src="//localhost/upNGizr/assets/logo.png" /> <br /> <input type="button" id="startProcessButton" value="Update to 1.17.0" /><br />
         <div id="ajaxImage" style="display: inline;">
-          <img src="<path>/assets/ajax-loader.gif" />
+          <img src="//localhost/upNGizr/assets/ajax-loader.gif" />
         </div>
         <br />
         <div id="statusDiv"></div>
@@ -50,7 +50,7 @@ body {
                   $statusDiv.html("Loading...");
 
                   // Call the web service to kick off the process
-                  $.ajax("<path>/update/<version>?onSuccess=<target>", {
+                  $.ajax("//localhost/upNGizr/update/1.17.0?onSuccess=myTarget", {
                     type : "POST",
                     dataType : "json",
                     contentType : "application/json; charset=utf-8"
@@ -59,7 +59,7 @@ body {
                   // Set up a recurring timer to keep running this code every second
                   // We use intervalHandle later via clearInterval to turn off this timer
                   var intervalHandle = setInterval(function() {
-                    $.ajax("<path>/update/status", {
+                    $.ajax("//localhost/upNGizr/update/status", {
                       type : "GET",
                       dataType : "json",
                       cache : false,
@@ -82,7 +82,7 @@ body {
                             clearInterval(intervalHandle);
                             $ajaxImage.hide();
                             $progressbar.hide();
-                            var target = "<target>";
+                            var target = "myTarget";
                             if (target.length > 0) {
                               $(location).delay(5000).attr("href", target);
                             }

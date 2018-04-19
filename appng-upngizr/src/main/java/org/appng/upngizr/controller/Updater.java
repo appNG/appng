@@ -32,9 +32,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
@@ -64,7 +66,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -140,7 +141,8 @@ public class Updater {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/update/start/{version:.+}", produces = MediaType.TEXT_HTML_VALUE)
-	public ResponseEntity<String> getStartPage(@PathVariable("version") String version, HttpServletRequest request)
+	public ResponseEntity<String> getStartPage(@PathVariable("version") String version,
+			@RequestParam(required = false, defaultValue = "") String onSuccess, HttpServletRequest request)
 			throws IOException, URISyntaxException {
 		if (isBlocked(request) || isUpdateRunning.get()) {
 			return forbidden();
@@ -153,8 +155,9 @@ public class Updater {
 
 		ClassPathResource resource = new ClassPathResource("updater.html");
 		String content = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
-		String onSuccess = "";
-		String uppNGizrBase = String.format("//%s:%s/upNGizr", request.getServerName(), request.getServerPort());
+		int serverPort = request.getServerPort();
+		String uppNGizrBase = String.format(serverPort == 80 ? "//%s/upNGizr" : "//%s:%s/upNGizr",
+				request.getServerName(), serverPort);
 		content = content.replace("<target>", onSuccess).replace("<path>", uppNGizrBase);
 		content = content.replace("<version>", version).replace("<button>", "Update to " + version);
 		return new ResponseEntity<>(content, HttpStatus.OK);
@@ -199,34 +202,45 @@ public class Updater {
 			Container appNGContext = stopContext(getAppNGContext());
 			completed.set(30.0d);
 			updateAppNG(appNGArchive, UpNGizr.appNGHome);
-			updateAppNGizer(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
-			if (null != appNGizerContext) {
-				status.set("Starting appNGizer");
-				log.info(status.get());
-				startContext(appNGizerContext);
-			}
 			status.set("Starting appNG");
-			completed.set(91.0d);
+			completed.set(81.0d);
 			log.info(status.get());
 
-			FutureTask<Void> startAppNG = new FutureTask<>(new Callable<Void>() {
-				public Void call() throws Exception {
-					startContext(appNGContext);
-					return null;
+			ExecutorService contextStarter = Executors.newFixedThreadPool(1, new ThreadFactory() {
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r);
+					t.setName("upNGizr updater");
+					t.setPriority(Thread.MAX_PRIORITY);
+					return t;
 				}
 			});
-			Executors.newFixedThreadPool(1).submit(startAppNG);
-			while (!startAppNG.isDone()) {
-				Thread.sleep(3000);
-				if (completed.get().compareTo(99.0d) == -1) {
-					completed.set(completed.get() + 1.0d);
-				}
+
+			Future<Void> startAppNG = contextStarter.submit(() -> {
+				startContext(appNGContext);
+				return null;
+			});
+			Long duration = waitFor(startAppNG, 95.0d, 3);
+			log.info("Started appNG in {} seconds.", duration / 1000);
+
+			if (null != appNGizerContext) {
+
+				Future<Void> startAppNGizer = contextStarter.submit(() -> {
+					updateAppNGizer(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
+					status.set("Starting appNGizer");
+					log.info(status.get());
+					startContext(appNGizerContext);
+					completed.set(98.0d);
+					return null;
+				});
+				duration = waitFor(startAppNGizer, 98.0d, 2);
+				log.info("Started appNGizer in {} seconds.", duration / 1000);
 			}
+			contextStarter.shutdown();
 
 			completed.set(100.0d);
 			String statusLink = StringUtils.isEmpty(onSuccess) ? ""
-					: ("<br/>Forwarding to <a href=\"" + onSuccess + "\">" + onSuccess + "</a>");
-			status.set("Update complete" + statusLink);
+					: (String.format("<br/>Forwarding to<br/><a href=\"%s\">%s</a>", onSuccess, onSuccess));
+			status.set("Update complete." + statusLink);
 			return new ResponseEntity<>("OK", HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("error", e);
@@ -234,6 +248,18 @@ public class Updater {
 			isUpdateRunning.set(false);
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private Long waitFor(Future<Void> task, double startValue, int sleepSecond)
+			throws InterruptedException, ExecutionException {
+		long start = System.currentTimeMillis();
+		while (!task.isDone()) {
+			Thread.sleep(sleepSecond * 1000);
+			if (completed.get().compareTo(startValue) == -1) {
+				completed.set(completed.get() + 1.0d);
+			}
+		}
+		return System.currentTimeMillis() - start;
 	}
 
 	private <T> ResponseEntity<T> forbidden() {
@@ -307,7 +333,7 @@ public class Updater {
 			if (progress != currentProgress && currentProgress % 5 == 0) {
 				long readMB = read / 1024 / 1024;
 				log.info("retrieved {}/{} MB ({}%)", readMB, sizeMB, currentProgress);
-				completed.set(30.0d + currentProgress / 2.0d);
+				completed.set(30.0d + currentProgress / 2.5d);
 				status.set(String.format("Downloaded " + readMB + " of " + sizeMB + "MB"));
 			}
 			progress = currentProgress;
@@ -326,7 +352,7 @@ public class Updater {
 			FileUtils.cleanDirectory(libFolder);
 			log.info("cleaning {}", libFolder);
 		}
-		completed.set(85.0d);
+		completed.set(75.0d);
 		status.set("Extracting files");
 		ZipFile zip = new ZipFile(warArchive.toFile());
 		Enumeration<? extends ZipEntry> entries = zip.entries();
@@ -364,7 +390,7 @@ public class Updater {
 		}
 		zip.close();
 		warArchive.toFile().delete();
-		completed.set(90.0d);
+		completed.set(80.0d);
 	}
 
 	protected void updateAppNGizer(Resource resource, String appNGizerHome) throws RestClientException, IOException {
@@ -424,7 +450,7 @@ public class Updater {
 	}
 
 	protected Container getAppNGizerContext() {
-		return getHost().findChild("appNGizer");
+		return getHost().findChild("/" + UpNGizr.APPNGIZER);
 	}
 
 	private Host getHost() {

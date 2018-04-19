@@ -16,24 +16,48 @@
 package org.appng.upngizr.controller;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
+import java.util.zip.ZipException;
 
+import org.apache.catalina.Container;
+import org.apache.catalina.Host;
+import org.appng.upngizr.controller.Updater.Status;
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.client.RestClientException;
 
 public class UpdaterTest {
 
-	private File target;
+	private String target;
+
+	@BeforeClass
+	public static void setup() {
+		File appNGizer = new File("target/webapps/appNGizer");
+		appNGizer.mkdirs();
+		UpNGizr.appNGHome = new File("target/webapps/ROOT").getAbsolutePath();
+		UpNGizr.appNGizerHome = appNGizer.getAbsolutePath();
+	}
 
 	@Test
 	public void testUpdateAppNG() throws Exception {
-		target = new File("target/appNG");
+		target = UpNGizr.appNGHome;
 		Resource resource = getResource("appng-application");
-		new Updater(new MockServletContext()).updateAppNG(resource, target.getAbsolutePath());
+		new Updater(new MockServletContext()).updateAppNG(resource, target);
 		assertFolderNotEmpty("WEB-INF");
 		assertFolderNotEmpty("WEB-INF/classes");
 		assertFolderNotEmpty("WEB-INF/conf");
@@ -42,14 +66,83 @@ public class UpdaterTest {
 
 	@Test
 	public void testUpdateAppNGizer() throws Exception {
-		target = new File("target/appNGizer");
-		target.mkdirs();
+		target = UpNGizr.appNGizerHome;
 		Resource resource = getResource("appng-appngizer");
-		new Updater(new MockServletContext()).updateAppNGizer(resource, target.getAbsolutePath());
+		new Updater(new MockServletContext()).updateAppNGizer(resource, target);
 		assertFolderNotEmpty("WEB-INF");
 		assertFolderNotEmpty("WEB-INF/classes/org/appng/appngizer/model/");
 		assertFolderNotEmpty("WEB-INF/classes/org/appng/appngizer/controller/");
 		assertFolderNotEmpty("WEB-INF/lib");
+	}
+
+	@Test
+	public void testUpdate() throws Exception {
+		MockServletContext context = new MockServletContext();
+		Host host = Mockito.mock(Host.class);
+		context.setAttribute(UpNGizr.HOST, host);
+		Container container = Mockito.mock(Container.class);
+		Mockito.when(host.findChild(Mockito.anyString())).thenReturn(container);
+		Updater doNotDownload = new Updater(context) {
+			protected void updateAppNG(Resource resource, String appNGHome)
+					throws IOException, ZipException, FileNotFoundException {
+			}
+
+			protected void updateAppNGizer(Resource resource, String appNGizerHome)
+					throws RestClientException, IOException {
+			}
+		};
+
+		ResponseEntity<Status> status = doNotDownload.getStatus();
+		Assert.assertEquals(0d, status.getBody().getCompleted(), 0d);
+		Assert.assertFalse(status.getBody().isDone());
+		MockHttpServletRequest request = new MockHttpServletRequest(context);
+		ResponseEntity<String> updated = doNotDownload.updateAppng("1.17.0", "myTarget", request);
+		Assert.assertEquals(HttpStatus.OK, updated.getStatusCode());
+
+		status = doNotDownload.getStatus();
+		Assert.assertEquals(100d, status.getBody().getCompleted(), 0d);
+		Assert.assertTrue(status.getBody().isDone());
+		Assert.assertTrue(status.getBody().getTaskName().contains("<a href=\"myTarget\">"));
+		Mockito.verify(host, Mockito.times(1)).findChild("");
+		Mockito.verify(host, Mockito.times(1)).findChild("/" + UpNGizr.APPNGIZER);
+		Mockito.verify(container, Mockito.times(2)).stop();
+		Mockito.verify(container, Mockito.times(2)).start();
+	}
+
+	@Test
+	public void testBlockedIP() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("foobar.org");
+		ResponseEntity<String> updated = new Updater(request.getServletContext()).updateAppng("1.17.0", null, request);
+		Assert.assertEquals(HttpStatus.FORBIDDEN, updated.getStatusCode());
+	}
+
+	@Test
+	public void testCheckVersionAvailable() throws IOException {
+		ResponseEntity<Void> checkVersionAvailable = new Updater(new MockServletContext())
+				.checkVersionAvailable("1.17.0", new MockHttpServletRequest());
+		Assert.assertEquals(HttpStatus.OK, checkVersionAvailable.getStatusCode());
+	}
+
+	@Test
+	public void testCheckVersionNotAvailable() throws IOException {
+		ResponseEntity<Void> checkVersionAvailable = new Updater(new MockServletContext())
+				.checkVersionAvailable("0.8.15", new MockHttpServletRequest());
+		Assert.assertEquals(HttpStatus.NOT_FOUND, checkVersionAvailable.getStatusCode());
+	}
+
+	@Test
+	public void testGetStartPage() throws IOException, URISyntaxException {
+		ResponseEntity<String> startPage = new Updater(new MockServletContext()).getStartPage("1.17.0", "myTarget",
+				new MockHttpServletRequest());
+		Assert.assertEquals(HttpStatus.OK, startPage.getStatusCode());
+		List<String> lines = Files.readAllLines(new File("src/test/resources/startpage.html").toPath());
+		List<String> actualLines = Arrays.asList(startPage.getBody().split(System.lineSeparator()));
+		int size = lines.size();
+		Assert.assertEquals(size, actualLines.size());
+		for (int i = 0; i < size; i++) {
+			Assert.assertEquals("error in line " + (i + 1), lines.get(i), actualLines.get(i));
+		}
 	}
 
 	protected Resource getResource(String artifactName) {
