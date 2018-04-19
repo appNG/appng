@@ -100,7 +100,7 @@ public class MigrationService {
 	 */
 	public DatabaseConnection initDatabase(java.util.Properties config) {
 		DatabaseConnection platformConnection = getPlatformConnection(config);
-		Boolean doRepair = Boolean.valueOf(config.getProperty(DATABASE_REPAIR, "true"));
+		Boolean doRepair = Boolean.valueOf(config.getProperty(DATABASE_REPAIR));
 		initDatabase(platformConnection, doRepair);
 		return platformConnection;
 	}
