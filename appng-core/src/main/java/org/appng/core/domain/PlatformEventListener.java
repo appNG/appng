@@ -50,7 +50,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * {@link PreRemove}. Also, a {@link PlatformEvent} can be created manually by calling
  * {@link #createEvent(Type, String)}. <br/>
  * Note that this listener is able to work in two scenarios. The first is as a regular Spring bean that can be invoked
- * from other beans. As a JPA entity listener, whe use a static reference to the current {@link ApplicationContext} to
+ * from other beans. As a JPA entity listener, we use a static reference to the current {@link ApplicationContext} to
  * retrieve an instance of the {@link EntityManager} in use.
  * 
  * @author Matthias Müller
@@ -59,8 +59,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class PlatformEventListener implements ApplicationContextAware {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PlatformEventListener.class);
-	private static ApplicationContext CONTEXT;
+	private static ApplicationContext context;
 	private static String auditUser = "<unknown>";
+	private static String auditApplication = "appNG";
 	private static boolean persist = true;
 	@Autowired
 	private EntityManager entityManager;
@@ -72,7 +73,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		PlatformEventListener.CONTEXT = applicationContext;
+		PlatformEventListener.context = applicationContext;
 		LOG.info("Using application context {}", applicationContext);
 	}
 
@@ -118,24 +119,28 @@ public class PlatformEventListener implements ApplicationContextAware {
 		PlatformEvent event = getEventProvider().provide(type, message, session, request);
 		if (persist) {
 			if (null == entityManager) {
-				CONTEXT.getAutowireCapableBeanFactory().autowireBean(this);
+				context.getAutowireCapableBeanFactory().autowireBean(this);
 			}
 			entityManager.persist(event);
 		}
 		LOG.info("Created entry {}", event);
 	}
 
-	public void setAuditUser(String auditUser) {
+	public synchronized void setAuditUser(String auditUser) {
 		PlatformEventListener.auditUser = auditUser;
 	}
 
-	public void setPersist(boolean persist) {
+	public synchronized void setAuditApplication(String auditApplication) {
+		PlatformEventListener.auditApplication = auditApplication;
+	}
+
+	public synchronized void setPersist(boolean persist) {
 		PlatformEventListener.persist = persist;
 	}
 
 	public EventProvider getEventProvider() {
-		return CONTEXT.getBeansOfType(EventProvider.class).isEmpty() ? eventProvider
-				: CONTEXT.getBean(EventProvider.class);
+		return context.getBeansOfType(EventProvider.class).isEmpty() ? eventProvider
+				: context.getBean(EventProvider.class);
 	}
 
 	public void setEventProvider(EventProvider eventProvider) {
@@ -163,7 +168,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 			event.setUser(getUser(session));
 			event.setRequestId(getExecutionId(request));
 			event.setSessionId(getSessionId(session));
-			event.setApplication(getApplication(session));
+			event.setApplication(getApplication());
 			event.setContext(getContext(request));
 			try {
 				event.setHostName(InetAddress.getLocalHost().getHostName());
@@ -192,12 +197,8 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return s == null ? auditUser : s.getRealname();
 		}
 
-		protected String getApplication(HttpSession session) {
-			if (null != session) {
-				String contextPath = session.getServletContext().getContextPath();
-				return StringUtils.isBlank(contextPath) ? "appNG" : contextPath;
-			}
-			return null;
+		protected String getApplication() {
+			return auditApplication;
 		}
 
 		protected String getContext(HttpServletRequest request) {

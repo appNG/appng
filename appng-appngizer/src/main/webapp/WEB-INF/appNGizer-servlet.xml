@@ -27,10 +27,11 @@
 
 	<bean class="org.appng.core.domain.PlatformEventListener">
 		<property name="auditUser" value="appNGizer" />
+		<property name="auditApplication" value="appNGizer" />
 	</bean>
 
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-    	<property name="maxUploadSize" value="25000000"/>
+		<property name="maxUploadSize" value="25000000" />
 	</bean>
 
 	<context:component-scan base-package="org.appng.appngizer" />

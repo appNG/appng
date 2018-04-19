@@ -33,7 +33,7 @@ public class CliEventProvider extends EventProvider {
 	}
 
 	@Override
-	protected String getApplication(HttpSession session) {
+	protected String getApplication() {
 		return "appNG CLI";
 	}
 
