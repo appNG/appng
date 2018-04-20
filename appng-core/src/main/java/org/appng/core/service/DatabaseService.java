@@ -206,8 +206,7 @@ public class DatabaseService extends MigrationService {
 		}
 		return MigrationStatus.NO_DB_SUPPORTED;
 	}
-	
-	
+
 	private List<String> getScript(DatabaseType type, String name) throws IOException, URISyntaxException {
 		String resourcePath = MIGRATION_PATH + type.name().toLowerCase() + "/" + name;
 		InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath);
@@ -322,7 +321,7 @@ public class DatabaseService extends MigrationService {
 			}
 			log.debug("updating existing connection: {}", conn);
 		}
-		setConnectionActive(conn);
+		setConnectionActive(conn, false);
 
 		for (DatabaseType type : DatabaseType.values()) {
 			if (!type.equals(rootType)) {
@@ -334,9 +333,9 @@ public class DatabaseService extends MigrationService {
 					connection.setDescription(APP_NG_ROOT_DATABASE);
 					databaseConnectionRepository.save(connection);
 					log.debug("creating new connection: {}", connection);
-					setConnectionActive(connection);
+					setConnectionActive(connection, true);
 				} else if (connection.isActive()) {
-					setConnectionActive(connection);
+					setConnectionActive(connection, true);
 				} else {
 					log.debug("connection {} is inactive", connection);
 				}
@@ -345,8 +344,11 @@ public class DatabaseService extends MigrationService {
 		return conn;
 	}
 
-	private void setConnectionActive(DatabaseConnection connection) {
+	private void setConnectionActive(DatabaseConnection connection, boolean registerDriver) {
 		StringBuilder dbInfo = new StringBuilder();
+		if (registerDriver) {
+			connection.registerDriver(false);
+		}
 		if (connection.testConnection(dbInfo)) {
 			connection.setActive(true);
 			log.info("{} ({}) is active.", connection.toString(), dbInfo);

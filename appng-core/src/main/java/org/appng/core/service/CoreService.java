@@ -1587,7 +1587,7 @@ public class CoreService {
 	private void prepareConnection(DatabaseConnection databaseConnection, boolean clearPassword,
 			CacheProvider cacheProvider) {
 		if (databaseConnection.isActive()) {
-			boolean isWorking = databaseConnection.testConnection(false, true);
+			boolean isWorking = databaseConnection.testConnection(true);
 			if (isWorking) {
 				if (null == databaseConnection.getSite()) {
 					databaseConnection

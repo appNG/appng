@@ -333,30 +333,41 @@ public class DatabaseConnection implements Auditable<Integer> {
 		this.validationPeriod = validationPeriod;
 	}
 
+	public void registerDriver(boolean throwException) {
+		try {
+			@SuppressWarnings("unchecked")
+			Class<? extends Driver> driverClazz = (Class<? extends Driver>) Class.forName(driverClass);
+			DriverManager.registerDriver(driverClazz.newInstance());
+			LOGGER.info("Registered JDBC driver {}", driverClass);
+		} catch (Exception e) {
+			if (throwException) {
+				throw new RuntimeException("Error while registering driver " + driverClass, e);
+			} else {
+				LOGGER.warn("Driver {} could not be loaded.", driverClass);
+			}
+		}
+	}
+
 	public boolean testConnection(StringBuilder dbInfo) {
 		return testConnection(dbInfo, false);
 	}
 
-	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver) {
-		return testConnection(dbInfo, registerDriver, false);
-	}
-
-	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver, boolean determineSize) {
+	public boolean testConnection(StringBuilder dbInfo, boolean determineSize) {
 		ConnectionCallback<Void> infoCallback = new ConnectionCallback<Void>() {
 			public Void doInConnection(Connection con) throws SQLException, DataAccessException {
 				if (null != dbInfo) {
 					DatabaseMetaData metaData = con.getMetaData();
-					dbInfo.append(metaData.getDatabaseProductName() + " " + metaData.getDatabaseProductVersion());
+					dbInfo.append(metaData.getDatabaseProductName() + StringUtils.SPACE
+							+ metaData.getDatabaseProductVersion());
 				}
 				return null;
 			}
 		};
-		return testConnection(registerDriver, determineSize, infoCallback);
+		return testConnection(determineSize, infoCallback);
 	}
 
-	public boolean testConnection(boolean registerDriver, boolean determineSize, ConnectionCallback<?>... callbacks) {
+	public boolean testConnection(boolean determineSize, ConnectionCallback<?>... callbacks) {
 		try {
-			registerDriver(registerDriver);
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(getDataSource());
 			for (ConnectionCallback<?> connectionCallback : callbacks) {
 				jdbcTemplate.execute(connectionCallback);
@@ -384,22 +395,8 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	@Transient
-	public Connection getConnection() throws SQLException, ReflectiveOperationException {
-		return getConnection(false);
-	}
-
-	@Transient
-	public Connection getConnection(boolean registerDriver) throws SQLException, ReflectiveOperationException {
-		registerDriver(registerDriver);
+	public Connection getConnection() throws SQLException {
 		return DriverManager.getConnection(jdbcUrl, userName, new String(password));
-	}
-
-	@SuppressWarnings("unchecked")
-	private void registerDriver(boolean registerDriver) throws SQLException, ReflectiveOperationException {
-		Class<? extends Driver> realClass = (Class<? extends Driver>) Class.forName(driverClass);
-		if (registerDriver) {
-			DriverManager.registerDriver(realClass.newInstance());
-		}
 	}
 
 	public void closeConnection(Connection connection) {
