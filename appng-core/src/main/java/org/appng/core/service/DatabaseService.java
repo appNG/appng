@@ -337,6 +337,7 @@ public class DatabaseService extends MigrationService {
 				} else if (connection.isActive()) {
 					setConnectionActive(connection, true);
 				} else {
+					connection.registerDriver(false);
 					log.debug("connection {} is inactive", connection);
 				}
 			}
