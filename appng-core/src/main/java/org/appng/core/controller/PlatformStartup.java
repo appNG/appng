@@ -108,8 +108,8 @@ public class PlatformStartup implements ServletContextListener {
 			DatabaseConnection platformConnection = new MigrationService().initDatabase(config);
 			log.info("Platform connection: {}", platformConnection);
 
-			ApplicationContext platformCtx = initPlatformContext(ctx, env, config, platformConnection);
-			InitializerService service = platformCtx.getBean(InitializerService.class);
+			initPlatformContext(ctx, env, config, platformConnection);
+			InitializerService service = getService(env, ctx);
 			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
 			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
 			executor = Executors.newSingleThreadExecutor(threadFactory);
@@ -124,7 +124,7 @@ public class PlatformStartup implements ServletContextListener {
 		}
 	}
 
-	protected ApplicationContext initPlatformContext(ServletContext ctx, Environment env, Properties config,
+	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
 			DatabaseConnection platformConnection) throws IOException {
 		XmlWebApplicationContext platformCtx = new XmlWebApplicationContext();
 		platformCtx.setDisplayName("appNG platform context");
@@ -140,7 +140,6 @@ public class PlatformStartup implements ServletContextListener {
 		platformCtx.refresh();
 		ctx.setAttribute(Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);
-		return platformCtx;
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
@@ -149,7 +148,7 @@ public class PlatformStartup implements ServletContextListener {
 		ConfigurableApplicationContext platformCtx = env.removeAttribute(Scope.PLATFORM,
 				Platform.Environment.CORE_PLATFORM_CONTEXT);
 		if (null != platformCtx) {
-			platformCtx.getBean(InitializerService.class).shutdownPlatform(ctx);
+			getService(env, ctx).shutdownPlatform(ctx);
 			org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
 			platformCtx.close();
 		}
@@ -180,6 +179,11 @@ public class PlatformStartup implements ServletContextListener {
 		}
 		log.info("appNG stopped.");
 		log.info(StringUtils.leftPad("", 100, "="));
+	}
+
+	protected InitializerService getService(Environment env, ServletContext ctx) {
+		ApplicationContext platformCtx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
+		return platformCtx.getBean(InitializerService.class);
 	}
 
 }
