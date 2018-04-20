@@ -145,10 +145,11 @@ public class PlatformStartup implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent sce) {
 		ServletContext ctx = sce.getServletContext();
 		DefaultEnvironment env = DefaultEnvironment.get(ctx);
-		ConfigurableApplicationContext platformCtx = env.removeAttribute(Scope.PLATFORM,
-				Platform.Environment.CORE_PLATFORM_CONTEXT);
-		if (null != platformCtx) {
-			getService(env, ctx).shutdownPlatform(ctx);
+		InitializerService initializerService = getService(env, ctx);
+		if (null != initializerService) {
+			initializerService.shutdownPlatform(ctx);
+			ConfigurableApplicationContext platformCtx = env.removeAttribute(Scope.PLATFORM,
+					Platform.Environment.CORE_PLATFORM_CONTEXT);
 			org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
 			platformCtx.close();
 		}
