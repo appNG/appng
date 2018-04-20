@@ -244,6 +244,18 @@ public class InitializerService {
 		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_GROUP);
 		platformConfig.setFinal();
 
+		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
+			File tempDir = new File(System.getProperty("java.io.tmpdir"));
+			if (tempDir.exists()) {
+				LOGGER.info("Cleaning temp folder {}", tempDir);
+				try {
+					FileUtils.cleanDirectory(tempDir);
+				} catch (IOException e) {
+					LOGGER.error("error while cleaning " + tempDir, e);
+				}
+			}
+		}
+
 		RepositoryCacheFactory.init(platformConfig);
 
 		String ehcacheConfig = platformConfig.getString(Platform.Property.EHCACHE_CONFIG);

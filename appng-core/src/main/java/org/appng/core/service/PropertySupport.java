@@ -313,6 +313,7 @@ public class PropertySupport {
 		}
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_CACHE_FOLDER, "application");
 		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_FOLDER, "cache");
+		addPlatformProperty(defaultOverrides, Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, "false");
 		addPlatformProperty(defaultOverrides, Platform.Property.CSRF_FILTER_ENABLED, "false");
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_PREFIX, StringUtils.EMPTY);
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_VALIDATION_PERIOD, 15);
