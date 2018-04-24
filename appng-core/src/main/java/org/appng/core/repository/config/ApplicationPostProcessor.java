@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.api.support.MessageSourceChain;
 import org.appng.core.domain.DatabaseConnection;
 import org.slf4j.Logger;
@@ -34,7 +35,8 @@ import org.springframework.core.Ordered;
 
 /**
  * A {@link BeanFactoryPostProcessor} that configures the {@code datasource} bean which is of type
- * {@link javax.sql.DataSource}, but only if the {@link Application} requires a database.
+ * {@link javax.sql.DataSource}, but only if the {@link Application} requires a database. <br/>
+ * Additionally, the {@link Site} and the {@link Application} are also registered as beans.
  * 
  * @author Matthias Müller
  * 
@@ -46,19 +48,28 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	private static final String MESSAGES_CORE = "messages-core";
 	private final DatabaseConnection connection;
 	private Collection<String> dictionaryNames;
+	private Site site;
+	private Application application;
 
 	/**
 	 * Creates a new {@code ApplicationPostProcessor} using the given {@link DatabaseConnection}.
 	 * 
+	 * @param site
+	 *            the {@link Site}
+	 * @param application
+	 *            the {@link Application}
 	 * @param databaseConnection
 	 *            a {@link DatabaseConnection}, may be {@code null}.
 	 * @param dictionaryNames
 	 *            the name of the dictionary files that the {@link Application} uses (see
 	 *            {@link ResourceBundleMessageSource#setBasenames(String...)})
 	 */
-	public ApplicationPostProcessor(DatabaseConnection databaseConnection, Collection<String> dictionaryNames) {
+	public ApplicationPostProcessor(Site site, Application application, DatabaseConnection databaseConnection,
+			Collection<String> dictionaryNames) {
 		this.connection = databaseConnection;
 		this.dictionaryNames = dictionaryNames;
+		this.site = site;
+		this.application = application;
 	}
 
 	/**
@@ -69,6 +80,8 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	 * @see DatasourceConfigurer
 	 */
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		beanFactory.registerSingleton("site", site);
+		beanFactory.registerSingleton("application", application);
 		try {
 			DatasourceConfigurer datasourceConfigurer = beanFactory.getBean(DatasourceConfigurer.class);
 			if (null != connection) {

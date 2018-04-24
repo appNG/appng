@@ -720,7 +720,7 @@ public class InitializerService {
 				}
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
-				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(
+				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
 						application.getDatabaseConnection(), dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
