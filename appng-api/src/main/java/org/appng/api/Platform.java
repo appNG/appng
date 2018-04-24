@@ -108,6 +108,12 @@ public final class Platform {
 		 */
 		public static final String CACHE_FOLDER = "cacheFolder";
 		/**
+		 * If set to {@code true}, the temp folder (defined by the system property {@code java.io.tmpdir}) is cleaned on
+		 * a platform startup. <strong>WARNING:</strong> Only set to {@code true} if appNG was started with a custom
+		 * value (e.g. {@code -Djava.io.tmpdir=/appng-temp}).
+		 */
+		public static final String CLEAN_TEMP_FOLDER_ON_STARTUP = "cleanTempFolderOnStartup";
+		/**
 		 * Whether validation constraints should be added as a {@link org.appng.xml.platform.Rule} to the
 		 * {@link org.appng.xml.platform.FieldDef}s {@link org.appng.xml.platform.Validation}
 		 */
@@ -247,17 +253,20 @@ public final class Platform {
 		public static final String XSS_ALLOWED_TAGS = "xssAllowedTags";
 
 		/**
-		 * When set to {@code true}, appNG waits until a {@link Site} has finished processing its requests before shutting it down.
+		 * When set to {@code true}, appNG waits until a {@link Site} has finished processing its requests before
+		 * shutting it down.
 		 */
 		public static final String WAIT_ON_SITE_SHUTDOWN = "waitOnSiteShutdown";
 
 		/**
-		 * The time to wait (in a single waiting loop) for a {@link Site} to become available/to finish its requests (milliseconds).
+		 * The time to wait (in a single waiting loop) for a {@link Site} to become available/to finish its requests
+		 * (milliseconds).
 		 */
 		public static final String WAIT_TIME = "waitTime";
 
 		/**
-		 * The overall maximum time to wait for a {@link Site} to become available/to finish its requests (milliseconds).
+		 * The overall maximum time to wait for a {@link Site} to become available/to finish its requests
+		 * (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
 	}
