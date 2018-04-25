@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -89,7 +90,9 @@ public class Updater {
 	private static final String INIT_PARAM_REPLACE_BIN = "replaceBin";
 	private static final String INIT_PARAM_REPLACE_PLATFORMCONTEXT = "replacePlatformContext";
 	private static final String INIT_PARAM_REPLACE_WEB_XML = "replaceWebXml";
+	private static final String INIT_PARAM_USE_FQDN = "useFQDN";
 	private static final String WEB_INF = "WEB-INF/";
+	private static final String META_INF = "META-INF/";
 	private static final String WEB_INF_CLASSES = WEB_INF + "classes/";
 	private static final String WEB_INF_LIB = WEB_INF + "lib/";
 	private ServletContext context;
@@ -98,6 +101,8 @@ public class Updater {
 	private boolean replaceWebXml = true;
 	private boolean replaceBin = false;
 	private boolean blockRemoteIps = true;
+	private String serverName;
+	private boolean useFQDN = false;
 	private List<String> localAdresses = new ArrayList<>();
 	private AtomicBoolean isUpdateRunning = new AtomicBoolean(false);
 	private AtomicReference<Double> completed = new AtomicReference<Double>(0.0d);
@@ -116,11 +121,20 @@ public class Updater {
 			this.replaceWebXml = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_WEB_XML));
 		}
 		if (null != context.getInitParameter(INIT_PARAM_REPLACE_BIN)) {
-			this.replaceWebXml = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_BIN));
+			this.replaceBin = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_BIN));
 		}
 		if (null != context.getInitParameter(INIT_PARAM_BLOCK_REMOTE_IPS)) {
 			this.blockRemoteIps = Boolean.valueOf(context.getInitParameter(INIT_PARAM_BLOCK_REMOTE_IPS));
 		}
+		if (null != context.getInitParameter(INIT_PARAM_USE_FQDN)) {
+			this.useFQDN = Boolean.valueOf(context.getInitParameter(INIT_PARAM_USE_FQDN));
+		}
+		log.info("{}: {}", INIT_PARAM_BUILD_REPOSITORY, buildRepository);
+		log.info("{}: {}", INIT_PARAM_REPLACE_PLATFORMCONTEXT, replacePlatformContext);
+		log.info("{}: {}", INIT_PARAM_REPLACE_WEB_XML, replaceWebXml);
+		log.info("{}: {}", INIT_PARAM_REPLACE_BIN, replaceBin);
+		log.info("{}: {}", INIT_PARAM_BLOCK_REMOTE_IPS, blockRemoteIps);
+		log.info("{}: {}", INIT_PARAM_USE_FQDN, useFQDN);
 		if (blockRemoteIps) {
 			try {
 				Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -137,6 +151,17 @@ public class Updater {
 			} catch (SocketException e) {
 				log.error("error retrieving networkinterfaces", e);
 			}
+		}
+		try {
+			InetAddress localHost = InetAddress.getLocalHost();
+			String canonicalHostName = localHost.getCanonicalHostName().toLowerCase();
+			if (useFQDN) {
+				serverName = canonicalHostName;
+				log.info("serverName: {}", serverName);
+			}
+			log.info("FQDN: {}", canonicalHostName);
+		} catch (UnknownHostException e) {
+			log.error("Error retrieving local host name", e);
 		}
 	}
 
@@ -156,8 +181,11 @@ public class Updater {
 		ClassPathResource resource = new ClassPathResource("updater.html");
 		String content = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
 		int serverPort = request.getServerPort();
-		String uppNGizrBase = String.format(serverPort == 80 ? "//%s/upNGizr" : "//%s:%s/upNGizr",
-				request.getServerName(), serverPort);
+		if (null == serverName) {
+			serverName = request.getServerName();
+		}
+		String uppNGizrBase = String.format(serverPort == 80 ? "//%s/upNGizr" : "//%s:%s/upNGizr", serverName,
+				serverPort);
 		content = content.replace("<target>", onSuccess).replace("<path>", uppNGizrBase);
 		content = content.replace("<version>", version).replace("<button>", "Update to " + version);
 		return new ResponseEntity<>(content, HttpStatus.OK);
@@ -415,6 +443,11 @@ public class Updater {
 							switch (folder) {
 							case WEB_INF:
 								if (!(WEB_INF + "web.xml").equals(name)) {
+									writeFile(appNGizerHome, zip.getInputStream(entry), name);
+								}
+								break;
+							case META_INF:
+								if ((META_INF + "MANIFEST.MF").equals(name)) {
 									writeFile(appNGizerHome, zip.getInputStream(entry), name);
 								}
 								break;
