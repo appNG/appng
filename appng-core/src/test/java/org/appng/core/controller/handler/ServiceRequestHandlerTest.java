@@ -127,24 +127,24 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	}
 
 	@Test
-	public void testRestWringURL() throws Exception {
+	public void testRestWrongURL() throws Exception {
 		handleRestCall("", null, HttpStatus.NOT_FOUND, "/services/site1/appng-demoapplication/rest/notfound");
 	}
 
 	@Test
-	public void testHandleBusinessException() throws Exception {
+	public void testRestHandleBusinessException() throws Exception {
 		handleRestCall(11, 47, "{\"message\":\"BOOOM!\"}", MediaType.APPLICATION_JSON_UTF8_VALUE,
 				HttpStatus.METHOD_NOT_ALLOWED);
 	}
 
 	@Test
-	public void testHandleNullPointerException() throws Exception {
+	public void testRestHandleNullPointerException() throws Exception {
 		handleRestCall(47, 12, "{\"message\":\"NPE\"}", MediaType.APPLICATION_JSON_UTF8_VALUE,
 				HttpStatus.I_AM_A_TEAPOT);
 	}
 
 	@Test
-	public void testHandleIllegalArgumentException() throws Exception {
+	public void testRestHandleIllegalArgumentException() throws Exception {
 		handleRestCall(-1, 12, "", null, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
