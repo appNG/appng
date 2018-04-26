@@ -1172,20 +1172,17 @@ public class CoreService {
 			String outputPath = outputDir.getAbsolutePath() + File.separator
 					+ applicationResource.getResourceType().getFolder() + File.separator
 					+ applicationResource.getName();
-			OutputStream outputStream = null;
-			InputStream inputStream = null;
 			try {
 				File outputFile = new File(outputPath);
 				FileUtils.forceMkdir(outputFile.getParentFile());
-				outputStream = new FileOutputStream(outputFile);
-				inputStream = new ByteArrayInputStream(applicationResource.getBytes());
-				IOUtils.copy(inputStream, outputStream);
-				log.debug("writing " + outputPath);
+				try (
+						OutputStream outputStream = new FileOutputStream(outputFile);
+						InputStream inputStream = new ByteArrayInputStream(applicationResource.getBytes())) {
+					IOUtils.copy(inputStream, outputStream);
+					log.debug("writing " + outputPath);
+				}
 			} catch (IOException e) {
 				throw new BusinessException("error while updating resource " + applicationResource.getName(), e);
-			} finally {
-				IOUtils.closeQuietly(outputStream);
-				IOUtils.closeQuietly(inputStream);
 			}
 		}
 	}

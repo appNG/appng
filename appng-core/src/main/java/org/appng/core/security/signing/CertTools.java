@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /***
@@ -69,8 +68,7 @@ public class CertTools {
 
 	public static byte[] writeCerts(Collection<X509Certificate> certs)
 			throws IOException, CertificateEncodingException {
-		StringWriter out = new StringWriter();
-		try {
+		try (StringWriter out = new StringWriter()) {
 			for (X509Certificate c : certs) {
 				out.write(BEGIN_CERTIFICATE);
 				out.write(StringUtils.LF);
@@ -80,10 +78,7 @@ public class CertTools {
 				out.write(StringUtils.LF);
 			}
 			out.flush();
-			out.close();
 			return out.toString().getBytes();
-		} finally {
-			IOUtils.closeQuietly(out);
 		}
 	}
 

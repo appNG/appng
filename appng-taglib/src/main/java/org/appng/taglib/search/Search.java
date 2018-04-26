@@ -29,7 +29,6 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.store.Directory;
@@ -130,22 +129,19 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 		String queryParamName = getParam(PARAM_QUERY_PARAM, SearchFormatter.DEFAULT_QUERY_PARAM);
 		String queryParam = StringEscapeUtils.unescapeHtml4(servletRequest.getParameter(queryParamName));
 
-		Directory directory = null;
 		if (StringUtils.isNotBlank(queryParam) && !parts.isEmpty()) {
 			log.debug("term is {}", queryParam);
-			try {
+			Environment env = DefaultEnvironment.get(pageContext);
+			Site site = RequestUtil.getSite(env, servletRequest);
+			Properties siteProperties = site.getProperties();
+			String siteRootDir = siteProperties.getString(SiteProperties.SITE_ROOT_DIR);
+			String seIndex = siteRootDir + siteProperties.getString(SiteProperties.INDEX_DIR);
+			File indexDir = new File(seIndex);
+			try (Directory directory = FSDirectory.open(indexDir.toPath())) {
 				StopWatch sw = new StopWatch();
 				sw.start();
-				Environment env = DefaultEnvironment.get(pageContext);
 
 				ApplicationContext ctx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
-				Site site = RequestUtil.getSite(env, servletRequest);
-				Properties siteProperties = site.getProperties();
-
-				String siteRootDir = siteProperties.getString(SiteProperties.SITE_ROOT_DIR);
-				String seIndex = siteRootDir + siteProperties.getString(SiteProperties.INDEX_DIR);
-				File indexDir = new File(seIndex);
-				directory = FSDirectory.open(indexDir.toPath());
 
 				List<Part> results = new ArrayList<Part>();
 
@@ -199,8 +195,6 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 
 			} catch (IOException e) {
 				log.error("error in doStartTag()", e);
-			} finally {
-				IOUtils.closeQuietly(directory);
 			}
 		} else {
 			log.debug("no term given or empty parts");

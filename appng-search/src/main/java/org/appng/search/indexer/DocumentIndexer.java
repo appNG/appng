@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Date;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Field;
@@ -193,9 +192,14 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 	private void close(Closeable... closeables) {
 		for (Closeable closeable : closeables) {
 			if (null != closeable) {
-				IOUtils.closeQuietly(closeable);
-				logger.debug("closed " + closeable);
-				closeable = null;
+				try {
+					closeable.close();
+					logger.debug("closed " + closeable);
+				} catch (IOException e) {
+					logger.debug("error closing " + closeable, e);
+				} finally {
+					closeable = null;
+				}
 			}
 		}
 	}

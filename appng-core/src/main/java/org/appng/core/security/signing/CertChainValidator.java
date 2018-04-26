@@ -37,7 +37,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.appng.core.security.signing.SigningException.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,14 +83,12 @@ public class CertChainValidator {
 	}
 
 	protected void init(InputStream is, char[] storepass) throws SigningException {
-		try {
+		try (InputStream inner = is) {
 			KeyStore keyStore = KeyStore.getInstance("JKS");
-			keyStore.load(is, storepass);
+			keyStore.load(inner, storepass);
 			init(keyStore);
 		} catch (GeneralSecurityException | IOException e) {
 			throw new SigningException(ErrorType.VERIFY, "error while loading keystore", e);
-		} finally {
-			IOUtils.closeQuietly(is);
 		}
 	}
 

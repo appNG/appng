@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -72,9 +71,9 @@ public class ParseTags {
 	 *             if such an error occurred while reading/parsing the stream
 	 */
 	public Map<String, StringBuilder> parse(InputStream is) throws IOException {
-		try {
+		try (InputStream inner = is) {
 			Map<String, StringBuilder> fieldMap = new HashMap<String, StringBuilder>();
-			Document doc = Jsoup.parse(is, null, "");
+			Document doc = Jsoup.parse(inner, null, "");
 			Elements searchables = doc.getElementsByTag(tagPrefix + ":" + SEARCHABLE);
 			List<Node> skipped = new ArrayList<Node>();
 			for (Element node : searchables) {
@@ -92,8 +91,6 @@ public class ParseTags {
 			return fieldMap;
 		} catch (IOException e) {
 			throw e;
-		} finally {
-			IOUtils.closeQuietly(is);
 		}
 	}
 

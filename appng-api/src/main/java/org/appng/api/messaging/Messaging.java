@@ -16,11 +16,11 @@
 package org.appng.api.messaging;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.commons.io.IOUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -186,8 +186,12 @@ public class Messaging {
 	}
 
 	private static void close(Object o) {
-		if (o instanceof Closeable) {
-			IOUtils.closeQuietly((Closeable) o);
+		if (null != o && o instanceof Closeable) {
+			try {
+				((Closeable) o).close();
+			} catch (IOException e) {
+				LOGGER.error("error while closing", o);
+			}
 		}
 	}
 

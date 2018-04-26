@@ -98,14 +98,10 @@ public class ApplicationResourceHolder implements Resources {
 		if (null == applicationResource) {
 			throw new InvalidConfigurationException(application.getName(), APPLICATION_XML_MISSING);
 		}
-		InputStream in = null;
-		try {
-			in = new ByteArrayInputStream(applicationResource.getBytes());
+		try (InputStream in = new ByteArrayInputStream(applicationResource.getBytes())) {
 			this.applicationInfo = marshallService.unmarshall(in, ApplicationInfo.class);
-		} catch (JAXBException e) {
+		} catch (JAXBException | IOException e) {
 			throw new InvalidConfigurationException(application.getName(), APPLICATION_XML_MISSING, e);
-		} finally {
-			IOUtils.closeQuietly(in);
 		}
 	}
 
@@ -148,7 +144,6 @@ public class ApplicationResourceHolder implements Resources {
 			File cacheDirectory = getCacheDirectory(type);
 			FileUtils.deleteQuietly(cacheDirectory);
 			for (Resource resource : getResources(type)) {
-				FileOutputStream fos = null;
 				try {
 					String proposedChecksum = DigestUtils.sha256Hex(resource.getBytes());
 					if (!proposedChecksum.equals(resource.getCheckSum())) {
@@ -166,14 +161,13 @@ public class ApplicationResourceHolder implements Resources {
 						}
 						cachedFile.createNewFile();
 					}
-					fos = new FileOutputStream(cachedFile);
-					fos.write(resource.getBytes());
-					LOGGER.debug("writing {} to {}", resource.getName(), cachedFile.getAbsolutePath());
-					resource.setCachedFile(cachedFile);
+					try (FileOutputStream fos = new FileOutputStream(cachedFile)) {
+						fos.write(resource.getBytes());
+						LOGGER.debug("writing {} to {}", resource.getName(), cachedFile.getAbsolutePath());
+						resource.setCachedFile(cachedFile);
+					}
 				} catch (IOException e) {
 					LOGGER.error("Error while dumping " + resource.getName(), e);
-				} finally {
-					IOUtils.closeQuietly(fos);
 				}
 			}
 		}
@@ -246,8 +240,8 @@ public class ApplicationResourceHolder implements Resources {
 					Resource applicationResource = new SimpleResource(type, binary, normalized);
 					add(type, applicationResource);
 				} catch (IOException e) {
-					throw new InvalidConfigurationException(application.getName(), "Error while reading file "
-							+ file.getName(), e);
+					throw new InvalidConfigurationException(application.getName(),
+							"Error while reading file " + file.getName(), e);
 				}
 			}
 		}
