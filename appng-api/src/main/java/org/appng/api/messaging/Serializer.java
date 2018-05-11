@@ -22,7 +22,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -72,15 +71,11 @@ public class Serializer {
 	 *             if an error occurs during serialization
 	 */
 	public void serialize(OutputStream out, Event event) throws IOException {
-		ObjectOutputStream oos = null;
-		try {
+		try (ObjectOutputStream oos = new ObjectOutputStream(out)) {
 			event.setNodeId(getNodeId());
-			oos = new ObjectOutputStream(out);
 			oos.writeObject(event.getSiteName());
 			oos.writeObject(event);
 			oos.flush();
-		} finally {
-			IOUtils.closeQuietly(oos);
 		}
 	}
 
@@ -105,9 +100,7 @@ public class Serializer {
 	public Event deserialize(InputStream data) {
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Event event = null;
-		SiteAwareObjectInputStream oos = null;
-		try {
-			oos = new SiteAwareObjectInputStream(data, environment);
+		try (SiteAwareObjectInputStream oos = new SiteAwareObjectInputStream(data, environment)) {
 			String siteName = (String) oos.readObject();
 			if (null != siteName) {
 				LOGGER.debug("deserializing event for site {}", siteName);
@@ -125,7 +118,6 @@ public class Serializer {
 		} catch (IOException | ClassNotFoundException e) {
 			LOGGER.error("error while deserializing event", e);
 		} finally {
-			IOUtils.closeQuietly(oos);
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
 		return event;
