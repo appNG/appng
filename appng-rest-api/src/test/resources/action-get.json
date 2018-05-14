@@ -1,0 +1,69 @@
+{
+  "id" : "create",
+  "event-id" : "siteEvent",
+  "parameters" : [ {
+    "name" : "form_action"
+  } ],
+  "user" : {
+    "locale" : "de_DE",
+    "timezone" : "Europe/Berlin"
+  },
+  "fields" : [ {
+    "name" : "name",
+    "label" : "name",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "host",
+    "label" : "host",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "domain",
+    "label" : "domain",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "description",
+    "label" : "description",
+    "fieldType" : "longtext",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "active",
+    "value" : "false",
+    "label" : "active",
+    "fieldType" : "checkbox",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "createRepository",
+    "value" : "false",
+    "label" : "site.createRepository",
+    "fieldType" : "checkbox",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "template",
+    "label" : "template",
+    "fieldType" : "list_radio",
+    "readonly" : false,
+    "visible" : true,
+    "options" : [ {
+      "label" : "appng",
+      "value" : "appng",
+      "selected" : true
+    }, {
+      "label" : "appng-bootstrap-gentelella",
+      "value" : "appng-bootstrap-gentelella",
+      "selected" : false
+    }, {
+      "label" : "appng-bootstrapped",
+      "value" : "appng-bootstrapped",
+      "selected" : false
+    } ]
+  } ]
+}

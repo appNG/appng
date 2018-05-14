@@ -1,0 +1,343 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: appNG REST API
+  description: The REST API for appNG
+  contact:
+    name: appNG developer team
+    email: matthias.mueller@appng.org
+    url: http://appng.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+host: appng.org
+basePath: /api
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /datasource/{id}:
+    get:
+      description: Returns a datasource by id
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of the datasource
+          required: true
+          type: string
+      responses:
+        '200':
+          description: datasource response
+          schema:
+            $ref: '#/definitions/datasource'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+
+  /action/{event-id}/{id}:
+    get:
+      description: Returns an action
+      produces:
+        - application/json
+      parameters:
+        - name: event-id
+          in: path
+          description: event-id of the action
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: ID of the action
+          required: true
+          type: string
+      responses:
+        '200':
+          description: action response
+          schema:
+            $ref: '#/definitions/action'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+    
+definitions:
+
+  action:
+    type: object
+    properties:
+      id:
+        type: string
+      event-id:
+        type: string
+      parameters:
+        type: array
+        items:
+          $ref: '#/definitions/parameter'
+      user:
+        $ref: "#/definitions/user"
+      messages:
+        type: array
+        items:
+          $ref: "#/definitions/message"
+      fields:
+        type: array
+        items:
+          $ref: "#/definitions/formField"
+
+  datasource:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      parameters:
+        type: array
+        items:
+          $ref: '#/definitions/parameter'
+      user:
+        $ref: "#/definitions/user"
+      links:
+        type: array
+        items:
+          $ref: "#/definitions/link"
+      messages:
+        type: array
+        items:
+          $ref: "#/definitions/message"
+      fields:
+        type: array
+        items:
+          $ref: '#/definitions/field'
+      filters:
+        type: array
+        items:
+          $ref: "#/definitions/filter"
+      page:
+        $ref: "#/definitions/page"
+      element:
+        $ref: "#/definitions/element"
+
+  parameter:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+
+  errorModel:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+
+  field:
+    type: object
+    required:
+      - name
+      - fieldType
+    properties:
+      name:
+        type: string
+      label:
+        type: string     
+      fieldType:
+        $ref: "#/definitions/fieldType"
+      sort:
+        $ref: "#/definitions/sort"
+      format:
+        type: string
+
+  fieldValue:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      value:
+        type: object
+
+  page:
+    type: object
+    properties:
+      number:
+        type: integer
+        format: int32
+        description: The 0-based number of the current page
+      size:
+        type: integer
+        format: int32
+        description: The number of elements per page
+      totalPages:
+        type: integer
+        format: int32
+        description: The number of total pages
+      totalElements:
+        type: integer
+        format: int32
+        description: The total number of elements
+      isFirst:
+        type: boolean
+        description: If this is the first page
+      isLast: 
+        type: boolean
+        description:  If this is the last page
+      elements:
+        type: array
+        description: The elements of this page
+        items:
+          $ref: '#/definitions/element'
+
+  sort:
+    type: object
+    properties:
+      prio:
+        type: integer
+      order:
+        type: string
+        enum: [asc, desc]
+
+  element:
+    type: object
+    properties:
+      fields:
+        type: array
+        items:
+          $ref: '#/definitions/fieldValue'
+      selected:
+        type: boolean
+      links:
+        type: array
+        items:
+          $ref: "#/definitions/link"
+
+  link:
+    type: object
+    properties:
+      name:
+        type: string
+      target:
+        type: string
+      icon:
+        type: string
+      default:
+        type: boolean
+
+  filter:
+    type: object
+    properties:
+      name:
+        type: string
+      label:
+        type: string
+      type:
+       $ref: "#/definitions/optionType"
+      multiple:
+       type: boolean
+      options:
+       type: array
+       items:
+         $ref: '#/definitions/option'
+
+  option:
+   type: object
+   properties:
+    label:
+      type: string
+    value:
+      type: string
+    selected:
+      type: boolean
+    groups:
+       type: array
+       items:
+         $ref: '#/definitions/option'
+
+  fieldType:
+   type: string
+   enum: [text, longtext, richtext, password, url, int, long, decimal, checkbox, coordinate, date, file, file_multiple, image, linkpanel, list_checkbox, list_radio, list_select, list_text, object, list_object]
+
+  optionType:
+   type: string
+   enum: [select, select_multiple, radio, checkbox, text, date]
+
+  formField:
+    type: object
+    properties:
+      name:
+        type: string
+      value:
+        type: object
+      label:
+        type: string     
+      fieldType:
+        $ref: "#/definitions/fieldType"
+      readonly:
+        type: boolean
+      visible:
+        type: boolean
+      format:
+        type: string
+      options:
+       type: array
+       items:
+         $ref: '#/definitions/option'
+      rules:
+        type: array
+        items:
+          $ref: "#/definitions/validationRule"
+      messages:
+        type: array
+        items:
+          $ref: "#/definitions/message"
+        
+  validationRule:
+    type: object
+    properties:
+      type:
+       type: string
+      message:
+        type: string
+      active:
+        type: boolean
+      options:
+        type: array
+        items:
+          $ref: "#/definitions/parameter"
+  user:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      locale:
+        type: string
+      timezone:
+        type: string
+
+  message:
+    type: object
+    properties:
+      level:
+        type: string
+        enum: [OK,NOTICE,INVALID,ERROR]
+      text:
+       type: string
