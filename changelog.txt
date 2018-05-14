@@ -1,6 +1,36 @@
+Release Notes - appNG - Version 1.17.1 (2018-05-14)
+---------------------------------------------------
+* [APPNG-2179] - Release appNG 1.17.1
+* [APPNG-2178] - Use appng-scheduler 1.11.6
+* [APPNG-2177] - Use appng-manager 1.13.1
+* [APPNG-2176] - Use try-with-resources instead of deprecated IOUtils.closeQuietly()
+* [APPNG-2175] - Provide the Site and the Application as a bean in the application's context
+* [APPNG-2174] - Optionally clean the temp-folder on platform startup using a platform-property
+* [APPNG-2173] - Call DriverManager.registerDriver() only once on startup
+* [APPNG-2172] - Default value for database.repair should be empty
+* [APPNG-2171] - Properties that represent an absolute path must use Path.normalize()
+* [APPNG-2170] - Several issues when updating appNGizer
+* [APPNG-2169] - Provide a method that checks if a datasource is filtered
+* [APPNG-2168] - Provide a changelog.txt
+* [APPNG-2166] - Create a platform event when a user's session has expired
+* [APPNG-2165] - Use hsqldb:mem for tests
+* [APPNG-2164] - Use appng-manager 1.13.0
+* [APPNG-2162] - Checksum check fails on empty files for non-filebased applications
+* [APPNG-2161] - Documentation improvement for 1.17.1
+* [APPNG-2159] - ThymeleafProcessor.AppNG.hasSort() returns for the first <sort>
+* [APPNG-2158] - Provide a HandlerMethodArgumentResolver for easier testing of @(Rest)Controllers
+* [APPNG-2157] - Lack of support for Spring MVC style error handling for @(Rest)Controller
+* [APPNG-2156] - Align table of contents at the left
+* [APPNG-2155] - Improve support for handling HTTP headers
+* [APPNG-2153] - Option(s) getInteger throws NPE for non existent attribute
+* [APPNG-2152] - PropertyConstantCreator does not support encoding
+* [APPNG-2150] - PropertyConstantCreator and ApplicationPropertyConstantCreator incorrect UTF-8 encoding
+* [APPNG-2149] - Improve build time of appNG CLI
+* [APPNG-2147] - CLI CreateSubject does not support UserType
+* [APPNG-2145] - Provide a Jenkins file for CI
 
 Release Notes - appNG - Version 1.17.0 (2018-02-28)
---------------------------------------
+---------------------------------------------------
 * [APPNG-2144] - Release appNG 1.17.0
 * [APPNG-2143] - Convert README.md to README.adoc
 * [APPNG-2142] - Comparison of package version should be done by version string first, then by timestamp
@@ -39,7 +69,7 @@ Release Notes - appNG - Version 1.17.0 (2018-02-28)
 * [APPNG-2005] - add "contributing" file
 
 Release Notes - appNG - Version 1.16.2 (2018-01-15)
---------------------------------------
+---------------------------------------------------
 * [APPNG-2110] - Error in determination of section title
 * [APPNG-2108] - Release appNG 1.16.2
 * [APPNG-2107] - Update license header to 2018
@@ -57,12 +87,12 @@ Release Notes - appNG - Version 1.16.2 (2018-01-15)
 * [APPNG-2059] - Enhancement for developer guide
 
 Release Notes - appNG - Version 1.16.1 (2017-12-18)
---------------------------------------
+---------------------------------------------------
 * [APPNG-2094] - Build and release 1.16.1
 * [APPNG-2093] - Use appng-scheduler in version 1.11.5
 
 Release Notes - appNG - Version 1.16.0 (2017-12-15)
---------------------------------------
+---------------------------------------------------
 * [APPNG-2092] - Update scheduler version to 1.11.4
 * [APPNG-2091] - Build and release 1.16.0
 * [APPNG-2090] - RestService use wrong import for HttpServletRequestWrapper
