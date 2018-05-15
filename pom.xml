@@ -109,6 +109,7 @@
 		<module>appng-xmlapi</module>
 		<module>appng-testsupport</module>
 		<module>appng-api</module>
+		<module>appng-rest-api</module>
 		<module>appng-persistence</module>
 		<module>appng-search</module>
 		<module>appng-core</module>

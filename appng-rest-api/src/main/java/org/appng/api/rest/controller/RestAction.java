@@ -78,62 +78,65 @@ public abstract class RestAction extends RestOperation {
 
 	@GetMapping(path = "/action/{event-id}/{id}")
 	public ResponseEntity<Action> getAction(@PathVariable(name = "event-id") String eventId,
-			@PathVariable(name = "id") String actionId, Site site, Application application, Environment environment,
-			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			@PathVariable(name = "id") String actionId, Site site, Application app, Environment env,
+			HttpServletRequest servletReq, HttpServletResponse servletResp)
 			throws JAXBException, InvalidConfigurationException, ProcessingException {
-
-		RestRequest initialRequest = new RestRequest(null, null);
-		httpServletRequest.getParameterMap().keySet().stream().filter(k -> !k.equals(FORM_ACTION)).forEach(key -> {
-			String[] parameterValues = httpServletRequest.getParameterValues(key);
-			for (String parameterValue : parameterValues) {
-				initialRequest.addParameter(key, parameterValue);
-			}
-		});
-
-		ApplicationProvider applicationProvider = (ApplicationProvider) application;
+		ApplicationProvider applicationProvider = (ApplicationProvider) app;
 		MarshallService marshallService = MarshallService.getMarshallService();
-		initRequest(site, application, environment, applicationProvider, initialRequest);
-		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(httpServletResponse, false,
+
+		RestRequest initialRequest = getInitialRequest(site, app, env, servletReq, applicationProvider);
+		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
-		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
-			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
+		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
-		Action action = getAction(initialRequest, initialAction, environment, null);
-		postProcessAction(action, site, application, environment);
+		Action action = getAction(initialRequest, initialAction, env, null);
+		postProcessAction(action, site, app, env);
 		return new ResponseEntity<Action>(action, HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/action/{event-id}/{id}", method = { RequestMethod.POST, RequestMethod.PUT,
 			RequestMethod.DELETE })
 	public ResponseEntity<Action> performAction(@PathVariable(name = "event-id") String eventId,
-			@PathVariable(name = "id") String actionId, @RequestBody Action receivedData, Site site,
-			Application application, Environment environment, HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws ProcessingException, JAXBException,
-			InvalidConfigurationException, org.appng.api.ProcessingException {
+			@PathVariable(name = "id") String actionId, @RequestBody Action receivedData, Site site, Application app,
+			Environment env, HttpServletRequest servletReq, HttpServletResponse servletResp) throws ProcessingException,
+			JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
 
-		ApplicationProvider applicationProvider = (ApplicationProvider) application;
+		ApplicationProvider applicationProvider = (ApplicationProvider) app;
 		MarshallService marshallService = MarshallService.getMarshallService();
 
-		RestRequest initialRequest = initRequest(site, application, environment, applicationProvider,
-				new RestRequest(null, null));
-		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(httpServletResponse, false,
+		RestRequest initialRequest = getInitialRequest(site, app, env, servletReq, applicationProvider);
+		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
-		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
-			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
+		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
 		RestRequest executingRequest = new RestRequest(initialAction, receivedData);
-		initRequest(site, application, environment, applicationProvider, executingRequest);
-		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(httpServletResponse, false,
+		initRequest(site, app, env, applicationProvider, executingRequest);
+		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(servletResp, false,
 				executingRequest, actionId, eventId, marshallService);
-		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
-			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
+		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
-		Action action = getAction(executingRequest, processedAction, environment, receivedData);
-		postProcessAction(action, site, application, environment);
+		Action action = getAction(executingRequest, processedAction, env, receivedData);
+		postProcessAction(action, site, app, env);
 		return new ResponseEntity<>(action, HttpStatus.OK);
+	}
+
+	protected RestRequest getInitialRequest(Site site, Application application, Environment environment,
+			HttpServletRequest httpServletRequest, ApplicationProvider applicationProvider) {
+		RestRequest initialRequest = new RestRequest();
+		httpServletRequest.getParameterMap().keySet().stream().filter(k -> !k.equals(FORM_ACTION)).forEach(key -> {
+			String[] parameterValues = httpServletRequest.getParameterValues(key);
+			for (String parameterValue : parameterValues) {
+				initialRequest.addParameter(key, parameterValue);
+			}
+		});
+		initRequest(site, application, environment, applicationProvider, initialRequest);
+		return initialRequest;
 	}
 
 	protected Action getAction(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
@@ -164,7 +167,7 @@ public abstract class RestAction extends RestOperation {
 					actionField.setValue(receivedData.getFields().stream()
 							.filter(pdf -> pdf.getName().equals(f.getName())).findFirst().get().getValue());
 				}
-				applyValidationRules(request, actionField, originalDef);
+				applyValidationRules(request, actionField, originalDef.get());
 
 				actionField.setMessages(getMessages(fieldDef.getMessages()));
 				if (isSelectionType(actionField.getFieldType())) {
@@ -194,9 +197,8 @@ public abstract class RestAction extends RestOperation {
 		return action;
 	}
 
-	protected void applyValidationRules(ApplicationRequest request, ActionField actionField,
-			Optional<FieldDef> originalDef) {
-		Validation validation = originalDef.get().getValidation();
+	protected void applyValidationRules(ApplicationRequest request, ActionField actionField, FieldDef originalDef) {
+		Validation validation = originalDef.getValidation();
 		if (null != validation) {
 			actionField.setRules(new ArrayList<>());
 			validation.getRules().forEach(r -> {
@@ -289,14 +291,18 @@ public abstract class RestAction extends RestOperation {
 			log.debug("Parameters: {}", wrappedRequest.getParametersList());
 		}
 
+		RestRequest() {
+			initWrappedRequest();
+		}
+
 		protected RequestBean initWrappedRequest() {
 			RequestBean wrappedRequest = new RequestBean() {
 				@Override
 				public void addParameter(String key, String value) {
 					if (!parameters.containsKey(key)) {
-						log.debug("added parameter {}={}", key, value);
 						parameters.put(key, new ArrayList<>());
 					}
+					log.debug("added parameter {}={}", key, value);
 					parameters.get(key).add(value);
 				}
 			};
@@ -304,6 +310,10 @@ public abstract class RestAction extends RestOperation {
 			return wrappedRequest;
 		}
 
+		@Override
+		public String toString() {
+			return getClass().getName() + ": " + getWrappedRequest().getParametersList();
+		}
 	}
 
 	@ExceptionHandler
