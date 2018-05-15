@@ -127,6 +127,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
+			<artifactId>appng-rest-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
 			<artifactId>appng-xmlapi</artifactId>
 		</dependency>
 		<dependency>

@@ -69,7 +69,7 @@ public class RestActionTest {
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
 		Mockito.when(environment.getSubject()).thenReturn(subject);
-		Mockito.when(environment.getLocale()).thenReturn(Locale.getDefault());
+		Mockito.when(environment.getLocale()).thenReturn(Locale.GERMANY);
 		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());
 		ClassLoader classLoader = getClass().getClassLoader();
 		InputStream is = classLoader.getResourceAsStream("action-get.xml");

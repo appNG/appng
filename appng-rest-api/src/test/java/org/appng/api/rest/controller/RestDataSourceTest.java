@@ -81,7 +81,7 @@ public class RestDataSourceTest {
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
 		Mockito.when(environment.getSubject()).thenReturn(subject);
-		Mockito.when(environment.getLocale()).thenReturn(Locale.getDefault());
+		Mockito.when(environment.getLocale()).thenReturn(Locale.GERMANY);
 		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());
 		InputStream is = getClass().getClassLoader().getResourceAsStream(dataSourceId + ".xml");
 		Mockito.when(application.processDataSource(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),

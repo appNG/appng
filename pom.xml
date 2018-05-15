@@ -663,6 +663,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
+				<artifactId>appng-rest-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.appng</groupId>
 				<artifactId>appng-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
