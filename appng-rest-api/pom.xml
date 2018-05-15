@@ -27,7 +27,7 @@
 						</goals>
 						<configuration>
 							<language>java</language>
-							<inputSpec>src/main/resources/org/appng/api/rest/appng-rest.yaml</inputSpec>
+							<inputSpec>${basedir}/src/main/resources/org/appng/api/rest/appng-rest.yaml</inputSpec>
 							<generateModels>true</generateModels>
 							<modelPackage>org.appng.api.rest.model</modelPackage>
 							<generateModelDocumentation>true</generateModelDocumentation>
