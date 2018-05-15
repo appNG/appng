@@ -6,7 +6,9 @@
   } ],
   "user" : {
     "locale" : "de_DE",
-    "timezone" : "Europe/Berlin"
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ",",
+    "groupingSeparator" : "."
   },
   "fields" : [ {
     "name" : "id",

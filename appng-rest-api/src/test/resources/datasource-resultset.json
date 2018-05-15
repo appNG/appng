@@ -2,13 +2,32 @@
   "id" : "datasource-resultset",
   "user" : {
     "locale" : "de_DE",
-    "timezone" : "Europe/Berlin"
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ",",
+    "groupingSeparator" : "."
   },
   "links" : [ {
     "default" : false,
-    "name" : "Create site",
-    "target" : "/sites/create",
-    "icon" : "new"
+    "id" : "other[1]",
+    "label" : "Create site",
+    "target" : "/manager/site/application/sites/create",
+    "icon" : "new",
+    "type" : "page",
+    "confirmation" : "Are you sure?"
+  }, {
+    "default" : false,
+    "id" : "other[2]",
+    "label" : "Create site",
+    "target" : "/service/site/application/rest/action/siteEvent/create",
+    "icon" : "new",
+    "type" : "rest"
+  }, {
+    "default" : false,
+    "id" : "other[3]",
+    "label" : "Dummy",
+    "target" : "/service/site/application/webservice/dummyService",
+    "icon" : "new",
+    "type" : "service"
   } ],
   "fields" : [ {
     "name" : "id",
@@ -85,19 +104,26 @@
       "selected" : false,
       "links" : [ {
         "default" : true,
-        "name" : "Edit",
-        "target" : "/sites/update/1",
-        "icon" : "edit"
+        "id" : "actions[1]",
+        "label" : "Edit",
+        "target" : "/manager/site/application/sites/update/1",
+        "icon" : "edit",
+        "type" : "page"
       }, {
         "default" : false,
-        "name" : "Delete",
-        "target" : "/sites?form_action=delete&siteid=1",
-        "icon" : "delete"
+        "id" : "actions[2]",
+        "label" : "Delete",
+        "target" : "/manager/site/application/sites?form_action=delete&siteid=1",
+        "icon" : "delete",
+        "type" : "page",
+        "confirmation" : "Do you really want to delete the site \"appng\"?\n\t\t\t\t\t\t"
       }, {
         "default" : false,
-        "name" : "Reload",
-        "target" : "/sites?form_action=reload&siteid=1",
-        "icon" : "reload"
+        "id" : "actions[3]",
+        "label" : "Reload",
+        "target" : "/manager/site/application/sites?form_action=reload&siteid=1",
+        "icon" : "reload",
+        "type" : "page"
       } ]
     }, {
       "fields" : [ {
@@ -128,19 +154,26 @@
       "selected" : false,
       "links" : [ {
         "default" : true,
-        "name" : "Edit",
-        "target" : "/sites/update/2",
-        "icon" : "edit"
+        "id" : "actions[1]",
+        "label" : "Edit",
+        "target" : "/manager/site/application/sites/update/2",
+        "icon" : "edit",
+        "type" : "page"
       }, {
         "default" : false,
-        "name" : "Delete",
-        "target" : "/sites?form_action=delete&siteid=2",
-        "icon" : "delete"
+        "id" : "actions[2]",
+        "label" : "Delete",
+        "target" : "/manager/site/application/sites?form_action=delete&siteid=2",
+        "icon" : "delete",
+        "type" : "page",
+        "confirmation" : "Do you really want to delete the site \"template\"?\n\t\t\t\t\t\t"
       }, {
         "default" : false,
-        "name" : "Reload",
-        "target" : "/sites?form_action=reload&siteid=2",
-        "icon" : "reload"
+        "id" : "actions[3]",
+        "label" : "Reload",
+        "target" : "/manager/site/application/sites?form_action=reload&siteid=2",
+        "icon" : "reload",
+        "type" : "page"
       } ]
     } ]
   }

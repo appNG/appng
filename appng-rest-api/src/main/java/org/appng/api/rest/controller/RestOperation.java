@@ -15,6 +15,7 @@
  */
 package org.appng.api.rest.controller;
 
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +46,9 @@ abstract class RestOperation {
 		user.setLocale(environment.getLocale().toString());
 		user.setTimezone(environment.getTimeZone().getID());
 		user.setName(subject.getRealname());
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(environment.getLocale());
+		user.setDecimalSeparator(String.valueOf(decimalFormatSymbols.getDecimalSeparator()));
+		user.setGroupingSeparator(String.valueOf(decimalFormatSymbols.getGroupingSeparator()));
 		return user;
 	}
 

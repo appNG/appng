@@ -26,6 +26,9 @@ import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
+import org.appng.api.SiteProperties;
+import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.rest.model.Datasource;
@@ -62,7 +65,13 @@ public class RestDataSourceTest {
 		Environment environment = Mockito.mock(Environment.class);
 		org.appng.forms.Request formsRequest = Mockito.mock(org.appng.forms.Request.class);
 		Site site = Mockito.mock(Site.class);
+		Properties siteProps = Mockito.mock(Properties.class);
+		Mockito.when(site.getProperties()).thenReturn(siteProps);
+		Mockito.when(site.getName()).thenReturn("site");
+		Mockito.when(siteProps.getString(SiteProperties.MANAGER_PATH)).thenReturn("/manager");
+		Mockito.when(siteProps.getString(SiteProperties.SERVICE_PATH)).thenReturn("/service");
 		ApplicationProvider application = Mockito.mock(ApplicationProvider.class);
+		Mockito.when(application.getName()).thenReturn("application");
 		RequestSupportImpl requestSupport = new RequestSupportImpl();
 		requestSupport.setEnvironment(environment);
 		Subject subject = Mockito.mock(Subject.class);
@@ -79,15 +88,15 @@ public class RestDataSourceTest {
 				Mockito.any(), Mockito.any())).thenReturn(
 						MarshallService.getMarshallService().unmarshall(is, org.appng.xml.platform.Datasource.class));
 
-		ResponseEntity<Datasource> dataSource = new MyRestDataSource(request).getDataSource(dataSourceId, site,
-				application, environment, servletRequest, servletResponse);
+		ResponseEntity<Datasource> dataSource = new MyRestDataSource(site, application, request)
+				.getDataSource(dataSourceId, environment, servletRequest, servletResponse);
 		WritingJsonValidator.validate(dataSource.getBody(), dataSourceId + ".json");
 	}
 
 	class MyRestDataSource extends RestDataSource {
 
-		public MyRestDataSource(Request request) {
-			super(request);
+		public MyRestDataSource(Site site, Application application, Request request) {
+			super(site, application, request);
 		}
 
 	}

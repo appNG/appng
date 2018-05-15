@@ -24,9 +24,11 @@ import javax.xml.bind.JAXBException;
 
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
+import org.appng.api.Platform;
 import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.Session;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Datasource;
@@ -64,18 +66,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class RestDataSource extends RestOperation {
 
-	private Request request;
+	protected Site site;
+	protected Application application;
+	protected Request request;
 
 	@Autowired
-	public RestDataSource(Request request) {
+	public RestDataSource(Site site, Application application, Request request) {
+		this.site = site;
+		this.application = application;
 		this.request = request;
 	}
 
 	@GetMapping(path = "/datasource/{id}")
-	public ResponseEntity<Datasource> getDataSource(@PathVariable(name = "id") String dataSourceId, Site site,
-			Application application, Environment environment, HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws ProcessingException, JAXBException,
-			InvalidConfigurationException, org.appng.api.ProcessingException {
+	public ResponseEntity<Datasource> getDataSource(@PathVariable(name = "id") String dataSourceId,
+			Environment environment, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			throws ProcessingException, JAXBException, InvalidConfigurationException,
+			org.appng.api.ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 
 		DatasourceRef datasourceRef = new DatasourceRef();
@@ -184,10 +190,40 @@ public abstract class RestDataSource extends RestOperation {
 
 	protected Link getLink(org.appng.xml.platform.Link l) {
 		Link link = new Link();
-		link.setName(l.getLabel().getValue());
-		link.setTarget(l.getTarget());
+		link.setLabel(l.getLabel().getValue());
+		link.setId(l.getId());
 		link.setIcon(l.getIcon().getContent());
 		link.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
+		link.setType(Link.TypeEnum.PAGE);
+		if (null != l.getConfirmation()) {
+			link.setConfirmation(l.getConfirmation().getValue());
+		}
+
+		switch (l.getMode()) {
+		case INTERN:
+			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
+			link.setTarget(
+					String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(), l.getTarget()));
+			link.setType(Link.TypeEnum.PAGE);
+			break;
+		case EXTERN:
+			link.setTarget(l.getTarget());
+			link.setType(Link.TypeEnum.EXTERN);
+			break;
+		case WEBSERVICE:
+			String servicePath = site.getProperties().getString(SiteProperties.SERVICE_PATH);
+			if (l.getTarget().startsWith(Platform.SERVICE_TYPE_REST)) {
+				link.setTarget(String.format("%s/%s/%s/%s", servicePath, site.getName(), application.getName(),
+						l.getTarget()));
+				link.setType(Link.TypeEnum.REST);
+			} else {
+				link.setTarget(String.format("%s/%s/%s/%s%s", servicePath, site.getName(), application.getName(),
+						Platform.SERVICE_TYPE_WEBSERVICE, l.getTarget()));
+				link.setType(Link.TypeEnum.SERVICE);
+			}
+			break;
+		}
+
 		return link;
 	}
 

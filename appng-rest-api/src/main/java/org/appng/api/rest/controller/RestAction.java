@@ -31,9 +31,9 @@ import org.appng.api.ProcessingException;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Action;
+import org.appng.api.rest.model.ActionField;
 import org.appng.api.rest.model.ErrorModel;
 import org.appng.api.rest.model.FieldType;
-import org.appng.api.rest.model.FormField;
 import org.appng.api.rest.model.Option;
 import org.appng.api.rest.model.Parameter;
 import org.appng.api.support.ApplicationRequest;
@@ -146,39 +146,39 @@ public abstract class RestAction extends RestOperation {
 
 		action.setFields(new ArrayList<>());
 		processedAction.getData().getResult().getFields().forEach(f -> {
-			FormField formField = new FormField();
-			formField.setName(f.getName());
-			formField.setValue(f.getValue());
-			action.getFields().add(formField);
+			ActionField actionField = new ActionField();
+			actionField.setName(f.getName());
+			actionField.setValue(f.getValue());
+			action.getFields().add(actionField);
 
 			Optional<FieldDef> originalDef = processedAction.getConfig().getMetaData().getFields().stream()
 					.filter(originalField -> originalField.getName().equals(f.getName())).findFirst();
 			if (originalDef.isPresent()) {
 				FieldDef fieldDef = originalDef.get();
-				formField.setFormat(fieldDef.getFormat());
-				formField.setLabel(fieldDef.getLabel().getId());
-				formField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
-				formField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
-				formField.setFieldType(FieldType.valueOf(fieldDef.getType().name().toUpperCase()));
+				actionField.setFormat(fieldDef.getFormat());
+				actionField.setLabel(fieldDef.getLabel().getId());
+				actionField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
+				actionField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
+				actionField.setFieldType(FieldType.valueOf(fieldDef.getType().name().toUpperCase()));
 				if (null != receivedData) {
-					formField.setValue(receivedData.getFields().stream()
+					actionField.setValue(receivedData.getFields().stream()
 							.filter(pdf -> pdf.getName().equals(f.getName())).findFirst().get().getValue());
 				}
-				applyValidationRules(request, formField, originalDef);
+				applyValidationRules(request, actionField, originalDef);
 
-				formField.setMessages(getMessages(fieldDef.getMessages()));
-				if (isSelectionType(formField.getFieldType())) {
+				actionField.setMessages(getMessages(fieldDef.getMessages()));
+				if (isSelectionType(actionField.getFieldType())) {
 					Optional<Selection> selection = processedAction.getData().getSelections().parallelStream()
-							.filter(s -> s.getId().equals(formField.getName())).findFirst();
+							.filter(s -> s.getId().equals(actionField.getName())).findFirst();
 					if (selection.isPresent()) {
 						selection.get().getOptions().forEach(o -> {
 							Option option = getOption(o);
-							formField.addOptionsItem(option);
+							actionField.addOptionsItem(option);
 						});
 						selection.get().getOptionGroups().forEach(og -> {
 							Option optionGroup = new Option();
 							optionGroup.setLabel(og.getLabel().getValue());
-							formField.addOptionsItem(optionGroup);
+							actionField.addOptionsItem(optionGroup);
 							optionGroup.setGroups(new ArrayList<>());
 							og.getOptions().forEach(o -> {
 								optionGroup.getGroups().add(getOption(o));
@@ -194,11 +194,11 @@ public abstract class RestAction extends RestOperation {
 		return action;
 	}
 
-	protected void applyValidationRules(ApplicationRequest request, FormField formField,
+	protected void applyValidationRules(ApplicationRequest request, ActionField actionField,
 			Optional<FieldDef> originalDef) {
 		Validation validation = originalDef.get().getValidation();
 		if (null != validation) {
-			formField.setRules(new ArrayList<>());
+			actionField.setRules(new ArrayList<>());
 			validation.getRules().forEach(r -> {
 				org.appng.api.rest.model.ValidationRule rule = new org.appng.api.rest.model.ValidationRule();
 				rule.setMessage(r.getMessage().getContent());
@@ -213,7 +213,7 @@ public abstract class RestAction extends RestOperation {
 						rule.getOptions().add(p);
 					});
 				}
-				formField.getRules().add(rule);
+				actionField.getRules().add(rule);
 			});
 
 		}
@@ -253,11 +253,11 @@ public abstract class RestAction extends RestOperation {
 
 			original.getConfig().getMetaData().getFields().forEach(originalField -> {
 				if (!Boolean.TRUE.toString().equalsIgnoreCase(originalField.getReadonly())) {
-					Optional<FormField> formField = receivedData.getFields().stream()
+					Optional<ActionField> actionField = receivedData.getFields().stream()
 							.filter(f -> f.getName().equals(originalField.getName())).findFirst();
-					if (formField.isPresent()) {
+					if (actionField.isPresent()) {
 						if (isSelectionType(originalField.getType())) {
-							List<Option> options = formField.get().getOptions();
+							List<Option> options = actionField.get().getOptions();
 							List<String> selectedValues = options.stream()
 									.filter(o -> Boolean.TRUE.equals(o.isSelected())).map(o -> o.getValue())
 									.collect(Collectors.toList());
@@ -273,7 +273,7 @@ public abstract class RestAction extends RestOperation {
 								}
 							});
 						} else {
-							Object value = formField.get().getValue();
+							Object value = actionField.get().getValue();
 							request.addParameter(originalField.getBinding(), null == value ? null : value.toString());
 						}
 					}

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<datasource id="sites" xmlns="http://www.appng.org/schema/platform">
+<datasource id="sites" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
 	<config>
 		<title id="sites"><![CDATA[Sites]]></title>
 		<permissions>
@@ -49,6 +50,21 @@
 					<permission mode="set" ref="site.create">true</permission>
 				</permissions>
 				<label id="site.create"><![CDATA[Create site]]></label>
+				<icon>new</icon>
+				<confirmation>Are you sure?</confirmation>
+			</link>
+			<link id="other[2]" mode="webservice" target="rest/action/siteEvent/create">
+				<permissions>
+					<permission mode="set" ref="site.create">true</permission>
+				</permissions>
+				<label id="site.create"><![CDATA[Create site]]></label>
+				<icon>new</icon>
+			</link>
+			<link id="other[3]" mode="webservice" target="/dummyService">
+				<permissions>
+					<permission mode="set" ref="site.create">true</permission>
+				</permissions>
+				<label id="site.create"><![CDATA[Dummy]]></label>
 				<icon>new</icon>
 			</link>
 		</linkpanel>

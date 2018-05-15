@@ -6,7 +6,9 @@
   } ],
   "user" : {
     "locale" : "de_DE",
-    "timezone" : "Europe/Berlin"
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ",",
+    "groupingSeparator" : "."
   },
   "fields" : [ {
     "name" : "name",
@@ -53,16 +55,16 @@
     "readonly" : false,
     "visible" : true,
     "options" : [ {
-      "label" : "appng",
       "value" : "appng",
+      "label" : "appng",
       "selected" : true
     }, {
-      "label" : "appng-bootstrap-gentelella",
       "value" : "appng-bootstrap-gentelella",
+      "label" : "appng-bootstrap-gentelella",
       "selected" : false
     }, {
-      "label" : "appng-bootstrapped",
       "value" : "appng-bootstrapped",
+      "label" : "appng-bootstrapped",
       "selected" : false
     } ]
   } ]
