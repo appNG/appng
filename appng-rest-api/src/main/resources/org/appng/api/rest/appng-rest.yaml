@@ -62,8 +62,12 @@ paths:
           description: action response
           schema:
             $ref: '#/definitions/action'
+        '400':
+          description: action response, in case an recoverable error occurred
+          schema:
+            $ref: '#/definitions/action'
         default:
-          description: unexpected error
+          description: unexpected/unrecoverable error
           schema:
             $ref: '#/definitions/errorModel'
     post:
@@ -86,8 +90,12 @@ paths:
           description: action response
           schema:
             $ref: '#/definitions/action'
+        '400':
+          description: action response, in case an recoverable error occurred
+          schema:
+            $ref: '#/definitions/action'
         default:
-          description: unexpected error
+          description: unexpected/unrecoverable error
           schema:
             $ref: '#/definitions/errorModel'
     

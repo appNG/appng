@@ -93,7 +93,7 @@ public abstract class RestAction extends RestOperation {
 
 		Action action = getAction(initialRequest, initialAction, env, null);
 		postProcessAction(action, site, app, env);
-		return new ResponseEntity<Action>(action, HttpStatus.OK);
+		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/action/{event-id}/{id}", method = { RequestMethod.POST, RequestMethod.PUT,
@@ -123,7 +123,7 @@ public abstract class RestAction extends RestOperation {
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);
 		postProcessAction(action, site, app, env);
-		return new ResponseEntity<>(action, HttpStatus.OK);
+		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
 	protected RestRequest getInitialRequest(Site site, Application application, Environment environment,
@@ -202,23 +202,29 @@ public abstract class RestAction extends RestOperation {
 		if (null != validation) {
 			actionField.setRules(new ArrayList<>());
 			validation.getRules().forEach(r -> {
-				org.appng.api.rest.model.ValidationRule rule = new org.appng.api.rest.model.ValidationRule();
-				rule.setMessage(r.getMessage().getContent());
-				rule.setType(r.getType());
-				List<org.appng.xml.platform.Rule.Option> options = r.getOption();
-				if (null != options) {
-					rule.setOptions(new ArrayList<>());
-					options.forEach(o -> {
-						Parameter p = new Parameter();
-						p.setName(o.getName());
-						p.setValue(o.getValue());
-						rule.getOptions().add(p);
-					});
+				List<String> existingTypes = actionField.getRules().stream().map(x -> x.getType())
+						.collect(Collectors.toList());
+				if (!existingTypes.contains(r.getType())) {
+					org.appng.api.rest.model.ValidationRule rule = new org.appng.api.rest.model.ValidationRule();
+					rule.setMessage(r.getMessage().getContent());
+					rule.setType(r.getType());
+					List<org.appng.xml.platform.Rule.Option> options = r.getOption();
+					if (null != options) {
+						rule.setOptions(new ArrayList<>());
+						options.forEach(o -> {
+							Parameter p = new Parameter();
+							p.setName(o.getName());
+							p.setValue(o.getValue());
+							rule.getOptions().add(p);
+						});
+					}
+					actionField.getRules().add(rule);
+					log.debug("Added rule {} to field {} (contains {} rules)", rule.getType(), actionField.getName(),
+							actionField.getRules().size());
 				}
-				actionField.getRules().add(rule);
 			});
-
 		}
+
 	}
 
 	protected RestRequest initRequest(Site site, Application application, Environment environment,
@@ -268,15 +274,14 @@ public abstract class RestAction extends RestOperation {
 								List<Option> groups = o.getGroups();
 								if (null != groups) {
 									List<String> selectedValuesfromGroups = groups.stream()
-											.filter(groupOption -> Boolean.TRUE.equals(o.isSelected()))
+											.filter(groupOption -> Boolean.TRUE.equals(groupOption.isSelected()))
 											.map(groupOption -> groupOption.getValue()).collect(Collectors.toList());
 									selectedValuesfromGroups
 											.forEach(s -> request.addParameter(originalField.getBinding(), s));
 								}
 							});
 						} else {
-							Object value = actionField.get().getValue();
-							request.addParameter(originalField.getBinding(), null == value ? null : value.toString());
+							request.addParameter(originalField.getBinding(), actionField.get().getValue());
 						}
 					}
 				}

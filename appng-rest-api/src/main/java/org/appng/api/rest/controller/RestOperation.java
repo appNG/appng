@@ -31,6 +31,7 @@ import org.appng.api.rest.model.Option;
 import org.appng.api.rest.model.Message.LevelEnum;
 import org.appng.api.rest.model.Parameter;
 import org.appng.api.rest.model.User;
+import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Params;
 import org.slf4j.Logger;
@@ -38,6 +39,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 abstract class RestOperation {
+
+	protected boolean errors = false;
 
 	protected User getUser(Environment environment) {
 		Subject subject = environment.getSubject();
@@ -71,6 +74,7 @@ abstract class RestOperation {
 				message.setLevel(LevelEnum.fromValue(originalMessage.getClazz().name()));
 				message.setText(originalMessage.getContent());
 				messageList.add(message);
+				errors |= originalMessage.getClazz().equals(MessageType.ERROR);
 			});
 		}
 		return messageList;
@@ -103,5 +107,9 @@ abstract class RestOperation {
 		errorModel.setCode(response.getStatus());
 		errorModel.setMessage(e.getMessage());
 		return new ResponseEntity<>(errorModel, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	protected boolean hasErrors() {
+		return errors;
 	}
 }
