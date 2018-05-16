@@ -95,6 +95,14 @@
 		</linkpanel>
 	</config>
 	<data>
+		<selectionGroup>
+			<selection id="multiple" type="select:multiple">
+				<title id="Dummy">Dummy</title>
+				<option value="a" name="a" selected="true" />
+				<option value="b" name="b" selected="false" />
+				<option value="c" name="c" selected="true" />
+			</selection>
+		</selectionGroup>
 		<resultset chunk="0" chunkname="sites" chunksize="25" firstchunk="0" hits="2" lastchunk="0" nextchunk="0"
 			previouschunk="0">
 			<result>

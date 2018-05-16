@@ -41,6 +41,7 @@ import org.appng.api.rest.model.FieldValue;
 import org.appng.api.rest.model.Filter;
 import org.appng.api.rest.model.Link;
 import org.appng.api.rest.model.OptionType;
+import org.appng.api.rest.model.Options;
 import org.appng.api.rest.model.Page;
 import org.appng.api.rest.model.Sort.OrderEnum;
 import org.appng.api.rest.model.User;
@@ -138,10 +139,11 @@ abstract class RestDataSourceBase extends RestOperation {
 					filter.setLabel(s.getTitle().getValue());
 					filter.setName(s.getId());
 					filter.setType(OptionType.valueOf(s.getType().name()));
-					filter.setMultiple(filter.getType().equals(OptionType.CHECKBOX)
+					filter.setOptions(new Options());
+					filter.getOptions().setMultiple(filter.getType().equals(OptionType.CHECKBOX)
 							|| filter.getType().equals(OptionType.SELECT_MULTIPLE));
 					s.getOptions().forEach(o -> {
-						filter.addOptionsItem(getOption(o));
+						filter.getOptions().addEntriesItem(getOption(o));
 					});
 					datasource.addFiltersItem(filter);
 				});

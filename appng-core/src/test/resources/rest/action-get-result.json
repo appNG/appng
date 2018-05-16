@@ -54,18 +54,20 @@
     "fieldType" : "list_radio",
     "readonly" : false,
     "visible" : true,
-    "options" : [ {
-      "value" : "appng",
-      "label" : "appng",
-      "selected" : true
-    }, {
-      "value" : "appng-bootstrap-gentelella",
-      "label" : "appng-bootstrap-gentelella",
-      "selected" : false
-    }, {
-      "value" : "appng-bootstrapped",
-      "label" : "appng-bootstrapped",
-      "selected" : false
-    } ]
+    "options" : {
+      "entries" : [ {
+        "value" : "appng",
+        "label" : "appng",
+        "selected" : true
+      }, {
+        "value" : "appng-bootstrap-gentelella",
+        "label" : "appng-bootstrap-gentelella",
+        "selected" : false
+      }, {
+        "value" : "appng-bootstrapped",
+        "label" : "appng-bootstrapped",
+        "selected" : false
+      } ]
+    }
   } ]
 }

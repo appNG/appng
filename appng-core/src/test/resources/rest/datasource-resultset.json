@@ -68,6 +68,27 @@
     "fieldType" : "date",
     "format" : "yyyy-MM-dd HH:mm:ss"
   } ],
+  "filters" : [ {
+    "name" : "multiple",
+    "label" : "Dummy",
+    "type" : "select_multiple",
+    "options" : {
+      "multiple" : true,
+      "entries" : [ {
+        "value" : "a",
+        "label" : "a",
+        "selected" : true
+      }, {
+        "value" : "b",
+        "label" : "b",
+        "selected" : false
+      }, {
+        "value" : "c",
+        "label" : "c",
+        "selected" : true
+      } ]
+    }
+  } ],
   "page" : {
     "number" : 0,
     "size" : 25,

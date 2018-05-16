@@ -37,6 +37,7 @@ import org.appng.api.rest.model.ActionField;
 import org.appng.api.rest.model.ErrorModel;
 import org.appng.api.rest.model.FieldType;
 import org.appng.api.rest.model.Option;
+import org.appng.api.rest.model.Options;
 import org.appng.api.rest.model.Parameter;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DefaultPermissionProcessor;
@@ -208,14 +209,15 @@ abstract class RestActionBase extends RestOperation {
 					Optional<Selection> selection = processedAction.getData().getSelections().parallelStream()
 							.filter(s -> s.getId().equals(actionField.getName())).findFirst();
 					if (selection.isPresent()) {
+						actionField.setOptions(new Options());
 						selection.get().getOptions().forEach(o -> {
 							Option option = getOption(o);
-							actionField.addOptionsItem(option);
+							actionField.getOptions().addEntriesItem(option);
 						});
 						selection.get().getOptionGroups().forEach(og -> {
 							Option optionGroup = new Option();
 							optionGroup.setLabel(og.getLabel().getValue());
-							actionField.addOptionsItem(optionGroup);
+							actionField.getOptions().addEntriesItem(optionGroup);
 							optionGroup.setGroups(new ArrayList<>());
 							og.getOptions().forEach(o -> {
 								optionGroup.getGroups().add(getOption(o));
@@ -299,7 +301,7 @@ abstract class RestActionBase extends RestOperation {
 							.filter(f -> f.getName().equals(originalField.getName())).findFirst();
 					if (actionField.isPresent()) {
 						if (isSelectionType(originalField.getType())) {
-							List<Option> options = actionField.get().getOptions();
+							List<Option> options = actionField.get().getOptions().getEntries();
 							List<String> selectedValues = options.stream()
 									.filter(o -> Boolean.TRUE.equals(o.isSelected())).map(o -> o.getValue())
 									.collect(Collectors.toList());

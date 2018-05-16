@@ -340,15 +340,22 @@ definitions:
       type:
        $ref: "#/definitions/optionType"
        description: "The type of the filter."
-      multiple:
+      options:
+       $ref: "#/definitions/options"
+       description: "The options for this filter."
+  
+  options:
+    type: object
+    description: "A set of selectable options"
+    properties:
+     multiple:
        type: boolean
        description: "Whether or not this filter allows multiple options to be selected."
-      options:
-       type: array
-       description: "A list of options for this filter."
-       items:
+     entries:
+      type: array
+      description: "A list of options for this filter."
+      items:
          $ref: '#/definitions/option'
-
   option:
    type: object
    description: "A single option, used in a filter or an action-field."
@@ -404,10 +411,8 @@ definitions:
         type: string
         description: "The format for this field, depending on its type."
       options:
-        type: array
-        description: "A list of options to choose from, only applicable if the type demands this."
-        items:
-         $ref: '#/definitions/option'
+        $ref: "#/definitions/options"
+        description: "The options for this filter."
       rules:
         type: array
         description: "The validation rules that should be applied for this field."
