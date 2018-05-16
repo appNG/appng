@@ -18,7 +18,9 @@
         http://www.springframework.org/schema/util
         http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<context:component-scan base-package="org.appng.core" />
+	<context:component-scan base-package="org.appng.core">
+		<context:exclude-filter type="regex" expression="org.appng.core.controller.rest.*"/>
+	</context:component-scan>
 	<jpa:repositories base-package="org.appng.core.repository" entity-manager-factory-ref="entityManagerFactory"
 		factory-class="org.appng.persistence.repository.SearchRepositoryFactoryBean" transaction-manager-ref="coreTxManager" />
 

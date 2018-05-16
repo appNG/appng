@@ -17,39 +17,25 @@ package org.appng.core.controller.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.HashMap;
 
 import javax.xml.bind.JAXBException;
 
-import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
-import org.appng.api.SiteProperties;
-import org.appng.api.model.Application;
-import org.appng.api.model.Properties;
-import org.appng.api.model.Site;
-import org.appng.api.model.Subject;
 import org.appng.api.rest.model.Datasource;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.RequestSupportImpl;
 import org.appng.core.controller.rest.RestPostProcessor.RestDataSource;
-import org.appng.core.model.ApplicationProvider;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.MarshallService;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
-public class RestDataSourceTest {
-
-	static {
-		WritingJsonValidator.writeJson = false;
-	}
+public class RestDataSourceTest extends RestOperationTest {
 
 	@Test
 	public void testResultSet() throws Exception {
@@ -63,34 +49,22 @@ public class RestDataSourceTest {
 
 	protected void runTest(String dataSourceId)
 			throws InvalidConfigurationException, ProcessingException, JAXBException, IOException {
-		Environment environment = Mockito.mock(Environment.class);
-		org.appng.forms.Request formsRequest = Mockito.mock(org.appng.forms.Request.class);
-		Site site = Mockito.mock(Site.class);
-		Properties siteProps = Mockito.mock(Properties.class);
-		Mockito.when(site.getProperties()).thenReturn(siteProps);
-		Mockito.when(site.getName()).thenReturn("site");
-		Mockito.when(siteProps.getString(SiteProperties.MANAGER_PATH)).thenReturn("/manager");
-		Mockito.when(siteProps.getString(SiteProperties.SERVICE_PATH)).thenReturn("/service");
-		ApplicationProvider application = Mockito.mock(ApplicationProvider.class);
-		Mockito.when(application.getName()).thenReturn("application");
+
+		InputStream is = getClass().getClassLoader().getResourceAsStream("rest/" + dataSourceId + ".xml");
+		org.appng.xml.platform.Datasource originalDataSource = MarshallService.getMarshallService().unmarshall(is,
+				org.appng.xml.platform.Datasource.class);
+		Mockito.when(appconfig.getDatasource(dataSourceId)).thenReturn(originalDataSource);
+
 		RequestSupportImpl requestSupport = new RequestSupportImpl();
 		requestSupport.setEnvironment(environment);
-		Subject subject = Mockito.mock(Subject.class);
 		Request request = new ApplicationRequest(formsRequest, new DummyPermissionProcessor(subject, site, application),
 				requestSupport);
-		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
-		Mockito.when(environment.getSubject()).thenReturn(subject);
-		Mockito.when(environment.getLocale()).thenReturn(Locale.GERMANY);
-		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());
-		InputStream is = getClass().getClassLoader().getResourceAsStream("rest/" +dataSourceId + ".xml");
 		Mockito.when(application.processDataSource(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
-				Mockito.any(), Mockito.any())).thenReturn(
-						MarshallService.getMarshallService().unmarshall(is, org.appng.xml.platform.Datasource.class));
+				Mockito.any(), Mockito.any())).thenReturn(originalDataSource);
 
-		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request)
-				.getDataSource(dataSourceId, environment, servletRequest, servletResponse);
+		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request, true)
+				.getDataSource(dataSourceId, new HashMap<>(), environment, servletRequest, servletResponse);
 		WritingJsonValidator.validate(dataSource.getBody(), "rest/" + dataSourceId + ".json");
 	}
 
