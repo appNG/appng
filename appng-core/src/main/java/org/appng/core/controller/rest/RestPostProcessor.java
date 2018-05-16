@@ -18,11 +18,10 @@ package org.appng.core.controller.rest;
 import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
-import org.appng.core.controller.rest.RestActionBase;
-import org.appng.core.controller.rest.RestDataSourceBase;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -33,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
 public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, Ordered {
-	
+
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 		StandardAnnotationMetadata restActionMetaData = new StandardAnnotationMetadata(RestAction.class);
 		AnnotatedGenericBeanDefinition restAction = new AnnotatedGenericBeanDefinition(restActionMetaData);
@@ -52,23 +51,25 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;
 	}
-	
+
 	@RestController
 	@RequestScope
 	static class RestAction extends RestActionBase {
 		@Autowired
-		public RestAction(MessageSource messageSource) {
-			super(messageSource);
+		public RestAction(Site site, Application application, Request request,
+				@Value("${useRestPathParameters:true}") boolean supportPathParameters, MessageSource messageSource) {
+			super(site, application, request, supportPathParameters, messageSource);
 		}
+
 	}
-	
+
 	@RestController
 	@RequestScope
 	static class RestDataSource extends RestDataSourceBase {
-
 		@Autowired
-		public RestDataSource(Site site, Application application, Request request) {
-			super(site, application, request);
+		public RestDataSource(Site site, Application application, Request request,
+				@Value("${useRestPathParameters:true}") boolean supportPathParameters) {
+			super(site, application, request, supportPathParameters);
 		}
 
 	}

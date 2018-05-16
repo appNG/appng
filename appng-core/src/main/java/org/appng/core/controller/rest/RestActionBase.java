@@ -17,6 +17,7 @@ package org.appng.core.controller.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ import javax.xml.bind.JAXBException;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.ProcessingException;
+import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Action;
@@ -43,7 +45,6 @@ import org.appng.api.support.RequestSupportImpl;
 import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.model.ApplicationProvider;
-import org.appng.forms.Request;
 import org.appng.forms.impl.RequestBean;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.FieldDef;
@@ -71,19 +72,37 @@ abstract class RestActionBase extends RestOperation {
 	private MessageSource messageSource;
 
 	@Autowired
-	public RestActionBase(MessageSource messageSource) {
+	public RestActionBase(Site site, Application application, Request request, boolean supportPathParameters,
+			MessageSource messageSource) {
+		super(site, application, request, supportPathParameters);
 		this.messageSource = messageSource;
 	}
 
-	@GetMapping(path = "/action/{event-id}/{id}")
+	@GetMapping(path = { "/action/{event-id}/{id}", "/action/{event-id}/{id}/{pathVar1}",
+			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}", "/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
+			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
+			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" })
 	public ResponseEntity<Action> getAction(@PathVariable(name = "event-id") String eventId,
-			@PathVariable(name = "id") String actionId, Site site, Application app, Environment env,
+			@PathVariable(name = "id") String actionId,
+			@PathVariable(required = false) Map<String, String> pathVariables, Environment env,
 			HttpServletRequest servletReq, HttpServletResponse servletResp)
 			throws JAXBException, InvalidConfigurationException, ProcessingException {
-		ApplicationProvider applicationProvider = (ApplicationProvider) app;
+		ApplicationProvider applicationProvider = (ApplicationProvider) application;
+		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
+				actionId);
+
+		if (null == originalAction) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		MarshallService marshallService = MarshallService.getMarshallService();
 
-		RestRequest initialRequest = getInitialRequest(site, app, env, servletReq, applicationProvider);
+		RestRequest initialRequest = getInitialRequest(site, application, env, servletReq, applicationProvider);
+
+		if (supportPathParameters) {
+			applyPathParameters(pathVariables, originalAction.getConfig(), initialRequest);
+		}
+
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
@@ -91,21 +110,37 @@ abstract class RestActionBase extends RestOperation {
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null);
-		postProcessAction(action, site, app, env);
+		postProcessAction(action, site, application, env);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/action/{event-id}/{id}", method = { RequestMethod.POST, RequestMethod.PUT,
-			RequestMethod.DELETE })
+	@RequestMapping(path = { "/action/{event-id}/{id}", "/action/{event-id}/{id}/{pathVar1}",
+			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}", "/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
+			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
+			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" }, method = {
+					RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE })
 	public ResponseEntity<Action> performAction(@PathVariable(name = "event-id") String eventId,
-			@PathVariable(name = "id") String actionId, @RequestBody Action receivedData, Site site, Application app,
+			@PathVariable(name = "id") String actionId,
+			@PathVariable(required = false) Map<String, String> pathVariables, @RequestBody Action receivedData,
 			Environment env, HttpServletRequest servletReq, HttpServletResponse servletResp) throws ProcessingException,
 			JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
 
-		ApplicationProvider applicationProvider = (ApplicationProvider) app;
+		ApplicationProvider applicationProvider = (ApplicationProvider) application;
+		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
+				actionId);
+
+		if (null == originalAction) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
 		MarshallService marshallService = MarshallService.getMarshallService();
 
-		RestRequest initialRequest = getInitialRequest(site, app, env, servletReq, applicationProvider);
+		RestRequest initialRequest = getInitialRequest(site, application, env, servletReq, applicationProvider);
+
+		if (supportPathParameters) {
+			applyPathParameters(pathVariables, originalAction.getConfig(), initialRequest);
+		}
+
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
@@ -113,7 +148,7 @@ abstract class RestActionBase extends RestOperation {
 		}
 
 		RestRequest executingRequest = new RestRequest(initialAction, receivedData);
-		initRequest(site, app, env, applicationProvider, executingRequest);
+		initRequest(site, application, env, applicationProvider, executingRequest);
 		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(servletResp, false,
 				executingRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
@@ -121,7 +156,7 @@ abstract class RestActionBase extends RestOperation {
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);
-		postProcessAction(action, site, app, env);
+		postProcessAction(action, site, application, env);
 		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -243,7 +278,7 @@ abstract class RestActionBase extends RestOperation {
 	}
 
 	protected void extractRequestParameters(org.appng.xml.platform.Action original, Action receivedData,
-			Request request) {
+			org.appng.forms.Request formRequest) {
 		if (null != receivedData && null != original) {
 			Params params = original.getConfig().getParams();
 			if (null != params) {
@@ -252,7 +287,7 @@ abstract class RestActionBase extends RestOperation {
 							.filter(p -> p.getName().equals(originalParam.getName())).findFirst();
 					if (parameter.isPresent()) {
 						String value = parameter.get().getValue();
-						request.addParameter(parameter.get().getName(), null == value ? null : value.toString());
+						formRequest.addParameter(parameter.get().getName(), null == value ? null : value.toString());
 					}
 
 				});
@@ -268,7 +303,7 @@ abstract class RestActionBase extends RestOperation {
 							List<String> selectedValues = options.stream()
 									.filter(o -> Boolean.TRUE.equals(o.isSelected())).map(o -> o.getValue())
 									.collect(Collectors.toList());
-							selectedValues.forEach(s -> request.addParameter(originalField.getBinding(), s));
+							selectedValues.forEach(s -> formRequest.addParameter(originalField.getBinding(), s));
 							options.stream().forEach(o -> {
 								List<Option> groups = o.getGroups();
 								if (null != groups) {
@@ -276,11 +311,11 @@ abstract class RestActionBase extends RestOperation {
 											.filter(groupOption -> Boolean.TRUE.equals(groupOption.isSelected()))
 											.map(groupOption -> groupOption.getValue()).collect(Collectors.toList());
 									selectedValuesfromGroups
-											.forEach(s -> request.addParameter(originalField.getBinding(), s));
+											.forEach(s -> formRequest.addParameter(originalField.getBinding(), s));
 								}
 							});
 						} else {
-							request.addParameter(originalField.getBinding(), actionField.get().getValue());
+							formRequest.addParameter(originalField.getBinding(), actionField.get().getValue());
 						}
 					}
 				}

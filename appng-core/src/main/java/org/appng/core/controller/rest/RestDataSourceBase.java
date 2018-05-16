@@ -16,6 +16,7 @@
 package org.appng.core.controller.rest;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,7 +47,6 @@ import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.xml.MarshallService;
-import org.appng.xml.platform.DatasourceRef;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.PanelLocation;
 import org.appng.xml.platform.Result;
@@ -65,26 +65,28 @@ import org.springframework.web.bind.annotation.PathVariable;
 abstract class RestDataSourceBase extends RestOperation {
 
 	private static final Logger log = LoggerFactory.getLogger(RestDataSourceBase.class);
-	protected Site site;
-	protected Application application;
-	protected Request request;
 
 	@Autowired
-	public RestDataSourceBase(Site site, Application application, Request request) {
-		this.site = site;
-		this.application = application;
-		this.request = request;
+	public RestDataSourceBase(Site site, Application application, Request request, boolean supportPathParameters) {
+		super(site, application, request, supportPathParameters);
 	}
 
-	@GetMapping(path = "/datasource/{id}")
+	@GetMapping(path = { "/datasource/{id}", "/datasource/{id}/{pathVar1}", "/datasource/{id}/{pathVar1}/{pathVar2}",
+			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
+			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
+			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" })
 	public ResponseEntity<Datasource> getDataSource(@PathVariable(name = "id") String dataSourceId,
-			Environment environment, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws ProcessingException, JAXBException, InvalidConfigurationException,
-			org.appng.api.ProcessingException {
+			@PathVariable(required = false) Map<String, String> pathVariables, Environment environment,
+			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ProcessingException,
+			JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 
-		DatasourceRef datasourceRef = new DatasourceRef();
-		datasourceRef.setId(dataSourceId);
+		if (supportPathParameters) {
+			org.appng.xml.platform.Datasource originalDatasource = applicationProvider.getApplicationConfig()
+					.getDatasource(dataSourceId);
+			applyPathParameters(pathVariables, originalDatasource.getConfig(), request);
+		}
+
 		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
 				httpServletResponse, false, (ApplicationRequest) request, dataSourceId,
 				MarshallService.getMarshallService());

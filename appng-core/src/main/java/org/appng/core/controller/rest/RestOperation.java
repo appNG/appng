@@ -19,20 +19,28 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
+import org.appng.api.Request;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.rest.model.ErrorModel;
 import org.appng.api.rest.model.FieldType;
 import org.appng.api.rest.model.Message;
-import org.appng.api.rest.model.Option;
 import org.appng.api.rest.model.Message.LevelEnum;
+import org.appng.api.rest.model.Option;
 import org.appng.api.rest.model.Parameter;
 import org.appng.api.rest.model.User;
+import org.appng.api.support.ApplicationRequest;
+import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
+import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -40,7 +48,19 @@ import org.springframework.http.ResponseEntity;
 
 abstract class RestOperation {
 
+	protected static final String PATH_VAR = "pathVar";
+	protected Site site;
+	protected Application application;
+	protected ApplicationRequest request;
+	protected boolean supportPathParameters;
 	protected boolean errors = false;
+
+	public RestOperation(Site site, Application application, Request request, boolean supportPathParameters) {
+		this.site = site;
+		this.application = application;
+		this.request = (ApplicationRequest) request;
+		this.supportPathParameters = supportPathParameters;
+	}
 
 	protected User getUser(Environment environment) {
 		Subject subject = environment.getSubject();
@@ -107,6 +127,25 @@ abstract class RestOperation {
 		errorModel.setCode(response.getStatus());
 		errorModel.setMessage(e.getMessage());
 		return new ResponseEntity<>(errorModel, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	protected void applyPathParameters(Map<String, String> pathVariables, DataConfig config,
+			ApplicationRequest applicationRequest) {
+		Params params = config.getParams();
+		if (null != params) {
+			List<Param> paramList = params.getParam();
+			int maxParams = 5;
+			int paramNo = 1;
+			while (paramNo <= paramList.size() && paramNo < maxParams) {
+				String paramName = paramList.get(paramNo - 1).getName();
+				String pathVariable = pathVariables.get(PATH_VAR + paramNo);
+				if (StringUtils.isNotBlank(pathVariable)) {
+					applicationRequest.addParameter(paramName, pathVariable);
+					getLogger().debug("added path parameter {}:{}", paramName, pathVariable);
+				}
+				paramNo++;
+			}
+		}
 	}
 
 	protected boolean hasErrors() {
