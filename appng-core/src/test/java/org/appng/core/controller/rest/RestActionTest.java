@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.api.rest.controller;
+package org.appng.core.controller.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +29,7 @@ import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.rest.model.Action;
 import org.appng.api.support.RequestSupportImpl;
+import org.appng.core.controller.rest.RestPostProcessor.RestAction;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.MarshallService;
@@ -56,6 +57,11 @@ public class RestActionTest {
 		runTest("action-post", false);
 	}
 
+	@Test
+	public void testPostActionValidationError() throws Exception {
+		runTest("action-post-validation", false);
+	}
+
 	protected void runTest(String actionId, boolean istGet)
 			throws InvalidConfigurationException, ProcessingException, JAXBException, IOException {
 		Environment environment = Mockito.mock(Environment.class);
@@ -72,29 +78,22 @@ public class RestActionTest {
 		Mockito.when(environment.getLocale()).thenReturn(Locale.GERMANY);
 		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());
 		ClassLoader classLoader = getClass().getClassLoader();
-		InputStream is = classLoader.getResourceAsStream("action-get.xml");
+		InputStream is = classLoader.getResourceAsStream("rest/action-get.xml");
 		Mockito.when(application.processAction(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
 				Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(MarshallService.getMarshallService().unmarshall(is, org.appng.xml.platform.Action.class));
 
 		if (istGet) {
-			ResponseEntity<Action> action = new MyRestAction(messageSource).getAction("", actionId, site, application,
+			ResponseEntity<Action> action = new RestAction(messageSource).getAction("", actionId, site, application,
 					environment, servletRequest, servletResponse);
-			WritingJsonValidator.validate(action.getBody(), actionId + "-result.json");
+			WritingJsonValidator.validate(action.getBody(), "rest/" +actionId + "-result.json");
 		} else {
-			InputStream resource = classLoader.getResourceAsStream(actionId + ".json");
+			InputStream resource = classLoader.getResourceAsStream("rest/" +actionId + ".json");
 			Action input = Jackson2ObjectMapperBuilder.json().build().readValue(resource, Action.class);
-			ResponseEntity<Action> action = new MyRestAction(messageSource).performAction("", actionId, input, site,
+			ResponseEntity<Action> action = new RestAction(messageSource).performAction("", actionId, input, site,
 					application, environment, servletRequest, servletResponse);
-			WritingJsonValidator.validate(action.getBody(), actionId + "-result.json");
+			WritingJsonValidator.validate(action.getBody(), "rest/" +actionId + "-result.json");
 		}
 	}
 
-	class MyRestAction extends RestAction {
-
-		public MyRestAction(MessageSource messageSource) {
-			super(messageSource);
-		}
-
-	}
 }

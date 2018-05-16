@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.api.rest.controller;
+package org.appng.core.controller.rest;
 
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.ProcessingException;
 import javax.xml.bind.JAXBException;
 
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
+import org.appng.api.ProcessingException;
 import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.Session;
@@ -54,6 +54,7 @@ import org.appng.xml.platform.Resultset;
 import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Sort;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,17 +62,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import lombok.extern.slf4j.Slf4j;
+abstract class RestDataSourceBase extends RestOperation {
 
-@Slf4j
-public abstract class RestDataSource extends RestOperation {
-
+	private static final Logger log = LoggerFactory.getLogger(RestDataSourceBase.class);
 	protected Site site;
 	protected Application application;
 	protected Request request;
 
 	@Autowired
-	public RestDataSource(Site site, Application application, Request request) {
+	public RestDataSourceBase(Site site, Application application, Request request) {
 		this.site = site;
 		this.application = application;
 		this.request = request;

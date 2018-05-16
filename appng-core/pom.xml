@@ -340,6 +340,11 @@
 			<artifactId>thymeleaf-spring4</artifactId>
 			<version>3.0.8.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-rest-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->
 </project>

@@ -80,6 +80,7 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
+import org.appng.core.controller.rest.RestPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
@@ -723,6 +724,11 @@ public class InitializerService {
 				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
 						application.getDatabaseConnection(), dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
+
+				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
+				if (enableRest) {
+					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
+				}
 
 				applicationContext.refresh();
 

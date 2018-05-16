@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.api.rest.controller;
+package org.appng.core.controller.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +35,7 @@ import org.appng.api.rest.model.Datasource;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.RequestSupportImpl;
+import org.appng.core.controller.rest.RestPostProcessor.RestDataSource;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.MarshallService;
@@ -83,21 +84,14 @@ public class RestDataSourceTest {
 		Mockito.when(environment.getSubject()).thenReturn(subject);
 		Mockito.when(environment.getLocale()).thenReturn(Locale.GERMANY);
 		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());
-		InputStream is = getClass().getClassLoader().getResourceAsStream(dataSourceId + ".xml");
+		InputStream is = getClass().getClassLoader().getResourceAsStream("rest/" +dataSourceId + ".xml");
 		Mockito.when(application.processDataSource(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
 				Mockito.any(), Mockito.any())).thenReturn(
 						MarshallService.getMarshallService().unmarshall(is, org.appng.xml.platform.Datasource.class));
 
-		ResponseEntity<Datasource> dataSource = new MyRestDataSource(site, application, request)
+		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request)
 				.getDataSource(dataSourceId, environment, servletRequest, servletResponse);
-		WritingJsonValidator.validate(dataSource.getBody(), dataSourceId + ".json");
+		WritingJsonValidator.validate(dataSource.getBody(), "rest/" + dataSourceId + ".json");
 	}
 
-	class MyRestDataSource extends RestDataSource {
-
-		public MyRestDataSource(Site site, Application application, Request request) {
-			super(site, application, request);
-		}
-
-	}
 }

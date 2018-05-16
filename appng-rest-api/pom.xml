@@ -115,11 +115,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.appng</groupId>
-			<artifactId>appng-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.16.18</version>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.api.rest.controller;
+package org.appng.core.controller.rest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +51,7 @@ import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
@@ -63,16 +64,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import lombok.extern.slf4j.Slf4j;
+abstract class RestActionBase extends RestOperation {
 
-@Slf4j
-public abstract class RestAction extends RestOperation {
-
+	private static final Logger log = LoggerFactory.getLogger(RestActionBase.class);
 	private static final String FORM_ACTION = "form_action";
 	private MessageSource messageSource;
 
 	@Autowired
-	public RestAction(MessageSource messageSource) {
+	public RestActionBase(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
 
