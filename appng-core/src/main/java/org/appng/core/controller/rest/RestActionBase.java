@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +50,7 @@ import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.forms.impl.RequestBean;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Selection;
@@ -183,54 +186,88 @@ abstract class RestActionBase extends RestOperation {
 		action.setParameters(getParameters(processedAction.getConfig().getParams()));
 
 		action.setFields(new ArrayList<>());
-		processedAction.getData().getResult().getFields().forEach(f -> {
-			ActionField actionField = new ActionField();
-			actionField.setName(f.getName());
-			actionField.setValue(f.getValue());
+		processedAction.getData().getResult().getFields().forEach(fieldData -> {
+			Optional<FieldDef> originalDef = processedAction.getConfig().getMetaData().getFields().stream()
+					.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
+
+			ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef);
 			action.getFields().add(actionField);
 
-			Optional<FieldDef> originalDef = processedAction.getConfig().getMetaData().getFields().stream()
-					.filter(originalField -> originalField.getName().equals(f.getName())).findFirst();
-			if (originalDef.isPresent()) {
-				FieldDef fieldDef = originalDef.get();
-				actionField.setFormat(fieldDef.getFormat());
-				actionField.setLabel(fieldDef.getLabel().getId());
-				actionField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
-				actionField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
-				actionField.setFieldType(FieldType.valueOf(fieldDef.getType().name().toUpperCase()));
-				if (null != receivedData) {
-					actionField.setValue(receivedData.getFields().stream()
-							.filter(pdf -> pdf.getName().equals(f.getName())).findFirst().get().getValue());
-				}
-				applyValidationRules(request, actionField, originalDef.get());
-
-				actionField.setMessages(getMessages(fieldDef.getMessages()));
-				if (isSelectionType(actionField.getFieldType())) {
-					Optional<Selection> selection = processedAction.getData().getSelections().parallelStream()
-							.filter(s -> s.getId().equals(actionField.getName())).findFirst();
-					if (selection.isPresent()) {
-						actionField.setOptions(new Options());
-						selection.get().getOptions().forEach(o -> {
-							Option option = getOption(o);
-							actionField.getOptions().addEntriesItem(option);
-						});
-						selection.get().getOptionGroups().forEach(og -> {
-							Option optionGroup = new Option();
-							optionGroup.setLabel(og.getLabel().getValue());
-							actionField.getOptions().addEntriesItem(optionGroup);
-							optionGroup.setGroups(new ArrayList<>());
-							og.getOptions().forEach(o -> {
-								optionGroup.getGroups().add(getOption(o));
-							});
-						});
-					}
-
-				}
-			}
 		});
 
 		action.setMessages(getMessages(processedAction.getMessages()));
 		return action;
+	}
+
+	protected ActionField getActionField(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
+			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef) {
+		ActionField actionField = new ActionField();
+		actionField.setName(fieldData.getName());
+		actionField.setValue(fieldData.getValue());
+
+		if (originalDef.isPresent()) {
+			FieldDef fieldDef = originalDef.get();
+			actionField.setFormat(fieldDef.getFormat());
+			actionField.setLabel(fieldDef.getLabel().getId());
+			actionField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
+			actionField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
+			actionField.setFieldType(FieldType.valueOf(fieldDef.getType().name().toUpperCase()));
+			if (null != receivedData) {
+				Optional<ActionField> receivedField = receivedData.getFields().stream()
+						.filter(pdf -> pdf.getName().equals(fieldData.getName())).findFirst();
+				if (receivedField.isPresent()) {
+					actionField.setValue(receivedField.get().getValue());
+				}
+			}
+			applyValidationRules(request, actionField, originalDef.get());
+
+			actionField.setMessages(getMessages(fieldDef.getMessages()));
+			if (isSelectionType(actionField.getFieldType())) {
+				Optional<Selection> selection = processedAction.getData().getSelections().parallelStream()
+						.filter(s -> s.getId().equals(actionField.getName())).findFirst();
+				if (selection.isPresent()) {
+					actionField.setOptions(new Options());
+					selection.get().getOptions().forEach(o -> {
+						Option option = getOption(o);
+						actionField.getOptions().addEntriesItem(option);
+					});
+					selection.get().getOptionGroups().forEach(og -> {
+						Option optionGroup = new Option();
+						optionGroup.setLabel(og.getLabel().getValue());
+						actionField.getOptions().addEntriesItem(optionGroup);
+						optionGroup.setOptions(new ArrayList<>());
+						og.getOptions().forEach(o -> {
+							optionGroup.getOptions().add(getOption(o));
+						});
+					});
+				}
+
+			}
+
+			List<Datafield> childDataFields = fieldData.getFields();
+			if (null != childDataFields) {
+				final AtomicInteger i = new AtomicInteger(0);
+				for (Datafield childData : childDataFields) {
+					String name = childData.getName();
+					Optional<FieldDef> childField;
+					List<FieldDef> childFieldDefs = fieldDef.getFields();
+					if (fieldData.getType().equals(org.appng.xml.platform.FieldType.LIST_OBJECT)) {
+						childField = childFieldDefs.stream().filter(originalField -> {
+							String indexedName = originalField.getName().replaceAll("\\[\\]", "[" +  i.getAndIncrement() + "]");
+							return indexedName.equals(name);
+						}).findFirst();
+					} else {
+						childField = childFieldDefs.stream()
+								.filter(originalField -> originalField.getName().equals(name)).findFirst();
+					}
+					ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
+							childField);
+					actionField.addFieldsItem(childActionField);
+				}
+			}
+
+		}
+		return actionField;
 	}
 
 	protected void applyValidationRules(ApplicationRequest request, ActionField actionField, FieldDef originalDef) {
@@ -296,33 +333,63 @@ abstract class RestActionBase extends RestOperation {
 			}
 
 			original.getConfig().getMetaData().getFields().forEach(originalField -> {
-				if (!Boolean.TRUE.toString().equalsIgnoreCase(originalField.getReadonly())) {
-					Optional<ActionField> actionField = receivedData.getFields().stream()
-							.filter(f -> f.getName().equals(originalField.getName())).findFirst();
-					if (actionField.isPresent()) {
-						if (isSelectionType(originalField.getType())) {
-							List<Option> options = actionField.get().getOptions().getEntries();
-							List<String> selectedValues = options.stream()
-									.filter(o -> Boolean.TRUE.equals(o.isSelected())).map(o -> o.getValue())
-									.collect(Collectors.toList());
-							selectedValues.forEach(s -> formRequest.addParameter(originalField.getBinding(), s));
-							options.stream().forEach(o -> {
-								List<Option> groups = o.getGroups();
-								if (null != groups) {
-									List<String> selectedValuesfromGroups = groups.stream()
-											.filter(groupOption -> Boolean.TRUE.equals(groupOption.isSelected()))
-											.map(groupOption -> groupOption.getValue()).collect(Collectors.toList());
-									selectedValuesfromGroups
-											.forEach(s -> formRequest.addParameter(originalField.getBinding(), s));
-								}
-							});
-						} else {
-							formRequest.addParameter(originalField.getBinding(), actionField.get().getValue());
+				extractRequestParameter(null, receivedData.getFields(), formRequest, originalField);
+			});
+		}
+	}
+
+	private void extractRequestParameter(String parameterPath, List<ActionField> receivedData,
+			org.appng.forms.Request formRequest, FieldDef originalField) {
+		if (!Boolean.TRUE.toString().equalsIgnoreCase(originalField.getReadonly())) {
+			log.debug("Extracting request parameter(s) for field {} of type {}, data contains {} action-fields",
+					originalField.getBinding(), originalField.getType(), receivedData.size());
+			final String originalFieldName = originalField.getName();
+			boolean isObject = org.appng.xml.platform.FieldType.OBJECT.equals(originalField.getType());
+			boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(originalField.getType());
+			Stream<ActionField> fieldStream = receivedData.stream().filter(f -> {
+				String name = f.getName().replaceAll("\\[\\d+\\]", "[]");
+				return name.equals(originalFieldName);
+			});
+			List<ActionField> optionalFields = fieldStream.collect(Collectors.toList());
+			for (ActionField actionField : optionalFields) {
+				log.debug("Found action-field {}", actionField.getName());
+				if (isSelectionType(originalField.getType())) {
+					extractSelectionValue(originalField, actionField, formRequest);
+				} else {
+					String parameterName = ((null == parameterPath || isObject) ? "" : parameterPath + ".")
+							+ actionField.getName();
+					if (!(isObject || isObjectList)) {
+						formRequest.addParameter(parameterName, actionField.getValue());
+					} else {
+						for (FieldDef childField : originalField.getFields()) {
+							log.trace("Extracting child {} with index {} for action field {}", childField.getBinding(),
+									actionField.getName());
+							extractRequestParameter(parameterName, actionField.getFields(), formRequest, childField);
 						}
 					}
 				}
-			});
+			}
+		} else {
+			log.trace("Field {} is readonly", originalField.getBinding());
 		}
+		log.trace("Done processing field {}", originalField.getBinding());
+	}
+
+	private void extractSelectionValue(FieldDef originalField, ActionField actionField,
+			org.appng.forms.Request formRequest) {
+		List<Option> options = actionField.getOptions().getEntries();
+		List<String> selectedValues = options.stream().filter(o -> Boolean.TRUE.equals(o.isSelected()))
+				.map(o -> o.getValue()).collect(Collectors.toList());
+		selectedValues.forEach(s -> formRequest.addParameter(originalField.getBinding(), s));
+		options.stream().forEach(o -> {
+			List<Option> groups = o.getOptions();
+			if (null != groups) {
+				List<String> selectedValuesfromGroups = groups.stream()
+						.filter(groupOption -> Boolean.TRUE.equals(groupOption.isSelected()))
+						.map(groupOption -> groupOption.getValue()).collect(Collectors.toList());
+				selectedValuesfromGroups.forEach(s -> formRequest.addParameter(originalField.getBinding(), s));
+			}
+		});
 	}
 
 	class RestRequest extends ApplicationRequest {
