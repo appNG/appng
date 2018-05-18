@@ -222,8 +222,28 @@ abstract class RestDataSourceBase extends RestOperation {
 		if (null != l.getConfirmation()) {
 			link.setConfirmation(l.getConfirmation().getValue());
 		}
-		link.setTarget(l.getTarget());
-		link.setType(Link.TypeEnum.fromValue(l.getMode().name()));
+		link.setType(Link.TypeEnum.valueOf(l.getMode().name()));
+		String servicePath = site.getProperties().getString(SiteProperties.SERVICE_PATH);
+		String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
+
+		switch (l.getMode()) {
+		case INTERN:
+			link.setTarget(
+					String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(), l.getTarget()));
+			break;
+		case EXTERN:
+			link.setTarget(l.getTarget());
+			break;
+		case WEBSERVICE:
+			link.setTarget(String.format("%s/%s/%s/%s%s", servicePath, site.getName(), application.getName(),
+					Platform.SERVICE_TYPE_WEBSERVICE, l.getTarget()));
+			break;
+		case REST:
+			link.setTarget(String.format("%s/%s/%s/%s%s", servicePath, site.getName(), application.getName(),
+					Platform.SERVICE_TYPE_REST, l.getTarget()));
+			break;
+		}
+
 		return link;
 	}
 

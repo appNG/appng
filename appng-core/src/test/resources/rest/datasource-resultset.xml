@@ -53,7 +53,7 @@
 				<icon>new</icon>
 				<confirmation>Are you sure?</confirmation>
 			</link>
-			<link id="other[2]" mode="webservice" target="rest/action/siteEvent/create">
+			<link id="other[2]" mode="rest" target="/action/siteEvent/create">
 				<permissions>
 					<permission mode="set" ref="site.create">true</permission>
 				</permissions>
