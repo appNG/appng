@@ -224,6 +224,11 @@ definitions:
       format:
         type: string
         description: "The format for this field, depending on its type."
+      fields:
+        type: array
+        description: "The child fields of this field."
+        items:
+          $ref: '#/definitions/field'
 
   fieldValue:
     type: object
@@ -237,6 +242,11 @@ definitions:
       value:
         type: string
         description: "The value of the field."
+      values:
+        type: array
+        description: "The child values of this fieldValue."
+        items:
+          $ref: '#/definitions/fieldValue'
 
   page:
     type: object
@@ -322,7 +332,7 @@ definitions:
       type:
         type: string
         description: "The type of this link."
-        enum: [page,extern,service,rest]
+        enum: [intern,extern,webservice,rest]
       confirmation:
         type: string
         description: "A confirmation message that should be displayed to the user before following this link."
@@ -369,9 +379,9 @@ definitions:
     selected:
       type: boolean
       description: "Whether or not this option is selected."
-    groups:
+    options:
       type: array
-      description: "An option can also be used "
+      description: "An option can act as a group and thus can itself own a list of options."
       items:
         $ref: '#/definitions/option'
 
@@ -423,6 +433,11 @@ definitions:
         description: "The messages related to this field."
         items:
           $ref: "#/definitions/message"
+      fields:
+        type: array
+        description: "The child fields of this fieldValue."
+        items:
+          $ref: '#/definitions/actionField'
         
   validationRule:
     type: object

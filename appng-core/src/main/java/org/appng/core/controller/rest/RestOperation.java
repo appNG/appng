@@ -77,12 +77,14 @@ abstract class RestOperation {
 
 	protected List<Parameter> getParameters(Params params) {
 		List<Parameter> parameterList = new ArrayList<>();
-		params.getParam().forEach(p -> {
-			Parameter param = new Parameter();
-			param.setName(p.getName());
-			param.setValue(p.getValue());
-			parameterList.add(param);
-		});
+		if (null != params) {
+			params.getParam().forEach(p -> {
+				Parameter param = new Parameter();
+				param.setName(p.getName());
+				param.setValue(p.getValue());
+				parameterList.add(param);
+			});
+		}
 		return parameterList;
 	}
 

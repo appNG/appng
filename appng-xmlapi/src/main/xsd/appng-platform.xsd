@@ -1360,6 +1360,11 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
+			<xs:enumeration value="rest">
+				<xs:annotation>
+					<xs:documentation>A link to a RESTful service.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
 

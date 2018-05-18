@@ -48,6 +48,8 @@ import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Datafield;
+import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.PanelLocation;
 import org.appng.xml.platform.Result;
@@ -110,24 +112,8 @@ abstract class RestDataSourceBase extends RestOperation {
 				});
 
 		processedDataSource.getConfig().getMetaData().getFields().forEach(f -> {
-			Field field = new Field();
 			if (!org.appng.xml.platform.FieldType.LINKPANEL.equals(f.getType())) {
-				field.setName(f.getName());
-				field.setLabel(f.getLabel().getValue());
-				field.setFieldType(FieldType.valueOf(f.getType().name()));
-				field.setFormat(f.getFormat());
-				Sort s = f.getSort();
-				if (s != null) {
-					org.appng.api.rest.model.Sort sort = new org.appng.api.rest.model.Sort();
-					if (null != s.getPrio()) {
-						sort.setPrio(s.getPrio());
-					}
-					if (null != s.getOrder()) {
-						sort.setOrder(OrderEnum.fromValue(s.getOrder().name().toLowerCase()));
-					}
-					field.setSort(sort);
-				}
-				datasource.addFieldsItem(field);
+				datasource.addFieldsItem(getField(f));
 			}
 		});
 
@@ -174,14 +160,37 @@ abstract class RestDataSourceBase extends RestOperation {
 		return new ResponseEntity<Datasource>(datasource, HttpStatus.OK);
 	}
 
+	protected Field getField(FieldDef f) {
+		Field field = new Field();
+		field.setName(f.getName());
+		field.setLabel(f.getLabel().getValue());
+		field.setFieldType(FieldType.valueOf(f.getType().name()));
+		field.setFormat(f.getFormat());
+		Sort s = f.getSort();
+		if (s != null) {
+			org.appng.api.rest.model.Sort sort = new org.appng.api.rest.model.Sort();
+			if (null != s.getPrio()) {
+				sort.setPrio(s.getPrio());
+			}
+			if (null != s.getOrder()) {
+				sort.setOrder(OrderEnum.fromValue(s.getOrder().name().toLowerCase()));
+			}
+			field.setSort(sort);
+		}
+		List<FieldDef> childFields = f.getFields();
+		if (null != childFields) {
+			for (FieldDef fieldDef : childFields) {
+				field.addFieldsItem(getField(fieldDef));
+			}
+		}
+		return field;
+	}
+
 	protected Element getElement(Result r) {
 		Element element = new Element();
 		element.setSelected(Boolean.TRUE.equals(r.isSelected()));
 		r.getFields().forEach(f -> {
-			FieldValue fv = new FieldValue();
-			fv.setName(f.getName());
-			fv.setValue(f.getValue());
-			element.addFieldsItem(fv);
+			element.addFieldsItem(getFieldValue(f));
 		});
 		r.getLinkpanel().forEach(lp -> {
 			lp.getLinks().forEach(l -> {
@@ -191,42 +200,30 @@ abstract class RestDataSourceBase extends RestOperation {
 		return element;
 	}
 
+	protected FieldValue getFieldValue(Datafield f) {
+		FieldValue fv = new FieldValue();
+		fv.setName(f.getName());
+		fv.setValue(f.getValue());
+		List<Datafield> childFields = f.getFields();
+		if (null != childFields) {
+			for (Datafield datafield : childFields) {
+				fv.addValuesItem(getFieldValue(datafield));
+			}
+		}
+		return fv;
+	}
+
 	protected Link getLink(org.appng.xml.platform.Link l) {
 		Link link = new Link();
 		link.setLabel(l.getLabel().getValue());
 		link.setId(l.getId());
 		link.setIcon(l.getIcon().getContent());
 		link.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
-		link.setType(Link.TypeEnum.PAGE);
 		if (null != l.getConfirmation()) {
 			link.setConfirmation(l.getConfirmation().getValue());
 		}
-
-		switch (l.getMode()) {
-		case INTERN:
-			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
-			link.setTarget(
-					String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(), l.getTarget()));
-			link.setType(Link.TypeEnum.PAGE);
-			break;
-		case EXTERN:
-			link.setTarget(l.getTarget());
-			link.setType(Link.TypeEnum.EXTERN);
-			break;
-		case WEBSERVICE:
-			String servicePath = site.getProperties().getString(SiteProperties.SERVICE_PATH);
-			if (l.getTarget().startsWith(Platform.SERVICE_TYPE_REST)) {
-				link.setTarget(String.format("%s/%s/%s/%s", servicePath, site.getName(), application.getName(),
-						l.getTarget()));
-				link.setType(Link.TypeEnum.REST);
-			} else {
-				link.setTarget(String.format("%s/%s/%s/%s%s", servicePath, site.getName(), application.getName(),
-						Platform.SERVICE_TYPE_WEBSERVICE, l.getTarget()));
-				link.setType(Link.TypeEnum.SERVICE);
-			}
-			break;
-		}
-
+		link.setTarget(l.getTarget());
+		link.setType(Link.TypeEnum.fromValue(l.getMode().name()));
 		return link;
 	}
 
