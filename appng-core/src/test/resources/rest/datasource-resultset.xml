@@ -53,14 +53,14 @@
 				<icon>new</icon>
 				<confirmation>Are you sure?</confirmation>
 			</link>
-			<link id="other[2]" mode="rest" target="/action/siteEvent/create">
+			<link id="other[2]" mode="rest" target="/service/site/application/rest/action/siteEvent/create">
 				<permissions>
 					<permission mode="set" ref="site.create">true</permission>
 				</permissions>
 				<label id="site.create"><![CDATA[Create site]]></label>
 				<icon>new</icon>
 			</link>
-			<link id="other[3]" mode="webservice" target="/dummyService">
+			<link id="other[3]" mode="webservice" target="/service/site/application/webservice/dummyService">
 				<permissions>
 					<permission mode="set" ref="site.create">true</permission>
 				</permissions>

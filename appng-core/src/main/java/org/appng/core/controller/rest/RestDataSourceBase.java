@@ -50,6 +50,7 @@ import org.appng.core.model.ApplicationProvider;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.PanelLocation;
 import org.appng.xml.platform.Result;
@@ -223,27 +224,14 @@ abstract class RestDataSourceBase extends RestOperation {
 			link.setConfirmation(l.getConfirmation().getValue());
 		}
 		link.setType(Link.TypeEnum.valueOf(l.getMode().name()));
-		String servicePath = site.getProperties().getString(SiteProperties.SERVICE_PATH);
-		String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
-
-		switch (l.getMode()) {
-		case INTERN:
-			link.setTarget(
-					String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(), l.getTarget()));
-			break;
-		case EXTERN:
+		if (Linkmode.INTERN.equals(l.getMode())) {
+			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
+			String completePath = String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(),
+					l.getTarget());
+			link.setTarget(completePath);
+		} else {
 			link.setTarget(l.getTarget());
-			break;
-		case WEBSERVICE:
-			link.setTarget(String.format("%s/%s/%s/%s%s", servicePath, site.getName(), application.getName(),
-					Platform.SERVICE_TYPE_WEBSERVICE, l.getTarget()));
-			break;
-		case REST:
-			link.setTarget(String.format("%s/%s/%s/%s%s", servicePath, site.getName(), application.getName(),
-					Platform.SERVICE_TYPE_REST, l.getTarget()));
-			break;
 		}
-
 		return link;
 	}
 
