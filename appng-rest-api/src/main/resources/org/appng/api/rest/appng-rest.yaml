@@ -129,6 +129,11 @@ definitions:
         description: "A list of action-fields."
         items:
           $ref: "#/definitions/actionField"
+      permissions:
+        type: array
+        description: "The permissions for this action."
+        items:
+          $ref: "#/definitions/permission"
 
   datasource:
     type: object
@@ -173,6 +178,11 @@ definitions:
       element:
         $ref: "#/definitions/element"
         description: "A single element."
+      permissions:
+        type: array
+        description: "The permissions for this datasource."
+        items:
+          $ref: "#/definitions/permission"
 
   parameter:
     type: object
@@ -496,3 +506,18 @@ definitions:
       text:
        type: string
        description: "The actual message."
+
+  permission:
+    type: object
+    description: "A permission."
+    properties:
+      mode:
+        type: string
+        description: "The mode"
+        enum: [READ,SET]
+      ref:
+        type: string
+        description: "The reference id of the permission."
+      value:
+        type: boolean
+        description: "The value, true if the permission is present."

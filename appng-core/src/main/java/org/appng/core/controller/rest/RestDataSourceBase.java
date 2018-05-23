@@ -104,6 +104,7 @@ abstract class RestDataSourceBase extends RestOperation {
 		User user = getUser(environment);
 		datasource.setUser(user);
 		datasource.setParameters(getParameters(processedDataSource.getConfig().getParams()));
+		datasource.setPermissions(getPermissions(processedDataSource.getConfig().getPermissions()));
 
 		processedDataSource.getConfig().getLinkpanel().stream()
 				.filter(lp -> !lp.getLocation().equals(PanelLocation.INLINE)).forEach(lp -> {

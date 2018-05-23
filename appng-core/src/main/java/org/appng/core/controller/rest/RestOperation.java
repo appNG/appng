@@ -35,6 +35,8 @@ import org.appng.api.rest.model.Message;
 import org.appng.api.rest.model.Message.LevelEnum;
 import org.appng.api.rest.model.Option;
 import org.appng.api.rest.model.Parameter;
+import org.appng.api.rest.model.Permission;
+import org.appng.api.rest.model.Permission.ModeEnum;
 import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.xml.platform.DataConfig;
@@ -42,12 +44,14 @@ import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
+import org.appng.xml.platform.Permissions;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 abstract class RestOperation {
 
+	protected static final String FORM_ACTION = "form_action";
 	protected static final String PATH_VAR = "pathVar";
 	protected Site site;
 	protected Application application;
@@ -63,22 +67,39 @@ abstract class RestOperation {
 	}
 
 	protected User getUser(Environment environment) {
-		Subject subject = environment.getSubject();
 		User user = new User();
-		user.setEmail(subject.getEmail());
+		Subject subject = environment.getSubject();
+		if (null != subject) {
+			user.setEmail(subject.getEmail());
+			user.setName(subject.getRealname());
+		}
 		user.setLocale(environment.getLocale().toString());
 		user.setTimezone(environment.getTimeZone().getID());
-		user.setName(subject.getRealname());
 		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(environment.getLocale());
 		user.setDecimalSeparator(String.valueOf(decimalFormatSymbols.getDecimalSeparator()));
 		user.setGroupingSeparator(String.valueOf(decimalFormatSymbols.getGroupingSeparator()));
 		return user;
 	}
 
+	protected List<Permission> getPermissions(Permissions permissions) {
+		List<Permission> permissionList = null;
+		if (null != permissions) {
+			permissionList = new ArrayList<>();
+			for (org.appng.xml.platform.Permission p : permissions.getPermissionList()) {
+				Permission permission = new Permission();
+				permission.setValue(Boolean.TRUE.equals(Boolean.valueOf(p.getValue())));
+				permission.setRef(p.getRef());
+				permission.setMode(ModeEnum.valueOf(p.getMode().name()));
+				permissionList.add(permission);
+			};
+		}
+		return permissionList;
+	}
+
 	protected List<Parameter> getParameters(Params params) {
 		List<Parameter> parameterList = new ArrayList<>();
 		if (null != params) {
-			params.getParam().forEach(p -> {
+			params.getParam().stream().filter(p -> !p.getName().equals(FORM_ACTION)).forEach(p -> {
 				Parameter param = new Parameter();
 				param.setName(p.getName());
 				param.setValue(p.getValue());

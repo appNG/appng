@@ -197,5 +197,10 @@
         "type" : "intern"
       } ]
     } ]
-  }
+  },
+  "permissions" : [ {
+    "mode" : "SET",
+    "ref" : "site.list",
+    "value" : true
+  } ]
 }

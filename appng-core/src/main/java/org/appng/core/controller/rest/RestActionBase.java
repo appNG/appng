@@ -72,7 +72,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 abstract class RestActionBase extends RestOperation {
 
 	private static final Logger log = LoggerFactory.getLogger(RestActionBase.class);
-	private static final String FORM_ACTION = "form_action";
 	private MessageSource messageSource;
 
 	@Autowired
@@ -184,6 +183,7 @@ abstract class RestActionBase extends RestOperation {
 		action.setEventId(processedAction.getEventId());
 		action.setUser(getUser(environment));
 		action.setParameters(getParameters(processedAction.getConfig().getParams()));
+		action.setPermissions(getPermissions(processedAction.getConfig().getPermissions()));
 
 		action.setFields(new ArrayList<>());
 		processedAction.getData().getResult().getFields().forEach(fieldData -> {
@@ -215,7 +215,8 @@ abstract class RestActionBase extends RestOperation {
 			if (null != receivedData) {
 				Optional<ActionField> receivedField = receivedData.getFields().stream()
 						.filter(pdf -> pdf.getName().equals(fieldData.getName())).findFirst();
-				if (receivedField.isPresent()) {
+				if (receivedField.isPresent()
+						&& !org.appng.xml.platform.FieldType.PASSWORD.equals(fieldDef.getType())) {
 					actionField.setValue(receivedField.get().getValue());
 				}
 			}
@@ -253,7 +254,8 @@ abstract class RestActionBase extends RestOperation {
 					List<FieldDef> childFieldDefs = fieldDef.getFields();
 					if (fieldData.getType().equals(org.appng.xml.platform.FieldType.LIST_OBJECT)) {
 						childField = childFieldDefs.stream().filter(originalField -> {
-							String indexedName = originalField.getName().replaceAll("\\[\\]", "[" +  i.getAndIncrement() + "]");
+							String indexedName = originalField.getName().replaceAll("\\[\\]",
+									"[" + i.getAndIncrement() + "]");
 							return indexedName.equals(name);
 						}).findFirst();
 					} else {
