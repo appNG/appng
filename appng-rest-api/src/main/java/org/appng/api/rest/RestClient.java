@@ -28,64 +28,85 @@ import org.appng.api.rest.model.Link;
 import org.appng.api.rest.model.Parameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * A simple client for the appNG REST API, open for extension. 
+ * A simple client for the appNG REST API, open for extension.
  */
+@Slf4j
 public class RestClient {
 
 	protected RestTemplate restTemplate;
 	protected String cookie;
 	protected String url;
+	private ObjectMapper objectMapper;
 
 	public RestClient(String url) {
 		this.restTemplate = new RestTemplate(Arrays.asList(new MappingJackson2HttpMessageConverter()));
+		this.objectMapper = new ObjectMapper();
+		objectMapper.setSerializationInclusion(Include.NON_ABSENT);
 		this.url = url;
 	}
 
 	public ResponseEntity<Datasource> datasource(String application, String id) throws URISyntaxException {
-		RequestEntity<?> httpEntity = new RequestEntity<>(getHeader(), HttpMethod.GET,
+		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
 				new URI(url + "/" + application + "/rest/datasource/" + id));
-		ResponseEntity<Datasource> datasource = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(),
-				httpEntity, Datasource.class);
-		setCookies(datasource);
-
-		return datasource;
+		return send(httpEntity, Datasource.class);
 	}
 
 	public ResponseEntity<Action> getAction(String application, String eventId, String actionId,
 			String... pathVariables) throws URISyntaxException {
-		RequestEntity<?> httpEntity = new RequestEntity<>(getHeader(), HttpMethod.GET,
+		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
 				getActionURL(application, eventId, actionId, pathVariables));
-		ResponseEntity<Action> action = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
-				Action.class);
-		setCookies(action);
+		ResponseEntity<Action> action = send(httpEntity, Action.class);
 		return action;
+	}
+
+	private <T> ResponseEntity<T> send(RequestEntity<?> httpEntity, Class<T> type) {
+		if (log.isDebugEnabled() && httpEntity.getBody() != null) {
+			doLog("OUT", httpEntity.getBody(), null);
+		}
+		ResponseEntity<T> exchange = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
+				type);
+		if (log.isDebugEnabled() && exchange.getBody() != null) {
+			doLog("IN", exchange.getBody(), exchange.getStatusCode());
+		}
+		setCookies(exchange);
+		return exchange;
+	}
+
+	private void doLog(String prefix, Object body, HttpStatus httpStatus) {
+		try {
+			log.debug("{}: {} {}", prefix, (null != httpStatus ? " " + httpStatus.value() : ""),
+					objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
+		} catch (JsonProcessingException e) {
+			//
+		}
 	}
 
 	public ResponseEntity<Action> getAction(Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split("/");
 		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
-		RequestEntity<?> httpEntity = new RequestEntity<>(getHeader(), HttpMethod.GET, uri);
-		ResponseEntity<Action> action = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
-				Action.class);
-		setCookies(action);
-		return action;
+		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET, uri);
+		return send(httpEntity, Action.class);
 	}
+
 	public ResponseEntity<Action> performAction(String uc01Payment, Action data, Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split("/");
 		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
 		addFormAction(data);
-		RequestEntity<Action> httpEntity = new RequestEntity<>(data, getHeader(), HttpMethod.POST,
-				uri);
-		ResponseEntity<Action> action = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
-				Action.class);
-		setCookies(action);
-		return action;
+		RequestEntity<Action> httpEntity = new RequestEntity<>(data, getHeaders(), HttpMethod.POST, uri);
+		return send(httpEntity, Action.class);
 	}
 
 	private void addFormAction(Action data) {
@@ -104,22 +125,19 @@ public class RestClient {
 
 	protected URI getActionURL(String application, String eventId, String actionId, String[] pathVariables)
 			throws URISyntaxException {
-		return new URI(String.format("%s/%s/rest/action/%s/%s" + StringUtils.repeat("%s", pathVariables.length), url,
+		return new URI(String.format("%s/%s/rest/action/%s/%s" + StringUtils.repeat("/%s", pathVariables.length), url,
 				application, eventId, actionId, pathVariables));
 	}
 
 	public ResponseEntity<Action> performAction(String application, Action data, String... pathVariables)
 			throws URISyntaxException {
 		addFormAction(data);
-		RequestEntity<Action> httpEntity = new RequestEntity<>(data, getHeader(), HttpMethod.POST,
+		RequestEntity<Action> httpEntity = new RequestEntity<>(data, getHeaders(), HttpMethod.POST,
 				getActionURL(application, data.getEventId(), data.getId(), pathVariables));
-		ResponseEntity<Action> action = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
-				Action.class);
-		setCookies(action);
-		return action;
+		return send(httpEntity, Action.class);
 	}
 
-	protected HttpHeaders getHeader() {
+	protected HttpHeaders getHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		if (StringUtils.isNotBlank(cookie)) {
 			headers.set(HttpHeaders.COOKIE, cookie);
