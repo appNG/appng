@@ -727,7 +727,7 @@ public class InitializerService {
 
 				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
 				if (enableRest) {
-					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
+					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
 				}
 
 				applicationContext.refresh();

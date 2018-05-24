@@ -17,6 +17,7 @@ package org.appng.core.controller.rest;
 
 import org.appng.api.Request;
 import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
@@ -28,10 +29,20 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.StandardAnnotationMetadata;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, Ordered {
+
+	private Properties properties;
+
+	public RestPostProcessor(Properties properties) {
+		this.properties = properties;
+	}
 
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 		StandardAnnotationMetadata restActionMetaData = new StandardAnnotationMetadata(RestAction.class);
@@ -45,7 +56,15 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	}
 
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
+		Boolean restRegisterJacksonMapper = properties.getBoolean("restRegisterJsonConverter", false);
+		if (restRegisterJacksonMapper && beanFactory.getBeansOfType(MappingJackson2HttpMessageConverter.class).isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
+			MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(
+					objectMapper);
+			mappingJackson2HttpMessageConverter.setPrettyPrint(true);
+			beanFactory.registerSingleton("mappingJackson2HttpMessageConverter", mappingJackson2HttpMessageConverter);
+		}
 	}
 
 	public int getOrder() {
@@ -57,7 +76,7 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	static class RestAction extends RestActionBase {
 		@Autowired
 		public RestAction(Site site, Application application, Request request,
-				@Value("${useRestPathParameters:true}") boolean supportPathParameters, MessageSource messageSource) {
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters, MessageSource messageSource) {
 			super(site, application, request, supportPathParameters, messageSource);
 		}
 
@@ -68,7 +87,7 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	static class RestDataSource extends RestDataSourceBase {
 		@Autowired
 		public RestDataSource(Site site, Application application, Request request,
-				@Value("${useRestPathParameters:true}") boolean supportPathParameters) {
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) {
 			super(site, application, request, supportPathParameters);
 		}
 

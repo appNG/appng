@@ -1,9 +1,6 @@
 {
   "id" : "create",
   "event-id" : "siteEvent",
-  "parameters" : [ {
-    "name" : "form_action"
-  } ],
   "user" : {
     "locale" : "de_DE",
     "timezone" : "Europe/Berlin",
@@ -69,5 +66,10 @@
         "selected" : false
       } ]
     }
+  } ],
+  "permissions" : [ {
+    "mode" : "SET",
+    "ref" : "site.create",
+    "value" : true
   } ]
 }
