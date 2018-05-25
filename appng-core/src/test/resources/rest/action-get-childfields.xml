@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<action xmlns="http://www.appng.org/schema/platform" id="edit" eventId="paymentEvent">
+	<config>
+		<title id="Edit Payments">Edit Payments</title>
+		<params>
+			<param name="paymentId">0</param>
+			<param name="form_action"></param>
+		</params>
+		<meta-data bindClass="com.example.model.Payment">
+			<field name="items" type="list:object" binding="items">
+				<label id="label.empty"></label>
+				<validation />
+				<field name="items[]" type="object" binding="items[]">
+					<label id="label.empty"></label>
+					<field name="divisionName" type="text" readonly="true"
+						binding="items[].divisionName">
+						<label id="label.empty"></label>
+					</field>
+					<field name="amount" type="decimal" format="#,##0.00"
+						readonly="true" binding="items[].amount">
+						<label id="label.empty"></label>
+					</field>
+					<field name="amountNew" type="decimal" format="#####"
+						binding="items[].amountNew">
+						<label id="label.empty"></label>
+					</field>
+				</field>
+			</field>
+		</meta-data>
+	</config>
+	<condition expression="${'editPayment' eq form_action}" />
+	<datasource id="editPayment">
+		<params>
+			<param name="paymentId">0</param>
+		</params>
+	</datasource>
+	<data>
+		<result>
+			<field name="items" type="list:object">
+				<field name="items[0]" type="object">
+					<field name="divisionName" type="text">
+						<value>Strom</value>
+					</field>
+					<field name="amount" type="decimal">
+						<value>439.00</value>
+					</field>
+					<field name="amountNew" type="decimal">
+						<value>420</value>
+					</field>
+					<value></value>
+				</field>
+				<field name="items[1]" type="object">
+					<field name="divisionName" type="text">
+						<value>Gas</value>
+					</field>
+					<field name="amount" type="decimal">
+						<value>39.00</value>
+					</field>
+					<field name="amountNew" type="decimal">
+						<value>35</value>
+					</field>
+					<value></value>
+				</field>
+			</field>
+		</result>
+	</data>
+	<bean id="payments">
+		<option name="action" value="editPayment" />
+		<option name="paymentId" value="0" />
+	</bean>
+</action>

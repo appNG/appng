@@ -1,0 +1,82 @@
+{
+  "id" : "edit",
+  "event-id" : "paymentEvent",
+  "parameters" : [ {
+    "name" : "paymentId",
+    "value" : "0"
+  } ],
+  "user" : {
+    "locale" : "de_DE",
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ",",
+    "groupingSeparator" : "."
+  },
+  "fields" : [ {
+    "name" : "items",
+    "label" : "label.empty",
+    "fieldType" : "list_object",
+    "readonly" : false,
+    "visible" : true,
+    "fields" : [ {
+      "name" : "items[0]",
+      "label" : "label.empty",
+      "fieldType" : "object",
+      "readonly" : false,
+      "visible" : true,
+      "fields" : [ {
+        "name" : "divisionName",
+        "value" : "Strom",
+        "label" : "label.empty",
+        "fieldType" : "text",
+        "readonly" : true,
+        "visible" : true
+      }, {
+        "name" : "amount",
+        "value" : "439.00",
+        "label" : "label.empty",
+        "fieldType" : "decimal",
+        "readonly" : true,
+        "visible" : true,
+        "format" : "#,##0.00"
+      }, {
+        "name" : "amountNew",
+        "value" : "420",
+        "label" : "label.empty",
+        "fieldType" : "decimal",
+        "readonly" : false,
+        "visible" : true,
+        "format" : "#####"
+      } ]
+    }, {
+      "name" : "items[1]",
+      "label" : "label.empty",
+      "fieldType" : "object",
+      "readonly" : false,
+      "visible" : true,
+      "fields" : [ {
+        "name" : "divisionName",
+        "value" : "Gas",
+        "label" : "label.empty",
+        "fieldType" : "text",
+        "readonly" : true,
+        "visible" : true
+      }, {
+        "name" : "amount",
+        "value" : "39.00",
+        "label" : "label.empty",
+        "fieldType" : "decimal",
+        "readonly" : true,
+        "visible" : true,
+        "format" : "#,##0.00"
+      }, {
+        "name" : "amountNew",
+        "value" : "67",
+        "label" : "label.empty",
+        "fieldType" : "decimal",
+        "readonly" : false,
+        "visible" : true,
+        "format" : "#####"
+      } ]
+    } ]
+  } ]
+}

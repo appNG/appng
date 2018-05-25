@@ -38,28 +38,37 @@ public class RestActionTest extends RestOperationTest {
 
 	@Test
 	public void testGetAction() throws Exception {
-		runTest("action-get", true);
+		runTest("action-get", getStream("action-get.xml"), true);
+	}
+
+	@Test
+	public void testGetActionChildFields() throws Exception {
+		runTest("action-get-childfields", getStream("action-get-childfields.xml"), true);
+	}
+
+	@Test
+	public void testPostActionChildFields() throws Exception {
+		runTest("action-post-childfields", getStream("action-post-childfields.xml"), false);
 	}
 
 	@Test
 	public void testPostAction() throws Exception {
-		runTest("action-post", false);
+		runTest("action-post", getStream("action-get.xml"), false);
 	}
 
-	protected void runTest(String actionId, boolean istGet)
+	protected void runTest(String actionId, InputStream originalData, boolean istGet)
 			throws InvalidConfigurationException, ProcessingException, JAXBException, IOException {
 		RequestSupportImpl requestSupport = new RequestSupportImpl();
 		requestSupport.setEnvironment(environment);
 
-		ClassLoader classLoader = getClass().getClassLoader();
-		InputStream is = classLoader.getResourceAsStream("rest/action-get.xml");
-
-		org.appng.xml.platform.Action originalAction = MarshallService.getMarshallService().unmarshall(is,
+		org.appng.xml.platform.Action originalAction = MarshallService.getMarshallService().unmarshall(originalData,
 				org.appng.xml.platform.Action.class);
 		Mockito.when(appconfig.getAction("", actionId)).thenReturn(originalAction);
 
+		org.appng.xml.platform.Action processedAction = MarshallService.getMarshallService().unmarshall(getStream(actionId + ".xml"),
+				org.appng.xml.platform.Action.class);
 		Mockito.when(application.processAction(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(originalAction);
+				Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(processedAction);
 
 		Map<String, String> pathVariables = new HashMap<String, String>();
 		if (istGet) {
@@ -67,12 +76,17 @@ public class RestActionTest extends RestOperationTest {
 					.getAction("", actionId, pathVariables, environment, servletRequest, servletResponse);
 			WritingJsonValidator.validate(action.getBody(), "rest/" + actionId + "-result.json");
 		} else {
-			InputStream resource = classLoader.getResourceAsStream("rest/" + actionId + ".json");
+			InputStream resource = getStream(actionId + ".json");
 			Action input = Jackson2ObjectMapperBuilder.json().build().readValue(resource, Action.class);
 			ResponseEntity<Action> action = new RestAction(site, application, request, true, messageSource)
 					.performAction("", actionId, pathVariables, input, environment, servletRequest, servletResponse);
+
 			WritingJsonValidator.validate(action.getBody(), "rest/" + actionId + "-result.json");
 		}
+	}
+
+	public InputStream getStream(String resource) {
+		return getClass().getClassLoader().getResourceAsStream("rest/" + resource);
 	}
 
 }
