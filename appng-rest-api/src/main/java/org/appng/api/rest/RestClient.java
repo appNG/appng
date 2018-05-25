@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.api.rest.model.Action;
 import org.appng.api.rest.model.Datasource;
 import org.appng.api.rest.model.Link;
@@ -51,6 +53,15 @@ public class RestClient {
 	protected String url;
 	private ObjectMapper objectMapper;
 
+	/**
+	 * Creates a new {@link RestClient}.
+	 * <p>
+	 * Note that you probably need to perform a login action before you can use this client.
+	 * </p>
+	 * 
+	 * @param url
+	 *            the URL pointing to a {@link Site}'s service URL ({@code /service/<site-name>})
+	 */
 	public RestClient(String url) {
 		this.restTemplate = new RestTemplate(Arrays.asList(new MappingJackson2HttpMessageConverter()));
 		this.objectMapper = new ObjectMapper();
@@ -58,12 +69,54 @@ public class RestClient {
 		this.url = url;
 	}
 
+	/**
+	 * Creates a new {@link RestClient}, using an existing cookie. This cookie should be retrieved from another client
+	 * that performed a login action.
+	 * 
+	 * @param url
+	 *            the URL pointing to a {@link Site}'s service URL ({@code /service/<site-name>})
+	 * @param cookie
+	 *            the cookie to use
+	 * 
+	 * @see RestClient#getCookie()
+	 */
+	public RestClient(String url, String cookie) {
+		this(url);
+		this.cookie = cookie;
+	}
+
+	/**
+	 * Retrieves the {@link Datasource}.
+	 * 
+	 * @param application
+	 *            the name of the {@link Application}
+	 * @param id
+	 *            the ID of the {@link Datasource}
+	 * @return the {@link Datasource}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
 	public ResponseEntity<Datasource> datasource(String application, String id) throws URISyntaxException {
 		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
 				new URI(url + "/" + application + "/rest/datasource/" + id));
 		return send(httpEntity, Datasource.class);
 	}
 
+	/**
+	 * Retrieves the {@link Action}.
+	 * 
+	 * @param application
+	 *            the name of the {@link Application}
+	 * @param eventId
+	 *            the event-ID of the {@link Action}
+	 * @param actionId
+	 *            the ID of the {@link Action}
+	 * @param pathVariables
+	 *            some additional path variables
+	 * @return the (unprocessed) {@link Action}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
 	public ResponseEntity<Action> getAction(String application, String eventId, String actionId,
 			String... pathVariables) throws URISyntaxException {
 		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
@@ -94,6 +147,15 @@ public class RestClient {
 		}
 	}
 
+	/**
+	 * Retrieves the {@link Action} represented by the {@link Link}
+	 * 
+	 * @param link
+	 *            the {@link Link} representing the {@link Action}'s URI
+	 * @return the (unprocessed) {@link Action}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
 	public ResponseEntity<Action> getAction(Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split("/");
 		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
@@ -101,7 +163,18 @@ public class RestClient {
 		return send(httpEntity, Action.class);
 	}
 
-	public ResponseEntity<Action> performAction(String uc01Payment, Action data, Link link) throws URISyntaxException {
+	/**
+	 * Performs an {@link Action}, the URI is defined by the {@link Link}.
+	 * 
+	 * @param data
+	 *            the {@link Action}-data to send
+	 * @param link
+	 *            the {@link Link}
+	 * @return a {@link ResponseEntity} wrapping the resulting {@link Action}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
+	public ResponseEntity<Action> performAction(Action data, Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split("/");
 		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
 		addFormAction(data);
@@ -129,6 +202,19 @@ public class RestClient {
 				application, eventId, actionId, pathVariables));
 	}
 
+	/**
+	 * Performs an {@link Action}.
+	 * 
+	 * @param application
+	 *            the name of the {@link Application}
+	 * @param data
+	 *            the {@link Action}-data to send
+	 * @param pathVariables
+	 *            some additional path variables
+	 * @return a {@link ResponseEntity} wrapping the resulting {@link Action}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
 	public ResponseEntity<Action> performAction(String application, Action data, String... pathVariables)
 			throws URISyntaxException {
 		addFormAction(data);
@@ -143,6 +229,15 @@ public class RestClient {
 			headers.set(HttpHeaders.COOKIE, cookie);
 		}
 		return headers;
+	}
+
+	/**
+	 * Returns the current cookie or this client
+	 * 
+	 * @return he cookie
+	 */
+	public String getCookie() {
+		return cookie;
 	}
 
 }
