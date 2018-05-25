@@ -35,6 +35,7 @@
 							<library>resttemplate</library>
 							<configOptions>
 								<dateLibrary>legacy</dateLibrary>
+								<serializableModel>true</serializableModel>
 							</configOptions>
 						</configuration>
 					</execution>
