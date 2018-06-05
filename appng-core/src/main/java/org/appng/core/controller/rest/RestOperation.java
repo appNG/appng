@@ -18,13 +18,18 @@ package org.appng.core.controller.rest;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
+import org.appng.api.FieldWrapper;
 import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
@@ -39,13 +44,22 @@ import org.appng.api.rest.model.Permission;
 import org.appng.api.rest.model.Permission.ModeEnum;
 import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.field.FieldConversionFactory;
+import org.appng.el.ExpressionEvaluator;
+import org.appng.forms.FormUpload;
+import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.DataConfig;
+import org.appng.xml.platform.Datafield;
+import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Permissions;
 import org.slf4j.Logger;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.context.MessageSource;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -58,12 +72,21 @@ abstract class RestOperation {
 	protected ApplicationRequest request;
 	protected boolean supportPathParameters;
 	protected boolean errors = false;
+	protected MessageSource messageSource;
+	protected FieldConversionFactory fieldConversionFactory;
 
-	public RestOperation(Site site, Application application, Request request, boolean supportPathParameters) {
+	public RestOperation(Site site, Application application, Request request, MessageSource messageSource,
+			boolean supportPathParameters) {
 		this.site = site;
 		this.application = application;
 		this.request = (ApplicationRequest) request;
+		this.messageSource = messageSource;
 		this.supportPathParameters = supportPathParameters;
+		this.fieldConversionFactory = new FieldConversionFactory(new ExpressionEvaluator(new HashMap<>()));
+		fieldConversionFactory.setEnvironment(request.getEnvironment());
+		fieldConversionFactory.setMessageSource(messageSource);
+		fieldConversionFactory.setConversionService(new DefaultConversionService());
+		fieldConversionFactory.afterPropertiesSet();
 	}
 
 	protected User getUser(Environment environment) {
@@ -91,7 +114,8 @@ abstract class RestOperation {
 				permission.setRef(p.getRef());
 				permission.setMode(ModeEnum.valueOf(p.getMode().name()));
 				permissionList.add(permission);
-			};
+			}
+			;
 		}
 		return permissionList;
 	}
@@ -173,5 +197,80 @@ abstract class RestOperation {
 
 	protected boolean hasErrors() {
 		return errors;
+	}
+
+	protected Optional<FieldDef> getChildField(FieldDef fieldDef, Datafield fieldData, final AtomicInteger index,
+			Datafield childData) {
+		String name = childData.getName();
+		Optional<FieldDef> childField;
+		List<FieldDef> childFieldDefs = fieldDef.getFields();
+		if (fieldData.getType().equals(org.appng.xml.platform.FieldType.LIST_OBJECT)) {
+			childField = childFieldDefs.stream().filter(originalField -> {
+				String indexedName = getIndexedName(originalField.getName(), index.getAndIncrement());
+				return indexedName.equals(name);
+			}).findFirst();
+		} else {
+			childField = childFieldDefs.stream().filter(originalField -> originalField.getName().equals(name))
+					.findFirst();
+		}
+		return childField;
+	}
+
+	private String getIndexedName(String name, int index) {
+		return name.replaceAll("\\[\\]", "[" + index + "]");
+	}
+
+	protected Object getObjectValue(ApplicationRequest request, FieldDef fieldDef, Datafield fieldData,
+			BeanWrapper beanWrapper, int index) {
+		if (org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType())) {
+			return fieldData.getValue();
+		}
+		if (!org.appng.xml.platform.FieldType.LIST_OBJECT.equals(fieldDef.getType())
+				&& !org.appng.xml.platform.FieldType.OBJECT.equals(fieldDef.getType())) {
+
+			FieldWrapper fieldwrapper = new FieldWrapper(fieldDef, beanWrapper);
+			String indexedName = getIndexedName(fieldDef.getBinding(), index);
+			fieldwrapper.setBinding(indexedName);
+			fieldConversionFactory.setObject(fieldwrapper, new RequestContainer() {
+
+				public boolean hasParameter(String name) {
+					return name.equals(fieldDef.getBinding());
+				}
+
+				public String getParameter(String name) {
+					return fieldData.getValue();
+				}
+
+				public Map<String, List<String>> getParametersList() {
+					return null;
+				}
+
+				public Map<String, String> getParameters() {
+					return null;
+				}
+
+				public Set<String> getParameterNames() {
+					return null;
+				}
+
+				public List<String> getParameterList(String name) {
+					return null;
+				}
+
+				public String getHost() {
+					return request.getHost();
+				}
+
+				public List<FormUpload> getFormUploads(String name) {
+					return null;
+				}
+
+				public Map<String, List<FormUpload>> getFormUploads() {
+					return null;
+				}
+			});
+			return fieldwrapper.getObject();
+		}
+		return null;
 	}
 }

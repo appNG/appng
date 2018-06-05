@@ -99,7 +99,8 @@
     "elements" : [ {
       "fields" : [ {
         "name" : "id",
-        "value" : "1"
+        "value" : 1,
+        "formattedValue" : "1"
       }, {
         "name" : "name",
         "value" : "appng"
@@ -114,10 +115,10 @@
         "value" : "appng Manager Instance"
       }, {
         "name" : "active",
-        "value" : "true"
+        "value" : true
       }, {
         "name" : "running",
-        "value" : "true"
+        "value" : true
       }, {
         "name" : "startupTime",
         "value" : "2018-04-26 12:15:14"
@@ -149,7 +150,8 @@
     }, {
       "fields" : [ {
         "name" : "id",
-        "value" : "2"
+        "value" : 2,
+        "formattedValue" : "2"
       }, {
         "name" : "name",
         "value" : "template"
@@ -164,10 +166,10 @@
         "value" : "appng Manager Instance with appng-bootstrap-gentelella"
       }, {
         "name" : "active",
-        "value" : "true"
+        "value" : true
       }, {
         "name" : "running",
-        "value" : "true"
+        "value" : true
       }, {
         "name" : "startupTime",
         "value" : "2018-05-07 13:18:51"

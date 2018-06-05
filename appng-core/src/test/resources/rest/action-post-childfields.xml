@@ -6,7 +6,7 @@
 			<param name="paymentId">0</param>
 			<param name="form_action"></param>
 		</params>
-		<meta-data bindClass="com.example.model.Payment">
+		<meta-data bindClass="org.appng.core.controller.rest.model.Payment">
 			<field name="items" type="list:object" binding="items">
 				<label id="label.empty"></label>
 				<validation />
@@ -42,7 +42,7 @@
 						<value>Strom</value>
 					</field>
 					<field name="amount" type="decimal">
-						<value>439.00</value>
+						<value>439,00</value>
 					</field>
 					<field name="amountNew" type="decimal">
 						<value>439</value>
@@ -54,7 +54,7 @@
 						<value>Gas</value>
 					</field>
 					<field name="amount" type="decimal">
-						<value>39.00</value>
+						<value>39,00</value>
 					</field>
 					<field name="amountNew" type="decimal">
 						<value>39</value>

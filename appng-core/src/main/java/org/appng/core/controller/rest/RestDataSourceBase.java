@@ -17,14 +17,16 @@ package org.appng.core.controller.rest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
-import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
 import org.appng.api.Scope;
@@ -52,6 +54,7 @@ import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.Messages;
+import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.PanelLocation;
 import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Resultset;
@@ -59,7 +62,10 @@ import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -71,8 +77,9 @@ abstract class RestDataSourceBase extends RestOperation {
 	private static final Logger log = LoggerFactory.getLogger(RestDataSourceBase.class);
 
 	@Autowired
-	public RestDataSourceBase(Site site, Application application, Request request, boolean supportPathParameters) {
-		super(site, application, request, supportPathParameters);
+	public RestDataSourceBase(Site site, Application application, Request request, MessageSource messageSource,
+			boolean supportPathParameters) {
+		super(site, application, request, messageSource, supportPathParameters);
 	}
 
 	@GetMapping(path = { "/datasource/{id}", "/datasource/{id}/{pathVar1}", "/datasource/{id}/{pathVar1}/{pathVar2}",
@@ -139,6 +146,7 @@ abstract class RestDataSourceBase extends RestOperation {
 		}
 
 		Resultset resultset = processedDataSource.getData().getResultset();
+		MetaData metaData = processedDataSource.getConfig().getMetaData();
 		if (null != resultset) {
 			Page page = new Page();
 			page.setIsFirst(resultset.getChunk() == resultset.getFirstchunk());
@@ -148,11 +156,11 @@ abstract class RestDataSourceBase extends RestOperation {
 			page.setTotalElements(resultset.getHits());
 			page.setTotalPages(resultset.getLastchunk() + 1);
 			resultset.getResults().forEach(r -> {
-				page.addElementsItem(getElement(r));
+				page.addElementsItem(getElement(r, metaData));
 			});
 			datasource.setPage(page);
 		} else {
-			datasource.setElement(getElement(processedDataSource.getData().getResult()));
+			datasource.setElement(getElement(processedDataSource.getData().getResult(), metaData));
 		}
 
 		Messages messages = environment.getAttribute(Scope.SESSION, Session.Environment.MESSAGES);
@@ -188,11 +196,20 @@ abstract class RestDataSourceBase extends RestOperation {
 		return field;
 	}
 
-	protected Element getElement(Result r) {
+	protected Element getElement(Result r, MetaData metaData) {
 		Element element = new Element();
 		element.setSelected(Boolean.TRUE.equals(r.isSelected()));
 		r.getFields().forEach(f -> {
-			element.addFieldsItem(getFieldValue(f));
+
+			Optional<FieldDef> fieldDef = metaData.getFields().stream().filter(mf -> mf.getName().equals(f.getName()))
+					.findFirst();
+			BeanWrapperImpl beanWrapper = null;
+			try {
+				beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
+			} catch (ClassNotFoundException e) {
+				log.warn("e", metaData.getBindClass());
+			}
+			element.addFieldsItem(getFieldValue(f, fieldDef, beanWrapper, 0));
 		});
 		r.getLinkpanel().forEach(lp -> {
 			lp.getLinks().forEach(l -> {
@@ -202,16 +219,25 @@ abstract class RestDataSourceBase extends RestOperation {
 		return element;
 	}
 
-	protected FieldValue getFieldValue(Datafield f) {
+	protected FieldValue getFieldValue(Datafield f, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper, int index) {
 		FieldValue fv = new FieldValue();
 		fv.setName(f.getName());
-		fv.setValue(f.getValue());
-		List<Datafield> childFields = f.getFields();
-		if (null != childFields) {
-			for (Datafield datafield : childFields) {
-				fv.addValuesItem(getFieldValue(datafield));
+		Object objectValue = getObjectValue(request, fieldDef.get(), f, beanWrapper, index);
+		fv.setValue(objectValue);
+		if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.get().getType())
+				&& StringUtils.isNotBlank(fieldDef.get().getFormat())) {
+			fv.setFormattedValue(f.getValue());
+		}
+
+		List<Datafield> childDataFields = f.getFields();
+		if (null != childDataFields) {
+			final AtomicInteger i = new AtomicInteger(0);
+			for (Datafield childData : childDataFields) {
+				Optional<FieldDef> childField = getChildField(fieldDef.get(), f, i, childData);
+				fv.addValuesItem(getFieldValue(f, childField, beanWrapper, i.get()));
 			}
 		}
+
 		return fv;
 	}
 

@@ -63,7 +63,7 @@ public class RestDataSourceTest extends RestOperationTest {
 		Mockito.when(application.processDataSource(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
 				Mockito.any(), Mockito.any())).thenReturn(originalDataSource);
 
-		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request, true)
+		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request, messageSource, true)
 				.getDataSource(dataSourceId, new HashMap<>(), environment, servletRequest, servletResponse);
 		WritingJsonValidator.validate(dataSource.getBody(), "rest/" + dataSourceId + ".json");
 	}

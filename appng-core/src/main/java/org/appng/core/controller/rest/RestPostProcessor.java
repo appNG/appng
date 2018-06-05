@@ -57,7 +57,8 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		Boolean restRegisterJacksonMapper = properties.getBoolean("restRegisterJsonConverter", false);
-		if (restRegisterJacksonMapper && beanFactory.getBeansOfType(MappingJackson2HttpMessageConverter.class).isEmpty()) {
+		if (restRegisterJacksonMapper
+				&& beanFactory.getBeansOfType(MappingJackson2HttpMessageConverter.class).isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
 			MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(
@@ -75,9 +76,9 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	@RequestScope
 	static class RestAction extends RestActionBase {
 		@Autowired
-		public RestAction(Site site, Application application, Request request,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters, MessageSource messageSource) {
-			super(site, application, request, supportPathParameters, messageSource);
+		public RestAction(Site site, Application application, Request request, MessageSource messageSource,
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) {
+			super(site, application, request, messageSource, supportPathParameters);
 		}
 
 	}
@@ -86,9 +87,9 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	@RequestScope
 	static class RestDataSource extends RestDataSourceBase {
 		@Autowired
-		public RestDataSource(Site site, Application application, Request request,
+		public RestDataSource(Site site, Application application, Request request, MessageSource messageSource,
 				@Value("${restUsePathParameters:true}") boolean supportPathParameters) {
-			super(site, application, request, supportPathParameters);
+			super(site, application, request, messageSource, supportPathParameters);
 		}
 
 	}

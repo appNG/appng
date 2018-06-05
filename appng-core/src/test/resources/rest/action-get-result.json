@@ -54,14 +54,14 @@
     "visible" : true
   }, {
     "name" : "active",
-    "value" : "false",
+    "value" : false,
     "label" : "active",
     "fieldType" : "checkbox",
     "readonly" : false,
     "visible" : true
   }, {
     "name" : "createRepository",
-    "value" : "false",
+    "value" : false,
     "label" : "site.createRepository",
     "fieldType" : "checkbox",
     "readonly" : false,

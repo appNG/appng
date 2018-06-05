@@ -42,7 +42,7 @@ public class ActionHelper {
 		return new ActionHelper(action);
 	}
 
-	public ActionHelper setFieldValue(String name, String value) {
+	public ActionHelper setFieldValue(String name, Object value) {
 		Optional<ActionField> field = getField(name);
 		if (field.isPresent() && !isSelectionType(field.get())) {
 			field.get().setValue(value);

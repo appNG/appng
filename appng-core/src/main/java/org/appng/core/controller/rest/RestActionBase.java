@@ -28,7 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.MessageInterpolator;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
+import org.appng.api.FieldWrapper;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
@@ -52,11 +54,14 @@ import org.appng.forms.impl.RequestBean;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
@@ -72,13 +77,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 abstract class RestActionBase extends RestOperation {
 
 	private static final Logger log = LoggerFactory.getLogger(RestActionBase.class);
-	private MessageSource messageSource;
 
 	@Autowired
-	public RestActionBase(Site site, Application application, Request request, boolean supportPathParameters,
-			MessageSource messageSource) {
-		super(site, application, request, supportPathParameters);
-		this.messageSource = messageSource;
+	public RestActionBase(Site site, Application application, Request request, MessageSource messageSource,
+			boolean supportPathParameters) {
+		super(site, application, request, messageSource, supportPathParameters);
 	}
 
 	@GetMapping(path = { "/action/{event-id}/{id}", "/action/{event-id}/{id}/{pathVar1}",
@@ -187,10 +190,18 @@ abstract class RestActionBase extends RestOperation {
 
 		action.setFields(new ArrayList<>());
 		processedAction.getData().getResult().getFields().forEach(fieldData -> {
-			Optional<FieldDef> originalDef = processedAction.getConfig().getMetaData().getFields().stream()
+			MetaData metaData = processedAction.getConfig().getMetaData();
+			Optional<FieldDef> originalDef = metaData.getFields().stream()
 					.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
-
-			ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef);
+			BeanWrapper beanWrapper = null;
+			try {
+				beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
+				beanWrapper.setAutoGrowNestedPaths(true);
+			} catch (ClassNotFoundException e) {
+				getLogger().warn("error creating BeanWrapper for class {}", metaData.getBindClass());
+			}
+			ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
+					beanWrapper, 0);
 			action.getFields().add(actionField);
 
 		});
@@ -200,14 +211,21 @@ abstract class RestActionBase extends RestOperation {
 	}
 
 	protected ActionField getActionField(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
-			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef) {
+			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef, BeanWrapper beanWrapper,
+			int index) {
 		ActionField actionField = new ActionField();
 		actionField.setName(fieldData.getName());
-		actionField.setValue(fieldData.getValue());
 
 		if (originalDef.isPresent()) {
 			FieldDef fieldDef = originalDef.get();
+			Object objectValue = null;
+			objectValue = getObjectValue(request, fieldDef, fieldData, beanWrapper, index);
+			actionField.setValue(objectValue);
+
 			actionField.setFormat(fieldDef.getFormat());
+			if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType()) && StringUtils.isNotBlank(fieldDef.getFormat())) {
+				actionField.setFormattedValue(fieldData.getValue());
+			}
 			actionField.setLabel(fieldDef.getLabel().getId());
 			actionField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
 			actionField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
@@ -249,21 +267,9 @@ abstract class RestActionBase extends RestOperation {
 			if (null != childDataFields) {
 				final AtomicInteger i = new AtomicInteger(0);
 				for (Datafield childData : childDataFields) {
-					String name = childData.getName();
-					Optional<FieldDef> childField;
-					List<FieldDef> childFieldDefs = fieldDef.getFields();
-					if (fieldData.getType().equals(org.appng.xml.platform.FieldType.LIST_OBJECT)) {
-						childField = childFieldDefs.stream().filter(originalField -> {
-							String indexedName = originalField.getName().replaceAll("\\[\\]",
-									"[" + i.getAndIncrement() + "]");
-							return indexedName.equals(name);
-						}).findFirst();
-					} else {
-						childField = childFieldDefs.stream()
-								.filter(originalField -> originalField.getName().equals(name)).findFirst();
-					}
+					Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i, childData);
 					ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
-							childField);
+							childField, beanWrapper, i.get());
 					actionField.addFieldsItem(childActionField);
 				}
 			}
@@ -334,14 +340,23 @@ abstract class RestActionBase extends RestOperation {
 				});
 			}
 
-			original.getConfig().getMetaData().getFields().forEach(originalField -> {
-				extractRequestParameter(null, receivedData.getFields(), formRequest, originalField);
+			MetaData metaData = original.getConfig().getMetaData();
+			metaData.getFields().forEach(originalField -> {
+				BeanWrapper beanWrapper = null;
+				try {
+					beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
+					beanWrapper.setAutoGrowNestedPaths(true);
+				} catch (ClassNotFoundException e) {
+					getLogger().warn("error creating BeanWrapper for class {}", metaData.getBindClass());
+				}
+				extractRequestParameter(null, receivedData.getFields(), formRequest, originalField, beanWrapper,
+						metaData.getBinding());
 			});
 		}
 	}
 
 	private void extractRequestParameter(String parameterPath, List<ActionField> receivedData,
-			org.appng.forms.Request formRequest, FieldDef originalField) {
+			org.appng.forms.Request formRequest, FieldDef originalField, BeanWrapper beanWrapper, String bindPrefix) {
 		if (!Boolean.TRUE.toString().equalsIgnoreCase(originalField.getReadonly())) {
 			log.debug("Extracting request parameter(s) for field {} of type {}, data contains {} action-fields",
 					originalField.getBinding(), originalField.getType(), receivedData.size());
@@ -360,13 +375,20 @@ abstract class RestActionBase extends RestOperation {
 				} else {
 					String parameterName = ((null == parameterPath || isObject) ? "" : parameterPath + ".")
 							+ actionField.getName();
+
 					if (!(isObject || isObjectList)) {
-						formRequest.addParameter(parameterName, actionField.getValue());
+						// take object-value from actionField, convert it and add to request
+						FieldWrapper wrappedField = new FieldWrapper(originalField, beanWrapper);
+						wrappedField.setBinding((bindPrefix == null ? "" : (bindPrefix + ".")) + parameterName);
+						wrappedField.setObject(actionField.getValue());
+						fieldConversionFactory.setString(wrappedField);
+						formRequest.addParameter(parameterName, wrappedField.getStringValue());
 					} else {
 						for (FieldDef childField : originalField.getFields()) {
 							log.trace("Extracting child {} with index {} for action field {}", childField.getBinding(),
 									actionField.getName());
-							extractRequestParameter(parameterName, actionField.getFields(), formRequest, childField);
+							extractRequestParameter(parameterName, actionField.getFields(), formRequest, childField,
+									beanWrapper, bindPrefix);
 						}
 					}
 				}

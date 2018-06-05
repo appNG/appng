@@ -1,5 +1,7 @@
 package org.appng.core.controller.rest;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -55,9 +57,11 @@ public class RestOperationTest {
 		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(site.getName()).thenReturn("site");
+		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0], getClass().getClassLoader()));
 		Mockito.when(siteProps.getString(SiteProperties.MANAGER_PATH)).thenReturn("/manager");
 		Mockito.when(siteProps.getString(SiteProperties.SERVICE_PATH)).thenReturn("/service");
 		Mockito.when(application.getName()).thenReturn("application");
 		Mockito.when(application.getApplicationConfig()).thenReturn(appconfig);
+		Mockito.when(request.getEnvironment()).thenReturn(environment);
 	}
 }

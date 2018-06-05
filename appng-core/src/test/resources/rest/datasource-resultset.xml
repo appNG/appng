@@ -7,7 +7,7 @@
 			<permission mode="set" ref="site.list">true</permission>
 		</permissions>
 		<params />
-		<meta-data bindClass="org.appng.api.model.Site">
+		<meta-data bindClass="org.appng.core.domain.SiteImpl">
 			<field binding="id" format="#" hidden="true" name="id" type="int">
 				<label id="id"><![CDATA[ID]]></label>
 			</field>

@@ -250,8 +250,11 @@ definitions:
         type: string
         description: "The name of the field."
       value:
-        type: string
+        type: object
         description: "The value of the field."
+      formattedValue:
+        type: string
+        description: "The formatted value of the field."
       values:
         type: array
         description: "The child values of this fieldValue."
@@ -413,8 +416,8 @@ definitions:
         type: string
         description: "The name of the field."
       value:
-        type: string
-        description: "The value of the field."
+        type: object
+        description: "The value of the field. The concrete type of that object depends on the fieldType of this field."
       label:
         type: string
         description: "The label for the field."
@@ -430,6 +433,9 @@ definitions:
       format:
         type: string
         description: "The format for this field, depending on its type."
+      formattedValue:
+        type: string
+        description: "The formatted value for this field."
       options:
         $ref: "#/definitions/options"
         description: "The options for this filter."

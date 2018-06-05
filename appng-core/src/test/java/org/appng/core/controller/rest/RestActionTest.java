@@ -65,20 +65,20 @@ public class RestActionTest extends RestOperationTest {
 				org.appng.xml.platform.Action.class);
 		Mockito.when(appconfig.getAction("", actionId)).thenReturn(originalAction);
 
-		org.appng.xml.platform.Action processedAction = MarshallService.getMarshallService().unmarshall(getStream(actionId + ".xml"),
-				org.appng.xml.platform.Action.class);
+		org.appng.xml.platform.Action processedAction = MarshallService.getMarshallService()
+				.unmarshall(getStream(actionId + ".xml"), org.appng.xml.platform.Action.class);
 		Mockito.when(application.processAction(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
 				Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(processedAction);
 
 		Map<String, String> pathVariables = new HashMap<String, String>();
 		if (istGet) {
-			ResponseEntity<Action> action = new RestAction(site, application, request, true, messageSource)
+			ResponseEntity<Action> action = new RestAction(site, application, request, messageSource, true)
 					.getAction("", actionId, pathVariables, environment, servletRequest, servletResponse);
 			WritingJsonValidator.validate(action.getBody(), "rest/" + actionId + "-result.json");
 		} else {
 			InputStream resource = getStream(actionId + ".json");
 			Action input = Jackson2ObjectMapperBuilder.json().build().readValue(resource, Action.class);
-			ResponseEntity<Action> action = new RestAction(site, application, request, true, messageSource)
+			ResponseEntity<Action> action = new RestAction(site, application, request, messageSource, true)
 					.performAction("", actionId, pathVariables, input, environment, servletRequest, servletResponse);
 
 			WritingJsonValidator.validate(action.getBody(), "rest/" + actionId + "-result.json");

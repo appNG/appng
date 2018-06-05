@@ -8,7 +8,7 @@
 		<params>
 			<param name="form_action"></param>
 		</params>
-		<meta-data binding="site" bindClass="org.appng.application.manager.form.SiteForm">
+		<meta-data binding="site" bindClass="org.appng.core.controller.rest.model.SiteForm">
 			<field name="name" type="text" binding="site.name">
 				<label id="name">Name</label>
 				<validation>

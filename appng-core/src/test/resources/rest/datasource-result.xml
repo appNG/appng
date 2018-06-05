@@ -6,7 +6,7 @@
         <params>
             <param name="siteid">1</param>
         </params>
-        <meta-data binding="site" bindClass="org.appng.application.manager.form.SiteForm">
+        <meta-data binding="site" bindClass="org.appng.core.controller.rest.model.SiteForm">
             <field name="id" type="int" format="#" readonly="true" binding="site.id">
                 <label id="id">ID</label>
             </field>

@@ -43,7 +43,8 @@
   "element" : {
     "fields" : [ {
       "name" : "id",
-      "value" : "1"
+      "value" : 1,
+      "formattedValue" : "1"
     }, {
       "name" : "name",
       "value" : "appng"
@@ -58,7 +59,7 @@
       "value" : "appng Manager Instance"
     }, {
       "name" : "active",
-      "value" : "true"
+      "value" : true
     }, {
       "name" : "template"
     } ],
