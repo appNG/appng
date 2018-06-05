@@ -143,7 +143,7 @@ public class RestClient {
 			log.debug("{}: {} {}", prefix, (null != httpStatus ? " " + httpStatus.value() : ""),
 					objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
 		} catch (JsonProcessingException e) {
-			//
+			log.error("error parsing JSON body", e);
 		}
 	}
 

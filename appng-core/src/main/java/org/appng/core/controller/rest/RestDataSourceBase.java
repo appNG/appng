@@ -222,22 +222,23 @@ abstract class RestDataSourceBase extends RestOperation {
 	protected FieldValue getFieldValue(Datafield f, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper, int index) {
 		FieldValue fv = new FieldValue();
 		fv.setName(f.getName());
-		Object objectValue = getObjectValue(request, fieldDef.get(), f, beanWrapper, index);
-		fv.setValue(objectValue);
-		if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.get().getType())
-				&& StringUtils.isNotBlank(fieldDef.get().getFormat())) {
-			fv.setFormattedValue(f.getValue());
-		}
+		if (fieldDef.isPresent()) {
+			Object objectValue = getObjectValue(request, fieldDef.get(), f, beanWrapper, index);
+			fv.setValue(objectValue);
+			if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.get().getType())
+					&& StringUtils.isNotBlank(fieldDef.get().getFormat())) {
+				fv.setFormattedValue(f.getValue());
+			}
 
-		List<Datafield> childDataFields = f.getFields();
-		if (null != childDataFields) {
-			final AtomicInteger i = new AtomicInteger(0);
-			for (Datafield childData : childDataFields) {
-				Optional<FieldDef> childField = getChildField(fieldDef.get(), f, i, childData);
-				fv.addValuesItem(getFieldValue(f, childField, beanWrapper, i.get()));
+			List<Datafield> childDataFields = f.getFields();
+			if (null != childDataFields) {
+				final AtomicInteger i = new AtomicInteger(0);
+				for (Datafield childData : childDataFields) {
+					Optional<FieldDef> childField = getChildField(fieldDef.get(), f, i, childData);
+					fv.addValuesItem(getFieldValue(f, childField, beanWrapper, i.get()));
+				}
 			}
 		}
-
 		return fv;
 	}
 
