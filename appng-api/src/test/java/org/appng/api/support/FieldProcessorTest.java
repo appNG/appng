@@ -62,9 +62,12 @@ public class FieldProcessorTest {
 		FieldProcessor fp = getFieldProcessor();
 		FieldDef field = fp.getField("field");
 
-		FieldDef nestedField = getField("field.nested");
-		nestedField.getMessages().getMessageList().add(getMessage(MessageType.ERROR));
-		field.getFields().add(nestedField);
+		FieldDef nestedFieldOK = getField("field.nestedOK");
+		field.getFields().add(nestedFieldOK);
+
+		FieldDef nestedFieldError = getField("field.nestedFieldError");
+		nestedFieldError.getMessages().getMessageList().add(getMessage(MessageType.ERROR));
+		field.getFields().add(nestedFieldError);
 
 		Assert.assertTrue(fp.hasErrors());
 	}

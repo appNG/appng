@@ -126,6 +126,10 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 
 	private boolean hasFieldErrors(List<FieldDef> fields) {
 		for (FieldDef fieldDef : fields) {
+			boolean errors = hasFieldErrors(fieldDef.getFields());
+			if (errors) {
+				return errors;
+			}
 			Messages messages = fieldDef.getMessages();
 			if (messages != null) {
 				for (Message m : messages.getMessageList()) {
@@ -134,7 +138,6 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 					}
 				}
 			}
-			return hasFieldErrors(fieldDef.getFields());
 		}
 		return false;
 	}
