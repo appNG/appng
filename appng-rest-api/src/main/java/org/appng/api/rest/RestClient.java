@@ -34,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -64,6 +65,12 @@ public class RestClient {
 	 */
 	public RestClient(String url) {
 		this.restTemplate = new RestTemplate(Arrays.asList(new MappingJackson2HttpMessageConverter()));
+		restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+			@Override
+			protected boolean hasError(HttpStatus statusCode) {
+				return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
+			}
+		});
 		this.objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(Include.NON_ABSENT);
 		this.url = url;
@@ -158,7 +165,8 @@ public class RestClient {
 	 */
 	public ResponseEntity<Action> getAction(Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split("/");
-		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
+		String servicePath = StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/");
+		URI uri = new URI(url + "/" + servicePath);
 		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET, uri);
 		return send(httpEntity, Action.class);
 	}
@@ -198,8 +206,9 @@ public class RestClient {
 
 	protected URI getActionURL(String application, String eventId, String actionId, String[] pathVariables)
 			throws URISyntaxException {
-		return new URI(String.format("%s/%s/rest/action/%s/%s" + StringUtils.repeat("/%s", pathVariables.length), url,
-				application, eventId, actionId, pathVariables));
+		String uriString = String.format("%s/%s/rest/action/%s/%s/%s", url, application, eventId, actionId,
+				StringUtils.join(pathVariables, "/"));
+		return new URI(uriString);
 	}
 
 	/**
@@ -228,6 +237,7 @@ public class RestClient {
 		if (StringUtils.isNotBlank(cookie)) {
 			headers.set(HttpHeaders.COOKIE, cookie);
 		}
+		headers.set(HttpHeaders.USER_AGENT, "appNG Rest Client");
 		return headers;
 	}
 
