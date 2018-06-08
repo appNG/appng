@@ -10,8 +10,8 @@
             </rule>
         </validation>
         <messages>
-            <message ref="name" class="ERROR">must not be null</message>
             <message ref="name" class="ERROR">must not be blank</message>
+            <message ref="name" class="ERROR">must not be null</message>
         </messages>
     </field>
     <field name="offsprings" type="list:object" binding="offsprings">
@@ -26,8 +26,8 @@
                     </rule>
                 </validation>
                 <messages>
-                    <message ref="offsprings[0].name" class="ERROR">must not be null</message>
                     <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
+                    <message ref="offsprings[0].name" class="ERROR">must not be null</message>
                     <message ref="offsprings[1].name" class="ERROR">must not be blank</message>
                 </messages>
             </field>
@@ -53,8 +53,8 @@
             </rule>
         </validation>
         <messages>
-            <message ref="offsprings[0].name" class="ERROR">must not be null</message>
             <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
+            <message ref="offsprings[0].name" class="ERROR">must not be null</message>
         </messages>
     </field>
 </metaData>
