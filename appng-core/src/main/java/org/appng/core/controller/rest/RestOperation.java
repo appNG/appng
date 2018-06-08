@@ -15,21 +15,19 @@
  */
 package org.appng.core.controller.rest;
 
+import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
-import org.appng.api.FieldWrapper;
 import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
@@ -44,27 +42,27 @@ import org.appng.api.rest.model.Permission;
 import org.appng.api.rest.model.Permission.ModeEnum;
 import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
-import org.appng.api.support.field.FieldConversionFactory;
-import org.appng.el.ExpressionEvaluator;
-import org.appng.forms.FormUpload;
-import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
+import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Permissions;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 abstract class RestOperation {
 
+	protected static final String INDEXED = "[]";
+	protected static final String INDEX = "\\[\\d+\\]";
 	protected static final String FORM_ACTION = "form_action";
 	protected static final String PATH_VAR = "pathVar";
 	protected Site site;
@@ -73,7 +71,6 @@ abstract class RestOperation {
 	protected boolean supportPathParameters;
 	protected boolean errors = false;
 	protected MessageSource messageSource;
-	protected FieldConversionFactory fieldConversionFactory;
 
 	public RestOperation(Site site, Application application, Request request, MessageSource messageSource,
 			boolean supportPathParameters) {
@@ -82,11 +79,6 @@ abstract class RestOperation {
 		this.request = (ApplicationRequest) request;
 		this.messageSource = messageSource;
 		this.supportPathParameters = supportPathParameters;
-		this.fieldConversionFactory = new FieldConversionFactory(new ExpressionEvaluator(new HashMap<>()));
-		fieldConversionFactory.setEnvironment(request.getEnvironment());
-		fieldConversionFactory.setMessageSource(messageSource);
-		fieldConversionFactory.setConversionService(new DefaultConversionService());
-		fieldConversionFactory.afterPropertiesSet();
 	}
 
 	protected User getUser(Environment environment) {
@@ -166,7 +158,9 @@ abstract class RestOperation {
 				.contains(type);
 	}
 
-	abstract Logger getLogger();
+	Logger getLogger() {
+		return LoggerFactory.getLogger(getClass());
+	}
 
 	public ResponseEntity<ErrorModel> handleError(Exception e, HttpServletResponse response) {
 		getLogger().error("", e);
@@ -199,19 +193,27 @@ abstract class RestOperation {
 		return errors;
 	}
 
-	protected Optional<FieldDef> getChildField(FieldDef fieldDef, Datafield fieldData, final AtomicInteger index,
+	protected Optional<FieldDef> getChildField(FieldDef fieldDef, Datafield fieldData, final int index,
 			Datafield childData) {
-		String name = childData.getName();
+		final String name = childData.getName();
 		Optional<FieldDef> childField;
 		List<FieldDef> childFieldDefs = fieldDef.getFields();
 		if (fieldData.getType().equals(org.appng.xml.platform.FieldType.LIST_OBJECT)) {
 			childField = childFieldDefs.stream().filter(originalField -> {
-				String indexedName = getIndexedName(originalField.getName(), index.getAndIncrement());
-				return indexedName.equals(name);
+				String indexedName = getIndexedName(originalField.getName(), index);
+				boolean matches = indexedName.equals(name);
+				getLogger().debug(
+						"Child {} ({}) of field {} ({})" + (matches ? "" : " not")
+								+ " found. (Name of child data field: {})",
+						indexedName, originalField.getType(), fieldDef.getName(), fieldDef.getType(), name);
+				return matches;
 			}).findFirst();
 		} else {
-			childField = childFieldDefs.stream().filter(originalField -> originalField.getName().equals(name))
+			String childDataName = name.replaceAll(INDEX, INDEXED);
+			childField = childFieldDefs.stream().filter(originalField -> originalField.getName().equals(childDataName))
 					.findFirst();
+			getLogger().debug("Child {} of field {} ({})" + (childField.isPresent() ? "" : " not") + " found.", name,
+					fieldDef.getName(), fieldDef.getType());
 		}
 		return childField;
 	}
@@ -220,57 +222,40 @@ abstract class RestOperation {
 		return name.replaceAll("\\[\\]", "[" + index + "]");
 	}
 
-	protected Object getObjectValue(ApplicationRequest request, FieldDef fieldDef, Datafield fieldData,
-			BeanWrapper beanWrapper, int index) {
-		if (org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType())) {
-			return fieldData.getValue();
+	protected Object getObjectValue(Datafield data, FieldDef field, Class<?> type) {
+		org.appng.xml.platform.FieldType fieldType = field.getType();
+		boolean isDecimal = fieldType.equals(org.appng.xml.platform.FieldType.DECIMAL);
+		if (isDecimal || fieldType.equals(org.appng.xml.platform.FieldType.LONG)
+				|| fieldType.equals(org.appng.xml.platform.FieldType.INT)) {
+			String format = field.getFormat();
+			try {
+				Number number = getDecimalFormat(format).parse(data.getValue());
+				return isDecimal ? number.doubleValue() : number;
+			} catch (ParseException e) {
+				getLogger().error(String.format("error while parsing '%s' using pattern %s", data.getValue(), format),
+						e);
+			}
+		} else if (fieldType.equals(org.appng.xml.platform.FieldType.CHECKBOX)
+				|| (null != type && ("boolean".equals(type.getName()) || Boolean.class.equals(type)))) {
+			return Boolean.valueOf(data.getValue());
 		}
-		if (!org.appng.xml.platform.FieldType.LIST_OBJECT.equals(fieldDef.getType())
-				&& !org.appng.xml.platform.FieldType.OBJECT.equals(fieldDef.getType())) {
+		return data.getValue();
+	}
 
-			FieldWrapper fieldwrapper = new FieldWrapper(fieldDef, beanWrapper);
-			String indexedName = getIndexedName(fieldDef.getBinding(), index);
-			fieldwrapper.setBinding(indexedName);
-			fieldConversionFactory.setObject(fieldwrapper, new RequestContainer() {
-
-				public boolean hasParameter(String name) {
-					return name.equals(fieldDef.getBinding());
-				}
-
-				public String getParameter(String name) {
-					return fieldData.getValue();
-				}
-
-				public Map<String, List<String>> getParametersList() {
-					return null;
-				}
-
-				public Map<String, String> getParameters() {
-					return null;
-				}
-
-				public Set<String> getParameterNames() {
-					return null;
-				}
-
-				public List<String> getParameterList(String name) {
-					return null;
-				}
-
-				public String getHost() {
-					return request.getHost();
-				}
-
-				public List<FormUpload> getFormUploads(String name) {
-					return null;
-				}
-
-				public Map<String, List<FormUpload>> getFormUploads() {
-					return null;
-				}
-			});
-			return fieldwrapper.getObject();
+	protected BeanWrapper getBeanWrapper(MetaData metaData) {
+		BeanWrapper beanWrapper = null;
+		try {
+			beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
+			beanWrapper.setAutoGrowNestedPaths(true);
+		} catch (ClassNotFoundException e) {
+			getLogger().warn("error creating BeanWrapper for class {}", metaData.getBindClass());
 		}
-		return null;
+		return beanWrapper;
+	}
+	
+	protected DecimalFormat getDecimalFormat(String format) {
+		DecimalFormat decimalFormat = new DecimalFormat(format,
+				new DecimalFormatSymbols(request.getLocale()));
+		return decimalFormat;
 	}
 }

@@ -63,5 +63,7 @@ public class RestOperationTest {
 		Mockito.when(application.getName()).thenReturn("application");
 		Mockito.when(application.getApplicationConfig()).thenReturn(appconfig);
 		Mockito.when(request.getEnvironment()).thenReturn(environment);
+		Mockito.when(request.getLocale()).thenReturn(Locale.GERMANY);
 	}
+
 }

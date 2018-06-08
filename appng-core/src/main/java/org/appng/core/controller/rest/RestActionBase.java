@@ -30,7 +30,6 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
-import org.appng.api.FieldWrapper;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
@@ -61,7 +60,6 @@ import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
@@ -193,13 +191,7 @@ abstract class RestActionBase extends RestOperation {
 			MetaData metaData = processedAction.getConfig().getMetaData();
 			Optional<FieldDef> originalDef = metaData.getFields().stream()
 					.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
-			BeanWrapper beanWrapper = null;
-			try {
-				beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
-				beanWrapper.setAutoGrowNestedPaths(true);
-			} catch (ClassNotFoundException e) {
-				getLogger().warn("error creating BeanWrapper for class {}", metaData.getBindClass());
-			}
+			BeanWrapper beanWrapper = getBeanWrapper(metaData);
 			ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
 					beanWrapper, 0);
 			action.getFields().add(actionField);
@@ -219,11 +211,12 @@ abstract class RestActionBase extends RestOperation {
 		if (originalDef.isPresent()) {
 			FieldDef fieldDef = originalDef.get();
 			Object objectValue = null;
-			objectValue = getObjectValue(request, fieldDef, fieldData, beanWrapper, index);
+			objectValue = getObjectValue(fieldData, fieldDef, beanWrapper.getPropertyType(fieldDef.getBinding()));
 			actionField.setValue(objectValue);
 
 			actionField.setFormat(fieldDef.getFormat());
-			if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType()) && StringUtils.isNotBlank(fieldDef.getFormat())) {
+			if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType())
+					&& StringUtils.isNotBlank(fieldDef.getFormat())) {
 				actionField.setFormattedValue(fieldData.getValue());
 			}
 			actionField.setLabel(fieldDef.getLabel().getId());
@@ -267,10 +260,11 @@ abstract class RestActionBase extends RestOperation {
 			if (null != childDataFields) {
 				final AtomicInteger i = new AtomicInteger(0);
 				for (Datafield childData : childDataFields) {
-					Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i, childData);
+					Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.getAndIncrement(), childData);
 					ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
 							childField, beanWrapper, i.get());
 					actionField.addFieldsItem(childActionField);
+					applyValidationRules(request, childActionField, childField.get());
 				}
 			}
 
@@ -304,8 +298,15 @@ abstract class RestActionBase extends RestOperation {
 							actionField.getRules().size());
 				}
 			});
+			List<ActionField> childFields = actionField.getFields();
+			if (null != childFields) {
+				for (ActionField childField : childFields) {
+					Optional<FieldDef> childDef = originalDef.getFields().stream()
+							.filter(f -> f.getName().equals(childField.getName())).findFirst();
+					applyValidationRules(request, childField, childDef.get());
+				}
+			}
 		}
-
 	}
 
 	protected RestRequest initRequest(Site site, Application application, Environment environment,
@@ -342,13 +343,7 @@ abstract class RestActionBase extends RestOperation {
 
 			MetaData metaData = original.getConfig().getMetaData();
 			metaData.getFields().forEach(originalField -> {
-				BeanWrapper beanWrapper = null;
-				try {
-					beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
-					beanWrapper.setAutoGrowNestedPaths(true);
-				} catch (ClassNotFoundException e) {
-					getLogger().warn("error creating BeanWrapper for class {}", metaData.getBindClass());
-				}
+				BeanWrapper beanWrapper = getBeanWrapper(metaData);
 				extractRequestParameter(null, receivedData.getFields(), formRequest, originalField, beanWrapper,
 						metaData.getBinding());
 			});
@@ -364,7 +359,7 @@ abstract class RestActionBase extends RestOperation {
 			boolean isObject = org.appng.xml.platform.FieldType.OBJECT.equals(originalField.getType());
 			boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(originalField.getType());
 			Stream<ActionField> fieldStream = receivedData.stream().filter(f -> {
-				String name = f.getName().replaceAll("\\[\\d+\\]", "[]");
+				String name = f.getName().replaceAll(INDEX, INDEXED);
 				return name.equals(originalFieldName);
 			});
 			List<ActionField> optionalFields = fieldStream.collect(Collectors.toList());
@@ -377,12 +372,8 @@ abstract class RestActionBase extends RestOperation {
 							+ actionField.getName();
 
 					if (!(isObject || isObjectList)) {
-						// take object-value from actionField, convert it and add to request
-						FieldWrapper wrappedField = new FieldWrapper(originalField, beanWrapper);
-						wrappedField.setBinding((bindPrefix == null ? "" : (bindPrefix + ".")) + parameterName);
-						wrappedField.setObject(actionField.getValue());
-						fieldConversionFactory.setString(wrappedField);
-						formRequest.addParameter(parameterName, wrappedField.getStringValue());
+						String stringValue = getStringValue(actionField);
+						formRequest.addParameter(parameterName, stringValue);
 					} else {
 						for (FieldDef childField : originalField.getFields()) {
 							log.trace("Extracting child {} with index {} for action field {}", childField.getBinding(),
@@ -397,6 +388,18 @@ abstract class RestActionBase extends RestOperation {
 			log.trace("Field {} is readonly", originalField.getBinding());
 		}
 		log.trace("Done processing field {}", originalField.getBinding());
+	}
+
+	private String getStringValue(ActionField actionField) {
+		if(actionField.getValue() == null){
+			return null;
+		}
+		FieldType fieldType = actionField.getFieldType();
+		if (FieldType.DECIMAL.equals(fieldType) || FieldType.LONG.equals(fieldType)
+				|| FieldType.INT.equals(fieldType)) {
+			return getDecimalFormat(actionField.getFormat()).format(actionField.getValue());
+		}
+		return actionField.getValue() == null ? null : actionField.getValue().toString();
 	}
 
 	private void extractSelectionValue(FieldDef originalField, ActionField actionField,

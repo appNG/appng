@@ -18,6 +18,7 @@ package org.appng.core.controller.rest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Optional;
 
 import javax.xml.bind.JAXBException;
 
@@ -31,6 +32,10 @@ import org.appng.api.support.RequestSupportImpl;
 import org.appng.core.controller.rest.RestPostProcessor.RestDataSource;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Datafield;
+import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.FieldType;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +71,66 @@ public class RestDataSourceTest extends RestOperationTest {
 		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request, messageSource, true)
 				.getDataSource(dataSourceId, new HashMap<>(), environment, servletRequest, servletResponse);
 		WritingJsonValidator.validate(dataSource.getBody(), "rest/" + dataSourceId + ".json");
+	}
+
+	@Test
+	public void testGetChildField() {
+		RestOperation restOperation = new RestDataSource(site, application, request, messageSource, true);
+
+		Datafield listObject = new Datafield();
+		listObject.setName("items");
+		listObject.setType(FieldType.LIST_OBJECT);
+
+		Datafield object0 = new Datafield();
+		object0.setName("items[0]");
+		object0.setType(FieldType.OBJECT);
+		listObject.getFields().add(object0);
+
+		Datafield text0 = new Datafield();
+		text0.setName("name");
+		text0.setType(FieldType.TEXT);
+		text0.setValue("foo");
+		object0.getFields().add(text0);
+
+		Datafield object1 = new Datafield();
+		object1.setName("items[1]");
+		object1.setType(FieldType.OBJECT);
+		listObject.getFields().add(object1);
+
+		Datafield text1 = new Datafield();
+		text1.setName("name");
+		text1.setType(FieldType.TEXT);
+		text1.setValue("foo");
+		object1.getFields().add(text1);
+
+		FieldDef listObjectField = new FieldDef();
+		listObjectField.setType(FieldType.OBJECT);
+		listObjectField.setName("items");
+		listObjectField.setBinding("items");
+
+		FieldDef objectField = new FieldDef();
+		objectField.setType(FieldType.OBJECT);
+		objectField.setName("items[]");
+		objectField.setBinding("items[]");
+		listObjectField.getFields().add(objectField);
+
+		FieldDef childField = new FieldDef();
+		childField.setType(FieldType.TEXT);
+		childField.setName("name");
+		childField.setBinding("items[].name");
+		objectField.getFields().add(childField);
+
+		Optional<FieldDef> foundChild = restOperation.getChildField(listObjectField, listObject, 0, object0);
+		Assert.assertEquals(objectField, foundChild.get());
+
+		foundChild = restOperation.getChildField(objectField, object0, 0, text0);
+		Assert.assertEquals(childField, foundChild.get());
+
+		foundChild = restOperation.getChildField(listObjectField, listObject, 1, object1);
+		Assert.assertEquals(objectField, foundChild.get());
+
+		foundChild = restOperation.getChildField(objectField, object1, 1, text1);
+		Assert.assertEquals(childField, foundChild.get());
 	}
 
 }

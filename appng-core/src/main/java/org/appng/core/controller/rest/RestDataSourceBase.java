@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
@@ -63,7 +64,6 @@ import org.appng.xml.platform.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -98,9 +98,12 @@ abstract class RestDataSourceBase extends RestOperation {
 			applyPathParameters(pathVariables, originalDatasource.getConfig(), request);
 		}
 
+		MarshallService marshallService = MarshallService.getMarshallService();
 		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
-				httpServletResponse, false, (ApplicationRequest) request, dataSourceId,
-				MarshallService.getMarshallService());
+				httpServletResponse, false, (ApplicationRequest) request, dataSourceId, marshallService);
+
+		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
+		log.debug(marshallService.marshallNonRoot(processedDataSource));
 
 		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
@@ -203,12 +206,7 @@ abstract class RestDataSourceBase extends RestOperation {
 
 			Optional<FieldDef> fieldDef = metaData.getFields().stream().filter(mf -> mf.getName().equals(f.getName()))
 					.findFirst();
-			BeanWrapperImpl beanWrapper = null;
-			try {
-				beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
-			} catch (ClassNotFoundException e) {
-				log.warn("e", metaData.getBindClass());
-			}
+			BeanWrapper beanWrapper = getBeanWrapper(metaData);
 			element.addFieldsItem(getFieldValue(f, fieldDef, beanWrapper, 0));
 		});
 		r.getLinkpanel().forEach(lp -> {
@@ -219,25 +217,33 @@ abstract class RestDataSourceBase extends RestOperation {
 		return element;
 	}
 
-	protected FieldValue getFieldValue(Datafield f, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper, int index) {
-		FieldValue fv = new FieldValue();
-		fv.setName(f.getName());
+	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper, int index) {
 		if (fieldDef.isPresent()) {
-			Object objectValue = getObjectValue(request, fieldDef.get(), f, beanWrapper, index);
-			fv.setValue(objectValue);
-			if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.get().getType())
-					&& StringUtils.isNotBlank(fieldDef.get().getFormat())) {
-				fv.setFormattedValue(f.getValue());
-			}
-
-			List<Datafield> childDataFields = f.getFields();
+			FieldValue fv = getFieldValue(data, fieldDef.get(),beanWrapper.getPropertyType(fieldDef.get().getBinding()));
+			List<Datafield> childDataFields = data.getFields();
 			if (null != childDataFields) {
 				final AtomicInteger i = new AtomicInteger(0);
 				for (Datafield childData : childDataFields) {
-					Optional<FieldDef> childField = getChildField(fieldDef.get(), f, i, childData);
-					fv.addValuesItem(getFieldValue(f, childField, beanWrapper, i.get()));
+					Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
+					FieldValue childValue = getFieldValue(childData, childField, beanWrapper, i.get());
+					fv.addValuesItem(childValue);
+					i.incrementAndGet();
 				}
 			}
+			return fv;
+		}
+		FieldValue fv = new FieldValue();
+		fv.setName(data.getName());
+		return fv;
+	}
+
+	protected FieldValue getFieldValue(Datafield data, FieldDef field, Class<?> type) {
+		FieldValue fv = new FieldValue();
+		fv.setName(data.getName());
+		fv.setValue(getObjectValue(data, field, type));
+		if (!org.appng.xml.platform.FieldType.DATE.equals(field.getType())
+				&& StringUtils.isNotBlank(field.getFormat())) {
+			fv.setFormattedValue(data.getValue());
 		}
 		return fv;
 	}
