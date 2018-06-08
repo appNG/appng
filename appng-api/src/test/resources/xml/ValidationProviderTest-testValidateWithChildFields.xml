@@ -9,7 +9,7 @@
                 <message ref="name" class="ERROR">must not be blank</message>
             </rule>
         </validation>
-        <messages>
+        <messages ref="name">
             <message ref="name" class="ERROR">must not be blank</message>
             <message ref="name" class="ERROR">must not be null</message>
         </messages>
@@ -25,7 +25,7 @@
                         <message ref="offsprings[].name" class="ERROR">must not be blank</message>
                     </rule>
                 </validation>
-                <messages>
+                <messages ref="offsprings[].name">
                     <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
                     <message ref="offsprings[0].name" class="ERROR">must not be null</message>
                     <message ref="offsprings[1].name" class="ERROR">must not be blank</message>
@@ -52,7 +52,7 @@
                 <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
             </rule>
         </validation>
-        <messages>
+        <messages ref="offsprings[0].name">
             <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
             <message ref="offsprings[0].name" class="ERROR">must not be null</message>
         </messages>

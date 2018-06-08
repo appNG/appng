@@ -469,20 +469,22 @@ public class DefaultValidationProvider implements ValidationProvider {
 
 	private void addFieldMessage(Set<ConstraintViolation<Object>> fieldErrors, FieldDef fieldDef) {
 		if (!fieldErrors.isEmpty() && null == fieldDef.getMessages()) {
-			fieldDef.setMessages(new Messages());
+			Messages messages = new Messages();
+			messages.setRef(fieldDef.getBinding());
+			fieldDef.setMessages(messages);
 		}
 		for (ConstraintViolation<Object> cv : fieldErrors) {
-			String contraintPath = cv.getPropertyPath().toString();
-			String expectedBinding = contraintPath.replaceAll(INDEX_PATTERN, INDEXED);
+			String constraintPath = cv.getPropertyPath().toString();
+			String expectedBinding = constraintPath.replaceAll(INDEX_PATTERN, INDEXED);
 			int count = 0;
-			if (contraintPath.equals(fieldDef.getBinding()) || expectedBinding.equals(fieldDef.getBinding())) {
+			if (constraintPath.equals(fieldDef.getBinding()) || expectedBinding.equals(fieldDef.getBinding())) {
 				Message errorMessage = new Message();
 				errorMessage.setClazz(MessageType.ERROR);
-				errorMessage.setRef(contraintPath);
+				errorMessage.setRef(constraintPath);
 				errorMessage.setContent(cv.getMessage());
 				fieldDef.getMessages().getMessageList().add(errorMessage);
 				log.debug("Added message '{}' to field {} with reference {}", errorMessage.getContent(),
-						fieldDef.getBinding(), contraintPath);
+						fieldDef.getBinding(), constraintPath);
 				count++;
 			}
 			log.debug("Added {} messages for field {}", count, fieldDef.getBinding());

@@ -32,7 +32,7 @@
         "visible" : true
       }, {
         "name" : "amount",
-        "value" : "439.00",
+        "value" : 439.00,
         "label" : "label.empty",
         "fieldType" : "decimal",
         "readonly" : true,
@@ -40,7 +40,7 @@
         "format" : "#,##0.00"
       }, {
         "name" : "amountNew",
-        "value" : "420",
+        "value" : 420.0,
         "label" : "label.empty",
         "fieldType" : "decimal",
         "readonly" : false,
@@ -62,7 +62,7 @@
         "visible" : true
       }, {
         "name" : "amount",
-        "value" : "39.00",
+        "value" : 39.00,
         "label" : "label.empty",
         "fieldType" : "decimal",
         "readonly" : true,
@@ -70,7 +70,7 @@
         "format" : "#,##0.00"
       }, {
         "name" : "amountNew",
-        "value" : "67",
+        "value" : 67.0,
         "label" : "label.empty",
         "fieldType" : "decimal",
         "readonly" : false,
