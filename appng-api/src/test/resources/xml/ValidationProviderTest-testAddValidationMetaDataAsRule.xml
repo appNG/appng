@@ -96,8 +96,31 @@
         <icon condition="${1 eq 2}">/foo/bar3.jpg</icon>
     </field>
     <field name="father" binding="father">
-        <field name="name" type="text" binding="father.name"/>
-        <field name="firstname" type="text" binding="father.firstname"/>
+        <field name="name" type="text" binding="father.name">
+            <validation>
+                <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                    <message ref="father.name" class="ERROR">must not be blank</message>
+                </rule>
+                <rule type="javax.validation.constraints.NotNull" name="notNull">
+                    <message ref="father.name" class="ERROR">must not be null</message>
+                </rule>
+            </validation>
+        </field>
+        <field name="firstname" type="text" binding="father.firstname">
+            <validation>
+                <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                    <message ref="father.firstname" class="ERROR">must not be blank</message>
+                </rule>
+                <rule type="javax.validation.constraints.NotNull" name="notNull">
+                    <message ref="father.firstname" class="ERROR">must not be null</message>
+                </rule>
+                <rule type="javax.validation.constraints.Size" name="size">
+                    <message ref="father.firstname" class="ERROR">Value must be between 1 and 5</message>
+                    <option name="max" value="5"/>
+                    <option name="min" value="1"/>
+                </rule>
+            </validation>
+        </field>
     </field>
     <field name="email" type="text" binding="email">
         <validation>

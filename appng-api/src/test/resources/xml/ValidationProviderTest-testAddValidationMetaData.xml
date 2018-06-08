@@ -78,8 +78,29 @@
 		<icon condition="${1 eq 2}">/foo/bar3.jpg</icon>
 	</field>
 	<field name="father" binding="father">
-		<field name="name" type="text" binding="father.name" />
-		<field name="firstname" type="text" binding="father.firstname" />
+		<field name="name" type="text" binding="father.name">
+			<validation>
+				<notNull>
+					<message ref="father.name" class="ERROR">must not be null</message>
+				</notNull>
+				<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+					<message ref="father.name" class="ERROR">must not be blank</message>
+				</rule>
+			</validation>
+		</field>
+		<field name="firstname" type="text" binding="father.firstname">
+			<validation>
+				<notNull>
+					<message ref="father.firstname" class="ERROR">must not be null</message>
+				</notNull>
+				<size min="1" max="5">
+					<message ref="father.firstname" class="ERROR">Value must be between 1 and 5</message>
+				</size>
+				<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+					<message ref="father.firstname" class="ERROR">must not be blank</message>
+				</rule>
+			</validation>
+		</field>
 	</field>
 	<field name="offsprings[0].name" type="text" binding="offsprings[0].name">
 		<validation>

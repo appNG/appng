@@ -16,15 +16,19 @@
 package org.appng.api.support.validation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import javax.validation.Configuration;
 import javax.validation.ConstraintViolation;
@@ -55,13 +59,13 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.appng.xml.platform.Message;
 import org.appng.xml.platform.MessageType;
+import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Rule;
 import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.util.ClassUtils;
@@ -79,6 +83,11 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private static final String INVALID_DIGIT = "invalid.digit";
 
 	private static final String INVALID_INTEGER = "invalid.integer";
+
+	private static final String INDEXED = "[]";
+	private static final String INDEX_PATTERN = "\\[\\d*\\]";
+	private static final java.util.regex.Pattern INDEXED_PROP = java.util.regex.Pattern
+			.compile("\\S+(" + INDEX_PATTERN + ")\\S*");
 
 	private Validator validator;
 
@@ -146,57 +155,78 @@ public class DefaultValidationProvider implements ValidationProvider {
 	public void addValidationMetaData(MetaData metaData, ClassLoader classLoader, Class<?>... groups)
 			throws ClassNotFoundException {
 		String className = metaData.getBindClass();
-		List<FieldDef> fields = metaData.getFields();
 		if (null != className) {
 			Class<?> validationClass = ClassUtils.forName(className, classLoader);
-			for (FieldDef fieldDef : fields) {
-				if (!Boolean.TRUE.toString().equalsIgnoreCase(fieldDef.getReadonly())) {
-					String propertyName = fieldDef.getBinding();
-					Set<ConstraintDescriptor<?>> fieldConstraints = getConstraintsForProperty(validationClass,
-							propertyName);
-					if (fieldConstraints != null) {
-						addValidationNode(fieldDef);
-						for (ConstraintDescriptor<?> constraintDescriptor : fieldConstraints) {
-							fillValidation(fieldDef, constraintDescriptor, groups);
-						}
-					}
-				}
+			for (FieldDef fieldDef : metaData.getFields()) {
+				fillValidation(validationClass, fieldDef, groups);
 			}
 		}
 	}
 
-	private Validation addValidationNode(FieldDef fieldDef) {
+	private void fillValidation(Class<?> validationClass, FieldDef fieldDef, Class<?>... groups) {
+		if (!Boolean.TRUE.toString().equalsIgnoreCase(fieldDef.getReadonly())) {
+			String propertyName = fieldDef.getBinding();
+			log.debug("Adding validation data for field {} for class {}", propertyName, validationClass);
+			Set<ConstraintDescriptor<?>> fieldConstraints = getConstraintsForProperty(validationClass, propertyName);
+			if (fieldConstraints != null) {
+				for (ConstraintDescriptor<?> constraintDescriptor : fieldConstraints) {
+					fillValidation(fieldDef, constraintDescriptor, groups);
+				}
+			}
+			for (FieldDef childField : fieldDef.getFields()) {
+				fillValidation(validationClass, childField, groups);
+			}
+		}
+	}
+
+	private Validation getValidationNode(FieldDef fieldDef) {
 		if (null == fieldDef.getValidation()) {
 			fieldDef.setValidation(new Validation());
 		}
 		return fieldDef.getValidation();
 	}
 
-	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(Class<?> clazz, String property) {
-		Set<ConstraintDescriptor<?>> constraintDescriptors = null;
-		Class<?> propertyType = clazz;
-		String propertyName = property;
+	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(Class<?> validationClass,
+			final String propertyPath) {
+		BeanDescriptor rootBeanDescriptor = validator.getConstraintsForClass(validationClass);
+		Matcher indexMatcher = INDEXED_PROP.matcher(propertyPath);
+		boolean isIndexedProperty = indexMatcher.matches();
+		int separator = propertyPath.indexOf('.');
+		int arrayIdx = -1;
 
-		int idx = property.lastIndexOf('.');
-		if (idx > 0) {
-			BeanWrapper beanWrapper = new BeanWrapperImpl(clazz);
-			beanWrapper.setAutoGrowNestedPaths(true);
-			propertyName = property.substring(idx + 1);
-			String propertyPath = property.substring(0, idx);
-			propertyType = beanWrapper.getPropertyType(propertyPath);
-		}
-		if (null != propertyType) {
-			BeanDescriptor beanDescriptor = validator.getConstraintsForClass(propertyType);
-			PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(propertyName);
-			if (null != propertyDescriptor) {
-				constraintDescriptors = propertyDescriptor.getConstraintDescriptors();
-				log.debug("validation rules for property '" + propertyName + "' of class '" + propertyType + "':"
-						+ constraintDescriptors);
+		PropertyDescriptor propertyDescriptor = rootBeanDescriptor.getConstraintsForProperty(propertyPath);
+		if (null == propertyDescriptor && separator > 0) {
+			String rootProperty = propertyPath.substring(0, separator);
+			if (isIndexedProperty) {
+				String indexPart = indexMatcher.group(1);
+				arrayIdx = indexMatcher.end(1);
+				rootProperty = rootProperty.replace(indexPart, StringUtils.EMPTY);
 			}
-		} else {
-			log.debug("unable to determine type for property '{}' of class '{}'", property, clazz);
+			try {
+				Field field = validationClass.getDeclaredField(rootProperty);
+				Class<?> propertyType = field.getType();
+
+				if (arrayIdx > 0 && Collection.class.isAssignableFrom(propertyType)) {
+					ParameterizedType collection = (ParameterizedType) field.getGenericType();
+					Class<?> collectionType = (Class<?>) collection.getActualTypeArguments()[0];
+					String nestedProperty = propertyPath.substring(arrayIdx + 1, propertyPath.length());
+					propertyDescriptor = validator.getConstraintsForClass(collectionType)
+							.getConstraintsForProperty(nestedProperty);
+				} else {
+					String nestedProperty = propertyPath.substring(separator + 1, propertyPath.length());
+					propertyDescriptor = validator.getConstraintsForClass(propertyType)
+							.getConstraintsForProperty(nestedProperty);
+				}
+			} catch (NoSuchFieldException | SecurityException e) {
+				log.warn(String.format("Field '%s' not found on class %s!", rootProperty, validationClass), e);
+			}
 		}
-		return constraintDescriptors;
+
+		if (null != propertyDescriptor) {
+			return propertyDescriptor.getConstraintDescriptors();
+		}
+		return null;
+
 	}
 
 	private void fillValidation(FieldDef fieldDef, final ConstraintDescriptor<?> constraintDescriptor,
@@ -208,21 +238,20 @@ public class DefaultValidationProvider implements ValidationProvider {
 				|| !CollectionUtils.intersection(groupList, constraintGroups).isEmpty();
 
 		ValidationRule validationRule = null;
-		Validation validation = fieldDef.getValidation();
 
 		FieldType type = fieldDef.getType();
 		switch (type) {
 		case LONG:
 		case INT: {
 			org.appng.xml.platform.Type fieldType = new org.appng.xml.platform.Type();
-			validation.setType(fieldType);
+			getValidationNode(fieldDef).setType(fieldType);
 			String messageText = messageSource.getMessage(INVALID_INTEGER, new Object[0], locale);
 			addMessage(fieldDef, fieldType, messageText);
 			break;
 		}
 		case DECIMAL: {
 			org.appng.xml.platform.Type fieldType = new org.appng.xml.platform.Type();
-			validation.setType(fieldType);
+			getValidationNode(fieldDef).setType(fieldType);
 			String messageText = messageSource.getMessage(INVALID_DIGIT, new Object[0], locale);
 			addMessage(fieldDef, fieldType, messageText);
 			break;
@@ -233,44 +262,44 @@ public class DefaultValidationProvider implements ValidationProvider {
 
 		if (doAdd) {
 			if (contraintsAsRule) {
-				addRule(fieldDef, constraintDescriptor, annotation, validation);
+				addRule(fieldDef, constraintDescriptor, annotation, getValidationNode(fieldDef));
 			} else if (annotation instanceof NotNull || containsType(annotation, NotNull.class)) {
 				org.appng.xml.platform.NotNull notNull = new org.appng.xml.platform.NotNull();
 				validationRule = notNull;
-				validation.setNotNull(notNull);
+				getValidationNode(fieldDef).setNotNull(notNull);
 			} else if (annotation instanceof Size) {
 				org.appng.xml.platform.Size size = new org.appng.xml.platform.Size();
 				size.setMin(((Size) annotation).min());
 				size.setMax(((Size) annotation).max());
 				validationRule = size;
-				validation.setSize(size);
+				getValidationNode(fieldDef).setSize(size);
 			} else if (annotation instanceof Digits) {
 				org.appng.xml.platform.Digits digits = new org.appng.xml.platform.Digits();
 				digits.setInteger(((Digits) annotation).integer());
 				digits.setFraction(((Digits) annotation).fraction());
 				validationRule = digits;
-				validation.setDigits(digits);
+				getValidationNode(fieldDef).setDigits(digits);
 			} else if (annotation instanceof Future) {
 				org.appng.xml.platform.Future future = new org.appng.xml.platform.Future();
 				validationRule = future;
-				validation.setFuture(future);
+				getValidationNode(fieldDef).setFuture(future);
 			} else if (annotation instanceof Past) {
 				org.appng.xml.platform.Past past = new org.appng.xml.platform.Past();
 				validationRule = past;
-				validation.setPast(past);
+				getValidationNode(fieldDef).setPast(past);
 			} else if (annotation instanceof Pattern) {
 				org.appng.xml.platform.Pattern pattern = new org.appng.xml.platform.Pattern();
 				pattern.setRegexp(((Pattern) annotation).regexp());
 				validationRule = pattern;
-				validation.setPattern(pattern);
+				getValidationNode(fieldDef).setPattern(pattern);
 			} else if (annotation instanceof Min) {
-				validationRule = setMin(validation, new BigDecimal(((Min) annotation).value()));
+				validationRule = setMin(getValidationNode(fieldDef), new BigDecimal(((Min) annotation).value()));
 			} else if (annotation instanceof Max) {
-				validationRule = setMax(validation, new BigDecimal(((Max) annotation).value()));
+				validationRule = setMax(getValidationNode(fieldDef), new BigDecimal(((Max) annotation).value()));
 			} else if (annotation instanceof DecimalMin) {
-				validationRule = setMin(validation, new BigDecimal(((DecimalMin) annotation).value()));
+				validationRule = setMin(getValidationNode(fieldDef), new BigDecimal(((DecimalMin) annotation).value()));
 			} else if (annotation instanceof DecimalMax) {
-				validationRule = setMax(validation, new BigDecimal(((DecimalMax) annotation).value()));
+				validationRule = setMax(getValidationNode(fieldDef), new BigDecimal(((DecimalMax) annotation).value()));
 			} else if (annotation instanceof FileUpload) {
 				org.appng.xml.platform.FileUpload fileUpload = new org.appng.xml.platform.FileUpload();
 				FileUpload fUp = (FileUpload) annotation;
@@ -281,9 +310,9 @@ public class DefaultValidationProvider implements ValidationProvider {
 				fileUpload.setMaxSize(fUp.maxSize());
 				fileUpload.setUnit(fUp.unit().toString());
 				validationRule = fileUpload;
-				validation.setFileUpload(fileUpload);
+				getValidationNode(fieldDef).setFileUpload(fileUpload);
 			} else {
-				addRule(fieldDef, constraintDescriptor, annotation, validation);
+				addRule(fieldDef, constraintDescriptor, annotation, getValidationNode(fieldDef));
 			}
 			Collections.sort(fieldDef.getValidation().getRules(), new Comparator<Rule>() {
 				public int compare(Rule r1, Rule r2) {
@@ -409,12 +438,54 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 */
 	public void validateBean(Object bean, FieldProcessor fp, Class<?>... groups) {
 		if (null != bean) {
-			for (ConstraintViolation<Object> cv : validator.validate(bean, groups)) {
-				String reference = cv.getPropertyPath().toString();
-				if (fp.hasField(reference)) {
-					fp.addErrorMessage(fp.getField(reference), cv.getMessage());
+			validateFields(bean, fp.getFields(), groups);
+		}
+	}
+
+	private void validateFields(Object bean, List<FieldDef> fields, Class<?>... groups) {
+		for (FieldDef fieldDef : fields) {
+			if (!FieldType.OBJECT.equals(fieldDef.getType()) && !FieldType.LIST_OBJECT.equals(fieldDef.getType())) {
+				String reference = fieldDef.getBinding();
+				boolean isArray = reference.contains(INDEXED);
+				if (isArray) {
+					String arrayProperty = fieldDef.getBinding().substring(0, fieldDef.getBinding().indexOf(INDEXED));
+					Object collectionValue = new BeanWrapperImpl(bean).getPropertyValue(arrayProperty);
+					int size = ((Collection<?>) collectionValue).size();
+					for (int i = 0; i < size; i++) {
+						String indexedPropertyName = fieldDef.getBinding().replace(INDEXED, "[" + i + "]");
+						addFieldMessage(validator.validateProperty(bean, indexedPropertyName, groups), fieldDef);
+					}
+				} else {
+					try {
+						addFieldMessage(validator.validateProperty(bean, reference, groups), fieldDef);
+					} catch (IllegalArgumentException e) {
+						// may occur when using properties like foo['bar']
+					}
 				}
 			}
+			validateFields(bean, fieldDef.getFields(), groups);
+		}
+	}
+
+	private void addFieldMessage(Set<ConstraintViolation<Object>> fieldErrors, FieldDef fieldDef) {
+		if (!fieldErrors.isEmpty() && null == fieldDef.getMessages()) {
+			fieldDef.setMessages(new Messages());
+		}
+		for (ConstraintViolation<Object> cv : fieldErrors) {
+			String contraintPath = cv.getPropertyPath().toString();
+			String expectedBinding = contraintPath.replaceAll(INDEX_PATTERN, INDEXED);
+			int count = 0;
+			if (contraintPath.equals(fieldDef.getBinding()) || expectedBinding.equals(fieldDef.getBinding())) {
+				Message errorMessage = new Message();
+				errorMessage.setClazz(MessageType.ERROR);
+				errorMessage.setRef(contraintPath);
+				errorMessage.setContent(cv.getMessage());
+				fieldDef.getMessages().getMessageList().add(errorMessage);
+				log.debug("Added message '{}' to field {} with reference {}", errorMessage.getContent(),
+						fieldDef.getBinding(), contraintPath);
+				count++;
+			}
+			log.debug("Added {} messages for field {}", count, fieldDef.getBinding());
 		}
 	}
 

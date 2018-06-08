@@ -19,9 +19,7 @@
             </size>
         </validation>
     </field>
-    <field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate">
-        <validation/>
-    </field>
+    <field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate"/>
     <field name="size" type="decimal" binding="size"/>
     <field name="savings" type="decimal" format="###,###.###" binding="savings"/>
     <field name="age" type="long" binding="age">
@@ -36,12 +34,8 @@
         <condition expression="${not empty current.offsprings}"/>
     </field>
     <field name="integerList" type="list:checkbox" binding="integerList"/>
-    <field name="picture" type="file" binding="picture">
-        <validation/>
-    </field>
-    <field name="morePictures" type="file-multiple" binding="morePictures">
-        <validation/>
-    </field>
+    <field name="picture" type="file" binding="picture"/>
+    <field name="morePictures" type="file-multiple" binding="morePictures"/>
     <field name="strings" type="list:text" binding="strings"/>
     <field name="thepanel" type="linkpanel" binding="thepanel"/>
     <field name="coordinate" type="coordinate" binding="coordinate">
@@ -54,7 +48,22 @@
         <icon condition="${1 eq 2}">/foo/bar3.jpg</icon>
     </field>
     <field name="father" binding="father">
-        <field name="name" type="text" binding="father.name"/>
-        <field name="firstname" type="text" binding="father.firstname"/>
+        <field name="name" type="text" binding="father.name">
+            <validation>
+                <notNull>
+                    <message ref="father.name" class="ERROR">must not be null</message>
+                </notNull>
+            </validation>
+        </field>
+        <field name="firstname" type="text" binding="father.firstname">
+            <validation>
+                <notNull>
+                    <message ref="father.firstname" class="ERROR">must not be null</message>
+                </notNull>
+                <size min="1" max="5">
+                    <message ref="father.firstname" class="ERROR">Value must be between 1 and 5</message>
+                </size>
+            </validation>
+        </field>
     </field>
 </metaData>
