@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
 import org.slf4j.Logger;
@@ -67,7 +68,8 @@ public abstract class RabbitMQBase implements Closeable {
 		try {
 			connection = factory.newConnection(addrs);
 			channel = connection.createChannel();
-			channel.exchangeDeclare(threadNameFormat, BuiltinExchangeType.FANOUT, false);
+			channel.exchangeDeclare(threadNameFormat.replace("-%d", StringUtils.EMPTY), BuiltinExchangeType.FANOUT,
+					false);
 		} catch (IOException | TimeoutException e) {
 			log().error("error while creating connectipon/channel", e);
 		}
