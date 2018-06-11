@@ -391,7 +391,7 @@ abstract class RestActionBase extends RestOperation {
 	}
 
 	private String getStringValue(ActionField actionField) {
-		if(actionField.getValue() == null){
+		if (actionField.getValue() == null) {
 			return null;
 		}
 		FieldType fieldType = actionField.getFieldType();
