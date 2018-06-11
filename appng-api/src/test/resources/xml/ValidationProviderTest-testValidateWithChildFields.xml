@@ -6,11 +6,11 @@
                 <message ref="name" class="ERROR">must not be null</message>
             </notNull>
             <rule type="javax.validation.constraints.NotBlank" name="notBlank">
-                <message ref="name" class="ERROR">must not be blank</message>
+                <message ref="name" class="ERROR">Thou must provide a value!</message>
             </rule>
         </validation>
         <messages ref="name">
-            <message ref="name" class="ERROR">must not be blank</message>
+            <message ref="name" class="ERROR">Thou must provide a value!</message>
             <message ref="name" class="ERROR">must not be null</message>
         </messages>
     </field>
@@ -22,13 +22,13 @@
                         <message ref="offsprings[].name" class="ERROR">must not be null</message>
                     </notNull>
                     <rule type="javax.validation.constraints.NotBlank" name="notBlank">
-                        <message ref="offsprings[].name" class="ERROR">must not be blank</message>
+                        <message ref="offsprings[].name" class="ERROR">Thou must provide a value!</message>
                     </rule>
                 </validation>
                 <messages ref="offsprings[].name">
-                    <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
+                    <message ref="offsprings[0].name" class="ERROR">Thou must provide a value!</message>
                     <message ref="offsprings[0].name" class="ERROR">must not be null</message>
-                    <message ref="offsprings[1].name" class="ERROR">must not be blank</message>
+                    <message ref="offsprings[1].name" class="ERROR">Thou must provide a value!</message>
                 </messages>
             </field>
         </field>
@@ -39,7 +39,7 @@
                 <message ref="father.name" class="ERROR">must not be null</message>
             </notNull>
             <rule type="javax.validation.constraints.NotBlank" name="notBlank">
-                <message ref="father.name" class="ERROR">must not be blank</message>
+                <message ref="father.name" class="ERROR">Thou must provide a value!</message>
             </rule>
         </validation>
     </field>
@@ -49,11 +49,11 @@
                 <message ref="offsprings[0].name" class="ERROR">must not be null</message>
             </notNull>
             <rule type="javax.validation.constraints.NotBlank" name="notBlank">
-                <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
+                <message ref="offsprings[0].name" class="ERROR">Thou must provide a value!</message>
             </rule>
         </validation>
         <messages ref="offsprings[0].name">
-            <message ref="offsprings[0].name" class="ERROR">must not be blank</message>
+            <message ref="offsprings[0].name" class="ERROR">Thou must provide a value!</message>
             <message ref="offsprings[0].name" class="ERROR">must not be null</message>
         </messages>
     </field>
