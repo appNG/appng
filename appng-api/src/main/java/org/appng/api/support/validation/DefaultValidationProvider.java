@@ -467,13 +467,13 @@ public class DefaultValidationProvider implements ValidationProvider {
 		}
 	}
 
-	private void addFieldMessage(Set<ConstraintViolation<Object>> fieldErrors, FieldDef fieldDef) {
-		if (!fieldErrors.isEmpty() && null == fieldDef.getMessages()) {
+	private void addFieldMessage(Set<ConstraintViolation<Object>> violations, FieldDef fieldDef) {
+		if (!violations.isEmpty() && null == fieldDef.getMessages()) {
 			Messages messages = new Messages();
 			messages.setRef(fieldDef.getBinding());
 			fieldDef.setMessages(messages);
 		}
-		for (ConstraintViolation<Object> cv : fieldErrors) {
+		for (ConstraintViolation<Object> cv : getSortedViolations(violations)) {
 			String constraintPath = cv.getPropertyPath().toString();
 			String expectedBinding = constraintPath.replaceAll(INDEX_PATTERN, INDEXED);
 			int count = 0;
@@ -489,6 +489,14 @@ public class DefaultValidationProvider implements ValidationProvider {
 			}
 			log.debug("Added {} messages for field {}", count, fieldDef.getBinding());
 		}
+	}
+
+	private Collection<ConstraintViolation<Object>> getSortedViolations(Set<ConstraintViolation<Object>> violations) {
+		List<ConstraintViolation<Object>> sortedViolations = new ArrayList<>(violations);
+		sortedViolations.sort((ConstraintViolation<Object> cv1, ConstraintViolation<Object> cv2) -> cv1
+				.getConstraintDescriptor().getAnnotation().getClass().getName()
+				.compareTo(cv2.getConstraintDescriptor().getAnnotation().getClass().getName()));
+		return sortedViolations;
 	}
 
 	/*
