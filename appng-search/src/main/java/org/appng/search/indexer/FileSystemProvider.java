@@ -112,13 +112,18 @@ public class FileSystemProvider implements DocumentProvider {
 				ConfigEntry entry = config.getEntry(folder);
 				File contentFolder = new File(dataDir, folder);
 
-				DocumentProducer documentProducer = new DocumentProducer(documentQueueSize,
-						entry.getAnalyzer().getClass(), "index " + contentFolder.getAbsolutePath());
+				if (contentFolder.exists()) {
+					DocumentProducer documentProducer = new DocumentProducer(documentQueueSize,
+							entry.getAnalyzer().getClass(), "index " + contentFolder.getAbsolutePath());
 
-				String language = entry.getLanguage();
-				numIndexed += indexDirectory(documentProducer, language, contentFolder, dataDir, extensions,
-						skippedFolders);
-				producers.add(documentProducer);
+					String language = entry.getLanguage();
+					numIndexed += indexDirectory(documentProducer, language, contentFolder, dataDir, extensions,
+							skippedFolders);
+					producers.add(documentProducer);
+				} else {
+					log.warn("The folder {} does not exist, probably the site property {} is misconfigured!",
+							contentFolder.getAbsolutePath(), SiteProperties.INDEX_CONFIG);
+				}
 
 			}
 		}
