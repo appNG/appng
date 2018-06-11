@@ -16,6 +16,7 @@
 package org.appng.core.controller.messaging;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -69,16 +70,14 @@ public class RabbitMQReceiver extends RabbitMQBase implements Receiver {
 
 	public void runWith(ExecutorService executorService) {
 		try {
-			DeclareOk queueDeclare;
 			String nodeId = eventSerializer.getNodeId();
+			String queueName;
 			if (null != nodeId) {
-				// create a queue with a name containing the node id
-				String queueName = String.format("appngNode_%s_queue", nodeId);
-				queueDeclare = channel.queueDeclare(queueName, false, true, true, null);
+				queueName = String.format("appngNode_%s_queue", nodeId);
 			} else {
-				// no node id, queue name doesn't matter
-				queueDeclare = channel.queueDeclare();
+				queueName = InetAddress.getLocalHost().getHostName();
 			}
+			DeclareOk queueDeclare = channel.queueDeclare(queueName, false, false, true, null);
 			String queue = queueDeclare.getQueue();
 			channel.queueBind(queue, exchange, "");
 
