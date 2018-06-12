@@ -68,8 +68,9 @@ public abstract class RabbitMQBase implements Closeable {
 		try {
 			connection = factory.newConnection(addrs);
 			channel = connection.createChannel();
-			channel.exchangeDeclare(threadNameFormat.replace("-%d", StringUtils.EMPTY), BuiltinExchangeType.FANOUT,
-					false);
+			String exchangeName = threadNameFormat.replace("-%d", StringUtils.EMPTY);
+			log().info("Declaring exchange '{}' (type: {})", exchangeName, BuiltinExchangeType.FANOUT);
+			channel.exchangeDeclare(exchangeName, BuiltinExchangeType.FANOUT, false);
 		} catch (IOException | TimeoutException e) {
 			log().error("error while creating connectipon/channel", e);
 		}

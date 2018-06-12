@@ -71,8 +71,11 @@ public class RabbitMQReceiver extends RabbitMQBase implements Receiver {
 		try {
 			String nodeId = eventSerializer.getNodeId();
 			String queueName = (null == nodeId) ? StringUtils.EMPTY : String.format("appngNode_%s_queue", nodeId);
+			log().info("Declaring queue '{}'.", queueName);
 			DeclareOk queueDeclare = channel.queueDeclare(queueName, false, false, true, null);
+
 			String queue = queueDeclare.getQueue();
+			log().info("Binding queue '{}' to exchange {}", queue, exchange);
 			channel.queueBind(queue, exchange, "");
 
 			Consumer consumer = new EventConsumer(channel);
