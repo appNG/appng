@@ -94,7 +94,7 @@ public class PageCacheFilter extends CachingFilter {
 				logRequestHeaders(request);
 				BlockingCache blockingCache = CacheService.getBlockingCache(site);
 				PageInfo pageInfo = buildPageInfo(request, response, chain, blockingCache);
-				if (null != pageInfo && pageInfo.isOk()) {
+				if (null != pageInfo) {
 					if (response.isCommitted()) {
 						throw new AlreadyCommittedException("Response already committed after doing buildPage"
 								+ " but before writing response from PageInfo.");
@@ -129,15 +129,11 @@ public class PageCacheFilter extends CachingFilter {
 						blockingCache.put(new Element(key, pageInfo));
 					} else {
 						if (LOG.isDebugEnabled()) {
-							LOG.debug("PageInfo was not ok ({}, size: {}). Putting null into cache {} with key {}",
-									pageInfo.getStatusCode(), size, blockingCache.getName(), key);
+							LOG.debug("PageInfo was not ok ({}, size: {}) for key {}", pageInfo.getStatusCode(), size,
+									key);
 						}
-						blockingCache.put(new Element(key, null));
 					}
 				} catch (final Throwable throwable) {
-					// Must unlock the cache if the above fails. Will be logged
-					// at Filter
-					blockingCache.put(new Element(key, null));
 					throw new Exception(throwable);
 				}
 			} else {
