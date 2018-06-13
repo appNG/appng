@@ -8,6 +8,6 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.16.2-SNAPSHOT</version>
+		<version>1.16.3-SNAPSHOT</version>
 	</parent>
 </project>
