@@ -1,14 +1,7 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
-:snapshot: 1.18.0-SNAPSHOT
-:stable: 1.17.1
+:snapshot: 1.16.3-SNAPSHOT
+:stable: 1.16.1
 :current: {stable}
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :exclamation:
-:note-caption: :paperclip:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
 
 [caption="Apache License 2.0",link=LICENSE]
 image::https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat-square[]
