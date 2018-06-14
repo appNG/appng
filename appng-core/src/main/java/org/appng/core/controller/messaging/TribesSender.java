@@ -22,7 +22,6 @@ import org.apache.catalina.tribes.ByteMessage;
 import org.apache.catalina.tribes.Channel;
 import org.apache.catalina.tribes.ChannelException;
 import org.apache.catalina.tribes.Member;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.messaging.Event;
 import org.appng.api.messaging.Sender;
@@ -46,8 +45,7 @@ public class TribesSender implements Sender {
 	}
 
 	public boolean send(Event event) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 			eventSerializer.serialize(out, event);
 			Member[] members = channel.getMembers();
 			channel.send(members, new ByteMessage(out.toByteArray()), Channel.SEND_OPTIONS_BYTE_MESSAGE);
@@ -55,8 +53,6 @@ public class TribesSender implements Sender {
 			return true;
 		} catch (ChannelException | IOException e) {
 			LOGGER.error("error sending " + event, e);
-		} finally {
-			IOUtils.closeQuietly(out);
 		}
 		return false;
 	}

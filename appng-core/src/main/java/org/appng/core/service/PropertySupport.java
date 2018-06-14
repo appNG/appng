@@ -15,6 +15,7 @@
  */
 package org.appng.core.service;
 
+import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -205,7 +206,7 @@ public class PropertySupport {
 			String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 			String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
 			String siteRootDir = rootPath + "/" + repositoryPath + "/" + site.getName();
-			addSiteProperty(SiteProperties.SITE_ROOT_DIR, siteRootDir);
+			addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(siteRootDir));
 			String regEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
 			String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
 			site.setPasswordPolicy(new DefaultPasswordPolicy(regEx, errorMessageKey));
@@ -308,10 +309,11 @@ public class PropertySupport {
 		defaultOverrides.putAll(immutableOverrides);
 		bundle = ResourceBundle.getBundle("org/appng/core/platform-config");
 		if (null != rootPath) {
-			addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_ROOT_PATH, rootPath);
+			addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_ROOT_PATH, normalizePath(rootPath));
 		}
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_CACHE_FOLDER, "application");
 		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_FOLDER, "cache");
+		addPlatformProperty(defaultOverrides, Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, "false");
 		addPlatformProperty(defaultOverrides, Platform.Property.CSRF_FILTER_ENABLED, "false");
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_PREFIX, StringUtils.EMPTY);
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_VALIDATION_PERIOD, 15);
@@ -384,5 +386,9 @@ public class PropertySupport {
 		if (finalize) {
 			propertyHolder.setFinal();
 		}
+	}
+
+	private String normalizePath(String path) {
+		return Paths.get(path).normalize().toString();
 	}
 }

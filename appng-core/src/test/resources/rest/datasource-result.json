@@ -1,0 +1,68 @@
+{
+  "id" : "datasource-result",
+  "parameters" : [ {
+    "name" : "siteid",
+    "value" : "1"
+  } ],
+  "user" : {
+    "locale" : "de_DE",
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ",",
+    "groupingSeparator" : "."
+  },
+  "fields" : [ {
+    "name" : "id",
+    "label" : "ID",
+    "fieldType" : "int",
+    "format" : "#"
+  }, {
+    "name" : "name",
+    "label" : "Name",
+    "fieldType" : "text"
+  }, {
+    "name" : "host",
+    "label" : "Host",
+    "fieldType" : "text"
+  }, {
+    "name" : "domain",
+    "label" : "Domain",
+    "fieldType" : "text"
+  }, {
+    "name" : "description",
+    "label" : "Description",
+    "fieldType" : "longtext"
+  }, {
+    "name" : "active",
+    "label" : "Active",
+    "fieldType" : "checkbox"
+  }, {
+    "name" : "template",
+    "label" : "Template",
+    "fieldType" : "list_radio"
+  } ],
+  "element" : {
+    "fields" : [ {
+      "name" : "id",
+      "value" : 1,
+      "formattedValue" : "1"
+    }, {
+      "name" : "name",
+      "value" : "appng"
+    }, {
+      "name" : "host",
+      "value" : "dev.appng.io"
+    }, {
+      "name" : "domain",
+      "value" : "https://dev.appng.io"
+    }, {
+      "name" : "description",
+      "value" : "appng Manager Instance"
+    }, {
+      "name" : "active",
+      "value" : true
+    }, {
+      "name" : "template"
+    } ],
+    "selected" : false
+  }
+}

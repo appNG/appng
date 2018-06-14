@@ -180,11 +180,9 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 		}
 		String archiveName = response.getFileName();
 		File archiveFile = new File(folder, archiveName);
-		FileOutputStream fos = null;
 		LOGGER.debug("Writing temporary archive zip file: {}", archiveFile.getAbsolutePath());
 
-		try {
-			fos = new FileOutputStream(archiveFile);
+		try (FileOutputStream fos = new FileOutputStream(archiveFile)) {
 			fos.write(bytes);
 
 			if (null != archiveFile && archiveFile.canRead()) {
@@ -217,8 +215,6 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 			}
 		} catch (IOException o) {
 			throw new BusinessException("error while processing " + archiveFile.getAbsolutePath(), o);
-		} finally {
-			IOUtils.closeQuietly(fos);
 		}
 	}
 

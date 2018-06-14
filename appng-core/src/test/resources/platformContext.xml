@@ -18,7 +18,9 @@
         http://www.springframework.org/schema/util
         http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<context:component-scan base-package="org.appng.core" />
+	<context:component-scan base-package="org.appng.core">
+		<context:exclude-filter type="regex" expression="org.appng.core.controller.rest.*"/>
+	</context:component-scan>
 	<jpa:repositories base-package="org.appng.core.repository" entity-manager-factory-ref="entityManagerFactory"
 		factory-class="org.appng.persistence.repository.SearchRepositoryFactoryBean" transaction-manager-ref="coreTxManager" />
 
@@ -40,14 +42,13 @@
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 
-	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean"
-		depends-on="server">
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
 		<property name="persistenceUnitName" value="hsql-testdb" />
 		<property name="jpaProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
 				<prop key="hibernate.connection.driver_class">org.hsqldb.jdbc.JDBCDriver</prop>
-				<prop key="hibernate.connection.url">jdbc:hsqldb:hsql://localhost:${hsqlPort:9001}/hsql-testdb</prop>
+				<prop key="hibernate.connection.url">jdbc:hsqldb:mem:${database:hsql-testdb}</prop>
 				<prop key="hibernate.connection.username">${hibernate.connection.username:sa}</prop>
 				<prop key="hibernate.connection.password">${hibernate.connection.password:}</prop>
 				<prop key="hibernate.show_sql">${hibernate.show_sql:false}</prop>
@@ -58,10 +59,8 @@
 		</property>
 	</bean>
 	
-	<bean id="server" class="org.appng.testsupport.persistence.HsqlServerFactoryBean" init-method="init"
-		destroy-method="destroy" scope="singleton">
-		<property name="port" value="${hsqlPort:9001}" />
-		<property name="databasePath" value="${hsqlPath:file:target/hsql/hsql-testdb}" />
+	<bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+   		<constructor-arg type="java.lang.String" value="jdbc:hsqldb:mem:${database:hsql-testdb}" />
 	</bean>
 
 	<bean id="requestProcessor" class="org.appng.core.model.PlatformProcessor">

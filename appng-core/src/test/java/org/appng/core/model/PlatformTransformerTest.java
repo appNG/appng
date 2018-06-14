@@ -50,7 +50,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import net.sf.saxon.trans.XPathException;
 
-@ContextConfiguration(locations = "classpath:platformContext.xml", initializers = TestInitializer.class)
+@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
 public class PlatformTransformerTest {

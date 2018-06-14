@@ -29,7 +29,9 @@
 	</aop:config>
 	-->
 
-	<context:component-scan base-package="org.appng.core" />
+	<context:component-scan base-package="org.appng.core">
+		<context:exclude-filter type="regex" expression="org.appng.core.controller.rest.*"/>
+	</context:component-scan>
 
 	<bean class="org.appng.core.domain.PlatformEventListener">
 		<property name="auditUser" value="appNG platform" />

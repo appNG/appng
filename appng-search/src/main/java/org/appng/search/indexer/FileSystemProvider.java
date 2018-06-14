@@ -85,8 +85,8 @@ public class FileSystemProvider implements DocumentProvider {
 	 * @throws TimeoutException
 	 *             if such an exception occurs while adding a {@link DocumentEvent} to the indexer
 	 */
-	public Iterable<DocumentProducer> indexDirectory(int documentQueueSize) throws InterruptedException,
-			TimeoutException {
+	public Iterable<DocumentProducer> indexDirectory(int documentQueueSize)
+			throws InterruptedException, TimeoutException {
 		List<DocumentProducer> producers = new ArrayList<DocumentProducer>();
 		log.info("dataDir: " + dataDir.getPath());
 
@@ -112,13 +112,18 @@ public class FileSystemProvider implements DocumentProvider {
 				ConfigEntry entry = config.getEntry(folder);
 				File contentFolder = new File(dataDir, folder);
 
-				DocumentProducer documentProducer = new DocumentProducer(documentQueueSize, entry.getAnalyzer()
-						.getClass(), "index " + contentFolder.getAbsolutePath());
+				if (contentFolder.exists()) {
+					DocumentProducer documentProducer = new DocumentProducer(documentQueueSize,
+							entry.getAnalyzer().getClass(), "index " + contentFolder.getAbsolutePath());
 
-				String language = entry.getLanguage();
-				numIndexed += indexDirectory(documentProducer, language, contentFolder, dataDir, extensions,
-						skippedFolders);
-				producers.add(documentProducer);
+					String language = entry.getLanguage();
+					numIndexed += indexDirectory(documentProducer, language, contentFolder, dataDir, extensions,
+							skippedFolders);
+					producers.add(documentProducer);
+				} else {
+					log.warn("The folder {} does not exist, probably the site property {} is misconfigured!",
+							contentFolder.getAbsolutePath(), SiteProperties.INDEX_CONFIG);
+				}
 
 			}
 		}
@@ -169,7 +174,6 @@ public class FileSystemProvider implements DocumentProvider {
 		document.setDate(new Date(file.lastModified()));
 		document.setLanguage(language);
 		String content = null;
-		Reader parsingReader = null;
 		try {
 			if (jspExtension.equals(extension)) {
 				Map<String, StringBuilder> fieldMap = new ParseTags(config.getTagPrefix()).parse(file);
@@ -195,17 +199,16 @@ public class FileSystemProvider implements DocumentProvider {
 					log.debug("skipping " + file.getAbsolutePath());
 				}
 			} else {
-				log.debug("indexing (" + fileNo + "/" + total + "):" + file.getAbsolutePath());
-				parsingReader = new ParsingReader(file);
-				byte[] bytes = IOUtils.toByteArray(parsingReader, Charset.defaultCharset());
-				content = new String(bytes);
-				document.setName(FilenameUtils.getName(file.getName()));
+				try (Reader parsingReader = new ParsingReader(file)) {
+					log.debug("indexing (" + fileNo + "/" + total + "):" + file.getAbsolutePath());
+					byte[] bytes = IOUtils.toByteArray(parsingReader, Charset.defaultCharset());
+					content = new String(bytes);
+					document.setName(FilenameUtils.getName(file.getName()));
+				}
 			}
 		} catch (IOException e) {
 			log.error("error while indexing " + file.getAbsolutePath(), e);
 			return null;
-		} finally {
-			IOUtils.closeQuietly(parsingReader);
 		}
 		document.setContent(content);
 		document.setId(serverPath);

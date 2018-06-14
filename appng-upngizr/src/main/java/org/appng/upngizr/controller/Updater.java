@@ -26,15 +26,18 @@ import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
@@ -64,7 +67,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -88,7 +90,9 @@ public class Updater {
 	private static final String INIT_PARAM_REPLACE_BIN = "replaceBin";
 	private static final String INIT_PARAM_REPLACE_PLATFORMCONTEXT = "replacePlatformContext";
 	private static final String INIT_PARAM_REPLACE_WEB_XML = "replaceWebXml";
+	private static final String INIT_PARAM_USE_FQDN = "useFQDN";
 	private static final String WEB_INF = "WEB-INF/";
+	private static final String META_INF = "META-INF/";
 	private static final String WEB_INF_CLASSES = WEB_INF + "classes/";
 	private static final String WEB_INF_LIB = WEB_INF + "lib/";
 	private ServletContext context;
@@ -97,6 +101,8 @@ public class Updater {
 	private boolean replaceWebXml = true;
 	private boolean replaceBin = false;
 	private boolean blockRemoteIps = true;
+	private String serverName;
+	private boolean useFQDN = false;
 	private List<String> localAdresses = new ArrayList<>();
 	private AtomicBoolean isUpdateRunning = new AtomicBoolean(false);
 	private AtomicReference<Double> completed = new AtomicReference<Double>(0.0d);
@@ -115,11 +121,20 @@ public class Updater {
 			this.replaceWebXml = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_WEB_XML));
 		}
 		if (null != context.getInitParameter(INIT_PARAM_REPLACE_BIN)) {
-			this.replaceWebXml = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_BIN));
+			this.replaceBin = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_BIN));
 		}
 		if (null != context.getInitParameter(INIT_PARAM_BLOCK_REMOTE_IPS)) {
 			this.blockRemoteIps = Boolean.valueOf(context.getInitParameter(INIT_PARAM_BLOCK_REMOTE_IPS));
 		}
+		if (null != context.getInitParameter(INIT_PARAM_USE_FQDN)) {
+			this.useFQDN = Boolean.valueOf(context.getInitParameter(INIT_PARAM_USE_FQDN));
+		}
+		log.info("{}: {}", INIT_PARAM_BUILD_REPOSITORY, buildRepository);
+		log.info("{}: {}", INIT_PARAM_REPLACE_PLATFORMCONTEXT, replacePlatformContext);
+		log.info("{}: {}", INIT_PARAM_REPLACE_WEB_XML, replaceWebXml);
+		log.info("{}: {}", INIT_PARAM_REPLACE_BIN, replaceBin);
+		log.info("{}: {}", INIT_PARAM_BLOCK_REMOTE_IPS, blockRemoteIps);
+		log.info("{}: {}", INIT_PARAM_USE_FQDN, useFQDN);
 		if (blockRemoteIps) {
 			try {
 				Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -137,10 +152,22 @@ public class Updater {
 				log.error("error retrieving networkinterfaces", e);
 			}
 		}
+		try {
+			InetAddress localHost = InetAddress.getLocalHost();
+			String canonicalHostName = localHost.getCanonicalHostName().toLowerCase();
+			if (useFQDN) {
+				serverName = canonicalHostName;
+				log.info("serverName: {}", serverName);
+			}
+			log.info("FQDN: {}", canonicalHostName);
+		} catch (UnknownHostException e) {
+			log.error("Error retrieving local host name", e);
+		}
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/update/start/{version:.+}", produces = MediaType.TEXT_HTML_VALUE)
-	public ResponseEntity<String> getStartPage(@PathVariable("version") String version, HttpServletRequest request)
+	public ResponseEntity<String> getStartPage(@PathVariable("version") String version,
+			@RequestParam(required = false, defaultValue = "") String onSuccess, HttpServletRequest request)
 			throws IOException, URISyntaxException {
 		if (isBlocked(request) || isUpdateRunning.get()) {
 			return forbidden();
@@ -153,8 +180,12 @@ public class Updater {
 
 		ClassPathResource resource = new ClassPathResource("updater.html");
 		String content = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
-		String onSuccess = "";
-		String uppNGizrBase = String.format("//%s:%s/upNGizr", request.getServerName(), request.getServerPort());
+		int serverPort = request.getServerPort();
+		if (null == serverName) {
+			serverName = request.getServerName();
+		}
+		String uppNGizrBase = String.format(serverPort == 80 ? "//%s/upNGizr" : "//%s:%s/upNGizr", serverName,
+				serverPort);
 		content = content.replace("<target>", onSuccess).replace("<path>", uppNGizrBase);
 		content = content.replace("<version>", version).replace("<button>", "Update to " + version);
 		return new ResponseEntity<>(content, HttpStatus.OK);
@@ -199,34 +230,45 @@ public class Updater {
 			Container appNGContext = stopContext(getAppNGContext());
 			completed.set(30.0d);
 			updateAppNG(appNGArchive, UpNGizr.appNGHome);
-			updateAppNGizr(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
-			if (null != appNGizerContext) {
-				status.set("Starting appNGizer");
-				log.info(status.get());
-				startContext(appNGizerContext);
-			}
 			status.set("Starting appNG");
-			completed.set(91.0d);
+			completed.set(81.0d);
 			log.info(status.get());
 
-			FutureTask<Void> startAppNG = new FutureTask<>(new Callable<Void>() {
-				public Void call() throws Exception {
-					startContext(appNGContext);
-					return null;
+			ExecutorService contextStarter = Executors.newFixedThreadPool(1, new ThreadFactory() {
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r);
+					t.setName("upNGizr updater");
+					t.setPriority(Thread.MAX_PRIORITY);
+					return t;
 				}
 			});
-			Executors.newFixedThreadPool(1).submit(startAppNG);
-			while (!startAppNG.isDone()) {
-				Thread.sleep(3000);
-				if (completed.get().compareTo(99.0d) == -1) {
-					completed.set(completed.get() + 1.0d);
-				}
+
+			Future<Void> startAppNG = contextStarter.submit(() -> {
+				startContext(appNGContext);
+				return null;
+			});
+			Long duration = waitFor(startAppNG, 95.0d, 3);
+			log.info("Started appNG in {} seconds.", duration / 1000);
+
+			if (null != appNGizerContext) {
+
+				Future<Void> startAppNGizer = contextStarter.submit(() -> {
+					updateAppNGizer(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
+					status.set("Starting appNGizer");
+					log.info(status.get());
+					startContext(appNGizerContext);
+					completed.set(98.0d);
+					return null;
+				});
+				duration = waitFor(startAppNGizer, 98.0d, 2);
+				log.info("Started appNGizer in {} seconds.", duration / 1000);
 			}
+			contextStarter.shutdown();
 
 			completed.set(100.0d);
 			String statusLink = StringUtils.isEmpty(onSuccess) ? ""
-					: ("<br/>Forwarding to <a href=\"" + onSuccess + "\">" + onSuccess + "</a>");
-			status.set("Update complete" + statusLink);
+					: (String.format("<br/>Forwarding to<br/><a href=\"%s\">%s</a>", onSuccess, onSuccess));
+			status.set("Update complete." + statusLink);
 			return new ResponseEntity<>("OK", HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("error", e);
@@ -234,6 +276,18 @@ public class Updater {
 			isUpdateRunning.set(false);
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private Long waitFor(Future<Void> task, double startValue, int sleepSecond)
+			throws InterruptedException, ExecutionException {
+		long start = System.currentTimeMillis();
+		while (!task.isDone()) {
+			Thread.sleep(sleepSecond * 1000);
+			if (completed.get().compareTo(startValue) == -1) {
+				completed.set(completed.get() + 1.0d);
+			}
+		}
+		return System.currentTimeMillis() - start;
 	}
 
 	private <T> ResponseEntity<T> forbidden() {
@@ -307,7 +361,7 @@ public class Updater {
 			if (progress != currentProgress && currentProgress % 5 == 0) {
 				long readMB = read / 1024 / 1024;
 				log.info("retrieved {}/{} MB ({}%)", readMB, sizeMB, currentProgress);
-				completed.set(30.0d + currentProgress / 2.0d);
+				completed.set(30.0d + currentProgress / 2.5d);
 				status.set(String.format("Downloaded " + readMB + " of " + sizeMB + "MB"));
 			}
 			progress = currentProgress;
@@ -326,7 +380,7 @@ public class Updater {
 			FileUtils.cleanDirectory(libFolder);
 			log.info("cleaning {}", libFolder);
 		}
-		completed.set(85.0d);
+		completed.set(75.0d);
 		status.set("Extracting files");
 		ZipFile zip = new ZipFile(warArchive.toFile());
 		Enumeration<? extends ZipEntry> entries = zip.entries();
@@ -364,17 +418,18 @@ public class Updater {
 		}
 		zip.close();
 		warArchive.toFile().delete();
-		completed.set(90.0d);
+		completed.set(80.0d);
 	}
 
-	private void updateAppNGizr(Resource resource, String appNGizerHome) throws RestClientException, IOException {
+	protected void updateAppNGizer(Resource resource, String appNGizerHome) throws RestClientException, IOException {
 		if (!(resource.exists() && new File(appNGizerHome).exists())) {
 			return;
 		}
-		byte[] data = new RestTemplate().getForEntity(resource.getURI(), byte[].class).getBody();
 		Path warArchive = Files.createTempFile(null, null);
-		try (FileOutputStream out = new FileOutputStream(warArchive.toFile())) {
-			IOUtils.write(data, out);
+		try (
+				FileOutputStream out = new FileOutputStream(warArchive.toFile());
+				InputStream is = resource.getInputStream()) {
+			IOUtils.copy(is, out);
 			try (ZipFile zip = new ZipFile(warArchive.toFile())) {
 				Enumeration<? extends ZipEntry> entries = zip.entries();
 				while (entries.hasMoreElements()) {
@@ -382,25 +437,34 @@ public class Updater {
 					String name = entry.getName();
 					String folder = name.substring(0, name.lastIndexOf('/') + 1);
 					if (!entry.isDirectory()) {
-						switch (folder) {
-						case WEB_INF:
-							if (!(WEB_INF + "web.xml").equals(name)) {
-								writeFile(appNGizerHome, zip.getInputStream(entry), name);
-							}
-							break;
-						case WEB_INF_LIB:
-						case WEB_INF_CLASSES:
+						if (folder.startsWith(WEB_INF_CLASSES)) {
 							writeFile(appNGizerHome, zip.getInputStream(entry), name);
-							break;
-						default:
-							log.info("Skipping {}", name);
-							break;
+						} else {
+							switch (folder) {
+							case WEB_INF:
+								if (!(WEB_INF + "web.xml").equals(name)) {
+									writeFile(appNGizerHome, zip.getInputStream(entry), name);
+								}
+								break;
+							case META_INF:
+								if ((META_INF + "MANIFEST.MF").equals(name)) {
+									writeFile(appNGizerHome, zip.getInputStream(entry), name);
+								}
+								break;
+							case WEB_INF_LIB:
+								writeFile(appNGizerHome, zip.getInputStream(entry), name);
+								break;
+							default:
+								log.info("Skipping {}", name);
+								break;
+							}
 						}
 					}
 				}
 			}
+		} finally {
+			warArchive.toFile().delete();
 		}
-		warArchive.toFile().delete();
 	}
 
 	private void writeFile(String parentFolder, InputStream is, String name) throws IOException, FileNotFoundException {
@@ -419,7 +483,7 @@ public class Updater {
 	}
 
 	protected Container getAppNGizerContext() {
-		return getHost().findChild("appNGizer");
+		return getHost().findChild("/" + UpNGizr.APPNGIZER);
 	}
 
 	private Host getHost() {

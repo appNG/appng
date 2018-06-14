@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -68,6 +69,7 @@ import org.appng.xml.platform.Rule;
 import org.appng.xml.platform.Section;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.Selection;
+import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Session;
 import org.appng.xml.platform.SessionParams;
 import org.appng.xml.platform.Sort;
@@ -240,8 +242,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	/**
-	 * This is a helper class to make it easier for the thymeleaf template to
-	 * interact with appNG's {@link org.appng.xml.platform.Platform} object.
+	 * This is a helper class to make it easier for the thymeleaf template to interact with appNG's
+	 * {@link org.appng.xml.platform.Platform} object.
 	 * 
 	 * @author Matthias Müller
 	 */
@@ -494,6 +496,17 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 		public FieldDef field(DataConfig config, String name) {
 			return field(config.getMetaData(), name);
+		}
+
+		public boolean isFiltered(String pageId, Datasource datasource) {
+			for (SelectionGroup selectionGroup : datasource.getData().getSelectionGroups()) {
+				for (Selection selection : selectionGroup.getSelections()) {
+					if (StringUtils.isNotBlank(getParam(pageId, selection.getId()))) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 		public FieldDef field(MetaData metaData, String name) {

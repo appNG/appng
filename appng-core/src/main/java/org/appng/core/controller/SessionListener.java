@@ -41,9 +41,12 @@ import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.core.domain.PlatformEvent.Type;
+import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.context.ApplicationContext;
 
 /**
  * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of creation/destruction and usage of
@@ -101,6 +104,10 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	public void sessionDestroyed(HttpSessionEvent event) {
 		HttpSession httpSession = event.getSession();
 		Environment env = DefaultEnvironment.get(httpSession);
+		if (env.isSubjectAuthenticated()) {
+			ApplicationContext ctx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
+			ctx.getBean(CoreService.class).createEvent(Type.INFO, "session expired", httpSession);
+		}
 		if (!destroySession(httpSession.getId(), env)) {
 			LOGGER.info("Session destroyed: {} (created: {}, accessed: {})", httpSession.getId(),
 					format(httpSession.getCreationTime(), DATE_PATTERN),

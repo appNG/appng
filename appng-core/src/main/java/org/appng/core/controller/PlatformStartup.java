@@ -64,7 +64,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class PlatformStartup implements ServletContextListener {
 
-	private static Logger log = LoggerFactory.getLogger(PlatformStartup.class);
+	private static final Logger log = LoggerFactory.getLogger(PlatformStartup.class);
 
 	public static final String CONFIG_LOCATION = "/WEB-INF/conf/appNG.properties";
 	private static final String CONTEXT_LOCATION = "/WEB-INF/conf/platformContext.xml";
@@ -145,12 +145,14 @@ public class PlatformStartup implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent sce) {
 		ServletContext ctx = sce.getServletContext();
 		DefaultEnvironment env = DefaultEnvironment.get(ctx);
-		getService(env, ctx).shutdownPlatform(ctx);
-		ConfigurableApplicationContext platformCtx = env.removeAttribute(Scope.PLATFORM,
-				Platform.Environment.CORE_PLATFORM_CONTEXT);
-		platformCtx.close();
-
-		org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
+		InitializerService initializerService = getService(env, ctx);
+		if (null != initializerService) {
+			initializerService.shutdownPlatform(ctx);
+			ConfigurableApplicationContext platformCtx = env.removeAttribute(Scope.PLATFORM,
+					Platform.Environment.CORE_PLATFORM_CONTEXT);
+			org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
+			platformCtx.close();
+		}
 
 		HsqlStarter.shutdown((Server) ctx.getAttribute(HsqlStarter.CONTEXT));
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.Person">
+    <field name="name" type="text" binding="name">
+        <validation>
+            <notNull>
+                <message ref="name" class="ERROR">must not be null</message>
+            </notNull>
+            <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                <message ref="name" class="ERROR">Thou must provide a value!</message>
+            </rule>
+        </validation>
+        <messages ref="name">
+            <message ref="name" class="ERROR">must not be null</message>
+            <message ref="name" class="ERROR">Thou must provide a value!</message>
+        </messages>
+    </field>
+    <field name="offsprings" type="list:object" binding="offsprings">
+        <field name="offsprings[]" type="object" binding="offsprings[]">
+            <field name="name" type="text" binding="offsprings[].name">
+                <validation>
+                    <notNull>
+                        <message ref="offsprings[].name" class="ERROR">must not be null</message>
+                    </notNull>
+                    <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                        <message ref="offsprings[].name" class="ERROR">Thou must provide a value!</message>
+                    </rule>
+                </validation>
+                <messages ref="offsprings[].name">
+                    <message ref="offsprings[0].name" class="ERROR">must not be null</message>
+                    <message ref="offsprings[0].name" class="ERROR">Thou must provide a value!</message>
+                    <message ref="offsprings[1].name" class="ERROR">Thou must provide a value!</message>
+                </messages>
+            </field>
+        </field>
+    </field>
+    <field name="father.name" type="text" binding="father.name">
+        <validation>
+            <notNull>
+                <message ref="father.name" class="ERROR">must not be null</message>
+            </notNull>
+            <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                <message ref="father.name" class="ERROR">Thou must provide a value!</message>
+            </rule>
+        </validation>
+    </field>
+    <field name="offsprings[0].name" type="text" binding="offsprings[0].name">
+        <validation>
+            <notNull>
+                <message ref="offsprings[0].name" class="ERROR">must not be null</message>
+            </notNull>
+            <rule type="javax.validation.constraints.NotBlank" name="notBlank">
+                <message ref="offsprings[0].name" class="ERROR">Thou must provide a value!</message>
+            </rule>
+        </validation>
+        <messages ref="offsprings[0].name">
+            <message ref="offsprings[0].name" class="ERROR">must not be null</message>
+            <message ref="offsprings[0].name" class="ERROR">Thou must provide a value!</message>
+        </messages>
+    </field>
+</metaData>

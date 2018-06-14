@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UpNGizr extends DispatcherServlet implements ContainerServlet, ServletContextListener {
 
+	static final String APPNGIZER = "appNGizer";
 	static final String HOST = "host";
 	static String appNGHome;
 	static String appNGizerHome;
@@ -48,7 +49,7 @@ public class UpNGizr extends DispatcherServlet implements ContainerServlet, Serv
 		String contextPath = servletContext.getRealPath("");
 		String webappsDir = new File(contextPath).getParent();
 		appNGHome = new File(webappsDir, "ROOT").getAbsolutePath();
-		appNGizerHome = new File(webappsDir, "appNGizer").getAbsolutePath();
+		appNGizerHome = new File(webappsDir, APPNGIZER).getAbsolutePath();
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {

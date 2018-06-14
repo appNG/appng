@@ -1,0 +1,100 @@
+{
+  "id" : "create",
+  "event-id" : "siteEvent",
+  "user" : {
+    "locale" : "de_DE",
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ",",
+    "groupingSeparator" : "."
+  },
+  "fields" : [ {
+    "name" : "name",
+    "value" : "localhost",
+    "label" : "name",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true,
+    "rules" : [ {
+      "type" : "javax.validation.constraints.NotNull",
+      "message" : "Enter at most 64 characters"
+    }, {
+      "type" : "javax.validation.constraints.Size",
+      "message" : "Field must not be empty",
+      "options" : [ {
+        "name" : "min",
+        "value" : "0"
+      }, {
+        "name" : "max",
+        "value" : "64"
+      } ]
+    }, {
+      "type" : "javax.validation.constraints.Pattern",
+      "message" : "Please enter a valid name, which may only consist of letters, numbers and\n\t\t\t\t\t\t\thyphens\n\t\t\t\t\t\t",
+      "options" : [ {
+        "name" : "regexp",
+        "value" : "[a-zA-Z0-9\\-]{3,}"
+      } ]
+    } ]
+  }, {
+    "name" : "host",
+    "value" : "localhost",
+    "label" : "host",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "domain",
+    "value" : "localhost",
+    "label" : "domain",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "description",
+    "value" : "a description",
+    "label" : "description",
+    "fieldType" : "longtext",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "active",
+    "value" : "true",
+    "label" : "active",
+    "fieldType" : "checkbox",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "createRepository",
+    "value" : "true",
+    "label" : "site.createRepository",
+    "fieldType" : "checkbox",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "template",
+    "label" : "template",
+    "fieldType" : "list_radio",
+    "readonly" : false,
+    "visible" : true,
+    "options" : {
+      "entries" : [ {
+        "value" : "appng",
+        "label" : "appng",
+        "selected" : true
+      }, {
+        "value" : "appng-bootstrap-gentelella",
+        "label" : "appng-bootstrap-gentelella",
+        "selected" : false
+      }, {
+        "value" : "appng-bootstrapped",
+        "label" : "appng-bootstrapped",
+        "selected" : false
+      } ]
+    }
+  } ],
+  "permissions" : [ {
+    "mode" : "SET",
+    "ref" : "site.create",
+    "value" : true
+  } ]
+}

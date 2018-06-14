@@ -80,6 +80,7 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
+import org.appng.core.controller.rest.RestPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
@@ -170,6 +171,7 @@ public class InitializerService {
 		loadPlatform(defaultOverrides, env, null, null, executor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
+		coreService.createEvent(Type.INFO, "Started platform", null);
 	}
 
 	/**
@@ -242,6 +244,18 @@ public class InitializerService {
 		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_USER);
 		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_GROUP);
 		platformConfig.setFinal();
+
+		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
+			File tempDir = new File(System.getProperty("java.io.tmpdir"));
+			if (tempDir.exists()) {
+				LOGGER.info("Cleaning temp folder {}", tempDir);
+				try {
+					FileUtils.cleanDirectory(tempDir);
+				} catch (IOException e) {
+					LOGGER.error("error while cleaning " + tempDir, e);
+				}
+			}
+		}
 
 		RepositoryCacheFactory.init(platformConfig);
 
@@ -707,9 +721,14 @@ public class InitializerService {
 				}
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
-				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(
+				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
 						application.getDatabaseConnection(), dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
+
+				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
+				if (enableRest) {
+					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
+				}
 
 				applicationContext.refresh();
 
@@ -838,6 +857,7 @@ public class InitializerService {
 		}
 		CacheService.shutdown();
 		env.removeAttribute(Scope.PLATFORM, Platform.Environment.SITES);
+		coreService.createEvent(Type.INFO, "Stopped platform", null);
 	}
 
 	/**

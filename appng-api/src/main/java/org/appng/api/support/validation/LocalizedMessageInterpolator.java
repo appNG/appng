@@ -15,54 +15,97 @@
  */
 package org.appng.api.support.validation;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.appng.api.model.Application;
 import org.appng.api.support.MessageSourceChain;
-import org.appng.api.support.ResourceBundleMessageSource;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.context.support.AbstractResourceBasedMessageSource;
 import org.springframework.context.support.MessageSourceResourceBundle;
+import org.springframework.context.support.MessageSourceSupport;
+import org.springframework.context.support.ResourceBundleMessageSource;
 
 /**
  * A {@link javax.validation.MessageInterpolator} that is aware of a given {@link Locale} instead of using the default
- * {@link Locale}.
+ * one. Additionally, it uses an {@link Application}'s default {@link MessageSource} to retrieve validation messages.
  * 
  * @author Matthias Müller
  */
 public class LocalizedMessageInterpolator extends ResourceBundleMessageInterpolator {
 
+	private static Logger log = LoggerFactory.getLogger(LocalizedMessageInterpolator.class);
 	private static final String DEFAULT_VALIDATION_MESSAGES = "org.hibernate.validator.ValidationMessages";
+	private static final List<String> VALIDATION_BASENAMES = Arrays.asList(USER_VALIDATION_MESSAGES,
+			DEFAULT_VALIDATION_MESSAGES);
 	private Locale locale;
 
 	/**
 	 * Creates a new {@code LocalizedMessageInterpolator} using the given {@link Locale} .
 	 * 
 	 * @param locale
-	 *            the {@link Locale} to use
+	 *            The {@link Locale} to use.
 	 * @param messageSource
-	 *            an additional {@link MessageSource} to use
+	 *            An additional {@link MessageSource} to use. If this is an instance of
+	 *            {@link AbstractResourceBasedMessageSource},
+	 *            {@link AbstractResourceBasedMessageSource#getBasenameSet()} is being used to create a new
+	 *            {@link ResourceBundleMessageSource} with these base names. This is necessary because a the
+	 *            {@code messageSource} might use {@link MessageSourceSupport#setAlwaysUseMessageFormat(boolean)}, which
+	 *            can't properly be handled by {@link javax.validation.MessageInterpolator}.
 	 */
 	public LocalizedMessageInterpolator(Locale locale, final MessageSource messageSource) {
-		super(new ResourceBundleLocator() {
-			public ResourceBundle getResourceBundle(Locale locale) {
-				ResourceBundleMessageSource validationMessages = new ResourceBundleMessageSource();
-				validationMessages.setFallbackToSystemLocale(false);
-				validationMessages.setBasenames(USER_VALIDATION_MESSAGES, DEFAULT_VALIDATION_MESSAGES);
-				MessageSource chain = new MessageSourceChain(messageSource, validationMessages);
-				return new MessageSourceResourceBundle(chain, locale);
-			}
-		});
+		super(getResourceBundleLocator(messageSource));
 		if (null == locale) {
 			throw new IllegalArgumentException("locale can not be null");
 		}
 		this.locale = locale;
 	}
 
+	private static ResourceBundleLocator getResourceBundleLocator(final MessageSource messageSource) {
+		return new ResourceBundleLocator() {
+			public ResourceBundle getResourceBundle(Locale locale) {
+				MessageSource innerSource;
+				if (messageSource instanceof AbstractResourceBasedMessageSource) {
+					List<String> basenames = new ArrayList<>(
+							((AbstractResourceBasedMessageSource) messageSource).getBasenameSet());
+					basenames.addAll(VALIDATION_BASENAMES);
+					innerSource = getResourceBundleMessageSource(basenames);
+				} else {
+					innerSource = new MessageSourceChain(messageSource,
+							getResourceBundleMessageSource(VALIDATION_BASENAMES));
+				}
+
+				if (log.isDebugEnabled()) {
+					log.debug("Setting up MessageSourceResourceBundle with {}", innerSource);
+				}
+				return new MessageSourceResourceBundle(innerSource, locale);
+			}
+
+			private ResourceBundleMessageSource getResourceBundleMessageSource(List<String> basenames) {
+				ResourceBundleMessageSource rbms = new ResourceBundleMessageSource();
+				rbms.setFallbackToSystemLocale(false);
+				rbms.setBasenames(basenames.toArray(new String[0]));
+				rbms.setDefaultEncoding(StandardCharsets.UTF_8.name());
+				return rbms;
+			}
+		};
+	}
+
 	@Override
 	public String interpolate(String messageTemplate, Context context) {
-		return interpolate(messageTemplate, context, locale);
+		String interpolated = interpolate(messageTemplate, context, locale);
+		if (log.isDebugEnabled()) {
+			log.debug("Interpolated template '{}', result is '{}'", messageTemplate, interpolated);
+		}
+		return interpolated;
 	}
 
 }

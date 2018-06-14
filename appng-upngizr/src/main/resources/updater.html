@@ -50,7 +50,7 @@ body {
                   $statusDiv.html("Loading...");
 
                   // Call the web service to kick off the process
-                  $.ajax("<path>/update/<version>", {
+                  $.ajax("<path>/update/<version>?onSuccess=<target>", {
                     type : "POST",
                     dataType : "json",
                     contentType : "application/json; charset=utf-8"
@@ -84,7 +84,7 @@ body {
                             $progressbar.hide();
                             var target = "<target>";
                             if (target.length > 0) {
-                              $(location).delay(2000).attr("href", target);
+                              $(location).delay(5000).attr("href", target);
                             }
                           }
                         }

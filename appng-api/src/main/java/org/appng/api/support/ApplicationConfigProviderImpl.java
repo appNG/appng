@@ -37,7 +37,6 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.InvalidConfigurationException;
@@ -171,11 +170,12 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 				}
 				Object object = marshallService.unmarshall(inputStream);
 				readConfig(name, object);
-				inputStream.close();
 			} catch (JAXBException e) {
 				log.error("error while unmarshalling " + name, e);
 			} finally {
-				IOUtils.closeQuietly(inputStream);
+				if (null != inputStream) {
+					inputStream.close();
+				}
 			}
 		}
 		processInheritance(marshallService);
@@ -251,12 +251,10 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void readData() throws IOException, ClassNotFoundException {
-		ObjectInputStream is = null;
-		ByteArrayInputStream bais = null;
 		Object o = null;
-		try {
-			bais = new ByteArrayInputStream(data);
-			is = new ObjectInputStream(bais);
+		try (
+				ByteArrayInputStream bais = new ByteArrayInputStream(data);
+				ObjectInputStream is = new ObjectInputStream(bais)) {
 			while ((o = is.readObject()) != null) {
 				if (o instanceof PageMap) {
 					this.pageMap = (PageMap) o;
@@ -276,25 +274,18 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 					this.resourceMap = (Map) o;
 				}
 			}
-			is.close();
-			bais.close();
 		} catch (EOFException e) {
 			// ObjectInputStream seems to work like this...
 		} catch (IOException e) {
 			throw e;
-		} finally {
-			IOUtils.closeQuietly(is);
-			IOUtils.closeQuietly(bais);
 		}
 	}
 
 	private void writeData() throws IOException {
-		ByteArrayOutputStream out = null;
-		ObjectOutputStream outputStream = null;
-		try {
+		try (
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream outputStream = new ObjectOutputStream(out)) {
 			data = null;
-			out = new ByteArrayOutputStream();
-			outputStream = new ObjectOutputStream(out);
 			outputStream.writeObject(pageMap);
 			outputStream.writeObject(actionMap);
 			outputStream.writeObject(datasourceMap);
@@ -312,9 +303,6 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 			log.debug("wrote " + data.length + " bytes of data for application " + applicationName);
 		} catch (IOException e) {
 			throw e;
-		} finally {
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(outputStream);
 		}
 	}
 

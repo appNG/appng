@@ -69,7 +69,7 @@ public class StyleSheetProvider {
 	}
 
 	/**
-	 * Initialitzes this {@code StyleSheetProvider} by setting the {@link DocumentBuilder} and {@link Transformer} to
+	 * Initializes this {@code StyleSheetProvider} by setting the {@link DocumentBuilder} and {@link Transformer} to
 	 * use.
 	 */
 	public void init() {
@@ -183,12 +183,24 @@ public class StyleSheetProvider {
 			return outputStream.toByteArray();
 		} catch (Exception e) {
 			log.error("[" + name + "] error writing stylesheet", e);
+		} finally {
+			close(masterSource);
 		}
 		return null;
 	}
 
-	private void includeStyleSheet(Node rootNode, Node insertionPoint, String reference) throws SAXException,
-			IOException {
+	protected void close(InputStream is) {
+		try {
+			is.close();
+		} catch (IOException e) {
+			log.error("error closing stream", e);
+		} finally {
+			is = null;
+		}
+	}
+
+	private void includeStyleSheet(Node rootNode, Node insertionPoint, String reference)
+			throws SAXException, IOException {
 		InputStream inputStream = styleReferences.get(reference);
 		Document styleSheetDoc = getDocumentBuilder().parse(inputStream);
 		if (null == styleSheetDoc) {
@@ -286,14 +298,7 @@ public class StyleSheetProvider {
 	 * @see #addStyleSheet(InputStream, String)
 	 */
 	public void cleanup() {
-		IOUtils.closeQuietly(masterSource);
-		masterSource = null;
-		List<String> keySet = new ArrayList<String>(styleReferences.keySet());
-		for (String reference : keySet) {
-			InputStream stream = styleReferences.remove(reference);
-			IOUtils.closeQuietly(stream);
-			stream = null;
-		}
+		new ArrayList<>(styleReferences.keySet()).forEach(k -> close(styleReferences.remove(k)));
 	}
 
 	/**

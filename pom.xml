@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.17.1-SNAPSHOT</version>
+	<version>1.18.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
@@ -71,8 +71,8 @@
 		<docDir>./target/generated-docs</docDir>
 		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
-		<manager.version>1.13.0</manager.version>
-		<scheduler.version>1.11.5</scheduler.version>
+		<manager.version>1.13.1</manager.version>
+		<scheduler.version>1.11.6</scheduler.version>
 		<authentication.version>1.11.2</authentication.version>
 		<template.name>appng-template</template.name>
 		<template.version>1.14.3</template.version>
@@ -109,6 +109,7 @@
 		<module>appng-xmlapi</module>
 		<module>appng-testsupport</module>
 		<module>appng-api</module>
+		<module>appng-rest-api</module>
 		<module>appng-persistence</module>
 		<module>appng-search</module>
 		<module>appng-core</module>
@@ -658,6 +659,11 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.appng</groupId>
+				<artifactId>appng-rest-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

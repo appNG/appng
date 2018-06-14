@@ -95,30 +95,27 @@ public class TemplateService {
 						String path = entry.getName();
 						path = path.substring(path.indexOf('/') + 1);
 						if (!entry.isDirectory()) {
-							InputStream in = null;
-							ByteArrayOutputStream out = null;
-							try {
-								in = zipFile.getInputStream(entry);
-								out = new ByteArrayOutputStream();
-								IOUtils.copy(in, out);
-								TemplateResource templateResource = new TemplateResource();
-								templateResource.setName(path);
-								templateResource.setFileVersion(entry.getLastModifiedDate());
-								templateResource.setResourceType(ResourceType.RESOURCE);
-								templateResource.setBytes(out.toByteArray());
-								templateResource.calculateChecksum();
-								resources.add(templateResource);
+							try (
+									InputStream in = zipFile.getInputStream(entry);
+									ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+								try {
+									IOUtils.copy(in, out);
+									TemplateResource templateResource = new TemplateResource();
+									templateResource.setName(path);
+									templateResource.setFileVersion(entry.getLastModifiedDate());
+									templateResource.setResourceType(ResourceType.RESOURCE);
+									templateResource.setBytes(out.toByteArray());
+									templateResource.calculateChecksum();
+									resources.add(templateResource);
 
-								if (path.equals(TEMPLATE_XML)) {
-									templateXml = applicationMarshallService.unmarshall(
-											new ByteArrayInputStream(templateResource.getBytes()),
-											org.appng.xml.application.Template.class);
+									if (path.equals(TEMPLATE_XML)) {
+										templateXml = applicationMarshallService.unmarshall(
+												new ByteArrayInputStream(templateResource.getBytes()),
+												org.appng.xml.application.Template.class);
+									}
+								} catch (IOException ioe) {
+									throw ioe;
 								}
-							} catch (IOException ioe) {
-								throw ioe;
-							} finally {
-								IOUtils.closeQuietly(in);
-								IOUtils.closeQuietly(out);
 							}
 							LOG.info("added resource {}", path);
 						}
@@ -151,8 +148,6 @@ public class TemplateService {
 
 			public org.appng.xml.application.Template process(ZipFile zipFile) throws IOException {
 				org.appng.xml.application.Template template = null;
-				InputStream masterIs = null;
-				InputStream templateIs = null;
 
 				try {
 					Enumeration<ZipArchiveEntry> entries = zipFile.getEntriesInPhysicalOrder();
@@ -168,21 +163,22 @@ public class TemplateService {
 					if (null == masterFile) {
 						throw new FileNotFoundException(PLATFORM_XML + " not found");
 					}
-					masterIs = zipFile.getInputStream(masterFile);
-					validateResource(MarshallService.getMarshallService(), masterPath, masterIs,
-							org.appng.xml.platform.Platform.class);
+					try (InputStream masterIs = zipFile.getInputStream(masterFile)) {
+						validateResource(MarshallService.getMarshallService(), masterPath, masterIs,
+								org.appng.xml.platform.Platform.class);
 
-					templateIs = zipFile.getInputStream(templateFile);
-					template = validateResource(MarshallService.getApplicationMarshallService(), templatePath,
-							templateIs, org.appng.xml.application.Template.class);
+						try (InputStream templateIs = zipFile.getInputStream(templateFile)) {
+							template = validateResource(MarshallService.getApplicationMarshallService(), templatePath,
+									templateIs, org.appng.xml.application.Template.class);
 
-					if (TemplateType.XSL.equals(template.getType())) {
-						ZipArchiveEntry xsl = zipFile.getEntry(templateRoot + PLATFORM_XSL);
-						if (null == xsl) {
-							throw new FileNotFoundException(PLATFORM_XSL + " not found");
+							if (TemplateType.XSL.equals(template.getType())) {
+								ZipArchiveEntry xsl = zipFile.getEntry(templateRoot + PLATFORM_XSL);
+								if (null == xsl) {
+									throw new FileNotFoundException(PLATFORM_XSL + " not found");
+								}
+							}
 						}
 					}
-
 				} catch (FileNotFoundException ioe) {
 					LOG.debug("not a valid template: {} ({})", originalFilename, ioe.getMessage());
 				} catch (IOException ioe) {
@@ -191,8 +187,6 @@ public class TemplateService {
 					LOG.trace("error while unmarshalling", e);
 					LOG.debug("not a valid template: {} ({})", originalFilename, e.toString());
 				} finally {
-					IOUtils.closeQuietly(masterIs);
-					IOUtils.closeQuietly(templateIs);
 					ZipFile.closeQuietly(zipFile);
 				}
 				return template;
@@ -288,21 +282,16 @@ public class TemplateService {
 		File templateTargetDir = getTemplateRepoFolder(platformConfig, siteProps);
 		deleteTemplateFolder(templateTargetDir);
 		for (TemplateResource resource : template.getResources()) {
-			ByteArrayInputStream in = null;
-			FileOutputStream out = null;
-			try {
-				File targetFile = new File(templateTargetDir, resource.getName());
-				targetFile.getParentFile().mkdirs();
-				in = new ByteArrayInputStream(resource.getBytes());
-				out = new FileOutputStream(targetFile);
+			File targetFile = new File(templateTargetDir, resource.getName());
+			targetFile.getParentFile().mkdirs();
+			try (
+					ByteArrayInputStream in = new ByteArrayInputStream(resource.getBytes());
+					FileOutputStream out = new FileOutputStream(targetFile)) {
 				LOG.trace("writing {}", targetFile);
 				IOUtils.copy(in, out);
 				targetFile.setLastModified(resource.getFileVersion().getTime());
 			} catch (IOException e) {
 				LOG.warn("errror writing template resource", e);
-			} finally {
-				IOUtils.closeQuietly(in);
-				IOUtils.closeQuietly(out);
 			}
 		}
 	}

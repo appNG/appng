@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>appNG Updater</title>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" />
+<script src="//code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<style>
+body {
+	font-family: Verdana;
+	font-size: 9pt;
+}
+</style>
+</head>
+<body>
+  <form>
+    <div align="center" style="margin: 20px; padding: 20px; width: 400px; height: 200px">
+
+      <fieldset>
+        <legend>appNG Updater</legend>
+        <img src="//localhost/upNGizr/assets/logo.png" /> <br /> <input type="button" id="startProcessButton" value="Update to 1.17.0" /><br />
+        <div id="ajaxImage" style="display: inline;">
+          <img src="//localhost/upNGizr/assets/ajax-loader.gif" />
+        </div>
+        <br />
+        <div id="statusDiv"></div>
+        <br />
+        <div id="progressbar" style="height: 20px; width: 200px;"></div>
+        <br />
+      </fieldset>
+
+
+      <script type="text/javascript">
+              $().ready(function() {
+
+                var $ajaxImage = $("#ajaxImage");
+                var $progressbar = $("#progressbar");
+                var $statusDiv = $("#statusDiv");
+                var $startProcessButton = $("#startProcessButton");
+
+                $ajaxImage.hide();
+                $progressbar.hide();
+
+                $startProcessButton.click(function() {
+                  $startProcessButton.attr("disabled", "disabled");
+                  $statusDiv.html("Loading...");
+
+                  // Call the web service to kick off the process
+                  $.ajax("//localhost/upNGizr/update/1.17.0?onSuccess=myTarget", {
+                    type : "POST",
+                    dataType : "json",
+                    contentType : "application/json; charset=utf-8"
+                  });
+
+                  // Set up a recurring timer to keep running this code every second
+                  // We use intervalHandle later via clearInterval to turn off this timer
+                  var intervalHandle = setInterval(function() {
+                    $.ajax("//localhost/upNGizr/update/status", {
+                      type : "GET",
+                      dataType : "json",
+                      cache : false,
+                      contentType : "application/json; charset=utf-8",
+                      success : function(response, status, xhr) {
+                        if (response.taskName == null) {
+                          $statusDiv.html("");
+                          clearInterval(intervalHandle);
+                        } else {
+                          $startProcessButton.hide();
+                          $ajaxImage.show();
+                          $progressbar.show();
+
+                          $statusDiv.html(response.completed + "% " + response.taskName);
+                          $progressbar.progressbar({
+                            value : response.completed
+                          });
+
+                          if (response.done) {
+                            clearInterval(intervalHandle);
+                            $ajaxImage.hide();
+                            $progressbar.hide();
+                            var target = "myTarget";
+                            if (target.length > 0) {
+                              $(location).delay(5000).attr("href", target);
+                            }
+                          }
+                        }
+                      },
+                      error : function(jqxhr, status, error) {
+                        $statusDiv.html("Error from AJAX call: " + jqxhr.statusText);
+                        $startProcessButton.removeAttr("disabled");
+                      }
+                    });
+
+                  }, 1000);
+                });
+              });
+            </script>
+
+    </div>
+  </form>
+</body>
+</html>

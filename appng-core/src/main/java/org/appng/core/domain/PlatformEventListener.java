@@ -27,6 +27,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Scope;
@@ -49,7 +50,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * {@link PreRemove}. Also, a {@link PlatformEvent} can be created manually by calling
  * {@link #createEvent(Type, String)}. <br/>
  * Note that this listener is able to work in two scenarios. The first is as a regular Spring bean that can be invoked
- * from other beans. As a JPA entity listener, whe use a static reference to the current {@link ApplicationContext} to
+ * from other beans. As a JPA entity listener, we use a static reference to the current {@link ApplicationContext} to
  * retrieve an instance of the {@link EntityManager} in use.
  * 
  * @author Matthias Müller
@@ -58,8 +59,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class PlatformEventListener implements ApplicationContextAware {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PlatformEventListener.class);
-	private static ApplicationContext CONTEXT;
+	private static ApplicationContext context;
 	private static String auditUser = "<unknown>";
+	private static String auditApplication = "appNG";
 	private static boolean persist = true;
 	@Autowired
 	private EntityManager entityManager;
@@ -71,7 +73,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		PlatformEventListener.CONTEXT = applicationContext;
+		PlatformEventListener.context = applicationContext;
 		LOG.info("Using application context {}", applicationContext);
 	}
 
@@ -103,28 +105,42 @@ public class PlatformEventListener implements ApplicationContextAware {
 		createEvent(type, message, new Date());
 	}
 
-	private void createEvent(Type type, String message, Date created) {
-		PlatformEvent event = getEventProvider().provide(type, message);
+	private void createEvent(Type type, String message, Date version) {
+		HttpServletRequest servletRequest = getServletRequest();
+		HttpSession session = null == servletRequest ? null : servletRequest.getSession();
+		createEvent(type, message, version, session, servletRequest);
+	}
+
+	public void createEvent(Type type, String message, HttpSession session) {
+		createEvent(type, message, new Date(), session, null);
+	}
+
+	private void createEvent(Type type, String message, Date created, HttpSession session, HttpServletRequest request) {
+		PlatformEvent event = getEventProvider().provide(type, message, session, request);
 		if (persist) {
 			if (null == entityManager) {
-				CONTEXT.getAutowireCapableBeanFactory().autowireBean(this);
-			}			
+				context.getAutowireCapableBeanFactory().autowireBean(this);
+			}
 			entityManager.persist(event);
 		}
 		LOG.info("Created entry {}", event);
 	}
 
-	public void setAuditUser(String auditUser) {
+	public synchronized void setAuditUser(String auditUser) {
 		PlatformEventListener.auditUser = auditUser;
 	}
 
-	public void setPersist(boolean persist) {
+	public synchronized void setAuditApplication(String auditApplication) {
+		PlatformEventListener.auditApplication = auditApplication;
+	}
+
+	public synchronized void setPersist(boolean persist) {
 		PlatformEventListener.persist = persist;
 	}
 
 	public EventProvider getEventProvider() {
-		return CONTEXT.getBeansOfType(EventProvider.class).isEmpty() ? eventProvider
-				: CONTEXT.getBean(EventProvider.class);
+		return context.getBeansOfType(EventProvider.class).isEmpty() ? eventProvider
+				: context.getBean(EventProvider.class);
 	}
 
 	public void setEventProvider(EventProvider eventProvider) {
@@ -134,7 +150,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 	public static class EventProvider {
 		public static final String EVENT_UUID = "eventUUID";
 
-		public String getExecutionId(HttpServletRequest servletRequest) {
+		String getExecutionId(HttpServletRequest servletRequest) {
 			if (null != servletRequest) {
 				String eventUUID = (String) servletRequest.getAttribute(EVENT_UUID);
 				if (null == eventUUID) {
@@ -145,15 +161,14 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return UUID.randomUUID().toString();
 		}
 
-		public PlatformEvent provide(Type type, String message) {
-			HttpServletRequest request = getServletRequest();
+		PlatformEvent provide(Type type, String message, HttpSession session, HttpServletRequest request) {
 			PlatformEvent event = new PlatformEvent();
 			event.setType(type);
 			event.setEvent(message);
-			event.setUser(getUser(request));
+			event.setUser(getUser(session));
 			event.setRequestId(getExecutionId(request));
-			event.setSessionId(getSessionId(request));
-			event.setApplication(getApplication(request));
+			event.setSessionId(getSessionId(session));
+			event.setApplication(getApplication());
 			event.setContext(getContext(request));
 			try {
 				event.setHostName(InetAddress.getLocalHost().getHostName());
@@ -167,45 +182,33 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return event;
 		}
 
-		public String getSessionId(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				return StringUtils.substring(servletRequest.getSession().getId(), 0, 8);
+		private String getSessionId(HttpSession session) {
+			if (null != session) {
+				return StringUtils.substring(session.getId(), 0, 8);
 			}
 			return null;
 		}
 
-		public String getUser(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				DefaultEnvironment env = DefaultEnvironment.get(servletRequest.getSession());
-				Subject s = env.getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
-				if (s != null) {
-					return s.getRealname();
-				}
+		protected String getUser(HttpSession session) {
+			Subject s = null;
+			if (null != session) {
+				s = DefaultEnvironment.get(session).getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
 			}
-			return auditUser;
+			return s == null ? auditUser : s.getRealname();
 		}
 
-		public String getApplication(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				String contextPath = servletRequest.getContextPath();
-				if (StringUtils.isBlank(contextPath)) {
-					return "appNG";
-				}
-				return contextPath;
-			}
-			return null;
+		protected String getApplication() {
+			return auditApplication;
 		}
 
-		public String getContext(HttpServletRequest servletRequest) {
-			if (null != servletRequest) {
-				return servletRequest.getServletPath();
-			}
-			return null;
+		protected String getContext(HttpServletRequest request) {
+			return null == request ? null : request.getServletPath();
 		}
 
-		public HttpServletRequest getServletRequest() {
-			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-			return null == requestAttributes ? null : ((ServletRequestAttributes) requestAttributes).getRequest();
-		}
+	}
+
+	private HttpServletRequest getServletRequest() {
+		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+		return null == requestAttributes ? null : ((ServletRequestAttributes) requestAttributes).getRequest();
 	}
 }

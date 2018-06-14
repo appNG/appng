@@ -103,6 +103,12 @@ public class ThymeleafProcessorTest {
 	}
 
 	@Test
+	public void testIsFiltered(){
+		boolean filtered = appNG.isFiltered("sites", appNG.datasource("sessions"));
+		Assert.assertTrue(filtered);
+	}
+
+	@Test
 	public void testDataFromResult() {
 		Result result = appNG.result(appNG.datasource("site-properties"), 1);
 		Assert.assertNotNull(result);

@@ -22,15 +22,16 @@
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 	<bean id="configurer" class="org.appng.appngizer.controller.AppNGizerConfigurer">
-		<property name="location" value="file://${APPNG_HOME}/WEB-INF/conf/appNG.properties" />
+		<property name="location" value="file:/${APPNG_HOME}/WEB-INF/conf/appNG.properties" />
 	</bean>
 
 	<bean class="org.appng.core.domain.PlatformEventListener">
 		<property name="auditUser" value="appNGizer" />
+		<property name="auditApplication" value="appNGizer" />
 	</bean>
 
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-    	<property name="maxUploadSize" value="25000000"/>
+		<property name="maxUploadSize" value="25000000" />
 	</bean>
 
 	<context:component-scan base-package="org.appng.appngizer" />

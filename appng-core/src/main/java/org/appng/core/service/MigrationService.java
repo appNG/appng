@@ -100,7 +100,7 @@ public class MigrationService {
 	 */
 	public DatabaseConnection initDatabase(java.util.Properties config) {
 		DatabaseConnection platformConnection = getPlatformConnection(config);
-		Boolean doRepair = Boolean.valueOf(config.getProperty(DATABASE_REPAIR, "true"));
+		Boolean doRepair = Boolean.valueOf(config.getProperty(DATABASE_REPAIR));
 		initDatabase(platformConnection, doRepair);
 		return platformConnection;
 	}
@@ -131,6 +131,7 @@ public class MigrationService {
 		conn.setName(DATABASE_NAME_PREFIX + databaseType.name());
 		conn.setDescription(APP_NG_ROOT_DATABASE);
 		conn.setValidationPeriod(validationPeriod);
+		conn.registerDriver(true);
 		conn.setMigrationInfoService(statusComplete(conn));
 		return conn;
 	}
@@ -189,7 +190,7 @@ public class MigrationService {
 	 */
 	public MigrationInfoService statusComplete(DatabaseConnection connection, boolean testConnection) {
 		StringBuilder dbInfo = new StringBuilder();
-		if (!testConnection || connection.testConnection(dbInfo, false, true)) {
+		if (!testConnection || connection.testConnection(dbInfo, true)) {
 			log.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
 			Flyway flyway = new Flyway();
 			DataSource dataSource = getDataSource(connection);

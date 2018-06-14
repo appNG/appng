@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -1171,20 +1172,17 @@ public class CoreService {
 			String outputPath = outputDir.getAbsolutePath() + File.separator
 					+ applicationResource.getResourceType().getFolder() + File.separator
 					+ applicationResource.getName();
-			OutputStream outputStream = null;
-			InputStream inputStream = null;
 			try {
 				File outputFile = new File(outputPath);
 				FileUtils.forceMkdir(outputFile.getParentFile());
-				outputStream = new FileOutputStream(outputFile);
-				inputStream = new ByteArrayInputStream(applicationResource.getBytes());
-				IOUtils.copy(inputStream, outputStream);
-				log.debug("writing " + outputPath);
+				try (
+						OutputStream outputStream = new FileOutputStream(outputFile);
+						InputStream inputStream = new ByteArrayInputStream(applicationResource.getBytes())) {
+					IOUtils.copy(inputStream, outputStream);
+					log.debug("writing " + outputPath);
+				}
 			} catch (IOException e) {
 				throw new BusinessException("error while updating resource " + applicationResource.getName(), e);
-			} finally {
-				IOUtils.closeQuietly(outputStream);
-				IOUtils.closeQuietly(inputStream);
 			}
 		}
 	}
@@ -1586,7 +1584,7 @@ public class CoreService {
 	private void prepareConnection(DatabaseConnection databaseConnection, boolean clearPassword,
 			CacheProvider cacheProvider) {
 		if (databaseConnection.isActive()) {
-			boolean isWorking = databaseConnection.testConnection(false, true);
+			boolean isWorking = databaseConnection.testConnection(true);
 			if (isWorking) {
 				if (null == databaseConnection.getSite()) {
 					databaseConnection
@@ -2129,6 +2127,10 @@ public class CoreService {
 			siteApplication.getGrantedSites().addAll(grantedSites);
 		}
 		return siteApplication;
+	}
+
+	public void createEvent(Type type, String message, HttpSession session) {
+		auditableListener.createEvent(type, message, session);
 	}
 
 }

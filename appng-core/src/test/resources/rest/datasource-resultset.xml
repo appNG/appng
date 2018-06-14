@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasource id="sites" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+	<config>
+		<title id="sites"><![CDATA[Sites]]></title>
+		<permissions>
+			<permission mode="set" ref="site.list">true</permission>
+		</permissions>
+		<params />
+		<meta-data bindClass="org.appng.core.domain.SiteImpl">
+			<field binding="id" format="#" hidden="true" name="id" type="int">
+				<label id="id"><![CDATA[ID]]></label>
+			</field>
+			<field binding="name" name="name" type="text">
+				<sort />
+				<label id="name"><![CDATA[Name]]></label>
+			</field>
+			<field binding="host" name="host" type="text">
+				<sort />
+				<label id="host"><![CDATA[Host]]></label>
+			</field>
+			<field binding="domain" name="domain" type="text">
+				<sort />
+				<label id="domain"><![CDATA[Domain]]></label>
+			</field>
+			<field binding="description" name="description" type="text">
+				<label id="description"><![CDATA[Description]]></label>
+			</field>
+			<field binding="active" name="active" type="image">
+				<sort />
+				<label id="active"><![CDATA[Active]]></label>
+				<icon condition="${current.active}">led_green</icon>
+				<icon condition="${!current.active}">led_red</icon>
+			</field>
+			<field binding="running" name="running" type="image">
+				<label id="running"><![CDATA[Running]]></label>
+				<icon condition="${current.running}">led_green</icon>
+				<icon condition="${!current.running}">led_red</icon>
+			</field>
+			<field binding="startupTime" format="yyyy-MM-dd HH:mm:ss" name="startupTime" type="date">
+				<label id="startupTime"><![CDATA[Startup time]]></label>
+			</field>
+			<field binding="actions" name="actions" type="linkpanel">
+				<label id="actions"><![CDATA[Actions]]></label>
+			</field>
+		</meta-data>
+		<linkpanel id="other" location="both">
+			<link id="other[1]" mode="intern" target="/sites/create">
+				<permissions>
+					<permission mode="set" ref="site.create">true</permission>
+				</permissions>
+				<label id="site.create"><![CDATA[Create site]]></label>
+				<icon>new</icon>
+				<confirmation>Are you sure?</confirmation>
+			</link>
+			<link id="other[2]" mode="rest" target="/service/site/application/rest/action/siteEvent/create">
+				<permissions>
+					<permission mode="set" ref="site.create">true</permission>
+				</permissions>
+				<label id="site.create"><![CDATA[Create site]]></label>
+				<icon>new</icon>
+			</link>
+			<link id="other[3]" mode="webservice" target="/service/site/application/webservice/dummyService">
+				<permissions>
+					<permission mode="set" ref="site.create">true</permission>
+				</permissions>
+				<label id="site.create"><![CDATA[Dummy]]></label>
+				<icon>new</icon>
+			</link>
+		</linkpanel>
+		<linkpanel id="actions" location="inline">
+			<link default="true" id="actions[1]" mode="intern" target="/sites/update/#{id}">
+				<permissions>
+					<permission mode="set" ref="site.edit">true</permission>
+				</permissions>
+				<label id="edit"><![CDATA[Edit]]></label>
+				<icon>edit</icon>
+			</link>
+			<link id="actions[2]" mode="intern" target="/sites?form_action=delete&amp;siteid=#{id}">
+				<permissions>
+					<permission mode="set" ref="site.delete">true</permission>
+				</permissions>
+				<label id="delete"><![CDATA[Delete]]></label>
+				<icon>delete</icon>
+				<confirmation id="site.delete.confirm" params="#{name}">Do you really want to delete the site "#{name}"?
+				</confirmation>
+			</link>
+			<link id="actions[3]" mode="intern" target="/sites?form_action=reload&amp;siteid=#{id}">
+				<permissions>
+					<permission mode="set" ref="site.reload">true</permission>
+				</permissions>
+				<label id="reload"><![CDATA[Reload]]></label>
+				<icon>reload</icon>
+			</link>
+		</linkpanel>
+	</config>
+	<data>
+		<selectionGroup>
+			<selection id="multiple" type="select:multiple">
+				<title id="Dummy">Dummy</title>
+				<option value="a" name="a" selected="true" />
+				<option value="b" name="b" selected="false" />
+				<option value="c" name="c" selected="true" />
+			</selection>
+		</selectionGroup>
+		<resultset chunk="0" chunkname="sites" chunksize="25" firstchunk="0" hits="2" lastchunk="0" nextchunk="0"
+			previouschunk="0">
+			<result>
+				<field name="id" type="int">
+					<value><![CDATA[1]]></value>
+				</field>
+				<field name="name" type="text">
+					<value><![CDATA[appng]]></value>
+				</field>
+				<field name="host" type="text">
+					<value><![CDATA[dev.appng.io]]></value>
+				</field>
+				<field name="domain" type="text">
+					<value><![CDATA[https://dev.appng.io]]></value>
+				</field>
+				<field name="description" type="text">
+					<value><![CDATA[appng Manager Instance]]></value>
+				</field>
+				<field name="active" type="image">
+					<value><![CDATA[true]]></value>
+					<icon type="class">led_green</icon>
+				</field>
+				<field name="running" type="image">
+					<value><![CDATA[true]]></value>
+					<icon type="class">led_green</icon>
+				</field>
+				<field name="startupTime" type="date">
+					<value><![CDATA[2018-04-26 12:15:14]]></value>
+				</field>
+				<linkpanel id="actions" location="inline">
+					<link default="true" id="actions[1]" mode="intern" target="/sites/update/1">
+						<label id="edit"><![CDATA[Edit]]></label>
+						<icon>edit</icon>
+					</link>
+					<link id="actions[2]" mode="intern" target="/sites?form_action=delete&amp;siteid=1">
+						<label id="delete"><![CDATA[Delete]]></label>
+						<icon>delete</icon>
+						<confirmation id="site.delete.confirm" params="#{name}">Do you really want to delete the site "appng"?
+						</confirmation>
+					</link>
+					<link id="actions[3]" mode="intern" target="/sites?form_action=reload&amp;siteid=1">
+						<label id="reload"><![CDATA[Reload]]></label>
+						<icon>reload</icon>
+					</link>
+				</linkpanel>
+			</result>
+			<result>
+				<field name="id" type="int">
+					<value><![CDATA[2]]></value>
+				</field>
+				<field name="name" type="text">
+					<value><![CDATA[template]]></value>
+				</field>
+				<field name="host" type="text">
+					<value><![CDATA[template.dev.appng.io]]></value>
+				</field>
+				<field name="domain" type="text">
+					<value><![CDATA[https://template.dev.appng.io]]></value>
+				</field>
+				<field name="description" type="text">
+					<value><![CDATA[appng Manager Instance with appng-bootstrap-gentelella]]></value>
+				</field>
+				<field name="active" type="image">
+					<value><![CDATA[true]]></value>
+					<icon type="class">led_green</icon>
+				</field>
+				<field name="running" type="image">
+					<value><![CDATA[true]]></value>
+					<icon type="class">led_green</icon>
+				</field>
+				<field name="startupTime" type="date">
+					<value><![CDATA[2018-05-07 13:18:51]]></value>
+				</field>
+				<linkpanel id="actions" location="inline">
+					<link default="true" id="actions[1]" mode="intern" target="/sites/update/2">
+						<label id="edit"><![CDATA[Edit]]></label>
+						<icon>edit</icon>
+					</link>
+					<link id="actions[2]" mode="intern" target="/sites?form_action=delete&amp;siteid=2">
+						<label id="delete"><![CDATA[Delete]]></label>
+						<icon>delete</icon>
+						<confirmation id="site.delete.confirm" params="#{name}">Do you really want to delete the site "template"?
+						</confirmation>
+					</link>
+					<link id="actions[3]" mode="intern" target="/sites?form_action=reload&amp;siteid=2">
+						<label id="reload"><![CDATA[Reload]]></label>
+						<icon>reload</icon>
+					</link>
+				</linkpanel>
+			</result>
+		</resultset>
+	</data>
+</datasource>
