@@ -45,6 +45,9 @@ import com.rabbitmq.client.Envelope;
  * <li>{@code rabbitMQPassword} (guest): Password</li>
  * <li>{@code rabbitMQExchange} (appng-messaging): Name of the exchange where the receiver binds its messaging queue on.
  * Be aware that this name must be different among different clusters using the same RabbitMQ server</li>
+ * <li>{@code rabbitMQAutoDeleteQueue} (true): If the queue to create should be marked as autodelete.</li>
+ * <li>{@code rabbitMQDurableQueue} (false): If the queue to create should be marked as durable.</li>
+ * <li>{@code rabbitMQExclusiveQueue} (true): If the queue to create should be marked as exclusive.</li>
  * </ul>
  * 
  * @author Claus Stümke, aiticon GmbH, 2015
@@ -53,9 +56,9 @@ import com.rabbitmq.client.Envelope;
 public class RabbitMQReceiver extends RabbitMQBase implements Receiver {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQReceiver.class);
-	private static final String RABBIT_MQ_EXCLUSIVE_QUEUE = "rabbitMQExclusiveQueue";
-	private static final String RABBIT_MQ_DURABLE_QUEUE = "rabbitMQDurableQueue";
 	private static final String RABBIT_MQ_AUTO_DELETE_QUEUE = "rabbitMQAutoDeleteQueue";
+	private static final String RABBIT_MQ_DURABLE_QUEUE = "rabbitMQDurableQueue";
+	private static final String RABBIT_MQ_EXCLUSIVE_QUEUE = "rabbitMQExclusiveQueue";
 	private EventRegistry eventRegistry = new EventRegistry();
 	private DeclareOk queueDeclare;
 
