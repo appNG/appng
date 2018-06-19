@@ -41,18 +41,18 @@ public class DataSourceHelper {
 
 	public Optional<Element> getResult(int i) {
 		Page page = dataSource.getBody().getPage();
-		if (null != page && i > -1 && page.getElements().size() > i) {
+		if (null != page && null != page.getElements() && i > -1 && page.getElements().size() > i) {
 			return Optional.of(page.getElements().get(i));
 		}
 		return Optional.empty();
 	}
 
 	public Optional<Link> getLink(Element item, String linkId) {
-		return item.getLinks().stream().filter( l -> l.getId().equals(linkId)).findFirst();
+		return item.getLinks().stream().filter(l -> l.getId().equals(linkId)).findFirst();
 	}
-	
+
 	public Optional<FieldValue> getField(Element item, String name) {
-		return item.getFields().stream().filter( f -> f.getName().equals(name)).findFirst();
+		return item.getFields().stream().filter(f -> f.getName().equals(name)).findFirst();
 	}
 
 }
