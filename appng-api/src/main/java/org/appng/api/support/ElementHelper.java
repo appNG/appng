@@ -513,7 +513,6 @@ public class ElementHelper {
 				if (StringUtils.isBlank(expression) || conditionMatches(condition)) {
 					try {
 						groups.add(site.getSiteClassLoader().loadClass(group.getClazz()));
-						group.setCondition(null);
 					} catch (ClassNotFoundException e) {
 						LOGGER.error("validation group {} not found!", group.getClazz());
 					}
