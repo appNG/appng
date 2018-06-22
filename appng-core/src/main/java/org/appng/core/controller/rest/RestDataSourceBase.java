@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
@@ -101,11 +100,15 @@ abstract class RestDataSourceBase extends RestOperation {
 		MarshallService marshallService = MarshallService.getMarshallService();
 		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
 				httpServletResponse, false, (ApplicationRequest) request, dataSourceId, marshallService);
-
-		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-		log.debug(marshallService.marshallNonRoot(processedDataSource));
+		if (null == processedDataSource) {
+			log.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
+					site.getName());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 
 		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
+			log.debug("Datasource {} on application {} of site {} returned status {}", dataSourceId,
+					application.getName(), site.getName(), httpServletResponse.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
 		}
 
@@ -217,9 +220,11 @@ abstract class RestDataSourceBase extends RestOperation {
 		return element;
 	}
 
-	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper, int index) {
+	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper,
+			int index) {
 		if (fieldDef.isPresent()) {
-			FieldValue fv = getFieldValue(data, fieldDef.get(),beanWrapper.getPropertyType(fieldDef.get().getBinding()));
+			FieldValue fv = getFieldValue(data, fieldDef.get(),
+					beanWrapper.getPropertyType(fieldDef.get().getBinding()));
 			List<Datafield> childDataFields = data.getFields();
 			if (null != childDataFields) {
 				final AtomicInteger i = new AtomicInteger(0);

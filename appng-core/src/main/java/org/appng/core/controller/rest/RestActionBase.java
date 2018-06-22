@@ -96,6 +96,8 @@ abstract class RestActionBase extends RestOperation {
 				actionId);
 
 		if (null == originalAction) {
+			log.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
+					site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
@@ -110,6 +112,8 @@ abstract class RestActionBase extends RestOperation {
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+			log.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
+					application.getName(), site.getName(), servletResp.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
@@ -134,6 +138,8 @@ abstract class RestActionBase extends RestOperation {
 				actionId);
 
 		if (null == originalAction) {
+			log.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
+					site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
@@ -148,6 +154,8 @@ abstract class RestActionBase extends RestOperation {
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+			log.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
+					application.getName(), site.getName(), servletResp.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
