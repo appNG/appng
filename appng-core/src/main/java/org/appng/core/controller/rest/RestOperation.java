@@ -15,6 +15,8 @@
  */
 package org.appng.core.controller.rest;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -261,9 +263,16 @@ abstract class RestOperation {
 		public ResponseEntity<ErrorModel> handleError(Exception exception, Site site, Application application,
 				Environment environment, HttpServletRequest request, HttpServletResponse response) throws Exception {
 			LOG.error("error in REST service", exception);
+			String message;
+			if (application.getProperties().getBoolean("restErrorPrintStackTrace", true)) {
+				StringWriter writer = new StringWriter();
+				exception.printStackTrace(new PrintWriter(writer));
+				message = writer.toString();
+			} else {
+				message = String.format("%s : %s", exception.getClass().getName(), exception.getMessage());
+			}
 			ErrorModel errorModel = new ErrorModel();
-			errorModel.setMessage(String.format("[%s] - %s : %s", exception.hashCode(), exception.getClass().getName(),
-					exception.getMessage()));
+			errorModel.setMessage(message);
 			errorModel.setCode(response.getStatus());
 			return new ResponseEntity<>(errorModel, HttpStatus.valueOf(response.getStatus()));
 		}
