@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,10 +59,14 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 abstract class RestOperation {
 
 	protected static final String INDEXED = "[]";
+	protected static final String INDEXED_EXPR = "\\[\\]";
 	protected static final String INDEX = "\\[\\d+\\]";
 	protected static final String FORM_ACTION = "form_action";
 	protected static final String PATH_VAR = "pathVar";
@@ -107,7 +112,6 @@ abstract class RestOperation {
 				permission.setMode(ModeEnum.valueOf(p.getMode().name()));
 				permissionList.add(permission);
 			}
-			;
 		}
 		return permissionList;
 	}
@@ -162,14 +166,6 @@ abstract class RestOperation {
 		return LoggerFactory.getLogger(getClass());
 	}
 
-	public ResponseEntity<ErrorModel> handleError(Exception e, HttpServletResponse response) {
-		getLogger().error("", e);
-		ErrorModel errorModel = new ErrorModel();
-		errorModel.setCode(response.getStatus());
-		errorModel.setMessage(e.getMessage());
-		return new ResponseEntity<>(errorModel, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-
 	protected void applyPathParameters(Map<String, String> pathVariables, DataConfig config,
 			ApplicationRequest applicationRequest) {
 		Params params = config.getParams();
@@ -219,7 +215,7 @@ abstract class RestOperation {
 	}
 
 	private String getIndexedName(String name, int index) {
-		return name.replaceAll("\\[\\]", "[" + index + "]");
+		return name.replaceAll(INDEXED_EXPR, "[" + index + "]");
 	}
 
 	protected Object getObjectValue(Datafield data, FieldDef field, Class<?> type) {
@@ -252,10 +248,24 @@ abstract class RestOperation {
 		}
 		return beanWrapper;
 	}
-	
+
 	protected DecimalFormat getDecimalFormat(String format) {
-		DecimalFormat decimalFormat = new DecimalFormat(format,
-				new DecimalFormatSymbols(request.getLocale()));
-		return decimalFormat;
+		return new DecimalFormat(format, new DecimalFormatSymbols(request.getLocale()));
+	}
+
+	@ControllerAdvice
+	static class RestErrorHandler extends ResponseEntityExceptionHandler {
+		private static final Logger LOG = LoggerFactory.getLogger(RestErrorHandler.class);
+
+		@ExceptionHandler
+		public ResponseEntity<ErrorModel> handleError(Exception exception, Site site, Application application,
+				Environment environment, HttpServletRequest request, HttpServletResponse response) throws Exception {
+			LOG.error("error in REST service", exception);
+			ErrorModel errorModel = new ErrorModel();
+			errorModel.setMessage(String.format("[%s] - %s : %s", exception.hashCode(), exception.getClass().getName(),
+					exception.getMessage()));
+			errorModel.setCode(response.getStatus());
+			return new ResponseEntity<>(errorModel, HttpStatus.valueOf(response.getStatus()));
+		}
 	}
 }

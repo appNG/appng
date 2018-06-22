@@ -15,6 +15,7 @@
  */
 package org.appng.api.rest;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -26,15 +27,18 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Action;
 import org.appng.api.rest.model.Datasource;
+import org.appng.api.rest.model.ErrorModel;
 import org.appng.api.rest.model.Link;
 import org.appng.api.rest.model.Parameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -45,6 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * A simple client for the appNG REST API, open for extension.
+ * 
+ * <strong>Note that this class is NOT thread-safe!</strong>
  */
 @Slf4j
 public class RestClient {
@@ -70,6 +76,7 @@ public class RestClient {
 			protected boolean hasError(HttpStatus statusCode) {
 				return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
 			}
+
 		});
 		this.objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(Include.NON_ABSENT);
@@ -99,11 +106,11 @@ public class RestClient {
 	 *            the name of the {@link Application}
 	 * @param id
 	 *            the ID of the {@link Datasource}
-	 * @return the {@link Datasource}
+	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
 	 * @throws URISyntaxException
 	 *             if something is wrong with the URI
 	 */
-	public ResponseEntity<Datasource> datasource(String application, String id) throws URISyntaxException {
+	public RestResponseEntity<Datasource> datasource(String application, String id) throws URISyntaxException {
 		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
 				new URI(url + "/" + application + "/rest/datasource/" + id));
 		return send(httpEntity, Datasource.class);
@@ -120,29 +127,46 @@ public class RestClient {
 	 *            the ID of the {@link Action}
 	 * @param pathVariables
 	 *            some additional path variables
-	 * @return the (unprocessed) {@link Action}
+	 * @return the (unprocessed) {@link Action} wrapped in a {@link RestResponseEntity}
 	 * @throws URISyntaxException
 	 *             if something is wrong with the URI
 	 */
-	public ResponseEntity<Action> getAction(String application, String eventId, String actionId,
+	public RestResponseEntity<Action> getAction(String application, String eventId, String actionId,
 			String... pathVariables) throws URISyntaxException {
 		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
 				getActionURL(application, eventId, actionId, pathVariables));
-		ResponseEntity<Action> action = send(httpEntity, Action.class);
-		return action;
+		return send(httpEntity, Action.class);
 	}
 
-	private <T> ResponseEntity<T> send(RequestEntity<?> httpEntity, Class<T> type) {
+	private <T> RestResponseEntity<T> send(RequestEntity<?> httpEntity, Class<T> type) {
 		if (log.isDebugEnabled() && httpEntity.getBody() != null) {
 			doLog("OUT", httpEntity.getBody(), null);
 		}
-		ResponseEntity<T> exchange = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
-				type);
-		if (log.isDebugEnabled() && exchange.getBody() != null) {
-			doLog("IN", exchange.getBody(), exchange.getStatusCode());
+		try {
+			ResponseEntity<T> exchange = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
+					type);
+			setCookies(exchange);
+			if (log.isDebugEnabled() && exchange.getBody() != null) {
+				doLog("IN", exchange.getBody(), exchange.getStatusCode());
+			}
+			return RestResponseEntity.of(exchange);
+		} catch (HttpServerErrorException e) {
+			ErrorModel errorModel=null;
+			try {
+				String bodyAsString = e.getResponseBodyAsString();
+				if (StringUtils.isNotBlank(bodyAsString)) {
+					errorModel = objectMapper.readerFor(ErrorModel.class).readValue(bodyAsString);
+				}
+			} catch (IOException ioe) {
+				log.error("could not read error from response", e);
+			}
+			if (null == errorModel) {
+				errorModel = new ErrorModel();
+				errorModel.setCode(e.getStatusCode().value());
+				errorModel.setMessage(e.getMessage());
+			}
+			return new RestResponseEntity<>(errorModel, e.getResponseHeaders(), e.getStatusCode());
 		}
-		setCookies(exchange);
-		return exchange;
 	}
 
 	private void doLog(String prefix, Object body, HttpStatus httpStatus) {
@@ -159,11 +183,11 @@ public class RestClient {
 	 * 
 	 * @param link
 	 *            the {@link Link} representing the {@link Action}'s URI
-	 * @return the (unprocessed) {@link Action}
+	 * @return the (unprocessed) {@link Action} wrapped in a {@link RestResponseEntity}
 	 * @throws URISyntaxException
 	 *             if something is wrong with the URI
 	 */
-	public ResponseEntity<Action> getAction(Link link) throws URISyntaxException {
+	public RestResponseEntity<Action> getAction(Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split("/");
 		String servicePath = StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/");
 		URI uri = new URI(url + "/" + servicePath);
@@ -178,11 +202,11 @@ public class RestClient {
 	 *            the {@link Action}-data to send
 	 * @param link
 	 *            the {@link Link}
-	 * @return a {@link ResponseEntity} wrapping the resulting {@link Action}
+	 * @return a {@link RestResponseEntity} wrapping the resulting {@link Action}
 	 * @throws URISyntaxException
 	 *             if something is wrong with the URI
 	 */
-	public ResponseEntity<Action> performAction(Action data, Link link) throws URISyntaxException {
+	public RestResponseEntity<Action> performAction(Action data, Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split("/");
 		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
 		addFormAction(data);
@@ -220,11 +244,11 @@ public class RestClient {
 	 *            the {@link Action}-data to send
 	 * @param pathVariables
 	 *            some additional path variables
-	 * @return a {@link ResponseEntity} wrapping the resulting {@link Action}
+	 * @return a {@link RestResponseEntity} wrapping the resulting {@link Action}
 	 * @throws URISyntaxException
 	 *             if something is wrong with the URI
 	 */
-	public ResponseEntity<Action> performAction(String application, Action data, String... pathVariables)
+	public RestResponseEntity<Action> performAction(String application, Action data, String... pathVariables)
 			throws URISyntaxException {
 		addFormAction(data);
 		RequestEntity<Action> httpEntity = new RequestEntity<>(data, getHeaders(), HttpMethod.POST,
@@ -237,6 +261,8 @@ public class RestClient {
 		if (StringUtils.isNotBlank(cookie)) {
 			headers.set(HttpHeaders.COOKIE, cookie);
 		}
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8, MediaType.APPLICATION_JSON));
 		headers.set(HttpHeaders.USER_AGENT, "appNG Rest Client");
 		return headers;
 	}

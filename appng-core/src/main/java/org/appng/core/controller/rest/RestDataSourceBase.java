@@ -36,7 +36,6 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Datasource;
 import org.appng.api.rest.model.Element;
-import org.appng.api.rest.model.ErrorModel;
 import org.appng.api.rest.model.Field;
 import org.appng.api.rest.model.FieldType;
 import org.appng.api.rest.model.FieldValue;
@@ -67,7 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -274,11 +272,6 @@ abstract class RestDataSourceBase extends RestOperation {
 			link.setTarget(l.getTarget());
 		}
 		return link;
-	}
-
-	@ExceptionHandler
-	public ResponseEntity<ErrorModel> handleError(Exception e, HttpServletResponse response) {
-		return super.handleError(e, response);
 	}
 
 	protected void postProcessDataSource(Datasource datasource, Site site, Application application,

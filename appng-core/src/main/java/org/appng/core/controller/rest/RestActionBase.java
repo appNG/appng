@@ -37,7 +37,6 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Action;
 import org.appng.api.rest.model.ActionField;
-import org.appng.api.rest.model.ErrorModel;
 import org.appng.api.rest.model.FieldType;
 import org.appng.api.rest.model.Option;
 import org.appng.api.rest.model.Options;
@@ -65,7 +64,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -459,11 +457,6 @@ abstract class RestActionBase extends RestOperation {
 		public String toString() {
 			return getClass().getName() + ": " + getWrappedRequest().getParametersList();
 		}
-	}
-
-	@ExceptionHandler
-	public ResponseEntity<ErrorModel> handleError(Exception e, HttpServletResponse response) {
-		return super.handleError(e, response);
 	}
 
 	protected void postProcessAction(Action action, Site site, Application application, Environment environment) {

@@ -19,6 +19,7 @@ import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.core.controller.rest.RestOperation.RestErrorHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +50,15 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 		AnnotatedGenericBeanDefinition restAction = new AnnotatedGenericBeanDefinition(restActionMetaData);
 		restAction.setScope("request");
 		registry.registerBeanDefinition("restAction", restAction);
+
 		StandardAnnotationMetadata restDataSourcesMetaData = new StandardAnnotationMetadata(RestDataSource.class);
 		AnnotatedGenericBeanDefinition restDataSource = new AnnotatedGenericBeanDefinition(restDataSourcesMetaData);
 		restDataSource.setScope("request");
 		registry.registerBeanDefinition("restDataSource", restDataSource);
+
+		StandardAnnotationMetadata restErrorHandlerMetaData = new StandardAnnotationMetadata(RestErrorHandler.class);
+		AnnotatedGenericBeanDefinition restErrorHandler = new AnnotatedGenericBeanDefinition(restErrorHandlerMetaData);
+		registry.registerBeanDefinition("restErrorHandler", restErrorHandler);
 	}
 
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -93,4 +99,5 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 		}
 
 	}
+
 }
