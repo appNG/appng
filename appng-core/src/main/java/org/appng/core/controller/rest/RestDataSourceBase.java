@@ -179,7 +179,9 @@ abstract class RestDataSourceBase extends RestOperation {
 	protected Field getField(FieldDef f) {
 		Field field = new Field();
 		field.setName(f.getName());
-		field.setLabel(f.getLabel().getValue());
+		if (null != f.getLabel()) {
+			field.setLabel(f.getLabel().getValue());
+		}
 		field.setFieldType(FieldType.valueOf(f.getType().name()));
 		field.setFormat(f.getFormat());
 		Sort s = f.getSort();

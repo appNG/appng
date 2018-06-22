@@ -227,7 +227,9 @@ abstract class RestActionBase extends RestOperation {
 					&& StringUtils.isNotBlank(fieldDef.getFormat())) {
 				actionField.setFormattedValue(fieldData.getValue());
 			}
-			actionField.setLabel(fieldDef.getLabel().getId());
+			if (null != fieldDef.getLabel()) {
+				actionField.setLabel(fieldDef.getLabel().getId());
+			}
 			actionField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
 			actionField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
 			actionField.setFieldType(FieldType.valueOf(fieldDef.getType().name().toUpperCase()));
