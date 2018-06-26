@@ -226,13 +226,16 @@ abstract class RestOperation {
 		if (isDecimal || fieldType.equals(org.appng.xml.platform.FieldType.LONG)
 				|| fieldType.equals(org.appng.xml.platform.FieldType.INT)) {
 			String format = field.getFormat();
-			try {
-				Number number = getDecimalFormat(format).parse(data.getValue());
-				return isDecimal ? number.doubleValue() : number;
-			} catch (ParseException e) {
-				getLogger().error(String.format("error while parsing '%s' using pattern %s", data.getValue(), format),
-						e);
+			if (StringUtils.isNotBlank(data.getValue())) {
+				try {
+					Number number = getDecimalFormat(format).parse(data.getValue());
+					return isDecimal ? number.doubleValue() : number;
+				} catch (Exception e) {
+					getLogger().error(String.format("error while parsing value '%s' for field '%s' using pattern %s",
+							data.getValue(), field.getBinding(), format), e);
+				}
 			}
+			return null;
 		} else if (fieldType.equals(org.appng.xml.platform.FieldType.CHECKBOX)
 				|| (null != type && ("boolean".equals(type.getName()) || Boolean.class.equals(type)))) {
 			return Boolean.valueOf(data.getValue());
