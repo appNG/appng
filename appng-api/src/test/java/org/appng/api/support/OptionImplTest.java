@@ -44,7 +44,7 @@ public class OptionImplTest {
 	@Test
 	public void testAddAttribute() {
 		option.addAttribute("key", "value");
-		Assert.assertEquals("value", option.getAttribute("key"));
+		Assert.assertEquals("value", option.getString("key"));
 	}
 
 	@Test

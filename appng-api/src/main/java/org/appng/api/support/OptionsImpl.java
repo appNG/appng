@@ -54,7 +54,7 @@ public class OptionsImpl implements Options {
 
 	public String getOptionValue(String optionName, String attributeName) {
 		Option option = getOption(optionName);
-		return (null == option) ? null : option.getAttribute(attributeName);
+		return (null == option) ? null : option.getString(attributeName);
 	}
 
 	public String toString() {
