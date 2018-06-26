@@ -48,7 +48,6 @@ import org.appng.api.rest.model.Sort.OrderEnum;
 import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.core.model.ApplicationProvider;
-import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Linkmode;
@@ -75,7 +74,7 @@ abstract class RestDataSourceBase extends RestOperation {
 
 	@Autowired
 	public RestDataSourceBase(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) {
+			boolean supportPathParameters) throws JAXBException {
 		super(site, application, request, messageSource, supportPathParameters);
 	}
 
@@ -95,7 +94,6 @@ abstract class RestDataSourceBase extends RestOperation {
 			applyPathParameters(pathVariables, originalDatasource.getConfig(), request);
 		}
 
-		MarshallService marshallService = MarshallService.getMarshallService();
 		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
 				httpServletResponse, false, (ApplicationRequest) request, dataSourceId, marshallService);
 		if (null == processedDataSource) {
@@ -103,7 +101,9 @@ abstract class RestDataSourceBase extends RestOperation {
 					site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
+		if (log.isDebugEnabled()) {
+			log.debug("Processed datasource: {}", marshallService.marshallNonRoot(processedDataSource));
+		}
 		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
 			log.debug("Datasource {} on application {} of site {} returned status {}", dataSourceId,
 					application.getName(), site.getName(), httpServletResponse.getStatus());
@@ -246,7 +246,7 @@ abstract class RestDataSourceBase extends RestOperation {
 		FieldValue fv = new FieldValue();
 		fv.setName(data.getName());
 		fv.setValue(getObjectValue(data, field, type));
-		if (!org.appng.xml.platform.FieldType.DATE.equals(field.getType())
+		if (null != fv.getValue() && !org.appng.xml.platform.FieldType.DATE.equals(field.getType())
 				&& StringUtils.isNotBlank(field.getFormat())) {
 			fv.setFormattedValue(data.getValue());
 		}

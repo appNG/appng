@@ -15,6 +15,8 @@
  */
 package org.appng.core.controller.rest;
 
+import javax.xml.bind.JAXBException;
+
 import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
@@ -83,7 +85,7 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	static class RestAction extends RestActionBase {
 		@Autowired
 		public RestAction(Site site, Application application, Request request, MessageSource messageSource,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters) {
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
 			super(site, application, request, messageSource, supportPathParameters);
 		}
 
@@ -94,7 +96,7 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	static class RestDataSource extends RestDataSourceBase {
 		@Autowired
 		public RestDataSource(Site site, Application application, Request request, MessageSource messageSource,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters) {
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
 			super(site, application, request, messageSource, supportPathParameters);
 		}
 

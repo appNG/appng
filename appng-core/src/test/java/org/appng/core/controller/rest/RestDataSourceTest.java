@@ -74,7 +74,7 @@ public class RestDataSourceTest extends RestOperationTest {
 	}
 
 	@Test
-	public void testGetChildField() {
+	public void testGetChildField() throws JAXBException {
 		RestOperation restOperation = new RestDataSource(site, application, request, messageSource, true);
 
 		Datafield listObject = new Datafield();

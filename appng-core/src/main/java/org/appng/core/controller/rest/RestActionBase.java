@@ -76,7 +76,7 @@ abstract class RestActionBase extends RestOperation {
 
 	@Autowired
 	public RestActionBase(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) {
+			boolean supportPathParameters) throws JAXBException {
 		super(site, application, request, messageSource, supportPathParameters);
 	}
 
@@ -109,6 +109,11 @@ abstract class RestActionBase extends RestOperation {
 
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
+
+		if (log.isDebugEnabled()) {
+			log.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
+		}
+
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
 			log.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
 					application.getName(), site.getName(), servletResp.getStatus());
@@ -163,6 +168,10 @@ abstract class RestActionBase extends RestOperation {
 				executingRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
+		}
+		
+		if (log.isDebugEnabled()) {
+			log.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);

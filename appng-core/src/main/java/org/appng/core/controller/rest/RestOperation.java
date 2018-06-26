@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +27,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
@@ -45,6 +46,7 @@ import org.appng.api.rest.model.Permission;
 import org.appng.api.rest.model.Permission.ModeEnum;
 import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.xml.MarshallService;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
@@ -78,14 +80,17 @@ abstract class RestOperation {
 	protected boolean supportPathParameters;
 	protected boolean errors = false;
 	protected MessageSource messageSource;
+	protected MarshallService marshallService;
 
 	public RestOperation(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) {
+			boolean supportPathParameters) throws JAXBException {
 		this.site = site;
 		this.application = application;
 		this.request = (ApplicationRequest) request;
 		this.messageSource = messageSource;
 		this.supportPathParameters = supportPathParameters;
+		this.marshallService = MarshallService.getMarshallService();
+		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
 	}
 
 	protected User getUser(Environment environment) {
