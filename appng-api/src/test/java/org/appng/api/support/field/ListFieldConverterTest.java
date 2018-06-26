@@ -19,16 +19,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.appng.api.FieldConverter.DatafieldOwner;
 import org.appng.api.FieldWrapper;
+import org.appng.api.Person;
+import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Datafield;
+import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
+import org.appng.xml.platform.Linkpanel;
+import org.appng.xml.platform.MetaData;
+import org.appng.xml.platform.Result;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.core.convert.ConversionException;
+import org.springframework.core.io.ClassPathResource;
 
 public class ListFieldConverterTest extends AbstractFieldConverterTest {
 
@@ -121,7 +129,48 @@ public class ListFieldConverterTest extends AbstractFieldConverterTest {
 		DatafieldOwner dataFieldOwner = getDatafieldOwner();
 		fieldConverter.addField(dataFieldOwner, fieldWrapper);
 		Assert.assertEquals(1, dataFieldOwner.getFields().size());
-		Assert.assertEquals("",dataFieldOwner.getFields().get(0).getValue());
+		Assert.assertEquals("", dataFieldOwner.getFields().get(0).getValue());
+	}
+
+	@Test
+	public void testAddNestedFields() throws Exception {
+		Person a = new Person();
+		Person b = new Person();
+		b.setName("Jane Doe");
+		Person c = new Person();
+		c.setName("John Doe");
+
+		a.getOffsprings().add(b);
+		a.getOffsprings().add(c);
+		b.getOffsprings().add(c);
+
+		ClassPathResource classPathResource = new ClassPathResource(
+				"xml/ListFieldConverterTest-testAddNestedFields.xml");
+		MarshallService marshallService = MarshallService.getMarshallService();
+		MetaData metaData = marshallService.unmarshall(classPathResource.getInputStream(), MetaData.class);
+
+		beanWrapper = new BeanWrapperImpl(a);
+		FieldDef fieldDef = metaData.getFields().get(0);
+		this.fieldWrapper = new FieldWrapper(fieldDef, beanWrapper);
+
+		Result result = new Result();
+		DatafieldOwner dataFieldOwner = new DatafieldOwner() {
+
+			public List<Linkpanel> getLinkpanels() {
+				return null;
+			}
+
+			public List<Datafield> getFields() {
+				return result.getFields();
+			}
+		};
+		fieldConverter.addField(dataFieldOwner, fieldWrapper);
+		String marshallNonRoot = marshallService.marshallNonRoot(result);
+		ClassPathResource controlSource = new ClassPathResource(
+				"xml/ListFieldConverterTest-testAddNestedFields-result.xml");
+		String expected = new String(
+				IOUtils.readFully(controlSource.getInputStream(), (int) controlSource.contentLength()));
+		Assert.assertEquals(expected, marshallNonRoot);
 	}
 
 	@Override

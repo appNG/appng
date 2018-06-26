@@ -171,9 +171,7 @@ class ListFieldConverter extends ConverterBase {
 			} else {
 				indexedField.setBinding(parentField.getBinding() + "." + fieldDef.getName());
 			}
-			if (FieldType.OBJECT.equals(indexedField.getType())) {
-				addNestedFields(indexedField, fieldDef.getFields(), -1);
-			}
+			addNestedFields(indexedField, fieldDef.getFields(), -1);
 			parentField.getFields().add(indexedField);
 			LOG.debug("adding nested field {} to {}", FieldWrapper.toString(indexedField),
 					FieldWrapper.toString(parentField));
