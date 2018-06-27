@@ -37,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -117,6 +118,31 @@ public class RestClient {
 	}
 
 	/**
+	 * Retrieves the {@link Datasource}.
+	 * 
+	 * @param application
+	 *            the name of the {@link Application}
+	 * @param id
+	 *            the ID of the {@link Datasource}
+	 * @param parameters
+	 *            some additional parameters
+	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
+	public RestResponseEntity<Datasource> datasource(String application, String id,
+			MultiValueMap<String, String> parameters) throws URISyntaxException {
+		StringBuilder uriBuilder = new StringBuilder(url + "/" + application + "/rest/datasource/" + id + "?");
+		parameters.keySet().forEach(key -> {
+			parameters.get(key).forEach(value -> {
+				uriBuilder.append(key).append("=").append(value).append("&");
+			});
+		});
+		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET, new URI(uriBuilder.toString()));
+		return send(httpEntity, Datasource.class);
+	}
+
+	/**
 	 * Retrieves the {@link Action}.
 	 * 
 	 * @param application
@@ -146,12 +172,13 @@ public class RestClient {
 			ResponseEntity<T> exchange = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
 					type);
 			setCookies(exchange);
-			if (log.isDebugEnabled() && exchange.getBody() != null) {
+			if (log.isDebugEnabled() && exchange.getBody() != null
+					&& exchange.getHeaders().getContentType().includes(MediaType.APPLICATION_JSON)) {
 				doLog("IN", exchange.getBody(), exchange.getStatusCode());
 			}
 			return RestResponseEntity.of(exchange);
 		} catch (HttpServerErrorException e) {
-			ErrorModel errorModel=null;
+			ErrorModel errorModel = null;
 			try {
 				String bodyAsString = e.getResponseBodyAsString();
 				if (StringUtils.isNotBlank(bodyAsString)) {
@@ -274,6 +301,22 @@ public class RestClient {
 	 */
 	public String getCookie() {
 		return cookie;
+	}
+
+	/**
+	 * Returns the resource represented by the link as binary data
+	 * 
+	 * @param link
+	 *            the ink to there resource
+	 * @return the response
+	 * @throws URISyntaxException
+	 *             if something is wrong with the link
+	 */
+	public RestResponseEntity<byte[]> getBinaryData(Link link) throws URISyntaxException {
+		String[] pathSegments = link.getTarget().split("/");
+		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
+		RequestEntity<Action> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET, uri);
+		return send(httpEntity, byte[].class);
 	}
 
 }
