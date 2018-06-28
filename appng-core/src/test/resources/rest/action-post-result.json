@@ -9,7 +9,7 @@
   },
   "fields" : [ {
     "name" : "name",
-    "value" : "localhost",
+    "value" : "appng",
     "label" : "name",
     "fieldType" : "text",
     "readonly" : false,
@@ -37,35 +37,35 @@
     } ]
   }, {
     "name" : "host",
-    "value" : "localhost",
+    "value" : "localhorst",
     "label" : "host",
     "fieldType" : "text",
     "readonly" : false,
     "visible" : true
   }, {
     "name" : "domain",
-    "value" : "localhost",
+    "value" : "https://localhorst:8080",
     "label" : "domain",
     "fieldType" : "text",
     "readonly" : false,
     "visible" : true
   }, {
     "name" : "description",
-    "value" : "a description",
+    "value" : "a site",
     "label" : "description",
     "fieldType" : "longtext",
     "readonly" : false,
     "visible" : true
   }, {
     "name" : "active",
-    "value" : "true",
+    "value" : true,
     "label" : "active",
     "fieldType" : "checkbox",
     "readonly" : false,
     "visible" : true
   }, {
     "name" : "createRepository",
-    "value" : "true",
+    "value" : true,
     "label" : "site.createRepository",
     "fieldType" : "checkbox",
     "readonly" : false,

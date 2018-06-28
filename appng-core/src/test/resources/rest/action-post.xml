@@ -50,6 +50,13 @@
 	</config>
 	<condition expression="${form_action eq 'create'}" />
 	<datasource id="new-site" />
+	<userdata>
+		<input name="site.name">appng</input>
+		<input name="site.description">a site</input>
+		<input name="site.host">localhorst</input>
+		<input name="site.domain">https://localhorst:8080</input>
+		<input name="site.createRepository">true</input>
+	</userdata>
 	<data>
 		<selection id="template">
 			<title id="template">Template</title>

@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller.rest;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -142,7 +143,7 @@ abstract class RestDataSourceBase extends RestOperation {
 					filter.getOptions().setMultiple(filter.getType().equals(OptionType.CHECKBOX)
 							|| filter.getType().equals(OptionType.SELECT_MULTIPLE));
 					s.getOptions().forEach(o -> {
-						filter.getOptions().addEntriesItem(getOption(o));
+						filter.getOptions().addEntriesItem(getOption(s.getId(), o, Collections.emptyList()));
 					});
 					datasource.addFiltersItem(filter);
 				});
@@ -245,7 +246,7 @@ abstract class RestDataSourceBase extends RestOperation {
 	protected FieldValue getFieldValue(Datafield data, FieldDef field, Class<?> type) {
 		FieldValue fv = new FieldValue();
 		fv.setName(data.getName());
-		fv.setValue(getObjectValue(data, field, type));
+		fv.setValue(getObjectValue(data, field, type, Collections.emptyList()));
 		if (null != fv.getValue() && !org.appng.xml.platform.FieldType.DATE.equals(field.getType())
 				&& StringUtils.isNotBlank(field.getFormat())) {
 			fv.setFormattedValue(data.getValue());

@@ -16,6 +16,7 @@
 package org.appng.core.controller.rest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +56,7 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Selection;
+import org.appng.xml.platform.UserInputField;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,9 +171,9 @@ abstract class RestActionBase extends RestOperation {
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
-		
+
 		if (log.isDebugEnabled()) {
-			log.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
+			log.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);
@@ -225,13 +227,13 @@ abstract class RestActionBase extends RestOperation {
 
 		if (originalDef.isPresent()) {
 			FieldDef fieldDef = originalDef.get();
-			Object objectValue = null;
-			objectValue = getObjectValue(fieldData, fieldDef, beanWrapper.getPropertyType(fieldDef.getBinding()));
-			actionField.setValue(objectValue);
+
+			boolean isPassword = org.appng.xml.platform.FieldType.PASSWORD.equals(fieldDef.getType());
+			boolean isDate = org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType());
+			boolean isSelection = isSelectionType(fieldDef.getType());
 
 			actionField.setFormat(fieldDef.getFormat());
-			if (!org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType())
-					&& StringUtils.isNotBlank(fieldDef.getFormat())) {
+			if (!isDate && StringUtils.isNotBlank(fieldDef.getFormat())) {
 				actionField.setFormattedValue(fieldData.getValue());
 			}
 			if (null != fieldDef.getLabel()) {
@@ -240,24 +242,45 @@ abstract class RestActionBase extends RestOperation {
 			actionField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
 			actionField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
 			actionField.setFieldType(FieldType.valueOf(fieldDef.getType().name().toUpperCase()));
-			if (null != receivedData) {
+
+			final List<String> parameterList;
+			if (!isPassword) {
+				if (null != processedAction.getUserdata()) {
+					// get the user's input from the UserData
+					Stream<UserInputField> userDataStream = processedAction.getUserdata().getInput().parallelStream();
+					parameterList = userDataStream.filter(i -> i.getName().equals(fieldDef.getBinding()))
+							.map(i -> i.getContent()).collect(Collectors.toList());
+				} else {
+					parameterList = Collections.emptyList();
+				}
+				Object objectValue = null;
+				objectValue = getObjectValue(fieldData, fieldDef, beanWrapper.getPropertyType(fieldDef.getBinding()),
+						parameterList);
+				actionField.setValue(objectValue);
+				log.debug("Setting value {} for field {}", objectValue, actionField.getName());
+			} else {
+				parameterList = Collections.emptyList();
+			}
+
+			if (null != receivedData && !isPassword) {
+				// a successfully executed action does not contain UserData, so we have to take the data originally
+				// submitted by the user
 				Optional<ActionField> receivedField = receivedData.getFields().stream()
 						.filter(pdf -> pdf.getName().equals(fieldData.getName())).findFirst();
-				if (receivedField.isPresent()
-						&& !org.appng.xml.platform.FieldType.PASSWORD.equals(fieldDef.getType())) {
+				if (receivedField.isPresent()) {
 					actionField.setValue(receivedField.get().getValue());
 				}
 			}
 			applyValidationRules(request, actionField, originalDef.get());
 
 			actionField.setMessages(getMessages(fieldDef.getMessages()));
-			if (isSelectionType(actionField.getFieldType())) {
+			if (isSelection) {
 				Optional<Selection> selection = processedAction.getData().getSelections().parallelStream()
 						.filter(s -> s.getId().equals(actionField.getName())).findFirst();
 				if (selection.isPresent()) {
 					actionField.setOptions(new Options());
 					selection.get().getOptions().forEach(o -> {
-						Option option = getOption(o);
+						Option option = getOption(fieldDef.getBinding(), o, parameterList);
 						actionField.getOptions().addEntriesItem(option);
 					});
 					selection.get().getOptionGroups().forEach(og -> {
@@ -266,7 +289,7 @@ abstract class RestActionBase extends RestOperation {
 						actionField.getOptions().addEntriesItem(optionGroup);
 						optionGroup.setOptions(new ArrayList<>());
 						og.getOptions().forEach(o -> {
-							optionGroup.getOptions().add(getOption(o));
+							optionGroup.getOptions().add(getOption(fieldDef.getBinding(), o, parameterList));
 						});
 					});
 				}
@@ -454,7 +477,6 @@ abstract class RestActionBase extends RestOperation {
 					if (!parameters.containsKey(key)) {
 						parameters.put(key, new ArrayList<>());
 					}
-					log.debug("added parameter {}={}", key, value);
 					parameters.get(key).add(value);
 				}
 			};

@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -150,10 +151,15 @@ abstract class RestOperation {
 		return messageList;
 	}
 
-	protected Option getOption(org.appng.xml.platform.Option o) {
+	protected Option getOption(String binding, org.appng.xml.platform.Option o, Collection<String> optionUserInput) {
 		Option option = new Option();
 		option.setLabel(o.getName());
-		option.setSelected(o.isSelected());
+		if (optionUserInput.contains(o.getValue())) {
+			option.setSelected(true);
+			getLogger().debug("Option {} for selection {} was selected by user", o.getValue(), binding);
+		} else {
+			option.setSelected(o.isSelected());
+		}
 		option.setValue(o.getValue());
 		return option;
 	}
@@ -167,6 +173,12 @@ abstract class RestOperation {
 		return null != type && Arrays.asList(org.appng.xml.platform.FieldType.LIST_CHECKBOX,
 				org.appng.xml.platform.FieldType.LIST_RADIO, org.appng.xml.platform.FieldType.LIST_SELECT)
 				.contains(type);
+	}
+
+	private boolean isObjectOrListOf(org.appng.xml.platform.FieldType type) {
+		return null != type
+				&& Arrays.asList(org.appng.xml.platform.FieldType.LIST_OBJECT, org.appng.xml.platform.FieldType.OBJECT)
+						.contains(type);
 	}
 
 	Logger getLogger() {
@@ -225,27 +237,38 @@ abstract class RestOperation {
 		return name.replaceAll(INDEXED_EXPR, "[" + index + "]");
 	}
 
-	protected Object getObjectValue(Datafield data, FieldDef field, Class<?> type) {
+	protected Object getObjectValue(Datafield data, FieldDef field, Class<?> type, List<String> userInput) {
 		org.appng.xml.platform.FieldType fieldType = field.getType();
+		if (isSelectionType(fieldType) || isObjectOrListOf(fieldType)) {
+			return null;
+		}
+
 		boolean isDecimal = fieldType.equals(org.appng.xml.platform.FieldType.DECIMAL);
+		String value = data.getValue();
+		if (userInput.size() > 0) {
+			value = userInput.get(0);
+			getLogger().debug("Value '{}' for field '{}' was provided by user", value, field.getBinding());
+		}
+
 		if (isDecimal || fieldType.equals(org.appng.xml.platform.FieldType.LONG)
 				|| fieldType.equals(org.appng.xml.platform.FieldType.INT)) {
 			String format = field.getFormat();
-			if (StringUtils.isNotBlank(data.getValue())) {
+			if (StringUtils.isNotBlank(value)) {
 				try {
-					Number number = getDecimalFormat(format).parse(data.getValue());
+					Number number = getDecimalFormat(format).parse(value);
 					return isDecimal ? number.doubleValue() : number;
 				} catch (Exception e) {
 					getLogger().error(String.format("error while parsing value '%s' for field '%s' using pattern %s",
-							data.getValue(), field.getBinding(), format), e);
+							value, field.getBinding(), format), e);
 				}
 			}
 			return null;
 		} else if (fieldType.equals(org.appng.xml.platform.FieldType.CHECKBOX)
 				|| (null != type && ("boolean".equals(type.getName()) || Boolean.class.equals(type)))) {
-			return Boolean.valueOf(data.getValue());
+			return Boolean.valueOf(value);
 		}
-		return data.getValue();
+
+		return value;
 	}
 
 	protected BeanWrapper getBeanWrapper(MetaData metaData) {
