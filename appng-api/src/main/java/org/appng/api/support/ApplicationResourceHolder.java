@@ -35,7 +35,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
+
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.model.Application;
 import org.appng.api.model.Resource;
