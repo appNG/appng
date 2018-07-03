@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.model.Application;
@@ -57,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RestClient {
 
 	protected RestTemplate restTemplate;
-	protected String cookie;
+	protected Map<String, String> cookies;
 	protected String url;
 	private ObjectMapper objectMapper;
 
@@ -71,6 +72,23 @@ public class RestClient {
 	 *            the URL pointing to a {@link Site}'s service URL ({@code /service/<site-name>})
 	 */
 	public RestClient(String url) {
+		this(url, new HashMap<>());
+	}
+
+	/**
+	 * Creates a new {@link RestClient}, using an existing cookie. This cookie should be retrieved from another client
+	 * that performed a login action.
+	 * 
+	 * @param url
+	 *            the URL pointing to a {@link Site}'s service URL ({@code /service/<site-name>})
+	 * @param cookies
+	 *            the cookie to use
+	 * 
+	 * @see RestClient#getCookies()
+	 */
+	public RestClient(String url, Map<String, String> cookies) {
+		this.url = url;
+		this.cookies = cookies;
 		this.restTemplate = new RestTemplate(Arrays.asList(new MappingJackson2HttpMessageConverter()));
 		restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
 			@Override
@@ -81,23 +99,6 @@ public class RestClient {
 		});
 		this.objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(Include.NON_ABSENT);
-		this.url = url;
-	}
-
-	/**
-	 * Creates a new {@link RestClient}, using an existing cookie. This cookie should be retrieved from another client
-	 * that performed a login action.
-	 * 
-	 * @param url
-	 *            the URL pointing to a {@link Site}'s service URL ({@code /service/<site-name>})
-	 * @param cookie
-	 *            the cookie to use
-	 * 
-	 * @see RestClient#getCookie()
-	 */
-	public RestClient(String url, String cookie) {
-		this(url);
-		this.cookie = cookie;
 	}
 
 	/**
@@ -249,9 +250,16 @@ public class RestClient {
 	}
 
 	protected void setCookies(ResponseEntity<?> entity) {
-		List<String> cookies = entity.getHeaders().get(HttpHeaders.SET_COOKIE);
-		if (null != cookies) {
-			cookie = cookies.stream().collect(Collectors.joining(";"));
+		List<String> setCookies = entity.getHeaders().get(HttpHeaders.SET_COOKIE);
+		if (null != setCookies) {
+			for (String c : setCookies) {
+				int valueStart = c.indexOf('=');
+				String name = c.substring(0, valueStart);
+				int end = c.indexOf(';');
+				String value = c.substring(valueStart + 1, end < 0 ? c.length() : end);
+				cookies.put(name, value);
+				log.debug("received cookie: {}={}", name, value);
+			}
 		}
 	}
 
@@ -285,8 +293,12 @@ public class RestClient {
 
 	protected HttpHeaders getHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		if (StringUtils.isNotBlank(cookie)) {
-			headers.set(HttpHeaders.COOKIE, cookie);
+		if (!cookies.isEmpty()) {
+			cookies.keySet().forEach(k -> {
+				String cookie = cookies.get(k);
+				headers.add(HttpHeaders.COOKIE, k + "=" + cookie);
+				log.debug("sent cookie: {}={}", k, cookies.get(k));
+			});
 		}
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8, MediaType.APPLICATION_JSON));
@@ -295,12 +307,12 @@ public class RestClient {
 	}
 
 	/**
-	 * Returns the current cookie or this client
+	 * Returns the current cookies or this client
 	 * 
-	 * @return he cookie
+	 * @return the cookie's map
 	 */
-	public String getCookie() {
-		return cookie;
+	public Map<String, String> getCookies() {
+		return cookies;
 	}
 
 	/**
