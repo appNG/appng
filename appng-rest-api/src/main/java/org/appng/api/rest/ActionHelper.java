@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.rest.model.Action;
 import org.appng.api.rest.model.ActionField;
 import org.appng.api.rest.model.FieldType;
+import org.appng.api.rest.model.Option;
+import org.appng.api.rest.model.Options;
 import org.springframework.http.ResponseEntity;
 
 /**
@@ -50,12 +52,24 @@ public class ActionHelper {
 		return this;
 	}
 
+	/**
+	 * Marks an {@link Option} as selected. If the field's {@link Options} allow multiple selected values, active
+	 * {@link Option}s will remain active. Otherwise, previously active {@link Options} will be de-selected.
+	 * 
+	 * @param name
+	 *            the name of the field
+	 * @param value
+	 *            the option value to select
+	 * @return the current {@link ActionHelper}
+	 */
 	public ActionHelper setFieldSelectionValue(String name, String value) {
 		Optional<ActionField> field = getField(name);
 		if (field.isPresent() && isSelectionType(field.get())) {
-			field.get().getOptions().getEntries().forEach(o -> {
-				if (Objects.equals(value, o.getValue())) {
-					o.setSelected(true);
+			Options options = field.get().getOptions();
+			options.getEntries().forEach(o -> {
+				boolean selected = Objects.equals(value, o.getValue());
+				if (selected || !Boolean.TRUE.equals(options.isMultiple())) {
+					o.setSelected(selected);
 				}
 			});
 		}
