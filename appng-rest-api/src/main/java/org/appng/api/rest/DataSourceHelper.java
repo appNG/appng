@@ -15,8 +15,11 @@
  */
 package org.appng.api.rest;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.rest.model.Datasource;
 import org.appng.api.rest.model.Element;
 import org.appng.api.rest.model.FieldValue;
@@ -39,7 +42,12 @@ public class DataSourceHelper {
 		return new DataSourceHelper(dataSource);
 	}
 
+	@Deprecated
 	public Optional<Element> getResult(int i) {
+		return getElement(i);
+	}
+	
+	public Optional<Element> getElement(int i) {
 		Page page = dataSource.getBody().getPage();
 		if (null != page && null != page.getElements() && i > -1 && page.getElements().size() > i) {
 			return Optional.of(page.getElements().get(i));
@@ -52,7 +60,20 @@ public class DataSourceHelper {
 	}
 
 	public Optional<FieldValue> getField(Element item, String name) {
-		return item.getFields().stream().filter(f -> f.getName().equals(name)).findFirst();
+		return getField(item.getFields(), name);
+	}
+
+	private Optional<FieldValue> getField(List<FieldValue> fields, String name) {
+		if (!name.contains(".")) {
+			return fields.stream().filter(f -> f.getName().equals(name)).findFirst();
+		}
+		String[] segments = name.split("\\.");
+		Optional<FieldValue> root = fields.stream().filter(f -> f.getName().equals(segments[0])).findFirst();
+		if (root.isPresent()) {
+			return getField(root.get().getValues(),
+					StringUtils.join(Arrays.copyOfRange(segments, 1, segments.length), "."));
+		}
+		return Optional.empty();
 	}
 
 }

@@ -16,7 +16,6 @@
 package org.appng.api.rest;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -96,10 +95,6 @@ public class ActionHelper {
 
 	public Optional<ActionField> getField(String name) {
 		return getField(action.getBody().getFields(), name);
-	}
-
-	public Optional<ActionField> getField(Collection<ActionField> fields, String name) {
-		return fields.parallelStream().filter(f -> f.getName().equals(name)).findFirst();
 	}
 
 }
