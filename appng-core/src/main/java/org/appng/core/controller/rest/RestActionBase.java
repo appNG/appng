@@ -323,6 +323,7 @@ abstract class RestActionBase extends RestOperation {
 					org.appng.api.rest.model.ValidationRule rule = new org.appng.api.rest.model.ValidationRule();
 					rule.setMessage(r.getMessage().getContent());
 					rule.setType(r.getType());
+					rule.setMessageKey(r.getMessage().getCode());
 					List<org.appng.xml.platform.Rule.Option> options = r.getOption();
 					if (null != options) {
 						rule.setOptions(new ArrayList<>());

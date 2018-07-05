@@ -468,6 +468,9 @@ definitions:
       active:
         type: boolean
         description: "Whether or not this rule is active, meaning it should be applied."
+      messageKey:
+        type: string
+        description: "The message key for this rule"
       options:
         type: array
         description: "An array defining the custom parameters for this rule."
@@ -512,6 +515,9 @@ definitions:
       text:
        type: string
        description: "The actual message."
+      key:
+       type: string
+       description: "A key for this message"
 
   permission:
     type: object

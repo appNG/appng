@@ -4,10 +4,10 @@
 		<sort order="desc" prio="1" />
 		<validation>
 			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-				<message ref="name" class="ERROR">Thou must provide a value!</message>
+				<message ref="name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 			</rule>
 			<rule type="javax.validation.constraints.NotNull" name="notNull">
-				<message ref="name" class="ERROR">must not be null</message>
+				<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			</rule>
 		</validation>
 	</field>
@@ -15,13 +15,13 @@
 		<sort order="asc" prio="0" />
 		<validation>
 			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-				<message ref="firstname" class="ERROR">Thou must provide a value!</message>
+				<message ref="firstname" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 			</rule>
 			<rule type="javax.validation.constraints.NotNull" name="notNull">
-				<message ref="firstname" class="ERROR">must not be null</message>
+				<message ref="firstname" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			</rule>
 			<rule type="javax.validation.constraints.Size" name="size">
-				<message ref="firstname" class="ERROR">Value must be between 1 and 5</message>
+				<message ref="firstname" class="ERROR" code="{custom.message}">Value must be between 1 and 5</message>
 				<option name="max" value="5" />
 				<option name="min" value="1" />
 			</rule>
@@ -30,7 +30,7 @@
 	<field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate">
 		<validation>
 			<rule type="javax.validation.constraints.Past" name="past">
-				<message ref="birthDate" class="ERROR">must be a past date</message>
+				<message ref="birthDate" class="ERROR" code="{javax.validation.constraints.Past.message}">must be a past date</message>
 			</rule>
 		</validation>
 	</field>
@@ -40,14 +40,14 @@
 		<condition expression="${1 eq 2}" />
 		<validation>
 			<type>
-				<message ref="age" class="ERROR">invalid.integer</message>
+				<message ref="age" class="ERROR" code="invalid.integer">invalid.integer</message>
 			</type>
 			<rule type="javax.validation.constraints.Max" name="max">
-				<message ref="age" class="ERROR">Value must be less than or equal to 100</message>
+				<message ref="age" class="ERROR" code="{validation.max}">Value must be less than or equal to 100</message>
 				<option name="value" value="100" />
 			</rule>
 			<rule type="javax.validation.constraints.Min" name="min">
-				<message ref="age" class="ERROR">Value must be greater than or equal to 0</message>
+				<message ref="age" class="ERROR" code="{validation.min}">Value must be greater than or equal to 0</message>
 				<option name="value" value="0" />
 			</rule>
 		</validation>
@@ -59,7 +59,7 @@
 	<field name="picture" type="file" binding="picture">
 		<validation>
 			<rule type="org.appng.api.FileUpload" name="fileUpload">
-				<message ref="picture" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+				<message ref="picture" class="ERROR" code="{validation.file.invalid}">Please upload a file of the following types: jpg,bmp</message>
 				<option name="fileTypes" value="jpg,bmp" />
 				<option name="maxCount" value="1" />
 				<option name="maxSize" value="10" />
@@ -73,7 +73,7 @@
 	<field name="morePictures" type="file-multiple" binding="morePictures">
 		<validation>
 			<rule type="org.appng.api.FileUpload" name="fileUpload">
-				<message ref="morePictures" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+				<message ref="morePictures" class="ERROR" code="{validation.file.invalid}">Please upload a file of the following types: jpg,bmp</message>
 				<option name="fileTypes" value="jpg,bmp" />
 				<option name="maxCount" value="5" />
 				<option name="maxSize" value="10" />
@@ -99,23 +99,23 @@
 		<field name="name" type="text" binding="father.name">
 			<validation>
 				<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-					<message ref="father.name" class="ERROR">Thou must provide a value!</message>
+					<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 				</rule>
 				<rule type="javax.validation.constraints.NotNull" name="notNull">
-					<message ref="father.name" class="ERROR">must not be null</message>
+					<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 				</rule>
 			</validation>
 		</field>
 		<field name="firstname" type="text" binding="father.firstname">
 			<validation>
 				<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-					<message ref="father.firstname" class="ERROR">Thou must provide a value!</message>
+					<message ref="father.firstname" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 				</rule>
 				<rule type="javax.validation.constraints.NotNull" name="notNull">
-					<message ref="father.firstname" class="ERROR">must not be null</message>
+					<message ref="father.firstname" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 				</rule>
 				<rule type="javax.validation.constraints.Size" name="size">
-					<message ref="father.firstname" class="ERROR">Value must be between 1 and 5</message>
+					<message ref="father.firstname" class="ERROR" code="{custom.message}">Value must be between 1 and 5</message>
 					<option name="max" value="5" />
 					<option name="min" value="1" />
 				</rule>
@@ -125,7 +125,7 @@
 	<field name="email" type="text" binding="email">
 		<validation>
 			<rule type="javax.validation.constraints.Email" name="email">
-				<message ref="email" class="ERROR">Please enter a valid e-mail address</message>
+				<message ref="email" class="ERROR" code="{validation.email}">Please enter a valid e-mail address</message>
 				<option name="regexp" value=".*" />
 			</rule>
 		</validation>

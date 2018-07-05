@@ -246,14 +246,14 @@ public class DefaultValidationProvider implements ValidationProvider {
 			org.appng.xml.platform.Type fieldType = new org.appng.xml.platform.Type();
 			getValidationNode(fieldDef).setType(fieldType);
 			String messageText = messageSource.getMessage(INVALID_INTEGER, new Object[0], locale);
-			addMessage(fieldDef, fieldType, messageText);
+			addMessage(fieldDef, fieldType, INVALID_INTEGER, messageText);
 			break;
 		}
 		case DECIMAL: {
 			org.appng.xml.platform.Type fieldType = new org.appng.xml.platform.Type();
 			getValidationNode(fieldDef).setType(fieldType);
 			String messageText = messageSource.getMessage(INVALID_DIGIT, new Object[0], locale);
-			addMessage(fieldDef, fieldType, messageText);
+			addMessage(fieldDef, fieldType, INVALID_DIGIT, messageText);
 			break;
 		}
 		default:
@@ -401,8 +401,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private void addMessage(FieldDef field, final ConstraintDescriptor<?> constraintDescriptor,
 			ValidationRule validationRule) {
 		try {
-			Object annotation = constraintDescriptor.getAnnotation();
-			String messageTemplate = (String) annotation.getClass().getMethod("message").invoke(annotation);
+			String messageTemplate = constraintDescriptor.getMessageTemplate();
 			String messageText = messageInterpolator.interpolate(messageTemplate, new MessageInterpolator.Context() {
 				public Object getValidatedValue() {
 					return null;
@@ -416,17 +415,15 @@ public class DefaultValidationProvider implements ValidationProvider {
 					return null;
 				}
 			});
-			addMessage(field, validationRule, messageText);
+			addMessage(field, validationRule, messageTemplate, messageText);
 		} catch (Exception e) {
 			log.warn("error while getting message from " + constraintDescriptor, e);
 		}
 	}
 
-	protected void addMessage(FieldDef field, ValidationRule validationRule, String messageText) {
-		Message message = new Message();
-		message.setRef(field.getBinding());
-		message.setClazz(MessageType.ERROR);
-		message.setContent(messageText);
+	protected void addMessage(FieldDef field, ValidationRule validationRule, String messageTemplate,
+			String messageText) {
+		Message message = getMessage(field, messageTemplate, messageText);
 		validationRule.setMessage(message);
 	}
 
@@ -445,21 +442,24 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private void validateFields(Object bean, List<FieldDef> fields, Class<?>... groups) {
 		for (FieldDef fieldDef : fields) {
 			if (!FieldType.OBJECT.equals(fieldDef.getType()) && !FieldType.LIST_OBJECT.equals(fieldDef.getType())) {
-				String reference = fieldDef.getBinding();
-				boolean isArray = reference.contains(INDEXED);
-				if (isArray) {
-					String arrayProperty = fieldDef.getBinding().substring(0, fieldDef.getBinding().indexOf(INDEXED));
-					Object collectionValue = new BeanWrapperImpl(bean).getPropertyValue(arrayProperty);
-					int size = ((Collection<?>) collectionValue).size();
-					for (int i = 0; i < size; i++) {
-						String indexedPropertyName = fieldDef.getBinding().replace(INDEXED, "[" + i + "]");
-						addFieldMessage(validator.validateProperty(bean, indexedPropertyName, groups), fieldDef);
-					}
-				} else {
-					try {
-						addFieldMessage(validator.validateProperty(bean, reference, groups), fieldDef);
-					} catch (IllegalArgumentException e) {
-						// may occur when using properties like foo['bar']
+				if (!Boolean.parseBoolean(fieldDef.getReadonly())) {
+					String reference = fieldDef.getBinding();
+					boolean isArray = reference.contains(INDEXED);
+					if (isArray) {
+						String arrayProperty = fieldDef.getBinding().substring(0,
+								fieldDef.getBinding().indexOf(INDEXED));
+						Object collectionValue = new BeanWrapperImpl(bean).getPropertyValue(arrayProperty);
+						int size = ((Collection<?>) collectionValue).size();
+						for (int i = 0; i < size; i++) {
+							String indexedPropertyName = fieldDef.getBinding().replace(INDEXED, "[" + i + "]");
+							addFieldMessage(validator.validateProperty(bean, indexedPropertyName, groups), fieldDef);
+						}
+					} else {
+						try {
+							addFieldMessage(validator.validateProperty(bean, reference, groups), fieldDef);
+						} catch (IllegalArgumentException e) {
+							// may occur when using properties like foo['bar']
+						}
 					}
 				}
 			}
@@ -468,21 +468,12 @@ public class DefaultValidationProvider implements ValidationProvider {
 	}
 
 	private void addFieldMessage(Set<ConstraintViolation<Object>> violations, FieldDef fieldDef) {
-		if (!violations.isEmpty() && null == fieldDef.getMessages()) {
-			Messages messages = new Messages();
-			messages.setRef(fieldDef.getBinding());
-			fieldDef.setMessages(messages);
-		}
 		for (ConstraintViolation<Object> cv : getSortedViolations(violations)) {
 			String constraintPath = cv.getPropertyPath().toString();
 			String expectedBinding = constraintPath.replaceAll(INDEX_PATTERN, INDEXED);
 			int count = 0;
 			if (constraintPath.equals(fieldDef.getBinding()) || expectedBinding.equals(fieldDef.getBinding())) {
-				Message errorMessage = new Message();
-				errorMessage.setClazz(MessageType.ERROR);
-				errorMessage.setRef(constraintPath);
-				errorMessage.setContent(cv.getMessage());
-				fieldDef.getMessages().getMessageList().add(errorMessage);
+				Message errorMessage = addFieldMessage(fieldDef, cv);
 				log.debug("Added message '{}' to field {} with reference {}", errorMessage.getContent(),
 						fieldDef.getBinding(), constraintPath);
 				count++;
@@ -531,9 +522,29 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private void validateField(Object bean, FieldProcessor fp, FieldDef field, Class<?>... groups) {
 		Set<ConstraintViolation<Object>> violations = validator.validateProperty(bean, field.getBinding(), groups);
 		for (ConstraintViolation<Object> cv : violations) {
-			String message = cv.getMessage();
-			fp.addErrorMessage(field, message);
+			addFieldMessage(field, cv);
 		}
+	}
+
+	private Message addFieldMessage(FieldDef field, ConstraintViolation<?> cv) {
+		Messages messages = field.getMessages();
+		if (null == messages) {
+			messages = new Messages();
+			messages.setRef(field.getBinding());
+			field.setMessages(messages);
+		}
+		Message message = getMessage(field, cv.getMessageTemplate(), cv.getMessage());
+		messages.getMessageList().add(message);
+		return message;
+	}
+
+	private Message getMessage(FieldDef field, String messageTemplate, String messageText) {
+		Message message = new Message();
+		message.setRef(field.getBinding());
+		message.setClazz(MessageType.ERROR);
+		message.setContent(messageText);
+		message.setCode(messageTemplate);
+		return message;
 	}
 
 }

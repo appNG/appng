@@ -144,6 +144,7 @@ abstract class RestOperation {
 				Message message = new Message();
 				message.setLevel(LevelEnum.fromValue(originalMessage.getClazz().name()));
 				message.setText(originalMessage.getContent());
+				message.setKey(originalMessage.getCode());
 				messageList.add(message);
 				errors |= originalMessage.getClazz().equals(MessageType.ERROR);
 			});

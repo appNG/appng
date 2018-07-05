@@ -33,6 +33,8 @@ import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
+import org.appng.xml.platform.Message;
+import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.junit.Assert;
@@ -196,7 +198,10 @@ public class ValidationProviderTest extends AbstractTest {
 		FieldProcessor fp = new FieldProcessorImpl("bla", metaData);
 		validationProvider.validateField(new Foobar(), fp, "name");
 		Assert.assertTrue("should have 1 error", fp.hasErrors());
-		Assert.assertEquals(MUST_NOT_BE_NULL, fieldDef.getMessages().getMessageList().get(0).getContent());
+		Message errorMessage = fieldDef.getMessages().getMessageList().get(0);
+		Assert.assertEquals(MUST_NOT_BE_NULL, errorMessage.getContent());
+		Assert.assertEquals(MessageType.ERROR, errorMessage.getClazz());
+		Assert.assertEquals("{javax.validation.constraints.NotNull.message}", errorMessage.getCode());
 	}
 
 	@Test

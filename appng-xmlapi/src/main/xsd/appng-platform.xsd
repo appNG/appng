@@ -2384,6 +2384,18 @@ If empty, the template is being applied to any output-type.]]>
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="code" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>A code for this message.
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>A code for this message.
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 
