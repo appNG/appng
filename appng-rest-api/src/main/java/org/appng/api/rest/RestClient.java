@@ -361,8 +361,6 @@ public class RestClient {
 	 * 
 	 * @param path
 	 *            the relative path to the resource, starting with the application's name
-	 * @param body
-	 *            the request body (optional)
 	 * @param returnType
 	 *            the type of the response
 	 * @return the {@link RestResponseEntity}
