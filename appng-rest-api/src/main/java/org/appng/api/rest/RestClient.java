@@ -57,6 +57,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RestClient {
 
+	private static final String PATH_SEPARATOR = "/";
 	protected RestTemplate restTemplate;
 	protected Map<String, String> cookies;
 	protected String url;
@@ -113,9 +114,8 @@ public class RestClient {
 	 *             if something is wrong with the URI
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id) throws URISyntaxException {
-		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
-				new URI(url + "/" + application + "/rest/datasource/" + id));
-		return send(httpEntity, Datasource.class);
+		URI dataSourceUri = new URI(url + PATH_SEPARATOR + application + "/rest/datasource/" + id);
+		return exchange(dataSourceUri, null, HttpMethod.GET, Datasource.class);
 	}
 
 	/**
@@ -133,14 +133,14 @@ public class RestClient {
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id,
 			MultiValueMap<String, String> parameters) throws URISyntaxException {
-		StringBuilder uriBuilder = new StringBuilder(url + "/" + application + "/rest/datasource/" + id + "?");
+		StringBuilder uriBuilder = new StringBuilder(
+				url + PATH_SEPARATOR + application + "/rest/datasource/" + id + "?");
 		parameters.keySet().forEach(key -> {
 			parameters.get(key).forEach(value -> {
 				uriBuilder.append(key).append("=").append(value).append("&");
 			});
 		});
-		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET, new URI(uriBuilder.toString()));
-		return send(httpEntity, Datasource.class);
+		return exchange(new URI(uriBuilder.toString()), null, HttpMethod.GET, Datasource.class);
 	}
 
 	/**
@@ -160,41 +160,8 @@ public class RestClient {
 	 */
 	public RestResponseEntity<Action> getAction(String application, String eventId, String actionId,
 			String... pathVariables) throws URISyntaxException {
-		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET,
-				getActionURL(application, eventId, actionId, pathVariables));
-		return send(httpEntity, Action.class);
-	}
-
-	private <T> RestResponseEntity<T> send(RequestEntity<?> httpEntity, Class<T> type) {
-		if (log.isDebugEnabled() && httpEntity.getBody() != null) {
-			doLog("OUT", httpEntity.getBody(), null);
-		}
-		try {
-			ResponseEntity<T> exchange = restTemplate.exchange(httpEntity.getUrl(), httpEntity.getMethod(), httpEntity,
-					type);
-			setCookies(exchange);
-			if (log.isDebugEnabled() && exchange.getBody() != null
-					&& exchange.getHeaders().getContentType().includes(MediaType.APPLICATION_JSON)) {
-				doLog("IN", exchange.getBody(), exchange.getStatusCode());
-			}
-			return RestResponseEntity.of(exchange);
-		} catch (HttpServerErrorException e) {
-			ErrorModel errorModel = null;
-			try {
-				String bodyAsString = e.getResponseBodyAsString();
-				if (StringUtils.isNotBlank(bodyAsString)) {
-					errorModel = objectMapper.readerFor(ErrorModel.class).readValue(bodyAsString);
-				}
-			} catch (IOException ioe) {
-				log.error("could not read error from response", e);
-			}
-			if (null == errorModel) {
-				errorModel = new ErrorModel();
-				errorModel.setCode(e.getStatusCode().value());
-				errorModel.setMessage(e.getMessage());
-			}
-			return new RestResponseEntity<>(errorModel, e.getResponseHeaders(), e.getStatusCode());
-		}
+		URI actionURL = getActionURL(application, eventId, actionId, pathVariables);
+		return exchange(actionURL, null, HttpMethod.GET, Action.class);
 	}
 
 	private void doLog(String prefix, Object body, HttpStatus httpStatus) {
@@ -216,11 +183,10 @@ public class RestClient {
 	 *             if something is wrong with the URI
 	 */
 	public RestResponseEntity<Action> getAction(Link link) throws URISyntaxException {
-		String[] pathSegments = link.getTarget().split("/");
-		String servicePath = StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/");
-		URI uri = new URI(url + "/" + servicePath);
-		RequestEntity<?> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET, uri);
-		return send(httpEntity, Action.class);
+		String[] pathSegments = link.getTarget().split(PATH_SEPARATOR);
+		String servicePath = StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), PATH_SEPARATOR);
+		URI uri = new URI(url + PATH_SEPARATOR + servicePath);
+		return exchange(uri, null, HttpMethod.GET, Action.class);
 	}
 
 	/**
@@ -235,11 +201,11 @@ public class RestClient {
 	 *             if something is wrong with the URI
 	 */
 	public RestResponseEntity<Action> performAction(Action data, Link link) throws URISyntaxException {
-		String[] pathSegments = link.getTarget().split("/");
-		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
+		String[] pathSegments = link.getTarget().split(PATH_SEPARATOR);
+		URI uri = new URI(url + PATH_SEPARATOR
+				+ StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), PATH_SEPARATOR));
 		addFormAction(data);
-		RequestEntity<Action> httpEntity = new RequestEntity<>(data, getHeaders(), HttpMethod.POST, uri);
-		return send(httpEntity, Action.class);
+		return exchange(uri, data, HttpMethod.POST, Action.class);
 	}
 
 	private void addFormAction(Action data) {
@@ -266,7 +232,7 @@ public class RestClient {
 	protected URI getActionURL(String application, String eventId, String actionId, String[] pathVariables)
 			throws URISyntaxException {
 		String uriString = String.format("%s/%s/rest/action/%s/%s/%s", url, application, eventId, actionId,
-				StringUtils.join(pathVariables, "/"));
+				StringUtils.join(pathVariables, PATH_SEPARATOR));
 		return new URI(uriString);
 	}
 
@@ -286,9 +252,8 @@ public class RestClient {
 	public RestResponseEntity<Action> performAction(String application, Action data, String... pathVariables)
 			throws URISyntaxException {
 		addFormAction(data);
-		RequestEntity<Action> httpEntity = new RequestEntity<>(data, getHeaders(), HttpMethod.POST,
-				getActionURL(application, data.getEventId(), data.getId(), pathVariables));
-		return send(httpEntity, Action.class);
+		URI actionURL = getActionURL(application, data.getEventId(), data.getId(), pathVariables);
+		return exchange(actionURL, data, HttpMethod.POST, Action.class);
 	}
 
 	protected HttpHeaders getHeaders() {
@@ -325,10 +290,85 @@ public class RestClient {
 	 *             if something is wrong with the link
 	 */
 	public RestResponseEntity<byte[]> getBinaryData(Link link) throws URISyntaxException {
-		String[] pathSegments = link.getTarget().split("/");
-		URI uri = new URI(url + "/" + StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), "/"));
-		RequestEntity<Action> httpEntity = new RequestEntity<>(getHeaders(), HttpMethod.GET, uri);
-		return send(httpEntity, byte[].class);
+		String[] pathSegments = link.getTarget().split(PATH_SEPARATOR);
+		String path = PATH_SEPARATOR
+				+ StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), PATH_SEPARATOR);
+		return getResource(path, byte[].class);
 	}
 
+	/**
+	 * Retrieves a REST-Resource with a given HTTP method.<br/>
+	 * Example:
+	 * 
+	 * <pre>
+	 * ResponseEntity<Integer> result = restClient.retrieveResource("/application/rest/calculator/add/47/11", null, Integer.class, HttpMethod.GET)
+	 * </pre>
+	 * 
+	 * @param path
+	 *            the relative path to the resource, starting with the application's name
+	 * @param body
+	 *            the request body (optional)
+	 * @param returnType
+	 *            the type of the response
+	 * @param method
+	 *            the {@link HttpMethod} to use
+	 * @return the {@link RestResponseEntity}
+	 * @throws URISyntaxException
+	 */
+	public <OUT, IN> RestResponseEntity<IN> exchange(String path, OUT body, Class<IN> returnType, HttpMethod method)
+			throws URISyntaxException {
+		return exchange(new URI(url + path), body, method, returnType);
+	}
+
+	private <IN, OUT> RestResponseEntity<IN> exchange(URI uri, OUT body, HttpMethod method, Class<IN> returnType) {
+		if (log.isDebugEnabled() && body != null) {
+			doLog("OUT", body, null);
+		}
+		try {
+			RequestEntity<OUT> out = new RequestEntity<>(body, getHeaders(), method, uri);
+			ResponseEntity<IN> in = restTemplate.exchange(out, returnType);
+			setCookies(in);
+			if (log.isDebugEnabled() && in.getBody() != null) {
+				doLog("IN", in.getBody(), in.getStatusCode());
+			}
+			return RestResponseEntity.of(in);
+		} catch (HttpServerErrorException e) {
+			ErrorModel errorModel = null;
+			try {
+				String bodyAsString = e.getResponseBodyAsString();
+				if (StringUtils.isNotBlank(bodyAsString)) {
+					errorModel = objectMapper.readerFor(ErrorModel.class).readValue(bodyAsString);
+				}
+			} catch (IOException ioe) {
+				log.error("could not read error from response", e);
+			}
+			if (null == errorModel) {
+				errorModel = new ErrorModel();
+				errorModel.setCode(e.getStatusCode().value());
+				errorModel.setMessage(e.getMessage());
+			}
+			return new RestResponseEntity<>(errorModel, e.getResponseHeaders(), e.getStatusCode());
+		}
+	}
+
+	/**
+	 * Retrieves a REST-Resource with HTTP GET.<br/>
+	 * Example:
+	 * 
+	 * <pre>
+	 * ResponseEntity<Integer> result = restClient.retrieveResource("/application/rest/calculator/add/47/11", null, Integer.class, HttpMethod.GET)
+	 * </pre>
+	 * 
+	 * @param path
+	 *            the relative path to the resource, starting with the application's name
+	 * @param body
+	 *            the request body (optional)
+	 * @param returnType
+	 *            the type of the response
+	 * @return the {@link RestResponseEntity}
+	 * @throws URISyntaxException
+	 */
+	public <IN> RestResponseEntity<IN> getResource(String path, Class<IN> returnType) throws URISyntaxException {
+		return exchange(path, null, returnType, HttpMethod.GET);
+	}
 }
