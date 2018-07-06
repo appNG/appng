@@ -26,9 +26,9 @@
 					</rule>
 				</validation>
 				<messages ref="offsprings[].name">
-					<message ref="offsprings[].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
-					<message ref="offsprings[].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
-					<message ref="offsprings[].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+					<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+					<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+					<message ref="offsprings[1].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 				</messages>
 			</field>
 		</field>

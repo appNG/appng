@@ -423,7 +423,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 
 	protected void addMessage(FieldDef field, ValidationRule validationRule, String messageTemplate,
 			String messageText) {
-		Message message = getMessage(field, messageTemplate, messageText);
+		Message message = getMessage(field, field.getBinding(), messageTemplate, messageText);
 		validationRule.setMessage(message);
 	}
 
@@ -473,7 +473,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 			String expectedBinding = constraintPath.replaceAll(INDEX_PATTERN, INDEXED);
 			int count = 0;
 			if (constraintPath.equals(fieldDef.getBinding()) || expectedBinding.equals(fieldDef.getBinding())) {
-				Message errorMessage = addFieldMessage(fieldDef, cv);
+				Message errorMessage = addFieldMessage(fieldDef, constraintPath, cv);
 				log.debug("Added message '{}' to field {} with reference {}", errorMessage.getContent(),
 						fieldDef.getBinding(), constraintPath);
 				count++;
@@ -522,25 +522,25 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private void validateField(Object bean, FieldProcessor fp, FieldDef field, Class<?>... groups) {
 		Set<ConstraintViolation<Object>> violations = validator.validateProperty(bean, field.getBinding(), groups);
 		for (ConstraintViolation<Object> cv : violations) {
-			addFieldMessage(field, cv);
+			addFieldMessage(field, field.getBinding(), cv);
 		}
 	}
 
-	private Message addFieldMessage(FieldDef field, ConstraintViolation<?> cv) {
+	private Message addFieldMessage(FieldDef field, String reference, ConstraintViolation<?> cv) {
 		Messages messages = field.getMessages();
 		if (null == messages) {
 			messages = new Messages();
 			messages.setRef(field.getBinding());
 			field.setMessages(messages);
 		}
-		Message message = getMessage(field, cv.getMessageTemplate(), cv.getMessage());
+		Message message = getMessage(field, reference, cv.getMessageTemplate(), cv.getMessage());
 		messages.getMessageList().add(message);
 		return message;
 	}
 
-	private Message getMessage(FieldDef field, String messageTemplate, String messageText) {
+	private Message getMessage(FieldDef field, String reference, String messageTemplate, String messageText) {
 		Message message = new Message();
-		message.setRef(field.getBinding());
+		message.setRef(reference);
 		message.setClazz(MessageType.ERROR);
 		message.setContent(messageText);
 		message.setCode(messageTemplate);
