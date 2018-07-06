@@ -234,6 +234,11 @@ definitions:
       format:
         type: string
         description: "The format for this field, depending on its type."
+      rules:
+        type: array
+        description: "The validation rules that should be applied for this field."
+        items:
+          $ref: "#/definitions/validationRule"
       fields:
         type: array
         description: "The child fields of this field."

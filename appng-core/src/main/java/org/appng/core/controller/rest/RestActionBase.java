@@ -320,20 +320,7 @@ abstract class RestActionBase extends RestOperation {
 				List<String> existingTypes = actionField.getRules().stream().map(x -> x.getType())
 						.collect(Collectors.toList());
 				if (!existingTypes.contains(r.getType())) {
-					org.appng.api.rest.model.ValidationRule rule = new org.appng.api.rest.model.ValidationRule();
-					rule.setMessage(r.getMessage().getContent());
-					rule.setType(r.getType());
-					rule.setMessageKey(r.getMessage().getCode());
-					List<org.appng.xml.platform.Rule.Option> options = r.getOption();
-					if (null != options) {
-						rule.setOptions(new ArrayList<>());
-						options.forEach(o -> {
-							Parameter p = new Parameter();
-							p.setName(o.getName());
-							p.setValue(o.getValue());
-							rule.getOptions().add(p);
-						});
-					}
+					org.appng.api.rest.model.ValidationRule rule = getRule(r);
 					actionField.getRules().add(rule);
 					log.debug("Added rule {} to field {} (contains {} rules)", rule.getType(), actionField.getName(),
 							actionField.getRules().size());

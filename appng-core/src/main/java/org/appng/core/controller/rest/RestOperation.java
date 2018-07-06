@@ -57,6 +57,7 @@ import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Permissions;
+import org.appng.xml.platform.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -308,5 +309,23 @@ abstract class RestOperation {
 			errorModel.setCode(response.getStatus());
 			return new ResponseEntity<>(errorModel, HttpStatus.valueOf(response.getStatus()));
 		}
+	}
+
+	protected org.appng.api.rest.model.ValidationRule getRule(Rule r) {
+		org.appng.api.rest.model.ValidationRule rule = new org.appng.api.rest.model.ValidationRule();
+		rule.setMessage(r.getMessage().getContent());
+		rule.setType(r.getType());
+		rule.setMessageKey(r.getMessage().getCode());
+		List<org.appng.xml.platform.Rule.Option> options = r.getOption();
+		if (null != options) {
+			rule.setOptions(new ArrayList<>());
+			options.forEach(o -> {
+				Parameter p = new Parameter();
+				p.setName(o.getName());
+				p.setValue(o.getValue());
+				rule.getOptions().add(p);
+			});
+		}
+		return rule;
 	}
 }

@@ -18,6 +18,7 @@ package org.appng.core.controller.rest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.xml.bind.JAXBException;
@@ -29,6 +30,8 @@ import org.appng.api.rest.model.Datasource;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.RequestSupportImpl;
+import org.appng.api.support.validation.DefaultValidationProvider;
+import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.controller.rest.RestPostProcessor.RestDataSource;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.MarshallService;
@@ -60,6 +63,7 @@ public class RestDataSourceTest extends RestOperationTest {
 				org.appng.xml.platform.Datasource.class);
 		Mockito.when(appconfig.getDatasource(dataSourceId)).thenReturn(originalDataSource);
 
+		Mockito.when(site.getProperties().getBoolean("restDatasourceAddValidationRules", true)).thenReturn(true);
 		RequestSupportImpl requestSupport = new RequestSupportImpl();
 		requestSupport.setEnvironment(environment);
 		Request request = new ApplicationRequest(formsRequest, new DummyPermissionProcessor(subject, site, application),
@@ -67,6 +71,8 @@ public class RestDataSourceTest extends RestOperationTest {
 
 		Mockito.when(application.processDataSource(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
 				Mockito.any(), Mockito.any())).thenReturn(originalDataSource);
+		((ApplicationRequest) request).setValidationProvider(new DefaultValidationProvider(
+				new LocalizedMessageInterpolator(Locale.ENGLISH, messageSource), messageSource, Locale.ENGLISH, true));
 
 		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request, messageSource, true)
 				.getDataSource(dataSourceId, new HashMap<>(), environment, servletRequest, servletResponse);

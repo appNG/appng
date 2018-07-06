@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller.rest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,9 @@ import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Resultset;
 import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Sort;
+import org.appng.xml.platform.Validation;
+import org.appng.xml.platform.ValidationGroups;
+import org.appng.xml.platform.ValidationGroups.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -97,11 +101,16 @@ abstract class RestDataSourceBase extends RestOperation {
 
 		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
 				httpServletResponse, false, (ApplicationRequest) request, dataSourceId, marshallService);
+
 		if (null == processedDataSource) {
 			log.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
 					site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+
+		MetaData metaData = processedDataSource.getConfig().getMetaData();
+		addValidationRules(metaData);
+
 		if (log.isDebugEnabled()) {
 			log.debug("Processed datasource: {}", marshallService.marshallNonRoot(processedDataSource));
 		}
@@ -131,27 +140,9 @@ abstract class RestDataSourceBase extends RestOperation {
 			}
 		});
 
-		List<SelectionGroup> selectionGroups = processedDataSource.getData().getSelectionGroups();
-		if (null != selectionGroups) {
-			selectionGroups.forEach(sg -> {
-				sg.getSelections().forEach(s -> {
-					Filter filter = new Filter();
-					filter.setLabel(s.getTitle().getValue());
-					filter.setName(s.getId());
-					filter.setType(OptionType.valueOf(s.getType().name()));
-					filter.setOptions(new Options());
-					filter.getOptions().setMultiple(filter.getType().equals(OptionType.CHECKBOX)
-							|| filter.getType().equals(OptionType.SELECT_MULTIPLE));
-					s.getOptions().forEach(o -> {
-						filter.getOptions().addEntriesItem(getOption(s.getId(), o, Collections.emptyList()));
-					});
-					datasource.addFiltersItem(filter);
-				});
-			});
-		}
+		addFilters(processedDataSource, datasource);
 
 		Resultset resultset = processedDataSource.getData().getResultset();
-		MetaData metaData = processedDataSource.getConfig().getMetaData();
 		if (null != resultset) {
 			Page page = new Page();
 			page.setIsFirst(resultset.getChunk() == resultset.getFirstchunk());
@@ -173,6 +164,46 @@ abstract class RestDataSourceBase extends RestOperation {
 
 		postProcessDataSource(datasource, site, applicationProvider, environment);
 		return new ResponseEntity<Datasource>(datasource, HttpStatus.OK);
+	}
+
+	private void addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource) {
+		List<SelectionGroup> selectionGroups = processedDataSource.getData().getSelectionGroups();
+		if (null != selectionGroups) {
+			selectionGroups.forEach(sg -> {
+				sg.getSelections().forEach(s -> {
+					Filter filter = new Filter();
+					filter.setLabel(s.getTitle().getValue());
+					filter.setName(s.getId());
+					filter.setType(OptionType.valueOf(s.getType().name()));
+					filter.setOptions(new Options());
+					filter.getOptions().setMultiple(filter.getType().equals(OptionType.CHECKBOX)
+							|| filter.getType().equals(OptionType.SELECT_MULTIPLE));
+					s.getOptions().forEach(o -> {
+						filter.getOptions().addEntriesItem(getOption(s.getId(), o, Collections.emptyList()));
+					});
+					datasource.addFiltersItem(filter);
+				});
+			});
+		}
+	}
+
+	private void addValidationRules(MetaData metaData) {
+		List<Class<?>> validationGroups = new ArrayList<>();
+		if (site.getProperties().getBoolean("restDatasourceAddValidationRules", true)) {
+			try {
+				ValidationGroups validation = metaData.getValidation();
+				if (null != validation) {
+					for (Group g : validation.getGroups()) {
+						Class<?> group = site.getSiteClassLoader().loadClass(g.getClazz());
+						validationGroups.add(group);
+					}
+				}
+				request.getValidationProvider().addValidationMetaData(metaData, site.getSiteClassLoader(),
+						validationGroups.toArray(new Class[0]));
+			} catch (ClassNotFoundException e) {
+				getLogger().error("error retrieving validation group", e);
+			}
+		}
 	}
 
 	protected Field getField(FieldDef f) {
@@ -199,6 +230,10 @@ abstract class RestDataSourceBase extends RestOperation {
 			for (FieldDef fieldDef : childFields) {
 				field.addFieldsItem(getField(fieldDef));
 			}
+		}
+		Validation validation = f.getValidation();
+		if (null != validation) {
+			validation.getRules().stream().forEach(r -> field.addRulesItem(getRule(r)));
 		}
 		return field;
 	}
