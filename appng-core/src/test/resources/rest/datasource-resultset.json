@@ -1,10 +1,10 @@
 {
   "id" : "datasource-resultset",
   "user" : {
-    "locale" : "de_DE",
+    "locale" : "en",
     "timezone" : "Europe/Berlin",
-    "decimalSeparator" : ",",
-    "groupingSeparator" : "."
+    "decimalSeparator" : ".",
+    "groupingSeparator" : ","
   },
   "links" : [ {
     "default" : false,

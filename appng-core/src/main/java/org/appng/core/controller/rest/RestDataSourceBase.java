@@ -18,12 +18,14 @@ package org.appng.core.controller.rest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.MessageInterpolator;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +36,7 @@ import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.SiteProperties;
+import org.appng.api.ValidationProvider;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Datasource;
@@ -49,6 +52,8 @@ import org.appng.api.rest.model.Page;
 import org.appng.api.rest.model.Sort.OrderEnum;
 import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.validation.DefaultValidationProvider;
+import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
@@ -198,7 +203,11 @@ abstract class RestDataSourceBase extends RestOperation {
 						validationGroups.add(group);
 					}
 				}
-				request.getValidationProvider().addValidationMetaData(metaData, site.getSiteClassLoader(),
+				Locale locale = request.getLocale();
+				MessageInterpolator messageInterpolator = new LocalizedMessageInterpolator(locale, messageSource);
+				ValidationProvider validationProvider = new DefaultValidationProvider(messageInterpolator,
+						messageSource, locale, true);
+				validationProvider.addValidationMetaData(metaData, site.getSiteClassLoader(),
 						validationGroups.toArray(new Class[0]));
 			} catch (ClassNotFoundException e) {
 				getLogger().error("error retrieving validation group", e);
