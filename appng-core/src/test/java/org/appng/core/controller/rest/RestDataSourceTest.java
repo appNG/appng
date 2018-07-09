@@ -30,8 +30,6 @@ import org.appng.api.rest.model.Datasource;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.RequestSupportImpl;
-import org.appng.api.support.validation.DefaultValidationProvider;
-import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.controller.rest.RestPostProcessor.RestDataSource;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.MarshallService;
@@ -57,7 +55,7 @@ public class RestDataSourceTest extends RestOperationTest {
 
 	protected void runTest(String dataSourceId)
 			throws InvalidConfigurationException, ProcessingException, JAXBException, IOException {
-
+		Mockito.when(environment.getLocale()).thenReturn(Locale.ENGLISH);
 		InputStream is = getClass().getClassLoader().getResourceAsStream("rest/" + dataSourceId + ".xml");
 		org.appng.xml.platform.Datasource originalDataSource = MarshallService.getMarshallService().unmarshall(is,
 				org.appng.xml.platform.Datasource.class);
@@ -71,8 +69,6 @@ public class RestDataSourceTest extends RestOperationTest {
 
 		Mockito.when(application.processDataSource(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
 				Mockito.any(), Mockito.any())).thenReturn(originalDataSource);
-		((ApplicationRequest) request).setValidationProvider(new DefaultValidationProvider(
-				new LocalizedMessageInterpolator(Locale.ENGLISH, messageSource), messageSource, Locale.ENGLISH, true));
 
 		ResponseEntity<Datasource> dataSource = new RestDataSource(site, application, request, messageSource, true)
 				.getDataSource(dataSourceId, new HashMap<>(), environment, servletRequest, servletResponse);
