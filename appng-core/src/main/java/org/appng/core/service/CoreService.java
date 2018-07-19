@@ -197,7 +197,7 @@ public class CoreService {
 		return getPlatform(true);
 	}
 
-	PropertyHolder getPlatform(boolean finalize) {
+	protected PropertyHolder getPlatform(boolean finalize) {
 		Iterable<PropertyImpl> properties = getPlatformPropertiesList(null);
 		PropertyHolder propertyHolder = new PersistentPropertyHolder(PropertySupport.PREFIX_PLATFORM, properties);
 		if (finalize) {
@@ -336,7 +336,7 @@ public class CoreService {
 		return findById != null;
 	}
 
-	List<Integer> getSiteIds() {
+	protected List<Integer> getSiteIds() {
 		return siteRepository.getSiteIds();
 	}
 
@@ -493,7 +493,7 @@ public class CoreService {
 		return subject;
 	}
 
-	void saveProperties(Properties properties) {
+	protected void saveProperties(Properties properties) {
 		Set<String> propertyNames = properties.getPropertyNames();
 		PropertyHolder propertyHolder = (PropertyHolder) properties;
 		propertyNames.forEach(name -> saveProperty((PropertyImpl) propertyHolder.getProperty(name)));
@@ -645,11 +645,11 @@ public class CoreService {
 		initSiteProperties(site, null);
 	}
 
-	void initSiteProperties(SiteImpl site, Environment environment) {
+	protected void initSiteProperties(SiteImpl site, Environment environment) {
 		initSiteProperties(site, environment, false);
 	}
 
-	void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
+	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
 		Properties platformConfig = getPlatformConfig(environment);
 		new PropertySupport(siteProperties).initSiteProperties(site, platformConfig);
@@ -1634,7 +1634,7 @@ public class CoreService {
 		}
 	}
 
-	void initApplicationProperties(Site site, AccessibleApplication application) {
+	protected void initApplicationProperties(Site site, AccessibleApplication application) {
 		log.info("loading properties for application '" + application.getName() + "' of site '" + site.getName() + "'");
 		PropertyHolder applicationProperties = getApplicationProperties(site, application);
 		setFeatures(applicationProperties);
@@ -1645,7 +1645,7 @@ public class CoreService {
 		initApplicationProperties(application);
 	}
 
-	void initApplicationProperties(AccessibleApplication application) {
+	protected void initApplicationProperties(AccessibleApplication application) {
 		log.info("loading properties for application " + application.getName());
 		PropertyHolder applicationProperties = getApplicationProperties(null, application);
 		setFeatures(applicationProperties);
