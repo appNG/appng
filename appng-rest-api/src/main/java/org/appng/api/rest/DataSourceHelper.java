@@ -46,7 +46,7 @@ public class DataSourceHelper {
 	public Optional<Element> getResult(int i) {
 		return getElement(i);
 	}
-	
+
 	public Optional<Element> getElement(int i) {
 		Page page = dataSource.getBody().getPage();
 		if (null != page && null != page.getElements() && i > -1 && page.getElements().size() > i) {
@@ -75,5 +75,5 @@ public class DataSourceHelper {
 		}
 		return Optional.empty();
 	}
-
+	
 }

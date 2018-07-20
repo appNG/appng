@@ -24,13 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.appng.api.model.Application;
-import org.appng.api.model.Site;
 import org.appng.api.rest.model.Action;
 import org.appng.api.rest.model.Datasource;
 import org.appng.api.rest.model.ErrorModel;
 import org.appng.api.rest.model.Link;
 import org.appng.api.rest.model.Parameter;
+import org.appng.api.rest.model.Sort.OrderEnum;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -47,6 +46,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -114,8 +116,25 @@ public class RestClient {
 	 *             if something is wrong with the URI
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id) throws URISyntaxException {
-		URI dataSourceUri = new URI(url + PATH_SEPARATOR + application + "/rest/datasource/" + id);
-		return exchange(dataSourceUri, null, HttpMethod.GET, Datasource.class);
+		return datasource(application, id, (Pageable) null);
+	}
+
+	/**
+	 * Retrieves the {@link Datasource}.
+	 * 
+	 * @param application
+	 *            the name of the {@link Application}
+	 * @param id
+	 *            the ID of the {@link Datasource}
+	 * @param pageable
+	 *            a {@link Pageable} (optional)
+	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
+	public RestResponseEntity<Datasource> datasource(String application, String id, Pageable pageable)
+			throws URISyntaxException {
+		return datasource(application, id, pageable, null);
 	}
 
 	/**
@@ -133,13 +152,39 @@ public class RestClient {
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id,
 			MultiValueMap<String, String> parameters) throws URISyntaxException {
-		StringBuilder uriBuilder = new StringBuilder(
-				url + PATH_SEPARATOR + application + "/rest/datasource/" + id + "?");
-		parameters.keySet().forEach(key -> {
-			parameters.get(key).forEach(value -> {
-				uriBuilder.append(key).append("=").append(value).append("&");
+		return datasource(application, id, null, parameters);
+	}
+
+	/**
+	 * Retrieves the {@link Datasource}.
+	 * 
+	 * @param application
+	 *            the name of the {@link Application}
+	 * @param id
+	 *            the ID of the {@link Datasource}
+	 * @param pageable
+	 *            a {@link Pageable} (optional)
+	 * @param parameters
+	 *            some additional parameters
+	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
+	 * @throws URISyntaxException
+	 *             if something is wrong with the URI
+	 */
+	public RestResponseEntity<Datasource> datasource(String application, String id, Pageable pageable,
+			MultiValueMap<String, String> parameters) throws URISyntaxException {
+		StringBuilder uriBuilder = new StringBuilder(url).append(PATH_SEPARATOR).append(application);
+		uriBuilder.append("/rest/datasource/").append(id).append("?");
+		if (null != pageable) {
+			uriBuilder.append("sort").append(StringUtils.capitalize(id)).append("=").append(pageable.getSortQuery())
+					.append("&");
+		}
+		if (null != parameters) {
+			parameters.keySet().forEach(key -> {
+				parameters.get(key).forEach(value -> {
+					uriBuilder.append(key).append("=").append(value).append("&");
+				});
 			});
-		});
+		}
 		return exchange(new URI(uriBuilder.toString()), null, HttpMethod.GET, Datasource.class);
 	}
 
@@ -320,7 +365,7 @@ public class RestClient {
 		return exchange(new URI(url + path), body, method, returnType);
 	}
 
-	private <IN, OUT> RestResponseEntity<IN> exchange(URI uri, OUT body, HttpMethod method, Class<IN> returnType) {
+	protected <IN, OUT> RestResponseEntity<IN> exchange(URI uri, OUT body, HttpMethod method, Class<IN> returnType) {
 		if (log.isDebugEnabled() && body != null) {
 			doLog("OUT", body, null);
 		}
@@ -368,5 +413,34 @@ public class RestClient {
 	 */
 	public <IN> RestResponseEntity<IN> getResource(String path, Class<IN> returnType) throws URISyntaxException {
 		return exchange(path, null, returnType, HttpMethod.GET);
+	}
+
+	/**
+	 * Wraps paging and sorting
+	 */
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Pageable {
+		int page = 0;
+		int pageSize = 10;
+		Map<String, OrderEnum> fieldSorts = new HashMap<>();
+
+		public Pageable addSort(String field, OrderEnum direction) {
+			fieldSorts.put(field, direction);
+			return this;
+		}
+
+		public String getSortQuery() {
+			StringBuilder sortBuilder = new StringBuilder();
+			sortBuilder.append("page:").append(page).append(";");
+			sortBuilder.append("pageSize:").append(pageSize).append(";");
+			if (fieldSorts != null) {
+				for (String field : fieldSorts.keySet()) {
+					sortBuilder.append(field).append(":").append(fieldSorts.get(field).getValue()).append(";");
+				}
+			}
+			return sortBuilder.toString();
+		}
 	}
 }

@@ -51,6 +51,7 @@ import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.forms.impl.RequestBean;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Data;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.MetaData;
@@ -166,6 +167,9 @@ abstract class RestActionBase extends RestOperation {
 
 		RestRequest executingRequest = new RestRequest(initialAction, receivedData);
 		initRequest(site, application, env, applicationProvider, executingRequest);
+		if (supportPathParameters) {
+			applyPathParameters(pathVariables, initialAction.getConfig(), executingRequest);
+		}
 		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(servletResp, false,
 				executingRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
@@ -204,16 +208,18 @@ abstract class RestActionBase extends RestOperation {
 		action.setPermissions(getPermissions(processedAction.getConfig().getPermissions()));
 
 		action.setFields(new ArrayList<>());
-		processedAction.getData().getResult().getFields().forEach(fieldData -> {
-			MetaData metaData = processedAction.getConfig().getMetaData();
-			Optional<FieldDef> originalDef = metaData.getFields().stream()
-					.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
-			BeanWrapper beanWrapper = getBeanWrapper(metaData);
-			ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
-					beanWrapper, 0);
-			action.getFields().add(actionField);
-
-		});
+		Data data = processedAction.getData();
+		if (null != data && null != data.getResult()) {
+			data.getResult().getFields().forEach(fieldData -> {
+				MetaData metaData = processedAction.getConfig().getMetaData();
+				Optional<FieldDef> originalDef = metaData.getFields().stream()
+						.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
+				BeanWrapper beanWrapper = getBeanWrapper(metaData);
+				ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
+						beanWrapper, 0);
+				action.getFields().add(actionField);
+			});
+		}
 
 		action.setMessages(getMessages(processedAction.getMessages()));
 		return action;
@@ -233,7 +239,8 @@ abstract class RestActionBase extends RestOperation {
 			boolean isSelection = isSelectionType(fieldDef.getType());
 
 			actionField.setFormat(fieldDef.getFormat());
-			if (!isDate && StringUtils.isNotBlank(fieldDef.getFormat())) {
+			boolean hasFormat = StringUtils.isNotBlank(fieldDef.getFormat());
+			if (!isDate && hasFormat) {
 				actionField.setFormattedValue(fieldData.getValue());
 			}
 			if (null != fieldDef.getLabel()) {
@@ -257,6 +264,10 @@ abstract class RestActionBase extends RestOperation {
 				objectValue = getObjectValue(fieldData, fieldDef, beanWrapper.getPropertyType(fieldDef.getBinding()),
 						parameterList);
 				actionField.setValue(objectValue);
+				if (hasFormat) {
+					String formattedValue = getStringValue(actionField);
+					actionField.setFormattedValue(formattedValue);
+				}
 				log.debug("Setting value {} for field {}", objectValue, actionField.getName());
 			} else {
 				parameterList = Collections.emptyList();
