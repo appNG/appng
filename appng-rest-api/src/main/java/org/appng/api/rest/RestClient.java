@@ -72,7 +72,7 @@ public class RestClient {
 	 * </p>
 	 * 
 	 * @param url
-	 *            the URL pointing to a {@link Site}'s service URL ({@code /service/<site-name>})
+	 *            the URL pointing to a site's service URL ({@code /service/<site-name>})
 	 */
 	public RestClient(String url) {
 		this(url, new HashMap<>());
@@ -83,7 +83,7 @@ public class RestClient {
 	 * that performed a login action.
 	 * 
 	 * @param url
-	 *            the URL pointing to a {@link Site}'s service URL ({@code /service/<site-name>})
+	 *            the URL pointing to a site's service URL ({@code /service/<site-name>})
 	 * @param cookies
 	 *            the cookie to use
 	 * 
@@ -108,7 +108,7 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the {@link Application}
+	 *            the name of the application
 	 * @param id
 	 *            the ID of the {@link Datasource}
 	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
@@ -123,7 +123,7 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the {@link Application}
+	 *            the name of the application
 	 * @param id
 	 *            the ID of the {@link Datasource}
 	 * @param pageable
@@ -141,7 +141,7 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the {@link Application}
+	 *            the name of the application
 	 * @param id
 	 *            the ID of the {@link Datasource}
 	 * @param parameters
@@ -159,7 +159,7 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the {@link Application}
+	 *            the name of the application
 	 * @param id
 	 *            the ID of the {@link Datasource}
 	 * @param pageable
@@ -192,7 +192,7 @@ public class RestClient {
 	 * Retrieves the {@link Action}.
 	 * 
 	 * @param application
-	 *            the name of the {@link Application}
+	 *            the name of the application
 	 * @param eventId
 	 *            the event-ID of the {@link Action}
 	 * @param actionId
@@ -285,7 +285,7 @@ public class RestClient {
 	 * Performs an {@link Action}.
 	 * 
 	 * @param application
-	 *            the name of the {@link Application}
+	 *            the name of the application
 	 * @param data
 	 *            the {@link Action}-data to send
 	 * @param pathVariables
