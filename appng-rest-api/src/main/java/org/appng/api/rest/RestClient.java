@@ -422,9 +422,15 @@ public class RestClient {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Pageable {
-		int page = 0;
-		int pageSize = 10;
-		Map<String, OrderEnum> fieldSorts = new HashMap<>();
+		private int page = 0;
+		private int pageSize = 10;
+		private Map<String, OrderEnum> fieldSorts = new HashMap<>();
+
+		public Pageable(int page, int pageSize, String field, OrderEnum order) {
+			setPage(page);
+			setPageSize(pageSize);
+			addSort(field, order);
+		}
 
 		public Pageable addSort(String field, OrderEnum direction) {
 			fieldSorts.put(field, direction);
@@ -442,5 +448,6 @@ public class RestClient {
 			}
 			return sortBuilder.toString();
 		}
+
 	}
 }
