@@ -17,6 +17,7 @@ package org.appng.persistence.repository;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -43,7 +44,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @see JpaSpecificationExecutor
  */
 @NoRepositoryBean
-public interface SearchRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
+public interface SearchRepository<T, ID extends Serializable>
+		extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
 
 	/**
 	 * Checks whether the given property is unique for this domain type.
@@ -86,8 +88,8 @@ public interface SearchRepository<T, ID extends Serializable> extends JpaReposit
 	Page<T> search(Pageable pageable);
 
 	/**
-	 * Performs a paginated search based upon the given query-String.<b>Note that the query string must start with
-	 * "from &lt;Entity> &lt;entityName>"!</b>
+	 * Performs a paginated search based upon the given query-String.<b>Note that the query string must start with "from
+	 * &lt;Entity> &lt;entityName>"!</b>
 	 * 
 	 * @param queryString
 	 *            the JPQL-query, starting with "from &lt;Entity> &lt;entityName>"
@@ -104,13 +106,26 @@ public interface SearchRepository<T, ID extends Serializable> extends JpaReposit
 	Page<T> search(String queryString, String entityName, Pageable pageable, Object... params);
 
 	/**
+	 * Performs a search with the given query-String.
+	 * 
+	 * @param queryString
+	 *            the JPQL-query
+	 * @param params
+	 *            the parameters to be applied to the {@link Query}, using {@link Query#setParameter(int, Object)}.
+	 * @return a {@link Page} containing the result
+	 * 
+	 */
+	List<T> search(String queryString, Object... params);
+
+	/**
 	 * Performs a paginated search with the given {@link SearchQuery}.
 	 * 
 	 * @param searchQuery
 	 *            the {@link SearchQuery}
 	 * @param pageable
-	 *            a {@link Pageable}
-	 * @return a {@link Page} containing the result
+	 *            a {@link Pageable} (optional)
+	 * @return a {@link Page} containing the result. When {@code pageable} is null, a single page containing all results
+	 *         will be returned
 	 */
 	Page<T> search(SearchQuery<T> searchQuery, Pageable pageable);
 
