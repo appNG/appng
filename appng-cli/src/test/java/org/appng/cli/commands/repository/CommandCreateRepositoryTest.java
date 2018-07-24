@@ -18,12 +18,14 @@ package org.appng.cli.commands.repository;
 import java.io.File;
 import java.net.URI;
 
+import org.appng.api.BusinessException;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.core.model.Repository;
 import org.appng.core.model.RepositoryMode;
 import org.appng.core.model.RepositoryType;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class CommandCreateRepositoryTest extends AbstractCommandTest {
 
@@ -43,6 +45,29 @@ public class CommandCreateRepositoryTest extends AbstractCommandTest {
 		Assert.assertEquals(RepositoryMode.ALL, repo.getRepositoryMode());
 		Assert.assertEquals(RepositoryType.LOCAL, repo.getRepositoryType());
 		Assert.assertEquals(REPO_URI, repo.getUri());
+		Assert.assertTrue(repo.isActive());
+		Assert.assertFalse(repo.isPublished());
+		Assert.assertFalse(repo.isStrict());
+		Assert.assertNull(repo.getRemoteRepositoryName());
+	}
+
+	@Test
+	public void testCreateRemote() throws BusinessException {
+		String remoteUrl = "https://appng.org/service/manager/appng-manager/soap/repositoryService";
+		String[] args = new String[] { "-n", "remoterepo", "-d", "a remote repository", "-g", "digest", "-t",
+				RepositoryType.REMOTE.name(), "-r", "appNG-Stable", "-m", RepositoryMode.ALL.name(), "-u",
+				remoteUrl };
+		parse(new CreateRepository(), args).execute(cliEnv);
+
+		Repository repo = cliEnv.getCoreService().getApplicationRepositoryByName("remoterepo");
+
+		Assert.assertEquals("remoterepo", repo.getName());
+		Assert.assertEquals("a remote repository", repo.getDescription());
+		Assert.assertEquals("appNG-Stable", repo.getRemoteRepositoryName());
+		Assert.assertEquals(RepositoryMode.ALL, repo.getRepositoryMode());
+		Assert.assertEquals(RepositoryType.REMOTE, repo.getRepositoryType());
+		Assert.assertEquals(remoteUrl, repo.getUri().toString());
+		Assert.assertEquals("digest", repo.getDigest());
 		Assert.assertTrue(repo.isActive());
 		Assert.assertFalse(repo.isPublished());
 		Assert.assertFalse(repo.isStrict());
