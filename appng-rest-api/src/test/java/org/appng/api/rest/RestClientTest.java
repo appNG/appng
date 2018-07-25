@@ -15,15 +15,22 @@
  */
 package org.appng.api.rest;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.appng.api.rest.RestClient.Pageable;
+import org.appng.api.rest.model.Sort.OrderEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 public class RestClientTest {
 
@@ -48,5 +55,31 @@ public class RestClientTest {
 		Map<String, String> cookies = restClient.getCookies();
 		Assert.assertEquals("bar", cookies.get("foo"));
 		Assert.assertEquals("ipsum", cookies.get("lore"));
+	}
+
+	@Test
+	public void testDataSource() throws URISyntaxException {
+		RestClient restClient = new RestClient("http://localhost:8080/appng/service") {
+			protected <IN, OUT> RestResponseEntity<IN> exchange(URI uri, OUT body, HttpMethod method,
+					Class<IN> returnType) {
+				Assert.assertEquals(
+						"http://localhost:8080/appng/service/application/rest/datasource/foobar?sortFoobar=page:0;pageSize:10;bar:desc;foo:asc;&foo=bar&47=11&",
+						uri.toString());
+				return null;
+			}
+		};
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.add("foo", "bar");
+		parameters.add("47", "11");
+		Pageable pageable = new Pageable().addSort("foo", OrderEnum.ASC).addSort("bar", OrderEnum.DESC);
+		restClient.datasource("application", "foobar", pageable, parameters);
+	}
+
+	@Test
+	public void testPageable() {
+		String sortQuery = new Pageable(0, 20, "foo", OrderEnum.DESC).getSortQuery();
+		Assert.assertEquals("page:0;pageSize:20;foo:desc;", sortQuery);
+		String resetQuery = new Pageable(0, 20, "foo", OrderEnum.DESC, true).getSortQuery();
+		Assert.assertEquals("page:0;pageSize:20;foo:desc;reset", resetQuery);
 	}
 }

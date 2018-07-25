@@ -425,18 +425,64 @@ public class RestClient {
 		private int page = 0;
 		private int pageSize = 10;
 		private Map<String, OrderEnum> fieldSorts = new HashMap<>();
+		private boolean reset = false;
 
+		/**
+		 * Creates e new pageable
+		 * 
+		 * @param page
+		 *            the zero-indexed page number
+		 * @param pageSize
+		 *            the size of a page
+		 * @param field
+		 *            the field to sort
+		 * @param order
+		 *            the direction to sort
+		 **/
 		public Pageable(int page, int pageSize, String field, OrderEnum order) {
+			this(page, pageSize, field, order, false);
+		}
+
+		/**
+		 * Creates e new pageable
+		 * 
+		 * @param page
+		 *            the zero-indexed page number
+		 * @param pageSize
+		 *            the size of a page
+		 * @param field
+		 *            the field to sort
+		 * @param order
+		 *            the direction to sort
+		 * @param reset
+		 *            {@code true} to reset current sort criteria
+		 */
+		public Pageable(int page, int pageSize, String field, OrderEnum order, boolean reset) {
 			setPage(page);
 			setPageSize(pageSize);
 			addSort(field, order);
+			this.reset = reset;
 		}
 
+		/**
+		 * Adds a sort criteria for the given field.
+		 * 
+		 * @param field
+		 *            the field to sort
+		 * @param direction
+		 *            the direction to sort
+		 * @return this {@link Pageable}
+		 */
 		public Pageable addSort(String field, OrderEnum direction) {
 			fieldSorts.put(field, direction);
 			return this;
 		}
 
+		/**
+		 * Creates a query string (matrix-parameter style) containing all the sort criteria
+		 * 
+		 * @return the query string
+		 */
 		public String getSortQuery() {
 			StringBuilder sortBuilder = new StringBuilder();
 			sortBuilder.append("page:").append(page).append(";");
@@ -445,6 +491,9 @@ public class RestClient {
 				for (String field : fieldSorts.keySet()) {
 					sortBuilder.append(field).append(":").append(fieldSorts.get(field).getValue()).append(";");
 				}
+			}
+			if (reset) {
+				sortBuilder.append("reset");
 			}
 			return sortBuilder.toString();
 		}
