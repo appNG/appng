@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.appng.api.model.Identifiable;
 import org.appng.api.model.NameProvider;
 import org.appng.api.model.Named;
+import org.appng.api.support.OptionOwner.HitCounter;
 import org.appng.api.support.OptionOwner.Selector;
 import org.appng.xml.platform.Option;
 
@@ -424,7 +425,8 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
-	public <S> T fromObjects(String id, String titleId, S[] allElements, Selector selector, NameProvider<S> nameProvider) {
+	public <S> T fromObjects(String id, String titleId, S[] allElements, Selector selector,
+			NameProvider<S> nameProvider) {
 		T owner = getOwner(id, titleId);
 		addOptions(allElements, new ArrayList<S>(), owner, nameProvider);
 		applySelector(owner, selector);
@@ -475,6 +477,38 @@ abstract class OptionFactory<T extends OptionOwner> {
 		return owner;
 	}
 
+	/**
+	 * Counts and sets the hits for the options based on their value.
+	 * 
+	 * @param options
+	 *            some options
+	 * @param counter
+	 *            a {@link HitCounter}
+	 * 
+	 * @see Option#getValue()
+	 * @see Option#getHits()
+	 */
+	public void countHits(Iterable<Option> options, HitCounter<String> counter) {
+		for (Option option : options) {
+			option.setHits(counter.count(option.getValue()));
+		}
+	}
+
+	/**
+	 * Counts and sets the hits for the owner's options based on their value.
+	 * 
+	 * @param optionOwner
+	 *            an {@link OptionOwner}
+	 * @param counter
+	 *            a {@link HitCounter}
+	 * 
+	 * @see Option#getValue()
+	 * @see Option#getHits()
+	 */
+	public void countHits(OptionOwner optionOwner, HitCounter<String> counter) {
+		countHits(optionOwner.getOptions(), counter);
+	}
+
 	private <I extends Identifiable<?>> void addIdentifiableOptions(Iterable<? extends I> allElements,
 			Collection<? extends I> selectedElements, OptionOwner owner, NameProvider<I> nameProvider) {
 		for (I element : allElements) {
@@ -514,6 +548,7 @@ abstract class OptionFactory<T extends OptionOwner> {
 	private void applySelector(OptionOwner owner, Selector selector) {
 		for (Option option : owner.getOptions()) {
 			selector.select(option);
+			option.setHits(selector.count(option.getValue()));
 		}
 	}
 

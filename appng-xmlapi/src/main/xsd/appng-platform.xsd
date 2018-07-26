@@ -2614,6 +2614,16 @@ If empty, the template is being applied to any output-type.]]>
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="hits" type="xs:int" use="optional">
+			<xs:annotation>
+				<xs:documentation>Tells how many hits there are for this option.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Tells how many hits there are for this option.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
 		<xs:attribute name="disabled" type="xs:boolean">
 			<xs:annotation>
 				<xs:documentation>Used for marking the option as disabled.</xs:documentation>

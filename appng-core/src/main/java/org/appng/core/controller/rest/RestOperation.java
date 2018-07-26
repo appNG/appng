@@ -163,6 +163,7 @@ abstract class RestOperation {
 			option.setSelected(o.isSelected());
 		}
 		option.setValue(o.getValue());
+		option.setHits(o.getHits());
 		return option;
 	}
 

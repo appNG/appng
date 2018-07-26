@@ -397,6 +397,9 @@ definitions:
     selected:
       type: boolean
       description: "Whether or not this option is selected."
+    hits:
+      type: integer
+      description: "Tells how many hits there are for this option."
     options:
       type: array
       description: "An option can act as a group and thus can itself own a list of options."
