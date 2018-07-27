@@ -34,36 +34,64 @@ public class ActionHelperTest {
 	@Test
 	public void testSelectFieldValue() {
 		ResponseEntity<Action> actionEntity = new ResponseEntity<>(new Action(), HttpStatus.OK);
-		ActionField field = new ActionField();
-		field.setName("selection");
-		field.setFieldType(FieldType.LIST_SELECT);
-		Options options = new Options();
-		field.setOptions(options);
-		Option a = new Option();
-		a.setValue("a");
-		options.setEntries(new ArrayList<>());
-		options.getEntries().add(a);
-		Option b = new Option();
-		b.setValue("b");
-		options.getEntries().add(b);
+		ActionField field = getSelectionField();
+		Option a = getOption("a", false);
+		field.getOptions().getEntries().add(a);
+		Option b = getOption("b", false);
+		field.getOptions().getEntries().add(b);
 		Action action = actionEntity.getBody();
 		action.setFields(new ArrayList<>());
 		action.getFields().add(field);
 
 		ActionHelper actionHelper = ActionHelper.create(actionEntity);
-		actionHelper.setFieldSelectionValue("selection", "a");
+		actionHelper.setFieldSelectionValue(field.getName(), "a");
 		Assert.assertTrue(a.isSelected());
 		Assert.assertFalse(b.isSelected());
 
-		actionHelper.setFieldSelectionValue("selection", "b");
+		actionHelper.setFieldSelectionValue(field.getName(), "b");
 		Assert.assertTrue(b.isSelected());
 		Assert.assertFalse(a.isSelected());
 
-		options.setMultiple(true);
+		field.getOptions().setMultiple(true);
 
-		actionHelper.setFieldSelectionValue("selection", "a");
+		actionHelper.setFieldSelectionValue(field.getName(), "a");
 		Assert.assertTrue(a.isSelected());
 		Assert.assertTrue(b.isSelected());
+	}
+
+	@Test
+	public void testDeselectAllOptions() {
+		ResponseEntity<Action> actionEntity = new ResponseEntity<>(new Action(), HttpStatus.OK);
+		ActionField field = getSelectionField();
+		Option a = getOption("a", true);
+		field.getOptions().getEntries().add(a);
+		Option b = getOption("b", true);
+		field.getOptions().getEntries().add(b);
+		Action action = actionEntity.getBody();
+		action.setFields(new ArrayList<>());
+		action.getFields().add(field);
+
+		ActionHelper.create(actionEntity).deselectAllOptions(field.getName());
+
+		Assert.assertFalse(a.isSelected());
+		Assert.assertFalse(b.isSelected());
+	}
+
+	private ActionField getSelectionField() {
+		ActionField field = new ActionField();
+		field.setName("selection");
+		field.setFieldType(FieldType.LIST_SELECT);
+		Options options = new Options();
+		field.setOptions(options);
+		options.setEntries(new ArrayList<>());
+		return field;
+	}
+
+	private Option getOption(String value, boolean selected) {
+		Option o = new Option();
+		o.setSelected(selected);
+		o.setValue(value);
+		return o;
 	}
 
 	@Test
