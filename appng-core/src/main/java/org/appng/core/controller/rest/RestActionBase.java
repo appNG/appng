@@ -83,10 +83,18 @@ abstract class RestActionBase extends RestOperation {
 		super(site, application, request, messageSource, supportPathParameters);
 	}
 
-	@GetMapping(path = { "/action/{event-id}/{id}", "/action/{event-id}/{id}/{pathVar1}",
-			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}", "/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
-			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
-			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" })
+	// @formatter:off
+	@GetMapping(
+		path = {
+			"/action/{event-id}/{id}",
+			"/action/{event-id}/{id}/{pathVar1:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
+		}
+	)
+	// @formatter:on
 	public ResponseEntity<Action> getAction(@PathVariable(name = "event-id") String eventId,
 			@PathVariable(name = "id") String actionId,
 			@PathVariable(required = false) Map<String, String> pathVariables, Environment env,
@@ -128,11 +136,19 @@ abstract class RestActionBase extends RestOperation {
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
-	@RequestMapping(path = { "/action/{event-id}/{id}", "/action/{event-id}/{id}/{pathVar1}",
-			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}", "/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
-			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
-			"/action/{event-id}/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" }, method = {
-					RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE })
+	// @formatter:off
+	@RequestMapping(
+		path = {
+			"/action/{event-id}/{id}",
+			"/action/{event-id}/{id}/{pathVar1:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
+			"/action/{event-id}/{id}/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
+		},
+		method = { RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE }
+	)
+	// @formatter:on
 	public ResponseEntity<Action> performAction(@PathVariable(name = "event-id") String eventId,
 			@PathVariable(name = "id") String actionId,
 			@PathVariable(required = false) Map<String, String> pathVariables, @RequestBody Action receivedData,
@@ -315,7 +331,9 @@ abstract class RestActionBase extends RestOperation {
 					ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
 							childField, beanWrapper, i.get());
 					actionField.addFieldsItem(childActionField);
-					applyValidationRules(request, childActionField, childField.get());
+					if (childField.isPresent()) {
+						applyValidationRules(request, childActionField, childField.get());
+					}
 				}
 			}
 

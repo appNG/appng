@@ -88,10 +88,18 @@ abstract class RestDataSourceBase extends RestOperation {
 		super(site, application, request, messageSource, supportPathParameters);
 	}
 
-	@GetMapping(path = { "/datasource/{id}", "/datasource/{id}/{pathVar1}", "/datasource/{id}/{pathVar1}/{pathVar2}",
+	// @formatter:off
+	@GetMapping(
+		path = {
+			"/datasource/{id}",
+			"/datasource/{id}/{pathVar1}",
+			"/datasource/{id}/{pathVar1}/{pathVar2}",
 			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
 			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
-			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" })
+			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}"
+		}
+	)
+	// @formatter:on
 	public ResponseEntity<Datasource> getDataSource(@PathVariable(name = "id") String dataSourceId,
 			@PathVariable(required = false) Map<String, String> pathVariables, Environment environment,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ProcessingException,

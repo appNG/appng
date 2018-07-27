@@ -428,7 +428,35 @@ public class RestClient {
 		private boolean reset = false;
 
 		/**
-		 * Creates e new pageable
+		 * Creates a new pageable without any sorting
+		 * 
+		 * @param page
+		 *            the zero-indexed page number
+		 * @param pageSize
+		 *            the size of a page
+		 **/
+		public Pageable(int page, int pageSize) {
+			this(page, pageSize, false);
+		}
+
+		/**
+		 * Creates a new pageable without any sorting
+		 * 
+		 * @param page
+		 *            the zero-indexed page number
+		 * @param pageSize
+		 *            the size of a page
+		 * @param reset
+		 *            set to {@code true} to reset current sort criteria
+		 **/
+		public Pageable(int page, int pageSize, boolean reset) {
+			this.page = page;
+			this.pageSize = pageSize;
+			this.reset = reset;
+		}
+
+		/**
+		 * Creates a new pageable
 		 * 
 		 * @param page
 		 *            the zero-indexed page number
@@ -444,7 +472,7 @@ public class RestClient {
 		}
 
 		/**
-		 * Creates e new pageable
+		 * Creates a new pageable
 		 * 
 		 * @param page
 		 *            the zero-indexed page number
@@ -455,7 +483,7 @@ public class RestClient {
 		 * @param order
 		 *            the direction to sort
 		 * @param reset
-		 *            {@code true} to reset current sort criteria
+		 *            set to {@code true} to reset current sort criteria
 		 */
 		public Pageable(int page, int pageSize, String field, OrderEnum order, boolean reset) {
 			setPage(page);
