@@ -75,6 +75,20 @@ public class ActionHelper {
 		return this;
 	}
 
+	/**
+	 * De-selects all {@link Option}s of a selection
+	 * 
+	 * @param name
+	 *            the name of the selection field
+	 */
+	public ActionHelper deselectAllOptions(String name) {
+		Optional<ActionField> field = getField(name);
+		if (field.isPresent() && isSelectionType(field.get())) {
+			field.get().getOptions().getEntries().forEach(o -> o.setSelected(false));
+		}
+		return this;
+	}
+
 	private boolean isSelectionType(ActionField actionField) {
 		return Arrays.asList(FieldType.LIST_CHECKBOX, FieldType.LIST_RADIO, FieldType.LIST_SELECT)
 				.contains(actionField.getFieldType());
