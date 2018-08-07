@@ -172,7 +172,7 @@ abstract class RestDataSourceBase extends RestOperation {
 			datasource.setElement(getElement(processedDataSource.getData().getResult(), metaData));
 		}
 
-		Messages messages = environment.getAttribute(Scope.SESSION, Session.Environment.MESSAGES);
+		Messages messages = environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 		datasource.setMessages(getMessages(messages));
 
 		postProcessDataSource(datasource, site, applicationProvider, environment);
