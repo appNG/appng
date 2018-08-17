@@ -34,7 +34,7 @@ import org.appng.api.support.SiteAwareObjectInputStream;
  * @author Matthias Müller
  *
  */
-public class AttributeWrapper implements Serializable {
+class AttributeWrapper implements Serializable {
 
 	private Object value;
 	private String siteName;

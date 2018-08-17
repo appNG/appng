@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.AbstractTest;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
@@ -164,7 +165,7 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testSessionEnvironment() {
-		SessionEnvironment sessionEnv = new SessionEnvironment(httpSession);
+		SessionEnvironment sessionEnv = new SessionEnvironment(httpSession, StringUtils.EMPTY);
 		String attributeName = "localhost";
 		Object attribute = sessionEnv.getAttribute(attributeName);
 		Assert.assertEquals(null, attribute);
