@@ -100,8 +100,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 * Creates a new {@link DefaultValidationProvider}.
 	 * 
 	 * @param messageInterpolator
-	 *            the {@link MessageInterpolator} used when adding validation
-	 *            messages
+	 *            the {@link MessageInterpolator} used when adding validation messages
 	 * @param messageSource
 	 *            the {@link MessageSource} used when adding validation messages
 	 * @param locale
@@ -116,15 +115,14 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 * Creates a new {@link DefaultValidationProvider}.
 	 * 
 	 * @param messageInterpolator
-	 *            the {@link MessageInterpolator} used when adding validation
-	 *            messages
+	 *            the {@link MessageInterpolator} used when adding validation messages
 	 * @param messageSource
 	 *            the {@link MessageSource} used when adding validation messages
 	 * @param locale
 	 *            the {@link Locale} used when adding validation messages
 	 * @param contraintsAsRule
-	 *            whether validation constraints should be added as a {@link Rule}
-	 *            to the {@link FieldDef}s {@link Validation}
+	 *            whether validation constraints should be added as a {@link Rule} to the {@link FieldDef}s
+	 *            {@link Validation}
 	 */
 	public DefaultValidationProvider(MessageInterpolator messageInterpolator, MessageSource messageSource,
 			Locale locale, boolean contraintsAsRule) {
@@ -139,8 +137,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	}
 
 	/**
-	 * Creates a new {@link DefaultValidationProvider} using the
-	 * {@link MessageInterpolator} returned from
+	 * Creates a new {@link DefaultValidationProvider} using the {@link MessageInterpolator} returned from
 	 * {@link ValidatorFactory#getMessageInterpolator()}.
 	 */
 	public DefaultValidationProvider() {
@@ -152,8 +149,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.appng.api.validation.ValidationProvider#addValidationMetaData(com
-	 * .appng.xml.api.MetaData, java.lang.ClassLoader)
+	 * @see org.appng.api.validation.ValidationProvider#addValidationMetaData(com .appng.xml.api.MetaData,
+	 * java.lang.ClassLoader)
 	 */
 	public void addValidationMetaData(MetaData metaData, ClassLoader classLoader, Class<?>... groups)
 			throws ClassNotFoundException {
@@ -433,9 +430,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.appng.api.validation.ValidationProvider#validateBean(java.lang.Object ,
-	 * org.appng.api.FieldProcessor, java.lang.Class<?>[])
+	 * @see org.appng.api.validation.ValidationProvider#validateBean(java.lang.Object , org.appng.api.FieldProcessor,
+	 * java.lang.Class<?>[])
 	 */
 	public void validateBean(Object bean, FieldProcessor fp, Class<?>... groups) {
 		if (null != bean) {
@@ -497,8 +493,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.appng.api.ValidationProvider#validateBean(java.lang.Object,
-	 * org.appng.api.FieldProcessor, java.lang.String[], java.lang.Class[])
+	 * @see org.appng.api.ValidationProvider#validateBean(java.lang.Object, org.appng.api.FieldProcessor,
+	 * java.lang.String[], java.lang.Class[])
 	 */
 	public void validateBean(Object bean, FieldProcessor fp, String[] excludeBindings, Class<?>... groups) {
 		List<String> excludeFields = Arrays.asList(excludeBindings);
@@ -513,9 +509,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.appng.api.validation.ValidationProvider#validateField(java.lang.Object ,
-	 * org.appng.api.FieldProcessor, java.lang.String, java.lang.Class<?>[])
+	 * @see org.appng.api.validation.ValidationProvider#validateField(java.lang.Object , org.appng.api.FieldProcessor,
+	 * java.lang.String, java.lang.Class<?>[])
 	 */
 	public void validateField(Object bean, FieldProcessor fp, String fieldBinding, Class<?>... groups) {
 		FieldDef field = fp.getField(fieldBinding);
