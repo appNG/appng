@@ -65,18 +65,14 @@ class AttributeWrapper implements Serializable {
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
 			siteName = (String) in.readObject();
 			if (in instanceof SiteAwareObjectInputStream) {
-				ClassLoader siteClassLoader = ((SiteAwareObjectInputStream) in).getSiteClassloader(siteName);
-				Thread.currentThread().setContextClassLoader(siteClassLoader);
+				((SiteAwareObjectInputStream) in).setSite(siteName);
 			}
 			value = in.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			throw e;
-		} finally {
-			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
 	}
 
