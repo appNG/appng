@@ -17,6 +17,7 @@ package org.appng.core.controller.rest;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -390,61 +391,71 @@ abstract class RestActionBase extends RestOperation {
 				params.getParam().forEach(originalParam -> {
 					Optional<Parameter> parameter = receivedData.getParameters().stream()
 							.filter(p -> p.getName().equals(originalParam.getName())).findFirst();
-					if (parameter.isPresent()) {
-						String value = parameter.get().getValue();
-						formRequest.addParameter(parameter.get().getName(), null == value ? null : value.toString());
+					if (parameter.isPresent() && null != parameter.get().getValue()) {
+						formRequest.addParameter(parameter.get().getName(), parameter.get().getValue());
 					}
 
 				});
 			}
 
 			MetaData metaData = original.getConfig().getMetaData();
-			metaData.getFields().forEach(originalField -> {
-				BeanWrapper beanWrapper = getBeanWrapper(metaData);
-				extractRequestParameter(null, receivedData.getFields(), formRequest, originalField, beanWrapper,
-						metaData.getBinding());
-			});
+			Map<String, ActionField> actionFields = getActionFieldMap(receivedData.getFields());
+			for (FieldDef field : metaData.getFields()) {
+				extractRequestParameter(StringUtils.EMPTY, field, actionFields, formRequest);
+			}
 		}
 	}
 
-	private void extractRequestParameter(String parameterPath, List<ActionField> receivedData,
-			org.appng.forms.Request formRequest, FieldDef originalField, BeanWrapper beanWrapper, String bindPrefix) {
-		if (!Boolean.TRUE.toString().equalsIgnoreCase(originalField.getReadonly())) {
-			log.debug("Extracting request parameter(s) for field {} of type {}, data contains {} action-fields",
-					originalField.getBinding(), originalField.getType(), receivedData.size());
-			final String originalFieldName = originalField.getName();
-			boolean isObject = org.appng.xml.platform.FieldType.OBJECT.equals(originalField.getType());
-			boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(originalField.getType());
-			Stream<ActionField> fieldStream = receivedData.stream().filter(f -> {
-				String name = f.getName().replaceAll(INDEX, INDEXED);
-				return name.equals(originalFieldName);
-			});
-			List<ActionField> optionalFields = fieldStream.collect(Collectors.toList());
-			for (ActionField actionField : optionalFields) {
-				log.debug("Found action-field {}", actionField.getName());
-				if (isSelectionType(originalField.getType())) {
-					extractSelectionValue(originalField, actionField, formRequest);
-				} else {
-					String parameterName = ((null == parameterPath || isObject) ? "" : parameterPath + ".")
-							+ actionField.getName();
+	private Map<String, ActionField> getActionFieldMap(List<ActionField> receivedData) {
+		Map<String, ActionField> actionFields = new HashMap<>();
+		receivedData.forEach(f -> actionFields.put(f.getName(), f));
+		return actionFields;
+	}
 
-					if (!(isObject || isObjectList)) {
-						String stringValue = getStringValue(actionField);
-						formRequest.addParameter(parameterName, stringValue);
-					} else {
-						for (FieldDef childField : originalField.getFields()) {
-							log.trace("Extracting child {} with index {} for action field {}", childField.getBinding(),
-									actionField.getName());
-							extractRequestParameter(parameterName, actionField.getFields(), formRequest, childField,
-									beanWrapper, bindPrefix);
+	private void extractRequestParameter(String pathPrefix, FieldDef field, Map<String, ActionField> actionFields,
+			org.appng.forms.Request formRequest) {
+		if (!Boolean.TRUE.toString().equalsIgnoreCase(field.getReadonly())) {
+			ActionField actionField = actionFields.get(field.getName());
+			boolean isObject = org.appng.xml.platform.FieldType.OBJECT.equals(field.getType());
+			boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(field.getType());
+			if (isObjectList) {
+				for (FieldDef child : field.getFields()) {
+					extractRequestParameter(pathPrefix, child, getActionFieldMap(actionField.getFields()), formRequest);
+				}
+			} else if (isObject) {
+				boolean isArray = field.getBinding().endsWith(INDEXED);
+				if (isArray) {
+					int i = 0;
+					ActionField nested;
+					while (null != (nested = actionFields
+							.get(field.getName().replace(INDEXED, String.format("[%s]", i++))))) {
+						for (FieldDef child : field.getFields()) {
+							Map<String, ActionField> nestedFields = getActionFieldMap(nested.getFields());
+							String objectPrefix = pathPrefix + nested.getName() + ".";
+							extractRequestParameter(objectPrefix, child, nestedFields, formRequest);
 						}
+					}
+				} else {
+					for (FieldDef child : field.getFields()) {
+						extractRequestParameter(field.getBinding(), child, getActionFieldMap(actionField.getFields()),
+								formRequest);
+					}
+				}
+			} else if (isSelectionType(field.getType())) {
+				extractSelectionValue(field, actionField, formRequest);
+			} else {
+				String stringValue = getStringValue(actionField);
+				if (null != stringValue) {
+					boolean isPassword = org.appng.xml.platform.FieldType.PASSWORD.equals(field.getType());
+					String parameterName = pathPrefix + actionField.getName();
+					formRequest.addParameter(parameterName, stringValue);
+					if (log.isDebugEnabled()) {
+						log.debug("Added parameter {} = {}", parameterName,
+								isPassword ? stringValue.replaceAll(".", "*") : stringValue);
 					}
 				}
 			}
-		} else {
-			log.trace("Field {} is readonly", originalField.getBinding());
 		}
-		log.trace("Done processing field {}", originalField.getBinding());
 	}
 
 	private String getStringValue(ActionField actionField) {
@@ -480,7 +491,9 @@ abstract class RestActionBase extends RestOperation {
 		RestRequest(org.appng.xml.platform.Action original, Action receivedData) {
 			RequestBean wrappedRequest = initWrappedRequest();
 			extractRequestParameters(original, receivedData, wrappedRequest);
-			log.debug("Parameters: {}", wrappedRequest.getParametersList());
+			if (log.isDebugEnabled()) {
+				log.debug("Parameters: {}", wrappedRequest.getParametersList());
+			}
 		}
 
 		RestRequest() {
