@@ -20,9 +20,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
 import org.appng.core.domain.PackageArchiveImpl;
 import org.appng.xml.application.PackageInfo;
+
+import de.skuzzle.semantic.Version;
 
 /**
  * Utility class offering methods that help dealing with {@link PackageVersion}s and {@link PackageInfo}rmations.
@@ -73,10 +74,10 @@ public class RepositoryUtils {
 		if (null == packageB) {
 			return true;
 		} else {
-			Long timestampA = getDate(packageA).getTime();
-			Long timestampB = getDate(packageB).getTime();
-			int isVersionNewer = StringUtils.compare(packageA.getVersion(), packageB.getVersion());
-			return (0 == isVersionNewer) ? (timestampA > timestampB) : (0 > isVersionNewer ? false : true);
+			Version versionA = Version.parseVersion(packageA.getVersion() + "-" + packageA.getTimestamp(), true);
+			Version versionB = Version.parseVersion(packageB.getVersion() + "-" + packageB.getTimestamp(), true);
+			int isVersionNewer = versionB.compareTo(versionA);
+			return 0 > isVersionNewer ? true : false;
 		}
 	}
 
