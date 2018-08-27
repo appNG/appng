@@ -73,6 +73,7 @@
     "readonly" : false,
     "visible" : true,
     "options" : {
+      "multiple" : false,
       "entries" : [ {
         "value" : "appng",
         "label" : "appng",

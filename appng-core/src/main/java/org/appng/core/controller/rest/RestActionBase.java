@@ -441,8 +441,8 @@ abstract class RestActionBase extends RestOperation {
 					}
 				} else {
 					for (FieldDef child : field.getFields()) {
-						extractRequestParameter(field.getBinding(), child, getActionFieldMap(actionField.getFields()),
-								formRequest);
+						extractRequestParameter(field.getBinding() + ".", child,
+								getActionFieldMap(actionField.getFields()), formRequest);
 					}
 				}
 			} else if (isSelectionType(field.getType())) {
