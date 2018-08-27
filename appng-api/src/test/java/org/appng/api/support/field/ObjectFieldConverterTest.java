@@ -176,6 +176,7 @@ public class ObjectFieldConverterTest extends AbstractFieldConverterTest {
 	@Override
 	@Test
 	public void testSetObject() throws Exception {
+		darth.getOffsprings().clear();
 		Set<String> parameterNames = new HashSet<String>();
 
 		parameterNames.add(addParameter("father.name", "Vader"));
