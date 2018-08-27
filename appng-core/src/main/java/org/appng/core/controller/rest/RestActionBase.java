@@ -58,6 +58,7 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Selection;
+import org.appng.xml.platform.SelectionType;
 import org.appng.xml.platform.UserInputField;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
@@ -306,7 +307,10 @@ abstract class RestActionBase extends RestOperation {
 				Optional<Selection> selection = processedAction.getData().getSelections().parallelStream()
 						.filter(s -> s.getId().equals(actionField.getName())).findFirst();
 				if (selection.isPresent()) {
-					actionField.setOptions(new Options());
+					Options options = new Options();
+					options.setMultiple(selection.get().getType().equals(SelectionType.CHECKBOX)
+							|| selection.get().getType().equals(SelectionType.SELECT_MULTIPLE));
+					actionField.setOptions(options);
 					selection.get().getOptions().forEach(o -> {
 						Option option = getOption(fieldDef.getBinding(), o, parameterList);
 						actionField.getOptions().addEntriesItem(option);
