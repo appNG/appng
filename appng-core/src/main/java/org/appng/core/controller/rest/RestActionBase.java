@@ -412,7 +412,9 @@ abstract class RestActionBase extends RestOperation {
 
 	private Map<String, ActionField> getActionFieldMap(List<ActionField> receivedData) {
 		Map<String, ActionField> actionFields = new HashMap<>();
-		receivedData.forEach(f -> actionFields.put(f.getName(), f));
+		if (null != receivedData) {
+			receivedData.forEach(f -> actionFields.put(f.getName(), f));
+		}
 		return actionFields;
 	}
 
