@@ -66,6 +66,7 @@ import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.util.ClassUtils;
@@ -448,15 +449,19 @@ public class DefaultValidationProvider implements ValidationProvider {
 					if (isArray) {
 						String arrayProperty = fieldDef.getBinding().substring(0,
 								fieldDef.getBinding().indexOf(INDEXED));
-						Object collectionValue = new BeanWrapperImpl(bean).getPropertyValue(arrayProperty);
+						BeanWrapper beanWrapper = new BeanWrapperImpl(bean);
+						Object collectionValue = beanWrapper.getPropertyValue(arrayProperty);
 						int size = ((Collection<?>) collectionValue).size();
 						for (int i = 0; i < size; i++) {
-							String indexedPropertyName = fieldDef.getBinding().replace(INDEXED, "[" + i + "]");
-							addFieldMessage(validator.validateProperty(bean, indexedPropertyName, groups), fieldDef);
+							String indexedPropertyName = String.format("%s[%s]", arrayProperty, i);
+							Object item = beanWrapper.getPropertyValue(indexedPropertyName);
+							addFieldMessage(validator.validateProperty(item, fieldDef.getName(), groups),
+									indexedPropertyName, fieldDef.getName(), fieldDef);
 						}
 					} else {
 						try {
-							addFieldMessage(validator.validateProperty(bean, reference, groups), fieldDef);
+							addFieldMessage(validator.validateProperty(bean, reference, groups), null,
+									fieldDef.getBinding(), fieldDef);
 						} catch (IllegalArgumentException e) {
 							// may occur when using properties like foo['bar']
 						}
@@ -465,20 +470,22 @@ public class DefaultValidationProvider implements ValidationProvider {
 			}
 			validateFields(bean, fieldDef.getFields(), groups);
 		}
+
 	}
 
-	private void addFieldMessage(Set<ConstraintViolation<Object>> violations, FieldDef fieldDef) {
+	private void addFieldMessage(Set<ConstraintViolation<Object>> violations, String propertyRoot,
+			String relativePropertyPath, FieldDef fieldDef) {
 		for (ConstraintViolation<Object> cv : getSortedViolations(violations)) {
 			String constraintPath = cv.getPropertyPath().toString();
 			String expectedBinding = constraintPath.replaceAll(INDEX_PATTERN, INDEXED);
 			int count = 0;
-			if (constraintPath.equals(fieldDef.getBinding()) || expectedBinding.equals(fieldDef.getBinding())) {
-				Message errorMessage = addFieldMessage(fieldDef, constraintPath, cv);
-				log.debug("Added message '{}' to field {} with reference {}", errorMessage.getContent(),
-						fieldDef.getBinding(), constraintPath);
+			String absolutePropertyPath = null == propertyRoot ? constraintPath : propertyRoot + "." + constraintPath;
+			if (constraintPath.equals(relativePropertyPath) || expectedBinding.equals(relativePropertyPath)) {
+				Message errorMessage = addFieldMessage(fieldDef, absolutePropertyPath, cv);
+				log.debug("Added message '{}' to field {}", errorMessage.getContent(), absolutePropertyPath);
 				count++;
 			}
-			log.debug("Added {} messages for field {}", count, fieldDef.getBinding());
+			log.debug("Added {} messages for field {}", count, absolutePropertyPath);
 		}
 	}
 
