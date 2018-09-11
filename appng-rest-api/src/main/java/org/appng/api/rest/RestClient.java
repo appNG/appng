@@ -36,6 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -92,7 +93,8 @@ public class RestClient {
 	public RestClient(String url, Map<String, String> cookies) {
 		this.url = url;
 		this.cookies = cookies;
-		this.restTemplate = new RestTemplate(Arrays.asList(new MappingJackson2HttpMessageConverter()));
+		this.restTemplate = new RestTemplate(
+				Arrays.asList(new MappingJackson2HttpMessageConverter(), new ByteArrayHttpMessageConverter()));
 		restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
 			@Override
 			protected boolean hasError(HttpStatus statusCode) {
@@ -326,19 +328,37 @@ public class RestClient {
 	}
 
 	/**
-	 * Returns the resource represented by the link as binary data
+	 * Returns the resource represented by the link as a byte array
 	 * 
 	 * @param link
 	 *            the ink to there resource
-	 * @return the response
+	 * @return the resource
 	 * @throws URISyntaxException
 	 *             if something is wrong with the link
 	 */
 	public RestResponseEntity<byte[]> getBinaryData(Link link) throws URISyntaxException {
+		String path = getRelativePathFromLink(link);
+		return getResource(path, byte[].class);
+	}
+
+	private String getRelativePathFromLink(Link link) {
 		String[] pathSegments = link.getTarget().split(PATH_SEPARATOR);
 		String path = PATH_SEPARATOR
 				+ StringUtils.join(Arrays.copyOfRange(pathSegments, 3, pathSegments.length), PATH_SEPARATOR);
-		return getResource(path, byte[].class);
+		return path;
+	}
+
+	/**
+	 * Returns the resource represented by the relative path as a byte array
+	 * 
+	 * @param relativePath
+	 *            the relative path, e.g. <code>/application/rest/downloads/4711</code>
+	 * @return the resource
+	 * @throws URISyntaxException
+	 *             if something is wrong with the path
+	 */
+	public RestResponseEntity<byte[]> getBinaryData(String relativePath) throws URISyntaxException {
+		return getResource(relativePath, byte[].class);
 	}
 
 	/**

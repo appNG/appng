@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.rest.model.Datasource;
 import org.appng.api.rest.model.Element;
 import org.appng.api.rest.model.FieldValue;
+import org.appng.api.rest.model.Filter;
 import org.appng.api.rest.model.Link;
 import org.appng.api.rest.model.Page;
 import org.springframework.http.ResponseEntity;
@@ -75,5 +76,20 @@ public class DataSourceHelper {
 		}
 		return Optional.empty();
 	}
-	
+
+	/**
+	 * Retrieves the filter with the given name, if any
+	 * 
+	 * @param name
+	 *            the name of the filter
+	 * @return an {@code Optional<Filter>}
+	 */
+	public Optional<Filter> getFilter(String name) {
+		List<Filter> filters = dataSource.getBody().getFilters();
+		if (null == filters) {
+			return Optional.empty();
+		}
+		return filters.parallelStream().filter(f -> f.getName().equals(name)).findFirst();
+	}
+
 }
