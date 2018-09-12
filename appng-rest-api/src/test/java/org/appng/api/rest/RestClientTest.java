@@ -40,7 +40,7 @@ public class RestClientTest {
 		cookies.put("foo", "bar");
 		cookies.put("lore", "ipsum");
 		RestClient restClient = new RestClient("foo", cookies);
-		List<String> cookieList = restClient.getHeaders().get(HttpHeaders.COOKIE);
+		List<String> cookieList = restClient.getHeaders(false).get(HttpHeaders.COOKIE);
 		Assert.assertTrue(cookieList.contains("foo=bar"));
 		Assert.assertTrue(cookieList.contains("lore=ipsum"));
 	}
