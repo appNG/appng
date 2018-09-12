@@ -42,6 +42,10 @@
 				<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 			</rule>
 		</validation>
+		<messages ref="father.name">
+			<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+			<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+		</messages>
 	</field>
 	<field name="offsprings[0].name" type="text" binding="offsprings[0].name">
 		<validation>

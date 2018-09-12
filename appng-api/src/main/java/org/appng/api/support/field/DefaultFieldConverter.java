@@ -63,7 +63,7 @@ class DefaultFieldConverter extends ConverterBase {
 			}
 		}
 	}
-	
+
 	static String stripNonPrintableCharacter(String value) {
 		return StringNormalizer.removeNonPrintableCharacters(value);
 	}

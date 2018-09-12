@@ -56,6 +56,7 @@ public class Person implements Named<Integer> {
 
 	private Person mother;
 
+	@Valid
 	private Person father;
 
 	private String description;

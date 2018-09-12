@@ -97,9 +97,11 @@ public class ValidationProviderTest extends AbstractTest {
 		FieldDef name = MetaDataProvider.getField("offsprings[0].name", FieldType.TEXT);
 		FieldDef firstname = MetaDataProvider.getField("offsprings[0].firstname", FieldType.TEXT);
 		FieldDef nameFromMap = MetaDataProvider.getField("offspringNames['Han'].name", FieldType.TEXT);
+		FieldDef fatherFirstName = MetaDataProvider.getField("father.father.name", FieldType.TEXT);
 		metaData.getFields().add(name);
 		metaData.getFields().add(firstname);
 		metaData.getFields().add(nameFromMap);
+		metaData.getFields().add(fatherFirstName);
 		URLClassLoader classLoader = new URLClassLoader(new URL[0]);
 		Mockito.when(site.getSiteClassLoader()).thenReturn(classLoader);
 		XmlValidator.validate(metaData, "-before");
@@ -120,10 +122,10 @@ public class ValidationProviderTest extends AbstractTest {
 		FieldDef nameField = MetaDataProvider.getField("name", FieldType.TEXT);
 		metaData.getFields().add(nameField);
 		metaData.getFields().add(offspringsList);
-		
+
 		FieldDef fatherName = MetaDataProvider.getField("father.name", FieldType.TEXT);
 		metaData.getFields().add(fatherName);
-		
+
 		FieldDef nestedPath = MetaDataProvider.getField("offsprings[0].name", FieldType.TEXT);
 		metaData.getFields().add(nestedPath);
 

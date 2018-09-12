@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.validation.Configuration;
 import javax.validation.ConstraintViolation;
 import javax.validation.MessageInterpolator;
+import javax.validation.Valid;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.DecimalMax;
@@ -184,7 +185,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 		return fieldDef.getValidation();
 	}
 
-	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(final Class<?> validationClass, final String propertyPath) {
+	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(final Class<?> validationClass,
+			final String propertyPath) {
 		String normalizedPath = propertyPath.replaceAll(INDEX_PATTERN, StringUtils.EMPTY);
 		int separator = normalizedPath.lastIndexOf('.');
 		String rootPath = separator > 0 ? normalizedPath.substring(0, separator) : normalizedPath;
@@ -195,10 +197,28 @@ public class DefaultValidationProvider implements ValidationProvider {
 		try {
 			Class<?> propertyType = validationClass;
 			Class<?> concreteType = validationClass;
+			Field ancestor = null;
+			boolean validAnnotationPresent = true;
 			if (!rootPath.equals(leafName)) {
+				String[] segments = rootPath.split("\\.");
 				for (String segment : rootPath.split("\\.")) {
 					Field field = propertyType.getDeclaredField(segment);
+					if (null != ancestor) {
+						String methodName = "get" + StringUtils.capitalize(segment);
+						Method getter = propertyType.getMethod(methodName);
+						Valid fieldAnnotation = field.getAnnotation(Valid.class);
+						Valid methodAnnotarion = getter.getAnnotation(Valid.class);
+						validAnnotationPresent = !(null == fieldAnnotation && null == methodAnnotarion);
+						if (!validAnnotationPresent) {
+							log.debug("Annotation @{} not found on property {}.{} of {}, returning",
+									Valid.class.getName(), ancestor.getName(), field.getName(), validationClass);
+							return null;
+						}
+						log.debug("Annotation @{} found on property {}.{} of {}", Valid.class.getName(),
+								ancestor.getName(), field.getName(), validationClass);
+					}
 					propertyType = field.getType();
+					ancestor = field;
 					if (Collection.class.isAssignableFrom(propertyType)) {
 						concreteType = (Class<?>) ((ParameterizedType) field.getGenericType())
 								.getActualTypeArguments()[0];
@@ -215,12 +235,12 @@ public class DefaultValidationProvider implements ValidationProvider {
 				PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(leafName);
 				if (null != propertyDescriptor) {
 					constraints = propertyDescriptor.getConstraintDescriptors();
+					log.debug("Found constraint(s) for path {} on type {}: {}", propertyPath, validationClass,
+							constraints);
 				}
-				log.debug("Found constraint(s) for path {} on type {}: {}",
-						null == propertyDescriptor ? "NOTHING" : propertyPath, validationClass, constraints);
 			}
 
-		} catch (NoSuchFieldException | SecurityException e) {
+		} catch (ReflectiveOperationException | SecurityException e) {
 			log.warn(String.format("Field '%s' not found on class %s!", propertyPath, validationClass), e);
 		}
 		return constraints;
