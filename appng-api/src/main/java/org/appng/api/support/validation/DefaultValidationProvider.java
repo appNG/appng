@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 import javax.validation.Configuration;
 import javax.validation.ConstraintViolation;
@@ -87,8 +86,6 @@ public class DefaultValidationProvider implements ValidationProvider {
 
 	private static final String INDEXED = "[]";
 	private static final String INDEX_PATTERN = "\\[\\d*\\]";
-	private static final java.util.regex.Pattern INDEXED_PROP = java.util.regex.Pattern
-			.compile("[^\\[]+(" + INDEX_PATTERN + ")\\S*");
 
 	private Validator validator;
 
@@ -187,46 +184,46 @@ public class DefaultValidationProvider implements ValidationProvider {
 		return fieldDef.getValidation();
 	}
 
-	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(Class<?> validationClass,
-			final String propertyPath) {
-		BeanDescriptor rootBeanDescriptor = validator.getConstraintsForClass(validationClass);
-		Matcher indexMatcher = INDEXED_PROP.matcher(propertyPath);
-		boolean isIndexedProperty = indexMatcher.matches();
-		int separator = propertyPath.indexOf('.');
-		int arrayIdx = -1;
+	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(final Class<?> validationClass, final String propertyPath) {
+		String normalizedPath = propertyPath.replaceAll(INDEX_PATTERN, StringUtils.EMPTY);
+		int separator = normalizedPath.lastIndexOf('.');
+		String rootPath = separator > 0 ? normalizedPath.substring(0, separator) : normalizedPath;
+		String leafName = separator > 0 ? normalizedPath.substring(separator + 1) : normalizedPath;
 
-		PropertyDescriptor propertyDescriptor = rootBeanDescriptor.getConstraintsForProperty(propertyPath);
-		if (null == propertyDescriptor && separator > 0) {
-			String rootProperty = propertyPath.substring(0, separator);
-			if (isIndexedProperty) {
-				String indexPart = indexMatcher.group(1);
-				arrayIdx = indexMatcher.end(1);
-				rootProperty = rootProperty.replace(indexPart, StringUtils.EMPTY);
-			}
-			try {
-				Field field = validationClass.getDeclaredField(rootProperty);
-				Class<?> propertyType = field.getType();
+		Set<ConstraintDescriptor<?>> constraints = null;
 
-				if (arrayIdx > 0 && Collection.class.isAssignableFrom(propertyType)) {
-					ParameterizedType collection = (ParameterizedType) field.getGenericType();
-					Class<?> collectionType = (Class<?>) collection.getActualTypeArguments()[0];
-					String nestedProperty = propertyPath.substring(arrayIdx + 1, propertyPath.length());
-					propertyDescriptor = validator.getConstraintsForClass(collectionType)
-							.getConstraintsForProperty(nestedProperty);
-				} else {
-					String nestedProperty = propertyPath.substring(separator + 1, propertyPath.length());
-					propertyDescriptor = validator.getConstraintsForClass(propertyType)
-							.getConstraintsForProperty(nestedProperty);
+		try {
+			Class<?> propertyType = validationClass;
+			Class<?> concreteType = validationClass;
+			if (!rootPath.equals(leafName)) {
+				for (String segment : rootPath.split("\\.")) {
+					Field field = propertyType.getDeclaredField(segment);
+					propertyType = field.getType();
+					if (Collection.class.isAssignableFrom(propertyType)) {
+						concreteType = (Class<?>) ((ParameterizedType) field.getGenericType())
+								.getActualTypeArguments()[0];
+					} else if (propertyType.isArray()) {
+						concreteType = propertyType.getComponentType();
+					} else {
+						concreteType = propertyType;
+					}
 				}
-			} catch (NoSuchFieldException | SecurityException e) {
-				log.warn(String.format("Field '%s' not found on class %s!", rootProperty, validationClass), e);
 			}
-		}
 
-		if (null != propertyDescriptor) {
-			return propertyDescriptor.getConstraintDescriptors();
+			BeanDescriptor beanDescriptor = validator.getConstraintsForClass(concreteType);
+			if (null != beanDescriptor) {
+				PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(leafName);
+				if (null != propertyDescriptor) {
+					constraints = propertyDescriptor.getConstraintDescriptors();
+				}
+				log.debug("Found constraint(s) for path {} on type {}: {}",
+						null == propertyDescriptor ? "NOTHING" : propertyPath, validationClass, constraints);
+			}
+
+		} catch (NoSuchFieldException | SecurityException e) {
+			log.warn(String.format("Field '%s' not found on class %s!", propertyPath, validationClass), e);
 		}
-		return null;
+		return constraints;
 
 	}
 
