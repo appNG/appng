@@ -303,7 +303,7 @@ public class RestClient {
 		return exchange(actionURL, data, HttpMethod.POST, Action.class);
 	}
 
-	protected HttpHeaders getHeaders() {
+	protected HttpHeaders getHeaders(boolean acceptAnyType) {
 		HttpHeaders headers = new HttpHeaders();
 		if (!cookies.isEmpty()) {
 			cookies.keySet().forEach(k -> {
@@ -313,7 +313,13 @@ public class RestClient {
 			});
 		}
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8, MediaType.APPLICATION_JSON));
+		List<MediaType> acceptableMediaTypes;
+		if (acceptAnyType) {
+			acceptableMediaTypes = Arrays.asList(MediaType.ALL);
+		} else {
+			acceptableMediaTypes = Arrays.asList(MediaType.APPLICATION_JSON_UTF8);
+		}
+		headers.setAccept(acceptableMediaTypes);
 		headers.set(HttpHeaders.USER_AGENT, "appNG Rest Client");
 		return headers;
 	}
@@ -328,7 +334,7 @@ public class RestClient {
 	}
 
 	/**
-	 * Returns the resource represented by the link as a byte array
+	 * Returns the resource represented by the link as binary data
 	 * 
 	 * @param link
 	 *            the ink to there resource
@@ -349,7 +355,7 @@ public class RestClient {
 	}
 
 	/**
-	 * Returns the resource represented by the relative path as a byte array
+	 * Returns the resource represented by the relative path
 	 * 
 	 * @param relativePath
 	 *            the relative path, e.g. <code>/application/rest/downloads/4711</code>
@@ -386,11 +392,16 @@ public class RestClient {
 	}
 
 	protected <IN, OUT> RestResponseEntity<IN> exchange(URI uri, OUT body, HttpMethod method, Class<IN> returnType) {
+		return exchange(uri, body, method, returnType, false);
+	}
+
+	protected <IN, OUT> RestResponseEntity<IN> exchange(URI uri, OUT body, HttpMethod method, Class<IN> returnType,
+			boolean acceptAnyType) {
 		if (log.isDebugEnabled() && body != null) {
 			doLog("OUT", body, null);
 		}
 		try {
-			RequestEntity<OUT> out = new RequestEntity<>(body, getHeaders(), method, uri);
+			RequestEntity<OUT> out = new RequestEntity<>(body, getHeaders(acceptAnyType), method, uri);
 			ResponseEntity<IN> in = restTemplate.exchange(out, returnType);
 			setCookies(in);
 			if (log.isDebugEnabled() && in.getBody() != null) {
@@ -432,7 +443,7 @@ public class RestClient {
 	 * @throws URISyntaxException
 	 */
 	public <IN> RestResponseEntity<IN> getResource(String path, Class<IN> returnType) throws URISyntaxException {
-		return exchange(path, null, returnType, HttpMethod.GET);
+		return exchange(new URI(url + path), null, HttpMethod.GET, returnType, true);
 	}
 
 	/**
