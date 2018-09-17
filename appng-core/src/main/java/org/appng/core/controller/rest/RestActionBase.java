@@ -52,6 +52,7 @@ import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.forms.impl.RequestBean;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Condition;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
@@ -421,46 +422,54 @@ abstract class RestActionBase extends RestOperation {
 	private void extractRequestParameter(String pathPrefix, FieldDef field, Map<String, ActionField> actionFields,
 			org.appng.forms.Request formRequest) {
 		if (!Boolean.TRUE.toString().equalsIgnoreCase(field.getReadonly())) {
-			ActionField actionField = actionFields.get(field.getName());
-			boolean isObject = org.appng.xml.platform.FieldType.OBJECT.equals(field.getType());
-			boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(field.getType());
-			if (isObjectList) {
-				for (FieldDef child : field.getFields()) {
-					extractRequestParameter(pathPrefix, child, getActionFieldMap(actionField.getFields()), formRequest);
-				}
-			} else if (isObject) {
-				boolean isArray = field.getBinding().endsWith(INDEXED);
-				if (isArray) {
-					int i = 0;
-					ActionField nested;
-					while (null != (nested = actionFields
-							.get(field.getName().replace(INDEXED, String.format("[%s]", i++))))) {
+			Condition condition = field.getCondition();
+			if (null == condition || Boolean.TRUE.toString().equalsIgnoreCase(condition.getExpression())) {
+				ActionField actionField = actionFields.get(field.getName());
+				boolean isObject = org.appng.xml.platform.FieldType.OBJECT.equals(field.getType());
+				boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(field.getType());
+				if (isObjectList) {
+					for (FieldDef child : field.getFields()) {
+						extractRequestParameter(pathPrefix, child, getActionFieldMap(actionField.getFields()),
+								formRequest);
+					}
+				} else if (isObject) {
+					boolean isArray = field.getBinding().endsWith(INDEXED);
+					if (isArray) {
+						int i = 0;
+						ActionField nested;
+						while (null != (nested = actionFields
+								.get(field.getName().replace(INDEXED, String.format("[%s]", i++))))) {
+							for (FieldDef child : field.getFields()) {
+								Map<String, ActionField> nestedFields = getActionFieldMap(nested.getFields());
+								String objectPrefix = pathPrefix + nested.getName() + ".";
+								extractRequestParameter(objectPrefix, child, nestedFields, formRequest);
+							}
+						}
+					} else {
 						for (FieldDef child : field.getFields()) {
-							Map<String, ActionField> nestedFields = getActionFieldMap(nested.getFields());
-							String objectPrefix = pathPrefix + nested.getName() + ".";
-							extractRequestParameter(objectPrefix, child, nestedFields, formRequest);
+							extractRequestParameter(field.getBinding() + ".", child,
+									getActionFieldMap(actionField.getFields()), formRequest);
 						}
 					}
+				} else if (isSelectionType(field.getType())) {
+					extractSelectionValue(field, actionField, formRequest);
 				} else {
-					for (FieldDef child : field.getFields()) {
-						extractRequestParameter(field.getBinding() + ".", child,
-								getActionFieldMap(actionField.getFields()), formRequest);
+					String stringValue = getStringValue(actionField);
+					if (null != stringValue) {
+						boolean isPassword = org.appng.xml.platform.FieldType.PASSWORD.equals(field.getType());
+						String parameterName = pathPrefix + actionField.getName();
+						formRequest.addParameter(parameterName, stringValue);
+						if (log.isDebugEnabled()) {
+							log.debug("Added parameter {} = {}", parameterName,
+									isPassword ? stringValue.replaceAll(".", "*") : stringValue);
+						}
 					}
 				}
-			} else if (isSelectionType(field.getType())) {
-				extractSelectionValue(field, actionField, formRequest);
 			} else {
-				String stringValue = getStringValue(actionField);
-				if (null != stringValue) {
-					boolean isPassword = org.appng.xml.platform.FieldType.PASSWORD.equals(field.getType());
-					String parameterName = pathPrefix + actionField.getName();
-					formRequest.addParameter(parameterName, stringValue);
-					if (log.isDebugEnabled()) {
-						log.debug("Added parameter {} = {}", parameterName,
-								isPassword ? stringValue.replaceAll(".", "*") : stringValue);
-					}
-				}
+				log.debug("Conditon for field {} did not match.", field.getBinding());
 			}
+		} else {
+			log.debug("Field {} is readonly.", field.getBinding());
 		}
 	}
 
