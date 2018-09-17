@@ -95,8 +95,12 @@ public class ActionHelper {
 	}
 
 	public Optional<ActionField> getField(List<ActionField> fields, String name) {
+		Optional<ActionField> flatField = fields.stream().filter(f -> f.getName().equals(name)).findFirst();
+		if (flatField.isPresent()) {
+			return flatField;
+		}
 		if (!name.contains(".")) {
-			return fields.stream().filter(f -> f.getName().equals(name)).findFirst();
+			return Optional.empty();
 		}
 		String[] segments = name.split("\\.");
 		Optional<ActionField> root = fields.stream().filter(f -> f.getName().equals(segments[0])).findFirst();

@@ -132,4 +132,20 @@ public class ActionHelperTest {
 		Assert.assertEquals(Optional.empty(), actionHelper.getField("xxx.nested"));
 	}
 
+	@Test
+	public void testFlatFieldWithNestedName() {
+		Action action = new Action();
+		ResponseEntity<Action> actionEntity = new ResponseEntity<>(action, HttpStatus.OK);
+		ActionField field = new ActionField();
+		field.setName("field.name");
+		field.setFieldType(FieldType.TEXT);
+		action.setFields(new ArrayList<>());
+		action.getFields().add(field);
+
+		ActionHelper actionHelper = ActionHelper.create(actionEntity);
+
+		Assert.assertEquals(field, actionHelper.getField("field.name").get());
+		Assert.assertEquals(Optional.empty(), actionHelper.getField("fieldd"));
+	}
+
 }
