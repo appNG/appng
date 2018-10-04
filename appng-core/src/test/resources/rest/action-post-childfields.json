@@ -78,5 +78,14 @@
         "format" : "#####"
       } ]
     } ]
+  },
+  {
+    "name" : "amount",
+    "value" : 100.00,
+    "label" : "label.empty",
+    "fieldType" : "decimal",
+    "readonly" : true,
+    "visible" : true,
+    "format" : "#,##0.00"
   } ]
 }

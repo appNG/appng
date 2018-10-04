@@ -18,9 +18,11 @@ package org.appng.core.controller.rest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -296,9 +298,11 @@ abstract class RestActionBase extends RestOperation {
 				// a successfully executed action does not contain UserData, so we have to take the data originally
 				// submitted by the user
 				Optional<ActionField> receivedField = receivedData.getFields().stream()
-						.filter(pdf -> pdf.getName().equals(fieldData.getName())).findFirst();
+						.filter(af -> af.getName().equals(fieldDef.getBinding())).findFirst();
 				if (receivedField.isPresent()) {
-					actionField.setValue(receivedField.get().getValue());
+					Object objectValue = receivedField.get().getValue();
+					actionField.setValue(objectValue);
+					log.debug("Setting value {} for field {}", objectValue, actionField.getName());
 				}
 			}
 			applyValidationRules(request, actionField, originalDef.get());
@@ -332,13 +336,23 @@ abstract class RestActionBase extends RestOperation {
 			List<Datafield> childDataFields = fieldData.getFields();
 			if (null != childDataFields) {
 				final AtomicInteger i = new AtomicInteger(0);
+				Set<String> childNames = new HashSet<>();
 				for (Datafield childData : childDataFields) {
-					Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.getAndIncrement(), childData);
-					ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
-							childField, beanWrapper, i.get());
-					actionField.addFieldsItem(childActionField);
-					if (childField.isPresent()) {
-						applyValidationRules(request, childActionField, childField.get());
+					if (!childNames.contains(childData.getName())) {
+						log.debug("Processing child {} of field {} with index {}.", childData.getName(),
+								fieldData.getName(), i.get());
+						Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.getAndIncrement(),
+								childData);
+						ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
+								childField, beanWrapper, i.get());
+						actionField.addFieldsItem(childActionField);
+						if (childField.isPresent()) {
+							applyValidationRules(request, childActionField, childField.get());
+						}
+						childNames.add(childData.getName());
+					} else {
+						log.debug("Child {} of field {} with index {} already processed.", childData.getName(),
+								fieldData.getName(), i.get());
 					}
 				}
 			}
