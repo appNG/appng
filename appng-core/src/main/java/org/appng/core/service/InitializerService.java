@@ -37,12 +37,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -528,8 +530,8 @@ public class InitializerService {
 
 		LOGGER.info("loading site " + site.getName() + " (" + host + ")");
 		LOGGER.info("loading applications for site " + site.getName());
-		List<URL> classPath = new ArrayList<URL>();
 
+		SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
 		Set<ApplicationProvider> applications = new HashSet<ApplicationProvider>();
 
 		// platform and application cache
@@ -634,13 +636,18 @@ public class InitializerService {
 					Collection<Resource> messageSources = applicationResources.getResources(ResourceType.DICTIONARY);
 					if (messageSources.size() > 0) {
 						File cachedFile = messageSources.iterator().next().getCachedFile();
-						URL messagesFolder = cachedFile.getParentFile().toURI().toURL();
-						classPath.add(messagesFolder);
+						siteClassPath.addFolder(cachedFile.getParentFile().toPath(), application.getName());
 					}
 
 					Collection<Resource> jars = applicationResources.getResources(ResourceType.JAR);
 					for (Resource applicationResource : jars) {
-						classPath.add(applicationResource.getCachedFile().toURI().toURL());
+						File cachedFile = applicationResource.getCachedFile();
+						String origin = siteClassPath.addJar(cachedFile.toPath(), application.getName());
+						if (!application.getName().equals(origin)) {
+							LOGGER.warn(
+									"{} from application {} has not been added to the site's classpath, since this jar has already been added by application {}",
+									cachedFile.getName(), application.getName(), origin);
+						}
 					}
 
 					FeatureProviderImpl featureProvider = new FeatureProviderImpl(applicationProvider.getProperties());
@@ -653,9 +660,6 @@ public class InitializerService {
 					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
 					databaseService.migrateApplication(sqlFolder, siteApplication.getDatabaseConnection());
 
-				} catch (MalformedURLException mfu) {
-					fp.addErrorMessage(errorMessage);
-					LOGGER.error(errorMessage, mfu);
 				} catch (InvalidConfigurationException ice) {
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
@@ -665,10 +669,7 @@ public class InitializerService {
 
 		site.getSiteApplications().clear();
 
-		URL[] urls = classPath.toArray(new URL[classPath.size()]);
-		ClassLoader classLoader = getClass().getClassLoader();
-		SiteClassLoader siteClassLoader = new SiteClassLoader(urls, classLoader, site.getName());
-
+		SiteClassLoader siteClassLoader = siteClassPath.build(getClass().getClassLoader(), site.getName());
 		Thread.currentThread().setContextClassLoader(siteClassLoader);
 
 		LOGGER.info(siteClassLoader.toString());
@@ -914,4 +915,33 @@ public class InitializerService {
 		}
 	}
 
+	class SiteClassLoaderBuilder {
+		private Map<java.nio.file.Path, String> paths = new HashMap<>();
+
+		String addJar(java.nio.file.Path jarfile, String origin) {
+			Optional<java.nio.file.Path> exisiting = paths.keySet().parallelStream()
+					.filter(p -> p.getFileName().equals(jarfile.getFileName())).findFirst();
+			if (exisiting.isPresent()) {
+				return paths.get(exisiting.get());
+			}
+			paths.put(jarfile, origin);
+			return origin;
+		}
+
+		void addFolder(java.nio.file.Path folder, String origin) {
+			paths.put(folder, origin);
+		}
+
+		SiteClassLoader build(ClassLoader parent, String site) {
+			List<URL> urls = paths.keySet().parallelStream().map(p -> {
+				try {
+					return p.toUri().toURL();
+				} catch (MalformedURLException e) {
+					LOGGER.warn(String.format("Error building SiteClassLoader for site %s", site), e);
+				}
+				return null;
+			}).filter(u -> u != null).collect(Collectors.toList());
+			return new SiteClassLoader(urls.toArray(new URL[0]), parent, site);
+		}
+	}
 }
