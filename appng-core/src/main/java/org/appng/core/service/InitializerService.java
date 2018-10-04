@@ -915,7 +915,7 @@ public class InitializerService {
 		}
 	}
 
-	class SiteClassLoaderBuilder {
+	static class SiteClassLoaderBuilder {
 		private Map<java.nio.file.Path, String> paths = new HashMap<>();
 
 		String addJar(java.nio.file.Path jarfile, String origin) {
