@@ -37,6 +37,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -94,7 +96,8 @@ public class RestClient {
 		this.url = url;
 		this.cookies = cookies;
 		this.restTemplate = new RestTemplate(
-				Arrays.asList(new MappingJackson2HttpMessageConverter(), new ByteArrayHttpMessageConverter()));
+				Arrays.asList(new ByteArrayHttpMessageConverter(), new StringHttpMessageConverter(),
+						new MappingJackson2HttpMessageConverter(), new ResourceHttpMessageConverter()));
 		restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
 			@Override
 			protected boolean hasError(HttpStatus statusCode) {
@@ -212,11 +215,23 @@ public class RestClient {
 	}
 
 	private void doLog(String prefix, Object body, HttpStatus httpStatus) {
-		try {
-			log.debug("{}: {} {}", prefix, (null != httpStatus ? " " + httpStatus.value() : ""),
-					objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
-		} catch (JsonProcessingException e) {
-			log.error("error parsing JSON body", e);
+		if (log.isDebugEnabled()) {
+			String content = StringUtils.EMPTY;
+			if (null != body) {
+				Class<?> bodyType = body.getClass();
+				if (!(bodyType.isPrimitive() || bodyType.isArray())
+						&& bodyType.getPackage().getName().startsWith("org.appng.api.rest.model")) {
+					try {
+						content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body);
+					} catch (JsonProcessingException e) {
+						log.error("error parsing JSON body", e);
+					}
+				} else {
+					content = body.toString();
+				}
+			}
+			Object status = null != httpStatus ? " " + httpStatus.value() : "";
+			log.debug("{}: {} {}", prefix, status, content);
 		}
 	}
 
