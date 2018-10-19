@@ -58,6 +58,7 @@
 		<springDataJpaVersion>1.11.8.RELEASE</springDataJpaVersion>
 		<springDataEnversVersion>1.1.8.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.1.4</queryDslVersion>
+		<keycloak.version>4.5.0.Final</keycloak.version>
 		<luceneVersion>6.6.2</luceneVersion>
 		<tikaVersion>1.16</tikaVersion>
 		<hibernateVersion>5.2.12.Final</hibernateVersion>
@@ -447,6 +448,34 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<configuration>
+					<append>true</append>
+				</configuration>
+				<executions>
+					<execution>
+						<id>agent-for-ut</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>agent-for-it</id>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>

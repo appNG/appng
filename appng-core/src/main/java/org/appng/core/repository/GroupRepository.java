@@ -17,6 +17,7 @@ package org.appng.core.repository;
 
 import java.util.List;
 
+import org.appng.api.model.Group;
 import org.appng.core.domain.GroupImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -37,5 +38,7 @@ public interface GroupRepository extends SearchRepository<GroupImpl, Integer> {
 	GroupImpl getGroup(Integer groupId);
 
 	List<GroupImpl> findByDefaultAdmin(boolean defaultAdmin);
+
+	List<Group> findByNameIn(List<String> names);
 
 }

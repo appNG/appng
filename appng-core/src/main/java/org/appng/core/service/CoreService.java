@@ -542,6 +542,31 @@ public class CoreService {
 		return login(env, loginSubject);
 	}
 
+	public boolean loginByUserName(Environment env, String username) {
+		Subject subject = getSubjectByName(username, true);
+		if (null != subject && UserType.LOCAL_USER.equals(subject.getUserType())) {
+			return login(env, subject);
+		} else {
+			log.info("User {} not found or not a local user!", username);
+			return false;
+		}
+	}
+
+	public boolean loginUserWithGroups(Environment env, String userName, String email, String realName,
+			List<String> appNGGroups) {
+		List<Group> groups = groupRepository.findByNameIn(appNGGroups);
+		if (groups.isEmpty()) {
+			return false;
+		}
+		SubjectImpl subject = new SubjectImpl();
+		subject.setEmail(email);
+		subject.setName(userName);
+		subject.setRealname(realName);
+		subject.setGroups(groups);
+		initializeSubject(subject);
+		return login(env, subject);
+	}
+
 	public boolean login(Environment env, String digest, int digestMaxValidity) {
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String sharedSecret = platformConfig.getString(Platform.Property.SHARED_SECRET);
@@ -1175,8 +1200,7 @@ public class CoreService {
 			try {
 				File outputFile = new File(outputPath);
 				FileUtils.forceMkdir(outputFile.getParentFile());
-				try (
-						OutputStream outputStream = new FileOutputStream(outputFile);
+				try (OutputStream outputStream = new FileOutputStream(outputFile);
 						InputStream inputStream = new ByteArrayInputStream(applicationResource.getBytes())) {
 					IOUtils.copy(inputStream, outputStream);
 					log.debug("writing " + outputPath);
@@ -2131,6 +2155,10 @@ public class CoreService {
 
 	public void createEvent(Type type, String message, HttpSession session) {
 		auditableListener.createEvent(type, message, session);
+	}
+
+	public void deactivateApplication(String siteName, String applicationName) {
+		getSiteApplication(siteName, applicationName).setActive(false);
 	}
 
 }

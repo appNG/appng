@@ -365,6 +365,12 @@
 			<artifactId>semantic-version</artifactId>
 			<version>1.2.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-core</artifactId>
+			<version>${keycloak.version}</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->
 </project>
