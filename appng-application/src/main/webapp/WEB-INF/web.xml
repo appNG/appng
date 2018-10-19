@@ -28,7 +28,18 @@
 
 	<!-- ##################### Filter definitions ##################### -->
 
-	<!-- XSS Filter-->
+	<!-- Keycloak -->
+	<filter>
+		<filter-name>KeycloakLoginFilter</filter-name>
+		<filter-class>org.appng.core.controller.filter.KeycloakLoginFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>KeycloakLoginFilter</filter-name>
+		<servlet-name>controller</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+
+	<!-- XSS Filter -->
 	<filter>
 		<filter-name>XSSFilter</filter-name>
 		<filter-class>org.appng.core.controller.filter.XSSFilter</filter-class>
@@ -113,5 +124,25 @@
 		<error-code>404</error-code>
 		<location>/errorpage</location>
 	</error-page>
+
+	<!-- Keycloak -->
+	<!--security-constraint>
+		<web-resource-collection>
+			<web-resource-name>appNG Manager</web-resource-name>
+			<url-pattern>/manager/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>appNG Keycloak User</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>this is ignored currently</realm-name>
+	</login-config>
+
+	<security-role>
+		<role-name>appNG Keycloak User</role-name>
+	</security-role-->
 
 </web-app>
