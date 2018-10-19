@@ -29,7 +29,7 @@
 	<!-- ##################### Filter definitions ##################### -->
 
 	<!-- Keycloak -->
-	<filter>
+	<!--filter>
 		<filter-name>KeycloakLoginFilter</filter-name>
 		<filter-class>org.appng.core.controller.filter.KeycloakLoginFilter</filter-class>
 	</filter>
@@ -37,7 +37,7 @@
 		<filter-name>KeycloakLoginFilter</filter-name>
 		<servlet-name>controller</servlet-name>
 		<dispatcher>REQUEST</dispatcher>
-	</filter-mapping>
+	</filter-mapping-->
 
 	<!-- XSS Filter -->
 	<filter>
