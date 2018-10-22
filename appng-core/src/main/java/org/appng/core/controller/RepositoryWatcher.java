@@ -16,6 +16,7 @@
 package org.appng.core.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -64,6 +65,7 @@ public class RepositoryWatcher implements Runnable {
 	private WatchService watcher;
 	private boolean needsToBeWatched = false;
 	private Map<String, List<String>> forwardMap;
+	protected Long forwardsUpdatedAt = null;
 
 	private String wwwDir;
 
@@ -99,13 +101,17 @@ public class RepositoryWatcher implements Runnable {
 		this.configFile = configFile;
 		this.ruleSourceSuffix = ruleSourceSuffix;
 		readUrlRewrites(configFile);
+		watch(configFile.getParentFile().toPath());
 
 		for (String docDir : documentDirs) {
-			Path path = new File(wwwDir, docDir).toPath();
-			LOG.info("watching {}", path.toString());
-			path.register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+			watch(new File(wwwDir, docDir).toPath());
 		}
 
+	}
+
+	private void watch(Path path) throws IOException {
+		LOG.info("watching {}", path.toString());
+		path.register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 	}
 
 	public void run() {
@@ -124,21 +130,23 @@ public class RepositoryWatcher implements Runnable {
 				}
 				Path eventPath = (Path) key.watchable();
 				File absoluteFile = new File(eventPath.toFile(), ((Path) event.context()).toString());
+				LOG.debug("received event {} for {}", event.kind(), absoluteFile);
 				if (absoluteFile.equals(configFile)) {
 					readUrlRewrites(absoluteFile);
+				} else {
+					String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
+					String relativePathName = absolutePath.substring(wwwDir.length());
+					if (relativePathName.endsWith(jspExtension)) {
+						relativePathName = relativePathName.substring(0,
+								relativePathName.length() - jspExtension.length());
+					}
+					removeFromCache(relativePathName);
+					if (forwardMap.containsKey(relativePathName)) {
+						forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
+					}
+					LOG.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
+							System.currentTimeMillis() - start);
 				}
-				LOG.debug("received event {} for {}", event.kind(), absoluteFile);
-				String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
-				String relativePathName = absolutePath.substring(wwwDir.length());
-				if (relativePathName.endsWith(jspExtension)) {
-					relativePathName = relativePathName.substring(0, relativePathName.length() - jspExtension.length());
-				}
-				removeFromCache(relativePathName);
-				if (forwardMap.containsKey(relativePathName)) {
-					forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
-				}
-				LOG.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
-						System.currentTimeMillis() - start);
 			}
 			boolean valid = key.reset();
 			if (!valid) {
@@ -191,6 +199,7 @@ public class RepositoryWatcher implements Runnable {
 				}
 				LOG.info("{} has been read, {} forward rules have been processed", configFile.getAbsolutePath(),
 						forwardRules.getLength());
+				forwardsUpdatedAt = System.currentTimeMillis();
 			} catch (Exception e) {
 				LOG.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
 			}
