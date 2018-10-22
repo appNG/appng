@@ -83,7 +83,8 @@ public class DefaultEnvironment implements Environment {
 				}
 			}
 			if (null != httpSession) {
-				session = new SessionEnvironment(httpSession);
+				Site currentSite = RequestUtil.getSite(this, servletRequest);
+				session = new SessionEnvironment(httpSession, null == currentSite ? null : currentSite.getName());
 				enable(Scope.SESSION);
 			}
 			if (null != servletRequest) {
@@ -346,14 +347,14 @@ public class DefaultEnvironment implements Environment {
 			boolean createNewSession = site == null
 					|| site.getProperties().getBoolean(SiteProperties.RENEW_SESSION_AFTER_LOGIN, true);
 			if (createNewSession && subject.isAuthenticated()) {
-				Map<String, Object> container = session.getContainer();
+				Map<String, Object> oldContainer = session.getContainer();
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.SID);
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.TIMEOUT);
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.STARTTIME);
 				session.logout();
 				HttpSession httpSession = ((HttpServletRequest) request.getServletRequest()).getSession(true);
-				session = new SessionEnvironment(httpSession);
-				container.keySet().forEach(key -> setAttribute(Scope.SESSION, key, container.get(key)));
+				session = new SessionEnvironment(httpSession, session.getSiteName());
+				oldContainer.keySet().forEach(key -> session.getContainer().put(key, oldContainer.get(key)));
 			}
 			setLocationFromSubject(subject);
 			setAttribute(Scope.SESSION, Session.Environment.SUBJECT, subject);

@@ -397,7 +397,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			List<DataSourceElement> dataSourceWrappers) throws ProcessingException {
 		boolean hasRedirect = false;
 		boolean isSectionHidden = Boolean.parseBoolean(section.getHidden());
-		
+
 		for (final SectionelementDef sectionelement : elements) {
 
 			String folded = applicationRequest.getExpressionEvaluator().getString(sectionelement.getFolded());
@@ -525,8 +525,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private ActionElement getActionSectionElement(ApplicationRequest applicationRequest,
-			ApplicationConfig applicationConfig, SectionelementDef sectionelement, PageReference pageReference, boolean isSectionHidden)
-			throws ProcessingException {
+			ApplicationConfig applicationConfig, SectionelementDef sectionelement, PageReference pageReference,
+			boolean isSectionHidden) throws ProcessingException {
 		ActionRef actionRef = sectionelement.getAction();
 		if (null != actionRef) {
 			ActionElement actionElement = new ActionElement(site, application, applicationRequest, actionRef);
@@ -844,10 +844,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Action action = applicationConfigProvider.getAction(eventId, actionId);
 		if (null == action) {
+			log.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
+					site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return null;
 		}
-		if (permissionsPresent(action.getConfig()) || applicationRequest.getEnvironment().isSubjectAuthenticated()) {
+		Environment environment = applicationRequest.getEnvironment();
+		if (permissionsPresent(action.getConfig()) || environment.isSubjectAuthenticated()) {
 			Params params = action.getConfig().getParams();
 			ActionRef actionRef = new ActionRef();
 			actionRef.setEventId(eventId);
@@ -861,15 +864,24 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableAction callableAction = new CallableAction(site, application, applicationRequest, actionRef);
 
 			if (callableAction.doInclude() || callableAction.doExecute()) {
+				log.debug("Performing action {}:{} of application {} on site {}", eventId, actionId,
+						application.getName(), site.getName());
 				callableAction.perform(false);
-				Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
+				Messages messages = elementHelper.removeMessages(environment);
 				if (null != messages) {
 					messages.setRef(actionId);
 					action.setMessages(messages);
 				}
 				return action;
 			}
+			log.debug("Include condition for action {}:{} of application {} on site {} does not match.", eventId,
+					actionId, application.getName(), site.getName());
 		}
+		Subject subject = environment.getSubject();
+		log.debug(
+				"Action {}:{} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
+				eventId, actionId, application.getName(), site.getName(),
+				subject == null ? "<unknown>" : subject.getAuthName());
 		servletResponse.setStatus(HttpStatus.FORBIDDEN.value());
 		return null;
 	}
@@ -893,11 +905,14 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Datasource dataSource = applicationConfigProvider.getDatasource(dataSourceId);
 		if (null == dataSource) {
+			log.debug("DataSource {} not found on application {} of site {}", dataSource, application.getName(),
+					site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return null;
 		}
 		DataConfig config = dataSource.getConfig();
-		if (permissionsPresent(config) || applicationRequest.getEnvironment().isSubjectAuthenticated()) {
+		Environment environment = applicationRequest.getEnvironment();
+		if (permissionsPresent(config) || environment.isSubjectAuthenticated()) {
 			Params params = config.getParams();
 			DatasourceRef datasourceRef = new DatasourceRef();
 			datasourceRef.setId(dataSourceId);
@@ -911,10 +926,19 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
 					parameterSupport, datasourceRef);
 			if (callableDataSource.doInclude()) {
+				log.debug("Performing dataSource {} of application {} on site {}", dataSourceId, application.getName(),
+						site.getName());
 				callableDataSource.perform("service");
 				return callableDataSource.getDatasource();
 			}
+			log.debug("Include condition for dataSource {} of application {} on site {} does not match.", dataSourceId,
+					application.getName(), site.getName());
 		}
+		Subject subject = environment.getSubject();
+		log.debug(
+				"DataSource {} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
+				dataSource, application.getName(), site.getName(),
+				subject == null ? "<unknown>" : subject.getAuthName());
 		servletResponse.setStatus(HttpStatus.FORBIDDEN.value());
 		return null;
 	}

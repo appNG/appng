@@ -36,4 +36,5 @@
 	<field name="offsprings[0].name" type="text" binding="offsprings[0].name" />
 	<field name="offsprings[0].firstname" type="text" binding="offsprings[0].firstname" />
 	<field name="offspringNames['Han'].name" type="text" binding="offspringNames['Han'].name" />
+	<field name="father.father.name" type="text" binding="father.father.name" />
 </metaData>

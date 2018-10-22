@@ -40,6 +40,7 @@ import org.appng.api.support.environment.DefaultEnvironment;
 public class SiteAwareObjectInputStream extends ObjectInputStream {
 
 	private final Environment environment;
+	private String site;
 
 	/**
 	 * Creates an {@link SiteAwareObjectInputStream}, retrieving informations about the active
@@ -63,7 +64,7 @@ public class SiteAwareObjectInputStream extends ObjectInputStream {
 
 	@Override
 	protected Class<?> resolveClass(ObjectStreamClass objectStreamClass) throws IOException, ClassNotFoundException {
-		return Class.forName(objectStreamClass.getName(), false, Thread.currentThread().getContextClassLoader());
+		return Class.forName(objectStreamClass.getName(), false, getSiteClassloader(site));
 	}
 
 	/**
@@ -79,12 +80,16 @@ public class SiteAwareObjectInputStream extends ObjectInputStream {
 	}
 
 	public ClassLoader getSiteClassloader(String siteName) {
-		Site site = getSite(siteName);
+		Site site = null == siteName ? null : getSite(siteName);
 		return null == site ? Thread.currentThread().getContextClassLoader() : site.getSiteClassLoader();
 	}
 
 	public Environment getEnvironment() {
 		return environment;
+	}
+
+	public void setSite(String site) {
+		this.site = site;
 	}
 
 }

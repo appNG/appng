@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -55,6 +56,7 @@ public class Person implements Named<Integer> {
 
 	private Person mother;
 
+	@Valid
 	private Person father;
 
 	private String description;
@@ -63,6 +65,7 @@ public class Person implements Named<Integer> {
 
 	private List<String> strings = new ArrayList<String>();
 
+	@Valid
 	private List<Person> offsprings = new ArrayList<Person>();
 
 	private FormUpload picture;

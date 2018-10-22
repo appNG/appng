@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.Person">
+	<field name="offsprings" type="list:object" binding="offsprings">
+		<field name="offsprings[]" type="object" binding="offsprings[]">
+			<field name="offsprings" type="list:object" binding="offsprings[].offsprings">
+				<field name="offsprings[]" type="object" binding="offsprings[].offsprings[]">
+					<field name="name" type="text"></field>
+				</field>
+			</field>
+
+			<field name="name" type="text"></field>
+		</field>
+	</field>
+</metaData>

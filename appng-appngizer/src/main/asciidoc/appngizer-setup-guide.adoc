@@ -42,6 +42,8 @@ The first is `WEB-INF/web.xml` as the `<init-param>` named `APPNG_HOME` of the `
 	<init-param>
 		<param-name>APPNG_HOME</param-name>
 		<param-value>/path/to/tomcat/webapps/ROOT</param-value>
+		<!-- for Windows use this: -->
+		<!-- param-value>C:/path/to/tomcat/webapps/ROOT</param-value-->
 	</init-param>
 	<load-on-startup>1</load-on-startup>
 </servlet>

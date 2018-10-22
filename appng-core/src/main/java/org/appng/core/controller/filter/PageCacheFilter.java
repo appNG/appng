@@ -109,7 +109,7 @@ public class PageCacheFilter extends CachingFilter {
 			logRequestHeaders(request);
 			PageInfo pageInfo = buildPageInfo(request, response, chain, blockingCache);
 			if (null != pageInfo) {
-				if (response.isCommitted()) {
+				if (pageInfo.isOk() && response.isCommitted()) {
 					throw new AlreadyCommittedException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
@@ -176,15 +176,17 @@ public class PageCacheFilter extends CachingFilter {
 					// send to client
 					pageInfo = buildPage(request, response, chain, blockingCache);
 					int size = ArrayUtils.getLength(pageInfo.getUngzippedBody());
-					if (pageInfo.isOk() && size > 0) {
+					boolean filterNotDisabled = filterNotDisabled(request);
+					if (pageInfo.isOk() && size > 0 && filterNotDisabled) {
 						if (LOG.isDebugEnabled()) {
 							LOG.debug("PageInfo ok. Adding to cache {} with key {}", blockingCache.getName(), key);
 						}
 						blockingCache.put(new Element(key, pageInfo));
 					} else {
 						if (LOG.isDebugEnabled()) {
-							LOG.debug("PageInfo was not ok ({}, size: {}). Putting null into cache {} with key {}",
-									pageInfo.getStatusCode(), size, blockingCache.getName(), key);
+							LOG.debug(
+									"PageInfo was not ok (status: {}, size: {}, caching disabled: {}). Putting null into cache {} with key {}",
+									pageInfo.getStatusCode(), size, !filterNotDisabled, blockingCache.getName(), key);
 						}
 						blockingCache.put(new Element(key, null));
 					}

@@ -1,0 +1,106 @@
+{
+  "id" : "datasource-result",
+  "parameters" : [ {
+    "name" : "siteid",
+    "value" : "1"
+  } ],
+  "user" : {
+    "locale" : "en",
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ".",
+    "groupingSeparator" : ","
+  },
+  "fields" : [ {
+    "name" : "id",
+    "label" : "ID",
+    "fieldType" : "int",
+    "format" : "#"
+  }, {
+    "name" : "name",
+    "label" : "Name",
+    "fieldType" : "text"
+  }, {
+    "name" : "host",
+    "label" : "Host",
+    "fieldType" : "text",
+    "rules" : [ {
+      "type" : "javax.validation.constraints.NotNull",
+      "message" : "Field must not be empty",
+      "messageKey" : "{validation.notNull}"
+    }, {
+      "type" : "javax.validation.constraints.Pattern",
+      "message" : "{validation.host}",
+      "messageKey" : "{validation.host}",
+      "options" : [ {
+        "name" : "regexp",
+        "value" : "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])"
+      } ]
+    } ]
+  }, {
+    "name" : "domain",
+    "label" : "Domain",
+    "fieldType" : "text",
+    "rules" : [ {
+      "type" : "javax.validation.constraints.NotNull",
+      "message" : "Field must not be empty",
+      "messageKey" : "{validation.notNull}"
+    }, {
+      "type" : "javax.validation.constraints.Pattern",
+      "message" : "{validation.domain}",
+      "messageKey" : "{validation.domain}",
+      "options" : [ {
+        "name" : "regexp",
+        "value" : "(http(s?)(\\://))?((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]))(\\:[0-9]+)?"
+      } ]
+    } ]
+  }, {
+    "name" : "description",
+    "label" : "Description",
+    "fieldType" : "longtext",
+    "rules" : [ {
+      "type" : "javax.validation.constraints.Size",
+      "message" : "Enter at most 8192 characters",
+      "messageKey" : "{validation.string.max}",
+      "options" : [ {
+        "name" : "max",
+        "value" : "8192"
+      }, {
+        "name" : "min",
+        "value" : "0"
+      } ]
+    } ]
+  }, {
+    "name" : "active",
+    "label" : "Active",
+    "fieldType" : "checkbox"
+  }, {
+    "name" : "template",
+    "label" : "Template",
+    "fieldType" : "list_radio"
+  } ],
+  "element" : {
+    "fields" : [ {
+      "name" : "id",
+      "value" : 1,
+      "formattedValue" : "1"
+    }, {
+      "name" : "name",
+      "value" : "appng"
+    }, {
+      "name" : "host",
+      "value" : "dev.appng.io"
+    }, {
+      "name" : "domain",
+      "value" : "https://dev.appng.io"
+    }, {
+      "name" : "description",
+      "value" : "appng Manager Instance"
+    }, {
+      "name" : "active",
+      "value" : true
+    }, {
+      "name" : "template"
+    } ],
+    "selected" : false
+  }
+}

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<action xmlns="http://www.appng.org/schema/platform" id="create" eventId="siteEvent">
+	<config>
+		<title id="site.create">Create site</title>
+		<permissions>
+			<permission ref="site.create" mode="set">true</permission>
+		</permissions>
+		<params>
+			<param name="form_action"></param>
+		</params>
+		<meta-data binding="site" bindClass="org.appng.core.controller.rest.model.SiteForm">
+			<field name="name" type="text" binding="site.name">
+				<label id="name">Name</label>
+				<validation>
+					<rule name="notNull" type="javax.validation.constraints.NotNull">
+						<message ref="site.name" class="ERROR">Enter at most 64 characters</message>
+					</rule>
+					<rule name="size" type="javax.validation.constraints.Size">
+						<option name="min" value="0" />
+						<option name="max" value="64" />
+						<message ref="site.name" class="ERROR">Field must not be empty</message>
+					</rule>
+					<rule name="pattern" type="javax.validation.constraints.Pattern">
+						<option name="regexp" value="[a-zA-Z0-9\-]{3,}" />
+						<message ref="site.name" class="ERROR">Please enter a valid name, which may only consist of letters, numbers and
+							hyphens
+						</message>
+					</rule>
+				</validation>
+			</field>
+			<field name="host" type="text" binding="site.host">
+				<label id="host">Host</label>
+			</field>
+			<field name="domain" type="text" binding="site.domain">
+				<label id="domain">Domain</label>
+			</field>
+			<field name="description" type="longtext" binding="site.description">
+				<label id="description">Description</label>
+			</field>
+			<field name="active" type="checkbox" binding="site.active">
+				<label id="active">Active</label>
+			</field>
+			<field name="createRepository" type="checkbox" binding="site.createRepository">
+				<label id="site.createRepository">Create folder for JSP-contents</label>
+			</field>
+			<field name="template" type="list:radio" binding="template">
+				<label id="template">Template</label>
+			</field>
+		</meta-data>
+	</config>
+	<condition expression="${form_action eq 'create'}" />
+	<datasource id="new-site" />
+	<data>
+		<selection id="template">
+			<title id="template">Template</title>
+			<option value="appng" name="appng" selected="true" />
+			<option value="appng-bootstrap-gentelella" name="appng-bootstrap-gentelella" selected="false" />
+			<option value="appng-bootstrapped" name="appng-bootstrapped" selected="false" />
+		</selection>
+		<result>
+			<field name="name" type="text">
+				<value></value>
+			</field>
+			<field name="host" type="text">
+				<value></value>
+			</field>
+			<field name="domain" type="text">
+				<value></value>
+			</field>
+			<field name="description" type="longtext">
+				<value></value>
+			</field>
+			<field name="active" type="checkbox">
+				<value>false</value>
+			</field>
+			<field name="createRepository" type="checkbox">
+				<value>false</value>
+			</field>
+			<field name="template" type="list:radio">
+				<value></value>
+			</field>
+		</result>
+	</data>
+	<bean id="sites">
+		<option name="action" id="create" />
+	</bean>
+</action>

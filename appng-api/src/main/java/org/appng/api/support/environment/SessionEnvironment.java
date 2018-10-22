@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpSession;
 
 import org.appng.api.Scope;
-import org.appng.api.support.SiteClassLoader;
 
 /**
  * A {@link ScopedEnvironment} for {@link Scope#SESSION}. Uses a {@link HttpSession} for storing its attributes.
@@ -34,11 +33,13 @@ class SessionEnvironment extends AbstractEnvironment {
 	private static final String CHANGED = "__changed__";
 	private HttpSession session;
 	private boolean valid;
+	private String siteName;
 
-	SessionEnvironment(HttpSession session) {
+	SessionEnvironment(HttpSession session, String siteName) {
 		super(Scope.SESSION);
 		this.session = session;
 		this.valid = true;
+		this.siteName = siteName;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -55,8 +56,8 @@ class SessionEnvironment extends AbstractEnvironment {
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String name) {
 		Object attribute = getContainer().get(name);
-		if (null != attribute && attribute instanceof AttributeWrapper) {
-			attribute = ((AttributeWrapper) attribute).getValue();
+		if (null != attribute && attribute instanceof AttributeWrapper ) {
+			attribute = AttributeWrapper.class.cast(attribute).getValue();
 		}
 		return (T) attribute;
 	}
@@ -65,13 +66,7 @@ class SessionEnvironment extends AbstractEnvironment {
 	public void setAttribute(String name, Object value) {
 		if (!Objects.equals(value, getAttribute(name))) {
 			markSessionDirty();
-			ClassLoader classLoader = value.getClass().getClassLoader();
-			if (null != classLoader && classLoader instanceof SiteClassLoader) {
-				String siteName = ((SiteClassLoader) classLoader).getSiteName();
-				getContainer().put(name, new AttributeWrapper(siteName, value));
-			} else {
-				getContainer().put(name, value);
-			}
+			getContainer().put(name, new AttributeWrapper(siteName, value));
 		}
 	}
 
@@ -107,4 +102,7 @@ class SessionEnvironment extends AbstractEnvironment {
 		return valid;
 	}
 
+	String getSiteName() {
+		return siteName;
+	}
 }

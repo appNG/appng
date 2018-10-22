@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.Datasource;
 import org.junit.Assert;

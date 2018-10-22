@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.core.domain.PackageArchiveImpl;
 import org.appng.xml.application.PackageInfo;
 
+import de.skuzzle.semantic.Version;
+
 /**
  * Utility class offering methods that help dealing with {@link PackageVersion}s and {@link PackageInfo}rmations.
  * 
@@ -66,17 +68,25 @@ public class RepositoryUtils {
 	 * 
 	 * @param packageA
 	 * @param packageB
-	 * @return {@code true} if {@code currentPackage} is newer than {@code latestPackage}, {@code false} otherwise
+	 * @return {@code true} if {@code packageA} is newer than {@code packageB}, {@code false} otherwise
 	 * @see #getDate(PackageInfo)
 	 */
 	public static boolean isNewer(PackageInfo packageA, PackageInfo packageB) {
 		if (null == packageB) {
 			return true;
 		} else {
-			Long timestampA = getDate(packageA).getTime();
-			Long timestampB = getDate(packageB).getTime();
-			int isVersionNewer = StringUtils.compare(packageA.getVersion(), packageB.getVersion());
-			return (0 == isVersionNewer) ? (timestampA > timestampB) : (0 > isVersionNewer ? false : true);
+			String versionA = packageA.getVersion() + "-" + packageA.getTimestamp();
+			String versionB = packageB.getVersion() + "-" + packageB.getTimestamp();
+			int versionCompare = 0;
+			if (Version.isValidVersion(versionA) && Version.isValidVersion(versionB)) {
+				versionCompare = Version.parseVersion(versionB, true).compareTo(Version.parseVersion(versionA, true));
+				return 0 > versionCompare;
+			} else {
+				Long timestampA = getDate(packageA).getTime();
+				Long timestampB = getDate(packageB).getTime();
+				versionCompare = StringUtils.compare(packageB.getVersion(), packageA.getVersion());
+				return (0 == versionCompare) ? (timestampA > timestampB) : (0 > versionCompare);
+			}
 		}
 	}
 

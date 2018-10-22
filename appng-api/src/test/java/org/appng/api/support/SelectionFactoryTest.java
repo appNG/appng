@@ -68,6 +68,11 @@ public class SelectionFactoryTest {
 				o.setSelected(true);
 			}
 		}
+
+		@Override
+		public Integer count(String optionValue) {
+			return 5;
+		}
 	};
 
 	enum Force {
@@ -123,6 +128,18 @@ public class SelectionFactoryTest {
 		assertSelectionEquals(s4, s5, false);
 		assertSelectionEquals(s5, s6, false);
 		assertSelectionEquals(s4, s6);
+	}
+
+	@Test
+	public void testHitCounter() {
+		org.appng.api.support.SelectionFactory.Selection s1 = selectionFactory.fromNamed(id, title, allElements,
+				selectedElements);
+		org.appng.api.support.SelectionFactory.Selection s2 = selectionFactory.fromNamed(id, title, allElements,
+				selector);
+
+		selectionFactory.countHits(s1, o -> 1);
+		s1.getOptions().forEach(o -> Assert.assertEquals(Integer.valueOf(1), o.getHits()));
+		s2.getOptions().forEach(o -> Assert.assertEquals(Integer.valueOf(5), o.getHits()));
 	}
 
 	@Test

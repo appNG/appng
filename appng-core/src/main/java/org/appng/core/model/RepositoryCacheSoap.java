@@ -23,7 +23,7 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.SoapClient;

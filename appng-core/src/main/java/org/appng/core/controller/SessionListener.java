@@ -174,6 +174,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 				MDC.put("site", site.getName());
 			}
 			MDC.put("locale", env.getLocale().toString());
+			MDC.put("method", httpServletRequest.getMethod());
 			MDC.put("timezone", env.getTimeZone().getID());
 			MDC.put("ip", httpServletRequest.getRemoteAddr());
 			if (null != env.getSubject() && null != env.getSubject().getAuthName()) {

@@ -15,6 +15,10 @@
  */
 package org.appng.api.support;
 
+import java.io.Closeable;
+import java.io.Serializable;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -70,6 +74,7 @@ import org.appng.xml.platform.Permissions;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Template;
+import org.appng.xml.platform.ValidationGroups;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -128,6 +133,7 @@ public class ElementHelperTest {
 
 		Mockito.when(site.getProperties()).thenReturn(properties);
 		Mockito.when(site.getName()).thenReturn("localhost");
+		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0], getClass().getClassLoader()));
 		Mockito.when(application.getName()).thenReturn("application");
 		Mockito.when(properties.getString(SiteProperties.SERVICE_PATH)).thenReturn("/services");
 		Mockito.when(properties.getString(SiteProperties.MANAGER_PATH)).thenReturn("/manager");
@@ -219,8 +225,8 @@ public class ElementHelperTest {
 
 		Mockito.when(path.isPathSelected("/ws/localhost/applicationfoo")).thenReturn(true);
 
-		Mockito.when(permissionProcessor.hasPermissions(Mockito.any(PermissionOwner.class))).thenAnswer(
-				new Answer<Boolean>() {
+		Mockito.when(permissionProcessor.hasPermissions(Mockito.any(PermissionOwner.class)))
+				.thenAnswer(new Answer<Boolean>() {
 					public Boolean answer(InvocationOnMock invocation) throws Throwable {
 						PermissionOwner owner = (PermissionOwner) invocation.getArguments()[0];
 						String name = owner.getName();
@@ -488,7 +494,8 @@ public class ElementHelperTest {
 		} catch (ProcessingException e) {
 			Assert.assertEquals(
 					"the parameter 'p5' is ambiguous, since it's a execution parameter for datasource 'test' (value: 'b') and also"
-							+ " POST-parameter (value: 'a'). Avoid such overlapping parameters!", e.getMessage());
+							+ " POST-parameter (value: 'a'). Avoid such overlapping parameters!",
+					e.getMessage());
 		}
 	}
 
@@ -542,6 +549,27 @@ public class ElementHelperTest {
 		Mockito.when(env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathMock);
 		String outputPrefix = elementHelper.getOutputPrefix(env);
 		Assert.assertEquals("/manager/_html/_nonav/site/", outputPrefix);
+	}
+
+	@Test
+	public void testGetValidationGroups() {
+		ValidationGroups groups = new ValidationGroups();
+
+		ValidationGroups.Group groupA = new ValidationGroups.Group();
+		groupA.setClazz(Serializable.class.getName());
+		groups.getGroups().add(groupA);
+
+		ValidationGroups.Group groupB = new ValidationGroups.Group();
+		groupB.setClazz(Closeable.class.getName());
+		String condition = "${current eq 'foo'}";
+		groupB.setCondition(condition);
+		groups.getGroups().add(groupB);
+
+		metaData.setValidation(groups);
+		
+		Class<?>[] validationGroups = elementHelper.getValidationGroups(metaData, "foo");
+		Assert.assertArrayEquals(new Class[] { Serializable.class, Closeable.class }, validationGroups);
+		Assert.assertEquals(condition, groupB.getCondition());
 	}
 
 	private void addParam(Params params, String name, String defaultVal, String value) {

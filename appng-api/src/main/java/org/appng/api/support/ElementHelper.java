@@ -161,6 +161,10 @@ public class ElementHelper {
 							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
 									+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
 						}
+						if (link.getMode().equals(Linkmode.REST)) {
+							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
+									+ Platform.SERVICE_TYPE_REST + SLASH + newTarget;
+						}
 						StringBuilder proposedPath = new StringBuilder();
 						proposedPath.append(guiPath).append(pathInfo.getOutputPrefix()).append(SLASH);
 						proposedPath.append(site.getName()).append(SLASH).append(application.getName());
@@ -509,7 +513,6 @@ public class ElementHelper {
 				if (StringUtils.isBlank(expression) || conditionMatches(condition)) {
 					try {
 						groups.add(site.getSiteClassLoader().loadClass(group.getClazz()));
-						group.setCondition(null);
 					} catch (ClassNotFoundException e) {
 						LOGGER.error("validation group {} not found!", group.getClazz());
 					}

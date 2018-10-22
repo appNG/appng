@@ -1,0 +1,543 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: appNG REST API
+  description: The REST API for appNG
+  contact:
+    name: appNG developer team
+    email: matthias.mueller@appng.org
+    url: http://appng.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+host: appng.org
+basePath: /api
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /datasource/{id}:
+    get:
+      description: Returns a datasource by id
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of the datasource
+          required: true
+          type: string
+      responses:
+        '200':
+          description: datasource response
+          schema:
+            $ref: '#/definitions/datasource'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+
+  /action/{event-id}/{id}:
+    get:
+      description: Returns an action. To be used for initially retrieving the action.
+      produces:
+        - application/json
+      parameters:
+        - name: event-id
+          in: path
+          description: event-id of the action
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: ID of the action
+          required: true
+          type: string
+      responses:
+        '200':
+          description: action response
+          schema:
+            $ref: '#/definitions/action'
+        '400':
+          description: action response, in case an recoverable error occurred
+          schema:
+            $ref: '#/definitions/action'
+        default:
+          description: unexpected/unrecoverable error
+          schema:
+            $ref: '#/definitions/errorModel'
+    post:
+      description: Performs an action.
+      produces:
+        - application/json
+      parameters:
+        - name: event-id
+          in: path
+          description: event-id of the action
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: ID of the action
+          required: true
+          type: string
+      responses:
+        '200':
+          description: action response
+          schema:
+            $ref: '#/definitions/action'
+        '400':
+          description: action response, in case an recoverable error occurred
+          schema:
+            $ref: '#/definitions/action'
+        default:
+          description: unexpected/unrecoverable error
+          schema:
+            $ref: '#/definitions/errorModel'
+    
+definitions:
+
+  action:
+    type: object
+    description: "An action, representing an executable operation."
+    properties:
+      id:
+        type: string
+        description: "The Id of the action."
+      event-id:
+        type: string
+        description: "The event-Id of the action."
+      parameters:
+        type: array
+        description: "A list of parameters for the action"
+        items:
+          $ref: '#/definitions/parameter'
+      user:
+        $ref: "#/definitions/user"
+        description: "The current user."
+      messages:
+        type: array
+        description: "A list of messages."
+        items:
+          $ref: "#/definitions/message"
+      fields:
+        type: array
+        description: "A list of action-fields."
+        items:
+          $ref: "#/definitions/actionField"
+      permissions:
+        type: array
+        description: "The permissions for this action."
+        items:
+          $ref: "#/definitions/permission"
+
+  datasource:
+    type: object
+    description: "A datasource, represented by either a page (of elements) or a single element."
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        description: "The unique ID of the datasource."
+      parameters:
+        type: array
+        description: "The parameters for the datasource."
+        items:
+          $ref: '#/definitions/parameter'
+      user:
+        $ref: "#/definitions/user"
+        description: "The current user."
+      links:
+        type: array
+        description: "A list of links."
+        items:
+          $ref: "#/definitions/link"
+      messages:
+        type: array 
+        description: "A list of messages."
+        items:
+          $ref: "#/definitions/message"
+      fields:
+        type: array
+        description: "A list of fields."
+        items:
+          $ref: '#/definitions/field'
+      filters:
+        type: array
+        description: "A list of filters."
+        items:
+          $ref: "#/definitions/filter"
+      page:
+        $ref: "#/definitions/page"
+        description: "A page of elements."
+      element:
+        $ref: "#/definitions/element"
+        description: "A single element."
+      permissions:
+        type: array
+        description: "The permissions for this datasource."
+        items:
+          $ref: "#/definitions/permission"
+
+  parameter:
+    type: object
+    description: "A single parameter."
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        description: "The name of the parameter."
+      value:
+        type: string
+        description: "The value of the parameter."
+
+  errorModel:
+    type: object
+    description: ""
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+        description: ""
+      message:
+        type: string
+        description: ""
+
+  field:
+    type: object
+    description: "A field that is part of a datasource."
+    required:
+      - name
+      - fieldType
+    properties:
+      name:
+        type: string
+        description: "The name for this field."
+      label:
+        type: string  
+        description: "The label for this field."   
+      fieldType:
+        $ref: "#/definitions/fieldType"
+        description: "The type for this field."
+      sort:
+        $ref: "#/definitions/sort"
+        description: "The sort for this field."
+      format:
+        type: string
+        description: "The format for this field, depending on its type."
+      rules:
+        type: array
+        description: "The validation rules that should be applied for this field."
+        items:
+          $ref: "#/definitions/validationRule"
+      fields:
+        type: array
+        description: "The child fields of this field."
+        items:
+          $ref: '#/definitions/field'
+
+  fieldValue:
+    type: object
+    description: "The value of a field within a datasource."
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        description: "The name of the field."
+      value:
+        type: object
+        description: "The value of the field."
+      formattedValue:
+        type: string
+        description: "The formatted value of the field."
+      values:
+        type: array
+        description: "The child values of this fieldValue."
+        items:
+          $ref: '#/definitions/fieldValue'
+
+  page:
+    type: object
+    description: "A page that contains paging information an a list of elements."
+    properties:
+      number:
+        type: integer
+        format: int32
+        description: "The 0-based number of the current page."
+      size:
+        type: integer
+        format: int32
+        description: "The number of elements per page."
+      totalPages:
+        type: integer
+        format: int32
+        description: "The number of total pages."
+      totalElements:
+        type: integer
+        format: int32
+        description: "The total number of elements."
+      isFirst:
+        type: boolean
+        description: "If this is the first page."
+      isLast: 
+        type: boolean
+        description:  "If this is the last page."
+      elements:
+        type: array
+        description: "The elements of this page."
+        items:
+          $ref: '#/definitions/element'
+
+  sort:
+    type: object
+    description: "Marks a field as sortable, properties are filled only when sorting has been applied."
+    properties:
+      prio:
+        type: integer
+        description: "The priority for this sort, important when a multi-field sort is applied."
+      order:
+        type: string
+        enum: [asc, desc]
+        description: "The order for this sort (ascending or descending)."
+
+  element:
+    type: object
+    description: "A single element of a page."
+    properties:
+      fields:
+        type: array
+        description: "The list of field-values of the element."
+        items:
+          $ref: '#/definitions/fieldValue'
+      selected:
+        type: boolean
+        description: "Whether this element is selected/active."
+      links:
+        type: array
+        description: "A list of links."
+        items:
+          $ref: "#/definitions/link"
+
+  link:
+    type: object
+    description: "A link."
+    properties:
+      id:
+        type: string
+        description: "The ID for this link."
+      label:
+        type: string
+        description: "The label for the link."
+      target:
+        type: string
+        description: "The target for the link."
+      icon:
+        type: string
+        description: "A descriptive name for an icon that should be used for this link."
+      default:
+        type: boolean
+        description: "Whether or not this link should be considered as default."
+      type:
+        type: string
+        description: "The type of this link."
+        enum: [intern,extern,webservice,rest]
+      confirmation:
+        type: string
+        description: "A confirmation message that should be displayed to the user before following this link."
+
+  filter:
+    type: object
+    description: "A filter that applies to a datasource."
+    properties:
+      name:
+        type: string
+        description: "The name of the filter."
+      label:
+        type: string
+        description: "The label iof the filter."
+      type:
+       $ref: "#/definitions/optionType"
+       description: "The type of the filter."
+      options:
+       $ref: "#/definitions/options"
+       description: "The options for this filter."
+  
+  options:
+    type: object
+    description: "A set of selectable options"
+    properties:
+     multiple:
+       type: boolean
+       description: "Whether or not this filter allows multiple options to be selected."
+     entries:
+      type: array
+      description: "A list of options for this filter."
+      items:
+         $ref: '#/definitions/option'
+  option:
+   type: object
+   description: "A single option, used in a filter or an action-field."
+   properties:
+    value:
+      type: string
+      description: "The value for this option."
+    label:
+      type: string
+      description: "The label for this option."
+    selected:
+      type: boolean
+      description: "Whether or not this option is selected."
+    hits:
+      type: integer
+      description: "Tells how many hits there are for this option."
+    options:
+      type: array
+      description: "An option can act as a group and thus can itself own a list of options."
+      items:
+        $ref: '#/definitions/option'
+
+  fieldType:
+   type: string
+   description: "The possible types for a field/action-field."
+   enum: [text, longtext, richtext, password, url, int, long, decimal, checkbox, coordinate, date, file, file_multiple, image, linkpanel, list_checkbox, list_radio, list_select, list_text, object, list_object]
+
+  optionType:
+   type: string
+   description: "The possible types for an option."
+   enum: [select, select_multiple, radio, checkbox, text, date]
+
+  actionField:
+    type: object
+    description: "A single field as a part of an action."
+    properties:
+      name:
+        type: string
+        description: "The name of the field."
+      value:
+        type: object
+        description: "The value of the field. The concrete type of that object depends on the fieldType of this field."
+      label:
+        type: string
+        description: "The label for the field."
+      fieldType:
+        $ref: "#/definitions/fieldType"
+        description: "The type for the field."
+      readonly:
+        type: boolean
+        description: "Whether or not this field is read-only."
+      visible:
+        type: boolean
+        description: "Whether or not this field should be visible."
+      format:
+        type: string
+        description: "The format for this field, depending on its type."
+      formattedValue:
+        type: string
+        description: "The formatted value for this field."
+      options:
+        $ref: "#/definitions/options"
+        description: "The options for this filter."
+      rules:
+        type: array
+        description: "The validation rules that should be applied for this field."
+        items:
+          $ref: "#/definitions/validationRule"
+      messages:
+        type: array
+        description: "The messages related to this field."
+        items:
+          $ref: "#/definitions/message"
+      fields:
+        type: array
+        description: "The child fields of this fieldValue."
+        items:
+          $ref: '#/definitions/actionField'
+        
+  validationRule:
+    type: object
+    description: "A validation rule that can be bound to an action-field."
+    properties:
+      type:
+       type: string
+       description: "The type of the rule."
+      message:
+        type: string
+        description: "The error message displayed when the rule isn't fulfilled."
+      active:
+        type: boolean
+        description: "Whether or not this rule is active, meaning it should be applied."
+      messageKey:
+        type: string
+        description: "The message key for this rule"
+      options:
+        type: array
+        description: "An array defining the custom parameters for this rule."
+        items:
+          $ref: "#/definitions/parameter"
+  user:
+    type: object
+    description: ""
+    properties:
+      name:
+        type: string
+        description: ""
+      email:
+        type: string
+        description: "The email address of the user."
+        example: "john@example.com"
+      locale:
+        type: string
+        description: "The IETF BCP 47 language tag for the user."
+        example: "en_US"
+      timezone:
+        type: string
+        description: "The name of the IANA time zone the user is located at."
+        example: "Europe/Berlin"
+      decimalSeparator:
+        type: string
+        description: "The charactor used as a decimal separator."
+        example: "."
+      groupingSeparator:
+        type: string
+        description: "The charactor used when grouping numbers."
+        example: ","
+
+  message:
+    type: object
+    description: "A textual message with a certain level."
+    properties:
+      level:
+        type: string
+        description: "The level of the message."
+        enum: [OK,NOTICE,INVALID,ERROR]
+      text:
+       type: string
+       description: "The actual message."
+      key:
+       type: string
+       description: "A key for this message"
+
+  permission:
+    type: object
+    description: "A permission."
+    properties:
+      mode:
+        type: string
+        description: "The mode"
+        enum: [READ,SET]
+      ref:
+        type: string
+        description: "The reference id of the permission."
+      value:
+        type: boolean
+        description: "The value, true if the permission is present."
