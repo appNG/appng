@@ -101,17 +101,19 @@ public class RepositoryWatcher implements Runnable {
 		this.configFile = configFile;
 		this.ruleSourceSuffix = ruleSourceSuffix;
 		readUrlRewrites(configFile);
-		watch(configFile.getParentFile().toPath());
+		watch(configFile.getParentFile());
 
 		for (String docDir : documentDirs) {
-			watch(new File(wwwDir, docDir).toPath());
+			watch(new File(wwwDir, docDir));
 		}
 
 	}
 
-	private void watch(Path path) throws IOException {
-		LOG.info("watching {}", path.toString());
-		path.register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+	private void watch(File file) throws IOException {
+		if (file.exists() && file.isDirectory()) {
+			LOG.info("watching {}", file.toString());
+			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+		}
 	}
 
 	public void run() {
