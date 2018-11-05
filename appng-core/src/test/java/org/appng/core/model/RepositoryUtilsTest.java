@@ -80,4 +80,25 @@ public class RepositoryUtilsTest {
 		Assert.assertTrue(RepositoryUtils.isNewer(v0_40_0, v0_9_0));
 	}
 
+	@Test
+	public void testIsNewerNotSemVer() {
+		ApplicationInfo v1_0 = new ApplicationInfo();
+		v1_0.setVersion("1.0-SNAPSHOT");
+		v1_0.setTimestamp("20180111-0416");
+
+		ApplicationInfo v1_0_ = new ApplicationInfo();
+		v1_0_.setVersion("1.0-SNAPSHOT");
+		v1_0_.setTimestamp("20180111-0816");
+
+		ApplicationInfo v1_1 = new ApplicationInfo();
+		v1_1.setVersion("1.1-SNAPSHOT");
+		v1_1.setTimestamp("20180111-1016");
+
+		Assert.assertTrue(RepositoryUtils.isNewer(v1_0_, v1_0));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0, v1_0_));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0_, v1_1));
+		Assert.assertTrue(RepositoryUtils.isNewer(v1_1, v1_0));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0, v1_1));
+	}
+
 }

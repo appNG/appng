@@ -70,6 +70,7 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Default {@link ValidationProvider} implementation.
@@ -194,22 +195,19 @@ public class DefaultValidationProvider implements ValidationProvider {
 
 		Set<ConstraintDescriptor<?>> constraints = null;
 
-		try {
-			Class<?> propertyType = validationClass;
-			Class<?> concreteType = validationClass;
-			Field ancestor = null;
-			boolean validAnnotationPresent = true;
-			if (!rootPath.equals(leafName)) {
-				String[] segments = rootPath.split("\\.");
-				for (String segment : rootPath.split("\\.")) {
-					Field field = propertyType.getDeclaredField(segment);
+		Class<?> propertyType = validationClass;
+		Class<?> concreteType = validationClass;
+		Field ancestor = null;
+		if (!rootPath.equals(leafName)) {
+			for (String segment : rootPath.split("\\.")) {
+				Field field = ReflectionUtils.findField(propertyType, segment);
+				if (null != field) {
 					if (null != ancestor) {
-						String methodName = "get" + StringUtils.capitalize(segment);
-						Method getter = propertyType.getMethod(methodName);
 						Valid fieldAnnotation = field.getAnnotation(Valid.class);
-						Valid methodAnnotarion = getter.getAnnotation(Valid.class);
-						validAnnotationPresent = !(null == fieldAnnotation && null == methodAnnotarion);
-						if (!validAnnotationPresent) {
+						Method getter = ReflectionUtils.findMethod(propertyType,
+								"get" + StringUtils.capitalize(segment));
+						Valid methodAnnotarion = null == getter ? null : getter.getAnnotation(Valid.class);
+						if (null == fieldAnnotation && null == methodAnnotarion) {
 							log.debug("Annotation @{} not found on property {}.{} of {}, returning",
 									Valid.class.getName(), ancestor.getName(), field.getName(), validationClass);
 							return null;
@@ -229,20 +227,17 @@ public class DefaultValidationProvider implements ValidationProvider {
 					}
 				}
 			}
-
-			BeanDescriptor beanDescriptor = validator.getConstraintsForClass(concreteType);
-			if (null != beanDescriptor) {
-				PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(leafName);
-				if (null != propertyDescriptor) {
-					constraints = propertyDescriptor.getConstraintDescriptors();
-					log.debug("Found constraint(s) for path {} on type {}: {}", propertyPath, validationClass,
-							constraints);
-				}
-			}
-
-		} catch (ReflectiveOperationException | SecurityException e) {
-			log.warn(String.format("Field '%s' not found on class %s!", propertyPath, validationClass), e);
 		}
+
+		BeanDescriptor beanDescriptor = validator.getConstraintsForClass(concreteType);
+		if (null != beanDescriptor) {
+			PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(leafName);
+			if (null != propertyDescriptor) {
+				constraints = propertyDescriptor.getConstraintDescriptors();
+				log.debug("Found constraint(s) for path {} on type {}: {}", propertyPath, validationClass, constraints);
+			}
+		}
+
 		return constraints;
 
 	}

@@ -12,19 +12,19 @@
 				<validation />
 				<field name="items[]" type="object" binding="items[]">
 					<label id="label.empty"></label>
-					<field name="divisionName" type="text" readonly="true"
-						binding="items[].divisionName">
+					<field name="divisionName" type="text" readonly="true" binding="items[].divisionName">
 						<label id="label.empty"></label>
 					</field>
-					<field name="amount" type="decimal" format="#,##0.00"
-						readonly="true" binding="items[].amount">
+					<field name="amount" type="decimal" format="#,##0.00" readonly="true" binding="items[].amount">
 						<label id="label.empty"></label>
 					</field>
-					<field name="amountNew" type="decimal" format="#####"
-						binding="items[].amountNew">
+					<field name="amountNew" type="decimal" format="#####" binding="items[].amountNew">
 						<label id="label.empty"></label>
 					</field>
 				</field>
+			</field>
+			<field name="amount" type="decimal" format="#,##0.00" binding="amount">
+				<label id="label.empty"></label>
 			</field>
 		</meta-data>
 	</config>
@@ -61,6 +61,9 @@
 					</field>
 					<value></value>
 				</field>
+			</field>
+			<field name="amount" type="decimal">
+				<value>100</value>
 			</field>
 		</result>
 	</data>

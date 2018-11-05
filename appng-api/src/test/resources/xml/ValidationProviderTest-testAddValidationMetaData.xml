@@ -125,7 +125,16 @@
 			</rule>
 		</validation>
 	</field>
-	<field name="offspringNames['Han'].name" type="text" binding="offspringNames['Han'].name" />
+	<field name="offspringNames['Han'].name" type="text" binding="offspringNames['Han'].name">
+		<validation>
+			<notNull>
+				<message ref="offspringNames['Han'].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+			</notNull>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="offspringNames['Han'].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+			</rule>
+		</validation>
+	</field>
 	<field name="father.father.name" type="text" binding="father.father.name">
 		<validation>
 			<notNull>

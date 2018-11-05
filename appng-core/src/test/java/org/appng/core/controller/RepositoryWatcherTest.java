@@ -63,13 +63,15 @@ public class RepositoryWatcherTest {
 		Assert.assertEquals(4, ehcache.getSize());
 		repositoryWatcher.init(ehcache, rootDir, new File(urlrewrite), RepositoryWatcher.DEFAULT_RULE_SUFFIX,
 				Arrays.asList("de"));
+		Long forwardsUpdatedAt = repositoryWatcher.forwardsUpdatedAt;
 		ThreadFactory tf = new ThreadFactoryBuilder().setNameFormat("repositoryWatcher").setDaemon(true).build();
 		ExecutorService executor = Executors.newSingleThreadExecutor(tf);
 		executor.execute(repositoryWatcher);
 
 		FileUtils.touch(new File(rootDir, fehlerJsp));
 		FileUtils.touch(new File(rootDir, testJsp));
-		while (ehcache.getSize() != 0) {
+		FileUtils.touch(new File(urlrewrite));
+		while (ehcache.getSize() != 0 || forwardsUpdatedAt == repositoryWatcher.forwardsUpdatedAt) {
 			Thread.sleep(100);
 		}
 		Assert.assertNull(ehcache.get(keyFehlerJsp));
@@ -77,5 +79,6 @@ public class RepositoryWatcherTest {
 		Assert.assertNull(ehcache.get("GET/de/error"));
 		Assert.assertNull(ehcache.get("GET/de/fault"));
 		Assert.assertEquals(0, ehcache.getSize());
+		Assert.assertTrue(repositoryWatcher.forwardsUpdatedAt > forwardsUpdatedAt);
 	}
 }

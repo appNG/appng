@@ -99,7 +99,8 @@
       "name" : "active",
       "value" : true
     }, {
-      "name" : "template"
+      "name" : "template",
+      "value" : "appng"
     } ],
     "selected" : false
   }
