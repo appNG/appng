@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<database xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/platform/database" id="1">
-    <links>
-        <link name="initialize" self="http://localhost/platform/database/initialize" />
-    </links>
-    <type>HSQL</type>
-    <user>sa</user>
-    <password>$2a$13$c88b98bda40fc9526c6b2OodngLtg4bxRj.5i0ECkHNkqq1olOVPm</password>
-    <dbVersion>HSQL Database Engine 2.4.0</dbVersion>
-    <driver>org.hsqldb.jdbc.JDBCDriver</driver>
-    <url>jdbc:hsqldb:mem:testdb</url>
-    <ok>true</ok>
-    <managed>false</managed>
-    <versions>
-        <version version="2.0.0" state="Success" description="add platform event" checksum="1137969222"
-            installed="2018-01-17T12:34:00.038+01:00" />
-        <version version="1.3.2" state="Success" description="add repository accepted certs" checksum="1710103480"
-            installed="2017-04-10T10:30:20.401+02:00" />
-        <version version="1.3.1" state="Success" description="add global admin role" checksum="1230735742"
-            installed="2017-04-10T10:30:41.397+02:00" />
-        <version version="1.3.0" state="Success" description="add type to template" checksum="727633006"
-            installed="2017-04-10T10:30:41.386+02:00" />
-        <version version="1.2.3" state="Success" description="set resource bytes not null" checksum="-652001277"
-            installed="2017-04-10T10:30:41.376+02:00" />
-        <version version="1.2.2" state="Success" description="add repository digest" checksum="-222577107"
-            installed="2017-04-10T10:30:41.367+02:00" />
-        <version version="1.2.1" state="Success" description="add repository strict" checksum="-780205616"
-            installed="2017-04-10T10:30:41.357+02:00" />
-        <version version="1.2" state="Success" description="add template" checksum="1088238598"
-            installed="2017-04-10T10:30:41.347+02:00" />
-        <version version="1.1" state="Success" description="Quartz initial setup" checksum="1129524243"
-            installed="2017-04-10T10:30:41.335+02:00" />
-        <version version="1.0" state="Success" description="appNG initial setup" checksum="1411118267"
-            installed="2017-04-10T10:30:41.304+02:00" />
-    </versions>
+<database xmlns="http://www.appng.org/schema/appngizer" id="1" self="http://localhost/platform/database">
+	<links>
+		<link name="initialize" self="http://localhost/platform/database/initialize" />
+	</links>
+	<type>HSQL</type>
+	<user>sa</user>
+	<password>$2a$13$53e363d1f5497dc4c7825e.FwOChJlBjLrhom.X9/spu7P/MxeWuS</password>
+	<dbVersion>HSQL Database Engine 2.4.0</dbVersion>
+	<driver>org.hsqldb.jdbc.JDBCDriver</driver>
+	<url>jdbc:hsqldb:mem:testdb</url>
+	<ok>true</ok>
+	<managed>false</managed>
+	<versions>
+		<version version="4.0.0" state="Success" description="add job execution record" checksum="1701602764"
+			installed="2018-11-12T13:19:23.729+01:00" />
+		<version version="2.0.0" state="Success" description="add platform event" checksum="1137969222"
+			installed="2018-11-12T13:19:23.720+01:00" />
+		<version version="1.3.2" state="Success" description="add repository accepted certs" checksum="1710103480"
+			installed="2018-11-12T13:19:23.711+01:00" />
+		<version version="1.3.1" state="Success" description="add global admin role" checksum="1230735742"
+			installed="2018-11-12T13:19:23.701+01:00" />
+		<version version="1.3.0" state="Success" description="add type to template" checksum="727633006"
+			installed="2018-11-12T13:19:23.691+01:00" />
+		<version version="1.2.3" state="Success" description="set resource bytes not null" checksum="-652001277"
+			installed="2018-11-12T13:19:23.681+01:00" />
+		<version version="1.2.2" state="Success" description="add repository digest" checksum="-222577107"
+			installed="2018-11-12T13:19:23.671+01:00" />
+		<version version="1.2.1" state="Success" description="add repository strict" checksum="-780205616"
+			installed="2018-11-12T13:19:23.661+01:00" />
+		<version version="1.2" state="Success" description="add template" checksum="1088238598" installed="2018-11-12T13:19:23.650+01:00" />
+		<version version="1.1" state="Success" description="Quartz initial setup" checksum="1129524243"
+			installed="2018-11-12T13:19:23.638+01:00" />
+		<version version="1.0" state="Success" description="appNG initial setup" checksum="1411118267"
+			installed="2018-11-12T13:19:23.606+01:00" />
+	</versions>
 </database>
