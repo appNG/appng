@@ -2157,8 +2157,4 @@ public class CoreService {
 		auditableListener.createEvent(type, message, session);
 	}
 
-	public void deactivateApplication(String siteName, String applicationName) {
-		getSiteApplication(siteName, applicationName).setActive(false);
-	}
-
 }
