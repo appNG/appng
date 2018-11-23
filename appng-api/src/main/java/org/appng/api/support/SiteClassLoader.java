@@ -40,6 +40,10 @@ public class SiteClassLoader extends URLClassLoader implements SmartClassLoader 
 		cleanup();
 	}
 
+	public SiteClassLoader(String site) {
+		this(new URL[0], SiteClassLoader.class.getClassLoader(), site);
+	}
+
 	@Override
 	/* for simpler debugging */
 	protected void finalize() throws Throwable {
@@ -98,7 +102,7 @@ public class SiteClassLoader extends URLClassLoader implements SmartClassLoader 
 		return true;
 	}
 
-	public String getSiteName(){
+	public String getSiteName() {
 		return site;
 	}
 
@@ -107,4 +111,5 @@ public class SiteClassLoader extends URLClassLoader implements SmartClassLoader 
 		return "SiteClassLoader#" + hashCode() + " for site " + site + " with parent "
 				+ getParent().getClass().getName() + "#" + getParent().hashCode();
 	}
+
 }
