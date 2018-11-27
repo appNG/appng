@@ -12,7 +12,7 @@
 	<ok>true</ok>
 	<managed>true</managed>
 	<versions>
-		<version version="4.0.0" state="Success" description="add job execution record" checksum="1701602764"
+		<version version="4.0.0" state="Success" description="add job execution record" checksum="1364852815"
 			installed="2018-11-12T13:20:49.316+01:00" />
 		<version version="2.0.0" state="Success" description="add platform event" checksum="1137969222"
 			installed="2018-11-12T13:20:49.306+01:00" />
