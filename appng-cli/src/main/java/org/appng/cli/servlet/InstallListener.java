@@ -20,13 +20,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.appng.api.Platform;
 import org.appng.cli.CliBootstrap;
 import org.appng.cli.CliCore;
 import org.appng.cli.CliEnvironment;
@@ -42,33 +45,39 @@ public class InstallListener implements ServletContextListener {
 
 	public void contextInitialized(ServletContextEvent sce) {
 		ServletContext ctx = sce.getServletContext();
-		File autoInstall = null;
-		String resource = ctx.getRealPath(INSTALL_PATH);
-		if (null == resource) {
-			LOGGER.info("{} not present", INSTALL_PATH);
-			return;
+		File autoInstall;
+		String appngData = System.getProperty(Platform.Property.APPNG_DATA);
+		if (StringUtils.isBlank(appngData)) {
+			String resource = ctx.getRealPath(INSTALL_PATH);
+			if (null == resource) {
+				LOGGER.info("{} not present", INSTALL_PATH);
+				return;
+			}
+			autoInstall = new File(resource);
+		} else {
+			autoInstall = Paths.get(appngData, "conf", BATCH_FILE).toFile();
 		}
+
 		String message = null;
 		try {
-			autoInstall = new File(resource);
 			if (autoInstall.exists()) {
-				LOGGER.info("processing " + resource);
+				LOGGER.info("processing {}", autoInstall);
 				System.getProperties().put(CliBootstrap.APPNG_HOME, ctx.getRealPath("/"));
 				ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 				CliEnvironment.out = new PrintStream(bytesOut);
-				String[] args = new String[] { "batch", "-f", resource };
+				String[] args = new String[] { "batch", "-f", autoInstall.getAbsolutePath() };
 				int status = CliBootstrap.run(args);
 				message = new String(bytesOut.toByteArray());
 				LOGGER.debug(message);
 				if (CliCore.STATUS_OK != status) {
 					LOGGER.warn("CLI returned status {}", status);
 				}
-				LOGGER.info("done processing {}", resource);
+				LOGGER.info("done processing {}", autoInstall);
 			} else {
-				LOGGER.debug("{} not present", resource);
+				LOGGER.debug("{} not present", autoInstall);
 			}
 		} catch (Exception e) {
-			LOGGER.error("error while processing " + resource, e);
+			LOGGER.error("error while processing " + autoInstall, e);
 		} finally {
 			if (null != autoInstall && autoInstall.exists()) {
 				String timestamp = DateFormatUtils.format(System.currentTimeMillis(), DATE_PATTERN);

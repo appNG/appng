@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -256,12 +257,10 @@ public class RedirectFilter extends UrlRewriteFilter {
 	}
 
 	private static URL getConfPath(Environment env, Site site) {
-		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String repositoryDirectory = platformProperties.getString(Platform.Property.REPOSITORY_PATH);
+		String rootPath = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 		String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
-		String confPath = repositoryDirectory + "/" + site.getName() + rewriteConfig;
 		try {
-			return ((DefaultEnvironment) env).getServletContext().getResource(confPath);
+			return Paths.get(rootPath, rewriteConfig).toUri().toURL();
 		} catch (MalformedURLException e) {
 			LOGGER.warn("unable to read redirects for site '" + site.getName() + "' ", e);
 		}

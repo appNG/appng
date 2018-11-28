@@ -151,6 +151,9 @@ public class InitializerService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
+	@Autowired
+	protected PlatformProperties platformConfig;
+
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
@@ -247,6 +250,12 @@ public class InitializerService {
 		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_GROUP);
 		platformConfig.setFinal();
 
+		org.springframework.context.ApplicationContext platformContext = env.getAttribute(Scope.PLATFORM,
+				Platform.Environment.CORE_PLATFORM_CONTEXT);
+		PlatformProperties platformProperties = platformContext.getBean(PlatformProperties.class);
+		platformProperties.initialize(platformConfig);
+		
+
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
 			if (tempDir.exists()) {
@@ -261,26 +270,22 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		String ehcacheConfig = platformConfig.getString(Platform.Property.EHCACHE_CONFIG);
-		CacheManager cacheManager = CacheManager.create(rootPath + "/" + ehcacheConfig);
+		String ehcacheConfig = platformProperties.getCacheConfig();
+		CacheManager cacheManager = CacheManager.create(ehcacheConfig);
 
-		String uploadDir = platformConfig.getString(Platform.Property.UPLOAD_DIR);
-		String realPath = ((DefaultEnvironment) env).getServletContext().getRealPath(appendSlash(uploadDir));
-		File tempDir = new File(realPath);
-		if (!tempDir.exists()) {
+		File uploadDir = platformProperties.getUploadDir();
+		if (!uploadDir.exists()) {
 			try {
-				FileUtils.forceMkdir(tempDir);
+				FileUtils.forceMkdir(uploadDir);
 			} catch (IOException e) {
-				LOGGER.error("unable to create upload dir " + tempDir, e);
+				LOGGER.error("unable to create upload dir " + uploadDir, e);
 			}
 		}
 
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		Messaging.createMessageSender(env, executor);
 
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		String applicationRealDir = servletContext.getRealPath(appendSlash(applicationDir));
-		File applicationRootFolder = new File(applicationRealDir).getAbsoluteFile();
+		File applicationRootFolder = platformProperties.getApplicationDir();
 		if (!applicationRootFolder.exists()) {
 			LOGGER.error("could not find applicationfolder " + applicationRootFolder.getAbsolutePath(),
 					" platform will exit");
@@ -517,9 +522,7 @@ public class InitializerService {
 		siteMap.put(site.getName(), site);
 
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String repositoryDir = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		String repositoryRealDir = servletContext.getRealPath(repositoryDir);
-		File siteRootDirectory = new File(repositoryRealDir, site.getName());
+		File siteRootDirectory = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
 		site.setRootDirectory(siteRootDirectory);
 
 		String host = site.getHost();

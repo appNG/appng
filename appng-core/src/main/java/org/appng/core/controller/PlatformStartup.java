@@ -15,8 +15,12 @@
  */
 package org.appng.core.controller;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -49,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.util.Log4jConfigurer;
 import org.springframework.util.StopWatch;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
@@ -64,14 +69,36 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class PlatformStartup implements ServletContextListener {
 
-	private static final Logger log = LoggerFactory.getLogger(PlatformStartup.class);
+	private static Logger log;
 
-	public static final String CONFIG_LOCATION = "/WEB-INF/conf/appNG.properties";
-	private static final String CONTEXT_LOCATION = "/WEB-INF/conf/platformContext.xml";
+	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
+	private static final String CONTEXT_LOCATION = "/conf/platformContext.xml";
+	private static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
+	private static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
+		ServletContext ctx = sce.getServletContext();
+		String appngData = System.getProperty(Platform.Property.APPNG_DATA);
 		try {
+			InputStream configIs;
+			String configLocation;
+			String log4jLocation = WEB_INF + LOG4J_PROPERTIES;
+
+			if (StringUtils.isBlank(appngData)) {
+				configIs = ctx.getResourceAsStream(WEB_INF + CONFIG_LOCATION);
+				configLocation = WEB_INF + CONTEXT_LOCATION;
+			} else {
+				configIs = new FileInputStream(Paths.get(appngData, CONFIG_LOCATION).toFile());
+				configLocation = Paths.get(appngData, CONTEXT_LOCATION).toUri().toString();
+				Path log4jPath = Paths.get(appngData, LOG4J_PROPERTIES);
+				if (log4jPath.toFile().exists()) {
+					log4jLocation = log4jPath.toUri().toString();
+				}
+			}
+
+			initLogging(log4jLocation);
+
 			StopWatch startupWatch = new StopWatch("startup");
 			startupWatch.start();
 			log.info("");
@@ -92,11 +119,10 @@ public class PlatformStartup implements ServletContextListener {
 			log.info("                  | $$$$ ;        l $$$$ ;                            ");
 			log.info("                  `--,.-^´        `--,.-^´");
 			log.info("");
-			ServletContext ctx = sce.getServletContext();
+
 			Environment env = DefaultEnvironment.get(ctx);
 
 			Properties config = new Properties();
-			InputStream configIs = ctx.getResourceAsStream(CONFIG_LOCATION);
 			config.load(configIs);
 			configIs.close();
 
@@ -108,7 +134,7 @@ public class PlatformStartup implements ServletContextListener {
 			DatabaseConnection platformConnection = new MigrationService().initDatabase(config);
 			log.info("Platform connection: {}", platformConnection);
 
-			initPlatformContext(ctx, env, config, platformConnection);
+			initPlatformContext(ctx, env, config, platformConnection, configLocation);
 			InitializerService service = getService(env, ctx);
 			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
 			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
@@ -124,11 +150,18 @@ public class PlatformStartup implements ServletContextListener {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
+	protected void initLogging(String log4jLocation) throws FileNotFoundException {
+		Log4jConfigurer.initLogging(log4jLocation);
+		log = LoggerFactory.getLogger(PlatformStartup.class);
+		log.info("Initialized log4j from {}", log4jLocation);
+	}
+
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
-			DatabaseConnection platformConnection) throws IOException {
+			DatabaseConnection platformConnection, String configLocation) throws IOException {
 		XmlWebApplicationContext platformCtx = new XmlWebApplicationContext();
 		platformCtx.setDisplayName("appNG platform context");
-		platformCtx.setConfigLocation(CONTEXT_LOCATION);
+		platformCtx.setConfigLocation(configLocation);
 		platformCtx.setServletContext(ctx);
 		PropertySourcesPlaceholderConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		config.put(DatabaseService.DATABASE_TYPE, platformConnection.getType().name());

@@ -97,6 +97,9 @@ public final class Platform {
 	public final class Property {
 		/** The absolute root-path of the platform */
 		public static final String PLATFORM_ROOT_PATH = "platformRootPath";
+
+		/** The absolute path to the data directory */
+		public static final String APPNG_DATA = "appngData";
 		/**
 		 * The folder for the application-cache, relative to {@link #CACHE_FOLDER}. Applications might use this folder
 		 * to cache temporary data.

@@ -189,6 +189,9 @@ public class CoreService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
+	@Autowired
+	protected PlatformProperties platformConfig;
+
 	public Subject createSubject(SubjectImpl subject) {
 		return subjectRepository.save(subject);
 	}
@@ -615,7 +618,7 @@ public class CoreService {
 
 	protected void createSite(SiteImpl site, Environment environment) {
 		if (site.isCreateRepository()) {
-			File repositoryRootDir = getRepositoryRootFolder(environment);
+			File repositoryRootDir = platformConfig.getRepositoryRootFolder();
 			File siteRootDir = new File(repositoryRootDir, site.getName());
 			if (!siteRootDir.exists()) {
 				try {
@@ -651,7 +654,6 @@ public class CoreService {
 
 	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
-		Properties platformConfig = getPlatformConfig(environment);
 		new PropertySupport(siteProperties).initSiteProperties(site, platformConfig);
 		if (doSave) {
 			saveProperties(siteProperties);
@@ -1100,14 +1102,6 @@ public class CoreService {
 		return getApplicationFolder(env, application.getName());
 	}
 
-	private File getRepositoryRootFolder(Environment environment) {
-		Properties platformConfig = getPlatformConfig(environment);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
-		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		String repositoryRootDir = rootPath + File.separator + repositoryPath;
-		return new File(repositoryRootDir);
-	}
-
 	protected Properties getPlatformConfig(Environment environment) {
 		Properties platformConfig = null;
 		if (null == environment) {
@@ -1290,9 +1284,8 @@ public class CoreService {
 
 	public void cleanupSite(Environment env, SiteImpl site, boolean sendDeletedEvent) {
 		if (null != site) {
-			Properties platformConfig = getPlatformConfig(env);
 			if (site.isCreateRepository()) {
-				File siteRootFolder = new File(getRepositoryRootFolder(env), site.getName());
+				File siteRootFolder = new File(platformConfig.getRepositoryRootFolder(), site.getName());
 				try {
 					FileUtils.deleteDirectory(siteRootFolder);
 					log.info("deleted site repository {}", siteRootFolder.getPath());
@@ -1300,7 +1293,7 @@ public class CoreService {
 					log.error("error while deleting site's folder " + siteRootFolder.getName(), e);
 				}
 			}
-			CacheProvider cacheProvider = new CacheProvider(platformConfig);
+			CacheProvider cacheProvider = new CacheProvider(platformConfig.getProperties());
 			cacheProvider.clearCache(site);
 			site.setState(SiteState.DELETED);
 			if (sendDeletedEvent) {

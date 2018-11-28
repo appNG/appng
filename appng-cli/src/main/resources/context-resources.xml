@@ -1,0 +1,4 @@
+	<!-- http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html -->
+	<Resources>
+		<PreResources base="${appngData}" className="org.apache.catalina.webresources.DirResourceSet" webAppMount="/"/>
+	</Resources>

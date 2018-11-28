@@ -78,7 +78,7 @@ public class PlatformStartupTest extends PlatformStartup {
 
 	@Override
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties properties,
-			DatabaseConnection platformConnection) throws IOException {
+			DatabaseConnection platformConnection, String dummy) throws IOException {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);
 	}
 

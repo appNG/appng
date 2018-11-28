@@ -38,6 +38,7 @@ import org.appng.cli.commands.heartbeat.HeartBeat;
 import org.appng.cli.commands.permission.AddPermission;
 import org.appng.cli.commands.permission.ListPermissions;
 import org.appng.cli.commands.permission.RemovePermission;
+import org.appng.cli.commands.platform.ExtractData;
 import org.appng.cli.commands.property.CreateProperty;
 import org.appng.cli.commands.property.DeleteProperty;
 import org.appng.cli.commands.property.ListProperties;
@@ -134,6 +135,7 @@ public class CliCore {
 		commands.add("delete-template", new DeleteTemplate());
 
 		commands.add("heartbeat", new HeartBeat());
+		commands.add("extract-data", new ExtractData());
 
 		commands.add(COMMAND_BATCH, new CommandBatch());
 

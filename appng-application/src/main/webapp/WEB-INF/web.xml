@@ -2,15 +2,6 @@
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
-	<!-- init Logging -->
-	<listener>
-		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-	</listener>
-	<context-param>
-		<param-name>log4jConfigLocation</param-name>
-		<param-value>/WEB-INF/conf/log4j.properties</param-value>
-	</context-param>
-
 	<!-- install listener, looks for WEB-INF/conf/auto-install.list and executes it, if present -->
 	<listener>
 		<listener-class>org.appng.cli.servlet.InstallListener</listener-class>
