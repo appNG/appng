@@ -8,8 +8,8 @@ create table job_execution_record (
 	duration INT,
 	run_once BIT,
 	result varchar(255),
-	stacktraces NVARCHAR,
-	custom_data NVARCHAR,
+	stacktraces NVARCHAR(max),
+	custom_data NVARCHAR(max),
 	triggername varchar(255),	
 	primary key (id)
 );
