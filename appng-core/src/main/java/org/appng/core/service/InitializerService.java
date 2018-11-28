@@ -56,7 +56,6 @@ import org.appng.api.ApplicationController;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
-import org.appng.api.Path;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
@@ -254,7 +253,6 @@ public class InitializerService {
 				Platform.Environment.CORE_PLATFORM_CONTEXT);
 		PlatformProperties platformProperties = platformContext.getBean(PlatformProperties.class);
 		platformProperties.initialize(platformConfig);
-		
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -395,10 +393,6 @@ public class InitializerService {
 		}
 	}
 
-	private String appendSlash(String value) {
-		return value.startsWith(Path.SEPARATOR) ? value : Path.SEPARATOR + value;
-	}
-
 	private void logHeaderMessage(String message) {
 		String separator = StringUtils.leftPad(StringUtils.EMPTY, 15, "-");
 		LOGGER.info(separator + StringUtils.SPACE + message + StringUtils.SPACE + separator);
@@ -521,7 +515,6 @@ public class InitializerService {
 		site.setState(SiteState.STARTING);
 		siteMap.put(site.getName(), site);
 
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		File siteRootDirectory = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
 		site.setRootDirectory(siteRootDirectory);
 
@@ -559,10 +552,8 @@ public class InitializerService {
 
 		Boolean devMode = platformConfig.getBoolean(Platform.Property.DEV_MODE);
 		Boolean monitorPerformance = platformConfig.getBoolean(Platform.Property.MONITOR_PERFORMANCE);
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 
-		File applicationRootFolder = new File(rootPath, applicationDir).getAbsoluteFile();
+		File applicationRootFolder = platformConfig.getApplicationDir();
 		File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
 
 		String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);

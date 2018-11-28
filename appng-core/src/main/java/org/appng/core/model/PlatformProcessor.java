@@ -152,11 +152,11 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 			stringWriter.append(closeDiv);
 			if (platformProperties.getBoolean(Platform.Property.WRITE_DEBUG_FILES)) {
 				String prefix = getPlatformTransformer().getPrefix();
-				String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
+				String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
 				stringWriter.append(String.format(header, "XSLT"));
 				stringWriter.append(openDiv);
 				try {
-					String xslt = FileUtils.readFileToString(new File(rootPath, "debug/" + prefix + "template.xsl"),
+					String xslt = FileUtils.readFileToString(new File(appngData, "debug/" + prefix + "template.xsl"),
 							Charset.defaultCharset());
 					stringWriter.append(StringEscapeUtils.escapeHtml4(xslt));
 				} catch (IOException e1) {

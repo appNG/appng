@@ -546,7 +546,6 @@ public class CoreService {
 	}
 
 	public boolean login(Environment env, String digest, int digestMaxValidity) {
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String sharedSecret = platformConfig.getString(Platform.Property.SHARED_SECRET);
 		DigestValidator validator = new DigestValidator(digest, digestMaxValidity);
 		String username = validator.getUsername();
@@ -1103,12 +1102,6 @@ public class CoreService {
 	}
 
 	protected Properties getPlatformConfig(Environment environment) {
-		Properties platformConfig = null;
-		if (null == environment) {
-			platformConfig = getPlatformProperties();
-		} else {
-			platformConfig = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		}
 		return platformConfig;
 	}
 
@@ -1711,12 +1704,11 @@ public class CoreService {
 				SiteImpl shutdownSite = (SiteImpl) siteMap.get(siteName);
 				int requests;
 				int waited = 0;
-				Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
-				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+				int waitTime = platformConfig.getInteger(Platform.Property.WAIT_TIME, 1000);
+				int maxWaitTime = platformConfig.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 				shutdownSite.setState(SiteState.STOPPING);
 
-				if (platformProperties.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
+				if (platformConfig.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
 					log.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
 							shutdownSite.getRequests());
 					Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
