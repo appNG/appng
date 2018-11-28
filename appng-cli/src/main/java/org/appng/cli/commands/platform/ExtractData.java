@@ -50,7 +50,7 @@ import com.beust.jcommander.converters.FileConverter;
  * .
  * 
  * <p>
- * Additionally, a <a href="http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html ">&lt;Resources&gt;</a>
+ * Additionally, a <a href="http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html">&lt;Resources&gt;</a>
  * element is being added to {@code $APPNG_HOME/META-INF/context.xml}, referencing the {@code appngData} directory.
  * </p>
  * 
