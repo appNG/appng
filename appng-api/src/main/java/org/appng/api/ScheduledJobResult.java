@@ -1,5 +1,7 @@
 package org.appng.api;
 
+import java.io.Serializable;
+
 /**
  * A {@link ScheduledJobResult} can be provided by a {@link ScheduledJob}. The {@link ScheduledJobResult} contains some
  * information which will be stored by the scheduler application in the appNG database per job execution.
@@ -7,7 +9,8 @@ package org.appng.api;
  * @author Claus Stümke
  *
  */
-public class ScheduledJobResult {
+@SuppressWarnings("serial")
+public class ScheduledJobResult implements Serializable {
 
 	private ExecutionResult result;
 	private String customData;
