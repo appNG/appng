@@ -204,11 +204,11 @@
 		<profile>
 			<id>ci</id>
 			<distributionManagement>
-				<repository>
+				<snapshotRepository>
 					<id>appng-ci-builds</id>
 					<name>appNG CI Builds</name>
 					<url>https://appng.org/nexus/repository/appng-ci-builds/</url>
-				</repository>
+				</snapshotRepository>
 			</distributionManagement>
 		</profile>
 
