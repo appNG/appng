@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
@@ -76,6 +77,8 @@ public class RedirectFilterTest {
 		platform.put(Platform.Property.LOCALE, Locale.GERMANY.getDisplayName());
 		platform.put(Platform.Environment.SITES, sites);
 		Mockito.when(props.getString(Platform.Property.JSP_FILE_TYPE)).thenReturn(".jsp");
+		Mockito.when(props.getString(SiteProperties.SITE_ROOT_DIR)).thenReturn("target/test-classes");
+		Mockito.when(props.getString(SiteProperties.REWRITE_CONFIG)).thenReturn("conf/urlrewrite.xml");
 
 		MockServletContext servletContext = new MockServletContext(resourceLoader);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platform);

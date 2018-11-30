@@ -5,6 +5,11 @@
 		<defaultValue>/applications</defaultValue>
 		<description>The folder used for installing file-based-applications, relative to the webapp-root</description>
 	</property>
+	<property name="appngData" self="http://localhost/platform/property/appngData">
+		<value>target/webapps/ROOT</value>
+		<defaultValue>target/webapps/ROOT</defaultValue>
+		<description>The data directory for appNG</description>
+	</property>
 	<property name="cacheApplicationFolder" self="http://localhost/platform/property/cacheApplicationFolder">
 		<value>application</value>
 		<defaultValue>application</defaultValue>

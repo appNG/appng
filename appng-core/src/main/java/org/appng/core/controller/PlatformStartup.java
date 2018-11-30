@@ -73,8 +73,8 @@ public class PlatformStartup implements ServletContextListener {
 
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
 	private static final String CONTEXT_LOCATION = "/conf/platformContext.xml";
-	private static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
-	private static final String WEB_INF = "/WEB-INF";
+	protected static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
+	protected static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
@@ -83,7 +83,7 @@ public class PlatformStartup implements ServletContextListener {
 		try {
 			InputStream configIs;
 			String configLocation;
-			String log4jLocation = WEB_INF + LOG4J_PROPERTIES;
+			String log4jLocation = ctx.getRealPath(WEB_INF + LOG4J_PROPERTIES);
 
 			if (StringUtils.isBlank(appngData)) {
 				configIs = ctx.getResourceAsStream(WEB_INF + CONFIG_LOCATION);
