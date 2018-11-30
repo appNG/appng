@@ -75,7 +75,6 @@ import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationConfigProviderImpl;
 import org.appng.api.support.ConfigValidator;
 import org.appng.api.support.FieldProcessorImpl;
-import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
@@ -150,7 +149,6 @@ public class InitializerService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
-	@Autowired
 	protected PlatformProperties platformConfig;
 
 	/**
@@ -243,16 +241,7 @@ public class InitializerService {
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		PropertyHolder platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
-				false);
-		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_USER);
-		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_GROUP);
-		platformConfig.setFinal();
-
-		org.springframework.context.ApplicationContext platformContext = env.getAttribute(Scope.PLATFORM,
-				Platform.Environment.CORE_PLATFORM_CONTEXT);
-		PlatformProperties platformProperties = platformContext.getBean(PlatformProperties.class);
-		platformProperties.initialize(platformConfig);
+		platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true, false);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -268,10 +257,10 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		String ehcacheConfig = platformProperties.getCacheConfig();
-		CacheManager cacheManager = CacheManager.create(ehcacheConfig);
+		File ehcacheConfig = platformConfig.getCacheConfig();
+		CacheManager cacheManager = CacheManager.create(ehcacheConfig.getPath());
 
-		File uploadDir = platformProperties.getUploadDir();
+		File uploadDir = platformConfig.getUploadDir();
 		if (!uploadDir.exists()) {
 			try {
 				FileUtils.forceMkdir(uploadDir);
@@ -283,7 +272,7 @@ public class InitializerService {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		Messaging.createMessageSender(env, executor);
 
-		File applicationRootFolder = platformProperties.getApplicationDir();
+		File applicationRootFolder = platformConfig.getApplicationDir();
 		if (!applicationRootFolder.exists()) {
 			LOGGER.error("could not find applicationfolder " + applicationRootFolder.getAbsolutePath(),
 					" platform will exit");
@@ -383,13 +372,6 @@ public class InitializerService {
 				LOGGER.error("error in site reload watcher", e);
 			}
 			LOGGER.info("done watching for reload file.");
-		}
-	}
-
-	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
-			String name) {
-		if (defaultOverrides.containsKey(name)) {
-			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
 		}
 	}
 

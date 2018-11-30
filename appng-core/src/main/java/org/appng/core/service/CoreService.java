@@ -209,14 +209,25 @@ public class CoreService {
 		return propertyHolder;
 	}
 
-	public PropertyHolder initPlatformConfig(java.util.Properties defaultOverrides, String rootPath, Boolean devMode,
-			boolean persist, boolean finalize) {
+	public PlatformProperties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath,
+			Boolean devMode, boolean persist, boolean finalize) {
 		PropertyHolder platformConfig = getPlatform(false);
 		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, finalize);
 		if (persist) {
 			saveProperties(platformConfig);
 		}
-		return platformConfig;
+		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_USER);
+		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_GROUP);
+		platformConfig.setFinal();
+		this.platformConfig.initialize(platformConfig);
+		return this.platformConfig;
+	}
+
+	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
+			String name) {
+		if (defaultOverrides.containsKey(name)) {
+			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
+		}
 	}
 
 	private Page<PropertyImpl> getPlatformPropertiesList(Pageable pageable) {
@@ -1162,8 +1173,7 @@ public class CoreService {
 			try {
 				File outputFile = new File(outputPath);
 				FileUtils.forceMkdir(outputFile.getParentFile());
-				try (
-						OutputStream outputStream = new FileOutputStream(outputFile);
+				try (OutputStream outputStream = new FileOutputStream(outputFile);
 						InputStream inputStream = new ByteArrayInputStream(applicationResource.getBytes())) {
 					IOUtils.copy(inputStream, outputStream);
 					log.debug("writing " + outputPath);

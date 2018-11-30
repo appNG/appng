@@ -102,9 +102,8 @@ public class PlatformProperties implements Properties {
 		return properties.getDescriptionFor(name);
 	}
 
-	public String getCacheConfig() {
-		String appNGData = getString(Platform.Property.APPNG_DATA);
-		return appNGData + getString(Platform.Property.EHCACHE_CONFIG);
+	public File getCacheConfig() {
+		return getAbsoluteFile(Platform.Property.EHCACHE_CONFIG);
 	}
 
 	public File getUploadDir() {
