@@ -20,6 +20,7 @@ import static org.appng.api.Scope.SESSION;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -97,7 +98,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	/** a SPI to support different versions of Tomcat */
 	interface Support {
-		void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding) throws IOException,ServletException;
+		void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding)
+				throws IOException, ServletException;
 
 		HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response);
 
@@ -113,8 +115,9 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		super.init(config);
 		try {
 			char tomcatMajor = ServerInfo.getServerNumber().charAt(0);
-			Class<?> supportClassName = Class.forName(String.format("org.appng.core.controller.Tomcat%sSupport", tomcatMajor));
-			setSupport( (Support) supportClassName.newInstance());
+			Class<?> supportClassName = Class
+					.forName(String.format("org.appng.core.controller.Tomcat%sSupport", tomcatMajor));
+			setSupport((Support) supportClassName.newInstance());
 			LOGGER.debug("created {}", support.getClass().getName());
 		} catch (ReflectiveOperationException o) {
 			throw new ServletException("error while creating Controller.Support", o);
@@ -123,7 +126,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	// for Tomcat 7 compatibility
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content) throws IOException ,ServletException {
+	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content)
+			throws IOException, ServletException {
 		support.serveResource(request, response, content, null);
 	}
 
@@ -335,12 +339,18 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	public void setWrapper(Wrapper wrapper) {
-		this.manager = ((Context) wrapper.getParent()).getManager();
+		Context context = ((Context) wrapper.getParent());
+		Environment env = DefaultEnvironment.get(context.getServletContext());
+		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
+		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));
+		this.manager = context.getManager();
 	}
 
 	protected void expireSessions(HttpServletRequest servletRequest, Environment env, Site site) {
 		if (null != manager && Boolean.TRUE.equals(env.removeAttribute(SESSION, EXPIRE_SESSIONS))) {
-			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM, SessionListener.SESSIONS);
+			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM,
+					SessionListener.SESSIONS);
 			for (org.appng.core.controller.Session session : sessions) {
 				org.apache.catalina.Session containerSession = getContainerSession(session.getId());
 				if (null != containerSession) {
