@@ -1,6 +1,10 @@
 === Using JPA
 An application can easily make use of http://projects.spring.io/spring-data-jpa[Spring Data JPA^] for implementing the data access layer. See the {spring-data-jpa}/reference/html/[Reference Documentation^] for more details.
 
+IMPORTANT: If you add JPA capabilities to an application that is already assigned to a site, 
+you first need to remove the applicaton from the site. Then deploy the new application archive and assign it to the site again.
+ This only needs to be done once.
+
 If your application want's to use JPA, follow these simple steps:
 
 . Add the following dependency to your `pom.xml` (the version is inherited from the parent pom):
@@ -55,72 +59,127 @@ public interface EmployeeRepository extends SearchRepository<Employee, Integer> 
 }
 ----
 
-. In your `beans.xml`, add the following configuration:
+. Create the Spring configuration
++
+When using annotation based configuration, your `@Configuration` must look like this:
++
+[source,java]
+----
+import java.util.Properties;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
+import org.appng.persistence.repository.SearchRepositoryImpl;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.support.SharedEntityManagerBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Configuration
+@EnableTransactionManagement //<1>
+@EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "com.myapp.repository") //<2>
+public class BeanConfiguration {
+
+	@Bean //<3>
+	public FactoryBean<EntityManagerFactory> entityManagerFactory(DataSource datasource) {
+		LocalContainerEntityManagerFactoryBean lcemfb = new LocalContainerEntityManagerFactoryBean();
+		lcemfb.setDataSource(datasource); //<4>
+		lcemfb.setPersistenceUnitName("myapp"); //<5>
+		lcemfb.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+		lcemfb.setPackagesToScan("com.myapp.domain"); //<6>
+		Properties props = new Properties(); //<7>
+		props.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
+		lcemfb.setJpaProperties(props);
+		return lcemfb;
+    }
+
+	@Bean //<8>
+	public FactoryBean<EntityManager> entityManager(EntityManagerFactory emf) {
+		SharedEntityManagerBean em = new SharedEntityManagerBean();
+		em.setEntityManagerFactory(emf);
+		return em;
+	}
+
+	@Bean //<9>
+	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+		return new JpaTransactionManager(emf);
+	}
+
+} 
+----
+<1> Enable Spring Data JPA repositories, defining the `basePackages` where your repositories reside. As a `repositoryBaseClass`, use `org.appng.persistence.repository.SearchRepositoryImpl`.
+<2> Enable annotation based transaction management (using {spring}/javadoc-api/org/springframework/transaction/annotation/Transactional.html[org.springframework.transaction.annotation.Transactional^]).
+<3> Define a `javax.persistence.EntityManagerFactory`.
+<4> The referenced `javax.sql.DataSource` <<app-datasource,is provided by the platform>>.
+<5> Choose a meaningful name for the persistence unit.
+<6> Define the package(s) where your entities reside.
+<7> Define the JPA properties.
+<8> Define an `javax.persistence.EntityManager`.
+<9> Define a transaction manager.
++
+However, if you prefer XML-configuration, add the following to your `beans.xml`:
 +
 [source,xml]
 ----
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-       	http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx
-       	http://www.springframework.org/schema/tx/spring-tx.xsd
-        http://www.springframework.org/schema/data/jpa
-        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
   <context:component-scan base-package="com.myapp" />
-  
-  <jpa:repositories base-package="com.myapp.repository"
-      base-class="org.appng.persistence.repository.SearchRepositoryImpl" /> <!--1-->
-	
-  <tx:annotation-driven /> <!--2-->
 
-  <bean id="transactionManager"
-    class="org.springframework.orm.jpa.JpaTransactionManager" /> <!--3-->
+  <tx:annotation-driven /> <!--1-->
 
-  <!--4-->
-  <bean id="entityManagerFactory"
-      class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-	<property name="persistenceProviderClass"
-	  value="org.hibernate.jpa.HibernatePersistenceProvider" />
-	<property name="persistenceUnitName" value="myapp"/> <!--5-->
-	<property name="dataSource" ref="datasource" /> <!--6-->
-	<property name="jpaVendorAdapter">
-      <bean
-          class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
-	</property>
-	<property name="jpaProperties"> <!--7-->
-	  <props>
-		<prop key="hibernate.show_sql">${hibernateShowSql:true}</prop> <!--8-->
-		<prop key="hibernate.format_sql">${hibernateFormatSql:false}</prop>
-		<prop key="hibernate.id.new_generator_mappings">false</prop>
-	  </props>
-	</property>
-	<property name="packagesToScan"> <!--9-->
-	  <list>
-		<value>com.myapp.domain</value>
-	  </list>
-	</property>
+  <jpa:repositories base-package="com.myapp.repository" base-class="org.appng.persistence.repository.SearchRepositoryImpl" /> <!--2-->
+
+  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"><!--3-->
+    <property name="dataSource" ref="datasource" /> <!--4-->
+    <property name="persistenceUnitName" value="myapp"/> <!--5-->
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+    </property>
+    <property name="packagesToScan"> <!--6-->
+      <list>
+        <value>com.myapp.domain</value>
+      </list>
+    </property>
+    <property name="jpaProperties"> <!--7-->
+      <props>
+        <prop key="hibernate.id.new_generator_mappings">false</prop>
+      </props>
+    </property>
   </bean>
-  <bean id="entityManager"
-        class="org.springframework.orm.jpa.support.SharedEntityManagerBean" />  <!--10-->
+
+  <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean" />  <!--8-->
+
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager" /> <!--9-->
 </beans>
 ----
 <1> Enable Spring Data JPA repositories, defining the `base-package` where your repositories reside. As a `base-class`, use `org.appng.persistence.repository.SearchRepositoryImpl`.
 <2> Enable annotation based transaction management (using {spring}/javadoc-api/org/springframework/transaction/annotation/Transactional.html[org.springframework.transaction.annotation.Transactional^]).
-<3> Define a transaction manager.
-<4> Define an `EntityManagerFactory`.
+<3> Define a `javax.persistence.EntityManagerFactory`.
+<4> The referenced bean `datasource` of type `javax.sql.DataSource` <<app-datasource,is provided by the platform>>.
 <5> Choose a meaningful name for the persistence unit.
-<6> The referenced bean `datasource` of type `javax.sql.DataSource` <<app-datasource,is provided by the platform>>.
+<6> Define the package(s) where your entities reside.
 <7> Define the JPA properties.
-<8> Use some application-properties, also provide a default value.
-<9> Define the package(s) where your entities reside.
-<10> Define an `javax.persistence.EntityManager`.
+<8> Define a `javax.persistence.EntityManager`.
+<9> Define a transaction manager.
 
 . Inject the repositories into your service class(es) and annotate them with  `@org.springframework.transaction.annotation.Transactional`:
 +
