@@ -500,9 +500,9 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>net.sf.jmimemagic</groupId>
-				<artifactId>jmimemagic</artifactId>
-				<version>0.1.5</version>
+				<groupId>com.j256.simplemagic</groupId>
+				<artifactId>simplemagic</artifactId>
+				<version>1.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

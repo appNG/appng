@@ -54,9 +54,7 @@ public class MagicByteCheckTest {
 
 	private void checkDir(File directory, boolean expected) {
 		for (File f : directory.listFiles()) {
-			// https://github.com/arimus/jmimemagic/issues/35
-			// bmp support is broken
-			if (!f.isDirectory() && !f.getName().endsWith("bmp")) {
+			if (!f.isDirectory()) {
 				boolean result = MagicByteCheck.compareFileExtensionWithMagicBytes(f);
 				boolean matches = expected == result;
 				if (!matches) {

@@ -63,8 +63,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.jmimemagic</groupId>
-			<artifactId>jmimemagic</artifactId>
+			<groupId>com.j256.simplemagic</groupId>
+			<artifactId>simplemagic</artifactId>
 		</dependency>
 	</dependencies>
 </project>

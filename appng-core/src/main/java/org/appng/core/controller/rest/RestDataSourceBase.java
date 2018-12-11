@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,9 +61,11 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
+import org.appng.xml.platform.Option;
 import org.appng.xml.platform.PanelLocation;
 import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Resultset;
+import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Sort;
 import org.appng.xml.platform.Validation;
@@ -165,11 +168,12 @@ abstract class RestDataSourceBase extends RestOperation {
 			page.setTotalElements(resultset.getHits());
 			page.setTotalPages(resultset.getLastchunk() + 1);
 			resultset.getResults().forEach(r -> {
-				page.addElementsItem(getElement(r, metaData));
+				page.addElementsItem(getElement(null, r, metaData));
 			});
 			datasource.setPage(page);
 		} else {
-			datasource.setElement(getElement(processedDataSource.getData().getResult(), metaData));
+			datasource.setElement(getElement(processedDataSource.getData().getSelections(),
+					processedDataSource.getData().getResult(), metaData));
 		}
 
 		Messages messages = environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
@@ -255,7 +259,7 @@ abstract class RestDataSourceBase extends RestOperation {
 		return field;
 	}
 
-	protected Element getElement(Result r, MetaData metaData) {
+	protected Element getElement(List<Selection> selections, Result r, MetaData metaData) {
 		Element element = new Element();
 		element.setSelected(Boolean.TRUE.equals(r.isSelected()));
 		r.getFields().forEach(f -> {
@@ -263,7 +267,25 @@ abstract class RestDataSourceBase extends RestOperation {
 			Optional<FieldDef> fieldDef = metaData.getFields().stream().filter(mf -> mf.getName().equals(f.getName()))
 					.findFirst();
 			BeanWrapper beanWrapper = getBeanWrapper(metaData);
-			element.addFieldsItem(getFieldValue(f, fieldDef, beanWrapper, 0));
+			FieldValue fieldValue = getFieldValue(f, fieldDef, beanWrapper, 0);
+			if (null != fieldValue && isSelectionType(fieldDef.get().getType()) && null != selections) {
+				Selection selection = selections.parallelStream()
+						.filter(s -> s.getId().equals(fieldDef.get().getName())).findFirst().orElse(null);
+				List<FieldValue> collectedValues = new ArrayList<>();
+				if (null != selection) {
+					List<Option> options = selection.getOptions();
+					collectedValues.addAll(collectSelectedOptions(options));
+					selection.getOptionGroups().forEach(g -> {
+						collectedValues.addAll(collectSelectedOptions(g.getOptions()));
+					});
+					if (collectedValues.size() == 1) {
+						fieldValue.setValue(collectedValues.get(0).getValue());
+					} else {
+						fieldValue.setValues(collectedValues);
+					}
+				}
+			}
+			element.addFieldsItem(fieldValue);
 		});
 		r.getLinkpanel().forEach(lp -> {
 			lp.getLinks().forEach(l -> {
@@ -271,6 +293,14 @@ abstract class RestDataSourceBase extends RestOperation {
 			});
 		});
 		return element;
+	}
+
+	private List<FieldValue> collectSelectedOptions(List<Option> options) {
+		return options.stream().filter(o -> Boolean.TRUE.equals(o.isSelected())).map(o -> {
+			FieldValue childValue = new FieldValue();
+			childValue.setValue(o.getValue());
+			return childValue;
+		}).collect(Collectors.toList());
 	}
 
 	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper,

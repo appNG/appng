@@ -15,7 +15,6 @@
  */
 package org.appng.appngizer.controller;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,8 +132,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 		for (SiteImpl site : getCoreService().getSites()) {
 			if (site.isActive()) {
 				SiteImpl s = getCoreService().getSite(site.getId());
-				SiteClassLoader siteClassLoader = new SiteClassLoader(new URL[0], getClass().getClassLoader(),
-						site.getName());
+				SiteClassLoader siteClassLoader = new SiteClassLoader(site.getName());
 				s.setSiteClassLoader(siteClassLoader);
 				siteMap.put(site.getName(), s);
 			}
