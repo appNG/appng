@@ -5,7 +5,7 @@
 	<artifactId>appng-application-bom</artifactId>
 	<packaging>pom</packaging>
 	<name>appNG application BOM</name>
-	<version>1.18.0-SNAPSHOT</version>
+	<version>1.18.0-RC6</version>
 	<description>the bill of materials for an appNG application, defining all provided dependencies</description>
 	<organization>
 		<name>aiticon GmbH</name>
@@ -826,91 +826,91 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-api</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-rest-api</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-camunda</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-cli</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-core</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-forms</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-formtags</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-mail</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-persistence</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-search</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-taglib</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-tomcat7</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-tomcat8</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-tools</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-xmlapi</artifactId>
-				<version>1.18.0-SNAPSHOT</version>
+				<version>1.18.0-RC6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
