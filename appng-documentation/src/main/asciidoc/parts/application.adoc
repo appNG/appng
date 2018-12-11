@@ -13,12 +13,12 @@ The Spring application context of an appNG application comes with a number of pr
 
 * `site` +
 The current site. +
-*Type:* {appng}/org/appng/api/Site.html[org.appng.api.Site^] +
+*Type:* {appng}/org/appng/api/model/Site.html[org.appng.api.model.Site^] +
 *Scope:* singleton
 
 * `application` +
 The current application. +
-*Type:* {appng}/org/appng/api/Application.html[org.appng.api.Application^] +
+*Type:* {appng}/org/appng/api/model/Application.html[org.appng.api.model.Application^] +
 *Scope:* singleton
 
 * `environment` +
