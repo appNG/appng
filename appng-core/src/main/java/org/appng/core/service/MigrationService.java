@@ -26,9 +26,10 @@ import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteApplication;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -192,11 +193,10 @@ public class MigrationService {
 		StringBuilder dbInfo = new StringBuilder();
 		if (!testConnection || connection.testConnection(dbInfo, true)) {
 			log.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
-			Flyway flyway = new Flyway();
-			DataSource dataSource = getDataSource(connection);
-			flyway.setDataSource(dataSource);
-			String location = LOCATION_PREFIX + connection.getType().name().toLowerCase();
-			flyway.setLocations(location);
+			FluentConfiguration configuration = Flyway.configure();
+			configuration.dataSource(getDataSource(connection));
+			configuration.locations(LOCATION_PREFIX + connection.getType().name().toLowerCase());
+			Flyway flyway = new Flyway(configuration);
 			MigrationInfoService info = flyway.info();
 			connection.setMigrationInfoService(info);
 			return info;
@@ -221,9 +221,10 @@ public class MigrationService {
 		if (null != connection && connection.testConnection(null)) {
 			String typeFolder = connection.getType().name().toLowerCase();
 			File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
-			Flyway flyway = new Flyway();
-			flyway.setDataSource(getDataSource(connection));
-			flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
+			FluentConfiguration configuration = new FluentConfiguration();
+			configuration.locations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
+			configuration.dataSource(getDataSource(connection));
+			Flyway flyway = new Flyway(configuration);
 			MigrationInfoService info = flyway.info();
 			connection.setMigrationInfoService(info);
 			return info;
@@ -235,30 +236,27 @@ public class MigrationService {
 		StringBuilder dbInfo = new StringBuilder();
 		String jdbcUrl = rootConnection.getJdbcUrl();
 		if (rootConnection.testConnection(dbInfo, true)) {
-			log.info("connected to " + jdbcUrl + " (" + dbInfo.toString() + ")");
-			Flyway flyway = new Flyway();
-			String location = LOCATION_PREFIX + rootConnection.getType().name().toLowerCase();
-			flyway.setLocations(location);
+			log.info("connected to {} ({})", jdbcUrl, dbInfo.toString());
+			FluentConfiguration configuration = Flyway.configure();
+			configuration.dataSource(getDataSource(rootConnection));
+			configuration.locations(LOCATION_PREFIX + rootConnection.getType().name().toLowerCase());
+			Flyway flyway = new Flyway(configuration);
 			if (doRepair) {
-				flyway.setDataSource(getDataSource(rootConnection));
 				flyway.repair();
 			}
 			return migrate(flyway, rootConnection);
 		} else {
-			log.error(rootConnection.toString() + " is not working, initializing database was not successful.");
+			log.error("{} is not working, initializing database was not successful.", rootConnection.toString());
 		}
 		return MigrationStatus.ERROR;
 	}
 
 	protected MigrationStatus migrate(Flyway flyway, DatabaseConnection databaseConnection) {
-		String jdbcUrl = databaseConnection.getJdbcUrl();
 		try {
-			DataSource dataSource = getDataSource(databaseConnection);
-			flyway.setDataSource(dataSource);
 			flyway.migrate();
 			return MigrationStatus.DB_MIGRATED;
 		} catch (FlywayException e) {
-			log.error("error while migrating " + jdbcUrl, e);
+			log.error("error while migrating " + databaseConnection.getJdbcUrl(), e);
 		}
 		return MigrationStatus.ERROR;
 	}
