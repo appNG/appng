@@ -199,6 +199,7 @@ public class DatabaseService extends MigrationService {
 				String jdbcUrl = databaseConnection.getJdbcUrl();
 				log.info("starting database migration for {} from {}", jdbcUrl, scriptFolder.getAbsolutePath());
 				FluentConfiguration configuration = Flyway.configure();
+				configuration.dataSource(getDataSource(databaseConnection));
 				configuration.locations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
 				Flyway flyway = new Flyway(configuration);
 				return migrate(flyway, databaseConnection);
