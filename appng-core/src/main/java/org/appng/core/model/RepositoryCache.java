@@ -44,6 +44,16 @@ public interface RepositoryCache {
 	List<PackageWrapper> getApplications() throws BusinessException;
 
 	/**
+	 * Returns all applications found in the repository.
+	 * @param packageName
+	 * 				an optional search-string for the package's name, supporting {@code *} as a placeholder
+	 * 
+	 * @return The application list.
+	 * @throws BusinessException
+	 */
+	List<PackageWrapper> getApplications(String packageName) throws BusinessException;
+
+	/**
 	 * Returns the {@link PackageWrapper} for the mentioned application.
 	 * 
 	 * @param name

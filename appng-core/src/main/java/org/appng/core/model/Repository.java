@@ -138,11 +138,13 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	/**
 	 * Returns the {@link Packages} offered by this repository, containing a list of all available {@link Package}s
 	 * 
+	 * @param packageName
+	 * 				an optional search-string for the package's name, supporting {@code *} as a placeholder
 	 * @return the {@link Packages} offered by this repository
 	 * @throws BusinessException
 	 *             if an error occurs while reading the package informations
 	 */
-	Packages getPackages() throws BusinessException;
+	Packages getPackages(String packageName) throws BusinessException;
 
 	/**
 	 * Returns the {@link Certification}

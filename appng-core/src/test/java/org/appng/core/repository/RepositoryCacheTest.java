@@ -44,6 +44,13 @@ public class RepositoryCacheTest {
 		RepositoryCache cache = RepositoryCacheFactory.instance().getCache(repository);
 
 		Assert.assertEquals(1, cache.getApplications().size());
+		Assert.assertEquals(1, cache.getApplications().size());
+		Assert.assertEquals(1, cache.getApplications(null).size());
+		Assert.assertEquals(1, cache.getApplications("").size());
+		Assert.assertEquals(1, cache.getApplications("demo-").size());
+		Assert.assertEquals(1, cache.getApplications("*").size());
+		Assert.assertEquals(1, cache.getApplications("demo-*").size());
+		Assert.assertEquals(0, cache.getApplications("notfound").size());
 
 		PackageWrapper applicationWrapper = cache.getPublishedApplicationWrapper("demo-application");
 		String latest = "1.5.4";
