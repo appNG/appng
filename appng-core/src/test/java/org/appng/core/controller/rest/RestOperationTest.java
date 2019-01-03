@@ -103,7 +103,7 @@ public class RestOperationTest {
 		String[] stackTrace = handleError.getBody().getMessage().split(System.lineSeparator());
 		Assert.assertEquals("java.io.IOException: BOOOM!", stackTrace[0]);
 		Assert.assertEquals(
-				"	at org.appng.core.controller.rest.RestOperationTest.testHandleException(RestOperationTest.java:83)",
+				"	at org.appng.core.controller.rest.RestOperationTest.testHandleException(RestOperationTest.java:98)",
 				stackTrace[1]);
 	}
 
