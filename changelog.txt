@@ -1,3 +1,43 @@
+Release Notes - appNG - Version 1.18.0 (2018-12-12)
+---------------------------------------------------
+* [APPNG-2220] - Update links to bean validation API 2.0
+* [APPNG-2219] - Mention site and application as predefined beans
+* [APPNG-2218] - org.apache.catalina.Context.setSessionTimeout() must be set using the platform property 'sessionTimeout'
+* [APPNG-2217] - Enhance section about using JPA with an example for annotation based configuration
+* [APPNG-2216] - Upload of artifacts from CI build to nexus fails, no unit test reported
+* [APPNG-2215] - Support Job Execution Report
+* [APPNG-2214] - Replace jMimeMagic with SimpleMagic
+* [APPNG-2213] - RepositoryWatcher does not update Forward-Rules when urlrewrite.xml changes
+* [APPNG-2211] - Adding the same Jar to a site's classpath should be avoided
+* [APPNG-2209] - ObjectFieldConverter should create and set a new object if necessary
+* [APPNG-2207] - Comparison of package versions does not honor semantic versioning
+* [APPNG-2206] - SessionEnvironment must always use the site's name to force usage of SiteClassloader
+* [APPNG-2205] - Remove Messages from Session in Rest Datasource
+* [APPNG-2204] - Provide a SelectionBuilder for easier building Selections
+* [APPNG-2203] - An option of a selection should optionally provide the hits for this option
+* [APPNG-2202] - SearchRepository should offer an unpaginated search method
+* [APPNG-2201] - CLI command create-repository must support setting the digest
+* [APPNG-2200] - PageCacheFilter throws AlreadyCommittedException for 404 responses
+* [APPNG-2199] - CoreService contains methods that are package-visible across different ClassLoaders
+* [APPNG-2197] - It should be possible for a message to have a key it references to
+* [APPNG-2196] - Remove unused imports
+* [APPNG-2195] - Remove deprecated method calls
+* [APPNG-2194] - ListFieldConverter must support any depth for nested fields
+* [APPNG-2193] - MDC logging should support HTTP method
+* [APPNG-2192] - ElementHelper#getValidationGroups must not set a validation-group's condition to null
+* [APPNG-2190] - PageCacheFilter must honor If-Modified-Since HTTP header
+* [APPNG-2189] - LocalizedMessageInterpolator can not handle a ResourceBundleMessageSource with alwaysUseMessageFormat=true
+* [APPNG-2188] - A warning should be logged if a folder to be indexed does not exist
+* [APPNG-2187] - appNGizer can't resolve location for AppNGizerConfigurer 
+* [APPNG-2186] - RabbitMQ exchange names contains obsolete "-%d"
+* [APPNG-2185] - FieldProcessor.hasFieldErrors() does not honor nested fields
+* [APPNG-2184] - Lack of support for nested fields in ValidationProvider
+* [APPNG-2183] - RabbitMQReceiver uses an exclusive queue, leading to Exceptions on restart
+* [APPNG-2182] - PageCacheFilter swallows response body if status != 200
+* [APPNG-2181] - Update the documentation and info graphic in section 2 of developer Guide
+* [APPNG-2180] - Provide a RESTful API for actions and datasources
+
+
 Release Notes - appNG - Version 1.17.1 (2018-05-14)
 ---------------------------------------------------
 * [APPNG-2179] - Release appNG 1.17.1
