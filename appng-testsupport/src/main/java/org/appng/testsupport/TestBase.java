@@ -497,7 +497,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		return controlFile;
 	}
 
-	public class CallableTestAction extends CallableAction {
+	class CallableTestAction extends CallableAction {
 		private Object form;
 
 		CallableTestAction(Site site, Application application, ApplicationRequest applicationRequest,
