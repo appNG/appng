@@ -42,6 +42,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.appng.api.ActionProvider;
 import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.BusinessException;
+import org.appng.api.DataContainer;
 import org.appng.api.DataProvider;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
@@ -77,6 +78,9 @@ import org.appng.api.support.CallableAction;
 import org.appng.api.support.CallableDataSource;
 import org.appng.api.support.DollarParameterSupport;
 import org.appng.api.support.DummyPermissionProcessor;
+import org.appng.api.support.FieldProcessorImpl;
+import org.appng.api.support.OptionImpl;
+import org.appng.api.support.OptionsImpl;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
@@ -493,10 +497,10 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		return controlFile;
 	}
 
-	class CallableTestAction extends CallableAction {
+	public class CallableTestAction extends CallableAction {
 		private Object form;
 
-		public CallableTestAction(Site site, Application application, ApplicationRequest applicationRequest,
+		CallableTestAction(Site site, Application application, ApplicationRequest applicationRequest,
 				ActionRef actionRef, Object form) throws ProcessingException {
 			super(site, application, applicationRequest, actionRef);
 			this.form = form;
@@ -513,6 +517,11 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 				return copy.getWrappedInstance();
 			}
 			return null;
+		}
+
+		private Action initialize() throws ProcessingException {
+			retrieveData(false);
+			return getAction();
 		}
 	}
 
@@ -754,6 +763,60 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 */
 		public CallableAction getCallableAction(Object form) throws ProcessingException {
 			return new CallableTestAction(site, application, request, this, form);
+		}
+
+		/**
+		 * Returns the {@link Action} in it's initial state, meaning the action is initialized with the original data
+		 * coming from {@link DataProvider}, but not performed.
+		 * 
+		 * @return the {@link Action}
+		 * @throws ProcessingException
+		 *             if an error occurs while assembling the Action
+		 */
+		public Action initialize() throws ProcessingException {
+			return new CallableTestAction(site, application, request, this, null).initialize();
+		}
+
+		/**
+		 * Returns the initial form for the action, i.e. of the underlying {@link Datasource}, if any. This is done by
+		 * directly calling
+		 * {@link DataProvider#getData(Site, Application, Environment, org.appng.api.Options, Request, FieldProcessor)}
+		 * and then returning the result of {@link DataContainer#getItem()}.
+		 * 
+		 * @return the initial form, may be {@code null}
+		 * @throws ProcessingException
+		 *             if an error occurs while retrieving the data
+		 */
+		@SuppressWarnings("unchecked")
+		public <T> T getForm() throws ProcessingException {
+			CallableTestAction callableTestAction = new CallableTestAction(site, application, request, this, null);
+			DatasourceRef datasourceRef = callableTestAction.getAction().getDatasource();
+			if (null != datasourceRef) {
+				DataSourceCall dataSourceCall = new DataSourceCall(datasourceRef.getId());
+				Map<String, String> parameters = getParameterSupport().getParameters();
+				datasourceRef.getParams().getParam()
+						.forEach(p -> dataSourceCall.withParam(p.getName(), parameters.get(p.getName())));
+
+				Datasource datasource = dataSourceCall.getCallableDataSource().getDatasource();
+
+				OptionsImpl options = new OptionsImpl();
+				datasource.getBean().getOptions().forEach(o -> {
+					OptionImpl opt = new OptionImpl(o.getName());
+					o.getOtherAttributes().entrySet()
+							.forEach(e -> opt.addAttribute(e.getKey().getLocalPart(), e.getValue()));
+					options.addOption(opt);
+				});
+
+				MetaData metaData = datasource.getConfig().getMetaData();
+				FieldProcessorImpl fp = new FieldProcessorImpl(id, metaData);
+				fp.addLinkPanels(datasource.getConfig().getLinkpanel());
+
+				DataProvider dataProvider = application.getBean(datasource.getBean().getId(), DataProvider.class);
+				DataContainer dataContainer = dataProvider.getData(site, application, environment, options, request,
+						fp);
+				return (T) dataContainer.getItem();
+			}
+			return null;
 		}
 	}
 
