@@ -45,8 +45,9 @@ public interface RepositoryCache {
 
 	/**
 	 * Returns all applications found in the repository.
+	 * 
 	 * @param packageName
-	 * 				an optional search-string for the package's name, supporting {@code *} as a placeholder
+	 *            an optional search-string for the package's name, supporting {@code *} as a placeholder
 	 * 
 	 * @return The application list.
 	 * @throws BusinessException

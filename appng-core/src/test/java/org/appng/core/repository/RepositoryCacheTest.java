@@ -50,6 +50,7 @@ public class RepositoryCacheTest {
 		Assert.assertEquals(1, cache.getApplications("demo-").size());
 		Assert.assertEquals(1, cache.getApplications("*").size());
 		Assert.assertEquals(1, cache.getApplications("demo-*").size());
+		Assert.assertEquals(1, cache.getApplications("*emo*").size());
 		Assert.assertEquals(0, cache.getApplications("notfound").size());
 
 		PackageWrapper applicationWrapper = cache.getPublishedApplicationWrapper("demo-application");
