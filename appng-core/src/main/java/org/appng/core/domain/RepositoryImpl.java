@@ -265,10 +265,15 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 
 	@Transient
 	public Packages getPackages() throws BusinessException {
+		return getPackages(null);
+	}
+
+	@Transient
+	public Packages getPackages(String packageName) throws BusinessException {
 		RepositoryCache cache = getRepositoryCache();
 		Packages packages = new Packages();
 		packages.setCertification(cache.getCertification());
-		for (PackageWrapper packageWrapper : cache.getApplications()) {
+		for (PackageWrapper packageWrapper : cache.getApplications(packageName)) {
 			org.appng.core.xml.repository.Package publishedPackage = packageWrapper.getPackage();
 			packages.getPackage().add(publishedPackage);
 		}
