@@ -264,6 +264,11 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 	}
 
 	@Transient
+	public Packages getPackages() throws BusinessException {
+		return getPackages(null);
+	}
+
+	@Transient
 	public Packages getPackages(String packageName) throws BusinessException {
 		RepositoryCache cache = getRepositoryCache();
 		Packages packages = new Packages();
