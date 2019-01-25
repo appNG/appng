@@ -20,7 +20,7 @@ import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.cli.commands.subject.HashPassword.PasswordSubject;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -39,7 +39,7 @@ public class HashPasswordTest extends AbstractCommandTest {
 		passwordHandler.isValidPassword(SUPERSECRET);
 	}
 	
-	@Test
+	@Ignore("only for local usage")
 	public void testInteractive() throws BusinessException{
 		new HashPassword(true).execute(cliEnv);
 	}
