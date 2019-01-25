@@ -425,11 +425,12 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			Exception e) {
 		logger().error("error while processing", e);
 		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		contentType = HttpHeaders.CONTENT_TYPE_TEXT_HTML;
 		StringWriter stringWriter = new StringWriter();
 		stringWriter.append("<!DOCTYPE html><html><body>");
 		stringWriter.append("<h2>500 - Internal Server Error</h2>");
 		if (platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)) {
+			stringWriter.append("Path: " + servletRequest.getServletPath());
+			stringWriter.append("<br/>");
 			stringWriter.append("Site: " + pathInfo.getSiteName());
 			stringWriter.append("<br/>");
 			stringWriter.append("Application: " + pathInfo.getApplicationName());

@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -91,7 +92,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
-import org.thymeleaf.IEngineConfiguration;
+import org.springframework.util.StopWatch;
 import org.thymeleaf.cache.StandardCacheManager;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.context.IExpressionContext;
@@ -136,14 +137,18 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
 		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
 
+		StopWatch sw = new StopWatch("process with template " + templateName);
 		String platformXML = null;
 		Date now = new Date();
 		ApplicationProvider applicationProvider = getApplicationProvider(applicationSite);
 		ConfigurableApplicationContext context = applicationProvider.getContext();
 		ThymeleafTemplateEngine templateEngine = prepareEngine(context);
 		try {
+			sw.start("build platform.xml");
 			platformXML = marshallService.marshal(platform);
+			sw.stop();
 
+			sw.start("build engine");
 			String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
 			Boolean devMode = platformProperties.getBoolean(Platform.Property.DEV_MODE);
 
@@ -166,7 +171,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			ILinkBuilder globalLinkBuilder = getGlobalLinkBuilder(templatePrefix);
 			templateEngine.addLinkBuilder(globalLinkBuilder);
 
-			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(charset, devMode);
+			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(templateName, charset, devMode);
 			templateEngine.addTemplateResolver(globalTemplateResolver);
 
 			if (null != context) {
@@ -175,15 +180,23 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			}
 
 			if (writeDebugFiles) {
+				sw.stop();
+				sw.start("write debug files");
 				writeDebugFile(now, "platform.xml", platformXML, rootPath);
-				writeTemplateFiles(rootPath, now, templateEngine);
+				writeTemplateFiles(rootPath, templatePrefix, now, templateEngine);
 			}
 
 			if (render) {
-				Context ctx = getContext(platform, applicationProvider);
+				sw.stop();
+				sw.start("build contex");
+				Context ctx = getContext(platform, platformXML, applicationProvider);
+				sw.stop();
+				sw.start("process template");
 				result = templateEngine.process(PLATFORM_HTML, ctx);
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
 				if (writeDebugFiles) {
+					sw.stop();
+					sw.start("write index.html");
 					writeDebugFile(now, "index.html", result, rootPath);
 				}
 			} else {
@@ -196,6 +209,12 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				writeStackTrace(rootPath, now, e);
 			}
 		}
+		sw.stop();
+		if (logger().isDebugEnabled()) {
+			logger().debug(sw.prettyPrint());
+		} else {
+			logger().info(sw.shortSummary());
+		}
 		this.contentLength = result.getBytes(charset).length;
 		return result;
 	}
@@ -204,70 +223,64 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		try {
 			StringWriter stackWriter = new StringWriter();
 			e.printStackTrace(new PrintWriter(stackWriter));
-			writeDebugFile(now, stackWriter.toString(), "stacktrace.txt", rootPath);
+			writeDebugFile(now, "stacktrace.txt", stackWriter.toString(), rootPath);
 		} catch (IOException e1) {
-			// nothing more we can do
+			logger().error("error writing stacktrace", e);
 		}
 	}
 
-	protected void writeTemplateFiles(String rootPath, Date now, ThymeleafTemplateEngine templateEngine)
-			throws IOException {
+	protected void writeTemplateFiles(String rootPath, String templatePrefix, Date now,
+			ThymeleafTemplateEngine templateEngine) throws IOException {
 		Set<String> templateNames = new HashSet<>();
 		for (ITemplateResolver tplRes : templateEngine.getTemplateResolvers()) {
 			String prefix = ((FileTemplateResolver) tplRes).getPrefix();
 			String[] fileNames = new File(prefix).list();
-			for (String fileName : fileNames) {
-				if (!templateNames.contains(fileName)) {
-					TemplateResolution resolvedTemplate = tplRes.resolveTemplate(templateEngine.getConfiguration(),
-							null, fileName, null);
-					ITemplateResource templateResource = resolvedTemplate.getTemplateResource();
-					String content = IOUtils.toString(templateResource.reader());
-					writeDebugFile(now, fileName, content, rootPath);
-					templateNames.add(fileName);
-				}
+			if (null != fileNames) {
+				Arrays.asList(fileNames).parallelStream().forEach(fileName -> {
+					if (!templateNames.contains(fileName)) {
+						TemplateResolution resolvedTemplate = tplRes.resolveTemplate(templateEngine.getConfiguration(),
+								null, fileName, null);
+						ITemplateResource templateResource = resolvedTemplate.getTemplateResource();
+						try {
+							String content = IOUtils.toString(templateResource.reader());
+							writeDebugFile(now, fileName, content, rootPath);
+						} catch (IOException e) {
+							logger().error("error writing template resource", e);
+						}
+						templateNames.add(fileName);
+					}
+				});
 			}
 		}
 	}
 
 	protected ITemplateResolver getApplicationTemplateResolver(String application, Charset charset, Boolean devMode,
 			File tplFolder, Set<String> patterns) {
-		FileTemplateResolver appTplResolver = new FileTemplateResolver() {
-			@Override
-			protected ITemplateResource computeTemplateResource(IEngineConfiguration configuration,
-					String ownerTemplate, String template, String resourceName, String characterEncoding,
-					Map<String, Object> templateResolutionAttributes) {
-				if (new File(resourceName).exists()) {
-					return super.computeTemplateResource(configuration, ownerTemplate, template, resourceName,
-							characterEncoding, templateResolutionAttributes);
-				}
-				return null;
-			}
-		};
+		FileTemplateResolver appTplResolver = new FileTemplateResolver();
 		appTplResolver.setName("Template Resolver for " + application);
 		appTplResolver.setResolvablePatterns(patterns);
 		appTplResolver.setPrefix(tplFolder.getPath() + File.separator);
 		appTplResolver.setTemplateMode(TemplateMode.HTML);
 		appTplResolver.setCharacterEncoding(charset.name());
 		appTplResolver.setCacheable(!devMode);
+		appTplResolver.setCheckExistence(true);
 		appTplResolver.setOrder(0);
 		return appTplResolver;
 	}
 
-	protected Context getContext(org.appng.xml.platform.Platform platform, ApplicationProvider applicationProvider)
-			throws InvalidConfigurationException {
-		XPathProcessor xpath = null;
+	protected Context getContext(org.appng.xml.platform.Platform platform, String platformXml,
+			ApplicationProvider applicationProvider) throws InvalidConfigurationException {
+		Context ctx = new Context(Locale.ENGLISH);
+		ctx.setVariable("platform", platform);
 		try {
 			Document doc = dbf.newDocumentBuilder().newDocument();
 			AppNGSchema.PLATFORM.getContext().createMarshaller().marshal(platform, doc);
-			xpath = new XPathProcessor(doc);
+			XPathProcessor xpath = new XPathProcessor(doc);
 			xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
+			ctx.setVariable("appNG", new AppNG(platform, xpath));
 		} catch (Exception e) {
 			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
 		}
-
-		Context ctx = new Context(Locale.ENGLISH);
-		ctx.setVariable("platform", platform);
-		ctx.setVariable("appNG", new AppNG(platform, xpath));
 		return ctx;
 	}
 
@@ -332,7 +345,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return templateEngine;
 	}
 
-	protected ITemplateResolver getGlobalTemplateResolver(Charset charset, Boolean devMode) {
+	protected ITemplateResolver getGlobalTemplateResolver(String templateName, Charset charset, Boolean devMode) {
 		FileTemplateResolver globalTemplateResolver = new FileTemplateResolver();
 		globalTemplateResolver.setName("Global Template Resolver");
 		globalTemplateResolver.setResolvablePatterns(Collections.singleton("*"));

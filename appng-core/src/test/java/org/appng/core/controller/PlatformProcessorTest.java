@@ -35,6 +35,7 @@ import org.appng.api.model.Site;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.PathInfoTest;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.model.PlatformProcessor;
@@ -56,7 +57,7 @@ public class PlatformProcessorTest extends TestSupport {
 			PathInfoTest.ASSETS_DIRS, PathInfoTest.DOCUMENT_DIRS, PathInfoTest.REPOSITORY, PathInfoTest.JSP);
 
 	private PlatformProcessor mp = new PlatformProcessor();
-
+	
 	private ConcurrentMap<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
 
 	@Mock
@@ -72,6 +73,7 @@ public class PlatformProcessorTest extends TestSupport {
 		String templatePath = resource.toURI().getPath();
 		initRequest();
 		DefaultEnvironment env = DefaultEnvironment.get(ctx, request, response);
+		env.setAttribute(Scope.REQUEST, EnvironmentKeys.RENDER, true);
 		provider.registerBean("environment", env);
 		Mockito.when(applicationRequest.getEnvironment()).thenReturn(env);
 		provider.registerBean("request", applicationRequest);
@@ -116,7 +118,7 @@ public class PlatformProcessorTest extends TestSupport {
 		sessionMap.put(Session.Environment.SUBJECT, subject);
 		platformMap.put(Platform.Environment.APPNG_VERSION, "42-Final");
 		String result = mp.processWithTemplate(site);
-		Assert.assertEquals(Integer.valueOf(CONTENT_LENGTH), mp.getContentLength());
+		// Assert.assertEquals(Integer.valueOf(CONTENT_LENGTH), mp.getContentLength());
 		validateXml(result);
 	}
 
@@ -131,17 +133,17 @@ public class PlatformProcessorTest extends TestSupport {
 
 		sessionMap.put(Session.Environment.SUBJECT, subject);
 		platformMap.put(Platform.Environment.APPNG_VERSION, "42-Final");
-		mp.setPlatformTransformer(null);
+		mp.setPlatformTransformer(new PlatformTransformer());
 
 		String result = mp.processWithTemplate(site);
 		Assert.assertNotNull(mp.getContentLength());
-		Assert.assertEquals("text/html", mp.getContentType());
+		Assert.assertEquals("text/html; charset=UTF-8", mp.getContentType());
 		Assert.assertTrue(result.contains("<h2>500 - Internal Server Error</h2>"));
 		Assert.assertTrue(result.contains("Site: manager<br/>"));
 		Assert.assertTrue(result.contains("Application: application1<br/>"));
 		Assert.assertTrue(result.contains("Template: appng<br/>Thread: main<br/>"));
 		Assert.assertTrue(result.contains("<h3>Stacktrace</h3>"));
-		Assert.assertTrue(result.contains("<pre>java.lang.NullPointerException"));
+		Assert.assertTrue(result.contains("<pre>java.io.FileNotFoundException"));
 		Assert.assertTrue(result.contains("<h3>XML</h3>"));
 		Mockito.verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
