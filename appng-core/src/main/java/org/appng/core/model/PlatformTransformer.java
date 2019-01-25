@@ -50,7 +50,6 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
@@ -233,13 +232,13 @@ public class PlatformTransformer {
 			}
 
 			sourceAwareTemplate.source.reset();
-			File debugFolder = new File(rootPath, "debug");
-			debugFolder.mkdirs();
-			prefix = getDebugFilePrefix(te, platformXML);
-			LOGGER.info("writing debug files to {} with prefix {}", debugFolder.getAbsolutePath(), prefix);
-			File xmlOut = new File(debugFolder, prefix + "platform.xml");
-			File xslOut = new File(debugFolder, prefix + "template.xsl");
-			File traceOut = new File(debugFolder, prefix + "stacktrace.txt");
+			File debugFolder = AbstractRequestProcessor.getDebugFolder(rootPath);
+			File outFolder = new File(debugFolder, getDebugFilePrefix());
+			outFolder.mkdirs();
+			LOGGER.info("writing debug files to {} ", outFolder);
+			File xmlOut = new File(outFolder, "platform.xml");
+			File xslOut = new File(outFolder, "template.xsl");
+			File traceOut = new File(outFolder, "stacktrace.txt");
 			IOUtils.write(IOUtils.toByteArray(sourceAwareTemplate.source), new FileOutputStream(xslOut));
 			FileUtils.write(xmlOut, platformXML, Charset.defaultCharset());
 			PrintWriter debugWriter = new PrintWriter(traceOut);
@@ -262,14 +261,8 @@ public class PlatformTransformer {
 		}
 	}
 
-	protected String getDebugFilePrefix(TransformerException te, String platformXML) {
-		String dateString = FastDateFormat.getInstance("yyyyMMddHHmmssSSS").format(new Date());
-		StringBuilder prefix = new StringBuilder();
-		prefix.append(dateString);
-		prefix.append("-[" + Thread.currentThread().getName() + "]-");
-		prefix.append(String.valueOf(null != te ? te.hashCode() : platformXML.hashCode()));
-		prefix.append("-");
-		return prefix.toString();
+	protected String getDebugFilePrefix() {
+		return AbstractRequestProcessor.getDebugFilePrefix(new Date());
 	}
 
 	class SourceAwareTemplate implements Templates {

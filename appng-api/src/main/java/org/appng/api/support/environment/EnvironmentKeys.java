@@ -65,6 +65,8 @@ public class EnvironmentKeys {
 	public static final String PREVIOUS_PATH = "previousPath";
 	/** The query String as returned by {@link HttpServletRequest#getQueryString()} (scope: {@link Scope#REQUEST}) */
 	public static final String QUERY_STRING = "queryString";
+	/** A {@link Boolean} defining if the template should render some HTML (scope: {@link Scope#REQUEST}) */
+	public static final String RENDER = "render";
 
 	private EnvironmentKeys() {
 	}

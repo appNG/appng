@@ -23,6 +23,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
@@ -132,11 +133,10 @@ public class PlatformTransformerTest {
 	private void runErrornousTest(String template, Class<? extends TransformerException> exceptionType)
 			throws Exception {
 		PlatformTransformer.clearCache();
-		final String prefix = String.valueOf(exceptionType.hashCode()) + "-";
 		PlatformTransformer errorTransformer = new PlatformTransformer() {
 			@Override
-			protected String getDebugFilePrefix(TransformerException te, String platformXml) {
-				return prefix;
+			protected String getDebugFilePrefix() {
+				return StringUtils.EMPTY;
 			}
 		};
 		setFormatAndType(errorTransformer, false);
@@ -157,9 +157,9 @@ public class PlatformTransformerTest {
 			Assert.assertEquals(exceptionType, e.getClass());
 		}
 		Assert.assertTrue(targetFolder.exists());
-		Assert.assertTrue(new File(targetFolder, prefix + "platform.xml").exists());
-		Assert.assertTrue(new File(targetFolder, prefix + "stacktrace.txt").exists());
-		Assert.assertTrue(new File(targetFolder, prefix + "template.xsl").exists());
+		Assert.assertTrue(new File(targetFolder, "platform.xml").exists());
+		Assert.assertTrue(new File(targetFolder, "stacktrace.txt").exists());
+		Assert.assertTrue(new File(targetFolder, "template.xsl").exists());
 	}
 
 	@Test

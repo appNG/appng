@@ -17,14 +17,13 @@ package org.appng.core.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -64,7 +63,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		super.init(servletRequest, servletResponse, pathInfo, templateDir);
 		this.platformTransformer.setTemplatePath(templateDir);
 	}
-	
+
 	@Override
 	public org.appng.xml.platform.Platform getPlatform(MarshallService marshallService, Path path)
 			throws InvalidConfigurationException {
@@ -94,8 +93,8 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 
 			if (platformXML != null) {
 				result = platformXML;
-				Boolean doXsl = env.getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL);
-				if (doXsl) {
+				Boolean render = env.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
+				if (render) {
 					platformTransformer.setEnvironment(env);
 					ApplicationProvider transformerProvider = getApplicationProvider(applicationSite);
 					result = platformTransformer.transform(transformerProvider, platformProperties, platformXML,
@@ -107,7 +106,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 			throw ice;
 		} catch (Exception e) {
 			String templateName = applicationSite.getProperties().getString(SiteProperties.TEMPLATE);
-			result = handleError(platformProperties, platform, templateName, e);
+			result = writeErrorPage(platformProperties, platformXML, templateName, e);
 		} finally {
 			platform = null;
 		}
@@ -119,58 +118,21 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		return log;
 	}
 
-	protected String handleError(Properties platformProperties, org.appng.xml.platform.Platform platform,
-			String templateName, Exception e) {
-		log.error("error while processing", e);
-		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		contentType = HttpHeaders.CONTENT_TYPE_TEXT_HTML;
-		StringWriter stringWriter = new StringWriter();
-		stringWriter.append("<!DOCTYPE html><html><body>");
-		stringWriter.append("<h2>500 - Internal Server Error</h2>");
-		if (platformProperties.getBoolean(Platform.Property.DEV_MODE)) {
-			stringWriter.append("Site: " + pathInfo.getSiteName());
-			stringWriter.append("<br/>");
-			stringWriter.append("Application: " + pathInfo.getApplicationName());
-			stringWriter.append("<br/>");
-			stringWriter.append("Template: " + templateName);
-			stringWriter.append("<br/>");
-			stringWriter.append("Thread: " + Thread.currentThread().getName());
-			stringWriter.append("<br/>");
-			String header = "<h3>%s</h3>";
-			String openDiv = "<div style=\"width:100%;height:300px;overflow:auto;border:1px solid grey\"><pre>";
-			String closeDiv = "</pre></div>";
-
-			stringWriter.append(String.format(header, "XML"));
-			stringWriter.append(openDiv);
-			if (platform != null) {
-				try {
-					stringWriter.append(StringEscapeUtils.escapeHtml4(marshallService.marshallNonRoot(platform)));
-				} catch (JAXBException e1) {
-					stringWriter.append("error while adding xml: " + e1.getClass().getName() + "-" + e1.getMessage());
-				}
+	protected void writeTemplateToErrorPage(Properties platformProperties, StringWriter errorPage) {
+		String prefix = getPlatformTransformer().getPrefix();
+		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
+		File templateFile = new File(rootPath, "debug/" + prefix + "template.xsl");
+		if (templateFile.exists()) {
+			errorPage.append("<h3>XSLT</h3>");
+			errorPage.append("<div style=\"width:100%;height:300px;overflow:auto;border:1px solid grey\"><pre>");
+			try {
+				String xslt = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
+				errorPage.append(StringEscapeUtils.escapeHtml4(xslt));
+			} catch (IOException e1) {
+				errorPage.append("error while adding xsl: " + e1.getClass().getName() + "-" + e1.getMessage());
 			}
-			stringWriter.append(closeDiv);
-			if (platformProperties.getBoolean(Platform.Property.WRITE_DEBUG_FILES)) {
-				String prefix = getPlatformTransformer().getPrefix();
-				String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
-				stringWriter.append(String.format(header, "XSLT"));
-				stringWriter.append(openDiv);
-				try {
-					String xslt = FileUtils.readFileToString(new File(rootPath, "debug/" + prefix + "template.xsl"),
-							Charset.defaultCharset());
-					stringWriter.append(StringEscapeUtils.escapeHtml4(xslt));
-				} catch (IOException e1) {
-					stringWriter.append("error while adding xsl: " + e1.getClass().getName() + "-" + e1.getMessage());
-				}
-				stringWriter.append(closeDiv);
-			}
-			stringWriter.append(String.format(header, "Stacktrace"));
-			stringWriter.append(openDiv);
-			e.printStackTrace(new PrintWriter(stringWriter));
-			stringWriter.append(closeDiv);
-			stringWriter.append("</body></html>");
+			errorPage.append("</pre></div>");
 		}
-		return stringWriter.toString();
 	}
 
 	public PlatformTransformer getPlatformTransformer() {

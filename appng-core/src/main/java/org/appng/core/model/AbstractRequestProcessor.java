@@ -18,7 +18,12 @@ package org.appng.core.model;
 import static org.appng.api.Scope.REQUEST;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +31,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.text.StringEscapeUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
@@ -43,6 +51,7 @@ import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DollarParameterSupport;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.controller.HttpHeaders;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.TemplateService;
 import org.appng.xml.MarshallService;
@@ -64,6 +73,7 @@ import org.slf4j.Logger;
 
 public abstract class AbstractRequestProcessor implements RequestProcessor {
 
+	private static final FastDateFormat DEBUG_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd-HH:mm:ss,SSS");
 	protected PathInfo pathInfo;
 	protected HttpServletRequest servletRequest;
 	protected HttpServletResponse servletResponse;
@@ -410,6 +420,63 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			throw new InvalidConfigurationException(path.getApplicationName(), "error while reading " + platformXML, e);
 		}
 	}
+
+	protected String writeErrorPage(Properties platformProperties, String platformXml, String templateName,
+			Exception e) {
+		logger().error("error while processing", e);
+		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		contentType = HttpHeaders.CONTENT_TYPE_TEXT_HTML;
+		StringWriter stringWriter = new StringWriter();
+		stringWriter.append("<!DOCTYPE html><html><body>");
+		stringWriter.append("<h2>500 - Internal Server Error</h2>");
+		if (platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)) {
+			stringWriter.append("Site: " + pathInfo.getSiteName());
+			stringWriter.append("<br/>");
+			stringWriter.append("Application: " + pathInfo.getApplicationName());
+			stringWriter.append("<br/>");
+			stringWriter.append("Template: " + templateName);
+			stringWriter.append("<br/>");
+			stringWriter.append("Thread: " + Thread.currentThread().getName());
+			stringWriter.append("<br/>");
+			String header = "<h3>%s</h3>";
+			String openDiv = "<div style=\"width:100%;height:300px;overflow:auto;border:1px solid grey\"><pre>";
+			String closeDiv = "</pre></div>";
+
+			stringWriter.append(String.format(header, "XML"));
+			stringWriter.append(openDiv);
+			if (platformXml != null) {
+				stringWriter.append(StringEscapeUtils.escapeHtml4(platformXml));
+			}
+			stringWriter.append(closeDiv);
+			writeTemplateToErrorPage(platformProperties, stringWriter);
+			stringWriter.append(String.format(header, "Stacktrace"));
+			stringWriter.append(openDiv);
+			e.printStackTrace(new PrintWriter(stringWriter));
+			stringWriter.append(closeDiv);
+			stringWriter.append("</body></html>");
+		}
+		String charsetName = platformProperties.getString(org.appng.api.Platform.Property.ENCODING);
+		this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
+		return stringWriter.toString();
+	}
+
+	protected void writeDebugFile(Date timestmap, String name, String content, String rootPath) throws IOException {
+		File outFolder = new File(getDebugFolder(rootPath), getDebugFilePrefix(timestmap));
+		outFolder.mkdirs();
+		File outFile = new File(outFolder, name);
+		logger().info("writing debug file {}", outFile.getAbsolutePath());
+		FileUtils.write(outFile, content, StandardCharsets.UTF_8);
+	}
+
+	protected static File getDebugFolder(String rootPath) {
+		return new File(rootPath, "debug");
+	}
+
+	protected static String getDebugFilePrefix(Date timestmap) {
+		return DEBUG_FORMAT.format(timestmap);
+	}
+
+	abstract void writeTemplateToErrorPage(Properties platformProperties, StringWriter stringWriter);
 
 	public OutputFormat getOutputFormat() {
 		return outputFormat;

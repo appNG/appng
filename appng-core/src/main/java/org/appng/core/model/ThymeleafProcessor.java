@@ -16,28 +16,36 @@
 package org.appng.core.model;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.XPathProcessor;
 import org.appng.api.model.Properties;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Site;
+import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.templating.ThymeleafReplaceInterceptor;
 import org.appng.core.templating.ThymeleafTemplateEngine;
@@ -83,12 +91,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
+import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.cache.StandardCacheManager;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.context.IExpressionContext;
 import org.thymeleaf.linkbuilder.AbstractLinkBuilder;
+import org.thymeleaf.linkbuilder.ILinkBuilder;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
+import org.thymeleaf.templateresolver.ITemplateResolver;
+import org.thymeleaf.templateresolver.TemplateResolution;
+import org.thymeleaf.templateresource.ITemplateResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -96,6 +109,7 @@ import org.w3c.dom.Node;
 public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 	private static Logger log = LoggerFactory.getLogger(ThymeleafProcessor.class);
+	private static final String PLATFORM_HTML = "platform.html";
 	private List<Template> templates;
 	private DocumentBuilderFactory dbf;
 
@@ -105,12 +119,11 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	public String processWithTemplate(Site applicationSite) throws InvalidConfigurationException {
+		String result;
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
 		Charset charset = Charset.forName(charsetName);
-		Boolean devMode = platformProperties.getBoolean(Platform.Property.DEV_MODE);
-		this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
-		String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
+		String templateName = applicationSite.getProperties().getString(SiteProperties.TEMPLATE);
 
 		org.appng.xml.platform.Platform platform = processPlatform(applicationSite);
 		if (isRedirect()) {
@@ -119,10 +132,175 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 		platform.setVersion(env.getAttributeAsString(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
 
+		Boolean render = env.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
+		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
+		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
+
+		String platformXML = null;
+		Date now = new Date();
 		ApplicationProvider applicationProvider = getApplicationProvider(applicationSite);
 		ConfigurableApplicationContext context = applicationProvider.getContext();
-		List<ThymeleafReplaceInterceptor> interceptors = null;
+		ThymeleafTemplateEngine templateEngine = prepareEngine(context);
+		try {
+			platformXML = marshallService.marshal(platform);
 
+			String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
+			Boolean devMode = platformProperties.getBoolean(Platform.Property.DEV_MODE);
+
+			if (!templates.isEmpty()) {
+				CacheProvider cacheProvider = new CacheProvider(platformProperties);
+				File platformCache = cacheProvider.getPlatformCache(applicationSite, applicationProvider);
+				File tplFolder = new File(platformCache, ResourceType.TPL.getFolder()).getAbsoluteFile();
+
+				Set<String> patterns = templates.parallelStream().map(t -> new File(tplFolder, t.getPath()))
+						.filter(f -> f.exists()).map(f -> f.getName()).collect(Collectors.toSet());
+
+				ITemplateResolver applicationTemplateResolver = getApplicationTemplateResolver(
+						applicationProvider.getName(), charset, devMode, tplFolder, patterns);
+				templateEngine.addTemplateResolver(applicationTemplateResolver);
+
+				ILinkBuilder appLinkBuilder = getLinkBuilder(applicationProvider, templatePrefix, tplFolder);
+				templateEngine.addLinkBuilder(appLinkBuilder);
+			}
+
+			ILinkBuilder globalLinkBuilder = getGlobalLinkBuilder(templatePrefix);
+			templateEngine.addLinkBuilder(globalLinkBuilder);
+
+			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(charset, devMode);
+			templateEngine.addTemplateResolver(globalTemplateResolver);
+
+			if (null != context) {
+				MessageSource ms = context.getBean(MessageSource.class);
+				templateEngine.setTemplateEngineMessageSource(ms);
+			}
+
+			if (writeDebugFiles) {
+				writeDebugFile(now, "platform.xml", platformXML, rootPath);
+				writeTemplateFiles(rootPath, now, templateEngine);
+			}
+
+			if (render) {
+				Context ctx = getContext(platform, applicationProvider);
+				result = templateEngine.process(PLATFORM_HTML, ctx);
+				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
+				if (writeDebugFiles) {
+					writeDebugFile(now, "index.html", result, rootPath);
+				}
+			} else {
+				result = platformXML;
+				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML, charsetName);
+			}
+		} catch (Exception e) {
+			result = writeErrorPage(platformProperties, platformXML, templateName, e);
+			if (writeDebugFiles) {
+				writeStackTrace(rootPath, now, e);
+			}
+		}
+		this.contentLength = result.getBytes(charset).length;
+		return result;
+	}
+
+	protected void writeStackTrace(String rootPath, Date now, Exception e) {
+		try {
+			StringWriter stackWriter = new StringWriter();
+			e.printStackTrace(new PrintWriter(stackWriter));
+			writeDebugFile(now, stackWriter.toString(), "stacktrace.txt", rootPath);
+		} catch (IOException e1) {
+			// nothing more we can do
+		}
+	}
+
+	protected void writeTemplateFiles(String rootPath, Date now, ThymeleafTemplateEngine templateEngine)
+			throws IOException {
+		Set<String> templateNames = new HashSet<>();
+		for (ITemplateResolver tplRes : templateEngine.getTemplateResolvers()) {
+			String prefix = ((FileTemplateResolver) tplRes).getPrefix();
+			String[] fileNames = new File(prefix).list();
+			for (String fileName : fileNames) {
+				if (!templateNames.contains(fileName)) {
+					TemplateResolution resolvedTemplate = tplRes.resolveTemplate(templateEngine.getConfiguration(),
+							null, fileName, null);
+					ITemplateResource templateResource = resolvedTemplate.getTemplateResource();
+					String content = IOUtils.toString(templateResource.reader());
+					writeDebugFile(now, fileName, content, rootPath);
+					templateNames.add(fileName);
+				}
+			}
+		}
+	}
+
+	protected ITemplateResolver getApplicationTemplateResolver(String application, Charset charset, Boolean devMode,
+			File tplFolder, Set<String> patterns) {
+		FileTemplateResolver appTplResolver = new FileTemplateResolver() {
+			@Override
+			protected ITemplateResource computeTemplateResource(IEngineConfiguration configuration,
+					String ownerTemplate, String template, String resourceName, String characterEncoding,
+					Map<String, Object> templateResolutionAttributes) {
+				if (new File(resourceName).exists()) {
+					return super.computeTemplateResource(configuration, ownerTemplate, template, resourceName,
+							characterEncoding, templateResolutionAttributes);
+				}
+				return null;
+			}
+		};
+		appTplResolver.setName("Template Resolver for " + application);
+		appTplResolver.setResolvablePatterns(patterns);
+		appTplResolver.setPrefix(tplFolder.getPath() + File.separator);
+		appTplResolver.setTemplateMode(TemplateMode.HTML);
+		appTplResolver.setCharacterEncoding(charset.name());
+		appTplResolver.setCacheable(!devMode);
+		appTplResolver.setOrder(0);
+		return appTplResolver;
+	}
+
+	protected Context getContext(org.appng.xml.platform.Platform platform, ApplicationProvider applicationProvider)
+			throws InvalidConfigurationException {
+		XPathProcessor xpath = null;
+		try {
+			Document doc = dbf.newDocumentBuilder().newDocument();
+			AppNGSchema.PLATFORM.getContext().createMarshaller().marshal(platform, doc);
+			xpath = new XPathProcessor(doc);
+			xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
+		} catch (Exception e) {
+			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
+		}
+
+		Context ctx = new Context(Locale.ENGLISH);
+		ctx.setVariable("platform", platform);
+		ctx.setVariable("appNG", new AppNG(platform, xpath));
+		return ctx;
+	}
+
+	protected ILinkBuilder getGlobalLinkBuilder(String templatePrefix) {
+		AbstractLinkBuilder globalLinkBuilder = new AbstractLinkBuilder() {
+
+			public String buildLink(IExpressionContext context, String base, Map<String, Object> parameters) {
+				return templatePrefix + "/" + ResourceType.RESOURCE.getFolder() + base;
+			}
+		};
+		globalLinkBuilder.setName("Global Link Builder");
+		globalLinkBuilder.setOrder(1);
+		return globalLinkBuilder;
+	}
+
+	protected ILinkBuilder getLinkBuilder(ApplicationProvider applicationProvider, String templatePrefix,
+			File tplFolder) {
+		AbstractLinkBuilder appLinkBuilder = new AbstractLinkBuilder() {
+			public String buildLink(IExpressionContext context, String base, Map<String, Object> parameters) {
+				String resourcePath = FilenameUtils.normalize(new File(tplFolder, base).getAbsolutePath());
+				if (new File(resourcePath).exists()) {
+					return templatePrefix + "_" + applicationProvider.getName() + "/" + base;
+				}
+				return null;
+			}
+		};
+		appLinkBuilder.setName("Link Builder for " + applicationProvider.getName());
+		appLinkBuilder.setOrder(0);
+		return appLinkBuilder;
+	}
+
+	protected ThymeleafTemplateEngine prepareEngine(ConfigurableApplicationContext context) {
+		List<ThymeleafReplaceInterceptor> interceptors = null;
 		if (null != context) {
 			interceptors = new ArrayList<>(context.getBeansOfType(ThymeleafReplaceInterceptor.class).values());
 			Collections.sort(interceptors, new Comparator<ThymeleafReplaceInterceptor>() {
@@ -132,7 +310,6 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			});
 		}
 
-		// SpringTemplateEngine templateEngine = new SpringTemplateEngine();
 		ThymeleafTemplateEngine templateEngine = new ThymeleafTemplateEngine(interceptors);
 		StandardCacheManager cacheManager = new StandardCacheManager();
 		cacheManager.setExpressionCacheInitialSize(500);
@@ -152,49 +329,10 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 			}
 		}
+		return templateEngine;
+	}
 
-		if (!templates.isEmpty()) {
-			// assumes that custom template files are located in the 'tpl'-folder!
-			Set<String> patterns = new HashSet<>();
-			CacheProvider cacheProvider = new CacheProvider(platformProperties);
-			File platformCache = cacheProvider.getPlatformCache(applicationSite, applicationProvider);
-			File tplFolder = new File(platformCache, ResourceType.TPL.getFolder());
-			for (Template tpl : templates) {
-				String tplPath = FilenameUtils.normalize(new File(tplFolder, tpl.getPath()).getAbsolutePath());
-				File tplFile = new File(tplPath);
-				if (tplFile.exists()) {
-					patterns.add(tplFile.getName());
-					log.debug("added template file {}", tplFile);
-				} else {
-					log.debug("template file {} does not exist!", tplFile);
-				}
-			}
-			if (!patterns.isEmpty()) {
-				FileTemplateResolver appTplResolver = new FileTemplateResolver();
-				appTplResolver.setName("Template Resolver for " + applicationProvider.getName());
-				appTplResolver.setResolvablePatterns(patterns);
-				appTplResolver.setPrefix(tplFolder.getPath() + File.separator);
-				appTplResolver.setTemplateMode(TemplateMode.HTML);
-				appTplResolver.setCharacterEncoding(charset.name());
-				appTplResolver.setCacheable(!devMode);
-				appTplResolver.setOrder(0);
-				templateEngine.addTemplateResolver(appTplResolver);
-			}
-
-			AbstractLinkBuilder appLinkBuilder = new AbstractLinkBuilder() {
-				public String buildLink(IExpressionContext context, String base, Map<String, Object> parameters) {
-					String resourcePath = FilenameUtils.normalize(new File(tplFolder, base).getAbsolutePath());
-					if (new File(resourcePath).exists()) {
-						return templatePrefix + "_" + applicationProvider.getName() + "/" + base;
-					}
-					return null;
-				}
-			};
-			appLinkBuilder.setName("Link Builder for " + applicationProvider.getName());
-			appLinkBuilder.setOrder(0);
-			templateEngine.addLinkBuilder(appLinkBuilder);
-		}
-
+	protected ITemplateResolver getGlobalTemplateResolver(Charset charset, Boolean devMode) {
 		FileTemplateResolver globalTemplateResolver = new FileTemplateResolver();
 		globalTemplateResolver.setName("Global Template Resolver");
 		globalTemplateResolver.setResolvablePatterns(Collections.singleton("*"));
@@ -203,38 +341,11 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		globalTemplateResolver.setCharacterEncoding(charset.name());
 		globalTemplateResolver.setCacheable(!devMode);
 		globalTemplateResolver.setOrder(1);
-		templateEngine.addTemplateResolver(globalTemplateResolver);
-		if (null != context) {
-			MessageSource ms = context.getBean(MessageSource.class);
-			templateEngine.setTemplateEngineMessageSource(ms);
-		}
-		AbstractLinkBuilder globalLinkBuilder = new AbstractLinkBuilder() {
+		return globalTemplateResolver;
+	}
 
-			public String buildLink(IExpressionContext context, String base, Map<String, Object> parameters) {
-				return templatePrefix + "/" + ResourceType.RESOURCE.getFolder() + base;
-			}
-		};
-		globalLinkBuilder.setName("Global Link Builder");
-		globalLinkBuilder.setOrder(1);
-		templateEngine.addLinkBuilder(globalLinkBuilder);
-
-		XPathProcessor xpath = null;
-		try {
-			Document doc = dbf.newDocumentBuilder().newDocument();
-			AppNGSchema.PLATFORM.getContext().createMarshaller().marshal(platform, doc);
-			xpath = new XPathProcessor(doc);
-			xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
-		} catch (Exception e) {
-			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
-		}
-
-		Context ctx = new Context(Locale.ENGLISH);
-		ctx.setVariable("platform", platform);
-		ctx.setVariable("appNG", new AppNG(platform, xpath));
-
-		String result = templateEngine.process("platform.html", ctx);
-		this.contentLength = result.getBytes(charset).length;
-		return result;
+	void writeTemplateToErrorPage(Properties platformProperties, StringWriter stringWriter) {
+		// do nothing
 	}
 
 	Logger logger() {
@@ -425,10 +536,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 
 		public String param(Params params, String name) {
-			for (Param param : params.getParam()) {
-				if (param.getName().equals(name)) {
-					return param.getValue();
-				}
+			if (null != params) {
+				return params.getParam().parallelStream().filter(p -> p.getName().equals(name)).map(p -> p.getValue())
+						.findFirst().orElse(null);
 			}
 			return null;
 		}
