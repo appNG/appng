@@ -29,6 +29,7 @@ import org.appng.api.Path;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.service.PlatformTestConfig;
 import org.appng.core.service.TestInitializer;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.OutputFormat;
@@ -50,7 +51,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import net.sf.saxon.trans.XPathException;
 
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
 public class PlatformTransformerTest {

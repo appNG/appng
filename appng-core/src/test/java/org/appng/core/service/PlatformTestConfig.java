@@ -1,21 +1,7 @@
-/*
- * Copyright 2011-2019 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package org.appng.core.controller;
+package org.appng.core.service;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -23,27 +9,20 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 
 import org.appng.api.support.environment.EnvironmentFactoryBean;
-import org.appng.core.domain.DatabaseConnection;
-import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.model.PlatformProcessor;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.model.ThymeleafProcessor;
-import org.appng.core.repository.config.DataSourceFactory;
-import org.appng.core.repository.config.HikariCPConfigurer;
-import org.appng.core.service.CoreService;
-import org.appng.core.service.DatabaseService;
-import org.appng.core.service.InitializerService;
-import org.appng.core.service.LdapService;
-import org.appng.core.service.TemplateService;
+import org.appng.persistence.dialect.HSQLDialect;
 import org.appng.persistence.repository.SearchRepositoryImpl;
+import org.appng.testsupport.persistence.TestDataProvider;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.transformation.StyleSheetProvider;
 import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hsqldb.jdbc.JDBCDriver;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -51,62 +30,53 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.context.annotation.RequestScope;
 
-/**
- * Central {@link Configuration} for appNG's platform context.
- * 
- * @author Matthias Müller
- */
 @Configuration
 @ComponentScan(excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
 @EnableTransactionManagement
 @EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "org.appng.core.repository", entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "coreTxManager")
-public class PlatformConfig {
+public class PlatformTestConfig {
+
+	@Bean
+	public TestDataProvider testDataProvider() {
+		AppNGTestDataProvider appNGTestDataProvider = new AppNGTestDataProvider();
+		return appNGTestDataProvider;
+	}
 
 	@Bean
 	public PlatformEventListener platformEventListener() {
 		PlatformEventListener pel = new PlatformEventListener();
 		pel.setAuditUser("appNG platform");
+		pel.setPersist(false);
 		return pel;
 	}
 
-	@Bean(destroyMethod = "destroy")
-	public DataSourceFactory dataSource(
-			// @formatter:off
-			@Value("${hibernate.connection.url}") String jdbcUrl,
-			@Value("${hibernate.connection.username}") String userName,
-			@Value("${hibernate.connection.password}") String password,
-			@Value("${hibernate.connection.driver_class}") String driverClass, @Value("${database.type}") String type,
-			@Value("${database.minConnections:3}") Integer minConnections,
-			@Value("${database.maxConnections:10}") Integer maxConnections,
-			@Value("${database.validationQuery}") String validationQuery,
-			@Value("${database.logPerformance:false}") boolean logPerformance
-	// @formatter:on
-	) {
-		DatabaseConnection connection = new DatabaseConnection(DatabaseType.valueOf(type.toUpperCase()), jdbcUrl,
-				driverClass, userName, password.getBytes(), validationQuery);
-		connection.setMinConnections(minConnections);
-		connection.setMaxConnections(maxConnections);
-		connection.setName("appNG ROOT connection");
-		HikariCPConfigurer configurer = new HikariCPConfigurer(connection, logPerformance);
-		return new DataSourceFactory(configurer);
+	@Bean
+	public DataSource dataSource() {
+		return new DriverManagerDataSource("jdbc:hsqldb:mem:hsql-testdb");
 	}
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
-		LocalContainerEntityManagerFactoryBean lcemfb = new LocalContainerEntityManagerFactoryBean();
-		lcemfb.setPersistenceProviderClass(HibernatePersistenceProvider.class);
-		lcemfb.setPersistenceUnitName("appNG");
-		lcemfb.setDataSource(dataSource);
-		lcemfb.setPackagesToScan("org.appng.core.domain");
-		return lcemfb;
+	public LocalEntityManagerFactoryBean entityManagerFactory() {
+		LocalEntityManagerFactoryBean lemfb = new LocalEntityManagerFactoryBean();
+		lemfb.setPersistenceProviderClass(HibernatePersistenceProvider.class);
+		lemfb.setPersistenceUnitName("hsql-testdb");
+		Properties jpaProperties = new Properties();
+		jpaProperties.put("hibernate.dialect", HSQLDialect.class.getName());
+		jpaProperties.put("hibernate.connection.driver_class", JDBCDriver.class.getName());
+		jpaProperties.put("hibernate.connection.url", "jdbc:hsqldb:mem:hsql-testdb");
+		jpaProperties.put("hibernate.connection.username", "sa");
+		jpaProperties.put("hibernate.connection.password", "");
+		jpaProperties.put("hibernate.hbm2ddl.auto", "create");
+		jpaProperties.put("hibernate.id.new_generator_mappings", false);
+		lemfb.setJpaProperties(jpaProperties);
+		return lemfb;
 	}
 
 	@Bean
@@ -135,7 +105,6 @@ public class PlatformConfig {
 	}
 
 	@Bean(initMethod = "init")
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public StyleSheetProvider styleSheetProvider(DocumentBuilderFactory dbf, TransformerFactory tf) {
 		StyleSheetProvider styleSheetProvider = new StyleSheetProvider();
 		styleSheetProvider.setDocumentBuilderFactory(dbf);
@@ -188,7 +157,6 @@ public class PlatformConfig {
 	}
 
 	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public ThymeleafProcessor thymeleafProcessor(DocumentBuilderFactory dbf, MarshallService marshallService) {
 		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf);
 		thymeleafProcessor.setMarshallService(marshallService);
@@ -196,26 +164,12 @@ public class PlatformConfig {
 	}
 
 	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public Object tagletProcessor(MarshallService marshallService, StyleSheetProvider styleSheetProvider)
-			throws ReflectiveOperationException {
-		Object instance = getClass().getClassLoader().loadClass("org.appng.taglib.TagletProcessor").newInstance();
-		instance.getClass().getDeclaredMethod("setMarshallService", MarshallService.class).invoke(instance,
-				marshallService);
-		instance.getClass().getDeclaredMethod("setStyleSheetProvider", StyleSheetProvider.class).invoke(instance,
-				styleSheetProvider);
-		return instance;
-	}
-
-	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public EnvironmentFactoryBean environment() {
 		return new EnvironmentFactoryBean();
 	}
 
 	@Bean
 	@Lazy
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public PlatformTransformer platformTransformer(StyleSheetProvider styleSheetProvider) {
 		PlatformTransformer platformTransformer = new PlatformTransformer();
 		platformTransformer.setStyleSheetProvider(styleSheetProvider);
@@ -223,7 +177,6 @@ public class PlatformConfig {
 	}
 
 	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public RequestProcessor requestProcessor(MarshallService marshallService, PlatformTransformer platformTransformer) {
 		PlatformProcessor platformProcessor = new PlatformProcessor();
 		platformProcessor.setMarshallService(marshallService);

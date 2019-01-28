@@ -118,7 +118,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = BusinessException.class)
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
 @DirtiesContext
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoreServiceTest {
