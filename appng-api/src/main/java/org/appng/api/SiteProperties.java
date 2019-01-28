@@ -29,7 +29,7 @@ import org.appng.api.model.Site;
  */
 public class SiteProperties {
 
-	/** Allow skipping of the render phase using {@code render=false} for the manager GUI */
+	/** Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of {@link Taglet}s. */
 	public static final String ALLOW_SKIP_RENDER = "allowSkipRender";
 
 	/**
