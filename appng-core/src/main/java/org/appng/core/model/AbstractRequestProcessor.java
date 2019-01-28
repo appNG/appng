@@ -482,7 +482,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	}
 
 	protected static String getDebugFilePrefix(Date timestmap) {
-		return DEBUG_FORMAT.format(timestmap);
+		return String.format("%s_%s", DEBUG_FORMAT.format(timestmap), Thread.currentThread().getName());
 	}
 
 	abstract void writeTemplateToErrorPage(Properties platformProperties, StringWriter stringWriter);
