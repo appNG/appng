@@ -124,7 +124,8 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		File templateFile = new File(rootPath, "debug/" + prefix + "template.xsl");
 		if (templateFile.exists()) {
 			errorPage.append("<h3>XSLT</h3>");
-			errorPage.append("<div style=\"width:100%;height:300px;overflow:auto;border:1px solid grey\"><pre>");
+			errorPage.append("<div><pre id=\"xslt\">");
+			errorPage.append("<button onclick=\"copy('xslt')\">Copy to clipboard</button>");
 			try {
 				String xslt = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
 				errorPage.append(StringEscapeUtils.escapeHtml4(xslt));

@@ -426,7 +426,11 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		logger().error("error while processing", e);
 		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		StringWriter stringWriter = new StringWriter();
-		stringWriter.append("<!DOCTYPE html><html><body>");
+		stringWriter.append("<!DOCTYPE html><html><head>");
+		stringWriter.append("<style type=\"text/css\">");
+		stringWriter.append(
+				"body{font-family:Arial;} h2,h3{color:#ff8f02;} pre{color:#ff8f02;} div{width:100%;height:300px;overflow:auto;border:1px solid grey}");
+		stringWriter.append("</style></head><body>");
 		stringWriter.append("<h2>500 - Internal Server Error</h2>");
 		if (platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)) {
 			stringWriter.append("Path: " + servletRequest.getServletPath());
@@ -439,23 +443,27 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			stringWriter.append("<br/>");
 			stringWriter.append("Thread: " + Thread.currentThread().getName());
 			stringWriter.append("<br/>");
-			String header = "<h3>%s</h3>";
-			String openDiv = "<div style=\"width:100%;height:300px;overflow:auto;border:1px solid grey\"><pre>";
-			String closeDiv = "</pre></div>";
 
-			stringWriter.append(String.format(header, "XML"));
-			stringWriter.append(openDiv);
+			stringWriter.append("<h3>XML</h3>");
+			stringWriter.append("<button onclick=\"copy('xml')\">Copy to clipboard</button>");
+			stringWriter.append("<div><pre id=\"xml\">");
 			if (platformXml != null) {
 				stringWriter.append(StringEscapeUtils.escapeHtml4(platformXml));
 			}
-			stringWriter.append(closeDiv);
+			stringWriter.append("</div></pre>");
 			writeTemplateToErrorPage(platformProperties, stringWriter);
-			stringWriter.append(String.format(header, "Stacktrace"));
-			stringWriter.append(openDiv);
+			stringWriter.append("<h3>Stacktrace</h3>");
+			stringWriter.append("<button onclick=\"copy('stacktrace')\">Copy to clipboard</button>");
+			stringWriter.append("<div><pre id=\"stacktrace\">");
 			e.printStackTrace(new PrintWriter(stringWriter));
-			stringWriter.append(closeDiv);
-			stringWriter.append("</body></html>");
+			stringWriter.append("</div></pre>");
+			stringWriter.append("<textarea id=\"copy\" style=\"opacity: 0;\"></textarea>");
+			stringWriter.append("<script>function copy(id){");
+			stringWriter.append(
+					"var c =  document.getElementById('copy'); c.value = document.getElementById(id).textContent;");
+			stringWriter.append("c.select();document.execCommand('copy');alert('Copied to clipboard!')}</script>");
 		}
+		stringWriter.append("</body></html>");
 		String charsetName = platformProperties.getString(org.appng.api.Platform.Property.ENCODING);
 		this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
 		return stringWriter.toString();

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -110,6 +111,7 @@ import org.w3c.dom.Node;
 public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 	private static Logger log = LoggerFactory.getLogger(ThymeleafProcessor.class);
+	private static final Pattern BLANK_LINES = Pattern.compile("(\\s*\\r?\\n){1,}");
 	private static final String PLATFORM_HTML = "platform.html";
 	private List<Template> templates;
 	private DocumentBuilderFactory dbf;
@@ -193,6 +195,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				sw.stop();
 				sw.start("process template");
 				result = templateEngine.process(PLATFORM_HTML, ctx);
+				result = BLANK_LINES.matcher(result).replaceAll(System.lineSeparator());
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
 				if (writeDebugFiles) {
 					sw.stop();
