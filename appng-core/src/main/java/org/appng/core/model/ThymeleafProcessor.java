@@ -188,7 +188,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				writeTemplateFiles(rootPath, templatePrefix, now, templateEngine);
 			}
 
-			if (render) {
+			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 				sw.stop();
 				sw.start("build contex");
 				Context ctx = getContext(platform, platformXML, applicationProvider);

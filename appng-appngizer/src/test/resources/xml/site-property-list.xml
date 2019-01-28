@@ -7,6 +7,11 @@
 			which is responsible for JDBC connection-pooling. Supported are 'org.appng.core.repository.config.HikariCPConfigurer'
 			and 'org.appng.core.repository.config.TomcatJdbcConfigurer'</description>
 	</property>
+	<property name="allowSkipRender" self="http://localhost/site/localhost/property/allowSkipRender">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Allow skipping of the render phase using render=false for the manager GUI.</description>
+	</property>
 	<property name="appendTabId" self="http://localhost/site/localhost/property/appendTabId">
 		<value>false</value>
 		<defaultValue>false</defaultValue>

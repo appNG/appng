@@ -94,7 +94,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 			if (platformXML != null) {
 				result = platformXML;
 				Boolean render = env.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
-				if (render) {
+				if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 					platformTransformer.setEnvironment(env);
 					ApplicationProvider transformerProvider = getApplicationProvider(applicationSite);
 					result = platformTransformer.transform(transformerProvider, platformProperties, platformXML,

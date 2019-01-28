@@ -37,7 +37,7 @@ import org.junit.Test;
  */
 public class CommandListPropertiesTest extends AbstractCommandTest {
 
-	private static final int NUM_SITE_PROPERTIES = 62;
+	private static final int NUM_SITE_PROPERTIES = 63;
 	private static final int NUM_PLATFORM_PROPERTIES = 50;
 	private static final int PROP_ROOT_PATH_IDX = 33;
 	private ListProperties commandListProperties = new ListProperties();
