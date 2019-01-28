@@ -493,13 +493,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 
 		public List<NavigationItem> getSiteNavigation() {
-			List<NavigationItem> items = new ArrayList<>();
-			for (NavigationItem item : platform.getNavigation().getItem()) {
-				if (org.appng.xml.platform.ItemType.SITE.equals(item.getType())) {
-					items.add(item);
-				}
-			}
-			return items;
+			return platform.getNavigation().getItem().stream()
+					.filter(n -> org.appng.xml.platform.ItemType.SITE.equals(n.getType())).collect(Collectors.toList());
 		}
 
 		public String getSiteName() {
@@ -553,8 +548,15 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 		public String param(Params params, String name) {
 			if (null != params) {
-				return params.getParam().parallelStream().filter(p -> p.getName().equals(name)).map(p -> p.getValue())
-						.findFirst().orElse(null);
+				return param(params.getParam(), name);
+			}
+			return null;
+		}
+
+		public String param(List<Param> params, String name) {
+			if (null != params) {
+				return params.parallelStream().filter(p -> p.getName().equals(name)).map(p -> p.getValue()).findFirst()
+						.orElse(null);
 			}
 			return null;
 		}
@@ -702,12 +704,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			if (null != page) {
 				GetParams getParams = page.getConfig().getUrlSchema().getGetParams();
 				if (null != getParams) {
-					List<Param> paramList = getParams.getParamList();
-					for (Param param : paramList) {
-						if (param.getName().equals(name)) {
-							return param.getValue();
-						}
-					}
+					return param(getParams.getParamList(), name);
 				}
 			}
 			return null;
@@ -718,12 +715,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			if (null != page) {
 				UrlParams urlParams = page.getConfig().getUrlSchema().getUrlParams();
 				if (null != urlParams) {
-					List<Param> paramList = urlParams.getParamList();
-					for (Param param : paramList) {
-						if (param.getName().equals(name)) {
-							return param.getValue();
-						}
-					}
+					return param(urlParams.getParamList(), name);
 				}
 			}
 			return null;
@@ -745,11 +737,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			if (null != session) {
 				SessionParams sessionParams = session.getSessionParams();
 				if (null != sessionParams) {
-					for (Param param : sessionParams.getSessionParam()) {
-						if (param.getName().equals(name)) {
-							return param.getValue();
-						}
-					}
+					return param(sessionParams.getSessionParam(), name);
 				}
 			}
 			return null;

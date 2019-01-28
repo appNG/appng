@@ -120,6 +120,7 @@ public class ThymeleafProcessorTest {
 		sites.put(site.getHost(), site);
 		Properties siteProps = Mockito.mock(Properties.class);
 		Mockito.when(siteProps.getString(SiteProperties.TEMPLATE)).thenReturn("thymeleaf");
+		Mockito.when(siteProps.getBoolean(SiteProperties.ALLOW_SKIP_RENDER)).thenReturn(true);
 		site.setProperties(siteProps);
 
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, sites);
