@@ -50,7 +50,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.util.StopWatch;
-import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -67,7 +67,6 @@ public class PlatformStartup implements ServletContextListener {
 	private static final Logger log = LoggerFactory.getLogger(PlatformStartup.class);
 
 	public static final String CONFIG_LOCATION = "/WEB-INF/conf/appNG.properties";
-	private static final String CONTEXT_LOCATION = "/WEB-INF/conf/platformContext.xml";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
@@ -124,11 +123,13 @@ public class PlatformStartup implements ServletContextListener {
 		}
 	}
 
+
+
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
 			DatabaseConnection platformConnection) throws IOException {
-		XmlWebApplicationContext platformCtx = new XmlWebApplicationContext();
+		AnnotationConfigWebApplicationContext platformCtx = new AnnotationConfigWebApplicationContext();
+		platformCtx.register(PlatformConfig.class);
 		platformCtx.setDisplayName("appNG platform context");
-		platformCtx.setConfigLocation(CONTEXT_LOCATION);
 		platformCtx.setServletContext(ctx);
 		PropertySourcesPlaceholderConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		config.put(DatabaseService.DATABASE_TYPE, platformConnection.getType().name());
