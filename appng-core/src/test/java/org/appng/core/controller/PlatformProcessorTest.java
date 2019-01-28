@@ -143,7 +143,7 @@ public class PlatformProcessorTest extends TestSupport {
 		Assert.assertTrue(result.contains("Application: application1<br/>"));
 		Assert.assertTrue(result.contains("Template: appng<br/>Thread: main<br/>"));
 		Assert.assertTrue(result.contains("<h3>Stacktrace</h3>"));
-		Assert.assertTrue(result.contains("<pre>java.io.FileNotFoundException"));
+		Assert.assertTrue(result.contains("<pre id=\"stacktrace\">java.io.FileNotFoundException"));
 		Assert.assertTrue(result.contains("<h3>XML</h3>"));
 		Mockito.verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
