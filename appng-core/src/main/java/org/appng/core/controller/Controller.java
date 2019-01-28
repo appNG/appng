@@ -320,12 +320,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			env.setAttribute(REQUEST, EnvironmentKeys.BASE_URL, pathInfo.getRootPath());
 		}
 		env.setAttribute(REQUEST, EnvironmentKeys.PATH_INFO, pathInfo);
-		Boolean doXsl = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("xsl"));
 		Boolean render = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("render"));
-		Boolean showXsl = Boolean.TRUE.toString().equalsIgnoreCase(request.getParameter("showXsl"));
 		env.setAttribute(REQUEST, EnvironmentKeys.RENDER, render);
-		env.setAttribute(REQUEST, EnvironmentKeys.DO_XSL, doXsl);
-		env.setAttribute(REQUEST, EnvironmentKeys.SHOW_XSL, showXsl);
 		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 		env.setAttribute(REQUEST, HttpHeaders.USER_AGENT, null == userAgent ? "unknown" : userAgent);
 	}

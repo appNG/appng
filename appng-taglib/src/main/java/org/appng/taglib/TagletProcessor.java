@@ -40,6 +40,7 @@ import org.appng.api.GlobalTaglet;
 import org.appng.api.GlobalXMLTaglet;
 import org.appng.api.PageProcessor;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.Taglet;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
@@ -191,8 +192,8 @@ public class TagletProcessor {
 		StringWriter writer = new StringWriter();
 		marshallService.marshalNoValidation(platform, writer);
 		String xmlResult = writer.toString();
-		Boolean doXsl = applicationRequest.getEnvironment().getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL);
-		if (doXsl) {
+		Boolean render = applicationRequest.getEnvironment().getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
+		if (render || !callingSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 			String xsl = tagletAttributes.get(XSL);
 			if (StringUtils.isNotBlank(xsl)) {
 				File xslFile = callingSite.readFile(xsl);

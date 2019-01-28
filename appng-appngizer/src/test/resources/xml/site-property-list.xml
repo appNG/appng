@@ -10,7 +10,7 @@
 	<property name="allowSkipRender" self="http://localhost/site/localhost/property/allowSkipRender">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
-		<description>Allow skipping of the render phase using render=false for the manager GUI.</description>
+		<description>Allow skipping of the render phase using render=false for the manager GUI or the XSLT based rendering of taglets.</description>
 	</property>
 	<property name="appendTabId" self="http://localhost/site/localhost/property/appendTabId">
 		<value>false</value>
