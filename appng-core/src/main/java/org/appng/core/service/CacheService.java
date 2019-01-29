@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,17 @@
  */
 package org.appng.core.service;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.constructs.blocking.BlockingCache;
-import net.sf.ehcache.constructs.blocking.LockTimeoutException;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.constructs.blocking.BlockingCache;
+import net.sf.ehcache.constructs.blocking.LockTimeoutException;
 
 /**
  * Provides utility methods for the page cache.
@@ -34,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  *
  */
+@Slf4j
 public class CacheService {
 
-	private static final Logger log = LoggerFactory.getLogger(CacheService.class);
 	public static final String PAGE_CACHE = "pageCache";
 	public static final String DASH = "-";
 
@@ -104,12 +103,12 @@ public class CacheService {
 	public static void shutdown() {
 		CacheManager cm = getCacheManager();
 		String[] cacheNames = cm.getCacheNames();
-		log.info("Shutting down caches: {}", Arrays.asList(cacheNames));
+		LOGGER.info("Shutting down caches: {}", Arrays.asList(cacheNames));
 		cm.shutdown();
 		List<Thread> replicationThreads;
 		int waited = 0;
 		while ((replicationThreads = getReplicationThreads()).size() > 0 && waited < 10000) {
-			log.info("Waiting for {} replication threads to shut down", replicationThreads.size());
+			LOGGER.info("Waiting for {} replication threads to shut down", replicationThreads.size());
 			try {
 				waited += 500;
 				Thread.sleep(500);
@@ -117,7 +116,7 @@ public class CacheService {
 			}
 		}
 		if (replicationThreads.size() > 0) {
-			log.info("There are still {} replication threads active!", replicationThreads.size());
+			LOGGER.info("There are still {} replication threads active!", replicationThreads.size());
 		}
 	}
 

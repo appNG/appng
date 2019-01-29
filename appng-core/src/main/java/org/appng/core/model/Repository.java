@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,6 +143,17 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 *             if an error occurs while reading the package informations
 	 */
 	Packages getPackages() throws BusinessException;
+
+	/**
+	 * Returns the {@link Packages} offered by this repository, containing a list of all available {@link Package}s
+	 * 
+	 * @param packageName
+	 *            an optional search-string for the package's name, supporting {@code *} as a placeholder
+	 * @return the {@link Packages} offered by this repository
+	 * @throws BusinessException
+	 *             if an error occurs while reading the package informations
+	 */
+	Packages getPackages(String packageName) throws BusinessException;
 
 	/**
 	 * Returns the {@link Certification}

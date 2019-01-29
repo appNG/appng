@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import javax.el.MapELResolver;
 import javax.el.ValueExpression;
 
 import org.apache.jasper.el.ELContextImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Used for evaluating expressions that conform the <a
@@ -58,9 +58,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public final class ExpressionEvaluator {
-
-	private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
 	private ExpressionFactory ef;
 	private ELContext ctx;
@@ -125,11 +124,11 @@ public final class ExpressionEvaluator {
 		Object value = ve.getValue(ctx);
 		T result = (T) value;
 
-		if (log.isDebugEnabled()) {
+		if (LOGGER.isDebugEnabled()) {
 			StringBuilder sb = new StringBuilder(expression + " = " + result + " [");
 			sb.append(variableMapper.toString());
 			sb.append("]");
-			log.debug(sb.toString());
+			LOGGER.debug(sb.toString());
 		}
 		return result;
 	}
@@ -188,7 +187,7 @@ public final class ExpressionEvaluator {
 
 	private void putFunction(String methodName, Method method) {
 		methods.put(methodName, method);
-		log.debug("registered function '" + methodName + "' with method '" + method + ",");
+		LOGGER.debug("registered function '{}' with method '{}'.", methodName, method);
 	}
 
 	private FunctionMapper getFunctionMapper() {
@@ -228,10 +227,9 @@ public final class ExpressionEvaluator {
 		ValueExpression expression = ef.createValueExpression(value, type);
 		variableMapper.setVariable(name, expression);
 		if (null == value) {
-			log.trace("setting variable '" + name + "' to null");
+			LOGGER.trace("setting variable '{}' to null", name);
 		} else if (value instanceof String || value instanceof Number) {
-			log.trace("setting variable '" + name + "' of type '" + type.getName() + "' to value '" + value.toString()
-					+ "'");
+			LOGGER.trace("setting variable '{}' of type '{}' to value '{}'", name, type.getName(), value.toString());
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ public class RestClient {
 	}
 
 	private void doLog(String prefix, Object body, HttpStatus httpStatus) {
-		if (log.isDebugEnabled()) {
+		if (LOGGER.isDebugEnabled()) {
 			String content = StringUtils.EMPTY;
 			if (null != body) {
 				Class<?> bodyType = body.getClass();
@@ -224,14 +224,14 @@ public class RestClient {
 					try {
 						content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body);
 					} catch (JsonProcessingException e) {
-						log.error("error parsing JSON body", e);
+						LOGGER.error("error parsing JSON body", e);
 					}
 				} else {
 					content = body.toString();
 				}
 			}
 			Object status = null != httpStatus ? " " + httpStatus.value() : "";
-			log.debug("{}: {} {}", prefix, status, content);
+			LOGGER.debug("{}: {} {}", prefix, status, content);
 		}
 	}
 
@@ -286,7 +286,7 @@ public class RestClient {
 				int end = c.indexOf(';');
 				String value = c.substring(valueStart + 1, end < 0 ? c.length() : end);
 				cookies.put(name, value);
-				log.debug("received cookie: {}={}", name, value);
+				LOGGER.debug("received cookie: {}={}", name, value);
 			}
 		}
 	}
@@ -324,7 +324,7 @@ public class RestClient {
 			cookies.keySet().forEach(k -> {
 				String cookie = cookies.get(k);
 				headers.add(HttpHeaders.COOKIE, k + "=" + cookie);
-				log.debug("sent cookie: {}={}", k, cookies.get(k));
+				LOGGER.debug("sent cookie: {}={}", k, cookies.get(k));
 			});
 		}
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -412,14 +412,14 @@ public class RestClient {
 
 	protected <IN, OUT> RestResponseEntity<IN> exchange(URI uri, OUT body, HttpMethod method, Class<IN> returnType,
 			boolean acceptAnyType) {
-		if (log.isDebugEnabled() && body != null) {
+		if (LOGGER.isDebugEnabled() && body != null) {
 			doLog("OUT", body, null);
 		}
 		try {
 			RequestEntity<OUT> out = new RequestEntity<>(body, getHeaders(acceptAnyType), method, uri);
 			ResponseEntity<IN> in = restTemplate.exchange(out, returnType);
 			setCookies(in);
-			if (log.isDebugEnabled() && in.getBody() != null) {
+			if (LOGGER.isDebugEnabled() && in.getBody() != null) {
 				doLog("IN", in.getBody(), in.getStatusCode());
 			}
 			return RestResponseEntity.of(in);
@@ -431,7 +431,7 @@ public class RestClient {
 					errorModel = objectMapper.readerFor(ErrorModel.class).readValue(bodyAsString);
 				}
 			} catch (IOException ioe) {
-				log.error("could not read error from response", e);
+				LOGGER.error("could not read error from response", e);
 			}
 			if (null == errorModel) {
 				errorModel = new ErrorModel();

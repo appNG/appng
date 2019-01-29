@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.ApplicationProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Processes the taglet's body if the current {@link Subject} has the required {@link org.appng.api.model.Permission} of
@@ -43,10 +43,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Herlitzius
  */
+@Slf4j
 public class Permission extends TagSupport {
 
 	private static final long serialVersionUID = 1L;
-	private static Logger log = LoggerFactory.getLogger(Permission.class);
 	private String application;
 	private String permission;
 
@@ -69,13 +69,13 @@ public class Permission extends TagSupport {
 			}
 			boolean hasPermission = permissionProcessor.hasPermission(permission);
 			if (hasPermission) {
-				log.debug("subject has the permission: {}", permission);
+				LOGGER.debug("subject has the permission: {}", permission);
 				return EVAL_BODY_INCLUDE;
 			}
 		} catch (IllegalStateException e) {
-			log.debug("session {} is invalid,", pageContext.getSession().getId());
+			LOGGER.debug("session {} is invalid,", pageContext.getSession().getId());
 		}
-		log.debug("subject does not have the permission: {}", permission);
+		LOGGER.debug("subject does not have the permission: {}", permission);
 		return SKIP_BODY;
 	}
 

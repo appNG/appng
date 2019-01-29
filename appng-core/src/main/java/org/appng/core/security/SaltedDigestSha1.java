@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.appng.api.auth.AuthTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides methods required to create a salted hash of a given secret using the SHA-1 algorithm.
@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class SaltedDigestSha1 implements SaltedDigest {
 
-	private static final Logger log = LoggerFactory.getLogger(SaltedDigestSha1.class);
 	private static final String UTF_8 = "UTF-8";
 	private static final int ITERATIONS = 763;
 	private static final int SALT_LENGTH = 8;
@@ -50,9 +50,9 @@ public class SaltedDigestSha1 implements SaltedDigest {
 			}
 			return AuthTools.byteToBase64(input);
 		} catch (IOException e) {
-			log.error("An IO Error occured during the digest computation.", e);
+			LOGGER.error("An IO Error occured during the digest computation.", e);
 		} catch (NoSuchAlgorithmException e) {
-			log.error("MessageDigest Algorithm not found.", e);
+			LOGGER.error("MessageDigest Algorithm not found.", e);
 		}
 		return null;
 	}

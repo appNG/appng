@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -265,10 +265,15 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 
 	@Transient
 	public Packages getPackages() throws BusinessException {
+		return getPackages(null);
+	}
+
+	@Transient
+	public Packages getPackages(String packageName) throws BusinessException {
 		RepositoryCache cache = getRepositoryCache();
 		Packages packages = new Packages();
 		packages.setCertification(cache.getCertification());
-		for (PackageWrapper packageWrapper : cache.getApplications()) {
+		for (PackageWrapper packageWrapper : cache.getApplications(packageName)) {
 			org.appng.core.xml.repository.Package publishedPackage = packageWrapper.getPackage();
 			packages.getPackage().add(publishedPackage);
 		}

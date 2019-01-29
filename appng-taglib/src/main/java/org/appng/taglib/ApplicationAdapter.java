@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,9 +65,9 @@ import org.appng.core.model.RequestProcessor;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.ItemType;
 import org.appng.xml.platform.NavigationItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.xml.transform.StringSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Used to embed an appNG {@link Application} inside a JSP page. This is achieved by calling the given
@@ -117,9 +117,9 @@ import org.springframework.xml.transform.StringSource;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public final class ApplicationAdapter extends BodyTagSupport implements ParameterOwner {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationAdapter.class);
 	private static final String TAGL_DEFAULT_BASE_URL = "defaultBaseUrl";
 	private static final String TAGL_DEFAULT_PAGE = "defaultPage";
 	private static final String TAGL_XSL_STYLE_SHEET = "xslStyleSheet";
@@ -210,14 +210,14 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 			} else {
 				urlParameters = originalUrlParameters;
 				if (null == urlParameters || urlParameters.isEmpty()) {
-					LOGGER.info("no URL parameters. Set page=defaultPage=" + defaultPage);
+					LOGGER.info("no URL parameters. Set page=defaultPage={}", defaultPage);
 					urlParameters = Arrays.asList(defaultPage);
 				}
 				pathInfo = getPathInfo(executingSite, executingApplication, urlParameters, platformProperties, null);
 			}
 
-			LOGGER.info("pathInfo.getApplicationName(): " + pathInfo.getApplicationName());
-			LOGGER.info("pathInfo.getCurrentPath(): " + pathInfo.getCurrentPath());
+			LOGGER.info("pathInfo.getApplicationName(): {}", pathInfo.getApplicationName());
+			LOGGER.info("pathInfo.getCurrentPath(): {}", pathInfo.getCurrentPath());
 
 			Thread.currentThread().setContextClassLoader(executingSite.getSiteClassLoader());
 
@@ -326,7 +326,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 			servletPath = servletPathBuilder.toString();
 		}
 		servletPath = servletPath.replaceAll("/+", "/");
-		LOGGER.info("servletPath: " + servletPath);
+		LOGGER.info("servletPath: {}", servletPath);
 		return new PathInfo(executingSite.getHost(), executingSite.getDomain(), executingSite.getName(), servletPath,
 				guiPath, servicePath, blobDirectories, documentDirectories, repoPath, extension);
 	}
@@ -397,7 +397,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 			transformer.transform(new StringSource(content), new StreamResult(output));
 			return output.toString();
 		} else {
-			LOGGER.warn(xslFile.getAbsolutePath() + " does not exist or is a directory!");
+			LOGGER.warn("{} does not exist or is a directory!", xslFile.getAbsolutePath());
 			return "";
 		}
 	}

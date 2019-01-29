@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -99,8 +101,6 @@ import org.appng.core.repository.config.ApplicationPostProcessor;
 import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -113,6 +113,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 
@@ -121,9 +122,9 @@ import net.sf.ehcache.constructs.blocking.BlockingCache;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class InitializerService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(InitializerService.class);
 	private static final int THREAD_PRIORITY_LOW = 3;
 
 	private static final String LIB_LOCATION = "/WEB-INF/lib";
@@ -252,7 +253,7 @@ public class InitializerService {
 				try {
 					FileUtils.cleanDirectory(tempDir);
 				} catch (IOException e) {
-					LOGGER.error("error while cleaning " + tempDir, e);
+					LOGGER.error(String.format("error while cleaning %s", tempDir), e);
 				}
 			}
 		}
@@ -269,7 +270,7 @@ public class InitializerService {
 			try {
 				FileUtils.forceMkdir(tempDir);
 			} catch (IOException e) {
-				LOGGER.error("unable to create upload dir " + tempDir, e);
+				LOGGER.error(String.format("unable to create upload dir %s", tempDir), e);
 			}
 		}
 
@@ -280,11 +281,10 @@ public class InitializerService {
 		String applicationRealDir = servletContext.getRealPath(appendSlash(applicationDir));
 		File applicationRootFolder = new File(applicationRealDir).getAbsoluteFile();
 		if (!applicationRootFolder.exists()) {
-			LOGGER.error("could not find applicationfolder " + applicationRootFolder.getAbsolutePath(),
-					" platform will exit");
+			LOGGER.error("could not find applicationfolder {} platform will exit!", applicationRootFolder.getAbsolutePath());
 			return;
 		}
-		LOGGER.info("applications are located at " + applicationRootFolder + " or in the database");
+		LOGGER.info("applications are located at {} or in the database", applicationRootFolder);
 		List<Integer> sites = getCoreService().getSiteIds();
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -314,9 +314,9 @@ public class InitializerService {
 		}
 
 		if (0 == activeSites) {
-			LOGGER.error("none of " + sites.size() + " sites is active, instance will not work!");
+			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
 		}
-		LOGGER.info("Current Ehcache configuration:\n" + cacheManager.getActiveConfigurationText());
+		LOGGER.info("Current Ehcache configuration:\n{}", cacheManager.getActiveConfigurationText());
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
@@ -371,7 +371,7 @@ public class InitializerService {
 					loadSite(env, getCoreService().getSiteByName(site.getName()), false,
 							new FieldProcessorImpl("auto-reload"));
 				} catch (InvalidConfigurationException e) {
-					LOGGER.error("error while reloading site " + site.getName(), e);
+					LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 				}
 
 			} catch (Exception e) {
@@ -526,10 +526,10 @@ public class InitializerService {
 
 		debugPlatformContext(platformContext);
 
-		LOGGER.info("loading site " + site.getName() + " (" + host + ")");
-		LOGGER.info("loading applications for site " + site.getName());
-		List<URL> classPath = new ArrayList<URL>();
+		LOGGER.info("loading site {} ({})", site.getName(), host);
+		LOGGER.info("loading applications for site {}", site.getName());
 
+		SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
 		Set<ApplicationProvider> applications = new HashSet<ApplicationProvider>();
 
 		// platform and application cache
@@ -634,13 +634,18 @@ public class InitializerService {
 					Collection<Resource> messageSources = applicationResources.getResources(ResourceType.DICTIONARY);
 					if (messageSources.size() > 0) {
 						File cachedFile = messageSources.iterator().next().getCachedFile();
-						URL messagesFolder = cachedFile.getParentFile().toURI().toURL();
-						classPath.add(messagesFolder);
+						siteClassPath.addFolder(cachedFile.getParentFile().toPath(), application.getName());
 					}
 
 					Collection<Resource> jars = applicationResources.getResources(ResourceType.JAR);
 					for (Resource applicationResource : jars) {
-						classPath.add(applicationResource.getCachedFile().toURI().toURL());
+						File cachedFile = applicationResource.getCachedFile();
+						String origin = siteClassPath.addJar(cachedFile.toPath(), application.getName());
+						if (!application.getName().equals(origin)) {
+							LOGGER.warn(
+									"{} from application {} has not been added to the site's classpath, since this jar has already been added by application {}",
+									cachedFile.getName(), application.getName(), origin);
+						}
 					}
 
 					FeatureProviderImpl featureProvider = new FeatureProviderImpl(applicationProvider.getProperties());
@@ -653,9 +658,6 @@ public class InitializerService {
 					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
 					databaseService.migrateApplication(sqlFolder, siteApplication.getDatabaseConnection());
 
-				} catch (MalformedURLException mfu) {
-					fp.addErrorMessage(errorMessage);
-					LOGGER.error(errorMessage, mfu);
 				} catch (InvalidConfigurationException ice) {
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
@@ -665,10 +667,7 @@ public class InitializerService {
 
 		site.getSiteApplications().clear();
 
-		URL[] urls = classPath.toArray(new URL[classPath.size()]);
-		ClassLoader classLoader = getClass().getClassLoader();
-		SiteClassLoader siteClassLoader = new SiteClassLoader(urls, classLoader, site.getName());
-
+		SiteClassLoader siteClassLoader = siteClassPath.build(getClass().getClassLoader(), site.getName());
 		Thread.currentThread().setContextClassLoader(siteClassLoader);
 
 		LOGGER.info(siteClassLoader.toString());
@@ -758,7 +757,7 @@ public class InitializerService {
 		for (ApplicationProvider application : validApplications) {
 			if (startApplication(env, site, application)) {
 				jarInfos.addAll(application.getJarInfos());
-				LOGGER.info("Initialized application: " + application.getName());
+				LOGGER.info("Initialized application: {}", application.getName());
 				for (JarInfo jarInfo : application.getJarInfos()) {
 					LOGGER.info(jarInfo.toString());
 				}
@@ -778,7 +777,7 @@ public class InitializerService {
 					new SiteReloadWatcher(env, site));
 		}
 
-		LOGGER.info("loading site " + site.getName() + " completed");
+		LOGGER.info("loading site {} completed", site.getName());
 		site.setState(SiteState.STARTED);
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
@@ -792,7 +791,7 @@ public class InitializerService {
 			try {
 				started = controller.start(site, application, env);
 			} catch (RuntimeException e) {
-				LOGGER.error("error during " + controller.getClass().getName() + ".start()", e);
+				LOGGER.error(String.format("error during %s.start()", controller.getClass().getName()), e);
 				started = false;
 			}
 			if (!started) {
@@ -914,4 +913,33 @@ public class InitializerService {
 		}
 	}
 
+	static class SiteClassLoaderBuilder {
+		private Map<java.nio.file.Path, String> paths = new HashMap<>();
+
+		String addJar(java.nio.file.Path jarfile, String origin) {
+			Optional<java.nio.file.Path> exisiting = paths.keySet().parallelStream()
+					.filter(p -> p.getFileName().equals(jarfile.getFileName())).findFirst();
+			if (exisiting.isPresent()) {
+				return paths.get(exisiting.get());
+			}
+			paths.put(jarfile, origin);
+			return origin;
+		}
+
+		void addFolder(java.nio.file.Path folder, String origin) {
+			paths.put(folder, origin);
+		}
+
+		SiteClassLoader build(ClassLoader parent, String site) {
+			List<URL> urls = paths.keySet().parallelStream().map(p -> {
+				try {
+					return p.toUri().toURL();
+				} catch (MalformedURLException e) {
+					LOGGER.warn(String.format("Error building SiteClassLoader for site %s", site), e);
+				}
+				return null;
+			}).filter(u -> u != null).collect(Collectors.toList());
+			return new SiteClassLoader(urls.toArray(new URL[0]), parent, site);
+		}
+	}
 }

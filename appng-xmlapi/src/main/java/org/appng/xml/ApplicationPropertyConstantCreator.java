@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,15 +34,14 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.Property;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class ApplicationPropertyConstantCreator {
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger log = LoggerFactory.getLogger(ApplicationPropertyConstantCreator.class);
+@Slf4j
+public class ApplicationPropertyConstantCreator {
 
 	/**
 	 * Generates a .java file containing constants for all the {@link org.appng.xml.application.Properties} defined in
@@ -125,7 +124,7 @@ public class ApplicationPropertyConstantCreator {
 		FileOutputStream fos = new FileOutputStream(outFile);
 		fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
 		fos.close();
-		log.debug("Wrote {}", outFile.getAbsolutePath());
+		LOGGER.debug("Wrote {}", outFile.getAbsolutePath());
 	}
 
 	private static void readNameAndVersionFromPom(ApplicationInfo application, File appXml) {
@@ -137,7 +136,7 @@ public class ApplicationPropertyConstantCreator {
 				application.setName(xpath.evaluate("/project/name", doc));
 				application.setVersion(xpath.evaluate("/project/version", doc));
 			} catch (ParserConfigurationException | SAXException | XPathExpressionException | IOException e) {
-				log.error("error while extracting project name/version from pom.xml", e);
+				LOGGER.error("error while extracting project name/version from pom.xml", e);
 			}
 
 		}

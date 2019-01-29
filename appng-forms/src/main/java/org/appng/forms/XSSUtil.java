@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.owasp.esapi.Encoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A utility class helping with XSS prevention.<br/>
@@ -32,9 +32,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class XSSUtil {
-
-	private static final Logger LOG = LoggerFactory.getLogger(XSSUtil.class);
 
 	/**
 	 * request-attribute indicating XSS has been stripped from the {@link HttpServletRequest} ({@link Boolean#TRUE} in
@@ -80,8 +79,8 @@ public class XSSUtil {
 
 	public boolean doProcess(HttpServletRequest request, String... exceptions) {
 		if (null != request.getAttribute(XSS_STRIPPED)) {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("request attribute '{}' is {} for request {}, no need to process", XSS_STRIPPED,
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("request attribute '{}' is {} for request {}, no need to process", XSS_STRIPPED,
 						request.getAttribute(XSS_STRIPPED), request.getServletPath());
 			}
 			return false;
@@ -99,8 +98,8 @@ public class XSSUtil {
 
 	public void setProcessed(HttpServletRequest request, boolean processed) {
 		request.setAttribute(XSS_STRIPPED, processed);
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("setting request attribute '{}' to TRUE for request {}", XSS_STRIPPED, request.getServletPath());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("setting request attribute '{}' to TRUE for request {}", XSS_STRIPPED, request.getServletPath());
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,12 +84,12 @@ import org.appng.xml.platform.SectionelementDef;
 import org.appng.xml.platform.UrlParams;
 import org.appng.xml.platform.UrlSchema;
 import org.appng.xml.platform.ValidationGroups.Group;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Validates a {@link ApplicationConfigProvider}, which means it checks that each reference to a <br/>
@@ -105,9 +105,8 @@ import org.xml.sax.SAXException;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class ConfigValidator {
-
-	private static final Logger log = LoggerFactory.getLogger(ConfigValidator.class);
 
 	private ApplicationConfigProvider provider;
 	private Set<String> errors;
@@ -250,7 +249,7 @@ public class ConfigValidator {
 				i++;
 			}
 		}
-		log.info("validated application '" + applicationName + "' in " + (System.currentTimeMillis() - start) + "ms");
+		LOGGER.info("validated application '{}' in {}ms", applicationName, System.currentTimeMillis() - start);
 		processErrors(applicationName);
 	}
 
@@ -477,7 +476,8 @@ public class ConfigValidator {
 			String pageId, String originName, String xpath) {
 		if (null != condition && StringUtils.isNotBlank(condition.getExpression())) {
 			if (!condition.getExpression().startsWith("${") || !condition.getExpression().endsWith("}")) {
-				addDetailedError(originName + " invalid condition '" + condition.getExpression() + "'", pageResource, xpath);
+				addDetailedError(originName + " invalid condition '" + condition.getExpression() + "'", pageResource,
+						xpath);
 			} else {
 				ExpressionEvaluator ee = getPageExpressionEvaluator(params, pageId);
 				String message = originName + " condition: '" + condition.getExpression() + "' is invalid: ";
@@ -576,18 +576,18 @@ public class ConfigValidator {
 		if (getWarnings().size() > 0 || getErrors().size() > 0) {
 			if (!getWarnings().isEmpty()) {
 				StringBuilder sb = appendAndClear("found warnings:", getWarnings());
-				log.warn(sb.toString());
+				LOGGER.warn(sb.toString());
 			}
 			if (!getErrors().isEmpty()) {
 				StringBuilder sb = appendAndClear("found errors:", getErrors());
 				if (throwException) {
 					throw new InvalidConfigurationException(applicationName, sb.toString());
 				} else {
-					log.error(sb.toString());
+					LOGGER.error(sb.toString());
 				}
 			}
 		} else {
-			log.info("validation returned no errors and no warnings");
+			LOGGER.info("validation returned no errors and no warnings");
 		}
 	}
 
@@ -672,7 +672,7 @@ public class ConfigValidator {
 			String errorMssg = String.format(
 					"could not create instance of '%s', is it an interface or default-constructor missing?",
 					bindClassName);
-			log.debug(errorMssg);
+			LOGGER.debug(errorMssg);
 		}
 		return null;
 	}
@@ -798,7 +798,7 @@ public class ConfigValidator {
 
 		Bean bean = datasource.getBean();
 		if (null == bean) {
-			log.debug("datasource '" + datasource.getId() + "' is static");
+			LOGGER.debug("datasource '{}' is static", datasource.getId());
 			return;
 		}
 		validateBeanOptions(dsResource + ": datasource '" + dsId + "'", dataSourceParams, dsParameterSupport, bean,
@@ -922,7 +922,7 @@ public class ConfigValidator {
 					detailedErrors.add(detailError);
 				}
 			} else {
-				log.error("no node found for xpath: " + xpath + " in resource " + resource.getName());
+				LOGGER.error("no node found for xpath: {} in resource {}", xpath, resource.getName());
 			}
 		}
 	}
@@ -942,11 +942,11 @@ public class ConfigValidator {
 				is.close();
 				return nodes;
 			} else {
-				log.error("Neither bytes nor cached file is available for resource " + resource.getName());
+				LOGGER.error("Neither bytes nor cached file is available for resource {}", resource.getName());
 				return null;
 			}
 		} catch (IOException | SAXException e) {
-			log.error("cannot get node with xpath " + xpath, e);
+			LOGGER.error(String.format("cannot get node with xpath %s", xpath), e);
 		}
 		return null;
 	}

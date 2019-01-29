@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Transformer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Transformer.class);
 	private static final String PLATFORM_XSL = "platform.xsl";
 	private static final String XSL_PLATFORM_XSL = "xsl/" + PLATFORM_XSL;
 	private static final String EXT_XML = ".xml";
@@ -84,12 +83,12 @@ public class Transformer {
 		templateFolder = templateFolder.getAbsoluteFile();
 		xmlSource = xmlSource.getAbsoluteFile();
 
-		LOGGER.info("using template at " + templateFolder);
+		LOGGER.info("using template at {}", templateFolder);
 		// System.setProperty("jaxp.debug", "true");
 		StyleSheetProvider styleSheetProvider = new StyleSheetProvider();
 		File platformXsl = new File(templateFolder, XSL_PLATFORM_XSL);
 		styleSheetProvider.setMasterSource(new FileInputStream(platformXsl), templateFolder.getAbsolutePath());
-		LOGGER.info("using " + platformXsl);
+		LOGGER.info("using {}", platformXsl);
 		String[] xslFiles = new File(templateFolder, "xsl").list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.endsWith(EXT_XSL) && !name.equals(PLATFORM_XSL);
@@ -112,27 +111,27 @@ public class Transformer {
 		outputFile.getParentFile().mkdirs();
 		File styleSheet = new File(outputFile.getParent(), xmlSource.getName().replace(EXT_XML, EXT_XSL));
 		FileOutputStream xslOut = new FileOutputStream(styleSheet);
-		LOGGER.info("Writing styleSheet to " + styleSheet);
+		LOGGER.info("Writing styleSheet to {}", styleSheet);
 		byte[] xslData = styleSheetProvider.getStyleSheet(true, xslOut);
 		Source xslSource = new StreamSource(new ByteArrayInputStream(xslData));
 		Templates templates = styleSheetProvider.getTransformerFactory().newTemplates(xslSource);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamResult streamResult = new StreamResult(out);
-		LOGGER.info("Using XML-source " + xmlSource);
+		LOGGER.info("Using XML-source {}", xmlSource);
 		javax.xml.transform.Transformer transformer = templates.newTransformer();
 		String indent = System.getProperty(OutputKeys.INDENT);
 		if (!(NO.equals(indent) || YES.equals(indent))) {
 			indent = NO;
 		}
 		transformer.setOutputProperty(OutputKeys.INDENT, indent);
-		LOGGER.info("indent: " + indent);
+		LOGGER.info("indent: {}", indent);
 		transformer.transform(new StreamSource(new FileInputStream(xmlSource)), streamResult);
 		String html = new String(out.toByteArray());
 		URL url = templateFolder.toURI().toURL();
 		html = html.replaceAll("/template/", url.toExternalForm());
 
-		LOGGER.info("Writing result to " + outputFile);
+		LOGGER.info("Writing result to {}", outputFile);
 		html = html.replaceAll("charset=\"", "charset=UTF-8\"");
 		PrintWriter printWriter = new PrintWriter(outputFile);
 		printWriter.write(html);

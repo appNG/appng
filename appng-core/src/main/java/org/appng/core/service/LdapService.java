@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ import javax.net.ssl.SSLSession;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.core.domain.SubjectImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service providing methods to login {@link Subject}s based on the LDAP-configuration of a {@link Site}. The following
@@ -60,8 +60,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * @author Dirk Heuvels
  */
+@Slf4j
 public class LdapService {
-	private static final Logger LOG = LoggerFactory.getLogger(LdapService.class);
 
 	private String ldapCtxFactory = "com.sun.jndi.ldap.LdapCtxFactory";
 	private LdapContext ctx = null;
@@ -151,9 +151,9 @@ public class LdapService {
 					break;
 				default:
 					this.principal = username;
-					LOG.info("Unknown keyword '" + principalScheme + "' in site property '" + siteName + "."
-							+ LDAP_PRINCIPAL_SCHEME + "'. Falling back to plain username '" + username
-							+ "' as principal.");
+					LOGGER.info(
+							"Unknown keyword '{}' in site property '{}.{}'. Falling back to plain username '{}' as principal.",
+							principalScheme, siteName, LDAP_PRINCIPAL_SCHEME, username);
 				}
 			}
 		}
@@ -170,8 +170,8 @@ public class LdapService {
 				return env;
 			} else {
 				if (!ldapHost.toLowerCase().startsWith("ldaps://"))
-					LOG.info("LDAP Configuration of site '" + siteName + "' neither uses LDAP over SSL ('ldaps://')"
-							+ " nor STARTTLS. Credentials will be transmitted as cleartext.");
+					LOGGER.info("LDAP Configuration of site '{}' neither uses LDAP over SSL ('ldaps://')"
+							+ " nor STARTTLS. Credentials will be transmitted as cleartext.", siteName);
 				env.put(Context.SECURITY_AUTHENTICATION, "simple");
 				env.put(Context.SECURITY_PRINCIPAL, principal);
 				env.put(Context.SECURITY_CREDENTIALS, password);
@@ -359,10 +359,10 @@ public class LdapService {
 		} else {
 			message = "LDAP operation failed on host '" + host + "' with principal '" + principal + "' " + excInfo;
 		}
-		if (LOG.isDebugEnabled()) {
-			LOG.debug(message, e);
-		} else if (LOG.isInfoEnabled()) {
-			LOG.info(message);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(message, e);
+		} else if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(message);
 		}
 	}
 
@@ -371,14 +371,14 @@ public class LdapService {
 			try {
 				tls.close();
 			} catch (IOException ioe) {
-				LOG.warn("error closing TLS connection", ioe);
+				LOGGER.warn("error closing TLS connection", ioe);
 			}
 		}
 		if (ctx != null) {
 			try {
 				ctx.close();
 			} catch (NamingException ne) {
-				LOG.warn("error closing LDAP context", ne);
+				LOGGER.warn("error closing LDAP context", ne);
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.appng.appngizer.controller;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,11 +65,11 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 			HttpServletRequest request) {
 		String platformSecret = getSharedSecret();
 		if (!platformSecret.equals(sharedSecret)) {
-			log.info("invalid shared secret for session {}", session.getId());
+			LOGGER.info("invalid shared secret for session {}", session.getId());
 			return reply(HttpStatus.FORBIDDEN);
 		}
 		session.setAttribute(AUTHORIZED, true);
-		log.info("session {} has been authorized (user-agent: {})", session.getId(),
+		LOGGER.info("session {} has been authorized (user-agent: {})", session.getId(),
 				request.getHeader(HttpHeaders.USER_AGENT));
 		return welcome();
 	}
@@ -86,7 +85,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 	public void afterPropertiesSet() throws Exception {
@@ -133,8 +132,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 		for (SiteImpl site : getCoreService().getSites()) {
 			if (site.isActive()) {
 				SiteImpl s = getCoreService().getSite(site.getId());
-				SiteClassLoader siteClassLoader = new SiteClassLoader(new URL[0], getClass().getClassLoader(),
-						site.getName());
+				SiteClassLoader siteClassLoader = new SiteClassLoader(site.getName());
 				s.setSiteClassLoader(siteClassLoader);
 				siteMap.put(site.getName(), s);
 			}

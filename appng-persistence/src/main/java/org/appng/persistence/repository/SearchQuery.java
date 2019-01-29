@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -521,16 +521,18 @@ public class SearchQuery<T> {
 		if (StringUtils.isNotBlank(joinQuery)) {
 			sb.append(" " + joinQuery.trim() + " ");
 		}
-		for (int i = 0; i < criteria.size(); i++) {
-			SearchCriteria criterion = criteria.get(i);
-			sb.append(i == 0 ? " where " : " and ");
+		int i = 0;
+		boolean isFirst = true;
+		for (SearchCriteria criterion : criteria) {
+			sb.append(isFirst ? " where " : " and ");
 			if (appendEntityAlias) {
 				sb.append("e.");
 			}
 			sb.append(criterion.getName() + " " + criterion.getOperand().getPresentation());
 			if (null != criterion.getValue()) {
-				sb.append(" ?" + i);
+				sb.append(" ?" + i++);
 			}
+			isFirst = false;
 		}
 		boolean addWhere = criteria.size() == 0;
 		for (Clause clause : andClauses) {
@@ -544,12 +546,13 @@ public class SearchQuery<T> {
 				Long.class);
 		appendOrder(pageable, sb, appendEntityAlias ? "e" : "");
 		TypedQuery<T> query = entityManager.createQuery("select " + distinctPart + " e " + sb.toString(), domainClass);
-		for (int i = 0; i < criteria.size(); i++) {
-			SearchCriteria criterion = criteria.get(i);
+		i = 0;
+		for (SearchCriteria criterion : criteria) {
 			Object value = criterion.getValue();
 			if (null != value) {
 				countQuery.setParameter(i, value);
 				query.setParameter(i, value);
+				i++;
 			}
 		}
 		for (Clause clause : andClauses) {

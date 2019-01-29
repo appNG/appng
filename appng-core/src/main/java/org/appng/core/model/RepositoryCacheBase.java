@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.core.security.signing.SignatureWrapper;
 import org.appng.xml.application.PackageInfo;
@@ -77,8 +80,22 @@ abstract class RepositoryCacheBase implements RepositoryCache {
 	abstract void update(String packageName) throws BusinessException;
 
 	public List<PackageWrapper> getApplications() throws BusinessException {
+		return getApplications(null);
+	}
+
+	public List<PackageWrapper> getApplications(String packageName) throws BusinessException {
 		update();
-		List<PackageWrapper> applications = new ArrayList<PackageWrapper>(applicationWrapperMap.values());
+		List<PackageWrapper> applications = new ArrayList<>(applicationWrapperMap.values());
+		if (StringUtils.isNotBlank(packageName)) {
+			Predicate<? super PackageWrapper> filter;
+			String wildcard = "*";
+			if (packageName.contains(wildcard)) {
+				filter = p -> p.getName().matches(packageName.replace(wildcard, ".*?"));
+			} else {
+				filter = p -> p.getName().startsWith(packageName);
+			}
+			applications = applications.parallelStream().filter(filter).collect(Collectors.toList());
+		}
 		Collections.sort(applications);
 		return applications;
 	}
@@ -138,7 +155,7 @@ abstract class RepositoryCacheBase implements RepositoryCache {
 		return packageName + ", Version: " + packageVersion + ", Timestamp: " + packageTimestamp;
 	}
 
-	protected Repository getRepository(){
+	protected Repository getRepository() {
 		return repository;
 	}
 

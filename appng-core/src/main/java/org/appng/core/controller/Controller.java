@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.appng.api.Scope.SESSION;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -56,10 +57,10 @@ import org.appng.core.controller.handler.StaticContentHandler;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.xml.MarshallService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The controller {@link Servlet} of appNG, delegating {@link HttpServletRequest}s to an appropriate
@@ -67,10 +68,9 @@ import org.springframework.http.HttpStatus;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 @WebServlet(name = "controller", urlPatterns = { "/", "*.jsp" }, loadOnStartup = 1)
 public class Controller extends DefaultServlet implements ContainerServlet {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
 	private static final String ALLOW_PLAIN_REQUESTS = "allowPlainRequests";
 	private static final String ERRORPAGE = "/errorpage";
@@ -97,7 +97,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	/** a SPI to support different versions of Tomcat */
 	interface Support {
-		void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding) throws IOException,ServletException;
+		void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding)
+				throws IOException, ServletException;
 
 		HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response);
 
@@ -113,8 +114,9 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		super.init(config);
 		try {
 			char tomcatMajor = ServerInfo.getServerNumber().charAt(0);
-			Class<?> supportClassName = Class.forName(String.format("org.appng.core.controller.Tomcat%sSupport", tomcatMajor));
-			setSupport( (Support) supportClassName.newInstance());
+			Class<?> supportClassName = Class
+					.forName(String.format("org.appng.core.controller.Tomcat%sSupport", tomcatMajor));
+			setSupport((Support) supportClassName.newInstance());
 			LOGGER.debug("created {}", support.getClass().getName());
 		} catch (ReflectiveOperationException o) {
 			throw new ServletException("error while creating Controller.Support", o);
@@ -123,7 +125,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	// for Tomcat 7 compatibility
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content) throws IOException ,ServletException {
+	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content)
+			throws IOException, ServletException {
 		support.serveResource(request, response, content, null);
 	}
 
@@ -243,8 +246,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 							String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
 							Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
 						} else {
-							LOGGER.warn(SiteProperties.DOCUMENT_DIR + " is empty for site " + site.getName()
-									+ ", can not process request!");
+							LOGGER.warn("{} is empty for site {}, can not process request!",
+									SiteProperties.DOCUMENT_DIR, site.getName());
 						}
 					} else if (pathInfo.isStaticContent() || pathInfo.getServletPath().startsWith(templatePrefix)
 							|| pathInfo.isDocument()) {
@@ -265,10 +268,10 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 						if (allowPlainRequests && !pathInfo.isRepository()) {
 							super.doGet(servletRequest, servletResponse);
 							int status = servletResponse.getStatus();
-							LOGGER.debug("returned " + status + " for request " + servletPath);
+							LOGGER.debug("returned {} for request {}", status, servletPath);
 						} else {
 							servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-							LOGGER.debug("was not an internal request, rejecting " + servletPath);
+							LOGGER.debug("was not an internal request, rejecting {}", servletPath);
 						}
 					}
 					if (null != requestHandler) {
@@ -296,12 +299,12 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 
 		} else if (allowPlainRequests) {
-			LOGGER.debug("no site found for request '" + servletPath + "'");
+			LOGGER.debug("no site found for request '{}'", servletPath);
 			super.doGet(servletRequest, servletResponse);
 			int status = servletResponse.getStatus();
-			LOGGER.debug("returned " + status + " for request " + servletPath);
+			LOGGER.debug("returned {} for request '{}'", status, servletPath);
 		} else {
-			LOGGER.debug("access to '" + servletPath + "' not allowed");
+			LOGGER.debug("access to '{}' not allowed", servletPath);
 		}
 
 	}
@@ -335,12 +338,18 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	public void setWrapper(Wrapper wrapper) {
-		this.manager = ((Context) wrapper.getParent()).getManager();
+		Context context = ((Context) wrapper.getParent());
+		Environment env = DefaultEnvironment.get(context.getServletContext());
+		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
+		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));
+		this.manager = context.getManager();
 	}
 
 	protected void expireSessions(HttpServletRequest servletRequest, Environment env, Site site) {
 		if (null != manager && Boolean.TRUE.equals(env.removeAttribute(SESSION, EXPIRE_SESSIONS))) {
-			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM, SessionListener.SESSIONS);
+			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM,
+					SessionListener.SESSIONS);
 			for (org.appng.core.controller.Session session : sessions) {
 				org.apache.catalina.Session containerSession = getContainerSession(session.getId());
 				if (null != containerSession) {
@@ -362,7 +371,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		try {
 			return manager.findSession(sessionId);
 		} catch (IOException e) {
-			LOGGER.warn("errow while retrieving session " + sessionId, e);
+			LOGGER.warn(String.format("error while retrieving session %s", sessionId), e);
 		}
 		return null;
 	}

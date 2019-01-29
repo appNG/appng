@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,12 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.appng.cli.CliBootstrap;
 import org.appng.cli.CliCore;
 import org.appng.cli.CliEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class InstallListener implements ServletContextListener {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(InstallListener.class);
 	private static final String DATE_PATTERN = "yyyy-MM-dd-HH-mm";
 	private static final String BATCH_FILE = "auto-install.list";
 	private static final String INSTALL_PATH = "/WEB-INF/conf/" + BATCH_FILE;
@@ -52,7 +52,7 @@ public class InstallListener implements ServletContextListener {
 		try {
 			autoInstall = new File(resource);
 			if (autoInstall.exists()) {
-				LOGGER.info("processing " + resource);
+				LOGGER.info("processing {}", resource);
 				System.getProperties().put(CliBootstrap.APPNG_HOME, ctx.getRealPath("/"));
 				ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 				CliEnvironment.out = new PrintStream(bytesOut);
@@ -68,7 +68,7 @@ public class InstallListener implements ServletContextListener {
 				LOGGER.debug("{} not present", resource);
 			}
 		} catch (Exception e) {
-			LOGGER.error("error while processing " + resource, e);
+			LOGGER.error(String.format("error while processing %s", resource), e);
 		} finally {
 			if (null != autoInstall && autoInstall.exists()) {
 				String timestamp = DateFormatUtils.format(System.currentTimeMillis(), DATE_PATTERN);
@@ -82,7 +82,7 @@ public class InstallListener implements ServletContextListener {
 						FileUtils.moveFile(autoInstall, processingResult);
 					}
 				} catch (IOException e) {
-					LOGGER.warn("error while creating " + processingResult.getPath(), e);
+					LOGGER.warn(String.format("error while creating %s", processingResult.getPath()), e);
 				}
 			}
 		}

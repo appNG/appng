@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "2.0.0");
+		validateSchemaVersion(platformConnection, "4.0.0");
 
 		DatabaseConnection mssql = new DatabaseConnection(DatabaseType.MSSQL, rootName, "", "".getBytes());
 		mssql.setName(rootName);
@@ -104,7 +104,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.MYSQL, platformConnection.getType());
 		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
-		validateSchemaVersion(platformConnection, "3.0.0");
+		validateSchemaVersion(platformConnection, "4.0.0");
 	}
 
 	@Test
@@ -122,7 +122,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.MSSQL, platformConnection.getType());
 		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
-		validateSchemaVersion(platformConnection, "3.0.0");
+		validateSchemaVersion(platformConnection, "4.0.0");
 		DataSource sqlDataSource = new HikariCPConfigurer(platformConnection).getDataSource();
 		DatabaseMetaData metaData = sqlDataSource.getConnection().getMetaData();
 		Assert.assertTrue(metaData.getDatabaseProductName().startsWith("Microsoft SQL Server"));

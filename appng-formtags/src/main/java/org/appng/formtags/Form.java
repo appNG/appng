@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.appng.forms.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class represents a HTML form. A {@link Form} consists of two parts:
@@ -39,9 +39,8 @@ import org.slf4j.LoggerFactory;
  * @see FormConfirmation
  * @see FormProcessProvider
  */
+@Slf4j
 public class Form {
-
-	private static final Logger log = LoggerFactory.getLogger(Form.class);
 
 	private Request request;
 
@@ -68,7 +67,7 @@ public class Form {
 	 * Enables logging for this {@link Form} by adding a {@link LogFormData} to the form's {@link FormProcessProvider}s.
 	 */
 	public void enableLogging() {
-		addFormProcessProvider(new LogFormData(log));
+		addFormProcessProvider(new LogFormData(LOGGER));
 	}
 
 	/**

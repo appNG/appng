@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -35,9 +36,8 @@ import org.springframework.core.convert.ConversionService;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 class FileFieldConverter extends ConverterBase {
-
-	protected static final Logger LOG = LoggerFactory.getLogger(FileFieldConverter.class);
 
 	public FileFieldConverter(ConversionService conversionService) {
 		setConversionService(conversionService);
@@ -61,7 +61,7 @@ class FileFieldConverter extends ConverterBase {
 	}
 
 	protected Logger getLog() {
-		return LOG;
+		return LOGGER;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,11 @@ import org.appng.xml.platform.ParamType;
 import org.appng.xml.platform.PostParams;
 import org.appng.xml.platform.UrlParams;
 import org.appng.xml.platform.UrlSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 class PageParameterProcessor {
-
-	private static final Logger log = LoggerFactory.getLogger(PageParameterProcessor.class);
 
 	private static final String PATTERN_FRACTION = "(\\.\\d+)?";
 	private static final String PATTERN_DIGIT = "[-+]?\\d+";
@@ -149,7 +148,7 @@ class PageParameterProcessor {
 				String newValue = synchronizeParamWithSession(param, value);
 				if (null != newValue && !(newValue.equals(value) || newValue.equals(defaultValue))) {
 					paramAdded |= true;
-					log.info("retrieved new value for url-param '" + name + "' from session: '" + newValue + "'");
+					LOGGER.info("retrieved new value for url-param '{}' from session: '{}'", name, newValue);
 				}
 				param.setValue(newValue);
 				addParam(name, newValue);
@@ -176,21 +175,21 @@ class PageParameterProcessor {
 				String valueFromSession = sessionParams.get(name);
 				if (StringUtils.isNotEmpty(valueFromSession)) {
 					value = valueFromSession;
-					log.debug("session-param: " + name + " = '" + value + "'");
+					LOGGER.debug("session-param: {} = '{}'", name, value);
 				} else {
 					value = defaultValue;
-					log.debug("session-param not found in session, using default: " + name + " = '" + value + "'");
+					LOGGER.debug("session-param not found in session, using default: {} = '{}'", name, value);
 				}
 			} else {
-				log.debug("adding parameter to session: " + name + " = '" + value + "'");
+				LOGGER.debug("adding parameter to session: {} = '{}'", name, value);
 				sessionParams.put(name, value);
 				env.setAttribute(SESSION, getSessionParamKey(), sessionParams);
 			}
 		} else if (StringUtils.isEmpty(value)) {
 			value = defaultValue;
-			log.debug("using default-value: " + name + " = '" + value + "'");
+			LOGGER.debug("using default-value: {} = '{}'", name, value);
 		} else {
-			log.debug("using value: " + name + " = '" + value + "'");
+			LOGGER.debug("using value: {} = '{}'", name, value);
 		}
 		if (value != null && type != null) {
 			boolean isParamOk = isParamOk(value, type);

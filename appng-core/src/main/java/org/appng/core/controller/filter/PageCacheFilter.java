@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,11 +42,10 @@ import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.service.CacheService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -67,9 +66,9 @@ import net.sf.ehcache.constructs.web.filter.FilterNonReentrantException;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class PageCacheFilter extends CachingFilter {
 
-	private static Logger LOG = LoggerFactory.getLogger(PageCacheFilter.class);
 	private Set<String> cacheableHttpMethods = new HashSet<String>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
 
@@ -93,7 +92,7 @@ public class PageCacheFilter extends CachingFilter {
 			ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
 			isException = isException(servletPath, site);
 		} else {
-			LOG.info("no site found for path {} and host {}", servletPath, hostIdentifier);
+			LOGGER.info("no site found for path {} and host {}", servletPath, hostIdentifier);
 		}
 		boolean isCacheableRequest = isCacheableRequest(httpServletRequest);
 		if (ehcacheEnabled && isCacheableRequest && !isException) {
@@ -125,7 +124,7 @@ public class PageCacheFilter extends CachingFilter {
 
 			}
 		} catch (CacheException e) {
-			LOG.warn("error while adding/retrieving from/to cache: " + calculateKey(request), e);
+			LOGGER.warn(String.format("error while adding/retrieving from/to cache: %s", calculateKey(request)), e);
 		}
 	}
 
@@ -178,13 +177,13 @@ public class PageCacheFilter extends CachingFilter {
 					int size = ArrayUtils.getLength(pageInfo.getUngzippedBody());
 					boolean filterNotDisabled = filterNotDisabled(request);
 					if (pageInfo.isOk() && size > 0 && filterNotDisabled) {
-						if (LOG.isDebugEnabled()) {
-							LOG.debug("PageInfo ok. Adding to cache {} with key {}", blockingCache.getName(), key);
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug("PageInfo ok. Adding to cache {} with key {}", blockingCache.getName(), key);
 						}
 						blockingCache.put(new Element(key, pageInfo));
 					} else {
-						if (LOG.isDebugEnabled()) {
-							LOG.debug(
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug(
 									"PageInfo was not ok (status: {}, size: {}, caching disabled: {}). Putting null into cache {} with key {}",
 									pageInfo.getStatusCode(), size, !filterNotDisabled, blockingCache.getName(), key);
 						}

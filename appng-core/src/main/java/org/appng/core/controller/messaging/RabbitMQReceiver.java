@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Site;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AMQP.Queue.DeclareOk;
@@ -34,6 +33,8 @@ import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Message receiver implementing {@link Receiver} to use a RabbitMQ message broker. Following platform properties are
@@ -53,9 +54,9 @@ import com.rabbitmq.client.Envelope;
  * @author Claus Stümke, aiticon GmbH, 2015
  * @author Matthias Müller
  */
+@Slf4j
 public class RabbitMQReceiver extends RabbitMQBase implements Receiver {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQReceiver.class);
 	private static final String RABBIT_MQ_AUTO_DELETE_QUEUE = "rabbitMQAutoDeleteQueue";
 	private static final String RABBIT_MQ_DURABLE_QUEUE = "rabbitMQDurableQueue";
 	private static final String RABBIT_MQ_EXCLUSIVE_QUEUE = "rabbitMQExclusiveQueue";
@@ -145,7 +146,7 @@ public class RabbitMQReceiver extends RabbitMQBase implements Receiver {
 					}
 
 				} catch (Exception e) {
-					LOGGER.error("Error while executing event " + event, e);
+					LOGGER.error(String.format("Error while executing event %s", event), e);
 				}
 			} else {
 				LOGGER.debug("could not read event");
