@@ -21,8 +21,9 @@ import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -34,9 +35,8 @@ import org.springframework.beans.BeanWrapper;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 class ObjectFieldConverter extends ConverterBase {
-
-	protected static final Logger LOG = LoggerFactory.getLogger(ObjectFieldConverter.class);
 
 	ObjectFieldConverter() {
 	}
@@ -58,18 +58,18 @@ class ObjectFieldConverter extends ConverterBase {
 					wrapper.setPropertyValue(field.getBinding(), currentObject);
 					logSetObject(field, currentObject);
 				} catch (InstantiationException | IllegalAccessException e) {
-					LOG.error(String.format("error setting property %s for %s", field.getBinding(),
+					LOGGER.error(String.format("error setting property %s for %s", field.getBinding(),
 							wrapper.getWrappedInstance()), e);
 				}
 			} else {
-				LOG.debug("no need to set property '{}' on {} (value is {}, type: {})", field.getBinding(),
+				LOGGER.debug("no need to set property '{}' on {} (value is {}, type: {})", field.getBinding(),
 						wrapper.getWrappedClass().getName(), currentObject, targetClass.getName());
 			}
 		}
 	}
 
 	protected Logger getLog() {
-		return LOG;
+		return LOGGER;
 	}
 
 }

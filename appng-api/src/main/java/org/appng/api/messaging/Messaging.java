@@ -25,8 +25,8 @@ import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A utility class offering static helper methods to create and retrieve a {@link Sender} and to shutdown
@@ -37,9 +37,8 @@ import org.slf4j.LoggerFactory;
  * @see Sender
  * @see Receiver
  */
+@Slf4j
 public class Messaging {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(Messaging.class);
 
 	/**
 	 * Name of a system property used to identify the node
@@ -97,7 +96,7 @@ public class Messaging {
 						nodeId);
 				System.setProperty(APPNG_NODE_ID, nodeId);
 			} catch (UnknownHostException e) {
-				LOGGER.warn("error setting system property " + APPNG_NODE_ID, e);
+				LOGGER.warn(String.format("error setting system property %s", APPNG_NODE_ID), e);
 			}
 		}
 		return nodeId;

@@ -21,8 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.tools.os.Command;
 import org.appng.tools.os.OperatingSystem;
 import org.appng.tools.os.StringConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to set the owner and group for a given {@link File} using the {@code chown} system command.
@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @see OperatingSystem#isLinux()
  */
+@Slf4j
 public class FileOwner {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FileOwner.class);
 	private File file;
 
 	/**

@@ -35,8 +35,6 @@ import org.appng.api.Session;
 import org.appng.api.model.Subject;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.PlatformEvent.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +42,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * An entity listener that creates a new {@link PlatformEvent} on {@link PrePersist}, {@link PreUpdate} and
@@ -56,9 +56,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class PlatformEventListener implements ApplicationContextAware {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PlatformEventListener.class);
 	private static ApplicationContext context;
 	private static String auditUser = "<unknown>";
 	private static String auditApplication = "appNG";
@@ -74,7 +74,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		PlatformEventListener.context = applicationContext;
-		LOG.info("Using application context {}", applicationContext);
+		LOGGER.info("Using application context {}", applicationContext);
 	}
 
 	@PrePersist
@@ -123,7 +123,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 			}
 			entityManager.persist(event);
 		}
-		LOG.info("Created entry {}", event);
+		LOGGER.info("Created entry {}", event);
 	}
 
 	public synchronized void setAuditUser(String auditUser) {

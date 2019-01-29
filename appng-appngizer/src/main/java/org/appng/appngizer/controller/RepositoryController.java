@@ -292,6 +292,6 @@ public class RepositoryController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

@@ -106,7 +106,7 @@ public class RoleController extends ControllerBase {
 				if (null != p) {
 					appRole.getPermissions().add(p);
 				} else {
-					log.info("no such permission: {}", permission.getName());
+					LOGGER.info("no such permission: {}", permission.getName());
 				}
 			}
 		}
@@ -131,6 +131,6 @@ public class RoleController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

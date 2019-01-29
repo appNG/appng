@@ -55,15 +55,14 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.apache.commons.io.output.WriterOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class MarshallService {
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger log = LoggerFactory.getLogger(MarshallService.class);
+@Slf4j
+public class MarshallService {
 
 	/** The namespace for appNG application XML-resources */
 	public static final String NS_PLATFORM = "http://www.appng.org/schema/platform";
@@ -158,7 +157,7 @@ public class MarshallService {
 			}
 
 			if (useSchema) {
-				log.trace("using schema " + schemaUrl);
+				LOGGER.trace("using schema {}", schemaUrl);
 				SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
 				Schema schema = sf.newSchema(schemaUrl);
 				marshaller.setSchema(schema);
@@ -168,15 +167,15 @@ public class MarshallService {
 				marshaller.setEventHandler(marshallingEventHandler);
 				unmarshaller.setEventHandler(unmarshallingEventHandler);
 				if (null != schemaLocation) {
-					log.trace("schemaLocation is" + schemaLocation);
+					LOGGER.trace("schemaLocation is {}", schemaLocation);
 					marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, this.schema.getNamespace() + " "
 							+ schemaLocation);
 				}
 			}
 		} catch (JAXBException e) {
-			log.error("error while initializing JAXB", e);
+			LOGGER.error("error while initializing JAXB", e);
 		} catch (SAXException e) {
-			log.error("error while Schema from url" + schemaUrl, e);
+			LOGGER.error(String.format("error while Schema from url %s", schemaUrl), e);
 		}
 	}
 
@@ -216,7 +215,7 @@ public class MarshallService {
 					sb.append(message);
 					sb.append(separator);
 				}
-				log.error(sb.toString());
+				LOGGER.error(sb.toString());
 			}
 			eventHandler.clear();
 		}
@@ -262,7 +261,7 @@ public class MarshallService {
 			try {
 				closeable.close();
 			} catch (IOException e) {
-				log.error("error during close", e);
+				LOGGER.error("error during close", e);
 			}
 		}
 	}
@@ -469,7 +468,7 @@ public class MarshallService {
 						errorItem.addError(message);
 					}
 				} catch (JAXBException e) {
-					log.warn("error while marshalling object " + object);
+					LOGGER.warn("error while marshalling object {}", object);
 				}
 			} else {
 				String message = "";
@@ -477,7 +476,7 @@ public class MarshallService {
 					message += "error on line " + lineNumber + ", column " + columnNumber + ": ";
 				}
 				message += event.getMessage();
-				log.error(message);
+				LOGGER.error(message);
 			}
 			return true;
 		}

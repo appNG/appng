@@ -21,8 +21,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class defines a Form element.
@@ -185,9 +184,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class FormElement extends BodyTagSupport {
 
-	private static Logger log = LoggerFactory.getLogger(FormElement.class);
 	protected org.appng.formtags.FormElement wrappedFormElement;
 
 	private String desc;
@@ -219,7 +218,7 @@ public class FormElement extends BodyTagSupport {
 			String content = processContent();
 			getBodyContent().getEnclosingWriter().print(content);
 		} catch (IOException ioe) {
-			log.error("error while writing to JspWriter", ioe);
+			LOGGER.error("error while writing to JspWriter", ioe);
 		}
 		return SKIP_BODY;
 	}

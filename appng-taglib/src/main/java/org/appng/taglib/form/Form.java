@@ -21,8 +21,6 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.forms.Request;
 import org.appng.taglib.TagletAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a web Form.
@@ -58,7 +56,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Form extends TagSupport {
 
-	private static final Logger log = LoggerFactory.getLogger(Form.class);
 	static final String IS_SUBMITTED = "isSubmitted";
 	static final String FORM_NAME = "formName";
 	static final String TRUE = "true";

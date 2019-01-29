@@ -24,17 +24,17 @@ import java.util.Random;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class is used to get different types of digests.
  * 
  * @author Matthias Herlitzius
  */
+@Slf4j
 public final class AuthTools {
 
-	private static final Logger log = LoggerFactory.getLogger(AuthTools.class);
 	private static final String STRING_FORMAT = "%1$032X";
 	private static final String SHA1PRNG = "SHA1PRNG";
 
@@ -85,7 +85,7 @@ public final class AuthTools {
 			salt = new byte[length];
 			random.nextBytes(salt);
 		} catch (NoSuchAlgorithmException e) {
-			log.error("error while generting random string.", e);
+			LOGGER.error("error while generting random string.", e);
 		}
 		return salt;
 	}

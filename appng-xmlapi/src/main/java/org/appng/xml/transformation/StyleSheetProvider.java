@@ -34,15 +34,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@code StyleSheetProvider} assembles a XSL-stylesheet from one master XSL-file and a various number of other
@@ -51,9 +50,9 @@ import org.xml.sax.SAXException;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class StyleSheetProvider {
 
-	private static final Logger log = LoggerFactory.getLogger(StyleSheetProvider.class);
 	private static final String XSL_INCLUDE = "xsl:include";
 	private InputStream masterSource;
 	private DocumentBuilderFactory documentBuilderFactory;
@@ -77,7 +76,7 @@ public class StyleSheetProvider {
 			documentBuilder = getDocumentBuilderFactory().newDocumentBuilder();
 			transformer = getTransformerFactory().newTransformer();
 		} catch (Exception e) {
-			log.error("[" + name + "] error setting up StyleSheetProvider, instance will not work!", e);
+			LOGGER.error(String.format("[%s] error setting up StyleSheetProvider, instance will not work!", name), e);
 		}
 	}
 
@@ -94,7 +93,7 @@ public class StyleSheetProvider {
 			this.masterSource = masterXsl;
 			this.templateRoot = templateRoot;
 		} catch (Exception e) {
-			log.error("[" + name + "] error setting up StyleSheetProvider, instance will not work!", e);
+			LOGGER.error(String.format("[%s] error setting up StyleSheetProvider, instance will not work!", name), e);
 		}
 	}
 
@@ -109,13 +108,12 @@ public class StyleSheetProvider {
 	public void addStyleSheet(InputStream styleSheet, String reference) {
 		try {
 			if (styleReferences.containsKey(reference)) {
-				log.warn("[" + name + "] stylesheet '" + reference
-						+ "' is already defined, contents will be overridden!");
+				LOGGER.warn("[{}] stylesheet '{}' is already defined, contents will be overridden!", name, reference);
 			}
 			styleReferences.put(reference, styleSheet);
-			log.trace("[" + name + "] adding stylesheet with reference '" + reference + "'");
+			LOGGER.trace("[{}] adding stylesheet with reference '{}'", name, reference);
 		} catch (Exception e) {
-			log.error("[" + name + "] error parsing stylesheet '" + reference + "'", e);
+			LOGGER.error(String.format("[%s] error parsing stylesheet '%s'", name, reference), e);
 		}
 	}
 
@@ -162,7 +160,7 @@ public class StyleSheetProvider {
 				String reference = href.getTextContent();
 				rootNode.removeChild(node);
 				if (deleteIncludes) {
-					log.trace("[" + name + "] removing reference to '" + reference + "'");
+					LOGGER.trace("[{}] removing reference to '{}'", name, reference);
 				} else {
 					File file = new File(templateRoot, reference);
 					styleReferences.put(reference, new FileInputStream(file));
@@ -179,10 +177,10 @@ public class StyleSheetProvider {
 				transformer.transform(domSource, new StreamResult(additionalOut));
 			}
 			transformer.transform(domSource, new StreamResult(outputStream));
-			log.debug("stylesheet complete");
+			LOGGER.debug("stylesheet complete");
 			return outputStream.toByteArray();
 		} catch (Exception e) {
-			log.error("[" + name + "] error writing stylesheet", e);
+			LOGGER.error(String.format("[%s] error writing stylesheet", name), e);
 		} finally {
 			close(masterSource);
 		}
@@ -193,7 +191,7 @@ public class StyleSheetProvider {
 		try {
 			is.close();
 		} catch (IOException e) {
-			log.error("error closing stream", e);
+			LOGGER.error("error closing stream", e);
 		} finally {
 			is = null;
 		}
@@ -204,9 +202,9 @@ public class StyleSheetProvider {
 		InputStream inputStream = styleReferences.get(reference);
 		Document styleSheetDoc = getDocumentBuilder().parse(inputStream);
 		if (null == styleSheetDoc) {
-			log.warn("[" + name + "] referenced stylesheet '" + reference + "' could not be found, inclusion skipped!");
+			LOGGER.warn("[{}] referenced stylesheet '{}' could not be found, inclusion skipped!", name, reference);
 		} else {
-			log.trace("[" + name + "] including referenced stylesheet '" + reference + "'");
+			LOGGER.trace("[{}] including referenced stylesheet '{}'", name, reference);
 			NodeList childNodes = styleSheetDoc.getFirstChild().getChildNodes();
 			Document ownerDocument = rootNode.getOwnerDocument();
 			Comment beginComment = ownerDocument.createComment("[BEGIN] embed '" + reference + "'");

@@ -58,13 +58,13 @@ import org.appng.cli.commands.template.DeleteTemplate;
 import org.appng.cli.commands.template.InstallTemplate;
 import org.appng.core.service.DatabaseService;
 import org.flywaydb.core.api.MigrationInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.ParameterException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The core of the command line interface, aggregating the available {@link ExecutableCliCommand}s to a
@@ -73,9 +73,9 @@ import com.beust.jcommander.ParameterException;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class CliCore {
 
-	private static Logger log = LoggerFactory.getLogger(CliCore.class);
 	private static final String PROGRAM_NAME = "appng";
 	private static final String COMMAND_BATCH = "batch";
 	private ApplicationContext platformContext;
@@ -175,7 +175,7 @@ public class CliCore {
 			Date installedOn = migrationInfo.getInstalledOn();
 			String logMessage = "Database is at version " + migrationInfo.getVersion() + ", state: " + stateName
 					+ ", installed on " + installedOn;
-			log.info(logMessage);
+			LOGGER.info(logMessage);
 			cle.initPlatform(cliConfig);
 		}
 
@@ -183,7 +183,7 @@ public class CliCore {
 			try {
 				commands.getCommand(parsedCommand).execute(cle);
 			} catch (Exception e) {
-				log.error("An error occured.", e);
+				LOGGER.error("An error occured.", e);
 				String message = e.getMessage();
 				if (null != message) {
 					logError(message);

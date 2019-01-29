@@ -40,8 +40,8 @@ import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.Redirect;
 import org.appng.core.controller.Controller;
 import org.appng.core.model.CacheProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link RequestHandler} responsible for serving static resources.<br/>
@@ -50,9 +50,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class StaticContentHandler implements RequestHandler {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(StaticContentHandler.class);
 
 	private static final List<String> TEMPLATE_FOLDERS = Arrays.asList("assets", "resources");
 
@@ -128,7 +127,7 @@ public class StaticContentHandler implements RequestHandler {
 		};
 		controller.serveResource(requestWrapper, response);
 		int status = response.getStatus();
-		LOGGER.trace("returned " + status + " for static resource " + forwardPath);
+		LOGGER.trace("returned {} for static resource {}", status, forwardPath);
 		return status;
 	}
 

@@ -25,15 +25,15 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class is used to replace special characters from the search terms.
  * 
  */
+@Slf4j
 public class GermanSearchTermProcessor implements SearchTermProcessor {
-	private static Logger log = LoggerFactory.getLogger(GermanSearchTermProcessor.class);
 	private static String[] charsToRemove = { "!", "?", ".", ",", "<", ">", "{", "}", "[", "]", "+", "-", "*", "/",
 			"\\", "&", "|", "=", "%", "$", "§", "#" };
 	private GermanAnalyzer analyzer;
@@ -83,7 +83,7 @@ public class GermanSearchTermProcessor implements SearchTermProcessor {
 				count++;
 			}
 		} catch (IOException e) {
-			log.error("error assembling searchterm", e);
+			LOGGER.error("error assembling searchterm", e);
 		}
 		return searchTerm.toString();
 	}

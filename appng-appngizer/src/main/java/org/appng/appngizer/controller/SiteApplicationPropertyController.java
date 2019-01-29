@@ -104,6 +104,6 @@ public class SiteApplicationPropertyController extends PropertyBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

@@ -35,8 +35,8 @@ import org.appng.xml.MarshallService;
 import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.PackageInfo;
 import org.appng.xml.application.Template;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link PackageArchive}.
@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class PackageArchiveImpl implements PackageArchive {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PackageArchiveImpl.class);
 	private static final String ZIP = ".zip";
 	private static final char SEPARATOR = '-';
 
@@ -90,7 +90,7 @@ public class PackageArchiveImpl implements PackageArchive {
 				this.checksum = DigestUtils.sha256Hex(FileUtils.readFileToByteArray(file));
 			}
 		} catch (IOException e) {
-			LOGGER.warn("invalid archive: " + toString(), e);
+			LOGGER.warn(String.format("invalid archive: %s", toString()), e);
 		}
 	}
 

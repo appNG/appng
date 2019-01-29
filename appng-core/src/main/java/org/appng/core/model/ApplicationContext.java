@@ -20,10 +20,10 @@ import javax.servlet.ServletContext;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.core.domain.SiteApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link XmlWebApplicationContext} representing a {@link SiteApplication}.
@@ -31,11 +31,10 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class ApplicationContext extends XmlWebApplicationContext {
 
 	public static final String CONTEXT_CLASSPATH = "classpath:org/appng/core/application-context.xml";
-
-	private static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
 
 	private Site site;
 
@@ -84,7 +83,7 @@ public class ApplicationContext extends XmlWebApplicationContext {
 		try {
 			return super.getBean(requiredType);
 		} catch (BeansException e1) {
-			LOG.info("bean '" + requiredType + "' not found in context");
+			LOGGER.info("bean '{}' not found in context", requiredType);
 		}
 		return null;
 	}

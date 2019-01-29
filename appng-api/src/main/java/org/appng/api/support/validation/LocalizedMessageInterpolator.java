@@ -26,13 +26,13 @@ import org.appng.api.model.Application;
 import org.appng.api.support.MessageSourceChain;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.AbstractResourceBasedMessageSource;
 import org.springframework.context.support.MessageSourceResourceBundle;
 import org.springframework.context.support.MessageSourceSupport;
 import org.springframework.context.support.ResourceBundleMessageSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link javax.validation.MessageInterpolator} that is aware of a given {@link Locale} instead of using the default
@@ -40,9 +40,9 @@ import org.springframework.context.support.ResourceBundleMessageSource;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class LocalizedMessageInterpolator extends ResourceBundleMessageInterpolator {
 
-	private static Logger log = LoggerFactory.getLogger(LocalizedMessageInterpolator.class);
 	private static final String DEFAULT_VALIDATION_MESSAGES = "org.hibernate.validator.ValidationMessages";
 	private static final List<String> VALIDATION_BASENAMES = Arrays.asList(USER_VALIDATION_MESSAGES,
 			DEFAULT_VALIDATION_MESSAGES);
@@ -83,8 +83,8 @@ public class LocalizedMessageInterpolator extends ResourceBundleMessageInterpola
 							getResourceBundleMessageSource(VALIDATION_BASENAMES));
 				}
 
-				if (log.isDebugEnabled()) {
-					log.debug("Setting up MessageSourceResourceBundle with {}", innerSource);
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Setting up MessageSourceResourceBundle with {}", innerSource);
 				}
 				return new MessageSourceResourceBundle(innerSource, locale);
 			}
@@ -102,8 +102,8 @@ public class LocalizedMessageInterpolator extends ResourceBundleMessageInterpola
 	@Override
 	public String interpolate(String messageTemplate, Context context) {
 		String interpolated = interpolate(messageTemplate, context, locale);
-		if (log.isDebugEnabled()) {
-			log.debug("Interpolated template '{}', result is '{}'", messageTemplate, interpolated);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Interpolated template '{}', result is '{}'", messageTemplate, interpolated);
 		}
 		return interpolated;
 	}

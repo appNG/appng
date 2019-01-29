@@ -29,12 +29,12 @@ import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.appng.xml.platform.Linkpanel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link FieldConverter} encapsulating all the other {@link FieldConverter}s, thus providing the ability to convert
@@ -43,9 +43,9 @@ import org.springframework.core.convert.ConversionService;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class FieldConversionFactory implements FieldConverter, InitializingBean {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FieldConversionFactory.class);
 	private Map<FieldType, FieldConverter> converters = new HashMap<FieldType, FieldConverter>();
 
 	private Environment environment;
@@ -95,7 +95,7 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 			if (null != datafield) {
 				addChildFields(fieldWrapper, datafield, fieldWrapper.getBeanWrapper());
 			} else {
-				LOG.debug("datafield '{}' is null", fieldWrapper.getBinding());
+				LOGGER.debug("datafield '{}' is null", fieldWrapper.getBinding());
 			}
 			return datafield;
 		}
@@ -103,8 +103,8 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 	}
 
 	private void log(FieldWrapper fieldWrapper, FieldConverter converter) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("converter for field '{}' of type {} is {}", fieldWrapper.getBinding(), fieldWrapper.getType(),
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("converter for field '{}' of type {} is {}", fieldWrapper.getBinding(), fieldWrapper.getType(),
 					converter.getClass().getName());
 		}
 	}
@@ -127,7 +127,7 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 			for (final FieldDef childField : childFields) {
 				FieldWrapper fieldWrapper = new FieldWrapper(childField, beanWrapper);
 				fieldWrapper.backupFields();
-				LOG.debug("adding child field '{}', type: {}", fieldWrapper.getBinding(), fieldWrapper.getType());
+				LOGGER.debug("adding child field '{}', type: {}", fieldWrapper.getBinding(), fieldWrapper.getType());
 				addField(dataFieldOwner, fieldWrapper);
 				fieldWrapper.restoreFields();
 			}

@@ -23,7 +23,6 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.List;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.SoapClient;
@@ -45,9 +44,9 @@ import org.appng.core.xml.repository.GetPackagesResponse;
 import org.appng.core.xml.repository.PackageVersions;
 import org.appng.core.xml.repository.Packages;
 import org.appng.xml.application.PackageInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ws.client.WebServiceClientException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of {@link RepositoryCache} that retrieves the packages from a remote repository.
@@ -55,9 +54,9 @@ import org.springframework.ws.client.WebServiceClientException;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class RepositoryCacheSoap extends RepositoryCacheBase {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryCacheSoap.class);
 	private String url;
 	private byte[] trustStore;
 	private char[] storePass;
@@ -91,7 +90,7 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 		List<org.appng.core.xml.repository.Package> publishedPackages = getPublishedApplications();
 		for (org.appng.core.xml.repository.Package pkg : publishedPackages) {
 			String packageName = pkg.getName();
-			LOGGER.debug("Retrieving archive from remote repository \"{}\": {}", repository.getRemoteRepositoryName(),
+			LOGGER.debug("Retrieving archive from remote repository '{}': {}", repository.getRemoteRepositoryName(),
 					packageName);
 			applicationWrapperMap.put(packageName, new PackageWrapper(pkg));
 		}

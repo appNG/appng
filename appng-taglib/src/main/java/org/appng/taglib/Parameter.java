@@ -18,10 +18,10 @@ package org.appng.taglib;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.text.StringEscapeUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link Parameter} can be added to any {@link ParameterOwner}. 
@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
  * @see TagletAdapter
  *
  */
+@Slf4j
 public class Parameter extends BodyTagSupport {
 
-	private static final Logger log = LoggerFactory.getLogger(Parameter.class);
 	private String name;
 	private boolean unescape = false;
 
@@ -62,7 +62,7 @@ public class Parameter extends BodyTagSupport {
 		String textValue = null == bodyContent ? null : StringUtils.trim(bodyContent.getString());
 		String value = unescape ? StringEscapeUtils.unescapeHtml4(textValue) : textValue;
 		tag.addParameter(name, value);
-		log.debug("added parameter {}={} to parent tag {}", name, value, tag);
+		LOGGER.debug("added parameter {}={} to parent tag {}", name, value, tag);
 		this.name = null;
 		this.unescape = false;
 		return super.doEndTag();
