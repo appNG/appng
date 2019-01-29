@@ -246,8 +246,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 							String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
 							Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
 						} else {
-							LOGGER.warn(SiteProperties.DOCUMENT_DIR + " is empty for site " + site.getName()
-									+ ", can not process request!");
+							LOGGER.warn("{} is empty for site {}, can not process request!",
+									SiteProperties.DOCUMENT_DIR, site.getName());
 						}
 					} else if (pathInfo.isStaticContent() || pathInfo.getServletPath().startsWith(templatePrefix)
 							|| pathInfo.isDocument()) {

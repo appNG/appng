@@ -98,7 +98,7 @@ public class FileSystemProvider implements DocumentProvider {
 		int numIndexed = 0;
 		long start = System.currentTimeMillis();
 		if (!dataDir.exists() || !dataDir.isDirectory()) {
-			LOGGER.error(dataDir + " does not exist or is not a directory");
+			LOGGER.error("{} does not exist or is not a directory", dataDir);
 		} else {
 
 			Set<String> folders = config.getFolders();

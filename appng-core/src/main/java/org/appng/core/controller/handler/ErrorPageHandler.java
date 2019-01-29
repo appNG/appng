@@ -107,8 +107,8 @@ public class ErrorPageHandler implements RequestHandler {
 				dispatcher.forward(servletRequest, servletResponse);
 			}
 		} else {
-			LOGGER.warn(SiteProperties.DOCUMENT_DIR + " is empty for site " + site.getName()
-					+ ", can not process request!");
+			LOGGER.warn("{} is empty for site {}, can not process request!", SiteProperties.DOCUMENT_DIR,
+					site.getName());
 		}
 
 	}

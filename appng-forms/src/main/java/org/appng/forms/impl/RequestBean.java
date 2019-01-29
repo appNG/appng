@@ -135,10 +135,10 @@ public class RequestBean implements Request {
 							list = new ArrayList<String>();
 							parameters.put(name, list);
 						} else {
-							LOGGER.trace(method + " parameter: " + name + " is multi-valued");
+							LOGGER.trace("{} parameter: {} is multi-valued", method, name);
 						}
 						list.add(value);
-						LOGGER.trace(method + " parameter: " + name + " = " + value);
+						LOGGER.trace("{} parameter: {} = {}", method, name, value);
 					} else {
 						if (!formUploads.containsKey(name)) {
 							formUploads.put(name, new ArrayList<FormUpload>());
@@ -158,7 +158,7 @@ public class RequestBean implements Request {
 							FormUpload formUpload = new FormUploadBean(outFile, itemName, item.getContentType(),
 									acceptedTypes, maxSize);
 							formUploads.get(name).add(formUpload);
-							LOGGER.trace(method + " upload parameter: " + formUpload);
+							LOGGER.trace("{} upload parameter: {}", method, formUpload);
 						} else {
 							LOGGER.debug("nothing uploaded for field {}", name);
 						}
@@ -177,10 +177,10 @@ public class RequestBean implements Request {
 					}
 					List<String> values = new ArrayList<String>(Arrays.asList(parameterValues));
 					if (values.size() > 1) {
-						LOGGER.trace(method + " parameter: " + name + " is multi-valued");
+						LOGGER.trace("{} parameter: {} is multi-valued", method, name);
 					}
 					parameters.put(name, values);
-					LOGGER.trace(method + " parameter: " + name + " = " + values);
+					LOGGER.trace("{} parameter: {} = {}", method, name, values);
 				}
 			}
 			if (xssEnabled()) {

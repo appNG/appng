@@ -239,7 +239,7 @@ public class CallableDataSource {
 						fieldProcessor);
 			}
 		} else {
-			LOGGER.info(getDatasource().getId() + " is static!");
+			LOGGER.info("{} is static!", getDatasource().getId());
 		}
 		return getDatasource().getData();
 	}

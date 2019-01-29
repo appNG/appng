@@ -199,7 +199,7 @@ public class MigrationService {
 			connection.setMigrationInfoService(info);
 			return info;
 		} else {
-			LOGGER.error(connection.toString() + " is not working, unable to retrieve connection status.");
+			LOGGER.error("{} is not working, unable to retrieve connection status.", connection.toString());
 		}
 		return null;
 	}

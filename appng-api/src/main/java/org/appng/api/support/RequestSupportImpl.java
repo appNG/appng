@@ -83,7 +83,7 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 					FieldWrapper fieldWrapper = new FieldWrapper(fieldDef, beanWrapper);
 					fieldConverter.setObject(fieldWrapper, container);
 				} else {
-					LOGGER.trace(fieldDef.getBinding() + " is readonly!");
+					LOGGER.trace("{} is readonly!", fieldDef.getBinding());
 				}
 			}
 		} catch (Exception e) {

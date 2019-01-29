@@ -397,7 +397,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 			transformer.transform(new StringSource(content), new StreamResult(output));
 			return output.toString();
 		} else {
-			LOGGER.warn(xslFile.getAbsolutePath() + " does not exist or is a directory!");
+			LOGGER.warn("{} does not exist or is a directory!", xslFile.getAbsolutePath());
 			return "";
 		}
 	}
