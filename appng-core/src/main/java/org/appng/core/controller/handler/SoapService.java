@@ -36,8 +36,6 @@ import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.model.AccessibleApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
@@ -59,6 +57,8 @@ import org.springframework.ws.wsdl.WsdlDefinition;
 import org.springframework.xml.xsd.SimpleXsdSchema;
 import org.springframework.xml.xsd.XsdSchema;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This class makes it possible to provide a custom URL-Schema for Spring-WS backed {@link Endpoint}s. The functionality
  * is based upon the implementation of {@link MessageDispatcherServlet}.<br />
@@ -77,9 +77,8 @@ import org.springframework.xml.xsd.XsdSchema;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class SoapService {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SoapService.class);
 
 	private static final String PROP_SCHEMA_LOCATION = "schemaLocation";
 	private static final String PROP_CONTEXT_PATH = "contextPath";

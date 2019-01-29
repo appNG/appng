@@ -36,8 +36,8 @@ import org.appng.core.controller.messaging.MulticastReceiver;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.security.DefaultPasswordPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A service offering methods for initializing and retrieving the configuration {@link Properties} of the platform, a
@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
  * @see Properties
  * @see PropertyHolder
  */
+@Slf4j
 public class PropertySupport {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PropertySupport.class);
 	private static final String PREFIX_EMPTY = "";
 	public static final String PREFIX_PLATFORM = "platform.";
 	static final String PREFIX_SITE = "site.";
@@ -183,8 +183,8 @@ public class PropertySupport {
 		String description = bundle.getString(prefix + name);
 		Property added = propertyHolder.addProperty(name, defaultValue, description, multilined);
 		String value = multilined ? added.getClob() : added.getDefaultString();
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("added property {}{} = {}", prefix, name, value);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("added property {}{} = {}", prefix, name, value);
 		}
 		return value;
 	}
@@ -376,8 +376,8 @@ public class PropertySupport {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
 					propertyHolder.addProperty(name, value, null, value.indexOf(StringUtils.LF) > 0);
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
 					}
 				}
 			}

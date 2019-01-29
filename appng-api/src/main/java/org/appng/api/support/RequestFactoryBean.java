@@ -37,13 +37,13 @@ import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.forms.XSSUtil;
 import org.appng.forms.impl.RequestBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -52,9 +52,9 @@ import org.springframework.core.convert.ConversionService;
  * @author Matthias Müller
  * 
  */
-public class RequestFactoryBean implements FactoryBean<Request>, InitializingBean {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RequestFactoryBean.class);
+@Slf4j
+public class RequestFactoryBean implements FactoryBean<Request>, InitializingBean {
 
 	private Environment environment;
 

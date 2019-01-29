@@ -18,10 +18,10 @@ package org.appng.core.controller;
 import java.io.IOException;
 import java.util.Date;
 
+import org.appng.api.model.Site;
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.web.PageInfo;
-
-import org.appng.api.model.Site;
 
 /**
  * A simple value object representing an element of the site cache. Instances of this class will be used to display

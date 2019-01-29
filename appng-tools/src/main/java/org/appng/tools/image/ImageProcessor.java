@@ -32,8 +32,8 @@ import org.im4java.core.IMOperation;
 import org.im4java.core.ImageCommand;
 import org.im4java.process.ArrayListOutputConsumer;
 import org.im4java.process.ProcessStarter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class for converting images using the
@@ -43,9 +43,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Herlitzius
  */
+@Slf4j
 public class ImageProcessor {
-
-	private static Logger LOG = LoggerFactory.getLogger(ImageProcessor.class);
 
 	private final File sourceFile;
 	private final File targetFile;
@@ -70,10 +69,10 @@ public class ImageProcessor {
 			convertCmd.setOutputConsumer(out);
 			convertCmd.run(new IMOperation().version());
 			String version = out.getOutput().get(0);
-			LOG.info(version);
+			LOGGER.info(version);
 			return true;
 		} catch (Exception e) {
-			LOG.error("error while retrieving ImageMagickVersion", e);
+			LOGGER.error("error while retrieving ImageMagickVersion", e);
 		}
 		return false;
 	}

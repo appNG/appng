@@ -65,11 +65,11 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 			HttpServletRequest request) {
 		String platformSecret = getSharedSecret();
 		if (!platformSecret.equals(sharedSecret)) {
-			log.info("invalid shared secret for session {}", session.getId());
+			LOGGER.info("invalid shared secret for session {}", session.getId());
 			return reply(HttpStatus.FORBIDDEN);
 		}
 		session.setAttribute(AUTHORIZED, true);
-		log.info("session {} has been authorized (user-agent: {})", session.getId(),
+		LOGGER.info("session {} has been authorized (user-agent: {})", session.getId(),
 				request.getHeader(HttpHeaders.USER_AGENT));
 		return welcome();
 	}
@@ -85,7 +85,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 	public void afterPropertiesSet() throws Exception {

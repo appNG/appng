@@ -42,12 +42,12 @@ import org.appng.api.model.Site;
 import org.appng.api.search.Document;
 import org.appng.search.SearchProvider;
 import org.appng.search.indexer.SimpleDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StandardSearcher implements SearchProvider {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(StandardSearcher.class);
 	private static final String PARAM_EXCLUDE_TYPES = "excludeTypes";
 	private static final String PARAM_TERM_TRANSFORM = "termTransform";
 	private static final String DEFAULT_TERM_TRANSFORM = "term term*";

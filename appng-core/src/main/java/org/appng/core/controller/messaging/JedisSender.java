@@ -21,9 +21,8 @@ import java.io.IOException;
 import org.appng.api.messaging.Event;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 
 /**
@@ -33,10 +32,8 @@ import redis.clients.jedis.Jedis;
  * @author Claus Stuemke, aiticon GmbH, 2015
  * @see JedisReceiver
  */
-
+@Slf4j
 public class JedisSender extends JedisBase implements Sender {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(JedisSender.class);
 
 	public Sender configure(Serializer eventDeserializer) {
 		this.eventSerializer = eventDeserializer;
@@ -53,7 +50,7 @@ public class JedisSender extends JedisBase implements Sender {
 			LOGGER.debug("Successfully published event {}", event);
 			return true;
 		} catch (IOException e) {
-			LOGGER.error("error while sending event " + event, e);
+			LOGGER.error(String.format("error while sending event %s", event), e);
 		} finally {
 			jedis.close();
 		}

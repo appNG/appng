@@ -38,18 +38,18 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class implements {@link Environment}.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class DefaultEnvironment implements Environment {
 
 	private static final String SEP = System.getProperty("line.separator");
-	private static Logger log = LoggerFactory.getLogger(DefaultEnvironment.class);
 	private PlatformEnvironment platform;
 	private SiteEnvironment site;
 	private SessionEnvironment session;
@@ -218,8 +218,8 @@ public class DefaultEnvironment implements Environment {
 	public void setAttribute(Scope scope, String name, Object value) {
 		ScopedEnvironment env = getEnvironment(scope);
 		if (null != env) {
-			if (log.isTraceEnabled()) {
-				log.trace("[{}] setting {}={}", scope, name, value);
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("[{}] setting {}={}", scope, name, value);
 			}
 			env.setAttribute(name, value);
 		}
@@ -230,8 +230,8 @@ public class DefaultEnvironment implements Environment {
 		ScopedEnvironment env = getEnvironment(scope);
 		if (null != env) {
 			Object attribute = env.getAttribute(name);
-			if (log.isTraceEnabled()) {
-				log.trace("[{}] getting {}={}", scope, name, attribute);
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("[{}] getting {}={}", scope, name, attribute);
 			}
 			return (T) attribute;
 		}
@@ -243,8 +243,8 @@ public class DefaultEnvironment implements Environment {
 		ScopedEnvironment env = getEnvironment(scope);
 		if (null != env) {
 			Object removed = env.removeAttribute(name);
-			if (log.isTraceEnabled()) {
-				log.trace("[{}] removing {}={}", scope, name, removed);
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("[{}] removing {}={}", scope, name, removed);
 			}
 			return (T) removed;
 		}
@@ -275,13 +275,13 @@ public class DefaultEnvironment implements Environment {
 			env = request;
 			break;
 		default:
-			log.warn("no environment found for scope {}", scope);
+			LOGGER.warn("no environment found for scope {}", scope);
 		}
 		if (null != env && scopeEnabled.get(scope)) {
 			return env;
 		}
-		if (log.isDebugEnabled()) {
-			log.debug("scope {} is not available", scope);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("scope {} is not available", scope);
 		}
 		return null;
 	}
@@ -441,8 +441,8 @@ public class DefaultEnvironment implements Environment {
 	 * @see #enable(Scope)
 	 */
 	public void disable(Scope scope) {
-		if (log.isDebugEnabled()) {
-			log.debug("disabling scope " + scope);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("disabling scope {}", scope);
 		}
 		scopeEnabled.put(scope, Boolean.FALSE);
 	}
@@ -455,8 +455,8 @@ public class DefaultEnvironment implements Environment {
 	 * @see #disable(Scope)
 	 */
 	public void enable(Scope scope) {
-		if (log.isDebugEnabled()) {
-			log.debug("enabling scope " + scope);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("enabling scope {}", scope);
 		}
 		scopeEnabled.put(scope, Boolean.TRUE);
 	}

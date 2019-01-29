@@ -43,8 +43,8 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.controller.filter.RedirectFilter.RedirectRule;
 import org.appng.core.model.ResponseType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link Filter} that performs a search-and-replace on the given content of the {@link ServletResponse}.<br/>
@@ -72,9 +72,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class JspExtensionFilter implements Filter {
 
-	private static final Logger log = LoggerFactory.getLogger(JspExtensionFilter.class);
 	private static final String PLATFORM_JSP_FILTER_SERVICE_CONTENT_TYPES = "jspFilterServiceContentTypes";
 	private static final String PLATFORM_JSP_FILTER_SKIPPED_SERVICE_NAMES = "jspFilterSkippedServiceNames";
 	private static final ConcurrentMap<String, Pattern> PATTERNS = new ConcurrentHashMap<String, Pattern>();
@@ -146,8 +146,8 @@ public class JspExtensionFilter implements Filter {
 		String contentType = response.getContentType();
 		if (null != contentType && pathInfo.isService()) {
 			contentType = contentType.split(";")[0];
-			if (log.isTraceEnabled()) {
-				log.trace("content type for '{}' is '{}'", pathInfo.getServletPath(), contentType);
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("content type for '{}' is '{}'", pathInfo.getServletPath(), contentType);
 			}
 			List<String> filterServiceTypes = platformProperties.getList(PLATFORM_JSP_FILTER_SERVICE_CONTENT_TYPES,
 					defaultServiceFilterTypes, DELIMITER);
@@ -174,8 +174,8 @@ public class JspExtensionFilter implements Filter {
 			numRules = redirectRules.size();
 			for (RedirectRule rule : redirectRules) {
 				content = rule.apply(content);
-				if (log.isTraceEnabled()) {
-					log.trace("{} has been applied", rule);
+				if (LOGGER.isTraceEnabled()) {
+					LOGGER.trace("{} has been applied", rule);
 				}
 			}
 		}
@@ -183,13 +183,13 @@ public class JspExtensionFilter implements Filter {
 		if (content.contains(jspExtension)) {
 			Pattern domainPattern = getDomainPattern(domain, jspExtension);
 			content = domainPattern.matcher(content).replaceAll("$1$2");
-			if (log.isTraceEnabled()) {
-				log.trace("replace with pattern {} has been applied", domainPattern);
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("replace with pattern {} has been applied", domainPattern);
 			}
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug("handling JSP extensions for source '{}' took {}ms ({} redirect-rules processed)", sourcePath,
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("handling JSP extensions for source '{}' took {}ms ({} redirect-rules processed)", sourcePath,
 					System.currentTimeMillis() - startTime, numRules);
 		}
 		return content;

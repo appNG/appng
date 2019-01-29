@@ -24,9 +24,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@code JarInfo} provides some informations about a JAR-file, including some meta-informations retrieved from
@@ -34,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Herlitzius
  */
+@Slf4j
 public final class JarInfo implements Comparable<JarInfo> {
 
-	private static final Logger log = LoggerFactory.getLogger(JarInfo.class);
 	private final String fileName;
 	private final String applicationName;
 
@@ -151,7 +149,7 @@ public final class JarInfo implements Comparable<JarInfo> {
 			try {
 				return new JarInfo(jarFile, applicationName, readJarAttributes(jarFile));
 			} catch (IOException e) {
-				log.error("Error while reading JAR file: " + jarFile.getAbsolutePath(), e);
+				LOGGER.error(String.format("Error while reading JAR file: %s", jarFile.getAbsolutePath()), e);
 			}
 			return null;
 		}

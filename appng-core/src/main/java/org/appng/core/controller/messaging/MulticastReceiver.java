@@ -35,12 +35,11 @@ import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class MulticastReceiver extends MessageHandler implements Receiver, Runnable {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(MulticastReceiver.class);
 
 	static final String APPNG_MESSAGING_NODE_IPS = "appng.messaging.node_ips";
 
@@ -127,7 +126,7 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 						eventHandler.onEvent(event, eventSerializer.getEnvironment(), site);
 					}
 				} catch (Exception e) {
-					LOGGER.error("error while performing event " + event, e);
+					LOGGER.error(String.format("error while performing event %s", event), e);
 				}
 			} else {
 				LOGGER.debug("message is from myself and can be ignored");

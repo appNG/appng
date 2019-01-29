@@ -31,8 +31,8 @@ import org.appng.xml.platform.FieldPermissionType;
 import org.appng.xml.platform.FieldPermissions;
 import org.appng.xml.platform.Permission;
 import org.appng.xml.platform.PermissionMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default {@link PermissionProcessor} implementation.
@@ -40,11 +40,10 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class DefaultPermissionProcessor implements PermissionProcessor {
 
 	static final String PREFIX_ANONYMOUS = "anonymous";
-
-	private static Logger log = LoggerFactory.getLogger(DefaultPermissionProcessor.class);
 
 	private Site site;
 	private Application application;
@@ -66,7 +65,7 @@ public class DefaultPermissionProcessor implements PermissionProcessor {
 		this.site = site;
 		this.application = application;
 		this.subject = subject;
-		log.debug("created PermissionProcessor for " + getPrefix());
+		LOGGER.debug("created PermissionProcessor for {}", getPrefix());
 	}
 
 	private String getPrefix() {
@@ -83,15 +82,15 @@ public class DefaultPermissionProcessor implements PermissionProcessor {
 		boolean hasAccess = true;
 		Collection<Permission> permissionList = permissionOwner.getPermissions();
 		if (permissionList != null) {
-			log.trace("checking permissions for " + permissionOwner.getName());
+			LOGGER.trace("checking permissions for {}", permissionOwner.getName());
 			hasAccess = hasPermissions(permissionList);
 		} else {
-			log.trace("no permissions given for " + permissionOwner.getName());
+			LOGGER.trace("no permissions given for {}", permissionOwner.getName());
 		}
 		if (hasAccess) {
-			log.debug("permission granted for " + permissionOwner.getName());
+			LOGGER.debug("permission granted for {}", permissionOwner.getName());
 		} else {
-			log.debug("permission denied for " + permissionOwner.getName());
+			LOGGER.debug("permission denied for {}", permissionOwner.getName());
 		}
 		return hasAccess;
 	}
@@ -126,39 +125,38 @@ public class DefaultPermissionProcessor implements PermissionProcessor {
 
 	private boolean hasPermission(Permission permission) {
 		if (null == subject) {
-			log.debug("no subject given, so permission \"" + permission.getRef() + "\" is not present");
+			LOGGER.debug("no subject given, so permission '{}' is not present", permission.getRef());
 			return false;
 		}
 		List<Group> groups = subject.getGroups();
-		log.debug("checking permission '" + permission.getRef() + "' for subject '" + subject.getName() + "'");
+		LOGGER.debug("checking permission '{}' for subject '{}'", permission.getRef(), subject.getName());
 		if (groups == null || groups.size() == 0) {
-			log.info("subject '" + subject.getName() + "' does not belong to any group, thus has no permissions");
+			LOGGER.info("subject '{}' does not belong to any group, thus has no permissions", subject.getName());
 		}
 		for (Group group : groups) {
-			log.debug(subject.getName() + " belongs to group " + group.getName());
+			LOGGER.debug("{} belongs to group {}", subject.getName(), group.getName());
 			if (0 == group.getRoles().size()) {
-				log.debug("group '" + group.getName() + "' does not contain any applicationroles!");
+				LOGGER.debug("group '{}' does not contain any applicationroles!", group.getName());
 			}
 			for (Role role : group.getRoles()) {
 				Application applicationFromRole = role.getApplication();
 				if (null == applicationFromRole) {
-					log.warn("invalid Role#" + role.getId() + ", no Application set for role!");
+					LOGGER.warn("invalid Role#{}, no Application set for role!", role.getId());
 					continue;
 				}
-				log.debug("'" + group.getName() + "' contains role '" + role.getName() + "' from application '"
-						+ applicationFromRole.getName() + "'");
+				LOGGER.debug("'{}' contains role '{}' from application '{}'", group.getName(), role.getName(),
+						applicationFromRole.getName());
 				if (null != application && application.equals(applicationFromRole)) {
 					Set<org.appng.api.model.Permission> permissionsFromRole = role.getPermissions();
 					if (0 == permissionsFromRole.size()) {
-						log.debug("role '" + role.getName() + "' does not contain any permissions!");
+						LOGGER.debug("role '{}' does not contain any permissions!", role.getName());
 					}
 					for (org.appng.api.model.Permission p : permissionsFromRole) {
 						if (p.getName().equals(permission.getRef())) {
-							log.debug("found required permission '" + p.getName() + "'");
+							LOGGER.debug("found required permission '{}'", p.getName());
 							return true;
 						} else {
-							log.trace("skipping permission '" + p.getName() + "', (required '" + permission.getRef()
-									+ "')");
+							LOGGER.trace("skipping permission '{}', (required '{}')", p.getName(), permission.getRef());
 						}
 					}
 				}

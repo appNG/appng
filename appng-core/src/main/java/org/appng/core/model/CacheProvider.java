@@ -30,8 +30,8 @@ import org.appng.core.service.InitializerService;
 import org.appng.tools.os.Command;
 import org.appng.tools.os.OperatingSystem;
 import org.appng.tools.os.StringConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides caching directories to the appNG platform and to appNG applications. Both types of caches provide a
@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class CacheProvider {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CacheProvider.class);
 	private static final String WEB_INF = "WEB-INF";
 
 	private final File platformRoot;
@@ -139,9 +139,9 @@ public class CacheProvider {
 	private void clear(File folder) {
 		try {
 			FileUtils.deleteDirectory(folder);
-			LOGGER.info("cleaning " + folder.getAbsolutePath());
+			LOGGER.info("cleaning {}", folder.getAbsolutePath());
 		} catch (IOException e) {
-			LOGGER.error("error while clearing cache for site " + folder.getName(), e);
+			LOGGER.error(String.format("error while clearing cache for site %s", folder.getName()), e);
 		}
 	}
 

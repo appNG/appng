@@ -49,13 +49,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.ValidationMessages;
 import org.appng.api.model.Site;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -67,12 +67,11 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
  * @see SiteApplication#getDatabaseConnection()
  * 
  */
+@Slf4j
 @Entity
 @Table(name = "database_connection")
 @EntityListeners(PlatformEventListener.class)
 public class DatabaseConnection implements Auditable<Integer> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnection.class);
 
 	private static final String DATABASE_NAME = "databaseName=";
 	public static final String DB_PLACEHOLDER = "<name>";

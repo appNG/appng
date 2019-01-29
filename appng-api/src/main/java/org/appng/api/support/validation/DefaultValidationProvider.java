@@ -64,13 +64,13 @@ import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Rule;
 import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default {@link ValidationProvider} implementation.
@@ -78,9 +78,8 @@ import org.springframework.util.ReflectionUtils;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class DefaultValidationProvider implements ValidationProvider {
-
-	private static Logger log = LoggerFactory.getLogger(DefaultValidationProvider.class);
 
 	private static final String INVALID_DIGIT = "invalid.digit";
 
@@ -166,7 +165,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private void fillValidation(Class<?> validationClass, FieldDef fieldDef, Class<?>... groups) {
 		if (!Boolean.TRUE.toString().equalsIgnoreCase(fieldDef.getReadonly())) {
 			String propertyName = fieldDef.getBinding();
-			log.debug("Adding validation data for field {} for class {}", propertyName, validationClass);
+			LOGGER.debug("Adding validation data for field {} for class {}", propertyName, validationClass);
 			Set<ConstraintDescriptor<?>> fieldConstraints = getConstraintsForProperty(validationClass, propertyName);
 			if (fieldConstraints != null) {
 				for (ConstraintDescriptor<?> constraintDescriptor : fieldConstraints) {
@@ -208,11 +207,11 @@ public class DefaultValidationProvider implements ValidationProvider {
 								"get" + StringUtils.capitalize(segment));
 						Valid methodAnnotarion = null == getter ? null : getter.getAnnotation(Valid.class);
 						if (null == fieldAnnotation && null == methodAnnotarion) {
-							log.debug("Annotation @{} not found on property {}.{} of {}, returning",
+							LOGGER.debug("Annotation @{} not found on property {}.{} of {}, returning",
 									Valid.class.getName(), ancestor.getName(), field.getName(), validationClass);
 							return null;
 						}
-						log.debug("Annotation @{} found on property {}.{} of {}", Valid.class.getName(),
+						LOGGER.debug("Annotation @{} found on property {}.{} of {}", Valid.class.getName(),
 								ancestor.getName(), field.getName(), validationClass);
 					}
 					propertyType = field.getType();
@@ -234,7 +233,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 			PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(leafName);
 			if (null != propertyDescriptor) {
 				constraints = propertyDescriptor.getConstraintDescriptors();
-				log.debug("Found constraint(s) for path {} on type {}: {}", propertyPath, validationClass, constraints);
+				LOGGER.debug("Found constraint(s) for path {} on type {}: {}", propertyPath, validationClass,
+						constraints);
 			}
 		}
 
@@ -377,7 +377,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 			}
 			return rule;
 		} catch (Exception e) {
-			log.error("error processing annotation " + annotation, e);
+			LOGGER.error(String.format("error processing annotation %s", annotation), e);
 		}
 		return null;
 	}
@@ -430,7 +430,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 			});
 			addMessage(field, validationRule, messageTemplate, messageText);
 		} catch (Exception e) {
-			log.warn("error while getting message from " + constraintDescriptor, e);
+			LOGGER.warn(String.format("error while getting message from %s", constraintDescriptor), e);
 		}
 	}
 
@@ -494,10 +494,10 @@ public class DefaultValidationProvider implements ValidationProvider {
 			String absolutePropertyPath = null == propertyRoot ? constraintPath : propertyRoot + "." + constraintPath;
 			if (constraintPath.equals(relativePropertyPath) || expectedBinding.equals(relativePropertyPath)) {
 				Message errorMessage = addFieldMessage(fieldDef, absolutePropertyPath, cv);
-				log.debug("Added message '{}' to field {}", errorMessage.getContent(), absolutePropertyPath);
+				LOGGER.debug("Added message '{}' to field {}", errorMessage.getContent(), absolutePropertyPath);
 				count++;
 			}
-			log.debug("Added {} messages for field {}", count, absolutePropertyPath);
+			LOGGER.debug("Added {} messages for field {}", count, absolutePropertyPath);
 		}
 	}
 
