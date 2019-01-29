@@ -28,9 +28,9 @@ import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.core.service.CoreService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to retrieve the calling and the executing {@link Site} and the right {@link ApplicationProvider} that
@@ -41,9 +41,10 @@ import org.springframework.context.ApplicationContext;
  * 
  * @see SiteApplication#getGrantedSites()
  */
+
+@Slf4j
 public class MultiSiteSupport {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MultiSiteSupport.class);
 	private SiteImpl callingSite;
 	private SiteImpl executingSite;
 	private ApplicationProvider applicationProvider;

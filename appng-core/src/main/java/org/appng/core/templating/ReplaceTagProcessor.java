@@ -17,8 +17,6 @@ package org.appng.core.templating;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.engine.AttributeName;
 import org.thymeleaf.model.IProcessableElementTag;
@@ -26,6 +24,8 @@ import org.thymeleaf.processor.element.IElementTagStructureHandler;
 import org.thymeleaf.standard.processor.AbstractStandardFragmentInsertionTagProcessor;
 import org.thymeleaf.standard.processor.StandardReplaceTagProcessor;
 import org.thymeleaf.templatemode.TemplateMode;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A custom implementation of the {@link StandardReplaceTagProcessor}. Before
@@ -37,12 +37,12 @@ import org.thymeleaf.templatemode.TemplateMode;
  * @author Claus Stümke
  *
  */
+@Slf4j
 public class ReplaceTagProcessor extends AbstractStandardFragmentInsertionTagProcessor
 		implements ThymeleafStandardReplaceTagProcessorCaller {
 
 	public static final int PRECEDENCE = 100;
 	public static final String ATTR_NAME = "replace";
-	private static Logger log = LoggerFactory.getLogger(ReplaceTagProcessor.class);
 
 	Collection<ThymeleafReplaceInterceptor> interceptors;
 
@@ -55,7 +55,7 @@ public class ReplaceTagProcessor extends AbstractStandardFragmentInsertionTagPro
 	protected void doProcess(final ITemplateContext context, final IProcessableElementTag tag,
 			final AttributeName attributeName, final String attributeValue,
 			final IElementTagStructureHandler structureHandler) {
-		log.debug("called replace tag processor with tag {} attributeName {} and attributeValue {}", tag, attributeName,
+		LOGGER.debug("called replace tag processor with tag {} attributeName {} and attributeValue {}", tag, attributeName,
 				attributeValue);
 		if (null != interceptors) {
 			// an interceptor can decide if the original fragment shall be called, with

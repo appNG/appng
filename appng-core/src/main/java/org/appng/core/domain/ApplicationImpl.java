@@ -54,11 +54,11 @@ import org.appng.api.model.Role;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.model.AccessibleApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -67,12 +67,12 @@ import org.springframework.context.MessageSource;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 @Entity
 @Table(name = "application")
 @EntityListeners(PlatformEventListener.class)
 public class ApplicationImpl implements AccessibleApplication, Auditable<Integer> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationImpl.class);
 	private Integer id;
 	private String name;
 	private String description;
@@ -342,7 +342,7 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 	}
 
 	public void closeContext() {
-		LOGGER.info("closing context for application " + getName());
+		LOGGER.info("closing context for application {}", getName());
 		try {
 			applicationResources.close();
 		} catch (IOException e) {

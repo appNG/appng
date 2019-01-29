@@ -34,8 +34,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.appng.forms.FormUpload;
 import org.appng.forms.Request;
 import org.appng.forms.XSSUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The default {@link Request}-implementation.
@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class RequestBean implements Request {
 
-	private static final Logger log = LoggerFactory.getLogger(RequestBean.class);
 	private static final String POST = "POST";
 	private static final String GET = "GET";
 	private static final String UTF_8 = "UTF-8";
@@ -95,23 +95,23 @@ public class RequestBean implements Request {
 		if (null == tempDir || !tempDir.exists()) {
 			tempDir = new File(System.getProperty("java.io.tmpdir"));
 		}
-		log.debug("tempdir is " + tempDir.getAbsolutePath());
+		LOGGER.debug("tempdir is {}", tempDir.getAbsolutePath());
 
 		try {
-			log.debug("content type: " + httpServletRequest.getContentType());
-			log.debug("requestURI: " + httpServletRequest.getRequestURI());
-			log.debug("contextPath: " + httpServletRequest.getContextPath());
-			log.debug("servletPath: " + httpServletRequest.getServletPath());
-			log.debug("pathInfo: " + httpServletRequest.getPathInfo());
+			LOGGER.debug("content type: {}", httpServletRequest.getContentType());
+			LOGGER.debug("requestURI: {}", httpServletRequest.getRequestURI());
+			LOGGER.debug("contextPath: {}", httpServletRequest.getContextPath());
+			LOGGER.debug("servletPath: {}", httpServletRequest.getServletPath());
+			LOGGER.debug("pathInfo: {}", httpServletRequest.getPathInfo());
 
 			this.method = httpServletRequest.getMethod().toUpperCase();
-			log.debug("request method: " + method);
+			LOGGER.debug("request method: {}", method);
 
 			isMultiPart = ServletFileUpload.isMultipartContent(httpServletRequest);
 			boolean stripXss = stripXss();
 			if (isMultiPart) {
 				if (null != httpServletRequest.getAttribute(REQUEST_PARSED)) {
-					log.info("the multipart-request {} has been parsed before, parsing is skipped", httpServletRequest);
+					LOGGER.info("the multipart-request {} has been parsed before, parsing is skipped", httpServletRequest);
 					return;
 				}
 				// POST, multipart/form-data
@@ -135,10 +135,10 @@ public class RequestBean implements Request {
 							list = new ArrayList<String>();
 							parameters.put(name, list);
 						} else {
-							log.trace(method + " parameter: " + name + " is multi-valued");
+							LOGGER.trace("{} parameter: {} is multi-valued", method, name);
 						}
 						list.add(value);
-						log.trace(method + " parameter: " + name + " = " + value);
+						LOGGER.trace("{} parameter: {} = {}", method, name, value);
 					} else {
 						if (!formUploads.containsKey(name)) {
 							formUploads.put(name, new ArrayList<FormUpload>());
@@ -158,9 +158,9 @@ public class RequestBean implements Request {
 							FormUpload formUpload = new FormUploadBean(outFile, itemName, item.getContentType(),
 									acceptedTypes, maxSize);
 							formUploads.get(name).add(formUpload);
-							log.trace(method + " upload parameter: " + formUpload);
+							LOGGER.trace("{} upload parameter: {}", method, formUpload);
 						} else {
-							log.debug("nothing uploaded for field " + name);
+							LOGGER.debug("nothing uploaded for field {}", name);
 						}
 					}
 				}
@@ -177,10 +177,10 @@ public class RequestBean implements Request {
 					}
 					List<String> values = new ArrayList<String>(Arrays.asList(parameterValues));
 					if (values.size() > 1) {
-						log.trace(method + " parameter: " + name + " is multi-valued");
+						LOGGER.trace("{} parameter: {} is multi-valued", method, name);
 					}
 					parameters.put(name, values);
-					log.trace(method + " parameter: " + name + " = " + values);
+					LOGGER.trace("{} parameter: {} = {}", method, name, values);
 				}
 			}
 			if (xssEnabled()) {
@@ -189,7 +189,7 @@ public class RequestBean implements Request {
 			this.isValid = true;
 		} catch (Exception e) {
 			this.isValid = false;
-			log.error("Error while processing form data: ", e);
+			LOGGER.error("Error while processing form data: ", e);
 		}
 
 	}
@@ -268,7 +268,7 @@ public class RequestBean implements Request {
 			List<String> list = new ArrayList<String>();
 			list.add(value);
 			parameters.put(key, Collections.unmodifiableList(list));
-			log.debug("adding parameter " + key + ":" + value);
+			LOGGER.debug("adding parameter {}:{}", key, value);
 		}
 	}
 
@@ -327,7 +327,7 @@ public class RequestBean implements Request {
 				value = list.get(0);
 			}
 			if (size > 1) {
-				log.trace("parameter '" + name + "' is multi-valued, discarding value(s) " + list.subList(1, size));
+				LOGGER.trace("parameter '{}' is multi-valued, discarding value(s) {}", name, list.subList(1, size));
 			}
 		}
 		return value;

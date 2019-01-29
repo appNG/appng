@@ -43,12 +43,12 @@ public class AppNGizer implements ServletContextListener {
 		try {
 			URL resource = getClass().getClassLoader().getResource("appNGizer.txt");
 			List<String> logoLines = Files.readAllLines(new File(resource.toURI()).toPath(), StandardCharsets.UTF_8);
-			logoLines.forEach(l -> log.info(l));
+			logoLines.forEach(l -> LOGGER.info(l));
 			Manifest manifest = new Manifest(servletContext.getResourceAsStream(MANIFEST_MF));
 			String version = manifest.getMainAttributes().getValue("Implementation-Version");
-			log.info("Starting appNGizer {}", version);
+			LOGGER.info("Starting appNGizer {}", version);
 			String appngHome = servletContext.getServletRegistration("appNGizer").getInitParameter(APPNG_HOME);
-			log.info("{} = {}", APPNG_HOME, appngHome);
+			LOGGER.info("{} = {}", APPNG_HOME, appngHome);
 			servletContext.setAttribute(APPNG_VERSION, version);
 			servletContext.setAttribute(APPNG_HOME, appngHome);
 		} catch (Exception e) {

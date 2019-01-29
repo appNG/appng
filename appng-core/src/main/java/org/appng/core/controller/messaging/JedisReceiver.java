@@ -28,9 +28,8 @@ import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.Jedis;
 
@@ -49,9 +48,9 @@ import redis.clients.jedis.Jedis;
  * @author Claus Stuemke, aiticon GmbH, 2015
  *
  */
+@Slf4j
 public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(JedisReceiver.class);
 	private EventRegistry eventRegistry = new EventRegistry();
 	private Jedis jedis;
 
@@ -81,7 +80,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 						LOGGER.debug("Received event {}", event);
 						onEvent(eventSerializer.getSite(event.getSiteName()), event);
 					} catch (Exception e) {
-						LOGGER.error("error while performing event " + event, e);
+						LOGGER.error(String.format("error while performing event %s", event), e);
 					}
 				} else {
 					LOGGER.debug("could not read event {}", message);

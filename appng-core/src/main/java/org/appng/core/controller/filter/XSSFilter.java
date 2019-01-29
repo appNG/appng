@@ -37,8 +37,8 @@ import org.appng.api.model.Site;
 import org.appng.api.support.XSSHelper;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.forms.XSSUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A servlet filter to prevent XSS attacks.<br/>
@@ -51,9 +51,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class XSSFilter implements Filter {
 
-	private static final Logger log = LoggerFactory.getLogger(XSSFilter.class);
 	private XSSUtil xssUtil;
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -77,8 +77,8 @@ public class XSSFilter implements Filter {
 					}
 
 				};
-				if (log.isDebugEnabled()) {
-					log.debug("XSS protection enabled for {} {}", servletRequest.getMethod(),
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("XSS protection enabled for {} {}", servletRequest.getMethod(),
 							servletRequest.getServletPath());
 				}
 			}

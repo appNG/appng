@@ -57,10 +57,10 @@ import org.appng.core.controller.handler.StaticContentHandler;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.xml.MarshallService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The controller {@link Servlet} of appNG, delegating {@link HttpServletRequest}s to an appropriate
@@ -68,10 +68,9 @@ import org.springframework.http.HttpStatus;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 @WebServlet(name = "controller", urlPatterns = { "/", "*.jsp" }, loadOnStartup = 1)
 public class Controller extends DefaultServlet implements ContainerServlet {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
 	private static final String ALLOW_PLAIN_REQUESTS = "allowPlainRequests";
 	private static final String ERRORPAGE = "/errorpage";
@@ -247,8 +246,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 							String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
 							Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
 						} else {
-							LOGGER.warn(SiteProperties.DOCUMENT_DIR + " is empty for site " + site.getName()
-									+ ", can not process request!");
+							LOGGER.warn("{} is empty for site {}, can not process request!",
+									SiteProperties.DOCUMENT_DIR, site.getName());
 						}
 					} else if (pathInfo.isStaticContent() || pathInfo.getServletPath().startsWith(templatePrefix)
 							|| pathInfo.isDocument()) {
@@ -269,10 +268,10 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 						if (allowPlainRequests && !pathInfo.isRepository()) {
 							super.doGet(servletRequest, servletResponse);
 							int status = servletResponse.getStatus();
-							LOGGER.debug("returned " + status + " for request " + servletPath);
+							LOGGER.debug("returned {} for request {}", status, servletPath);
 						} else {
 							servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-							LOGGER.debug("was not an internal request, rejecting " + servletPath);
+							LOGGER.debug("was not an internal request, rejecting {}", servletPath);
 						}
 					}
 					if (null != requestHandler) {
@@ -300,12 +299,12 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 
 		} else if (allowPlainRequests) {
-			LOGGER.debug("no site found for request '" + servletPath + "'");
+			LOGGER.debug("no site found for request '{}'", servletPath);
 			super.doGet(servletRequest, servletResponse);
 			int status = servletResponse.getStatus();
-			LOGGER.debug("returned " + status + " for request " + servletPath);
+			LOGGER.debug("returned {} for request '{}'", status, servletPath);
 		} else {
-			LOGGER.debug("access to '" + servletPath + "' not allowed");
+			LOGGER.debug("access to '{}' not allowed", servletPath);
 		}
 
 	}
@@ -370,7 +369,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		try {
 			return manager.findSession(sessionId);
 		} catch (IOException e) {
-			LOGGER.warn("errow while retrieving session " + sessionId, e);
+			LOGGER.warn(String.format("error while retrieving session %s", sessionId), e);
 		}
 		return null;
 	}

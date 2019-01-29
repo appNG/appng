@@ -63,8 +63,8 @@ import org.appng.core.Redirect;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.model.AccessibleApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -73,12 +73,12 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 @Entity
 @Table(name = "site")
 @EntityListeners(PlatformEventListener.class)
 public class SiteImpl implements Site, Auditable<Integer> {
 
-	private static final Logger log = LoggerFactory.getLogger(SiteImpl.class);
 	private static final String SLASH = "/";
 	private static final String TAB_PARAM_NAME = "tab";
 	private static final String AGENT_MSIE = "MSIE";
@@ -260,7 +260,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	public boolean sendEvent(Event event) {
 		if (null == sender) {
-			log.debug("messaging is disabled, not sending event {}", event);
+			LOGGER.debug("messaging is disabled, not sending event {}", event);
 			return false;
 		}
 		return sender.send(event);
@@ -326,7 +326,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	}
 
 	public void closeSiteContext() {
-		log.info("closing context for site {}", this);
+		LOGGER.info("closing context for site {}", this);
 		for (SiteApplication p : getSiteApplications()) {
 			((AccessibleApplication) p.getApplication()).closeContext();
 		}
@@ -337,7 +337,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 		try {
 			siteClassLoader.close();
 		} catch (IOException e) {
-			log.error("error while closing classloader", e);
+			LOGGER.error("error while closing classloader", e);
 		}
 		siteClassLoader = null;
 	}
@@ -390,7 +390,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	public void setState(SiteState state) {
 		SiteState oldState = getState();
 		this.state.set(state);
-		log.debug("set state for site {} (was: {})", toString(), oldState);
+		LOGGER.debug("set state for site {} (was: {})", toString(), oldState);
 		sendEvent(new SiteStateEvent(getName(), state));
 	}
 

@@ -31,8 +31,8 @@ import org.appng.mail.Mail.RecipientType;
 import org.appng.mail.MailException;
 import org.appng.mail.MailTransport;
 import org.appng.mail.Receiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link FormProcessProvider} that send's and e-mail to some receivers. All the properties of the e-mail are being
@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class EmailProvider implements FormProcessProvider {
 
 	/**
@@ -147,7 +148,6 @@ public class EmailProvider implements FormProcessProvider {
 
 	private static final String TRUE = "true";
 	private static final String COMMA = ",";
-	private static final Logger log = LoggerFactory.getLogger(EmailProvider.class);
 	private MailTransport mailTransport;
 
 	public EmailProvider(MailTransport mailTransport) {
@@ -171,7 +171,7 @@ public class EmailProvider implements FormProcessProvider {
 
 		boolean sendDisabled = TRUE.equalsIgnoreCase((String) properties.get(SEND_DISABLED));
 		mailTransport.setDisableSend(sendDisabled);
-		log.debug("sending emails is {}", sendDisabled ? "disabled" : "enabled");
+		LOGGER.debug("sending emails is {}", sendDisabled ? "disabled" : "enabled");
 
 		boolean addAttachments = TRUE.equalsIgnoreCase((String) properties.get(ATTACHMENTS));
 
@@ -211,7 +211,7 @@ public class EmailProvider implements FormProcessProvider {
 
 			String mailAsString = mailTransport.getMailAsString(mail);
 			if (debugReceivers.isEmpty()) {
-				log.debug("sending mail: " + mailAsString);
+				LOGGER.debug("sending mail: {}", mailAsString);
 				mailTransport.send(mail);
 			} else {
 				Mail debugEmail = mailTransport.createMail();
@@ -223,7 +223,7 @@ public class EmailProvider implements FormProcessProvider {
 				debugEmail.setTextContent(mailAsString);
 				addAttachements(debugEmail, form);
 
-				log.debug("sending debug-mail: " + mailTransport.getMailAsString(debugEmail));
+				LOGGER.debug("sending debug-mail: {}", mailTransport.getMailAsString(debugEmail));
 				mailTransport.send(debugEmail);
 			}
 			if (StringUtils.isNotBlank(content)) {
@@ -234,10 +234,10 @@ public class EmailProvider implements FormProcessProvider {
 				try {
 					writer.write(errorMessage);
 				} catch (IOException ioe) {
-					log.error("unable to append errorMessage", ioe);
+					LOGGER.error("unable to append errorMessage", ioe);
 				}
 			}
-			log.error("Error occured while trying to send E-Mail.", e);
+			LOGGER.error("Error occured while trying to send E-Mail.", e);
 		}
 	}
 

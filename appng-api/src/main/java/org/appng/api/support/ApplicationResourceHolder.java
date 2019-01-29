@@ -35,7 +35,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.model.Application;
 import org.appng.api.model.Resource;
@@ -44,8 +43,8 @@ import org.appng.api.model.Resources;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.application.ApplicationInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default {@link Resources}-implementation
@@ -53,9 +52,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class ApplicationResourceHolder implements Resources {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationResourceHolder.class);
 
 	private static final String APPLICATION_XML_MISSING = ResourceType.APPLICATION_XML_NAME + " missing";
 
@@ -167,7 +165,7 @@ public class ApplicationResourceHolder implements Resources {
 						resource.setCachedFile(cachedFile);
 					}
 				} catch (IOException e) {
-					LOGGER.error("Error while dumping " + resource.getName(), e);
+					LOGGER.error(String.format("Error while dumping %s", resource.getName()), e);
 				}
 			}
 		}

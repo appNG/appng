@@ -38,7 +38,7 @@ public class PlatformController extends ControllerBase {
 
 	@Override
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 	@RequestMapping(value = "/platform", method = RequestMethod.GET)

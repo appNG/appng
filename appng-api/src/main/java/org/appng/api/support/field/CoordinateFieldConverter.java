@@ -20,7 +20,8 @@ import org.appng.api.FieldWrapper;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -29,12 +30,11 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 class CoordinateFieldConverter extends ConverterBase {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(CoordinateFieldConverter.class);
-
 	protected Logger getLog() {
-		return LOG;
+		return LOGGER;
 	}
 
 	@Override

@@ -129,12 +129,12 @@ public class Updater {
 		if (null != context.getInitParameter(INIT_PARAM_USE_FQDN)) {
 			this.useFQDN = Boolean.valueOf(context.getInitParameter(INIT_PARAM_USE_FQDN));
 		}
-		log.info("{}: {}", INIT_PARAM_BUILD_REPOSITORY, buildRepository);
-		log.info("{}: {}", INIT_PARAM_REPLACE_PLATFORMCONTEXT, replacePlatformContext);
-		log.info("{}: {}", INIT_PARAM_REPLACE_WEB_XML, replaceWebXml);
-		log.info("{}: {}", INIT_PARAM_REPLACE_BIN, replaceBin);
-		log.info("{}: {}", INIT_PARAM_BLOCK_REMOTE_IPS, blockRemoteIps);
-		log.info("{}: {}", INIT_PARAM_USE_FQDN, useFQDN);
+		LOGGER.info("{}: {}", INIT_PARAM_BUILD_REPOSITORY, buildRepository);
+		LOGGER.info("{}: {}", INIT_PARAM_REPLACE_PLATFORMCONTEXT, replacePlatformContext);
+		LOGGER.info("{}: {}", INIT_PARAM_REPLACE_WEB_XML, replaceWebXml);
+		LOGGER.info("{}: {}", INIT_PARAM_REPLACE_BIN, replaceBin);
+		LOGGER.info("{}: {}", INIT_PARAM_BLOCK_REMOTE_IPS, blockRemoteIps);
+		LOGGER.info("{}: {}", INIT_PARAM_USE_FQDN, useFQDN);
 		if (blockRemoteIps) {
 			try {
 				Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -147,9 +147,9 @@ public class Updater {
 						localAdresses.add(hostAddress.substring(0, idx > 0 ? idx : hostAddress.length()));
 					}
 				}
-				log.info("Allowed local addresses: {}", StringUtils.collectionToCommaDelimitedString(localAdresses));
+				LOGGER.info("Allowed local addresses: {}", StringUtils.collectionToCommaDelimitedString(localAdresses));
 			} catch (SocketException e) {
-				log.error("error retrieving networkinterfaces", e);
+				LOGGER.error("error retrieving networkinterfaces", e);
 			}
 		}
 		try {
@@ -157,11 +157,11 @@ public class Updater {
 			String canonicalHostName = localHost.getCanonicalHostName().toLowerCase();
 			if (useFQDN) {
 				serverName = canonicalHostName;
-				log.info("serverName: {}", serverName);
+				LOGGER.info("serverName: {}", serverName);
 			}
-			log.info("FQDN: {}", canonicalHostName);
+			LOGGER.info("FQDN: {}", canonicalHostName);
 		} catch (UnknownHostException e) {
-			log.error("Error retrieving local host name", e);
+			LOGGER.error("Error retrieving local host name", e);
 		}
 	}
 
@@ -232,7 +232,7 @@ public class Updater {
 			updateAppNG(appNGArchive, UpNGizr.appNGHome);
 			status.set("Starting appNG");
 			completed.set(81.0d);
-			log.info(status.get());
+			LOGGER.info(status.get());
 
 			ExecutorService contextStarter = Executors.newFixedThreadPool(1, new ThreadFactory() {
 				public Thread newThread(Runnable r) {
@@ -248,20 +248,20 @@ public class Updater {
 				return null;
 			});
 			Long duration = waitFor(startAppNG, 95.0d, 3);
-			log.info("Started appNG in {} seconds.", duration / 1000);
+			LOGGER.info("Started appNG in {} seconds.", duration / 1000);
 
 			if (null != appNGizerContext) {
 
 				Future<Void> startAppNGizer = contextStarter.submit(() -> {
 					updateAppNGizer(getArtifact(version, APPNGIZER_APPLICATION), UpNGizr.appNGizerHome);
 					status.set("Starting appNGizer");
-					log.info(status.get());
+					LOGGER.info(status.get());
 					startContext(appNGizerContext);
 					completed.set(98.0d);
 					return null;
 				});
 				duration = waitFor(startAppNGizer, 98.0d, 2);
-				log.info("Started appNGizer in {} seconds.", duration / 1000);
+				LOGGER.info("Started appNGizer in {} seconds.", duration / 1000);
 			}
 			contextStarter.shutdown();
 
@@ -271,7 +271,7 @@ public class Updater {
 			status.set("Update complete." + statusLink);
 			return new ResponseEntity<>("OK", HttpStatus.OK);
 		} catch (Exception e) {
-			log.error("error", e);
+			LOGGER.error("error", e);
 		} finally {
 			isUpdateRunning.set(false);
 		}
@@ -295,16 +295,16 @@ public class Updater {
 	}
 
 	private <T> ResponseEntity<T> notFound(Resource resource) throws IOException {
-		log.warn("{} does not exist!", resource.getURL());
+		LOGGER.warn("{} does not exist!", resource.getURL());
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	private boolean isBlocked(HttpServletRequest request) {
-		log.info("Source: {}", request.getRemoteAddr());
+		LOGGER.info("Source: {}", request.getRemoteAddr());
 		boolean isBlocked = blockRemoteIps && !localAdresses.isEmpty()
 				&& !localAdresses.contains(request.getRemoteAddr());
 		if (isBlocked) {
-			log.info("remote address {} is not in list of allowed addresses ({})", request.getRemoteAddr(),
+			LOGGER.info("remote address {} is not in list of allowed addresses ({})", request.getRemoteAddr(),
 					StringUtils.collectionToDelimitedString(localAdresses, " "));
 		}
 		return isBlocked;
@@ -323,7 +323,7 @@ public class Updater {
 				context.stop();
 				return context;
 			} catch (LifecycleException e) {
-				log.error("error stopping context", e);
+				LOGGER.error("error stopping context", e);
 			}
 		}
 		return null;
@@ -334,7 +334,7 @@ public class Updater {
 			try {
 				context.start();
 			} catch (LifecycleException e) {
-				log.error("error starting context", e);
+				LOGGER.error("error starting context", e);
 			}
 		}
 	}
@@ -345,7 +345,7 @@ public class Updater {
 
 		long contentLength = resource.contentLength();
 		long sizeMB = contentLength / 1024 / 1024;
-		log.info("reading {} MB from {}", sizeMB, resource.getDescription());
+		LOGGER.info("reading {} MB from {}", sizeMB, resource.getDescription());
 
 		long start = System.currentTimeMillis();
 		InputStream is = resource.getInputStream();
@@ -360,7 +360,7 @@ public class Updater {
 			int currentProgress = ((int) (((double) read / (double) contentLength) * 100));
 			if (progress != currentProgress && currentProgress % 5 == 0) {
 				long readMB = read / 1024 / 1024;
-				log.info("retrieved {}/{} MB ({}%)", readMB, sizeMB, currentProgress);
+				LOGGER.info("retrieved {}/{} MB ({}%)", readMB, sizeMB, currentProgress);
 				completed.set(30.0d + currentProgress / 2.5d);
 				status.set(String.format("Downloaded " + readMB + " of " + sizeMB + "MB"));
 			}
@@ -368,7 +368,7 @@ public class Updater {
 		}
 		System.err.println("");
 		long duration = (System.currentTimeMillis() - start) / 1000;
-		log.debug("downloading {} MB took {}s ({}MB/s)", sizeMB, duration, sizeMB / (duration == 0 ? 1 : duration));
+		LOGGER.debug("downloading {} MB took {}s ({}MB/s)", sizeMB, duration, sizeMB / (duration == 0 ? 1 : duration));
 
 		byte[] data = os.toByteArray();
 
@@ -378,7 +378,7 @@ public class Updater {
 		File libFolder = new File(appNGHome, WEB_INF_LIB);
 		if (libFolder.exists()) {
 			FileUtils.cleanDirectory(libFolder);
-			log.info("cleaning {}", libFolder);
+			LOGGER.info("cleaning {}", libFolder);
 		}
 		completed.set(75.0d);
 		status.set("Extracting files");
@@ -410,7 +410,7 @@ public class Updater {
 					}
 					break;
 				default:
-					log.info("Skipping {}", name);
+					LOGGER.info("Skipping {}", name);
 					break;
 				}
 			}
@@ -455,7 +455,7 @@ public class Updater {
 								writeFile(appNGizerHome, zip.getInputStream(entry), name);
 								break;
 							default:
-								log.info("Skipping {}", name);
+								LOGGER.info("Skipping {}", name);
 								break;
 							}
 						}
@@ -475,7 +475,7 @@ public class Updater {
 		FileOutputStream fos = new FileOutputStream(normalizedName);
 		IOUtils.write(data, fos);
 		fos.close();
-		log.info("wrote {}", normalizedName);
+		LOGGER.info("wrote {}", normalizedName);
 	}
 
 	protected Container getAppNGContext() {

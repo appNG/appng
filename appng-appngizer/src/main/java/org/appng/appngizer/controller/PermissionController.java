@@ -127,6 +127,6 @@ public class PermissionController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

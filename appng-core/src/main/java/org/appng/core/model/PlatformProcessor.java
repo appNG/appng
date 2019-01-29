@@ -40,7 +40,8 @@ import org.appng.core.controller.HttpHeaders;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Template;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default {@link RequestProcessor}-implementation, using an XSLT based template.
@@ -48,9 +49,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class PlatformProcessor extends AbstractRequestProcessor {
 
-	private static Logger log = LoggerFactory.getLogger(PlatformProcessor.class);
 	private PlatformTransformer platformTransformer;
 
 	public PlatformProcessor() {
@@ -85,7 +86,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		try {
 			platform = processPlatform(applicationSite);
 			if (isRedirect()) {
-				log.debug("request is beeing redirected");
+				LOGGER.debug("request is beeing redirected");
 				return "redirect";
 			}
 			platform.setVersion(env.getAttributeAsString(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
@@ -115,7 +116,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 	protected void writeTemplateToErrorPage(Properties platformProperties, StringWriter errorPage) {
@@ -131,6 +132,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 				errorPage.append(StringEscapeUtils.escapeHtml4(xslt));
 			} catch (IOException e1) {
 				errorPage.append("error while adding xsl: " + e1.getClass().getName() + "-" + e1.getMessage());
+
 			}
 			errorPage.append("</pre></div>");
 		}

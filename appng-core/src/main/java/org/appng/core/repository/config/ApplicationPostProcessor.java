@@ -22,8 +22,6 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.MessageSourceChain;
 import org.appng.core.domain.DatabaseConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -33,6 +31,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A {@link BeanFactoryPostProcessor} that configures the {@code datasource} bean which is of type
  * {@link javax.sql.DataSource}, but only if the {@link Application} requires a database. <br/>
@@ -41,9 +41,9 @@ import org.springframework.core.Ordered;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Ordered {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationPostProcessor.class);
 	private static final String DATASOURCE_BEAN_NAME = "datasource";
 	private static final String MESSAGES_CORE = "messages-core";
 	private final DatabaseConnection connection;

@@ -31,8 +31,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility-class used to parse {@code <appNG:searchable>}-tags from JSP-files.
@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class ParseTags {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ParseTags.class);
 	private static final char NBSP = (char) 160;
 	private static final char BLANK = (char) 32;
 	private static final String ATTR_FIELD = "field";
@@ -103,7 +103,7 @@ public class ParseTags {
 			while (null != (parent = parent.parent())) {
 				if (skipped.contains(parent)) {
 					skip = true;
-					LOG.trace("skipping " + nodeName + " field = " + element.attr(ATTR_FIELD));
+					LOGGER.trace("skipping {} field = {}", nodeName, element.attr(ATTR_FIELD));
 					break;
 				}
 			}
@@ -133,7 +133,7 @@ public class ParseTags {
 				String tagName = tagPrefix + ":" + SEARCHABLE;
 				if (node.nodeName().equalsIgnoreCase(tagName)) {
 					String field = node.attr(ATTR_FIELD);
-					LOG.trace("adding " + tagName + " field = '" + field + "'");
+					LOGGER.trace("adding {} field = '{}'", tagName, field);
 				}
 			} else {
 				skipped.add(node);
@@ -143,7 +143,7 @@ public class ParseTags {
 	}
 
 	protected Map<String, StringBuilder> parse(File file) throws IOException {
-		LOG.debug("parsing " + file.getAbsolutePath());
+		LOGGER.debug("parsing {}", file.getAbsolutePath());
 		return parse(new FileInputStream(file));
 	}
 

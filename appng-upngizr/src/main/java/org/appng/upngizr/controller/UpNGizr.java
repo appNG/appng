@@ -64,7 +64,7 @@ public class UpNGizr extends DispatcherServlet implements ContainerServlet, Serv
 			this.wrapper = wrapper;
 			Context context = (Context) wrapper.getParent();
 			Host host = (Host) context.getParent();
-			log.info("Host: {}", host);
+			LOGGER.info("Host: {}", host);
 			context.getServletContext().setAttribute(HOST, host);
 		}
 	}

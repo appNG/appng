@@ -38,8 +38,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.appng.core.security.signing.SigningException.ErrorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Validates a certificate chain against a truststore.
@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class CertChainValidator {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CertChainValidator.class);
 	private static final String DEFAULT_PASS = "changeit";
 
 	private List<X509Certificate> trustedCerts;

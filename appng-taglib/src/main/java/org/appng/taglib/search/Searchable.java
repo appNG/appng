@@ -20,8 +20,7 @@ import java.io.IOException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class represents a Searchable Tag.<br/>
@@ -62,10 +61,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @see org.appng.api.search.Document
  */
+@Slf4j
 public class Searchable extends BodyTagSupport {
 
 	private static final long serialVersionUID = 1L;
-	private static Logger log = LoggerFactory.getLogger(Searchable.class);
 
 	private Boolean index;
 	private Boolean visible = Boolean.TRUE;
@@ -82,7 +81,7 @@ public class Searchable extends BodyTagSupport {
 				String content = body.getString();
 				body.getEnclosingWriter().print(content);
 			} catch (IOException ioe) {
-				log.error("error while writing to JspWriter", ioe);
+				LOGGER.error("error while writing to JspWriter", ioe);
 			}
 		}
 		return SKIP_BODY;

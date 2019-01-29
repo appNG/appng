@@ -66,8 +66,8 @@ import org.appng.xml.platform.OutputType;
 import org.appng.xml.platform.Platform;
 import org.appng.xml.platform.Template;
 import org.appng.xml.transformation.StyleSheetProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Responsible for transforming a XML document (retrieved from a {@link Platform}-object) to XHTML.
@@ -75,9 +75,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class PlatformTransformer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PlatformTransformer.class);
 	private static final String INSERTION_NODE = "xsl:variables";
 	private static final String NO = "no";
 	private static final String YES = "yes";
@@ -148,12 +148,12 @@ public class PlatformTransformer {
 				Resources applicationResourceHolder = applicationProvider.getResources();
 				Resource resource = applicationResourceHolder.getResource(ResourceType.XSL, fileName);
 				if (null == resource) {
-					LOGGER.warn("missing resource: no resource named '" + fileName + "' is assigned to application '"
-							+ applicationProvider.getName() + "'");
+					LOGGER.warn("missing resource: no resource named '{}' is assigned to application '{}'", fileName,
+							applicationProvider.getName());
 				} else {
 					if (devMode) {
 						File cachedFile = resource.getCachedFile();
-						LOGGER.debug("devMode is active, reading from cached file " + cachedFile.getAbsolutePath());
+						LOGGER.debug("devMode is active, reading from cached file {}", cachedFile.getAbsolutePath());
 						styleSheetProvider.addStyleSheet(new FileInputStream(cachedFile),
 								applicationProvider.getName() + ":" + fileName);
 					} else {
@@ -174,7 +174,7 @@ public class PlatformTransformer {
 			if (!devMode && STYLESHEETS.containsKey(styleId)) {
 				sourceAwareTemplate = STYLESHEETS.get(styleId);
 				styleSheetProvider.cleanup();
-				LOGGER.debug("reading templates from cache (id:" + styleId + " )");
+				LOGGER.debug("reading templates from cache (id: {})", styleId);
 			} else {
 				if (showXsl) {
 					xslOut = new ByteArrayOutputStream();
@@ -200,7 +200,7 @@ public class PlatformTransformer {
 				if (!devMode) {
 					STYLESHEETS.put(styleId, sourceAwareTemplate);
 				}
-				LOGGER.debug("writing templates to cache (id:" + styleId + " )");
+				LOGGER.debug("writing templates to cache (id: {})", styleId);
 			}
 
 			if (devMode && showXsl) {

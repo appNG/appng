@@ -57,6 +57,6 @@ public class PlatformPropertyController extends PropertyBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

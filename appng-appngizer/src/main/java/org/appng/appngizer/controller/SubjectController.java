@@ -149,6 +149,6 @@ public class SubjectController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }
