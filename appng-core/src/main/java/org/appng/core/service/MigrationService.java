@@ -26,10 +26,9 @@ import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteApplication;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.flywaydb.core.internal.util.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -193,10 +192,10 @@ public class MigrationService {
 		StringBuilder dbInfo = new StringBuilder();
 		if (!testConnection || connection.testConnection(dbInfo, true)) {
 			log.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
-			FluentConfiguration configuration = Flyway.configure();
-			configuration.dataSource(getDataSource(connection));
-			configuration.locations(LOCATION_PREFIX + connection.getType().name().toLowerCase());
-			Flyway flyway = new Flyway(configuration);
+			Flyway flyway = new Flyway();
+			flyway.setDataSource(getDataSource(connection));
+			String location = LOCATION_PREFIX + connection.getType().name().toLowerCase();
+			flyway.setLocations(location);
 			MigrationInfoService info = flyway.info();
 			connection.setMigrationInfoService(info);
 			return info;
@@ -221,10 +220,9 @@ public class MigrationService {
 		if (null != connection && connection.testConnection(null)) {
 			String typeFolder = connection.getType().name().toLowerCase();
 			File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
-			FluentConfiguration configuration = new FluentConfiguration();
-			configuration.locations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
-			configuration.dataSource(getDataSource(connection));
-			Flyway flyway = new Flyway(configuration);
+			Flyway flyway = new Flyway();
+			flyway.setDataSource(getDataSource(connection));
+			flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
 			MigrationInfoService info = flyway.info();
 			connection.setMigrationInfoService(info);
 			return info;
@@ -237,10 +235,10 @@ public class MigrationService {
 		String jdbcUrl = rootConnection.getJdbcUrl();
 		if (rootConnection.testConnection(dbInfo, true)) {
 			log.info("connected to {} ({})", jdbcUrl, dbInfo.toString());
-			FluentConfiguration configuration = Flyway.configure();
-			configuration.dataSource(getDataSource(rootConnection));
-			configuration.locations(LOCATION_PREFIX + rootConnection.getType().name().toLowerCase());
-			Flyway flyway = new Flyway(configuration);
+			Flyway flyway = new Flyway();
+			flyway.setDataSource(getDataSource(rootConnection));
+			String location = LOCATION_PREFIX + rootConnection.getType().name().toLowerCase();
+			flyway.setLocations(location);
 			if (doRepair) {
 				flyway.repair();
 			}
