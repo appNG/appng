@@ -27,8 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.appng.search.Search;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@code IndexConfig} is used to provide different index configurations for different folders.
@@ -36,11 +36,10 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class IndexConfig {
 
 	private static final String SLASH = "/";
-
-	private static final Logger log = LoggerFactory.getLogger(IndexConfig.class);
 
 	private List<ConfigEntry> entries = new ArrayList<IndexConfig.ConfigEntry>();
 
@@ -61,10 +60,13 @@ public class IndexConfig {
 	}
 
 	/**
-	 * Parses a given String to an {@link IndexConfig}, using the pipe '|' for separating folders.<br/> format:<br/>
-	 * {@code <folder>;<language>;<analyzer-class>|}<br/>Example:<br/>
+	 * Parses a given String to an {@link IndexConfig}, using the pipe '|' for separating folders.<br/>
+	 * format:<br/>
+	 * {@code <folder>;<language>;<analyzer-class>|}<br/>
+	 * Example:<br/>
 	 * {@code /de;de-DE;GermanAnalyzer|/en;en-US;org.apache.lucene.analysis.en.EnglishAnalyzer|/assets;de-DE;GermanAnalyzer}
-	 * </p> If the analyzer class isn't fully qualified, the following name-schema is applied:<br/>
+	 * </p>
+	 * If the analyzer class isn't fully qualified, the following name-schema is applied:<br/>
 	 * {@code org.apache.lucene.analysis.<folder>.<analyzer-class>}
 	 * 
 	 * @param configString
@@ -80,7 +82,8 @@ public class IndexConfig {
 
 	/**
 	 * Parses a list of strings to an {@link IndexConfig}. Each string has the following format:<br/>
-	 * {@code <folder>;<language>;<analyzer-class>}<br/> Example:<br/>
+	 * {@code <folder>;<language>;<analyzer-class>}<br/>
+	 * Example:<br/>
 	 * {@code /en;en-US;org.apache.lucene.analysis.en.EnglishAnalyzer}
 	 * 
 	 * @param configEntries
@@ -133,23 +136,23 @@ public class IndexConfig {
 			} catch (ClassNotFoundException e1) {
 				String className = "org.apache.lucene.analysis." + getFolder().replaceAll("/", "") + "."
 						+ analyzerClass;
-				log.info("could not find analyzer class '" + analyzerClass + "', trying '" + className + "'");
+				LOGGER.info("could not find analyzer class '{}', trying '{}'", analyzerClass, className);
 				try {
 					clazz = (Class<? extends Analyzer>) Class.forName(className);
 				} catch (ClassNotFoundException e2) {
-					log.info("could not find analyzer class '" + analyzerClass + "', trying '" + className + "'");
+					LOGGER.info("could not find analyzer class '{}', trying '{}'", analyzerClass, className);
 				}
 			}
 			if (null != clazz) {
 				try {
 					return clazz.getDeclaredConstructor().newInstance();
 				} catch (Exception e) {
-					log.warn("could not instanciate class '" + clazz.getName() + "'");
+					LOGGER.warn("could not instanciate class '{}'", clazz.getName());
 				}
 			}
 			if (null == analyzer) {
-				log.info("no analyzer found for folder '" + getFolder() + "', using default "
-						+ Search.getDefaultAnalyzerClass().getName());
+				LOGGER.info("no analyzer found for folder '{}', using default {}", getFolder(),
+						Search.getDefaultAnalyzerClass().getName());
 				analyzer = Search.getDefaultAnalyzer();
 			}
 			return analyzer;

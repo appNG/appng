@@ -43,12 +43,12 @@ import org.appng.mail.Mail.RecipientType;
 import org.appng.mail.MailException;
 import org.appng.mail.MailTransport;
 import org.appng.mail.Receiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DefaultTransport implements MailTransport {
 
-	protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultTransport.class);
 	protected static final String TEXT_HTML = "text/html";
 	protected static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
 	protected static final String UTF_8 = "UTF-8";
@@ -130,7 +130,7 @@ public class DefaultTransport implements MailTransport {
 		}
 
 		if (disableSend) {
-			LOGGER.info("sending is disabled, not sending message" + getLineBreak() + getMailAsString(mail));
+			LOGGER.info("sending is disabled, not sending message{}{}", getLineBreak(), getMailAsString(mail));
 		} else {
 			try {
 				Message message = buildMessage(mail);
@@ -146,7 +146,7 @@ public class DefaultTransport implements MailTransport {
 							if (null != invalidAddresses) {
 								invalidAdresses.add(email);
 							}
-							LOGGER.warn("invalid address: '" + email + "'");
+							LOGGER.warn("invalid address: '{}'", email);
 						}
 					}
 				}

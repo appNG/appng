@@ -20,13 +20,12 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import ch.sla.jdbcperflogger.driver.WrappingDriver;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -36,9 +35,9 @@ import ch.sla.jdbcperflogger.driver.WrappingDriver;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class HikariCPConfigurer implements DatasourceConfigurer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(HikariCPConfigurer.class);
 	private HikariDataSource hikariDataSource;
 	private boolean logPerformance = false;
 

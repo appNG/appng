@@ -65,7 +65,6 @@ import org.appng.xml.platform.SelectionType;
 import org.appng.xml.platform.UserInputField;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -78,9 +77,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-abstract class RestActionBase extends RestOperation {
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger log = LoggerFactory.getLogger(RestActionBase.class);
+@Slf4j
+abstract class RestActionBase extends RestOperation {
 
 	@Autowired
 	public RestActionBase(Site site, Application application, Request request, MessageSource messageSource,
@@ -110,7 +110,7 @@ abstract class RestActionBase extends RestOperation {
 				actionId);
 
 		if (null == originalAction) {
-			log.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
 					site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -126,12 +126,12 @@ abstract class RestActionBase extends RestOperation {
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
 
-		if (log.isDebugEnabled()) {
-			log.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
 		}
 
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
-			log.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
+			LOGGER.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
 					application.getName(), site.getName(), servletResp.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
@@ -165,7 +165,7 @@ abstract class RestActionBase extends RestOperation {
 				actionId);
 
 		if (null == originalAction) {
-			log.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
 					site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -181,7 +181,7 @@ abstract class RestActionBase extends RestOperation {
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
-			log.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
+			LOGGER.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
 					application.getName(), site.getName(), servletResp.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
@@ -197,8 +197,8 @@ abstract class RestActionBase extends RestOperation {
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);
@@ -289,7 +289,7 @@ abstract class RestActionBase extends RestOperation {
 					String formattedValue = getStringValue(actionField);
 					actionField.setFormattedValue(formattedValue);
 				}
-				log.debug("Setting value {} for field {}", objectValue, actionField.getName());
+				LOGGER.debug("Setting value {} for field {}", objectValue, actionField.getName());
 			} else {
 				parameterList = Collections.emptyList();
 			}
@@ -302,7 +302,7 @@ abstract class RestActionBase extends RestOperation {
 				if (receivedField.isPresent()) {
 					Object objectValue = receivedField.get().getValue();
 					actionField.setValue(objectValue);
-					log.debug("Setting value {} for field {}", objectValue, actionField.getName());
+					LOGGER.debug("Setting value {} for field {}", objectValue, actionField.getName());
 				}
 			}
 			applyValidationRules(request, actionField, originalDef.get());
@@ -339,7 +339,7 @@ abstract class RestActionBase extends RestOperation {
 				Set<String> childNames = new HashSet<>();
 				for (Datafield childData : childDataFields) {
 					if (!childNames.contains(childData.getName())) {
-						log.debug("Processing child {} of field {} with index {}.", childData.getName(),
+						LOGGER.debug("Processing child {} of field {} with index {}.", childData.getName(),
 								fieldData.getName(), i.get());
 						Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.getAndIncrement(),
 								childData);
@@ -351,7 +351,7 @@ abstract class RestActionBase extends RestOperation {
 						}
 						childNames.add(childData.getName());
 					} else {
-						log.debug("Child {} of field {} with index {} already processed.", childData.getName(),
+						LOGGER.debug("Child {} of field {} with index {} already processed.", childData.getName(),
 								fieldData.getName(), i.get());
 					}
 				}
@@ -371,7 +371,7 @@ abstract class RestActionBase extends RestOperation {
 				if (!existingTypes.contains(r.getType())) {
 					org.appng.api.rest.model.ValidationRule rule = getRule(r);
 					actionField.getRules().add(rule);
-					log.debug("Added rule {} to field {} (contains {} rules)", rule.getType(), actionField.getName(),
+					LOGGER.debug("Added rule {} to field {} (contains {} rules)", rule.getType(), actionField.getName(),
 							actionField.getRules().size());
 				}
 			});
@@ -473,17 +473,17 @@ abstract class RestActionBase extends RestOperation {
 						boolean isPassword = org.appng.xml.platform.FieldType.PASSWORD.equals(field.getType());
 						String parameterName = pathPrefix + actionField.getName();
 						formRequest.addParameter(parameterName, stringValue);
-						if (log.isDebugEnabled()) {
-							log.debug("Added parameter {} = {}", parameterName,
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug("Added parameter {} = {}", parameterName,
 									isPassword ? stringValue.replaceAll(".", "*") : stringValue);
 						}
 					}
 				}
 			} else {
-				log.debug("Conditon for field {} did not match.", field.getBinding());
+				LOGGER.debug("Conditon for field {} did not match.", field.getBinding());
 			}
 		} else {
-			log.debug("Field {} is readonly.", field.getBinding());
+			LOGGER.debug("Field {} is readonly.", field.getBinding());
 		}
 	}
 
@@ -520,8 +520,8 @@ abstract class RestActionBase extends RestOperation {
 		RestRequest(org.appng.xml.platform.Action original, Action receivedData) {
 			RequestBean wrappedRequest = initWrappedRequest();
 			extractRequestParameters(original, receivedData, wrappedRequest);
-			if (log.isDebugEnabled()) {
-				log.debug("Parameters: {}", wrappedRequest.getParametersList());
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Parameters: {}", wrappedRequest.getParametersList());
 			}
 		}
 
@@ -554,6 +554,6 @@ abstract class RestActionBase extends RestOperation {
 	}
 
 	Logger getLogger() {
-		return log;
+		return LOGGER;
 	}
 }

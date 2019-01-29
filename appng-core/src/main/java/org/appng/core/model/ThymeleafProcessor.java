@@ -79,7 +79,6 @@ import org.appng.xml.platform.UrlParams;
 import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationRule;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
@@ -93,9 +92,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ThymeleafProcessor extends AbstractRequestProcessor {
 
-	private static Logger log = LoggerFactory.getLogger(ThymeleafProcessor.class);
 	private List<Template> templates;
 	private DocumentBuilderFactory dbf;
 
@@ -114,7 +115,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 		org.appng.xml.platform.Platform platform = processPlatform(applicationSite);
 		if (isRedirect()) {
-			log.debug("request is beeing redirected");
+			LOGGER.debug("request is beeing redirected");
 			return "redirect";
 		}
 		platform.setVersion(env.getAttributeAsString(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
@@ -164,9 +165,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				File tplFile = new File(tplPath);
 				if (tplFile.exists()) {
 					patterns.add(tplFile.getName());
-					log.debug("added template file {}", tplFile);
+					LOGGER.debug("added template file {}", tplFile);
 				} else {
-					log.debug("template file {} does not exist!", tplFile);
+					LOGGER.debug("template file {} does not exist!", tplFile);
 				}
 			}
 			if (!patterns.isEmpty()) {
@@ -238,7 +239,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 	/**

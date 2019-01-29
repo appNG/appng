@@ -72,7 +72,6 @@ import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationGroups;
 import org.appng.xml.platform.ValidationGroups.Group;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -81,9 +80,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-abstract class RestDataSourceBase extends RestOperation {
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger log = LoggerFactory.getLogger(RestDataSourceBase.class);
+@Slf4j
+abstract class RestDataSourceBase extends RestOperation {
 
 	@Autowired
 	public RestDataSourceBase(Site site, Application application, Request request, MessageSource messageSource,
@@ -119,7 +119,7 @@ abstract class RestDataSourceBase extends RestOperation {
 				httpServletResponse, false, (ApplicationRequest) request, dataSourceId, marshallService);
 
 		if (null == processedDataSource) {
-			log.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
+			LOGGER.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
 					site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -127,11 +127,11 @@ abstract class RestDataSourceBase extends RestOperation {
 		MetaData metaData = processedDataSource.getConfig().getMetaData();
 		addValidationRules(metaData);
 
-		if (log.isDebugEnabled()) {
-			log.debug("Processed datasource: {}", marshallService.marshallNonRoot(processedDataSource));
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed datasource: {}", marshallService.marshallNonRoot(processedDataSource));
 		}
 		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
-			log.debug("Datasource {} on application {} of site {} returned status {}", dataSourceId,
+			LOGGER.debug("Datasource {} on application {} of site {} returned status {}", dataSourceId,
 					application.getName(), site.getName(), httpServletResponse.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
 		}
@@ -363,6 +363,6 @@ abstract class RestDataSourceBase extends RestOperation {
 	}
 
 	Logger getLogger() {
-		return log;
+		return LOGGER;
 	}
 }

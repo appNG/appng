@@ -26,8 +26,8 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.hsqldb.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class responsible for starting and stopping a HSQL {@link Server} in case appNG is configured to use
@@ -35,9 +35,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class HsqlStarter {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(HsqlStarter.class);
 
 	private static final String APPNG_HSQL_LOG = "appng-hsql.log";
 	private static final String APPNG_HSQL_ERROR_LOG = "appng-hsql-error.log";

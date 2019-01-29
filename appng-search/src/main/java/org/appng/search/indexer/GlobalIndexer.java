@@ -28,8 +28,8 @@ import org.appng.api.search.Consumer;
 import org.appng.api.search.DocumentEvent;
 import org.appng.api.search.DocumentProducer;
 import org.appng.search.DocumentProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Builds the global lucene search index for a {@link Site}. Therefore, every {@link Application} of a {@link Site} is
@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
  * @see DocumentProvider
  * @see DocumentProducer
  */
+@Slf4j
 public class GlobalIndexer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(GlobalIndexer.class);
 	private Consumer<DocumentEvent, DocumentProducer> indexer;
 
 	public GlobalIndexer(Consumer<DocumentEvent, DocumentProducer> indexer) {
@@ -50,7 +50,7 @@ public class GlobalIndexer {
 	}
 
 	public void doIndex(Site site, String jspType) {
-		LOG.debug("start indexing for site {}", site.getName());
+		LOGGER.debug("start indexing for site {}", site.getName());
 
 		Properties properties = site.getProperties();
 		String sitePath = properties.getString(SiteProperties.SITE_ROOT_DIR);
@@ -72,20 +72,19 @@ public class GlobalIndexer {
 			for (String documentProviderName : documentProviders) {
 				DocumentProvider documentProvider = application.getBean(documentProviderName, DocumentProvider.class);
 				int processed = processProducer(site, application, documentProvider, timeout);
-				LOG.debug("processed {}  from application {} wich returned {} DocumentProducers", documentProvider
-						.getClass().getName(), application.getName(), processed);
+				LOGGER.debug("processed {}  from application {} wich returned {} DocumentProducers",
+						documentProvider.getClass().getName(), application.getName(), processed);
 			}
 		}
 	}
 
-	private int processProducer(Site site, Application application, DocumentProvider documentProvider, Integer timeout) {
+	private int processProducer(Site site, Application application, DocumentProvider documentProvider,
+			Integer timeout) {
 		try {
 			Iterable<DocumentProducer> documentProducers = documentProvider.getDocumentProducers(site, application);
 			return putWithTimeout(documentProducers, timeout);
-		} catch (InterruptedException e) {
-			LOG.error("error while processing" + documentProvider.getClass().getName(), e);
-		} catch (TimeoutException e) {
-			LOG.error("error while processing" + documentProvider.getClass().getName(), e);
+		} catch (InterruptedException | TimeoutException e) {
+			LOGGER.error(String.format("error while processing %s", documentProvider.getClass().getName()), e);
 		}
 		return 0;
 	}
@@ -97,10 +96,8 @@ public class GlobalIndexer {
 				try {
 					indexer.putWithTimeout(producer, timeout);
 					count++;
-				} catch (InterruptedException e) {
-					LOG.error("error processing " + producer, e);
-				} catch (TimeoutException e) {
-					LOG.error("error processing " + producer, e);
+				} catch (InterruptedException | TimeoutException e) {
+					LOGGER.error(String.format("error processing %s", producer), e);
 				}
 			}
 		}

@@ -29,9 +29,9 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.internal.util.Location;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A service offering methods for configuring and initializing {@link DatabaseConnection}s using
@@ -39,9 +39,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class MigrationService {
-
-	protected Logger log = LoggerFactory.getLogger(getClass());
 
 	public static final String DATABASE_MIN_CONNECTIONS = "database.minConnections";
 	public static final String DATABASE_MAX_CONNECTIONS = "database.maxConnections";
@@ -109,13 +108,13 @@ public class MigrationService {
 		String type = properties.getProperty(DATABASE_TYPE);
 		DatabaseType databaseType = DatabaseType.MYSQL;
 		if (StringUtils.isEmpty(type)) {
-			log.warn("Property  " + DATABASE_TYPE + " is not specified, using default: " + databaseType.name());
+			LOGGER.warn("Property {} is not specified, using default: {}", DATABASE_TYPE, databaseType.name());
 		} else {
 			try {
 				databaseType = DatabaseType.valueOf(type.toUpperCase());
 			} catch (IllegalArgumentException e) {
-				log.error("Invalid value for property " + DATABASE_TYPE + ": " + type + " ; must be one of: "
-						+ Arrays.asList(DatabaseType.values()));
+				LOGGER.error("Invalid value for property {}: {} ; must be one of: {}", DATABASE_TYPE, type,
+						Arrays.asList(DatabaseType.values()));
 			}
 		}
 
@@ -191,7 +190,7 @@ public class MigrationService {
 	public MigrationInfoService statusComplete(DatabaseConnection connection, boolean testConnection) {
 		StringBuilder dbInfo = new StringBuilder();
 		if (!testConnection || connection.testConnection(dbInfo, true)) {
-			log.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
+			LOGGER.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
 			Flyway flyway = new Flyway();
 			flyway.setDataSource(getDataSource(connection));
 			String location = LOCATION_PREFIX + connection.getType().name().toLowerCase();
@@ -200,7 +199,7 @@ public class MigrationService {
 			connection.setMigrationInfoService(info);
 			return info;
 		} else {
-			log.error(connection.toString() + " is not working, unable to retrieve connection status.");
+			LOGGER.error(connection.toString() + " is not working, unable to retrieve connection status.");
 		}
 		return null;
 	}
@@ -234,7 +233,7 @@ public class MigrationService {
 		StringBuilder dbInfo = new StringBuilder();
 		String jdbcUrl = rootConnection.getJdbcUrl();
 		if (rootConnection.testConnection(dbInfo, true)) {
-			log.info("connected to {} ({})", jdbcUrl, dbInfo.toString());
+			LOGGER.info("connected to {} ({})", jdbcUrl, dbInfo.toString());
 			Flyway flyway = new Flyway();
 			flyway.setDataSource(getDataSource(rootConnection));
 			String location = LOCATION_PREFIX + rootConnection.getType().name().toLowerCase();
@@ -244,7 +243,7 @@ public class MigrationService {
 			}
 			return migrate(flyway, rootConnection);
 		} else {
-			log.error("{} is not working, initializing database was not successful.", rootConnection.toString());
+			LOGGER.error("{} is not working, initializing database was not successful.", rootConnection.toString());
 		}
 		return MigrationStatus.ERROR;
 	}
@@ -254,7 +253,7 @@ public class MigrationService {
 			flyway.migrate();
 			return MigrationStatus.DB_MIGRATED;
 		} catch (FlywayException e) {
-			log.error("error while migrating " + databaseConnection.getJdbcUrl(), e);
+			LOGGER.error(String.format("error while migrating %s", databaseConnection.getJdbcUrl()), e);
 		}
 		return MigrationStatus.ERROR;
 	}

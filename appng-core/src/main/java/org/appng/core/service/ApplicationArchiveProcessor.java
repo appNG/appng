@@ -31,8 +31,8 @@ import org.appng.api.model.ResourceType;
 import org.appng.core.domain.ResourceImpl;
 import org.appng.core.model.PackageArchive;
 import org.appng.core.model.ZipFileProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link ZipFileProcessor} to be processed by a {@link PackageArchive}.
@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @see PackageArchive#processZipFile(ZipFileProcessor)
  */
+@Slf4j
 public class ApplicationArchiveProcessor implements ZipFileProcessor<List<Resource>> {
 
-	private static final Logger log = LoggerFactory.getLogger(ApplicationArchiveProcessor.class);
 	private static final String SLASH = "/";
 	private Application application;
 	private List<Resource> resources = new ArrayList<Resource>();
@@ -105,8 +105,8 @@ public class ApplicationArchiveProcessor implements ZipFileProcessor<List<Resour
 		applicationResource.setApplication(application);
 		applicationResource.setVersion(entry.getLastModifiedDate());
 		applicationResource.calculateChecksum();
-		log.info("adding application-resource '" + fileName + "' for application '" + application.getName() + "-"
-				+ application.getPackageVersion() + "'");
+		LOGGER.info("adding application-resource '{}' for application '{}-{}'", fileName, application.getName(),
+				application.getPackageVersion());
 		resources.add(applicationResource);
 	}
 }

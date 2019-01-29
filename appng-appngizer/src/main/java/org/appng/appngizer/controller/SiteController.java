@@ -86,13 +86,13 @@ public class SiteController extends ControllerBase {
 		}
 		Sender sender = getSender(DefaultEnvironment.get(context));
 		if (null != sender) {
-			log.debug("messaging is active, sending ReloadSiteEvent");
+			LOGGER.debug("messaging is active, sending ReloadSiteEvent");
 			sender.send(new ReloadSiteEvent(name));
 		} else if (supportsReloadFile(site)) {
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			File reloadFile = new File(rootDir, ".reload");
 			try {
-				log.debug("Created reload marker {}", reloadFile.getAbsolutePath());
+				LOGGER.debug("Created reload marker {}", reloadFile.getAbsolutePath());
 				FileUtils.touch(reloadFile);
 			} catch (IOException e) {
 				throw new BusinessException(e);
@@ -149,7 +149,7 @@ public class SiteController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 }

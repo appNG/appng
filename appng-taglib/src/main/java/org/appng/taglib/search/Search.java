@@ -52,10 +52,10 @@ import org.appng.taglib.MultiSiteSupport;
 import org.appng.taglib.ParameterOwner;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StopWatch;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class represents a Search Tag used in JSP. A {@link Search} can contain multiple {@link SearchPart}s that use
@@ -103,9 +103,8 @@ import org.springframework.util.StopWatch;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class Search extends BodyTagSupport implements ParameterOwner {
-
-	private static final Logger log = LoggerFactory.getLogger(Search.class);
 
 	private static final String PARAM_FILL_WITH = "fillWith";
 	private static final String PARAM_PAGE_SIZE_PARAM = "pageSizeParam";
@@ -130,7 +129,7 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 		String queryParam = StringEscapeUtils.unescapeHtml4(servletRequest.getParameter(queryParamName));
 
 		if (StringUtils.isNotBlank(queryParam) && !parts.isEmpty()) {
-			log.debug("term is {}", queryParam);
+			LOGGER.debug("term is {}", queryParam);
 			Environment env = DefaultEnvironment.get(pageContext);
 			Site site = RequestUtil.getSite(env, servletRequest);
 			Properties siteProperties = site.getProperties();
@@ -194,10 +193,10 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 				searchFormatter.write(pageContext.getOut());
 
 			} catch (IOException e) {
-				log.error("error in doStartTag()", e);
+				LOGGER.error("error in doStartTag()", e);
 			}
 		} else {
-			log.debug("no term given or empty parts");
+			LOGGER.debug("no term given or empty parts");
 		}
 		clear();
 		return super.doEndTag();
@@ -221,7 +220,7 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 			if (null != application) {
 				searchProvider = application.getBean(part.getMethod(), SearchProvider.class);
 			} else {
-				log.warn("application {} not found for site {}", applicationName, executingSite.getName());
+				LOGGER.warn("application {} not found for site {}", applicationName, executingSite.getName());
 			}
 		}
 
@@ -232,7 +231,7 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 
 				Map<String, String> parameters = part.getParameters();
 
-				log.info("processing {} with term '{}' and parameters {}", searchProvider.getClass().getName(), term,
+				LOGGER.info("processing {} with term '{}' and parameters {}", searchProvider.getClass().getName(), term,
 						parameters);
 				Iterable<Document> doSearch = searchProvider.doSearch(env, executingSite, application, directory, term,
 						language, parseFields, part.getAnalyzer(), getHighlight(), parameters);
@@ -245,13 +244,14 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 				}
 				return resultPart;
 			} catch (IOException e) {
-				log.error("error performing doSearch() for " + searchProvider.getClass().getName(), e);
+				LOGGER.error(String.format("error performing doSearch() for %s", searchProvider.getClass().getName()),
+						e);
 			} catch (ReflectiveOperationException e) {
-				log.error("error creating analyzer " + part.getAnalyzerClass() + " for "
-						+ searchProvider.getClass().getName(), e);
+				LOGGER.error(String.format("error creating analyzer %s for %s", part.getAnalyzerClass(),
+						searchProvider.getClass().getName()), e);
 			}
 		} else {
-			log.warn("no SearchProvider named {} found for application {}", part.getMethod(), applicationName);
+			LOGGER.warn("no SearchProvider named {} found for application {}", part.getMethod(), applicationName);
 		}
 		return null;
 	}

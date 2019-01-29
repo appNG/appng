@@ -47,8 +47,6 @@ import org.appng.api.model.Properties;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.forms.FormUpload;
 import org.appng.forms.impl.FormUploadBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -63,6 +61,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.MultipartFilter;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A {@link WebListener} responsible for CSRF-protection.
  * 
@@ -73,10 +73,10 @@ import org.springframework.web.multipart.support.MultipartFilter;
  * @see SiteProperties#CSRF_PROTECTED_METHODS
  * @see SiteProperties#CSRF_PROTECTED_PATHS
  */
+@Slf4j
 @WebListener
 public class CsrfSetupFilter implements ServletContextListener {
 
-	private static final Logger log = LoggerFactory.getLogger(CsrfSetupFilter.class);
 	public static final String CSRF_TOKEN = ".CSRF_TOKEN";
 	private static final String CSRF_PARAM = "_csrf";
 	private static final String SLASH_ALL = "/*";
@@ -89,7 +89,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 
 		if (platformProps.getBoolean(Platform.Property.CSRF_FILTER_ENABLED)) {
 			try {
-				log.info("initializing CSRF protection");
+				LOGGER.info("initializing CSRF protection");
 				String uploadDir = platformProps.getString(Platform.Property.UPLOAD_DIR);
 				String uploadPath = context.getRealPath(uploadDir.startsWith("/") ? uploadDir : "/" + uploadDir);
 				final MultipartResolver multipartResolver = new MultipartResolver(new FileSystemResource(uploadPath));
@@ -114,7 +114,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 				throw new RuntimeException("error while initializing", e);
 			}
 		} else {
-			log.info("'{}' is false, CSRF protection is disabled", Platform.Property.CSRF_FILTER_ENABLED);
+			LOGGER.info("'{}' is false, CSRF protection is disabled", Platform.Property.CSRF_FILTER_ENABLED);
 		}
 	}
 
@@ -130,8 +130,8 @@ public class CsrfSetupFilter implements ServletContextListener {
 					.getList(SiteProperties.CSRF_PROTECTED_METHODS, ",").contains(request.getMethod().toUpperCase()))) {
 				for (String protectedPath : siteProps.getList(SiteProperties.CSRF_PROTECTED_PATHS, ",")) {
 					if (request.getServletPath().startsWith(protectedPath)) {
-						if (log.isDebugEnabled()) {
-							log.debug("CSRF protection enabled for {} {}", request.getMethod(),
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug("CSRF protection enabled for {} {}", request.getMethod(),
 									request.getServletPath());
 						}
 						return true;
@@ -259,7 +259,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 				try {
 					diskFileItem.write(file);
 				} catch (Exception e) {
-					log.error("error writing " + file.getAbsolutePath(), e);
+					LOGGER.error(String.format("error writing %s", file.getAbsolutePath()), e);
 				}
 			}
 			List<String> acceptedTypes = new ArrayList<String>();

@@ -20,8 +20,8 @@ import org.appng.api.PermissionProcessor;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -34,9 +34,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class DummyPermissionProcessor extends DefaultPermissionProcessor {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(DummyPermissionProcessor.class);
 
 	public DummyPermissionProcessor(Subject subject, Site site, Application application) {
 		super(subject, site, application);
@@ -45,12 +44,12 @@ public class DummyPermissionProcessor extends DefaultPermissionProcessor {
 	}
 
 	public boolean hasPermissions(PermissionOwner permissionOwner) {
-		LOGGER.debug("granting permission for ", permissionOwner.getName());
+		LOGGER.debug("granting permission for {}", permissionOwner.getName());
 		return true;
 	}
 
 	public boolean hasPermission(String reference) {
-		LOGGER.debug("granting permission ", reference);
+		LOGGER.debug("granting permission {}", reference);
 		return true;
 	}
 

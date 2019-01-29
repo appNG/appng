@@ -130,6 +130,6 @@ public class ApplicationController extends PropertyBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

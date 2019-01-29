@@ -30,8 +30,8 @@ import org.appng.api.Scope;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.el.ExpressionEvaluator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class defines an attribute tag which can be used in JSPs.<br/>
@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class Attribute extends TagSupport implements Tag {
 
 	/**
@@ -69,7 +70,6 @@ public class Attribute extends TagSupport implements Tag {
 	}
 
 	private static final long serialVersionUID = 1L;
-	private static Logger log = LoggerFactory.getLogger(Attribute.class);
 	private String name;
 	private String value;
 	private Mode modeInternal = Mode.READ; // default mode: read
@@ -99,7 +99,7 @@ public class Attribute extends TagSupport implements Tag {
 				JspWriter out = pageContext.getOut();
 				out.print(value);
 			} catch (IOException ioe) {
-				log.error("error while writing to JspWriter", ioe);
+				LOGGER.error("error while writing to JspWriter", ioe);
 			}
 			break;
 		case WRITE:

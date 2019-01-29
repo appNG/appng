@@ -101,8 +101,6 @@ import org.appng.core.repository.config.ApplicationPostProcessor;
 import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -115,6 +113,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 
@@ -123,9 +122,9 @@ import net.sf.ehcache.constructs.blocking.BlockingCache;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class InitializerService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(InitializerService.class);
 	private static final int THREAD_PRIORITY_LOW = 3;
 
 	private static final String LIB_LOCATION = "/WEB-INF/lib";
@@ -254,7 +253,7 @@ public class InitializerService {
 				try {
 					FileUtils.cleanDirectory(tempDir);
 				} catch (IOException e) {
-					LOGGER.error("error while cleaning " + tempDir, e);
+					LOGGER.error(String.format("error while cleaning %s", tempDir), e);
 				}
 			}
 		}
@@ -271,7 +270,7 @@ public class InitializerService {
 			try {
 				FileUtils.forceMkdir(tempDir);
 			} catch (IOException e) {
-				LOGGER.error("unable to create upload dir " + tempDir, e);
+				LOGGER.error(String.format("unable to create upload dir %s", tempDir), e);
 			}
 		}
 
@@ -282,11 +281,10 @@ public class InitializerService {
 		String applicationRealDir = servletContext.getRealPath(appendSlash(applicationDir));
 		File applicationRootFolder = new File(applicationRealDir).getAbsoluteFile();
 		if (!applicationRootFolder.exists()) {
-			LOGGER.error("could not find applicationfolder " + applicationRootFolder.getAbsolutePath(),
-					" platform will exit");
+			LOGGER.error("could not find applicationfolder {} platform will exit!", applicationRootFolder.getAbsolutePath());
 			return;
 		}
-		LOGGER.info("applications are located at " + applicationRootFolder + " or in the database");
+		LOGGER.info("applications are located at {} or in the database", applicationRootFolder);
 		List<Integer> sites = getCoreService().getSiteIds();
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -316,9 +314,9 @@ public class InitializerService {
 		}
 
 		if (0 == activeSites) {
-			LOGGER.error("none of " + sites.size() + " sites is active, instance will not work!");
+			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
 		}
-		LOGGER.info("Current Ehcache configuration:\n" + cacheManager.getActiveConfigurationText());
+		LOGGER.info("Current Ehcache configuration:\n{}", cacheManager.getActiveConfigurationText());
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
@@ -373,7 +371,7 @@ public class InitializerService {
 					loadSite(env, getCoreService().getSiteByName(site.getName()), false,
 							new FieldProcessorImpl("auto-reload"));
 				} catch (InvalidConfigurationException e) {
-					LOGGER.error("error while reloading site " + site.getName(), e);
+					LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 				}
 
 			} catch (Exception e) {
@@ -528,8 +526,8 @@ public class InitializerService {
 
 		debugPlatformContext(platformContext);
 
-		LOGGER.info("loading site " + site.getName() + " (" + host + ")");
-		LOGGER.info("loading applications for site " + site.getName());
+		LOGGER.info("loading site {} ({})", site.getName(), host);
+		LOGGER.info("loading applications for site {}", site.getName());
 
 		SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
 		Set<ApplicationProvider> applications = new HashSet<ApplicationProvider>();
@@ -759,7 +757,7 @@ public class InitializerService {
 		for (ApplicationProvider application : validApplications) {
 			if (startApplication(env, site, application)) {
 				jarInfos.addAll(application.getJarInfos());
-				LOGGER.info("Initialized application: " + application.getName());
+				LOGGER.info("Initialized application: {}", application.getName());
 				for (JarInfo jarInfo : application.getJarInfos()) {
 					LOGGER.info(jarInfo.toString());
 				}
@@ -779,7 +777,7 @@ public class InitializerService {
 					new SiteReloadWatcher(env, site));
 		}
 
-		LOGGER.info("loading site " + site.getName() + " completed");
+		LOGGER.info("loading site {} completed", site.getName());
 		site.setState(SiteState.STARTED);
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
@@ -793,7 +791,7 @@ public class InitializerService {
 			try {
 				started = controller.start(site, application, env);
 			} catch (RuntimeException e) {
-				LOGGER.error("error during " + controller.getClass().getName() + ".start()", e);
+				LOGGER.error(String.format("error during %s.start()", controller.getClass().getName()), e);
 				started = false;
 			}
 			if (!started) {

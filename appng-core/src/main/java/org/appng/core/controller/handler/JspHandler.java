@@ -27,8 +27,8 @@ import org.apache.jasper.servlet.JspServlet;
 import org.appng.api.Environment;
 import org.appng.api.PathInfo;
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link RequestHandler} responsible for serving JSPs. Internally,the {@link HttpServletRequest} is forwarded to the
@@ -37,9 +37,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class JspHandler implements RequestHandler {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(JspHandler.class);
 
 	protected JspServlet jspServlet = new JspServlet();
 
@@ -50,18 +49,18 @@ public class JspHandler implements RequestHandler {
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
 		String servletPath = servletRequest.getServletPath();
-		LOGGER.debug("serving jsp " + servletPath);
+		LOGGER.debug("serving jsp {}", servletPath);
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
 			URLClassLoader siteClassLoader = site.getSiteClassLoader();
 			Thread.currentThread().setContextClassLoader(siteClassLoader);
 			jspServlet.service(servletRequest, servletResponse);
 		} catch (ServletException e) {
-			LOGGER.error("error while serving jsp at " + servletPath, e);
+			LOGGER.error(String.format("error while serving jsp at %s", servletPath), e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
 		int status = servletResponse.getStatus();
-		LOGGER.debug("returned " + status + " for request " + servletPath);
+		LOGGER.debug("returned {} for request {}", status, servletPath);
 	}
 }

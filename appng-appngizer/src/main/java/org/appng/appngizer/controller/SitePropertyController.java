@@ -145,6 +145,6 @@ public class SitePropertyController extends PropertyBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

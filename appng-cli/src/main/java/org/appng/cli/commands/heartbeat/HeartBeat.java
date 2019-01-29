@@ -59,12 +59,12 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.core.domain.SiteImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Sends and receives a heartbeat using the configured messaging settings.<br/>
@@ -86,10 +86,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 @Parameters(commandDescription = "Sends and receives a heartbeat using the configured messaging settings.")
 public class HeartBeat implements ExecutableCliCommand {
-
-	private static final Logger log = LoggerFactory.getLogger(HeartBeat.class);
 
 	@Parameter(names = "-i", description = "The interval of the heartbeat in milliseconds.")
 	private int interval = 1000;
@@ -115,7 +114,7 @@ public class HeartBeat implements ExecutableCliCommand {
 		EventHandler<HeartBeatEvent> heartBeatHandler = new EventHandler<HeartBeatEvent>() {
 			public void onEvent(HeartBeatEvent event, Environment environment, Site site)
 					throws InvalidConfigurationException, BusinessException {
-				log.info("received {}", event);
+				LOGGER.info("received {}", event);
 				event.perform(environment, site);
 			}
 
@@ -127,7 +126,7 @@ public class HeartBeat implements ExecutableCliCommand {
 		EventHandler<Event> loggingHandler = new EventHandler<Event>() {
 			public void onEvent(Event event, Environment environment, Site site)
 					throws InvalidConfigurationException, BusinessException {
-				log.info("received {}", event);
+				LOGGER.info("received {}", event);
 			}
 
 			public Class<Event> getEventClass() {
@@ -144,7 +143,7 @@ public class HeartBeat implements ExecutableCliCommand {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 
 		Sender sender = Messaging.createMessageSender(env, executor, nodeId, loggingHandler, Arrays.asList(heartBeatHandler));
-		log.debug("created {}", sender);
+		LOGGER.debug("created {}", sender);
 		while (true) {
 			sender.send(new HeartBeatEvent(site));
 			try {
@@ -163,7 +162,7 @@ public class HeartBeat implements ExecutableCliCommand {
 
 		public void perform(Environment environment, Site site)
 				throws InvalidConfigurationException, BusinessException {
-			log.info("still beating!");
+			LOGGER.info("still beating!");
 		}
 
 	}

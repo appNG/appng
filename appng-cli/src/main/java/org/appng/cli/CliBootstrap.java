@@ -27,8 +27,6 @@ import org.appng.core.controller.PlatformStartup;
 import org.appng.core.service.DatabaseService;
 import org.appng.core.service.HsqlStarter;
 import org.hsqldb.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.context.ApplicationContext;
@@ -37,6 +35,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.util.StopWatch;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Main entry-point to the appNG command line interface, responsible for bootstrapping. Creates an
  * {@link ApplicationContext} and delegates to {@link CliCore}.
@@ -44,11 +44,11 @@ import org.springframework.util.StopWatch;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class CliBootstrap {
 
 	public static String CURRENT_COMMAND;
 	public static final String APPNG_HOME = "APPNG_HOME";
-	private static final Logger LOG = LoggerFactory.getLogger(CliBootstrap.class);
 	static final String CLI_CONTEXT_XML = "cliContext.xml";
 
 	/**
@@ -102,7 +102,7 @@ public class CliBootstrap {
 				}
 				if (null == platformRootPath || !platformRootPath.exists()) {
 					platformRootPath = getPlatformRootPath(env);
-					LOG.info("{}: {}", APPNG_HOME, platformRootPath);
+					LOGGER.info("{}: {}", APPNG_HOME, platformRootPath);
 				}
 				Properties cliConfig = getCliConfig(env, true, platformRootPath);
 
@@ -114,12 +114,12 @@ public class CliBootstrap {
 					cliCore.perform(cliConfig);
 
 					cliWatch.stop();
-					LOG.info("duration: {}ms", cliWatch.getTotalTimeMillis());
+					LOGGER.info("duration: {}ms", cliWatch.getTotalTimeMillis());
 					context.close();
 					HsqlStarter.shutdown(hsqlServer);
 				} catch (BeansException e) {
 					cliCore.logError("error while building context, see logs for details.");
-					LOG.error("error while building context", e);
+					LOGGER.error("error while building context", e);
 					return CliCore.COMMAND_EXECUTION_ERROR;
 				}
 			} finally {
@@ -163,7 +163,7 @@ public class CliBootstrap {
 		File properties = env.getAbsoluteFile(new File(platformRootPath, PlatformStartup.CONFIG_LOCATION));
 		if (properties.exists()) {
 			if (logInfo) {
-				LOG.info("Using configuration file: " + properties.getAbsolutePath());
+				LOGGER.info("Using configuration file: {}", properties.getAbsolutePath());
 			}
 			config.load(new FileReader(properties));
 		} else {

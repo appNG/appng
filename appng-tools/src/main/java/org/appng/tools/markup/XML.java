@@ -26,17 +26,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class XML {
-
-	private static Logger LOG = LoggerFactory.getLogger(XML.class);
 
 	public static String transform(Source xmlSource, Source xsltSource) {
 		String result = "";
@@ -59,15 +57,15 @@ public class XML {
 	private static ErrorListener getErrorListener() {
 		return new ErrorListener() {
 			public void warning(TransformerException te) throws TransformerException {
-				LOG.warn(te.getMessageAndLocation(), te);
+				LOGGER.warn(te.getMessageAndLocation(), te);
 			}
 
 			public void fatalError(TransformerException te) throws TransformerException {
-				LOG.error(te.getMessageAndLocation(), te);
+				LOGGER.error(te.getMessageAndLocation(), te);
 			}
 
 			public void error(TransformerException te) throws TransformerException {
-				LOG.error(te.getMessageAndLocation(), te);
+				LOGGER.error(te.getMessageAndLocation(), te);
 			}
 		};
 	}

@@ -68,11 +68,11 @@ import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Template;
 import org.appng.xml.platform.ValidationGroups;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.util.ClassUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -82,9 +82,8 @@ import org.springframework.util.ClassUtils;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class ElementHelper {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ElementHelper.class);
 
 	private static final String SLASH = "/";
 

@@ -32,13 +32,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.RequestEntity.BodyBuilder;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility-class that helps dealing with several HTTP-Headers
@@ -46,9 +46,8 @@ import org.springframework.http.RequestEntity.BodyBuilder;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class HttpHeaderUtils {
-
-	private static final Logger logger = LoggerFactory.getLogger(HttpHeaderUtils.class);
 
 	private static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	protected static final FastDateFormat HTTP_DATE = FastDateFormat.getInstance(HTTP_DATE_FORMAT,
@@ -88,12 +87,12 @@ public class HttpHeaderUtils {
 		boolean hasModifiedSince = StringUtils.isNotBlank(ifModifiedSinceHeader);
 		if (hasModifiedSince) {
 			try {
-				logger.debug("[{}] received {}={} for {}?{}", sessionId, HttpHeaders.IF_MODIFIED_SINCE,
+				LOGGER.debug("[{}] received {}={} for {}?{}", sessionId, HttpHeaders.IF_MODIFIED_SINCE,
 						ifModifiedSinceHeader, servletRequest.getServletPath(), servletRequest.getQueryString());
 				ifModifiedSince = HTTP_DATE.parse(ifModifiedSinceHeader);
 			} catch (ParseException e) {
 				hasModifiedSince = false;
-				logger.debug("[{}] error parsing header {}={} for {}?{} ({})", sessionId, HttpHeaders.IF_MODIFIED_SINCE,
+				LOGGER.debug("[{}] error parsing header {}={} for {}?{} ({})", sessionId, HttpHeaders.IF_MODIFIED_SINCE,
 						ifModifiedSinceHeader, servletRequest.getServletPath(), servletRequest.getQueryString(),
 						e.getMessage());
 			}
@@ -105,15 +104,15 @@ public class HttpHeaderUtils {
 		}
 		if (hasModifiedSince && !isModifiedAfter) {
 			servletResponse.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-			logger.debug("[{}] setting status {} for {}?{}", sessionId, HttpServletResponse.SC_NOT_MODIFIED,
+			LOGGER.debug("[{}] setting status {} for {}?{}", sessionId, HttpServletResponse.SC_NOT_MODIFIED,
 					servletRequest.getServletPath(), servletRequest.getQueryString());
 		} else {
 			String lastModifiedHeader = HTTP_DATE.format(new Date(lastModified));
 			servletResponse.setHeader(HttpHeaders.LAST_MODIFIED, lastModifiedHeader);
-			logger.debug("[{}] setting {}={} for {}?{}", sessionId, HttpHeaders.LAST_MODIFIED, lastModifiedHeader,
+			LOGGER.debug("[{}] setting {}={} for {}?{}", sessionId, HttpHeaders.LAST_MODIFIED, lastModifiedHeader,
 					servletRequest.getServletPath(), servletRequest.getQueryString());
 			if (output) {
-				logger.debug("[{}] setting content type {} ({}B) for {}?{}", sessionId, resource.getContentType(),
+				LOGGER.debug("[{}] setting content type {} ({}B) for {}?{}", sessionId, resource.getContentType(),
 						result.length, servletRequest.getServletPath(), servletRequest.getQueryString());
 				servletResponse.setContentType(resource.getContentType());
 				servletResponse.setContentLength(result.length);
@@ -147,16 +146,16 @@ public class HttpHeaderUtils {
 		long lastModified = resource.update();
 		long ifModifiedSince = requestHeaders.getIfModifiedSince();
 		if (ifModifiedSince > 0) {
-			logger.debug("received {}={}", HttpHeaders.IF_MODIFIED_SINCE, new Date(ifModifiedSince));
+			LOGGER.debug("received {}={}", HttpHeaders.IF_MODIFIED_SINCE, new Date(ifModifiedSince));
 			if (ifModifiedSince > lastModified) {
-				logger.debug("setting status {}", HttpServletResponse.SC_NOT_MODIFIED);
+				LOGGER.debug("setting status {}", HttpServletResponse.SC_NOT_MODIFIED);
 				resource.setStatus(HttpStatus.NOT_MODIFIED);
 			}
 		} else {
 			result = resource.getData();
 			responseHeaders.setLastModified(lastModified);
-			logger.debug("setting {}={}", HttpHeaders.LAST_MODIFIED, new Date(lastModified));
-			logger.debug("setting content type {} ({}B)", resource.getContentType(), result.length);
+			LOGGER.debug("setting {}={}", HttpHeaders.LAST_MODIFIED, new Date(lastModified));
+			LOGGER.debug("setting content type {} ({}B)", resource.getContentType(), result.length);
 			responseHeaders.setContentType(MediaType.parseMediaType(resource.getContentType()));
 			responseHeaders.setContentLength(result.length);
 		}

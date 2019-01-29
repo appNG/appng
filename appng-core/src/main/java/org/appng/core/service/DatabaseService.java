@@ -47,11 +47,14 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A service offering methods for creating and migrating {@link DatabaseConnection}s of a {@link SiteApplication}.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class DatabaseService extends MigrationService {
 
 	private static final String PARAM_PASSWORD = "<password>";
@@ -75,13 +78,13 @@ public class DatabaseService extends MigrationService {
 		Application application = siteApplication.getApplication();
 		DatasourceType type = datasource.getType();
 		DatabaseType databaseType = DatabaseType.valueOf(type.name());
-		log.info("connected to {} ({})", rootConnection.getJdbcUrl(), dbInfo);
+		LOGGER.info("connected to {} ({})", rootConnection.getJdbcUrl(), dbInfo);
 		try {
 			DatabaseConnection applicationConnection = createApplicationConnection(site, application, rootConnection,
 					databasePrefix);
 			String databaseName = applicationConnection.getName();
 			if (dataBaseExists(rootConnection, databaseName)) {
-				log.info("database '{}' already exists!", databaseName);
+				LOGGER.info("database '{}' already exists!", databaseName);
 			} else {
 				DataSource dataSource = getDataSource(rootConnection);
 				JdbcOperations operation = new JdbcTemplate(dataSource);
@@ -93,14 +96,14 @@ public class DatabaseService extends MigrationService {
 							new String[] { databaseName, applicationConnection.getUserName(), password });
 					operation.execute(sqlScript);
 				}
-				log.info("created database at {}", applicationConnection.getJdbcUrl());
-				log.info("created user {}", applicationConnection.getUserName());
+				LOGGER.info("created database at {}", applicationConnection.getJdbcUrl());
+				LOGGER.info("created user {}", applicationConnection.getUserName());
 			}
 
 			siteApplication.setDatabaseConnection(applicationConnection);
 			return migrateApplication(sqlFolder, applicationConnection);
 		} catch (Exception e) {
-			log.error("an error ocured while migrating the schema", e);
+			LOGGER.error("an error ocured while migrating the schema", e);
 		}
 		return MigrationStatus.ERROR;
 	}
@@ -111,7 +114,7 @@ public class DatabaseService extends MigrationService {
 			connection = databaseConnection.getConnection();
 			return checkDatabaseExists(connection, databaseName);
 		} catch (Exception e) {
-			log.warn("error while checking existence of database '" + databaseName + "'", e);
+			LOGGER.warn(String.format("error while checking existence of database '%s'", databaseName), e);
 		} finally {
 			databaseConnection.closeConnection(connection);
 		}
@@ -196,7 +199,7 @@ public class DatabaseService extends MigrationService {
 				String typeFolder = databaseConnection.getType().name().toLowerCase();
 				File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
 				String jdbcUrl = databaseConnection.getJdbcUrl();
-				log.info("starting database migration for {} from {}", jdbcUrl, scriptFolder.getAbsolutePath());
+				LOGGER.info("starting database migration for {} from {}", jdbcUrl, scriptFolder.getAbsolutePath());
 				Flyway flyway = new Flyway();
 				flyway.setDataSource(getDataSource(databaseConnection));
 				flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
@@ -252,18 +255,18 @@ public class DatabaseService extends MigrationService {
 								new String[] { PARAM_DATABASE, PARAM_USER }, new String[] { databaseName, user });
 						operation.execute(sqlScript);
 					}
-					log.info("dropped database at {}", databaseConnection.getJdbcUrl());
-					log.info("dropped user  {}", user);
+					LOGGER.info("dropped database at {}", databaseConnection.getJdbcUrl());
+					LOGGER.info("dropped user  {}", user);
 					return MigrationStatus.DB_MIGRATED;
 				} catch (Exception e) {
-					log.error("error while dropping database " + databaseConnection.getName(), e);
+					LOGGER.error(String.format("error while dropping database %s", databaseConnection.getName()), e);
 				}
 				return MigrationStatus.ERROR;
 			} else {
 				return MigrationStatus.DB_SUPPORTED;
 			}
 		} else {
-			log.info("{} is not managed by appNG", databaseConnection);
+			LOGGER.info("{} is not managed by appNG", databaseConnection);
 		}
 		return MigrationStatus.DB_SUPPORTED;
 	}
@@ -311,7 +314,7 @@ public class DatabaseService extends MigrationService {
 			conn.setName(DATABASE_NAME_PREFIX + rootType.name());
 			conn.setDescription(APP_NG_ROOT_DATABASE);
 			databaseConnectionRepository.save(conn);
-			log.debug("creating new connection: {}", conn);
+			LOGGER.debug("creating new connection: {}", conn);
 		} else {
 			conn.setJdbcUrl(rootConnection.getJdbcUrl());
 			conn.setDriverClass(rootConnection.getDriverClass());
@@ -320,7 +323,7 @@ public class DatabaseService extends MigrationService {
 			if (changeManagedState) {
 				conn.setManaged(rootConnection.isManaged());
 			}
-			log.debug("updating existing connection: {}", conn);
+			LOGGER.debug("updating existing connection: {}", conn);
 		}
 		setConnectionActive(conn, false);
 
@@ -328,18 +331,18 @@ public class DatabaseService extends MigrationService {
 			if (!type.equals(rootType)) {
 				DatabaseConnection connection = getRootConnectionOfType(type);
 				if (connection == null) {
-					log.debug("initializing connection of type {}", type);
+					LOGGER.debug("initializing connection of type {}", type);
 					connection = new DatabaseConnection(type, DATABASE_NAME_PREFIX + type.name(), "user", new byte[0]);
 					connection.setName(DATABASE_NAME_PREFIX + type.name());
 					connection.setDescription(APP_NG_ROOT_DATABASE);
 					databaseConnectionRepository.save(connection);
-					log.debug("creating new connection: {}", connection);
+					LOGGER.debug("creating new connection: {}", connection);
 					setConnectionActive(connection, true);
 				} else if (connection.isActive()) {
 					setConnectionActive(connection, true);
 				} else {
 					connection.registerDriver(false);
-					log.debug("connection {} is inactive", connection);
+					LOGGER.debug("connection {} is inactive", connection);
 				}
 			}
 		}
@@ -353,10 +356,10 @@ public class DatabaseService extends MigrationService {
 		}
 		if (connection.testConnection(dbInfo)) {
 			connection.setActive(true);
-			log.info("{} ({}) is active.", connection.toString(), dbInfo);
+			LOGGER.info("{} ({}) is active.", connection.toString(), dbInfo);
 		} else {
 			connection.setActive(false);
-			log.info("{} is not working and will be deactivated.", connection.toString());
+			LOGGER.info("{} is not working and will be deactivated.", connection.toString());
 		}
 	}
 
@@ -394,7 +397,7 @@ public class DatabaseService extends MigrationService {
 										sqlFolder, databasePrefix);
 							} else {
 								status = MigrationStatus.DB_NOT_AVAILABLE;
-								log.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
+								LOGGER.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
 										rootConnection.getDriverClass());
 							}
 						} else {
@@ -407,7 +410,7 @@ public class DatabaseService extends MigrationService {
 						}
 					} else {
 						status = MigrationStatus.DB_NOT_AVAILABLE;
-						log.info("connection {} is inactive, skipping", rootConnection.toString());
+						LOGGER.info("connection {} is inactive, skipping", rootConnection.toString());
 					}
 				}
 			}
