@@ -27,10 +27,12 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 
@@ -248,8 +250,10 @@ public class XmlGenerator {
 	 *            if {@link Permissions} should be generated and used when referencing {@link Action}s
 	 * @throws JAXBException
 	 *             if creating a {@link MarshallService} fails
+	 * @throws TransformerConfigurationException
+	 *             if an error occurs while configuring the {@link TransformerFactory}
 	 */
-	public XmlGenerator(boolean addPermissions) throws JAXBException {
+	public XmlGenerator(boolean addPermissions) throws JAXBException, TransformerConfigurationException {
 		this.addPermissions = addPermissions;
 		this.marshallService = new MarshallService();
 		marshallService.setSchema(AppNGSchema.PLATFORM);
@@ -258,11 +262,13 @@ public class XmlGenerator {
 		marshallService.setUseSchema(true);
 		marshallService.setCdataElements(new ArrayList<>());
 		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-		marshallService.setTransformerFactory(TransformerFactory.newInstance());
+		TransformerFactory tf = TransformerFactory.newInstance();
+		tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		marshallService.setTransformerFactory(tf);
 		marshallService.init();
 	}
 
-	public XmlGenerator() throws JAXBException {
+	public XmlGenerator() throws JAXBException, TransformerConfigurationException {
 		this(true);
 	}
 
