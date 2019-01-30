@@ -115,7 +115,7 @@ public class ConfigValidator {
 	private boolean throwException = false;
 	private boolean clearErrors = true;
 	private boolean withDetailedErrors = false;
-	private Set<String> permissionNames = new HashSet<String>();
+	private Set<String> permissionNames = new HashSet<>();
 
 	public ConfigValidator(ApplicationConfigProvider provider, boolean throwException, boolean clearErrors) {
 		this(provider);
@@ -125,9 +125,9 @@ public class ConfigValidator {
 
 	public ConfigValidator(ApplicationConfigProvider provider) {
 		this.provider = provider;
-		this.errors = new HashSet<String>();
-		this.warnings = new HashSet<String>();
-		this.detailedErrors = new ArrayList<ConfigValidationError>();
+		this.errors = new HashSet<>();
+		this.warnings = new HashSet<>();
+		this.detailedErrors = new ArrayList<>();
 	}
 
 	public void validate(String applicationName) throws InvalidConfigurationException {
@@ -332,7 +332,7 @@ public class ConfigValidator {
 							addDetailedError(message, resource, linkpanelXPath + xpathBase);
 
 						} else if (StringUtils.isNotBlank(target)) {
-							List<String> queryParameters = new ArrayList<String>();
+							List<String> queryParameters = new ArrayList<>();
 							int idx = target.indexOf('?');
 							if (idx > 0) {
 								String query = target.substring(idx + 1);
@@ -361,7 +361,7 @@ public class ConfigValidator {
 	}
 
 	private void validateApplicationInfo() {
-		Set<String> rolesNames = new HashSet<String>();
+		Set<String> rolesNames = new HashSet<>();
 		Resource resource = getApplicationXml();
 		checkApplicationProperties();
 		Roles roles = provider.getApplicationInfo().getRoles();
@@ -371,7 +371,7 @@ public class ConfigValidator {
 					String message = ResourceType.APPLICATION_XML_NAME + ": Duplicate role: " + role.getName();
 					addDetailedError(message, resource, "//role/name[text()='" + role.getName() + "']");
 				}
-				Set<String> rolePermissions = new HashSet<String>();
+				Set<String> rolePermissions = new HashSet<>();
 				for (PermissionRef permissionRef : role.getPermission()) {
 					String permissionId = permissionRef.getId();
 					String xpath = "//role[name[text()='" + role.getName() + "']]/permission[@id='" + permissionId
@@ -426,7 +426,7 @@ public class ConfigValidator {
 		Resource resource = getApplicationXml();
 		if (null != applicationInfo) {
 			Properties properties = applicationInfo.getProperties();
-			Set<String> propertyIds = new HashSet<String>();
+			Set<String> propertyIds = new HashSet<>();
 			for (Property p : properties.getProperty()) {
 				if (!propertyIds.add(p.getId())) {
 					String message = ResourceType.APPLICATION_XML_NAME + ": Duplicate property '" + p.getId() + "'.";
@@ -592,7 +592,7 @@ public class ConfigValidator {
 	}
 
 	private StringBuilder appendAndClear(String start, Set<String> messages) {
-		List<String> sorted = new ArrayList<String>(messages);
+		List<String> sorted = new ArrayList<>(messages);
 		Collections.sort(sorted);
 		StringBuilder sb = new StringBuilder(start);
 		sorted.forEach(warning -> {
@@ -813,7 +813,7 @@ public class ConfigValidator {
 
 		Set<String> execParamNames = paramsFromExec.keySet();
 
-		Set<String> paramNames = new HashSet<String>();
+		Set<String> paramNames = new HashSet<>();
 		for (String string : paramsFromRef.values()) {
 			if (string.matches("\\$\\{(.)*\\}")) {
 				String param = string.replace("${", "").replace("}", "");

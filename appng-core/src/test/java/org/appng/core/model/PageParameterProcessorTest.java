@@ -55,9 +55,9 @@ public class PageParameterProcessorTest extends TestSupport {
 
 	private PageParameterProcessor ppp;
 
-	private Set<String> sessionParamNames = new HashSet<String>();
+	private Set<String> sessionParamNames = new HashSet<>();
 
-	private List<String> applicationUrlParameter = new ArrayList<String>();
+	private List<String> applicationUrlParameter = new ArrayList<>();
 
 	private Map<String, String> sessionParams = new HashMap<String, String>();
 

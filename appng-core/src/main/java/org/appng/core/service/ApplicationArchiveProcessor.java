@@ -46,7 +46,7 @@ public class ApplicationArchiveProcessor implements ZipFileProcessor<List<Resour
 
 	private static final String SLASH = "/";
 	private Application application;
-	private List<Resource> resources = new ArrayList<Resource>();
+	private List<Resource> resources = new ArrayList<>();
 
 	public ApplicationArchiveProcessor(Application application) {
 		this.application = application;

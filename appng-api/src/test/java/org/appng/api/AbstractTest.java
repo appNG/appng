@@ -99,7 +99,7 @@ public abstract class AbstractTest {
 	}
 
 	public static List<Property> getPlatformProperties() {
-		List<Property> platformProperties = new ArrayList<Property>();
+		List<Property> platformProperties = new ArrayList<>();
 		addProperty(platformProperties, PLATFORM + "repositoryPath", "repository");
 		addProperty(platformProperties, PLATFORM + Platform.Property.DEV_MODE, "true");
 		addProperty(platformProperties, PLATFORM + Platform.Property.FORMAT_OUTPUT, "true");

@@ -97,7 +97,7 @@ public class PlatformTransformer {
 	private static final Map<String, SourceAwareTemplate> STYLESHEETS = Collections.synchronizedMap(new LRUMap(20));
 
 	public PlatformTransformer() {
-		this.templates = new HashSet<Template>();
+		this.templates = new HashSet<>();
 	}
 
 	/**
@@ -333,7 +333,7 @@ public class PlatformTransformer {
 
 	static class ErrorCollector implements ErrorListener {
 
-		List<TransformerException> exceptions = new ArrayList<TransformerException>();
+		List<TransformerException> exceptions = new ArrayList<>();
 
 		public void warning(TransformerException exception) throws TransformerException {
 			exceptions.add(exception);

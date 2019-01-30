@@ -62,7 +62,7 @@ import org.flywaydb.core.api.MigrationInfoService;
 public class CommandMain {
 
 	@Parameter
-	private List<String> parameters = new ArrayList<String>();
+	private List<String> parameters = new ArrayList<>();
 
 	public List<String> getParameters() {
 		return parameters;

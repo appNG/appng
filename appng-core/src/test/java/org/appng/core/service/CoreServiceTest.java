@@ -166,7 +166,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testAddGroupsToSubject() throws BusinessException {
-		List<String> groupNames = new ArrayList<String>(Arrays.asList("group-1", "group-2", "group-3"));
+		List<String> groupNames = new ArrayList<>(Arrays.asList("group-1", "group-2", "group-3"));
 		coreService.addGroupsToSubject("subject-1", groupNames, true);
 		SubjectImpl subject = coreService.getSubjectByName("subject-1", true);
 		for (Group group : subject.getGroups()) {
@@ -186,7 +186,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testAssignGroupsToSubject() {
-		List<Integer> groupIds = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
+		List<Integer> groupIds = new ArrayList<>(Arrays.asList(1, 2, 3));
 		coreService.assignGroupsToSubject(1, groupIds, true);
 		Subject subject = coreService.getSubjectById(1, true);
 		for (Group group : subject.getGroups()) {
@@ -853,7 +853,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testSaveProperties() {
-		List<Property> props = new ArrayList<Property>();
+		List<Property> props = new ArrayList<>();
 		PropertyImpl a = new PropertyImpl("foobaz.a", "a");
 		PropertyImpl b = new PropertyImpl("foobaz.b", "b");
 		props.add(a);

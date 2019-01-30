@@ -210,7 +210,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 		}
 
 		public Set<String> getParameterNames() {
-			Set<String> names = new HashSet<String>();
+			Set<String> names = new HashSet<>();
 			Enumeration<String> parameterNames = wrapped.getParameterNames();
 			while (parameterNames.hasMoreElements()) {
 				names.add(parameterNames.nextElement());
@@ -242,7 +242,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 		}
 
 		public List<FormUpload> getFormUploads(String name) {
-			List<FormUpload> uploads = new ArrayList<FormUpload>();
+			List<FormUpload> uploads = new ArrayList<>();
 			for (MultipartFile mf : wrapped.getFiles(name)) {
 				if (!mf.isEmpty()) {
 					uploads.add(getFormUpload(mf));
@@ -262,7 +262,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 					LOGGER.error(String.format("error writing %s", file.getAbsolutePath()), e);
 				}
 			}
-			List<String> acceptedTypes = new ArrayList<String>();
+			List<String> acceptedTypes = new ArrayList<>();
 			FormUpload upload = new FormUploadBean(file, mf.getOriginalFilename(), mf.getContentType(), acceptedTypes,
 					file.length());
 			return upload;

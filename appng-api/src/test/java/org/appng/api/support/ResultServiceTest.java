@@ -155,7 +155,7 @@ public class ResultServiceTest {
 	@Test
 	public void testGetResultset() {
 		FieldProcessorImpl fp = new FieldProcessorImpl("action", MetaDataProvider.getMetaData());
-		List<Linkpanel> linkpanels = new ArrayList<Linkpanel>();
+		List<Linkpanel> linkpanels = new ArrayList<>();
 		Linkpanel panel = new Linkpanel();
 		panel.setId("thepanel");
 		panel.setLocation(PanelLocation.INLINE);
@@ -197,7 +197,7 @@ public class ResultServiceTest {
 	@Test
 	public void testGetEmptyResultset() {
 		FieldProcessorImpl fp = new FieldProcessorImpl("action", MetaDataProvider.getMetaData());
-		Resultset result = rss.getResultset(fp, new ArrayList<Person>());
+		Resultset result = rss.getResultset(fp, new ArrayList<>());
 		XmlValidator.validate(result);
 	}
 
@@ -207,7 +207,7 @@ public class ResultServiceTest {
 		vader.setSavings(2342535634D);
 		vader.setSize(1.98f);
 		vader.setBirthDate(new Date());
-		ArrayList<Person> offsprings = new ArrayList<Person>();
+		ArrayList<Person> offsprings = new ArrayList<>();
 		Person lea = new Person(1, "Lea", "Princess");
 		lea.setFather(vader);
 		lea.setCoordinate(new Coordinate(12.23d, 34.36d));

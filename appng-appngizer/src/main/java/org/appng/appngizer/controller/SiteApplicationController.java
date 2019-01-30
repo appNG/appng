@@ -52,8 +52,8 @@ public class SiteApplicationController extends ControllerBase {
 	@RequestMapping(value = "/site/{site}/application", method = RequestMethod.GET)
 	public ResponseEntity<Applications> listApplications(@PathVariable("site") String site) {
 		SiteImpl siteByName = getSiteByName(site);
-		List<Application> applicationList = new ArrayList<Application>();
-		List<String> sortedNames = new ArrayList<String>(siteByName.getApplicationMap().keySet());
+		List<Application> applicationList = new ArrayList<>();
+		List<String> sortedNames = new ArrayList<>(siteByName.getApplicationMap().keySet());
 		Collections.sort(sortedNames);
 		for (String appName : sortedNames) {
 			ApplicationImpl application = (ApplicationImpl) siteByName.getApplication(appName);
@@ -145,7 +145,7 @@ public class SiteApplicationController extends ControllerBase {
 		boolean isAssigned = siteByName.getApplications().contains(appByName);
 		if (isAssigned) {
 			HttpHeaders httpHeaders = new HttpHeaders();
-			httpHeaders.setAllow(new HashSet<HttpMethod>(Arrays.asList(HttpMethod.GET)));
+			httpHeaders.setAllow(new HashSet<>(Arrays.asList(HttpMethod.GET)));
 			return reply(httpHeaders, HttpStatus.METHOD_NOT_ALLOWED);
 		}
 		getCoreService().assignApplicationToSite(siteByName, appByName, true);

@@ -39,8 +39,8 @@ public class PrettyTable {
 	private static final char DOUBLE_LINE = '=';
 	private static final char SINGLE_LINE = '-';
 
-	private List<TableColumn> columns = new ArrayList<TableColumn>();
-	private List<TableRow> rows = new ArrayList<TableRow>();
+	private List<TableColumn> columns = new ArrayList<>();
+	private List<TableRow> rows = new ArrayList<>();
 	private Map<String, TableColumn> columnMap = new HashMap<String, TableColumn>();
 	private int tableWidth = 0;
 

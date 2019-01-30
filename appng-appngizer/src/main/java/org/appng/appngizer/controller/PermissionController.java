@@ -44,7 +44,7 @@ public class PermissionController extends ControllerBase {
 		if (null == appByName) {
 			return notFound();
 		}
-		List<Permission> permissionList = new ArrayList<Permission>();
+		List<Permission> permissionList = new ArrayList<>();
 		List<? extends org.appng.api.model.Permission> permissionsForApplication = getCoreService()
 				.getPermissionsForApplication(appByName.getId());
 		for (org.appng.api.model.Permission p : permissionsForApplication) {

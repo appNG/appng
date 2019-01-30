@@ -69,7 +69,7 @@ import net.sf.ehcache.constructs.web.filter.FilterNonReentrantException;
 @Slf4j
 public class PageCacheFilter extends CachingFilter {
 
-	private Set<String> cacheableHttpMethods = new HashSet<String>(
+	private Set<String> cacheableHttpMethods = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
 
 	@Override
@@ -229,7 +229,7 @@ public class PageCacheFilter extends CachingFilter {
 		String clob = site.getProperties().getClob(SiteProperties.EHCACHE_EXCEPTIONS);
 		if (null != clob) {
 			List<String> exceptionList = Arrays.asList(clob.split("\n"));
-			Set<String> exceptions = new HashSet<String>(exceptionList);
+			Set<String> exceptions = new HashSet<>(exceptionList);
 			for (String e : exceptions) {
 				if (servletPath.startsWith(e.trim())) {
 					return true;

@@ -85,7 +85,7 @@ public class GuiHandlerTest {
 		Mockito.when(siteProperties.getString(SiteProperties.DEFAULT_APPLICATION)).thenReturn("manager");
 
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);
-		Set<Application> applications = new HashSet<Application>();
+		Set<Application> applications = new HashSet<>();
 		applications.add(applicationB);
 		applications.add(application);
 		Mockito.when(site.getApplications()).thenReturn(applications);

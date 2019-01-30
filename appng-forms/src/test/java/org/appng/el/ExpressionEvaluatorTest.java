@@ -236,7 +236,7 @@ public class ExpressionEvaluatorTest {
 		d1.setType(Type.ON);
 		d1.setBar("bar");
 		d1.setFoo(42);
-		ArrayList<Dummy> dummies = new ArrayList<Dummy>();
+		ArrayList<Dummy> dummies = new ArrayList<>();
 		Dummy d2 = new Dummy();
 		dummies.add(d2);
 		d2.setFoo(23);

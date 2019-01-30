@@ -256,7 +256,7 @@ public class XmlGenerator {
 		marshallService.setPrettyPrint(true);
 		marshallService.setSchemaLocation("http://www.appng.org/schema/platform/appng-platform.xsd");
 		marshallService.setUseSchema(true);
-		marshallService.setCdataElements(new ArrayList<String>());
+		marshallService.setCdataElements(new ArrayList<>());
 		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
 		marshallService.setTransformerFactory(TransformerFactory.newInstance());
 		marshallService.init();
@@ -562,7 +562,7 @@ public class XmlGenerator {
 		boolean skipVersion = true;
 		List<String> propertyNames;
 		if (null == properties || properties.length == 0) {
-			propertyNames = new ArrayList<String>();
+			propertyNames = new ArrayList<>();
 			PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
 			for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 				propertyNames.add(propertyDescriptor.getName());

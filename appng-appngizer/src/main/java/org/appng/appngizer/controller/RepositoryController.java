@@ -64,7 +64,7 @@ public class RepositoryController extends ControllerBase {
 
 	@RequestMapping(value = "/repository", method = RequestMethod.GET)
 	public ResponseEntity<Repositories> listRepositories() {
-		List<Repository> repoList = new ArrayList<Repository>();
+		List<Repository> repoList = new ArrayList<>();
 		for (RepositoryImpl r : getCoreService().getApplicationRepositories()) {
 			repoList.add(org.appng.appngizer.model.Repository.fromDomain(r));
 		}
@@ -81,7 +81,7 @@ public class RepositoryController extends ControllerBase {
 		}
 		Repository fromDomain = Repository.fromDomain(r);
 		fromDomain.setPackages(new Packages());
-		List<Identifier> provisionedPackages = new ArrayList<Identifier>();
+		List<Identifier> provisionedPackages = new ArrayList<>();
 		provisionedPackages.addAll(getCoreService().getApplications());
 		provisionedPackages.addAll(getTemplateService().getInstalledTemplates());
 		List<InstallablePackage> installablePackages = r.getInstallablePackages(provisionedPackages);

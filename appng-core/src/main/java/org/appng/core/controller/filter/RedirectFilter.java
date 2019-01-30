@@ -116,7 +116,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 		public CachedUrlRewriter(UrlRewriteConfig conf, String domain, String jspType) {
 			super(conf);
 			created = System.currentTimeMillis();
-			redirectRules = new ArrayList<RedirectRule>();
+			redirectRules = new ArrayList<>();
 			for (Rule rule : conf.getRules()) {
 				if (rule instanceof NormalRule) {
 					NormalRule normalRule = (NormalRule) rule;
@@ -180,7 +180,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 
 		Element rootElement = doc.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
-		List<Node> deprecatedNodes = new ArrayList<Node>();
+		List<Node> deprecatedNodes = new ArrayList<>();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE && !"rule".equals(node.getNodeName())) {

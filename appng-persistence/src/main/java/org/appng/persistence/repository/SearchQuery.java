@@ -66,7 +66,7 @@ import org.springframework.data.domain.Sort.Order;
  */
 public class SearchQuery<T> {
 
-	private List<SearchCriteria> criteria = new ArrayList<SearchCriteria>();
+	private List<SearchCriteria> criteria = new ArrayList<>();
 	private Class<T> domainClass;
 	private boolean distinct;
 	private String joinQuery;

@@ -60,7 +60,7 @@ public class Form {
 	public Form() {
 		this.formData = new FormData(this);
 		this.formConfirmation = new FormConfirmation(this);
-		this.formProcessProviders = new ArrayList<FormProcessProvider>();
+		this.formProcessProviders = new ArrayList<>();
 	}
 
 	/**

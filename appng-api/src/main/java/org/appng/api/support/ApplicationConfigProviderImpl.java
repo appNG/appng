@@ -348,7 +348,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	}
 
 	protected synchronized void clear() {
-		this.sessionParams = new HashSet<String>();
+		this.sessionParams = new HashSet<>();
 		this.pageMap = new PageMap();
 		this.datasourceMap = new DataSourceMap();
 		this.eventMap = new EventMap();

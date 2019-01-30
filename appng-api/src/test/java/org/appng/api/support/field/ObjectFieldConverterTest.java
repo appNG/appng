@@ -71,7 +71,7 @@ public class ObjectFieldConverterTest extends AbstractFieldConverterTest {
 		leia.setFather(darth);
 		luke.setFather(darth);
 
-		List<Person> offsprings = new ArrayList<Person>();
+		List<Person> offsprings = new ArrayList<>();
 		offsprings.add(luke);
 		offsprings.add(leia);
 		darth.setOffsprings(offsprings);
@@ -177,7 +177,7 @@ public class ObjectFieldConverterTest extends AbstractFieldConverterTest {
 	@Test
 	public void testSetObject() throws Exception {
 		darth.getOffsprings().clear();
-		Set<String> parameterNames = new HashSet<String>();
+		Set<String> parameterNames = new HashSet<>();
 
 		parameterNames.add(addParameter("father.name", "Vader"));
 		parameterNames.add(addParameter("father.firstname", "Darth"));

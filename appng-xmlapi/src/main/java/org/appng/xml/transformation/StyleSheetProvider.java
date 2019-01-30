@@ -143,7 +143,7 @@ public class StyleSheetProvider {
 			Node rootNode = masterDoc.getFirstChild();
 			Node insertionPoint = null;
 			NodeList nodes = rootNode.getChildNodes();
-			List<Node> includes = new ArrayList<Node>();
+			List<Node> includes = new ArrayList<>();
 			int hits = nodes.getLength();
 			for (int i = 0; i < hits; i++) {
 				Node node = nodes.item(i);

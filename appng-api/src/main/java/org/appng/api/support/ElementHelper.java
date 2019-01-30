@@ -112,7 +112,7 @@ public class ElementHelper {
 		if (null != linkpanel) {
 			List<Linkpanel> out = null;
 			if (null != linkpanel) {
-				out = new ArrayList<Linkpanel>();
+				out = new ArrayList<>();
 				for (Linkpanel panel : linkpanel) {
 					Linkpanel outPanel = initLinkpanel(applicationRequest, pathInfo, panel, parameterSupport);
 					if (null != outPanel) {
@@ -298,7 +298,7 @@ public class ElementHelper {
 	 */
 	private List<FieldDef> filterFieldDefinitions(ApplicationRequest request, List<FieldDef> fieldDefinitions,
 			boolean write) {
-		List<FieldDef> fields = new ArrayList<FieldDef>();
+		List<FieldDef> fields = new ArrayList<>();
 		PermissionProcessor permissionProcessor = request.getPermissionProcessor();
 		if (null != fieldDefinitions) {
 			for (FieldDef fieldDef : fieldDefinitions) {

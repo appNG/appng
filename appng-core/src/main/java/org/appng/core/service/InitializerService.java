@@ -214,7 +214,7 @@ public class InitializerService {
 
 	private void startSiteThread(Site site, String threadName, int priority, Runnable runnable) {
 		if (!siteThreads.containsKey(site.getName())) {
-			siteThreads.put(site.getName(), new ArrayList<ExecutorService>());
+			siteThreads.put(site.getName(), new ArrayList<>());
 		}
 		ThreadFactory threadFactory = new ThreadFactoryBuilder().setDaemon(true).setPriority(priority)
 				.setNameFormat(threadName).build();
@@ -530,7 +530,7 @@ public class InitializerService {
 		LOGGER.info("loading applications for site {}", site.getName());
 
 		SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
-		Set<ApplicationProvider> applications = new HashSet<ApplicationProvider>();
+		Set<ApplicationProvider> applications = new HashSet<>();
 
 		// platform and application cache
 		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
@@ -685,13 +685,13 @@ public class InitializerService {
 		}
 
 		// Step 2: Build application context
-		Set<ApplicationProvider> validApplications = new HashSet<ApplicationProvider>();
+		Set<ApplicationProvider> validApplications = new HashSet<>();
 		for (ApplicationProvider application : applications) {
 			try {
 				String beansXmlLocation = cacheProvider.getRelativePlatformCache(site, application) + File.separator
 						+ ResourceType.BEANS_XML_NAME;
 				// this is required to support testing of InitialiterService
-				List<String> configLocations = new ArrayList<String>(
+				List<String> configLocations = new ArrayList<>(
 						siteProps.getList(CONFIG_LOCATIONS, ApplicationContext.CONTEXT_CLASSPATH, ","));
 				configLocations.add(beansXmlLocation);
 				ApplicationContext applicationContext = new ApplicationContext(application, platformContext,
@@ -699,7 +699,7 @@ public class InitializerService {
 						configLocations.toArray(new String[configLocations.size()]));
 
 				Set<Resource> resources = application.getResources().getResources(ResourceType.DICTIONARY);
-				List<String> dictionaryNames = new ArrayList<String>();
+				List<String> dictionaryNames = new ArrayList<>();
 				for (Resource applicationResource : resources) {
 					String name = FilenameUtils.getBaseName(applicationResource.getName()).replaceAll("_(.)*", "");
 					if (!dictionaryNames.contains(name)) {
@@ -750,7 +750,7 @@ public class InitializerService {
 		site.getSiteApplications().clear();
 		site.getSiteApplications().addAll(validApplications);
 
-		List<JarInfo> jarInfos = new ArrayList<JarInfo>();
+		List<JarInfo> jarInfos = new ArrayList<>();
 
 		// Step 3: Execute application-specific initialization,
 		// read JAR info, cleanup on errors
@@ -848,7 +848,7 @@ public class InitializerService {
 			LOGGER.info("no sites found, must be boot sequence");
 		} else {
 			LOGGER.debug("destroying platform");
-			Set<String> siteNames = new HashSet<String>(siteMap.keySet());
+			Set<String> siteNames = new HashSet<>(siteMap.keySet());
 			for (String siteName : siteNames) {
 				Site site = siteMap.get(siteName);
 				shutDownSite(env, site);
@@ -898,7 +898,7 @@ public class InitializerService {
 			List<File> jarFiles = Arrays.asList(listFiles);
 			Collections.sort(jarFiles);
 
-			List<JarInfo> jarInfos = new ArrayList<JarInfo>();
+			List<JarInfo> jarInfos = new ArrayList<>();
 			logHeaderMessage("JAR Libraries");
 			for (File jarFile : jarFiles) {
 				final JarInfo jarInfo = JarInfoBuilder.getJarInfo(jarFile);

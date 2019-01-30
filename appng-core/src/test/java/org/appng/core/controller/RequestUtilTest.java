@@ -49,7 +49,7 @@ public class RequestUtilTest {
 	@Test
 	public void testGetSite() {
 		MockitoAnnotations.initMocks(this);
-		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<Property>());
+		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
 		new PropertySupport(propertyHolder).initPlatformConfig("target/root", true);
 		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(
 				propertyHolder);

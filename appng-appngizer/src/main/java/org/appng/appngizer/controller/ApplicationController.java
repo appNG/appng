@@ -42,7 +42,7 @@ public class ApplicationController extends PropertyBase {
 
 	@RequestMapping(value = "/application", method = RequestMethod.GET)
 	public ResponseEntity<Applications> listApplications() {
-		List<Application> appList = new ArrayList<Application>();
+		List<Application> appList = new ArrayList<>();
 		for (ApplicationImpl application : getCoreService().getApplications()) {
 			appList.add(Application.fromDomain(application));
 		}
@@ -60,9 +60,9 @@ public class ApplicationController extends PropertyBase {
 		Application fromDomain = Application.fromDomain(application);
 		fromDomain.addLinks();
 		fromDomain.applyUriComponents(getUriBuilder());
-		// List<Role> roles = new ArrayList<Role>();
+		// List<Role> roles = new ArrayList<>();
 		// fromDomain.setRoles(new Roles(roles, name));
-		// List<Permission> permissions = new ArrayList<Permission>();
+		// List<Permission> permissions = new ArrayList<>();
 		// fromDomain.setPermissions(new Permissions(permissions, name));
 		// for (org.appng.api.model.Role r : application.getRoles()) {
 		// roles.add(Role.fromDomain(r));

@@ -104,7 +104,7 @@ public class PropertyHolderTest {
 		plainProperties.put("list", "1,2");
 		plainProperties.put("properties", "a = 1\r\nb=2");
 
-		List<Property> properties = new ArrayList<Property>();
+		List<Property> properties = new ArrayList<>();
 		addProperty(properties, "integer", false, null);
 		addProperty(properties, "string", false, null);
 		addProperty(properties, "emptyCustomString", false, "");

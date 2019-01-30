@@ -75,7 +75,7 @@ public class ParseTags {
 			Map<String, StringBuilder> fieldMap = new HashMap<String, StringBuilder>();
 			Document doc = Jsoup.parse(inner, null, "");
 			Elements searchables = doc.getElementsByTag(tagPrefix + ":" + SEARCHABLE);
-			List<Node> skipped = new ArrayList<Node>();
+			List<Node> skipped = new ArrayList<>();
 			for (Element node : searchables) {
 				StringBuilder content = new StringBuilder();
 				if (append(skipped, node, content)) {

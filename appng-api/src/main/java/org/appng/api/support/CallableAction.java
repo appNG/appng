@@ -215,7 +215,7 @@ public class CallableAction {
 					actionParamSupport, datasourceRef);
 			if (datasourceElement.doInclude()) {
 
-				List<Message> before = new ArrayList<Message>();
+				List<Message> before = new ArrayList<>();
 				Environment environment = applicationRequest.getEnvironment();
 				if (elementHelper.hasMessages(environment)) {
 					before.addAll(elementHelper.getMessages(environment).getMessageList());
@@ -227,7 +227,7 @@ public class CallableAction {
 				elementHelper.addTemplates(applicationRequest.getApplicationConfig(), dsConfig);
 				action.getConfig().setMetaData(dsConfig.getMetaData());
 
-				List<Message> after = new ArrayList<Message>();
+				List<Message> after = new ArrayList<>();
 				if (elementHelper.hasMessages(environment)) {
 					after.addAll(elementHelper.getMessages(environment).getMessageList());
 				}
@@ -600,7 +600,7 @@ public class CallableAction {
 				for (UserInputField userInputField : userdata.getInput()) {
 					String name = userInputField.getName();
 					if (!userinput.containsKey(name)) {
-						userinput.put(name, new ArrayList<String>());
+						userinput.put(name, new ArrayList<>());
 					}
 					userinput.get(name).add(userInputField.getContent());
 				}

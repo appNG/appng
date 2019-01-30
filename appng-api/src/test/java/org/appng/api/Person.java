@@ -61,16 +61,16 @@ public class Person implements Named<Integer> {
 
 	private String description;
 
-	private List<Integer> integerList = new ArrayList<Integer>();
+	private List<Integer> integerList = new ArrayList<>();
 
-	private List<String> strings = new ArrayList<String>();
+	private List<String> strings = new ArrayList<>();
 
 	@Valid
-	private List<Person> offsprings = new ArrayList<Person>();
+	private List<Person> offsprings = new ArrayList<>();
 
 	private FormUpload picture;
 
-	private List<FormUpload> morePictures = new ArrayList<FormUpload>();
+	private List<FormUpload> morePictures = new ArrayList<>();
 
 	private Date version;
 

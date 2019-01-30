@@ -250,11 +250,11 @@ public class LdapService {
 		if (loginUser(site, username, password)) {
 			return getUserGroups(username, site, subject, groupNames);
 		}
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	private List<String> getUserGroups(String username, Site site, SubjectImpl subject, List<String> groupNames) {
-		List<String> userGroups = new ArrayList<String>();
+		List<String> userGroups = new ArrayList<>();
 
 		String serviceUser = site.getProperties().getString(LDAP_USER);
 		char[] servicePassword = site.getProperties().getString(LDAP_PASSWORD).toCharArray();
@@ -299,7 +299,7 @@ public class LdapService {
 	 * @return the members of the groupName (may be empty)
 	 */
 	public List<SubjectImpl> getMembersOfGroup(Site site, String groupName) {
-		List<SubjectImpl> subjects = new ArrayList<SubjectImpl>();
+		List<SubjectImpl> subjects = new ArrayList<>();
 
 		String serviceUser = site.getProperties().getString(LDAP_USER);
 		char[] servicePassword = site.getProperties().getString(LDAP_PASSWORD).toCharArray();
@@ -388,7 +388,7 @@ public class LdapService {
 		if (memberAttr == null)
 			return Collections.emptyList();
 		else {
-			List<String> result = new ArrayList<String>();
+			List<String> result = new ArrayList<>();
 			NamingEnumeration<?> memberAttrEnum = memberAttr.getAll();
 			while (memberAttrEnum.hasMoreElements())
 				result.add(memberAttrEnum.nextElement().toString());

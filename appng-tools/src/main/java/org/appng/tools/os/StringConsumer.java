@@ -37,7 +37,7 @@ public class StringConsumer implements StreamConsumer<List<String>> {
 
 	public void consume(InputStream is) throws IOException {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-			lines = new ArrayList<String>();
+			lines = new ArrayList<>();
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);

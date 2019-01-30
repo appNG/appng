@@ -88,7 +88,7 @@ public class RequestSupportTest extends RequestSupportImpl {
 
 	@Test
 	public void testTypes() {
-		List<FieldType> allTypes = new ArrayList<FieldType>(Arrays.asList(FieldType.values()));
+		List<FieldType> allTypes = new ArrayList<>(Arrays.asList(FieldType.values()));
 		allTypes.remove(FieldType.FILE);
 		allTypes.remove(FieldType.FILE_MULTIPLE);
 		for (FieldType fieldType : allTypes) {

@@ -131,7 +131,7 @@ public class TestSupport {
 
 	private String sitePropPrefix = "platform.site.manager.";
 
-	private List<Property> siteProperties = new ArrayList<Property>();
+	private List<Property> siteProperties = new ArrayList<>();
 
 	protected String siteRoot;
 
@@ -318,7 +318,7 @@ public class TestSupport {
 		site.setProperties(new PropertyHolder(sitePropPrefix, siteProperties));
 		siteMap.put(site.getName(), site);
 
-		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<Property>());
+		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
 		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true);
 		platformMap = new ConcurrentHashMap<String, Object>();
 		platformMap.put(Platform.Environment.SITES, siteMap);
@@ -383,7 +383,7 @@ public class TestSupport {
 	}
 
 	private void addGetParameter(String name, String value) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list.add(value);
 		requestParameters.put(name, list);
 	}

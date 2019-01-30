@@ -53,7 +53,7 @@ public class SiteController extends ControllerBase {
 
 	@RequestMapping(value = "/site", method = RequestMethod.GET)
 	public ResponseEntity<Sites> listSites() {
-		List<Site> siteList = new ArrayList<Site>();
+		List<Site> siteList = new ArrayList<>();
 		for (SiteImpl site : getCoreService().getSites()) {
 			Site fromDomain = Site.fromDomain(site);
 			fromDomain.applyUriComponents(getUriBuilder());

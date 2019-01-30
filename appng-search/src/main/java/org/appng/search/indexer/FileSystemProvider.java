@@ -87,7 +87,7 @@ public class FileSystemProvider implements DocumentProvider {
 	 */
 	public Iterable<DocumentProducer> indexDirectory(int documentQueueSize)
 			throws InterruptedException, TimeoutException {
-		List<DocumentProducer> producers = new ArrayList<DocumentProducer>();
+		List<DocumentProducer> producers = new ArrayList<>();
 		LOGGER.info("dataDir: {}", dataDir.getPath());
 
 		DocumentProducer clearer = new DocumentProducer(1, Search.getDefaultAnalyzerClass(), "clear index");
@@ -103,8 +103,8 @@ public class FileSystemProvider implements DocumentProvider {
 
 			Set<String> folders = config.getFolders();
 			for (String folder : folders) {
-				List<File> skippedFolders = new ArrayList<File>(protectedFolders);
-				List<String> skipList = new ArrayList<String>(folders);
+				List<File> skippedFolders = new ArrayList<>(protectedFolders);
+				List<String> skipList = new ArrayList<>(folders);
 				skipList.remove(folder);
 				for (String skipfolder : skipList) {
 					skippedFolders.add(new File(dataDir, skipfolder));

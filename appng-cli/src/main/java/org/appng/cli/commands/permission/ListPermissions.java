@@ -84,7 +84,7 @@ public class ListPermissions extends CommandList implements ExecutableCliCommand
 					if (null == role) {
 						throw new BusinessException("no such role: " + roleName);
 					}
-					permissions = new ArrayList<Permission>(role.getPermissions());
+					permissions = new ArrayList<>(role.getPermissions());
 				} else {
 					permissions = cle.getCoreService().getPermissionsForApplication(application.getId());
 				}

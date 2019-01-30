@@ -361,7 +361,7 @@ public class ElementHelperTest {
 	}
 
 	private List<BeanOption> getOptions() {
-		List<BeanOption> beanOptions = new ArrayList<BeanOption>();
+		List<BeanOption> beanOptions = new ArrayList<>();
 		BeanOption option = new BeanOption();
 		option.setName("action");
 		option.getOtherAttributes().put(new QName("id"), "foobar");

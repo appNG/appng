@@ -81,7 +81,7 @@ public class PlatformProcessorTest extends TestSupport {
 		TransformerFactory tf = TransformerFactory.newInstance();
 		marshallService.setDocumentBuilderFactory(dbf);
 		marshallService.setTransformerFactory(tf);
-		marshallService.setCdataElements(new ArrayList<String>());
+		marshallService.setCdataElements(new ArrayList<>());
 		StyleSheetProvider styleSheetProvider = new StyleSheetProvider();
 		styleSheetProvider.setDocumentBuilderFactory(dbf);
 		styleSheetProvider.setTransformerFactory(tf);

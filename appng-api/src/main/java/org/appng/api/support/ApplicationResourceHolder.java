@@ -126,7 +126,7 @@ public class ApplicationResourceHolder implements Resources {
 	}
 
 	public Set<Resource> getResources(ResourceType type) {
-		return Collections.unmodifiableSet(new HashSet<Resource>(storage.get(type).values()));
+		return Collections.unmodifiableSet(new HashSet<>(storage.get(type).values()));
 	}
 
 	private File getCacheDirectory(ResourceType type) {
@@ -176,7 +176,7 @@ public class ApplicationResourceHolder implements Resources {
 	}
 
 	public Set<Resource> getResources() {
-		Set<Resource> resources = new HashSet<Resource>();
+		Set<Resource> resources = new HashSet<>();
 		for (ResourceType type : ResourceType.values()) {
 			resources.addAll(storage.get(type).values());
 		}
@@ -214,7 +214,7 @@ public class ApplicationResourceHolder implements Resources {
 		Set<String> allowedFileEndings = type.getAllowedFileEndings();
 		File typeRootFolder = new File(applicationFolder, type.getFolder());
 		if (typeRootFolder.exists()) {
-			Collection<File> files = new ArrayList<File>();
+			Collection<File> files = new ArrayList<>();
 			if (type.supportsSubfolders()) {
 				String[] fileExtensions = null;
 				if (!allowedFileEndings.isEmpty()) {

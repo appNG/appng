@@ -49,8 +49,8 @@ public class SaltedDigestTest {
 	}
 
 	private void testGetRandomDigest(String secret, SaltedDigest saltedDigest) {
-		Collection<String> randomDigests = new HashSet<String>(ITERATIONS);
-		Collection<String> randomSalts = new HashSet<String>(ITERATIONS);
+		Collection<String> randomDigests = new HashSet<>(ITERATIONS);
+		Collection<String> randomSalts = new HashSet<>(ITERATIONS);
 		for (int i = 0; i < ITERATIONS; i++) {
 			String salt = saltedDigest.getSalt();
 			String digest = saltedDigest.getDigest(secret, salt);

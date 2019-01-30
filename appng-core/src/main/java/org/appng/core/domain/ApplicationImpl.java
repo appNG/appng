@@ -83,9 +83,9 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 	private String longDescription;
 	private String appNGVersion;
 	private boolean fileBased;
-	private Set<Permission> permissions = new HashSet<Permission>();
-	private Set<Role> roles = new HashSet<Role>();
-	private Set<Resource> resources = new HashSet<Resource>();
+	private Set<Permission> permissions = new HashSet<>();
+	private Set<Role> roles = new HashSet<>();
+	private Set<Resource> resources = new HashSet<>();
 	private Properties properties;
 	private ConfigurableApplicationContext context;
 	private boolean isPrivileged;
@@ -407,7 +407,7 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 	@Transient
 	public List<ApplicationSubject> getApplicationSubjects() {
 		if (applicationSubjects == null) {
-			applicationSubjects = new ArrayList<ApplicationSubject>();
+			applicationSubjects = new ArrayList<>();
 		}
 		return this.applicationSubjects;
 	}

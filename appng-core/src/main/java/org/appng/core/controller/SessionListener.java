@@ -205,7 +205,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	private static void saveSessions(Environment env) {
 		env.setAttribute(Scope.PLATFORM, SESSIONS,
-				UnmodifiableList.decorate(new ArrayList<Session>(SESSION_MAP.values())));
+				UnmodifiableList.decorate(new ArrayList<>(SESSION_MAP.values())));
 	}
 
 }

@@ -48,14 +48,14 @@ import org.springframework.data.domain.Sort.Order;
  */
 public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 
-	private List<Message> noticeMessages = new ArrayList<Message>();
-	private List<Message> okMessages = new ArrayList<Message>();
-	private List<Message> errorMessages = new ArrayList<Message>();
-	private List<Message> invalidMessages = new ArrayList<Message>();
+	private List<Message> noticeMessages = new ArrayList<>();
+	private List<Message> okMessages = new ArrayList<>();
+	private List<Message> errorMessages = new ArrayList<>();
+	private List<Message> invalidMessages = new ArrayList<>();
 	private final String reference;
 	private Map<String, FieldDef> fieldMap;
 	private MetaData metaData;
-	private List<Linkpanel> panels = new ArrayList<Linkpanel>();
+	private List<Linkpanel> panels = new ArrayList<>();
 	private Pageable pageable;
 
 	public void addLinkPanels(List<Linkpanel> panels) {
@@ -292,7 +292,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 		Sort sort = null;
 		if (pageable.getSort() != null) {
 			List<Order> orders = new ArrayList<Sort.Order>();
-			List<FieldDef> activeSortFields = new ArrayList<FieldDef>();
+			List<FieldDef> activeSortFields = new ArrayList<>();
 			for (Order order : pageable.getSort()) {
 				String property = order.getProperty();
 				boolean ignoreCase = false;
@@ -347,7 +347,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	private Sort getDefaultSort() {
 		Sort sort = null;
 		if (null != getMetaData()) {
-			List<FieldDef> sortFields = new ArrayList<FieldDef>();
+			List<FieldDef> sortFields = new ArrayList<>();
 			for (FieldDef field : getMetaData().getFields()) {
 				if (null != field.getSort()) {
 					sortFields.add(field);

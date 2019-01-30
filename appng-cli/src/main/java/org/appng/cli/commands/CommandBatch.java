@@ -202,7 +202,7 @@ public class CommandBatch implements ExecutableCliCommand {
 	private class Line {
 
 		private static final char SINGLE_QUOTE = '\'';
-		private List<String> tokens = new ArrayList<String>();
+		private List<String> tokens = new ArrayList<>();
 		private boolean hasOpened = false;
 		private boolean assumeVariable = false;
 		private boolean skipAdd = false;

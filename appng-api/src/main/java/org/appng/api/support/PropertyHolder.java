@@ -230,7 +230,7 @@ public class PropertyHolder implements Properties {
 	}
 
 	public List<String> getList(String name, String defaultValue, String delimiter) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		String string = getString(name, defaultValue);
 		if (null != string && string.length() > 0) {
 			String[] splitted = string.split(delimiter);

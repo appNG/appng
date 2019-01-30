@@ -53,7 +53,7 @@ public class SitePropertyController extends PropertyBase {
 			return notFound();
 		}
 
-		List<Property> propsList = new ArrayList<Property>();
+		List<Property> propsList = new ArrayList<>();
 		for (org.appng.appngizer.model.xml.Property property : properties.getProperty()) {
 			ResponseEntity<Property> updated = updateProperty(property, siteByName, null);
 			collectProperties(propsList, updated, property.getName(), HttpStatus.OK);
@@ -82,7 +82,7 @@ public class SitePropertyController extends PropertyBase {
 		if (null == siteByName) {
 			return notFound();
 		}
-		List<Property> propsList = new ArrayList<Property>();
+		List<Property> propsList = new ArrayList<>();
 		for (org.appng.appngizer.model.xml.Property property : properties.getProperty()) {
 			ResponseEntity<Property> created = createProperty(property, siteByName, null);
 			collectProperties(propsList, created, property.getName(), HttpStatus.CREATED);
@@ -97,7 +97,7 @@ public class SitePropertyController extends PropertyBase {
 		if (null == siteByName) {
 			return notFound();
 		}
-		List<Property> propsList = new ArrayList<Property>();
+		List<Property> propsList = new ArrayList<>();
 		for (org.appng.appngizer.model.xml.Property property : properties.getProperty()) {
 			ResponseEntity<Property> deleted = deleteProperty(property.getName(), siteByName, null);
 			collectProperties(propsList, deleted, property.getName(), HttpStatus.OK);

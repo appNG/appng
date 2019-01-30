@@ -101,7 +101,7 @@ public class TestRequest implements Request {
 		if (hasParameter(name)) {
 			return parametersList.get(name);
 		}
-		return Collections.unmodifiableList(new ArrayList<String>());
+		return Collections.unmodifiableList(new ArrayList<>());
 	}
 
 	public Map<String, List<FormUpload>> getFormUploads() {
@@ -109,7 +109,7 @@ public class TestRequest implements Request {
 	}
 
 	public List<FormUpload> getFormUploads(String name) {
-		return uploads.containsKey(name) ? uploads.get(name) : new ArrayList<FormUpload>();
+		return uploads.containsKey(name) ? uploads.get(name) : new ArrayList<>();
 	}
 
 	public void process(HttpServletRequest httpServletRequest) {

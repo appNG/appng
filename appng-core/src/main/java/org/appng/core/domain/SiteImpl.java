@@ -92,7 +92,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private Date version;
 	private String host;
 	private String domain;
-	private Set<SiteApplication> applications = new HashSet<SiteApplication>();
+	private Set<SiteApplication> applications = new HashSet<>();
 	private boolean active;
 	private boolean createRepository = false;
 	private SiteClassLoader siteClassLoader;
@@ -158,7 +158,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	@Transient
 	public Set<Application> getApplications() {
-		Set<Application> applicationList = new HashSet<Application>();
+		Set<Application> applicationList = new HashSet<>();
 		for (SiteApplication application : applications) {
 			applicationList.add(application.getApplication());
 		}

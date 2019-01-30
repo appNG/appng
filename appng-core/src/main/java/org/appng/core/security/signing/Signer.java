@@ -234,7 +234,7 @@ public class Signer {
 	// Is there an easier way to do globbing?
 	static Path[] fileGlob(Path path, String pattern) throws IOException {
 		final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-		final ArrayList<Path> pathBuf = new ArrayList<Path>(128);
+		final ArrayList<Path> pathBuf = new ArrayList<>(128);
 		Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {

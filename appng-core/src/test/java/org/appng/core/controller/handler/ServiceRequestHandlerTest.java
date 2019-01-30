@@ -112,7 +112,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	public void testSoap() throws Exception {
 		String servletPath = "/services/site1/appng-demoapplication/soap/personService/personService.wsdl";
 		setup(servletPath);
-		List<String> emptyList = new ArrayList<String>();
+		List<String> emptyList = new ArrayList<>();
 		PathInfo pathInfo = new PathInfo("localhost", "localhost", "localhost", servletPath, "/ws", "/services",
 				emptyList, emptyList, "", "");
 		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathInfo);
@@ -167,7 +167,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		ac.refresh();
 		setup(servletPath, ac);
 		servletRequest.setMethod(HttpMethod.GET.name());
-		List<String> emptyList = new ArrayList<String>();
+		List<String> emptyList = new ArrayList<>();
 		PathInfo pathInfo = new PathInfo("localhost", "localhost", "localhost", servletPath, "/ws", "/services",
 				emptyList, emptyList, "", "");
 		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathInfo);
@@ -351,7 +351,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		servletRequest.setServletPath(servletPath);
 		servletRequest.setRequestURI(servletPath);
 		servletResponse.setWriterAccessAllowed(true);
-		List<Property> platformProps = new ArrayList<Property>();
+		List<Property> platformProps = new ArrayList<>();
 		platformProps.add(new PropertyImpl(PropertySupport.PREFIX_PLATFORM + Platform.Property.VHOST_MODE,
 				VHostMode.NAME_BASED.name()));
 		platformProps

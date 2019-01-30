@@ -83,9 +83,9 @@ public class FileFieldConverterTest extends AbstractFieldConverterTest {
 	@Test
 	public void testSetObjectEmptyValue() throws Exception {
 		setFiles();
-		Mockito.when(request.getFormUploads(OBJECT)).thenReturn(new ArrayList<FormUpload>());
+		Mockito.when(request.getFormUploads(OBJECT)).thenReturn(new ArrayList<>());
 		fieldConverter.setObject(fieldWrapper, request);
-		Assert.assertEquals(new ArrayList<FormUpload>(), fieldWrapper.getObject());
+		Assert.assertEquals(new ArrayList<>(), fieldWrapper.getObject());
 	}
 
 	@Test

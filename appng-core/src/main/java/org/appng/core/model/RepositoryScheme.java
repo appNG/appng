@@ -51,7 +51,7 @@ public enum RepositoryScheme {
 	}
 
 	public static Set<RepositoryScheme> getSchemes(RepositoryType repositoryType) {
-		Set<RepositoryScheme> supportedSchemes = new HashSet<RepositoryScheme>();
+		Set<RepositoryScheme> supportedSchemes = new HashSet<>();
 		for (RepositoryScheme scheme : RepositoryScheme.values()) {
 			if (repositoryType.equals(scheme.getSupportedRepositoryType())) {
 				supportedSchemes.add(scheme);

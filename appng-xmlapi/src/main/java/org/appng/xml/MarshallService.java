@@ -415,7 +415,7 @@ public class MarshallService {
 		ErrorItem(Object object, String content) {
 			this.object = object;
 			this.content = content;
-			this.errors = new ArrayList<String>();
+			this.errors = new ArrayList<>();
 		}
 
 		void addError(String error) {

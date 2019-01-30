@@ -106,7 +106,7 @@ abstract class RepositoryCacheBase implements RepositoryCache {
 		if (null == publishedApplication) {
 			throw new BusinessException("application not found: " + name);
 		}
-		List<PackageInfo> versions = new ArrayList<PackageInfo>(publishedApplication.getVersions().values());
+		List<PackageInfo> versions = new ArrayList<>(publishedApplication.getVersions().values());
 		Collections.sort(versions, new Comparator<PackageInfo>() {
 			public int compare(PackageInfo applicationA, PackageInfo applicationB) {
 				return applicationA.getName().compareTo(applicationB.getName());

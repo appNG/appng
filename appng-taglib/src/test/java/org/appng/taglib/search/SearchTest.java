@@ -99,7 +99,7 @@ public class SearchTest extends Search {
 		Mockito.when(pageContext.getServletContext()).thenReturn(servletContext);
 		Mockito.when(pageContext.getSession()).thenReturn(session);
 		Mockito.when(pageContext.getOut()).thenReturn(jspWriter);
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		Answer<Void> mockWriter = new Answer<Void>() {
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				result.add((String) invocation.getArguments()[0]);

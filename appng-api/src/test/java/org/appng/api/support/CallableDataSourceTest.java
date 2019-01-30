@@ -170,7 +170,7 @@ public class CallableDataSourceTest {
 			MetaData metaData = new MetaData();
 			metaData.setBindClass(Set.class.getName());
 			DataContainer dataContainer = new DataContainer(new FieldProcessorImpl("foo", metaData));
-			dataContainer.setItem(new ArrayList<String>());
+			dataContainer.setItem(new ArrayList<>());
 			mockDataProvider(dataContainer);
 
 			getDataSource().perform("test");

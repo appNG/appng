@@ -87,7 +87,7 @@ public class SearchFormatter {
 	private File xslStylesheet = null;
 	private static final String XML_COMMENT_OPEN = "<!-- ";
 	private static final String XML_COMMENT_CLOSE = "-->";
-	private List<Part> parts = new ArrayList<Part>();
+	private List<Part> parts = new ArrayList<>();
 
 	private DocumentBuilderFactory documentBuilderFactory;
 	private TransformerFactory transformerFactory;
@@ -133,7 +133,7 @@ public class SearchFormatter {
 	}
 
 	protected List<Result> getSortedDocs() {
-		List<Result> sortedDocs = new ArrayList<Result>();
+		List<Result> sortedDocs = new ArrayList<>();
 		for (Part part : parts) {
 			sortedDocs.addAll(part.getData());
 		}

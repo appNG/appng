@@ -41,7 +41,7 @@ public class GroupController extends ControllerBase {
 
 	@RequestMapping(value = "/group", method = RequestMethod.GET)
 	public ResponseEntity<Groups> listGroups() {
-		List<Group> groupList = new ArrayList<Group>();
+		List<Group> groupList = new ArrayList<>();
 		for (org.appng.api.model.Group g : getCoreService().getGroups()) {
 			groupList.add(Group.fromDomain(g));
 		}

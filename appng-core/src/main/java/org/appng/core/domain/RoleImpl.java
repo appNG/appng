@@ -58,7 +58,7 @@ public class RoleImpl implements Role, Auditable<Integer> {
 	private String description;
 	private Date version;
 	private Application application;
-	private Set<Permission> permissions = new HashSet<Permission>();
+	private Set<Permission> permissions = new HashSet<>();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

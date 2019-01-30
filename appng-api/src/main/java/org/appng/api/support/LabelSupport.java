@@ -84,7 +84,7 @@ public class LabelSupport {
 				}
 				if (StringUtils.isNotBlank(key) && !key.startsWith(LABEL_PREFIX)) {
 					String defaultValue = key;
-					List<Object> args = new ArrayList<Object>();
+					List<Object> args = new ArrayList<>();
 					int idxParamStart = key.indexOf('[');
 					int idxParamEnd = key.indexOf(']');
 					if (idxParamStart > 0 && idxParamEnd > 0) {

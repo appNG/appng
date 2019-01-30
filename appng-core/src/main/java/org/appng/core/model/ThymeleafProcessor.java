@@ -476,7 +476,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 
 		public List<Integer> pages(Resultset resultset) {
-			List<Integer> pages = new ArrayList<Integer>();
+			List<Integer> pages = new ArrayList<>();
 			for (int i = 0; i <= resultset.getLastchunk(); i++) {
 				pages.add(i);
 			}

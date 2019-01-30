@@ -230,7 +230,7 @@ public class SimpleDocument implements Document {
 
 	public static SimpleDocument extract(org.apache.lucene.document.Document doc, int docId, float score) {
 		SimpleDocument simpleDoc = new SimpleDocument(score);
-		List<IndexableField> fields = new ArrayList<IndexableField>(doc.getFields());
+		List<IndexableField> fields = new ArrayList<>(doc.getFields());
 
 		simpleDoc.setDocId(docId);
 		simpleDoc.setContent(getStringFromField(doc, FIELD_CONTENT, fields));

@@ -82,8 +82,8 @@ public abstract class AbstractFieldConverterTest {
 
 	protected DatafieldOwner getDatafieldOwner() {
 		return new DatafieldOwner() {
-			private List<Datafield> fields = new ArrayList<Datafield>();
-			private List<Linkpanel> linkpanels = new ArrayList<Linkpanel>();
+			private List<Datafield> fields = new ArrayList<>();
+			private List<Linkpanel> linkpanels = new ArrayList<>();
 
 			public List<Linkpanel> getLinkpanels() {
 				return linkpanels;

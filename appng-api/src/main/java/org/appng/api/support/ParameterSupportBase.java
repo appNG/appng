@@ -96,7 +96,7 @@ public class ParameterSupportBase implements ParameterSupport {
 	 */
 	public final List<String> getParameters(String source) {
 		Matcher matcher = pattern.matcher(source);
-		List<String> matches = new ArrayList<String>();
+		List<String> matches = new ArrayList<>();
 		while (matcher.find()) {
 			String match = matcher.group();
 			String value = match.substring(getBareLength(prefix), match.length() - getBareLength(suffix));

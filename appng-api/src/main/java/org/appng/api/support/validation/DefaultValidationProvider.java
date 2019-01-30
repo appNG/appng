@@ -353,7 +353,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 			rule.setName(StringUtils.uncapitalize(annotationType.getSimpleName()));
 			List<String> ignoredMethods = Arrays.asList("message", "flags", "annotationType", "groups", "payload",
 					"hashCode", "toString");
-			List<Method> methods = new ArrayList<Method>(Arrays.asList(annotationType.getMethods()));
+			List<Method> methods = new ArrayList<>(Arrays.asList(annotationType.getMethods()));
 			Collections.sort(methods, new Comparator<Method>() {
 				public int compare(Method o1, Method o2) {
 					return o1.getName().compareTo(o2.getName());

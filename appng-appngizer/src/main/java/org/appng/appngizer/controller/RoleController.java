@@ -47,7 +47,7 @@ public class RoleController extends ControllerBase {
 		if (null == appByName) {
 			return notFound();
 		}
-		List<Role> roleList = new ArrayList<Role>();
+		List<Role> roleList = new ArrayList<>();
 		for (RoleImpl r : getCoreService().getApplicationRolesForApplication(appByName.getId())) {
 			roleList.add(Role.fromDomain(r));
 		}

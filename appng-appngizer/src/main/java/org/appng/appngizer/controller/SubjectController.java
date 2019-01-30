@@ -44,7 +44,7 @@ public class SubjectController extends ControllerBase {
 
 	@RequestMapping(value = "/subject", method = RequestMethod.GET)
 	public ResponseEntity<Subjects> listSubjects() {
-		List<Subject> subjects = new ArrayList<Subject>();
+		List<Subject> subjects = new ArrayList<>();
 		for (org.appng.api.model.Subject g : getCoreService().getSubjects()) {
 			subjects.add(Subject.fromDomain(g, false));
 		}
@@ -126,7 +126,7 @@ public class SubjectController extends ControllerBase {
 	}
 
 	public void assignGroups(String name, org.appng.appngizer.model.xml.Subject subject) throws BusinessException {
-		List<String> groupNames = new ArrayList<String>();
+		List<String> groupNames = new ArrayList<>();
 		if (null != subject.getGroups() && null != subject.getGroups().getGroup()) {
 			for (org.appng.appngizer.model.xml.Group group : subject.getGroups().getGroup()) {
 				groupNames.add(group.getName());
