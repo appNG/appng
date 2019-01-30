@@ -132,7 +132,7 @@ public class SearchQuery<T> {
 	 * @see #setAppendEntityAlias(boolean)
 	 */
 	public void and(String clause) {
-		and(clause, new HashMap<String, Object>());
+		and(clause, new HashMap<>());
 	}
 
 	/**

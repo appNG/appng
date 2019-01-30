@@ -61,7 +61,7 @@ public class MultiSiteSupportTest {
 		Mockito.when(site.getHost()).thenReturn(siteName);
 		Mockito.when(site.getDomain()).thenReturn(siteName);
 		Mockito.when(site.getProperties()).thenReturn(Mockito.mock(Properties.class));
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(siteName, site);
 		platformScope.put(Platform.Environment.SITES, siteMap);
 

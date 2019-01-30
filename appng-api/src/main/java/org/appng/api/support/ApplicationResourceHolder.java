@@ -87,9 +87,9 @@ public class ApplicationResourceHolder implements Resources {
 		this.application = application;
 		this.applicationFolder = applicationFolder;
 		this.outputFolder = outputFolder;
-		idMap = new HashMap<Integer, Resource>();
+		idMap = new HashMap<>();
 		for (ResourceType type : ResourceType.values()) {
-			storage.put(type, new HashMap<String, Resource>());
+			storage.put(type, new HashMap<>());
 		}
 		load();
 		Resource applicationResource = getResource(ResourceType.APPLICATION, ResourceType.APPLICATION_XML_NAME);

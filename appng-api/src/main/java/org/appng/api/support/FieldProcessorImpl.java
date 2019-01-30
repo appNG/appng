@@ -73,7 +73,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	public FieldProcessorImpl(String reference, MetaData metaData) {
 		this.reference = reference;
 		this.metaData = metaData;
-		this.fieldMap = new HashMap<String, FieldDef>();
+		this.fieldMap = new HashMap<>();
 		if (null != metaData) {
 			for (FieldDef fieldDef : metaData.getFields()) {
 				fieldMap.put(fieldDef.getBinding(), fieldDef);

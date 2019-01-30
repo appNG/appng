@@ -63,7 +63,7 @@ public class RequestSupportTest extends RequestSupportImpl {
 	private Request request;
 	@Mock
 	private Environment env;
-	private static ExpressionEvaluator params = new ExpressionEvaluator(new HashMap<String, String>());
+	private static ExpressionEvaluator params = new ExpressionEvaluator(new HashMap<>());
 
 	final @Before
 	public void setUp() throws Exception {

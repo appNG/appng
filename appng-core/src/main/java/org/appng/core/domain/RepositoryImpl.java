@@ -232,7 +232,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 
 	@Transient
 	private Map<String, Identifier> getInstalledPackagesMap(List<? extends Identifier> installedPackages) {
-		Map<String, Identifier> installedPackagesMap = new HashMap<String, Identifier>();
+		Map<String, Identifier> installedPackagesMap = new HashMap<>();
 		for (Identifier pckg : installedPackages) {
 			installedPackagesMap.put(pckg.getName(), pckg);
 		}

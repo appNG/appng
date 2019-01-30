@@ -86,7 +86,7 @@ public class SimpleDocument implements Document {
 
 	public SimpleDocument() {
 		observable = new ObservableDelegate<Document>(this);
-		fields = new HashMap<String, IndexableField>();
+		fields = new HashMap<>();
 	}
 
 	public SimpleDocument(float score) {

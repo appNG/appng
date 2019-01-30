@@ -55,7 +55,7 @@ public class RequestUtilTest {
 				propertyHolder);
 
 		Mockito.when(servletRequest.getServerName()).thenReturn("host-2");
-		Map<String, Site> sites = new HashMap<String, Site>();
+		Map<String, Site> sites = new HashMap<>();
 		sites.put("site-1", getSite(1));
 		sites.put("site-2", getSite(2));
 		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.SITES)).thenReturn(sites);

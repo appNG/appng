@@ -66,7 +66,7 @@ public class CommandBatch implements ExecutableCliCommand {
 	private static final String VAR_PREFIX = "$";
 	private static final String VAR_DECLARATION = "def";
 	private static final char VAR_ASSIGNMENT = '=';
-	private Map<String, String> variables = new HashMap<String, String>();
+	private Map<String, String> variables = new HashMap<>();
 
 	@Parameter(names = "-f", required = true, description = "The name of the batch file.", validateWith = FileExists.class)
 	private String fileName;
@@ -125,7 +125,7 @@ public class CommandBatch implements ExecutableCliCommand {
 			return args;
 		}
 
-		Map<String, Object> params = new HashMap<String, Object>(variables);
+		Map<String, Object> params = new HashMap<>(variables);
 		params.put("systemEnv", System.getenv());
 		params.put("systemProp", System.getProperties());
 		ExpressionEvaluator ee = new ExpressionEvaluator(params);

@@ -829,7 +829,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			for (Application application : site.getApplications()) {
 				String sessionParamName = application.getSessionParamKey(site);
 				if (null == env.getAttribute(SESSION, sessionParamName)) {
-					env.setAttribute(SESSION, sessionParamName, new HashMap<String, String>());
+					env.setAttribute(SESSION, sessionParamName, new HashMap<>());
 				}
 			}
 		}

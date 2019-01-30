@@ -1984,7 +1984,7 @@ public class CoreService {
 
 	public Map<String, String> getCacheStatistics(Integer siteId) {
 		SiteImpl site = getSite(siteId);
-		Map<String, String> cacheStatistics = new HashMap<String, String>();
+		Map<String, String> cacheStatistics = new HashMap<>();
 		Boolean ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
 		if (ehcacheEnabled) {
 			try {

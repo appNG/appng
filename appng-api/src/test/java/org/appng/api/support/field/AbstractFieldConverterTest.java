@@ -60,7 +60,7 @@ public abstract class AbstractFieldConverterTest {
 	protected FieldDef field;
 
 	protected void setup(FieldType type) throws Exception {
-		setup(type, new HashMap<String, Object>());
+		setup(type, new HashMap<>());
 	}
 
 	protected void setup(FieldType type, Map<String, Object> params) throws Exception {

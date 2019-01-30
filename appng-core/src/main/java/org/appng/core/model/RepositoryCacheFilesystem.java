@@ -56,7 +56,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 	private static final String MINUS = "-";
 	private Long lastScan;
 	private Long scanPeriod = TimeUnit.SECONDS.toMillis(10);
-	private Map<File, PackageInfo> activeFileMap = new HashMap<File, PackageInfo>();
+	private Map<File, PackageInfo> activeFileMap = new HashMap<>();
 	private Set<String> invalidFileMap = new HashSet<>();
 	private RepositoryMode repositoryMode;
 	private File directory;
@@ -71,7 +71,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 	}
 
 	void init() throws BusinessException {
-		activeFileMap = new HashMap<File, PackageInfo>();
+		activeFileMap = new HashMap<>();
 		invalidFileMap = new HashSet<>();
 		lastScan = null;
 		directory = new File(repository.getUri());
@@ -128,7 +128,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		if (null == lastScan || currentTime - lastScan >= scanPeriod) {
 			StopWatch stopWatch = new StopWatch("RepositoryCacheFilesystem: scan repository");
 			stopWatch.start();
-			Map<File, PackageInfo> newfileMap = new HashMap<File, PackageInfo>();
+			Map<File, PackageInfo> newfileMap = new HashMap<>();
 			Set<TypedPackage> changedPackages = new HashSet<>();
 			File[] currentFiles = getFiles();
 			for (File file : currentFiles) {

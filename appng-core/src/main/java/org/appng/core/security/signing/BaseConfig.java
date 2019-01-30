@@ -59,7 +59,7 @@ public abstract class BaseConfig {
 		validRepoAttributes.add("repoVersion");
 	}
 
-	protected HashMap<String, String> repoAttributes = new HashMap<String, String>();
+	protected HashMap<String, String> repoAttributes = new HashMap<>();
 	protected Collection<X509Certificate> signingCertChain;
 	protected MessageDigest digest;
 	protected Charset charset = Charset.forName(StandardCharsets.UTF_8.name());

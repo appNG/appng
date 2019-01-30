@@ -136,7 +136,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 
 	@Override
 	public int doStartTag() throws JspException {
-		tagletAttributes = new HashMap<String, String>();
+		tagletAttributes = new HashMap<>();
 		return super.doStartTag();
 	}
 

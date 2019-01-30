@@ -72,7 +72,7 @@ public class ParseTags {
 	 */
 	public Map<String, StringBuilder> parse(InputStream is) throws IOException {
 		try (InputStream inner = is) {
-			Map<String, StringBuilder> fieldMap = new HashMap<String, StringBuilder>();
+			Map<String, StringBuilder> fieldMap = new HashMap<>();
 			Document doc = Jsoup.parse(inner, null, "");
 			Elements searchables = doc.getElementsByTag(tagPrefix + ":" + SEARCHABLE);
 			List<Node> skipped = new ArrayList<>();

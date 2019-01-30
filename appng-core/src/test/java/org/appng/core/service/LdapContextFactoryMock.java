@@ -25,7 +25,7 @@ import javax.naming.spi.InitialContextFactory;
 
 public class LdapContextFactoryMock implements InitialContextFactory {
 
-	private static HashMap<String, LdapContextMock> contexts = new HashMap<String, LdapContextMock>();
+	private static HashMap<String, LdapContextMock> contexts = new HashMap<>();
 
 	public static LdapContextMock setup(String userPrincipal, String userPassword, String servicePrincipal,
 			String servicePassword, HashMap<String, Object> siteProperties) throws NamingException, IOException {

@@ -137,7 +137,7 @@ public class TestSupport {
 
 	class TestApplicationProvider extends ApplicationProvider {
 
-		private Map<String, Object> beans = new HashMap<String, Object>();
+		private Map<String, Object> beans = new HashMap<>();
 
 		public TestApplicationProvider(Site site, Application application) {
 			super(site, application);
@@ -232,7 +232,7 @@ public class TestSupport {
 		addGetParameter("xsl", "false");
 		enableParameters(requestParameters.keySet().iterator());
 
-		siteMap = new HashMap<String, Site>();
+		siteMap = new HashMap<>();
 		SiteImpl site = new SiteImpl();
 		site.setId(1);
 		site.setHost(host);

@@ -158,7 +158,7 @@ public class ElementHelperTest {
 
 		Mockito.when(pcp.getDatasource("dsId")).thenReturn(ds);
 		Mockito.when(applicationRequest.getPermissionProcessor()).thenReturn(permissionProcessor);
-		parameterSupport = new DollarParameterSupport(new HashMap<String, String>());
+		parameterSupport = new DollarParameterSupport(new HashMap<>());
 		Mockito.when(applicationRequest.getParameterSupportDollar()).thenReturn(parameterSupport);
 		elementHelper = new ElementHelper(site, application);
 		elementHelper.initializeParameters(DATASOURCE_TEST, applicationRequest, parameterSupport, new Params(),
@@ -456,7 +456,7 @@ public class ElementHelperTest {
 		addParam(executionParams, "p8", "jin", null);
 		addParam(executionParams, "p9", null, "fizz");
 
-		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<String, String>());
+		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<>());
 		Map<String, String> actual = elementHelper.initializeParameters(DATASOURCE_TEST, applicationRequest,
 				parameterSupport, referenceParams, executionParams);
 
@@ -486,7 +486,7 @@ public class ElementHelperTest {
 		Params executionParams = new Params();
 		addParam(executionParams, "p5", null, "b");
 
-		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<String, String>());
+		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<>());
 		try {
 			elementHelper.initializeParameters(DATASOURCE_TEST, applicationRequest, parameterSupport, referenceParams,
 					executionParams);
@@ -521,7 +521,7 @@ public class ElementHelperTest {
 		addParam(executionParams, "p3", "9", "18");
 		addParam(executionParams, "p4", null, null);
 
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put("req_1", "42");
 
 		DollarParameterSupport parameterSupport = new DollarParameterSupport(parameters);

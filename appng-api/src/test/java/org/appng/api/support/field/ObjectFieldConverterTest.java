@@ -150,7 +150,7 @@ public class ObjectFieldConverterTest extends AbstractFieldConverterTest {
 	@Test
 	public void testAddField() throws Exception {
 
-		Map<String, Object> variables = new HashMap<String, Object>();
+		Map<String, Object> variables = new HashMap<>();
 		ResultServiceImpl resultService = new ResultServiceImpl(new ExpressionEvaluator(variables));
 		resultService.setConversionService(new DefaultConversionService());
 		resultService.setEnvironment(environment);

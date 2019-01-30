@@ -45,7 +45,7 @@ public class EmailProviderTest {
 		Mail mail = Mockito.mock(Mail.class);
 		Mockito.when(mailtransport.createMail()).thenReturn(mail);
 		EmailProvider emailProvider = new EmailProvider(mailtransport);
-		Map<String, Object> props = new HashMap<String, Object>();
+		Map<String, Object> props = new HashMap<>();
 
 		props.put(EmailProvider.SENDER, "john@doe.org");
 		props.put(EmailProvider.SENDER_NAME, "John Doe");

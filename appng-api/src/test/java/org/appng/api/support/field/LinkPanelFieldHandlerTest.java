@@ -41,7 +41,7 @@ public class LinkPanelFieldHandlerTest extends AbstractFieldConverterTest {
 
 	@Before
 	public void setup() throws Exception {
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("param1", 5);
 		super.setup(FieldType.LINKPANEL, params);
 		fieldWrapper.setLinkpanel(getLinkPanel());

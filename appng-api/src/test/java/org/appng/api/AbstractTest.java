@@ -79,7 +79,7 @@ public abstract class AbstractTest {
 
 		ConcurrentMap<String, Object> platformContainer = new ConcurrentHashMap<String, Object>();
 		Properties platformProperties = new PropertyHolder(PLATFORM, getPlatformProperties());
-		platformContainer.put(Platform.Environment.SITES, new HashMap<String, Site>());
+		platformContainer.put(Platform.Environment.SITES, new HashMap<>());
 		platformContainer.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
 
 		ConcurrentMap<String, Object> siteContainer = new ConcurrentHashMap<String, Object>();

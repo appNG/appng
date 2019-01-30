@@ -76,7 +76,7 @@ public class EnvironmentTest extends AbstractTest {
 		MockServletContext mockCtx = new MockServletContext();
 		Environment initialEnv = DefaultEnvironment.get(mockCtx);
 		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformProps);
-		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<String, Site>());
+		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(mockCtx);
 		String oldId = mockRequest.getSession().getId();

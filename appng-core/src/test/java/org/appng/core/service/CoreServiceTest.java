@@ -155,7 +155,7 @@ public class CoreServiceTest {
 		platformConfig = coreService.initPlatformConfig(new java.util.Properties(), rootPath, false, true, true);
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformConfig);
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		for (Integer siteId : coreService.getSiteIds()) {
 			SiteImpl site = coreService.getSite(siteId);
 			site.setSiteClassLoader(new SiteClassLoader(new URL[0], getClass().getClassLoader(), site.getName()));

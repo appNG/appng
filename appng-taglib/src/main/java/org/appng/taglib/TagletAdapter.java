@@ -125,7 +125,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 
 	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
-		tagletAttributes = new HashMap<String, String>();
+		tagletAttributes = new HashMap<>();
 		return super.doStartTag();
 	}
 

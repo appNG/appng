@@ -152,7 +152,7 @@ public class SortParamSupport {
 	}
 
 	private Pageable mergeOrderParams(Pageable currentParams, Pageable parseParams) {
-		Map<String, Integer> positions = new HashMap<String, Integer>();
+		Map<String, Integer> positions = new HashMap<>();
 		List<Order> mergedOrders = new ArrayList<>(0);
 		int pos = 0;
 

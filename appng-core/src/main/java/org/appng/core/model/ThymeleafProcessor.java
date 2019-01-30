@@ -287,7 +287,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 							Action action = element.getAction();
 							if (null != action) {
 								if (!actions.containsKey(action.getEventId())) {
-									actions.put(action.getEventId(), new HashMap<String, Action>());
+									actions.put(action.getEventId(), new HashMap<>());
 								}
 								actions.get(action.getEventId()).put(action.getId(), action);
 							}

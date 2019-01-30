@@ -206,7 +206,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	@Transient
 	public Map<String, Application> getApplicationMap() {
-		Map<String, Application> map = new HashMap<String, Application>();
+		Map<String, Application> map = new HashMap<>();
 		for (SiteApplication p : applications) {
 			map.put(p.getApplication().getName(), p.getApplication());
 		}

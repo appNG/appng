@@ -37,7 +37,7 @@ import org.appng.api.model.SimpleProperty;
  */
 public class PropertyHolder implements Properties {
 
-	private Map<String, Property> propMap = new HashMap<String, Property>();
+	private Map<String, Property> propMap = new HashMap<>();
 	private String prefix;
 	private boolean isFinal;
 

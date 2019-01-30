@@ -170,14 +170,14 @@ public class DatabaseUtil {
 
 	public void importData(Map<String, String> properties, Class<? extends TestDataProvider> testDataProvider)
 			throws Exception {
-		Map<String, String> copy = new HashMap<String, String>(properties);
+		Map<String, String> copy = new HashMap<>(properties);
 		copy.put("hibernate.hbm2ddl.auto", "create");
 		EntityManagerFactory emf = null;
 		EntityManager em = null;
 		EntityTransaction tx = null;
 		try {
 			LOGGER.info("clearing database...");
-			Map<String, String> props = new HashMap<String, String>();
+			Map<String, String> props = new HashMap<>();
 			props.put("hibernate.hbm2ddl.auto", "create");
 			emf = Persistence.createEntityManagerFactory(connectionInfo.getPersistenceUnit(), copy);
 			em = emf.createEntityManager();
@@ -219,7 +219,7 @@ public class DatabaseUtil {
 		EntityManager em = null;
 		try {
 			LOGGER.info("clearing database...");
-			Map<String, String> props = new HashMap<String, String>();
+			Map<String, String> props = new HashMap<>();
 			if (createSchema) {
 				props.put("hibernate.hbm2ddl.auto", "create");
 				if (showSql) {
@@ -378,7 +378,7 @@ public class DatabaseUtil {
 	public static Map<String, String> importTestData(Class<? extends TestDataProvider> class1,
 			ConnectionInfo connectionInfo) throws Exception {
 		String jdbcUrl = connectionInfo.getJdbcUrl();
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(ConnectionHelper.HIBERNATE_CONNECTION_URL, jdbcUrl);
 		DatabaseUtil databaseUtil = new DatabaseUtil(connectionInfo);
 		databaseUtil.importData(properties, class1);

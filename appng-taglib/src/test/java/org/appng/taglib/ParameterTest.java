@@ -29,7 +29,7 @@ import org.springframework.mock.web.MockBodyContent;
 
 public class ParameterTest extends BodyTagSupport implements ParameterOwner {
 
-	private Map<String, String> parameters = new HashMap<String, String>();
+	private Map<String, String> parameters = new HashMap<>();
 
 	@Test
 	public void testParameter() throws IOException, JspException {

@@ -57,7 +57,7 @@ public abstract class TagletTestBase {
 		Mockito.when(properties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
 		Map<String, Object> platformScope = new ConcurrentHashMap<String, Object>();
 		platformScope.put(Platform.Environment.PLATFORM_CONFIG, properties);
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		Site site = Mockito.mock(Site.class);
 		Mockito.when(site.getName()).thenReturn("localhost");
 		Mockito.when(site.getHost()).thenReturn("localhost");

@@ -91,7 +91,7 @@ public class CommandMain {
 	}
 
 	public Map<String, String> getHibernateParams() {
-		Map<String, String> hibernateParams = new HashMap<String, String>();
+		Map<String, String> hibernateParams = new HashMap<>();
 		if (schemaExport) {
 			hibernateParams.put("hibernate.hbm2ddl.auto", "create");
 		}

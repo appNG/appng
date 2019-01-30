@@ -112,7 +112,7 @@ public class SearchTest extends Search {
 		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<String, Object>();
 		Mockito.when(servletContext.getAttribute(Scope.PLATFORM.name())).thenReturn(platformEnv);
 		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(LOCALHOST, site);
 		platformEnv.put("sites", siteMap);
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);

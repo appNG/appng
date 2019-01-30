@@ -74,7 +74,7 @@ public class TagletAdapterTest {
 				return true;
 			}
 		};
-		Map<String, String> expectedParams = new HashMap<String, String>();
+		Map<String, String> expectedParams = new HashMap<>();
 		expectedParams.put("foo", "bar");
 		Mockito.when(tagletProcessor.perform(Mockito.eq(site), Mockito.eq(site), Mockito.eq(applicationProvider),
 				Mockito.eq(expectedParams), Mockito.any(ApplicationRequest.class), Mockito.eq("method"),

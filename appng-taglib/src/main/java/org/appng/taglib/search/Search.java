@@ -120,7 +120,7 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 	private boolean useParts;
 	private String highlight;
 	private List<SearchPart> parts = new ArrayList<>();
-	private Map<String, String> parameters = new HashMap<String, String>();
+	private Map<String, String> parameters = new HashMap<>();
 
 	@Override
 	public int doEndTag() throws JspException {

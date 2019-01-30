@@ -83,7 +83,7 @@ public class RuleValidation {
 	public static final List<String> SHORT_RULES = Arrays.asList(STRING, EMAIL, NUMBER);
 
 	public RuleValidation(Request container) {
-		Map<String, Object> sessionParams = new HashMap<String, Object>();
+		Map<String, Object> sessionParams = new HashMap<>();
 		HttpSession session = container.getHttpServletRequest().getSession();
 		Enumeration<String> attributeNames = session.getAttributeNames();
 		while (attributeNames.hasMoreElements()) {
@@ -92,7 +92,7 @@ public class RuleValidation {
 			sessionParams.put(attribute, value);
 		}
 
-		Map<String, Object> parameters = new HashMap<String, Object>(container.getParameters());
+		Map<String, Object> parameters = new HashMap<>(container.getParameters());
 		Map<String, List<String>> multivaluedParameters = container.getParametersList();
 		for (String key : parameters.keySet()) {
 			if (multivaluedParameters.get(key).size() > 1) {

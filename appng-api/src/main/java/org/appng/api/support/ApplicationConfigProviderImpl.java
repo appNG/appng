@@ -106,7 +106,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationInfo;
 		this.validator = new ConfigValidator(this);
-		this.resourceMap = new HashMap<String, String>();
+		this.resourceMap = new HashMap<>();
 		this.resources = resources;
 		setDevMode(devMode);
 		loadConfig(marshallService);
@@ -128,7 +128,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationResources.getApplicationInfo();
 		this.validator = new ConfigValidator(this);
-		this.resourceMap = new HashMap<String, String>();
+		this.resourceMap = new HashMap<>();
 		setDevMode(devMode);
 		loadConfig(marshallService);
 	}
@@ -322,7 +322,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	private void addEvent(Event e, String resourceName) {
 		Event oldVal = eventMap.put(e.getId(), e);
 		resourceMap.put(RESOURCE_MAP_KEY_EVENT + e.getId(), resourceName);
-		Map<String, Action> actions = new HashMap<String, Action>();
+		Map<String, Action> actions = new HashMap<>();
 		for (Action action : e.getActions()) {
 			actions.put(action.getId(), action);
 		}

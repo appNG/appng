@@ -135,7 +135,7 @@ public class NodeEvent extends Event {
 			this.nonHeap = new MemoryUsage(memoryMXBean.getNonHeapMemoryUsage());
 			this.props = new Properties();
 			props.putAll(System.getProperties());
-			this.env = new HashMap<String, String>(System.getenv());
+			this.env = new HashMap<>(System.getenv());
 			this.siteStates = siteStates;
 			this.date = new Date();
 		}

@@ -47,7 +47,7 @@ public class TestRequest implements Request {
 	private boolean isMultiPart;
 
 	public TestRequest() {
-		this(new HashMap<String, Object>());
+		this(new HashMap<>());
 	}
 
 	public TestRequest(Map<String, Object> sessionAttributes) {
@@ -74,7 +74,7 @@ public class TestRequest implements Request {
 	}
 
 	public Map<String, String> getParameters() {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		for (String key : parametersList.keySet()) {
 			String parameter = getParameter(key);
 			if (null != parameter) {

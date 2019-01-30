@@ -79,7 +79,7 @@ public class ResultServiceTest {
 		ConversionService conversionService = conversionServiceFactoryBean.getObject();
 
 		Mockito.when(request.getEnvironment()).thenReturn(env);
-		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new HashMap<String, String>());
+		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new HashMap<>());
 		Mockito.when(request.getExpressionEvaluator()).thenReturn(expressionEvaluator);
 		Mockito.when(env.getTimeZone()).thenReturn(TimeZone.getDefault());
 		Mockito.when(env.getLocale()).thenReturn(Locale.getDefault());
@@ -112,7 +112,7 @@ public class ResultServiceTest {
 		p.setName("John");
 		p.setBirthDate(new SimpleDateFormat(pattern).parse("2012.12.12 13:14:15"));
 		Mockito.when(request.getExpressionEvaluator())
-				.thenReturn(new ExpressionEvaluator(new HashMap<String, String>()));
+				.thenReturn(new ExpressionEvaluator(new HashMap<>()));
 		Mockito.when(env.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT+3"));
 		Result result = rss.getResult(fp, p);
 		XmlValidator.validate(result);

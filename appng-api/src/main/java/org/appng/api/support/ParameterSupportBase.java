@@ -70,7 +70,7 @@ public class ParameterSupportBase implements ParameterSupport {
 	}
 
 	protected ParameterSupportBase(String prefix, String suffix) {
-		this(prefix, suffix, new HashMap<String, String>());
+		this(prefix, suffix, new HashMap<>());
 	}
 
 	/*

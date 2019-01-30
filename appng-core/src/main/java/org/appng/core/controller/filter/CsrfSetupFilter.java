@@ -181,7 +181,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 	class MultipartRequest implements org.appng.forms.Request {
 
 		private MultipartHttpServletRequest wrapped;
-		private Map<String, String> additionalParams = new HashMap<String, String>();
+		private Map<String, String> additionalParams = new HashMap<>();
 		private String host;
 
 		MultipartRequest(MultipartHttpServletRequest wrapped) {
@@ -202,7 +202,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 		}
 
 		public Map<String, String> getParameters() {
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			for (String name : getParameterNames()) {
 				parameters.put(name, getParameter(name));
 			}

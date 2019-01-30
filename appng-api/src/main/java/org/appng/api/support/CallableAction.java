@@ -249,7 +249,7 @@ public class CallableAction {
 				}
 
 				if (null != data && null != data.getResult()) {
-					Map<String, String> fieldValues = new HashMap<String, String>();
+					Map<String, String> fieldValues = new HashMap<>();
 					for (Datafield datafield : data.getResult().getFields()) {
 						fieldValues.put(datafield.getName(), datafield.getValue());
 					}
@@ -588,7 +588,7 @@ public class CallableAction {
 	// XXX MM this is the root of all evil
 	private void handleSelections() {
 		if (null != action.getData()) {
-			Map<String, Selection> selectionMap = new HashMap<String, Selection>();
+			Map<String, Selection> selectionMap = new HashMap<>();
 			for (Selection selection : action.getData().getSelections()) {
 				selectionMap.put(selection.getId(), selection);
 			}

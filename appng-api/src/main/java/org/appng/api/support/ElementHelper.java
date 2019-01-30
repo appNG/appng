@@ -339,8 +339,8 @@ public class ElementHelper {
 	Map<String, String> initializeParameters(String reference, ApplicationRequest applicationRequest,
 			ParameterSupport parameterSupport, Params referenceParams, Params executionParams)
 			throws ProcessingException {
-		Map<String, String> executionParameters = new HashMap<String, String>();
-		Map<String, String> referenceParameters = new HashMap<String, String>();
+		Map<String, String> executionParameters = new HashMap<>();
+		Map<String, String> referenceParameters = new HashMap<>();
 		if (null != referenceParams) {
 			for (Param p : referenceParams.getParam()) {
 				String newValue = parameterSupport.replaceParameters(p.getValue());

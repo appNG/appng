@@ -59,7 +59,7 @@ public class PageParameterProcessorTest extends TestSupport {
 
 	private List<String> applicationUrlParameter = new ArrayList<>();
 
-	private Map<String, String> sessionParams = new HashMap<String, String>();
+	private Map<String, String> sessionParams = new HashMap<>();
 
 	@Before
 	public void setup() {

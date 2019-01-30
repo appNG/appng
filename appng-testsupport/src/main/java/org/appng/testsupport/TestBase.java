@@ -264,7 +264,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	private boolean useFullClassname = false;
 
-	private Map<String, String> parameters = new HashMap<String, String>();
+	private Map<String, String> parameters = new HashMap<>();
 
 	public TestBase() {
 		this("application", APPLICATION_HOME);
@@ -418,7 +418,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		Mockito.when(site.getDomain()).thenReturn("localhost");
 		Mockito.when(site.getHost()).thenReturn("localhost");
 		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
-		Map<String, Site> sites = new HashMap<String, Site>();
+		Map<String, Site> sites = new HashMap<>();
 		sites.put("localhost", site);
 		platformEnv.put(Platform.Environment.SITES, sites);
 
@@ -541,7 +541,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	class ParametrizedCall {
-		private Map<String, String> configParams = new HashMap<String, String>();
+		private Map<String, String> configParams = new HashMap<>();
 		private Params params;
 
 		ParametrizedCall(Params params) {
@@ -761,7 +761,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 		private String name;
 		private ConfigurableApplicationContext context;
-		private Map<String, Permission> permissionMap = new HashMap<String, Permission>();
+		private Map<String, Permission> permissionMap = new HashMap<>();
 		private Set<Role> roleSet;
 		private org.appng.api.model.Properties properties;
 		private List<ApplicationSubject> applicationSubjects;
@@ -928,7 +928,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			String sessionParamKey = getSessionParamKey(site);
 			Map<String, String> sessionsParams = environment.getAttribute(Scope.SESSION, sessionParamKey);
 			if (null == sessionsParams) {
-				sessionsParams = new HashMap<String, String>();
+				sessionsParams = new HashMap<>();
 				environment.setAttribute(Scope.SESSION, sessionParamKey, sessionsParams);
 			}
 			return sessionsParams;

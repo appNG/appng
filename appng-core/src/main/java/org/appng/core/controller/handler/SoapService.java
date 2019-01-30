@@ -154,7 +154,7 @@ public class SoapService {
 
 			Map<String, ConfigurableApplicationContext> servicesOfSite = SOAP_CONTEXTS.get(site.getName());
 			if (null == servicesOfSite) {
-				servicesOfSite = new HashMap<String, ConfigurableApplicationContext>();
+				servicesOfSite = new HashMap<>();
 				SOAP_CONTEXTS.put(site.getName(), servicesOfSite);
 			}
 			String serviceId = application.getName() + "#" + serviceName;

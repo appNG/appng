@@ -432,7 +432,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		};
 		site.getSiteApplications().add(applicationProvider);
 		site.setProperties(new PropertyHolder());
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(site.getName(), site);
 		SiteImpl site1 = new SiteImpl();
 		site1.setHost("site1");

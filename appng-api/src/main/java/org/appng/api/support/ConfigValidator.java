@@ -255,7 +255,7 @@ public class ConfigValidator {
 
 	private Map<String, String> getAllPageParams(PageDefinition page) {
 		UrlSchema urlSchema = page.getConfig().getUrlSchema();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		if (null != urlSchema) {
 			PostParams postParams = urlSchema.getPostParams();
 			if (null != postParams) {
@@ -275,7 +275,7 @@ public class ConfigValidator {
 
 	private Map<String, String> getPageGetParams(PageDefinition page) {
 		UrlSchema urlSchema = page.getConfig().getUrlSchema();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		if (null != urlSchema) {
 			GetParams getParams = urlSchema.getGetParams();
 			if (null != getParams) {
@@ -875,7 +875,7 @@ public class ConfigValidator {
 	}
 
 	private Map<String, String> getParameterMap(List<Param> params) {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		if (null != params) {
 			for (Param param : params) {
 				String value = StringUtils.isNotBlank(param.getValue()) ? param.getValue()

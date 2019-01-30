@@ -41,7 +41,7 @@ public class PrettyTable {
 
 	private List<TableColumn> columns = new ArrayList<>();
 	private List<TableRow> rows = new ArrayList<>();
-	private Map<String, TableColumn> columnMap = new HashMap<String, TableColumn>();
+	private Map<String, TableColumn> columnMap = new HashMap<>();
 	private int tableWidth = 0;
 
 	public PrettyTable() {

@@ -38,7 +38,7 @@ import org.appng.xml.application.PackageInfo;
  */
 abstract class RepositoryCacheBase implements RepositoryCache {
 
-	protected final Map<String, PackageWrapper> applicationWrapperMap = new HashMap<String, PackageWrapper>();
+	protected final Map<String, PackageWrapper> applicationWrapperMap = new HashMap<>();
 	protected final Repository repository;
 	protected byte[] cert;
 	protected SignatureWrapper signatureWrapper;

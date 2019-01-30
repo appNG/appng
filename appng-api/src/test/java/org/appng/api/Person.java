@@ -264,7 +264,7 @@ public class Person implements Named<Integer> {
 	}
 
 	public Map<String, Person> getOffspringNames() {
-		Map<String, Person> map = new HashMap<String, Person>();
+		Map<String, Person> map = new HashMap<>();
 		for (Person p : offsprings) {
 			map.put(p.getName(), p);
 		}

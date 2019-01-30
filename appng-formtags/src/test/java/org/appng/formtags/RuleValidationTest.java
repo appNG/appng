@@ -47,8 +47,8 @@ public class RuleValidationTest {
 
 	@Before
 	public void setup() {
-		Map<String, Object> sessionAttribues = new HashMap<String, Object>();
-		Map<String, Object> session = new HashMap<String, Object>();
+		Map<String, Object> sessionAttribues = new HashMap<>();
+		Map<String, Object> session = new HashMap<>();
 		session.put("SESSION", sessionAttribues);
 		sessionAttribues.put("foobar", 5);
 		container = new TestRequest(sessionAttribues);

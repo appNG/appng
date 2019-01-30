@@ -304,7 +304,7 @@ public class RequestBean implements Request {
 
 	public Map<String, String> getParameters() {
 		Set<String> keySet = parameters.keySet();
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		for (String key : keySet) {
 			String value = getSingleParameter(key);
 			if (null != value) {
