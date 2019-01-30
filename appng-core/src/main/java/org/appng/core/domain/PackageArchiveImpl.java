@@ -135,7 +135,7 @@ public class PackageArchiveImpl implements PackageArchive {
 		try (ZipFile zipFile = new ZipFile(file)) {
 			return processor.process(zipFile);
 		} finally {
-			isValid = null == packageInfo;
+			isValid = null != packageInfo;
 		}
 	}
 
