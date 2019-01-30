@@ -97,11 +97,13 @@ public class HsqlServer {
 	}
 
 	private static void shutdown(String dbName, int port) {
+		String jdbcUrl = "jdbc:hsqldb:hsql://localhost:" + port + "/" + dbName;
 		try {
-			String jdbcUrl = "jdbc:hsqldb:hsql://localhost:" + port + "/" + dbName;
-			Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
-			Statement createStatement = connection.createStatement();
-			createStatement.execute("SHUTDOWN");
+			try (
+					Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+					Statement createStatement = connection.createStatement()) {
+				createStatement.execute("SHUTDOWN");
+			}
 		} catch (SQLException e) {
 			LOGGER.info("failed shutting down, must be first start: {}", e.getMessage());
 		}

@@ -255,13 +255,12 @@ public class DatabaseUtil {
 			LOGGER.info("clearing database...");
 			for (int i = connectionInfo.getTableNames().size(); i > 0; i--) {
 				String table = connectionInfo.getTableNames().get(i - 1);
-				Statement statement = jdbcConnection.createStatement();
-				String stmt = "delete from " + ((null != SCHEMA) ? SCHEMA + "." : "") + table;
-				int rows = statement.executeUpdate(stmt);
-				LOGGER.debug(".....clearing {} ({} rows deleted)", table, rows);
-				statement.close();
+				try (Statement statement = jdbcConnection.createStatement()) {
+					String stmt = "delete from " + ((null != SCHEMA) ? SCHEMA + "." : "") + table;
+					int rows = statement.executeUpdate(stmt);
+					LOGGER.debug(".....clearing {} ({} rows deleted)", table, rows);
+				}
 			}
-
 			LOGGER.info("...done clearing");
 		} catch (Throwable e) {
 			LOGGER.error(e.getMessage(), e);

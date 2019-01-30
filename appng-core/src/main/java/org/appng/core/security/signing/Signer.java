@@ -196,29 +196,32 @@ public class Signer {
 			// Write the release file
 			Path releaseFilePath = repoPath.resolve("index");
 			LOGGER.info("Writing release file '{}'", releaseFilePath);
-			BufferedWriter releaseFileOut = Files.newBufferedWriter(releaseFilePath, config.getCharset(),
-					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+			try (
+					BufferedWriter releaseFileOut = Files.newBufferedWriter(releaseFilePath, config.getCharset(),
+							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
-			LOGGER.info("..adding repository attributes");
-			for (String key : BaseConfig.validRepoAttributes) {
-				releaseFileOut.append(String.format("%s: %s\n", key, config.repoAttributes.get(key)));
+				LOGGER.info("..adding repository attributes");
+				for (String key : BaseConfig.validRepoAttributes) {
+					releaseFileOut.append(String.format("%s: %s\n", key, config.repoAttributes.get(key)));
+				}
+
+				releaseFileOut.append(String.format("%s\n", SignerConfig.RELEASE_FILE_DIGEST_SEPARATOR));
+				for (Path pkgPath : pkgPaths) {
+					LOGGER.info("..adding message digest of package '{}'", pkgPath.getFileName());
+					byte[] hashRaw = config.getDigest().digest(Files.readAllBytes(pkgPath));
+					releaseFileOut
+							.append(String.format("%s: %s\n", pkgPath.getFileName(), Hex.encodeHexString(hashRaw)));
+				}
+				releaseFileOut.close();
+
+				Signature sig = config.getSignature();
+				sig.update(Files.readAllBytes(releaseFilePath));
+				byte[] signed = sig.sign();
+				SignatureWrapper signatureWrapper = new SignatureWrapper();
+				signatureWrapper.setSignature(signed);
+				signatureWrapper.setIndex(Files.readAllBytes(releaseFilePath));
+				return signatureWrapper;
 			}
-
-			releaseFileOut.append(String.format("%s\n", SignerConfig.RELEASE_FILE_DIGEST_SEPARATOR));
-			for (Path pkgPath : pkgPaths) {
-				LOGGER.info("..adding message digest of package '{}'", pkgPath.getFileName());
-				byte[] hashRaw = config.getDigest().digest(Files.readAllBytes(pkgPath));
-				releaseFileOut.append(String.format("%s: %s\n", pkgPath.getFileName(), Hex.encodeHexString(hashRaw)));
-			}
-			releaseFileOut.close();
-
-			Signature sig = config.getSignature();
-			sig.update(Files.readAllBytes(releaseFilePath));
-			byte[] signed = sig.sign();
-			SignatureWrapper signatureWrapper = new SignatureWrapper();
-			signatureWrapper.setSignature(signed);
-			signatureWrapper.setIndex(Files.readAllBytes(releaseFilePath));
-			return signatureWrapper;
 		} catch (IOException ioe) {
 			throw new SigningException(ErrorType.SIGN,
 					"IOException during repo signing. Please check the configured paths and masks.", ioe);

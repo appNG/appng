@@ -31,16 +31,21 @@ public class PropertyConstantCreator {
 
 	/**
 	 * Generates a .java file containing constants for all the keys defined in the given property-file. For the
-	 * constant's name, dots (.) and Dashes (-) are replaced with an underscore (_). Also, for a camel-case an underscore
-	 * is being added.<br/>
+	 * constant's name, dots (.) and Dashes (-) are replaced with an underscore (_). Also, for a camel-case an
+	 * underscore is being added.<br/>
 	 * Usage:<br/>
-	 * <pre>PropertyConstantCreator.main(new String[] {"path/to/file.properties", "org.appng.example.Constants", "target/constants"})</pre>
+	 * 
+	 * <pre>
+	 * PropertyConstantCreator
+	 * 		.main(new String[] { "path/to/file.properties", "org.appng.example.Constants", "target/constants" })
+	 * </pre>
 	 * 
 	 * @param args
 	 *            args[0]* - the path to the property file to use<br/>
 	 *            args[1]* - the fully qualified name of the target class to generate<br/>
 	 *            args[2]* - the output-folder for the generated class<br/>
-	 *            args[3]  - the charset used to read the properties file, defaults to {@code System.getProperty("file.encoding")}
+	 *            args[3] - the charset used to read the properties file, defaults to
+	 *            {@code System.getProperty("file.encoding")}
 	 * @throws IOException
 	 *             if the property file can not be found or the target class can not be written
 	 * @throws IllegalArgumentException
@@ -49,7 +54,8 @@ public class PropertyConstantCreator {
 	public static void main(String[] args) throws IOException {
 
 		if (args.length < 3) {
-			throw new IllegalArgumentException("at least 3 parameters needed: filePath* targetClass* outFolder* [charset]");
+			throw new IllegalArgumentException(
+					"at least 3 parameters needed: filePath* targetClass* outFolder* [charset]");
 		}
 
 		String filePath = args[0];
@@ -102,8 +108,8 @@ public class PropertyConstantCreator {
 		String fileName = targetClass.replace('.', '/') + ".java";
 		File outFile = new File(new File(outfolder).getAbsoluteFile(), fileName);
 		outFile.getParentFile().mkdirs();
-		FileOutputStream fos = new FileOutputStream(outFile);
-		fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
-		fos.close();
+		try (FileOutputStream fos = new FileOutputStream(outFile)) {
+			fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+		}
 	}
 }

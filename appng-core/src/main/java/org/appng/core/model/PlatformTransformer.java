@@ -243,15 +243,16 @@ public class PlatformTransformer {
 			File traceOut = new File(debugFolder, prefix + "stacktrace.txt");
 			IOUtils.write(IOUtils.toByteArray(sourceAwareTemplate.source), new FileOutputStream(xslOut));
 			FileUtils.write(xmlOut, platformXML, Charset.defaultCharset());
-			PrintWriter debugWriter = new PrintWriter(traceOut);
-			if (null != te) {
-				te.printStackTrace(debugWriter);
-			}
-			if (null != sourceAwareTemplate.errorCollector) {
-				for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
-					debugWriter.write("--------------------");
-					debugWriter.write(System.lineSeparator());
-					transformerException.printStackTrace(debugWriter);
+			try (PrintWriter debugWriter = new PrintWriter(traceOut)) {
+				if (null != te) {
+					te.printStackTrace(debugWriter);
+				}
+				if (null != sourceAwareTemplate.errorCollector) {
+					for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
+						debugWriter.write("--------------------");
+						debugWriter.write(System.lineSeparator());
+						transformerException.printStackTrace(debugWriter);
+					}
 				}
 			}
 			if (traceOut.length() == 0) {

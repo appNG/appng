@@ -281,7 +281,8 @@ public class InitializerService {
 		String applicationRealDir = servletContext.getRealPath(appendSlash(applicationDir));
 		File applicationRootFolder = new File(applicationRealDir).getAbsoluteFile();
 		if (!applicationRootFolder.exists()) {
-			LOGGER.error("could not find applicationfolder {} platform will exit!", applicationRootFolder.getAbsolutePath());
+			LOGGER.error("could not find applicationfolder {} platform will exit!",
+					applicationRootFolder.getAbsolutePath());
 			return;
 		}
 		LOGGER.info("applications are located at {} or in the database", applicationRootFolder);
@@ -336,44 +337,44 @@ public class InitializerService {
 
 		public void run() {
 			try {
-				WatchService watcher = FileSystems.getDefault().newWatchService();
+				try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
 
-				File rootDir = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
-				rootDir.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
-						StandardWatchEventKinds.ENTRY_MODIFY);
-				LOGGER.debug("watching for {}", new File(rootDir, RELOAD_FILE).getAbsolutePath());
+					File rootDir = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
+					rootDir.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
+							StandardWatchEventKinds.ENTRY_MODIFY);
+					LOGGER.debug("watching for {}", new File(rootDir, RELOAD_FILE).getAbsolutePath());
 
-				File absoluteFile = null;
-				do {
-					WatchKey key;
+					File absoluteFile = null;
+					do {
+						WatchKey key;
+						try {
+							key = watcher.take();
+						} catch (InterruptedException x) {
+							return;
+						}
+						for (WatchEvent<?> event : key.pollEvents()) {
+							if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+								continue;
+							}
+							java.nio.file.Path eventPath = (java.nio.file.Path) key.watchable();
+							String fileName = ((java.nio.file.Path) event.context()).toString();
+							if (RELOAD_FILE.equals(fileName)) {
+								absoluteFile = new File(eventPath.toFile(), fileName);
+								LOGGER.info("found {}", absoluteFile.getAbsolutePath());
+							}
+						}
+					} while (null == absoluteFile);
+
+					FileUtils.deleteQuietly(absoluteFile);
+					LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
+					LOGGER.info("restarting site {}", site.getName());
 					try {
-						key = watcher.take();
-					} catch (InterruptedException x) {
-						return;
+						loadSite(env, getCoreService().getSiteByName(site.getName()), false,
+								new FieldProcessorImpl("auto-reload"));
+					} catch (InvalidConfigurationException e) {
+						LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 					}
-					for (WatchEvent<?> event : key.pollEvents()) {
-						if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-							continue;
-						}
-						java.nio.file.Path eventPath = (java.nio.file.Path) key.watchable();
-						String fileName = ((java.nio.file.Path) event.context()).toString();
-						if (RELOAD_FILE.equals(fileName)) {
-							absoluteFile = new File(eventPath.toFile(), fileName);
-							LOGGER.info("found {}", absoluteFile.getAbsolutePath());
-						}
-					}
-				} while (null == absoluteFile);
-
-				FileUtils.deleteQuietly(absoluteFile);
-				LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
-				LOGGER.info("restarting site {}", site.getName());
-				try {
-					loadSite(env, getCoreService().getSiteByName(site.getName()), false,
-							new FieldProcessorImpl("auto-reload"));
-				} catch (InvalidConfigurationException e) {
-					LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 				}
-
 			} catch (Exception e) {
 				LOGGER.error("error in site reload watcher", e);
 			}

@@ -382,43 +382,43 @@ public class Updater {
 		}
 		completed.set(75.0d);
 		status.set("Extracting files");
-		ZipFile zip = new ZipFile(warArchive.toFile());
-		Enumeration<? extends ZipEntry> entries = zip.entries();
-		while (entries.hasMoreElements()) {
-			ZipEntry entry = entries.nextElement();
-			String name = entry.getName();
-			String folder = name.substring(0, name.lastIndexOf('/') + 1);
-			if (!entry.isDirectory()) {
-				switch (folder) {
-				case WEB_INF:
-					if (replaceWebXml) {
+		try (ZipFile zip = new ZipFile(warArchive.toFile())) {
+			Enumeration<? extends ZipEntry> entries = zip.entries();
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = entries.nextElement();
+				String name = entry.getName();
+				String folder = name.substring(0, name.lastIndexOf('/') + 1);
+				if (!entry.isDirectory()) {
+					switch (folder) {
+					case WEB_INF:
+						if (replaceWebXml) {
+							writeFile(appNGHome, zip.getInputStream(entry), name);
+						}
+						break;
+					case WEB_INF_LIB:
+					case WEB_INF_CLASSES:
 						writeFile(appNGHome, zip.getInputStream(entry), name);
+						break;
+					case WEB_INF + "conf/":
+						if (replacePlatformContext && name.endsWith("platformContext.xml")) {
+							writeFile(appNGHome, zip.getInputStream(entry), name);
+						}
+						break;
+					case WEB_INF + "/bin/":
+						if (replaceBin) {
+							writeFile(appNGHome, zip.getInputStream(entry), name);
+						}
+						break;
+					default:
+						LOGGER.info("Skipping {}", name);
+						break;
 					}
-					break;
-				case WEB_INF_LIB:
-				case WEB_INF_CLASSES:
-					writeFile(appNGHome, zip.getInputStream(entry), name);
-					break;
-				case WEB_INF + "conf/":
-					if (replacePlatformContext && name.endsWith("platformContext.xml")) {
-						writeFile(appNGHome, zip.getInputStream(entry), name);
-					}
-					break;
-				case WEB_INF + "/bin/":
-					if (replaceBin) {
-						writeFile(appNGHome, zip.getInputStream(entry), name);
-					}
-					break;
-				default:
-					LOGGER.info("Skipping {}", name);
-					break;
 				}
-			}
 
+			}
+			warArchive.toFile().delete();
+			completed.set(80.0d);
 		}
-		zip.close();
-		warArchive.toFile().delete();
-		completed.set(80.0d);
 	}
 
 	protected void updateAppNGizer(Resource resource, String appNGizerHome) throws RestClientException, IOException {

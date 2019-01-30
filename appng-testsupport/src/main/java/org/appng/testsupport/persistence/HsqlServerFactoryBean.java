@@ -18,6 +18,7 @@ package org.appng.testsupport.persistence;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.hsqldb.Server;
 import org.springframework.beans.factory.DisposableBean;
@@ -51,7 +52,9 @@ public class HsqlServerFactoryBean implements FactoryBean<Server>, InitializingB
 				server.getDatabasePath(0, false), server.getPort());
 		String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", server.getPort(), databaseName);
 		try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "")) {
-			connection.createStatement().execute("SHUTDOWN");
+			try (Statement statement = connection.createStatement()) {
+				statement.execute("SHUTDOWN");
+			}
 		} catch (SQLException e) {
 			LOGGER.warn("error while shutting down server", e);
 		}

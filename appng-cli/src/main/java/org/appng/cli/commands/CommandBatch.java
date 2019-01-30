@@ -104,10 +104,12 @@ public class CommandBatch implements ExecutableCliCommand {
 		String actual = null;
 		try {
 			Properties cliConfig = cle.getCliConfig();
-			List<String> lines = IOUtils.readLines(new FileInputStream(file), Charset.defaultCharset());
-			for (String command : lines) {
-				actual = command;
-				execute(cliCore, cliConfig, command);
+			try (FileInputStream fis = new FileInputStream(file)) {
+				List<String> lines = IOUtils.readLines(fis, Charset.defaultCharset());
+				for (String command : lines) {
+					actual = command;
+					execute(cliCore, cliConfig, command);
+				}
 			}
 		} catch (Exception e) {
 			if (null != actual) {
