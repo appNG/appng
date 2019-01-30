@@ -171,14 +171,15 @@ public class StyleSheetProvider {
 				includeStyleSheet(rootNode, insertionPoint, reference);
 			}
 
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			DOMSource domSource = new DOMSource(masterDoc);
-			if (additionalOut != null) {
-				transformer.transform(domSource, new StreamResult(additionalOut));
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				DOMSource domSource = new DOMSource(masterDoc);
+				if (additionalOut != null) {
+					transformer.transform(domSource, new StreamResult(additionalOut));
+				}
+				transformer.transform(domSource, new StreamResult(outputStream));
+				LOGGER.debug("stylesheet complete");
+				return outputStream.toByteArray();
 			}
-			transformer.transform(domSource, new StreamResult(outputStream));
-			LOGGER.debug("stylesheet complete");
-			return outputStream.toByteArray();
 		} catch (Exception e) {
 			LOGGER.error(String.format("[%s] error writing stylesheet", name), e);
 		} finally {

@@ -120,7 +120,7 @@ public class PlatformTransformer {
 	 *             when parsing or applying the XSLT template fails
 	 */
 	public String transform(ApplicationProvider applicationProvider, Properties platformProperties, String platformXML,
-			String charSet) throws FileNotFoundException, TransformerException {
+			String charSet) throws IOException, TransformerException {
 		InputStream xmlSourceIn = new ByteArrayInputStream(platformXML.getBytes());
 		StreamSource xmlSource = new StreamSource(xmlSourceIn);
 		boolean deleteIncludes = false;
@@ -181,27 +181,28 @@ public class PlatformTransformer {
 					xslOut = new ByteArrayOutputStream();
 				}
 				byte[] xslData = styleSheetProvider.getStyleSheet(deleteIncludes, xslOut);
-				ByteArrayInputStream templateInputStream = new ByteArrayInputStream(xslData);
-				Source xslSource = new StreamSource(templateInputStream);
-				TransformerFactory transformerFactory = styleSheetProvider.getTransformerFactory();
-				ErrorCollector errorCollector = new ErrorCollector();
-				transformerFactory.setErrorListener(errorCollector);
-				try {
-					Templates templates = transformerFactory.newTemplates(xslSource);
-					sourceAwareTemplate = new SourceAwareTemplate(templates,
-							writeDebugFiles ? templateInputStream : null);
-				} catch (TransformerConfigurationException tce) {
-					sourceAwareTemplate = new SourceAwareTemplate(null, templateInputStream);
-					sourceAwareTemplate.errorCollector = errorCollector;
-					for (TransformerException t : errorCollector.exceptions) {
-						LOGGER.error(t.getMessage(), t);
+				try (ByteArrayInputStream templateInputStream = new ByteArrayInputStream(xslData)) {
+					Source xslSource = new StreamSource(templateInputStream);
+					TransformerFactory transformerFactory = styleSheetProvider.getTransformerFactory();
+					ErrorCollector errorCollector = new ErrorCollector();
+					transformerFactory.setErrorListener(errorCollector);
+					try {
+						Templates templates = transformerFactory.newTemplates(xslSource);
+						sourceAwareTemplate = new SourceAwareTemplate(templates,
+								writeDebugFiles ? templateInputStream : null);
+					} catch (TransformerConfigurationException tce) {
+						sourceAwareTemplate = new SourceAwareTemplate(null, templateInputStream);
+						sourceAwareTemplate.errorCollector = errorCollector;
+						for (TransformerException t : errorCollector.exceptions) {
+							LOGGER.error(t.getMessage(), t);
+						}
+						throw tce;
 					}
-					throw tce;
+					if (!devMode) {
+						STYLESHEETS.put(styleId, sourceAwareTemplate);
+					}
+					LOGGER.debug("writing templates to cache (id: {})", styleId);
 				}
-				if (!devMode) {
-					STYLESHEETS.put(styleId, sourceAwareTemplate);
-				}
-				LOGGER.debug("writing templates to cache (id: {})", styleId);
 			}
 
 			if (devMode && showXsl) {

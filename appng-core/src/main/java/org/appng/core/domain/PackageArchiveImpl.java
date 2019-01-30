@@ -132,17 +132,10 @@ public class PackageArchiveImpl implements PackageArchive {
 	}
 
 	public <T> T processZipFile(ZipFileProcessor<T> processor) throws IOException {
-		ZipFile zipFile = null;
-		try {
-			zipFile = new ZipFile(file);
+		try (ZipFile zipFile = new ZipFile(file)) {
 			return processor.process(zipFile);
-		} catch (IOException e) {
-			throw e;
 		} finally {
-			if (null == packageInfo) {
-				isValid = false;
-			}
-			ZipFile.closeQuietly(zipFile);
+			isValid = null == packageInfo;
 		}
 	}
 
