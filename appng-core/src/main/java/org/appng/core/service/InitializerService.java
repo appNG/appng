@@ -195,7 +195,7 @@ public class InitializerService {
 	}
 
 	public InitializerService() {
-		this.siteThreads = new ConcurrentHashMap<String, List<ExecutorService>>();
+		this.siteThreads = new ConcurrentHashMap<>();
 	}
 
 	private void startIndexThread(Site site, DocumentIndexer documentIndexer) {

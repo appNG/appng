@@ -128,7 +128,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, true, true);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
-		Map<String, org.appng.api.model.Site> siteMap = new HashMap<String, org.appng.api.model.Site>();
+		Map<String, org.appng.api.model.Site> siteMap = new HashMap<>();
 		for (SiteImpl site : getCoreService().getSites()) {
 			if (site.isActive()) {
 				SiteImpl s = getCoreService().getSite(site.getId());

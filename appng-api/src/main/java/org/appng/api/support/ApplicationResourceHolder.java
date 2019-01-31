@@ -58,7 +58,7 @@ public class ApplicationResourceHolder implements Resources {
 	private static final String APPLICATION_XML_MISSING = ResourceType.APPLICATION_XML_NAME + " missing";
 
 	private Map<Integer, Resource> idMap;
-	private Map<ResourceType, Map<String, Resource>> storage = new HashMap<ResourceType, Map<String, Resource>>();
+	private Map<ResourceType, Map<String, Resource>> storage = new HashMap<>();
 	private Application application;
 	private File applicationFolder;
 	private File outputFolder;
@@ -153,11 +153,9 @@ public class ApplicationResourceHolder implements Resources {
 					if (cachedFile.exists()) {
 						FileUtils.deleteQuietly(cachedFile);
 					} else {
-						File parentFolder = cachedFile.getParentFile();
-						if (!parentFolder.exists()) {
-							FileUtils.forceMkdir(parentFolder);
+						if (!cachedFile.getParentFile().exists()) {
+							FileUtils.forceMkdir(cachedFile.getParentFile());
 						}
-						cachedFile.createNewFile();
 					}
 					try (FileOutputStream fos = new FileOutputStream(cachedFile)) {
 						fos.write(resource.getBytes());

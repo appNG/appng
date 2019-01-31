@@ -50,7 +50,8 @@ public class LabelSupport {
 		this.locale = locale;
 	}
 
-	public final void setLabels(Config config, ExpressionEvaluator expressionEvaluator, ParameterSupport fieldParameters) {
+	public final void setLabels(Config config, ExpressionEvaluator expressionEvaluator,
+			ParameterSupport fieldParameters) {
 		if (null != config) {
 			setLabel(config.getTitle(), expressionEvaluator, fieldParameters);
 			setLabel(config.getDescription(), expressionEvaluator, fieldParameters);
@@ -58,7 +59,8 @@ public class LabelSupport {
 		}
 	}
 
-	public final void setLabels(Labels labels, ExpressionEvaluator expressionEvaluator, ParameterSupport fieldParameters) {
+	public final void setLabels(Labels labels, ExpressionEvaluator expressionEvaluator,
+			ParameterSupport fieldParameters) {
 		if (null != labels) {
 			for (Label label : labels.getLabels()) {
 				setLabel(label, expressionEvaluator, fieldParameters);
@@ -70,57 +72,63 @@ public class LabelSupport {
 		if (null != label) {
 			String key = label.getId();
 			String value = label.getValue();
-			if (StringUtils.isNotBlank(value) && value.startsWith(EXPR_PREFIX)) {
-				String message = value;
-				if (null != fieldParameters) {
-					message = fieldParameters.replaceParameters(message);
-				}
-				message = expressionEvaluator.evaluate(message, String.class);
-				label.setValue(message);
-			} else {
-				if (StringUtils.isBlank(key) && StringUtils.isNotBlank(value)
-						&& !StringUtils.startsWith(value, LABEL_PREFIX)) {
+			if (StringUtils.isNotBlank(value)) {
+				if (value.startsWith(EXPR_PREFIX)) {
+					String message = value;
+					if (null != fieldParameters) {
+						message = fieldParameters.replaceParameters(message);
+					}
+					message = expressionEvaluator.evaluate(message, String.class);
+					label.setValue(message);
+				} else if (StringUtils.isBlank(key) && !StringUtils.startsWith(value, LABEL_PREFIX)) {
 					key = value;
 				}
-				if (StringUtils.isNotBlank(key) && !key.startsWith(LABEL_PREFIX)) {
-					String defaultValue = key;
-					List<Object> args = new ArrayList<>();
-					int idxParamStart = key.indexOf('[');
-					int idxParamEnd = key.indexOf(']');
-					if (idxParamStart > 0 && idxParamEnd > 0) {
-						label.setId(key.substring(0, idxParamStart));
-						label.setParams(key.substring(idxParamStart + 1, idxParamEnd));
-					} else {
-						label.setId(key);
-					}
-
-					String params = label.getParams();
-					if (null != params) {
-						String[] splitted = params.split(PARAM_SEPARATOR);
-						for (String param : splitted) {
-							param = param.trim();
-							if (param.startsWith(STRING_AFFIX) && param.endsWith(STRING_AFFIX)) {
-								param = param.substring(1, param.length() - 1);
-							}
-							boolean isFieldParam = param.startsWith("#{");
-							if (isFieldParam && null != fieldParameters) {
-								param = fieldParameters.replaceParameters(param);
-							}
-							boolean paramUsesCurrent = param.startsWith(EXPR_PREFIX + "{" + AdapterBase.CURRENT + "");
-							String checkCurrent = EXPR_PREFIX + "{" + AdapterBase.CURRENT + " ne null}";
-							if (!isFieldParam && (!paramUsesCurrent || expressionEvaluator.evaluate(checkCurrent))) {
-								param = expressionEvaluator.evaluate(param, String.class);
-							}
-							args.add(param);
-						}
-					}
-
-					String message = messageSource.getMessage(label.getId(), args.toArray(), defaultValue, locale);
-					label.setValue(message);
-				}
-
+				setLabelFromKey(label, expressionEvaluator, fieldParameters, key);
 			}
 		}
+	}
+
+	protected void setLabelFromKey(Label label, ExpressionEvaluator expressionEvaluator,
+			ParameterSupport fieldParameters, String key) {
+		if (StringUtils.isNotBlank(key) && !key.startsWith(LABEL_PREFIX)) {
+			String defaultValue = key;
+			int idxParamStart = key.indexOf('[');
+			int idxParamEnd = key.indexOf(']');
+			if (idxParamStart > 0 && idxParamEnd > 0) {
+				label.setId(key.substring(0, idxParamStart));
+				label.setParams(key.substring(idxParamStart + 1, idxParamEnd));
+			} else {
+				label.setId(key);
+			}
+			List<Object> args = resolveArgumentsFromParams(expressionEvaluator, fieldParameters, label.getParams());
+			String message = messageSource.getMessage(label.getId(), args.toArray(), defaultValue, locale);
+			label.setValue(message);
+		}
+	}
+
+	protected List<Object> resolveArgumentsFromParams(ExpressionEvaluator expressionEvaluator,
+			ParameterSupport fieldParameters, String params) {
+		List<Object> args = new ArrayList<>();
+		if (null != params) {
+			String[] splitted = params.split(PARAM_SEPARATOR);
+			for (String param : splitted) {
+				param = param.trim();
+				if (param.startsWith(STRING_AFFIX) && param.endsWith(STRING_AFFIX)) {
+					param = param.substring(1, param.length() - 1);
+				}
+				boolean isFieldParam = param.startsWith("#{");
+				if (isFieldParam && null != fieldParameters) {
+					param = fieldParameters.replaceParameters(param);
+				}
+				boolean paramUsesCurrent = param.startsWith(EXPR_PREFIX + "{" + AdapterBase.CURRENT + "");
+				String checkCurrent = EXPR_PREFIX + "{" + AdapterBase.CURRENT + " ne null}";
+				if (!isFieldParam && (!paramUsesCurrent || expressionEvaluator.evaluate(checkCurrent))) {
+					param = expressionEvaluator.evaluate(param, String.class);
+				}
+				args.add(param);
+			}
+		}
+		return args;
 	}
 
 }

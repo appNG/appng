@@ -53,7 +53,7 @@ public class MultiSiteSupportTest {
 
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
-		Map<String, Object> platformScope = new ConcurrentHashMap<String, Object>();
+		Map<String, Object> platformScope = new ConcurrentHashMap<>();
 		platformScope.put(Platform.Environment.PLATFORM_CONFIG, properties);
 
 		Site site = Mockito.mock(SiteImpl.class);

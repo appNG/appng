@@ -132,8 +132,8 @@ public class XmlGenerator {
 
 	private MarshallService marshallService;
 	private boolean addPermissions;
-	private SortedMap<String, String> dictionary = new TreeMap<String, String>();
-	private SortedMap<String, String> permissionNames = new TreeMap<String, String>();
+	private SortedMap<String, String> dictionary = new TreeMap<>();
+	private SortedMap<String, String> permissionNames = new TreeMap<>();
 	private String datePattern = "yyyy-MM-dd HH:mm:ss";
 
 	/**

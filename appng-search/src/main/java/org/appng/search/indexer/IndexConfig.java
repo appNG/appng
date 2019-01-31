@@ -43,7 +43,7 @@ public class IndexConfig {
 
 	private List<ConfigEntry> entries = new ArrayList<IndexConfig.ConfigEntry>();
 
-	private Map<String, ConfigEntry> entryMap = new HashMap<String, IndexConfig.ConfigEntry>();
+	private Map<String, ConfigEntry> entryMap = new HashMap<>();
 
 	private OpenMode openMode;
 

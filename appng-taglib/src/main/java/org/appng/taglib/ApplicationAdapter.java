@@ -125,7 +125,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 	private static final String TAGL_XSL_STYLE_SHEET = "xslStyleSheet";
 	private static final String TAGL_REQUEST_ATTRIBUTE = "requestAttribute";
 	private static final String TAGL_LOCALE = "locale";
-	private static final ConcurrentMap<String, TemplateWrapper> TEMPLATE_CACHE = new ConcurrentHashMap<String, TemplateWrapper>();
+	private static final ConcurrentMap<String, TemplateWrapper> TEMPLATE_CACHE = new ConcurrentHashMap<>();
 	private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	private String application;
 	private Map<String, String> tagletAttributes;

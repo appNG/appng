@@ -194,7 +194,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 		}
 
 		public Map<String, List<String>> getParametersList() {
-			Map<String, List<String>> parameters = new HashMap<String, List<String>>();
+			Map<String, List<String>> parameters = new HashMap<>();
 			for (String name : getParameterNames()) {
 				parameters.put(name, getParameterList(name));
 			}
@@ -269,7 +269,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 		}
 
 		public Map<String, List<FormUpload>> getFormUploads() {
-			Map<String, List<FormUpload>> formuploads = new HashMap<String, List<FormUpload>>();
+			Map<String, List<FormUpload>> formuploads = new HashMap<>();
 			Map<String, MultipartFile> fileMap = wrapped.getFileMap();
 			for (String name : fileMap.keySet()) {
 				formuploads.put(name, getFormUploads(name));

@@ -108,7 +108,7 @@ public class TestSupport {
 	@Mock
 	protected RequestDispatcher dispatcher;
 
-	protected final Map<String, List<String>> requestParameters = new HashMap<String, List<String>>();
+	protected final Map<String, List<String>> requestParameters = new HashMap<>();
 
 	protected final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -210,7 +210,7 @@ public class TestSupport {
 		String absolutePath = new File(new File("").getAbsoluteFile(), path).getAbsolutePath();
 		Mockito.when(ctx.getRealPath("/templates/default")).thenReturn(absolutePath);
 
-		ConcurrentHashMap<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
+		ConcurrentHashMap<String, Object> sessionMap = new ConcurrentHashMap<>();
 		Mockito.when(request.getAttribute(Scope.REQUEST.name())).thenReturn(sessionMap);
 
 		Mockito.when(request.getSession()).thenReturn(httpSession);
@@ -320,7 +320,7 @@ public class TestSupport {
 
 		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
 		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true);
-		platformMap = new ConcurrentHashMap<String, Object>();
+		platformMap = new ConcurrentHashMap<>();
 		platformMap.put(Platform.Environment.SITES, siteMap);
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
 		platformMap.put(Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);

@@ -128,7 +128,7 @@ public class RuleValidation {
 	}
 
 	public Map<String, List<FormUpload>> getFileParams(Map<String, List<FormUpload>> formUploads) {
-		Map<String, List<FormUpload>> fileParams = new HashMap<String, List<FormUpload>>();
+		Map<String, List<FormUpload>> fileParams = new HashMap<>();
 		Set<String> keySet = formUploads.keySet();
 		for (String key : keySet) {
 			List<FormUpload> list = formUploads.get(key);

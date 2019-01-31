@@ -474,7 +474,7 @@ public class ElementHelperTest {
 	@Test
 	@Ignore("APPNG-442")
 	public void testOverlappingParams() {
-		Map<String, List<String>> postParameters = new HashMap<String, List<String>>();
+		Map<String, List<String>> postParameters = new HashMap<>();
 		postParameters.put("p5", Arrays.asList("a"));
 
 		Mockito.when(applicationRequest.getParametersList()).thenReturn(postParameters);
@@ -501,7 +501,7 @@ public class ElementHelperTest {
 
 	@Test
 	public void testInitializeParameters() throws ProcessingException {
-		Map<String, List<String>> postParameters = new HashMap<String, List<String>>();
+		Map<String, List<String>> postParameters = new HashMap<>();
 		postParameters.put("postParam1", Arrays.asList("a"));
 		postParameters.put("postParam2", Arrays.asList("b"));
 		postParameters.put("postParam3", Arrays.asList("x", "y", "z"));

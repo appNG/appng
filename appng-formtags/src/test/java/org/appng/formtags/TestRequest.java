@@ -38,8 +38,8 @@ import org.mockito.stubbing.Answer;
 
 public class TestRequest implements Request {
 
-	Map<String, List<String>> parametersList = new HashMap<String, List<String>>();
-	Map<String, List<FormUpload>> uploads = new HashMap<String, List<FormUpload>>();
+	Map<String, List<String>> parametersList = new HashMap<>();
+	Map<String, List<FormUpload>> uploads = new HashMap<>();
 	private String encoding;
 	private boolean isGet = true;
 	private HttpServletRequest httpServletRequest;

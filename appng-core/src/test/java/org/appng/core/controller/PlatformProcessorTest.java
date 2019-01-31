@@ -58,7 +58,7 @@ public class PlatformProcessorTest extends TestSupport {
 
 	private PlatformProcessor mp = new PlatformProcessor();
 
-	private ConcurrentMap<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
+	private ConcurrentMap<String, Object> sessionMap = new ConcurrentHashMap<>();
 
 	@Mock
 	private ApplicationRequest applicationRequest;
@@ -165,7 +165,7 @@ public class PlatformProcessorTest extends TestSupport {
 	}
 
 	private void initRequest() {
-		ConcurrentMap<String, Object> reqMap = new ConcurrentHashMap<String, Object>();
+		ConcurrentMap<String, Object> reqMap = new ConcurrentHashMap<>();
 		reqMap.put("doXsl", true);
 		reqMap.put("showXsl", false);
 		Mockito.when(request.getAttribute(Scope.REQUEST.name())).thenReturn(reqMap);

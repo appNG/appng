@@ -77,7 +77,7 @@ public class JspExtensionFilter implements Filter {
 
 	private static final String PLATFORM_JSP_FILTER_SERVICE_CONTENT_TYPES = "jspFilterServiceContentTypes";
 	private static final String PLATFORM_JSP_FILTER_SKIPPED_SERVICE_NAMES = "jspFilterSkippedServiceNames";
-	private static final ConcurrentMap<String, Pattern> PATTERNS = new ConcurrentHashMap<String, Pattern>();
+	private static final ConcurrentMap<String, Pattern> PATTERNS = new ConcurrentHashMap<>();
 	private static final String DELIMITER = ",";
 	private FilterConfig filterConfig;
 	private String defaultServiceFilterTypes;

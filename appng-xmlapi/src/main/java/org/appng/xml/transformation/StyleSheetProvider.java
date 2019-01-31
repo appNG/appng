@@ -60,7 +60,7 @@ public class StyleSheetProvider {
 	private DocumentBuilder documentBuilder;
 	private Transformer transformer;
 	private String insertBefore;
-	private Map<String, InputStream> styleReferences = new TreeMap<String, InputStream>();
+	private Map<String, InputStream> styleReferences = new TreeMap<>();
 	private String name;
 	private String templateRoot;
 

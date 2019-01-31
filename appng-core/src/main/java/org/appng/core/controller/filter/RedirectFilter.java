@@ -72,7 +72,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RedirectFilter extends UrlRewriteFilter {
 
-	private static ConcurrentMap<String, CachedUrlRewriter> REWRITERS = new ConcurrentHashMap<String, CachedUrlRewriter>();
+	private static ConcurrentMap<String, CachedUrlRewriter> REWRITERS = new ConcurrentHashMap<>();
 	private FilterConfig filterConfig;
 
 	@Override

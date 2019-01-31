@@ -410,7 +410,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	protected void initEnvironment() {
-		ConcurrentHashMap<String, Object> platformEnv = new ConcurrentHashMap<String, Object>();
+		ConcurrentHashMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		List<Property> platformProperties = getPlatformProperties("platform.");
 		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, new PropertyHolder("platform.", platformProperties));
 

@@ -64,7 +64,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	public static final String SESSIONS = "sessions";
 	public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
-	private static final ConcurrentMap<String, Session> SESSION_MAP = new ConcurrentHashMap<String, Session>();
+	private static final ConcurrentMap<String, Session> SESSION_MAP = new ConcurrentHashMap<>();
 
 	public void contextInitialized(ServletContextEvent sce) {
 		DefaultEnvironment env = DefaultEnvironment.get(sce.getServletContext());

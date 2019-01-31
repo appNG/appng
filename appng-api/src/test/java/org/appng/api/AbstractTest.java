@@ -77,14 +77,14 @@ public abstract class AbstractTest {
 		Mockito.when(httpServletRequest.getServletContext()).thenReturn(ctx);
 		Mockito.when(httpServletRequest.getServerName()).thenReturn("localhost");
 
-		ConcurrentMap<String, Object> platformContainer = new ConcurrentHashMap<String, Object>();
+		ConcurrentMap<String, Object> platformContainer = new ConcurrentHashMap<>();
 		Properties platformProperties = new PropertyHolder(PLATFORM, getPlatformProperties());
 		platformContainer.put(Platform.Environment.SITES, new HashMap<>());
 		platformContainer.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
 
-		ConcurrentMap<String, Object> siteContainer = new ConcurrentHashMap<String, Object>();
-		ConcurrentMap<String, Object> sessionContainer = new ConcurrentHashMap<String, Object>();
-		ConcurrentMap<String, Object> requestContainer = new ConcurrentHashMap<String, Object>();
+		ConcurrentMap<String, Object> siteContainer = new ConcurrentHashMap<>();
+		ConcurrentMap<String, Object> sessionContainer = new ConcurrentHashMap<>();
+		ConcurrentMap<String, Object> requestContainer = new ConcurrentHashMap<>();
 
 		Mockito.when(ctx.getAttribute(Scope.PLATFORM.name())).thenReturn(platformContainer);
 		Mockito.when(httpSession.getAttribute(Scope.SESSION.name())).thenReturn(sessionContainer);

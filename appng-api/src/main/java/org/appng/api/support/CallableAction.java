@@ -596,7 +596,7 @@ public class CallableAction {
 			UserData userdata = action.getUserdata();
 			if (null != userdata) {
 
-				Map<String, List<String>> userinput = new HashMap<String, List<String>>();
+				Map<String, List<String>> userinput = new HashMap<>();
 				for (UserInputField userInputField : userdata.getInput()) {
 					String name = userInputField.getName();
 					if (!userinput.containsKey(name)) {

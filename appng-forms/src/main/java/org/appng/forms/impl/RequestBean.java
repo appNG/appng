@@ -76,9 +76,9 @@ public class RequestBean implements Request {
 		this.encoding = UTF_8;
 		this.tempDir = tempDir;
 		this.maxSize = maxSize;
-		this.parameters = new HashMap<String, List<String>>();
-		this.uploadFileTypes = new HashMap<String, List<String>>();
-		this.formUploads = new HashMap<String, List<FormUpload>>();
+		this.parameters = new HashMap<>();
+		this.uploadFileTypes = new HashMap<>();
+		this.formUploads = new HashMap<>();
 	}
 
 	public List<FormUpload> getFormUploads(String name) {
