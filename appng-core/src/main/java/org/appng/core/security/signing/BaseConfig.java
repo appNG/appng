@@ -51,7 +51,7 @@ public abstract class BaseConfig {
 		SHA256withRSA, SHA512withRSA
 	}
 
-	static final LinkedHashSet<String> validRepoAttributes = new LinkedHashSet<String>();
+	static final LinkedHashSet<String> validRepoAttributes = new LinkedHashSet<>();
 
 	static {
 		validRepoAttributes.add("repoCodeName");

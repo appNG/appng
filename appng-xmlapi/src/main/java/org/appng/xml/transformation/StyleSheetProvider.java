@@ -287,7 +287,7 @@ public class StyleSheetProvider {
 	 * @see #addStyleSheet(InputStream, String)
 	 */
 	public String getId() {
-		return StringUtils.join(new TreeSet<String>(styleReferences.keySet()), ",");
+		return StringUtils.join(new TreeSet<>(styleReferences.keySet()), ",");
 	}
 
 	/**

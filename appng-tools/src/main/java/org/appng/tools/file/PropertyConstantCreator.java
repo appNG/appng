@@ -84,7 +84,7 @@ public class PropertyConstantCreator {
 		sb.append("public class " + targetClass.substring(pckg + 1) + " {");
 		sb.append(lineBreak);
 		sb.append(lineBreak);
-		Set<Object> keySet = new TreeSet<Object>(props.keySet());
+		Set<Object> keySet = new TreeSet<>(props.keySet());
 		for (Object object : keySet) {
 			String key = (String) object;
 			sb.append("\t/** " + props.getProperty(key).replace("*/", "*&#47;") + " */" + lineBreak);

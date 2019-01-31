@@ -97,7 +97,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private boolean createRepository = false;
 	private SiteClassLoader siteClassLoader;
 	private Properties properties;
-	private Set<Named<Integer>> groups = new HashSet<Named<Integer>>();
+	private Set<Named<Integer>> groups = new HashSet<>();
 	private File siteRootDirectory;
 	private PasswordPolicy policy;
 	private Date startupTime;

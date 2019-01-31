@@ -80,7 +80,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	protected EventMap eventMap;
 	protected Map<String, String> resourceMap;
 
-	protected List<Object[]> descendantDatasources = new ArrayList<Object[]>();
+	protected List<Object[]> descendantDatasources = new ArrayList<>();
 
 	protected ConfigValidator validator;
 
@@ -210,7 +210,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		// descendants until all have been processed
 		while (!descendantDatasources.isEmpty()) {
 			int actualSize = descendantDatasources.size();
-			List<Object[]> descendantsWithoutAncestor = new ArrayList<Object[]>();
+			List<Object[]> descendantsWithoutAncestor = new ArrayList<>();
 			for (Object[] descendantDef : descendantDatasources) {
 				Datasource ds = (Datasource) descendantDef[0];
 				Datasource ancestor = getDatasource(DatasourceInheritanceHelper.getAncestorId(ds.getId()));

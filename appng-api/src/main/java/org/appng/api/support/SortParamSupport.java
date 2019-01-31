@@ -95,7 +95,7 @@ public class SortParamSupport {
 		int pageSize = defaultPagesize;
 		int page = DEFAULT_PAGE;
 
-		List<Order> orders = new ArrayList<Sort.Order>();
+		List<Order> orders = new ArrayList<>();
 		if (null != string) {
 			String pagePart = findGroup(pagePattern, string);
 			if (null != pagePart) {

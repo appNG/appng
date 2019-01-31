@@ -71,7 +71,7 @@ public class SearchQuery<T> {
 	private boolean distinct;
 	private String joinQuery;
 	private boolean appendEntityAlias = true;
-	private List<Clause> andClauses = new ArrayList<SearchQuery<T>.Clause>();
+	private List<Clause> andClauses = new ArrayList<>();
 
 	/**
 	 * Creates a new {@link SearchQuery} for the given type.

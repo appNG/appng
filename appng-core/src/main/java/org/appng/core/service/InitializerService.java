@@ -66,7 +66,6 @@ import org.appng.api.messaging.Sender;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
 import org.appng.api.model.Group;
-import org.appng.api.model.Named;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Resource;
 import org.appng.api.model.ResourceType;
@@ -510,7 +509,7 @@ public class InitializerService {
 		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
 		site.setSender(sender);
 		List<? extends Group> groups = getCoreService().getGroups();
-		site.setGroups(new HashSet<Named<Integer>>(groups));
+		site.setGroups(new HashSet<>(groups));
 
 		site.setState(SiteState.STARTING);
 		siteMap.put(site.getName(), site);

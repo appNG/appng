@@ -105,8 +105,8 @@ public class Updater {
 	private boolean useFQDN = false;
 	private List<String> localAdresses = new ArrayList<>();
 	private AtomicBoolean isUpdateRunning = new AtomicBoolean(false);
-	private AtomicReference<Double> completed = new AtomicReference<Double>(0.0d);
-	private AtomicReference<String> status = new AtomicReference<String>("Starting update");
+	private AtomicReference<Double> completed = new AtomicReference<>(0.0d);
+	private AtomicReference<String> status = new AtomicReference<>("Starting update");
 
 	@Autowired
 	public Updater(ServletContext context) {

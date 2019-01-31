@@ -291,7 +291,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	private Sort getSort() {
 		Sort sort = null;
 		if (pageable.getSort() != null) {
-			List<Order> orders = new ArrayList<Sort.Order>();
+			List<Order> orders = new ArrayList<>();
 			List<FieldDef> activeSortFields = new ArrayList<>();
 			for (Order order : pageable.getSort()) {
 				String property = order.getProperty();
@@ -354,7 +354,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 				}
 			}
 			Collections.sort(sortFields, new SortComparator());
-			List<Order> orders = new ArrayList<Sort.Order>();
+			List<Order> orders = new ArrayList<>();
 			for (FieldDef field : sortFields) {
 				org.appng.xml.platform.Sort fieldSort = field.getSort();
 				if (isValidSort(fieldSort)) {

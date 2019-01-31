@@ -501,7 +501,7 @@ public class ElementHelper {
 	}
 
 	public Class<?>[] getValidationGroups(MetaData metaData, Object bindObject) {
-		List<Class<?>> groups = new ArrayList<Class<?>>();
+		List<Class<?>> groups = new ArrayList<>();
 		ValidationGroups validationGroups = metaData.getValidation();
 		if (null != validationGroups) {
 			getExpressionEvaluator().setVariable(AdapterBase.CURRENT, bindObject);
