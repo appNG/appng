@@ -72,15 +72,16 @@ public class LabelSupport {
 		if (null != label) {
 			String key = label.getId();
 			String value = label.getValue();
-			if (StringUtils.isNotBlank(value)) {
-				if (value.startsWith(EXPR_PREFIX)) {
-					String message = value;
-					if (null != fieldParameters) {
-						message = fieldParameters.replaceParameters(message);
-					}
-					message = expressionEvaluator.evaluate(message, String.class);
-					label.setValue(message);
-				} else if (StringUtils.isBlank(key) && !StringUtils.startsWith(value, LABEL_PREFIX)) {
+			if (StringUtils.isNotBlank(value) && value.startsWith(EXPR_PREFIX)) {
+				String message = value;
+				if (null != fieldParameters) {
+					message = fieldParameters.replaceParameters(message);
+				}
+				message = expressionEvaluator.evaluate(message, String.class);
+				label.setValue(message);
+			} else {
+				if (StringUtils.isBlank(key) && StringUtils.isNotBlank(value)
+						&& !StringUtils.startsWith(value, LABEL_PREFIX)) {
 					key = value;
 				}
 				setLabelFromKey(label, expressionEvaluator, fieldParameters, key);
@@ -100,15 +101,16 @@ public class LabelSupport {
 			} else {
 				label.setId(key);
 			}
-			List<Object> args = resolveArgumentsFromParams(expressionEvaluator, fieldParameters, label.getParams());
+			List<Object> args = resolveArgumentsFromParams(label, expressionEvaluator, fieldParameters);
 			String message = messageSource.getMessage(label.getId(), args.toArray(), defaultValue, locale);
 			label.setValue(message);
 		}
 	}
 
-	protected List<Object> resolveArgumentsFromParams(ExpressionEvaluator expressionEvaluator,
-			ParameterSupport fieldParameters, String params) {
+	protected List<Object> resolveArgumentsFromParams(Label label, ExpressionEvaluator expressionEvaluator,
+			ParameterSupport fieldParameters) {
 		List<Object> args = new ArrayList<>();
+		String params = label.getParams();
 		if (null != params) {
 			String[] splitted = params.split(PARAM_SEPARATOR);
 			for (String param : splitted) {
