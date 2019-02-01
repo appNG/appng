@@ -185,7 +185,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			if (writeDebugFiles) {
 				sw.stop();
 				sw.start("write debug files");
-				writeDebugFile(now, "platform.xml", platformXML, rootPath);
+				writeDebugFile(now, PLATFORM_XML, platformXML, rootPath);
 				writeTemplateFiles(rootPath, templatePrefix, now, templateEngine);
 			}
 
@@ -201,7 +201,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				if (writeDebugFiles) {
 					sw.stop();
 					sw.start("write index.html");
-					writeDebugFile(now, "index.html", result, rootPath);
+					writeDebugFile(now, INDEX_HTML, result, rootPath);
 				}
 			} else {
 				result = platformXML;
@@ -214,10 +214,10 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			}
 		}
 		sw.stop();
-		if (logger().isDebugEnabled()) {
-			logger().debug(sw.prettyPrint());
-		} else {
-			logger().info(sw.shortSummary());
+		if (logger().isTraceEnabled()) {
+			logger().trace(sw.prettyPrint());
+		} else if (logger().isDebugEnabled()) {
+			logger().debug(sw.shortSummary());
 		}
 		this.contentLength = result.getBytes(charset).length;
 		return result;
@@ -227,10 +227,14 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		try {
 			StringWriter stackWriter = new StringWriter();
 			e.printStackTrace(new PrintWriter(stackWriter));
-			writeDebugFile(now, "stacktrace.txt", stackWriter.toString(), rootPath);
+			writeDebugFile(now, STACKTRACE_TXT, stackWriter.toString(), rootPath);
 		} catch (IOException e1) {
 			logger().error("error writing stacktrace", e);
 		}
+	}
+
+	private void writeDebugFile(Date now, String name, String content, String rootPath) throws IOException {
+		writeDebugFile(LOGGER, now, name, content, rootPath);
 	}
 
 	protected void writeTemplateFiles(String rootPath, String templatePrefix, Date now,
@@ -247,7 +251,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 						ITemplateResource templateResource = resolvedTemplate.getTemplateResource();
 						try {
 							String content = IOUtils.toString(templateResource.reader());
-							writeDebugFile(now, fileName, content, rootPath);
+							writeDebugFile(now, "template/" + fileName, content, rootPath);
 						} catch (IOException e) {
 							logger().error("error writing template resource", e);
 						}

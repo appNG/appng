@@ -74,6 +74,9 @@ import org.slf4j.Logger;
 public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 	private static final FastDateFormat DEBUG_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd-HH:mm:ss,SSS");
+	protected static final String PLATFORM_XML = "platform.xml";
+	protected static final String STACKTRACE_TXT = "stacktrace.txt";
+	protected static final String INDEX_HTML = "index.html";
 	protected PathInfo pathInfo;
 	protected HttpServletRequest servletRequest;
 	protected HttpServletResponse servletResponse;
@@ -469,11 +472,11 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		return stringWriter.toString();
 	}
 
-	protected void writeDebugFile(Date timestmap, String name, String content, String rootPath) throws IOException {
+	protected static void writeDebugFile(Logger logger, Date timestmap, String name, String content, String rootPath) throws IOException {
 		File outFolder = new File(getDebugFolder(rootPath), getDebugFilePrefix(timestmap));
 		outFolder.mkdirs();
 		File outFile = new File(outFolder, name);
-		logger().info("writing debug file {}", outFile.getAbsolutePath());
+		logger.info("writing debug file {}", outFile.getAbsolutePath());
 		FileUtils.write(outFile, content, StandardCharsets.UTF_8);
 	}
 

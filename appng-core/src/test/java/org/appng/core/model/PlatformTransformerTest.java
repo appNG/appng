@@ -17,6 +17,8 @@ package org.appng.core.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Date;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -27,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
-import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.service.TestInitializer;
@@ -82,7 +83,6 @@ public class PlatformTransformerTest {
 	public void setup() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)).thenReturn(Boolean.FALSE);
-		Mockito.when(environment.getAttribute(Scope.REQUEST, "showXsl")).thenReturn(Boolean.TRUE);
 		setFormatAndType(platformTransformer, true);
 	}
 
@@ -116,7 +116,6 @@ public class PlatformTransformerTest {
 	@Test
 	public void test() throws Exception {
 		init(platformTransformer, TEMPLATE_PATH);
-		Mockito.when(environment.getAttribute(Scope.REQUEST, "showXsl")).thenReturn(Boolean.FALSE);
 		transform();
 	}
 
@@ -135,7 +134,7 @@ public class PlatformTransformerTest {
 		PlatformTransformer.clearCache();
 		PlatformTransformer errorTransformer = new PlatformTransformer() {
 			@Override
-			protected String getDebugFilePrefix() {
+			protected String getDebugFilePrefix(Date now) {
 				return StringUtils.EMPTY;
 			}
 		};
@@ -146,7 +145,6 @@ public class PlatformTransformerTest {
 		init(errorTransformer, template);
 		String targetDir = "target";
 		File targetFolder = new File(targetDir, "debug");
-		Mockito.when(environment.getAttribute(Scope.REQUEST, "showXsl")).thenReturn(Boolean.FALSE);
 		Mockito.when(platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH))
 				.thenReturn(targetDir);
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES)).thenReturn(true);
@@ -157,37 +155,23 @@ public class PlatformTransformerTest {
 			Assert.assertEquals(exceptionType, e.getClass());
 		}
 		Assert.assertTrue(targetFolder.exists());
-		Assert.assertTrue(new File(targetFolder, "platform.xml").exists());
-		Assert.assertTrue(new File(targetFolder, "stacktrace.txt").exists());
+		Assert.assertTrue(new File(targetFolder, AbstractRequestProcessor.PLATFORM_XML).exists());
+		Assert.assertTrue(new File(targetFolder, AbstractRequestProcessor.STACKTRACE_TXT).exists());
 		Assert.assertTrue(new File(targetFolder, "template.xsl").exists());
 	}
 
 	@Test
-	public void testDevModeShowXsl() throws Exception {
+	public void testDevMode() throws Exception {
 		init(platformTransformer, TEMPLATE_PATH);
 		transform();
 	}
 
-	private void transform() throws FileNotFoundException, TransformerConfigurationException,
-			InvalidConfigurationException, JAXBException, ParserConfigurationException, TransformerException {
+	private void transform() throws IOException, TransformerConfigurationException, InvalidConfigurationException,
+			JAXBException, ParserConfigurationException, TransformerException {
 		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
 				HttpHeaders.CHARSET_UTF8);
 		Platform transformedplatform = marshallService.unmarshall(transform, Platform.class);
 		Assert.assertEquals(platformXML, marshallService.marshal(transformedplatform));
 	}
 
-	@Test
-	public void testShowXsl() throws Exception {
-		init(platformTransformer, TEMPLATE_PATH);
-		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)).thenReturn(Boolean.TRUE);
-		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
-				HttpHeaders.CHARSET_UTF8);
-
-		String xsl = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:ait=\"http://aiticon.de\" exclude-result-prefixes=\"ait xs\" version=\"2.0\">\n"
-				+ "\n	<xsl:output indent=\"no\" method=\"xml\" omit-xml-declaration=\"yes\"/>\n"
-				+ "\n	<xsl:template match=\"/\">\n" + "		<xsl:copy-of select=\".\"/>\n" + "	</xsl:template>\n"
-				+ "\n" + "<!--[BEGIN] embed 'src/test/resources/template/appng:utils.xsl'-->\n"
-				+ "<!--[END] embed 'src/test/resources/template/appng:utils.xsl'--></xsl:stylesheet>";
-		Assert.assertEquals(xsl, transform);
-	}
 }

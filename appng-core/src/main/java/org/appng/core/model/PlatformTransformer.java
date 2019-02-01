@@ -15,19 +15,15 @@
  */
 package org.appng.core.model;
 
-import static org.appng.api.Scope.REQUEST;
-
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -48,7 +44,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
@@ -81,7 +76,6 @@ public class PlatformTransformer {
 	private static final String INSERTION_NODE = "xsl:variables";
 	private static final String NO = "no";
 	private static final String YES = "yes";
-	private static final String SHOW_XSL = "showXsl";
 	private static final String MASTER_TYPE = "master";
 	private StyleSheetProvider styleSheetProvider;
 	private Set<Template> templates;
@@ -119,7 +113,7 @@ public class PlatformTransformer {
 	 *             when parsing or applying the XSLT template fails
 	 */
 	public String transform(ApplicationProvider applicationProvider, Properties platformProperties, String platformXML,
-			String charSet) throws FileNotFoundException, TransformerException {
+			String charSet) throws IOException, TransformerException {
 		InputStream xmlSourceIn = new ByteArrayInputStream(platformXML.getBytes());
 		StreamSource xmlSource = new StreamSource(xmlSourceIn);
 		boolean deleteIncludes = false;
@@ -163,23 +157,20 @@ public class PlatformTransformer {
 				}
 			}
 		}
-		ByteArrayOutputStream xslOut = null;
-		Boolean showXsl = environment.getAttribute(REQUEST, SHOW_XSL);
 		SourceAwareTemplate sourceAwareTemplate = null;
 		String styleId = styleSheetProvider.getId();
 		String result = null;
 		TransformerException transformerException = null;
 		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
+		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
+		Date now = new Date();
 		try {
 			if (!devMode && STYLESHEETS.containsKey(styleId)) {
 				sourceAwareTemplate = STYLESHEETS.get(styleId);
 				styleSheetProvider.cleanup();
 				LOGGER.debug("reading templates from cache (id: {})", styleId);
 			} else {
-				if (showXsl) {
-					xslOut = new ByteArrayOutputStream();
-				}
-				byte[] xslData = styleSheetProvider.getStyleSheet(deleteIncludes, xslOut);
+				byte[] xslData = styleSheetProvider.getStyleSheet(deleteIncludes, null);
 				ByteArrayInputStream templateInputStream = new ByteArrayInputStream(xslData);
 				Source xslSource = new StreamSource(templateInputStream);
 				TransformerFactory transformerFactory = styleSheetProvider.getTransformerFactory();
@@ -203,28 +194,29 @@ public class PlatformTransformer {
 				LOGGER.debug("writing templates to cache (id: {})", styleId);
 			}
 
-			if (devMode && showXsl) {
-				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML, charSet);
-				result = new String(xslOut.toByteArray());
-			} else {
-				Boolean formatOutput = platformProperties.getBoolean(org.appng.api.Platform.Property.FORMAT_OUTPUT);
-				result = transform(xmlSource, sourceAwareTemplate, formatOutput, devMode);
-				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charSet);
+			Boolean formatOutput = platformProperties.getBoolean(org.appng.api.Platform.Property.FORMAT_OUTPUT);
+			result = transform(xmlSource, sourceAwareTemplate, formatOutput, devMode);
+			this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charSet);
+			if (writeDebugFiles) {
+				writeDebugFile(now, AbstractRequestProcessor.INDEX_HTML, result, rootPath);
 			}
 		} catch (TransformerException te) {
 			transformerException = te;
 			throw te;
 		} finally {
 			if (null != transformerException || writeDebugFiles) {
-				String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
-				writeDebugFiles(rootPath, platformXML, sourceAwareTemplate, transformerException);
+				writeDebugFiles(now, rootPath, platformXML, sourceAwareTemplate, transformerException);
 			}
 		}
 		return result;
 	}
 
-	protected void writeDebugFiles(String rootPath, String platformXML, SourceAwareTemplate sourceAwareTemplate,
-			TransformerException te) {
+	private void writeDebugFile(Date now, String name, String content, String rootPath) throws IOException {
+		AbstractRequestProcessor.writeDebugFile(LOGGER, now, name, content, rootPath);
+	}
+
+	protected void writeDebugFiles(Date now, String rootPath, String platformXML,
+			SourceAwareTemplate sourceAwareTemplate, TransformerException te) {
 		try {
 			if (null == sourceAwareTemplate || null == sourceAwareTemplate.source) {
 				LOGGER.warn("can not write debug files, set 'platform.writeDebugFiles' to 'true' to make this work!");
@@ -233,36 +225,34 @@ public class PlatformTransformer {
 
 			sourceAwareTemplate.source.reset();
 			File debugFolder = AbstractRequestProcessor.getDebugFolder(rootPath);
-			File outFolder = new File(debugFolder, getDebugFilePrefix());
+			File outFolder = new File(debugFolder, getDebugFilePrefix(now));
 			outFolder.mkdirs();
 			LOGGER.info("writing debug files to {} ", outFolder);
-			File xmlOut = new File(outFolder, "platform.xml");
-			File xslOut = new File(outFolder, "template.xsl");
-			File traceOut = new File(outFolder, "stacktrace.txt");
-			IOUtils.write(IOUtils.toByteArray(sourceAwareTemplate.source), new FileOutputStream(xslOut));
-			FileUtils.write(xmlOut, platformXML, Charset.defaultCharset());
-			PrintWriter debugWriter = new PrintWriter(traceOut);
+
+			writeDebugFile(now, "template.xsl", IOUtils.toString(sourceAwareTemplate.source, StandardCharsets.UTF_8),
+					rootPath);
+			writeDebugFile(now, AbstractRequestProcessor.PLATFORM_XML, platformXML, rootPath);
+
+			StringWriter debugWriter = new StringWriter();
+			PrintWriter debugPrintWriter = new PrintWriter(debugWriter);
 			if (null != te) {
-				te.printStackTrace(debugWriter);
+				te.printStackTrace(debugPrintWriter);
 			}
 			if (null != sourceAwareTemplate.errorCollector) {
 				for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
 					debugWriter.write("--------------------");
 					debugWriter.write(System.lineSeparator());
-					transformerException.printStackTrace(debugWriter);
+					transformerException.printStackTrace(debugPrintWriter);
 				}
 			}
-			if (traceOut.length() == 0) {
-				FileUtils.deleteQuietly(traceOut);
-			}
-
+			writeDebugFile(now, AbstractRequestProcessor.STACKTRACE_TXT, platformXML, rootPath);
 		} catch (IOException e) {
 			LOGGER.error("error while writing exception details", e);
 		}
 	}
 
-	protected String getDebugFilePrefix() {
-		return AbstractRequestProcessor.getDebugFilePrefix(new Date());
+	protected String getDebugFilePrefix(Date now) {
+		return AbstractRequestProcessor.getDebugFilePrefix(now);
 	}
 
 	class SourceAwareTemplate implements Templates {

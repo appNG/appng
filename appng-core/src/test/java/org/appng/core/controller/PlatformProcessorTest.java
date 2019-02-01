@@ -57,7 +57,7 @@ public class PlatformProcessorTest extends TestSupport {
 			PathInfoTest.ASSETS_DIRS, PathInfoTest.DOCUMENT_DIRS, PathInfoTest.REPOSITORY, PathInfoTest.JSP);
 
 	private PlatformProcessor mp = new PlatformProcessor();
-	
+
 	private ConcurrentMap<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
 
 	@Mock
@@ -166,8 +166,7 @@ public class PlatformProcessorTest extends TestSupport {
 
 	private void initRequest() {
 		ConcurrentMap<String, Object> reqMap = new ConcurrentHashMap<String, Object>();
-		reqMap.put("doXsl", true);
-		reqMap.put("showXsl", false);
+		reqMap.put(EnvironmentKeys.RENDER, true);
 		Mockito.when(request.getAttribute(Scope.REQUEST.name())).thenReturn(reqMap);
 		Mockito.when(request.getMethod()).thenReturn("GET");
 		Mockito.when(request.getServerName()).thenReturn(host);
