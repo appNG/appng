@@ -43,9 +43,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -60,7 +60,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 	static final String ROOT = "/";
 	ExecutorService executor;
 
-	@RequestMapping(value = ROOT, method = RequestMethod.POST)
+	@PostMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> login(@RequestBody String sharedSecret,
 			HttpServletRequest request) {
 		String platformSecret = getSharedSecret();
@@ -74,7 +74,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 		return welcome();
 	}
 
-	@RequestMapping(value = ROOT, method = RequestMethod.GET)
+	@GetMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> welcome() {
 		String appngVersion = (String) context.getAttribute(AppNGizer.APPNG_VERSION);
 		boolean dbInitialized = getDatabaseStatus() != null;
