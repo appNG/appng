@@ -20,6 +20,7 @@ import org.appng.testsupport.persistence.TestDataProvider;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.transformation.StyleSheetProvider;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,7 +39,7 @@ import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@ComponentScan(excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
+@ComponentScan(basePackages = "org.appng.core", excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
 @EnableTransactionManagement
 @EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "org.appng.core.repository", entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "coreTxManager")
 public class PlatformTestConfig {
@@ -68,13 +69,13 @@ public class PlatformTestConfig {
 		lemfb.setPersistenceProviderClass(HibernatePersistenceProvider.class);
 		lemfb.setPersistenceUnitName("hsql-testdb");
 		Properties jpaProperties = new Properties();
-		jpaProperties.put("hibernate.dialect", HSQLDialect.class.getName());
-		jpaProperties.put("hibernate.connection.driver_class", JDBCDriver.class.getName());
-		jpaProperties.put("hibernate.connection.url", "jdbc:hsqldb:mem:hsql-testdb");
-		jpaProperties.put("hibernate.connection.username", "sa");
-		jpaProperties.put("hibernate.connection.password", "");
-		jpaProperties.put("hibernate.hbm2ddl.auto", "create");
-		jpaProperties.put("hibernate.id.new_generator_mappings", false);
+		jpaProperties.put(AvailableSettings.DIALECT, HSQLDialect.class.getName());
+		jpaProperties.put(AvailableSettings.DRIVER, JDBCDriver.class.getName());
+		jpaProperties.put(AvailableSettings.URL, "jdbc:hsqldb:mem:hsql-testdb");
+		jpaProperties.put(AvailableSettings.USER, "sa");
+		jpaProperties.put(AvailableSettings.PASS, "");
+		jpaProperties.put(AvailableSettings.HBM2DDL_AUTO, "create");
+		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
 		lemfb.setJpaProperties(jpaProperties);
 		return lemfb;
 	}

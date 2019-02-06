@@ -16,6 +16,7 @@
 package org.appng.core.controller;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -41,6 +42,7 @@ import org.appng.persistence.repository.SearchRepositoryImpl;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.transformation.StyleSheetProvider;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,7 +67,7 @@ import org.springframework.web.context.annotation.RequestScope;
  * @author Matthias Müller
  */
 @Configuration
-@ComponentScan(excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
+@ComponentScan(basePackages = "org.appng.core", excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
 @EnableTransactionManagement
 @EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "org.appng.core.repository", entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "coreTxManager")
 public class PlatformConfig {
@@ -83,10 +85,12 @@ public class PlatformConfig {
 			@Value("${hibernate.connection.url}") String jdbcUrl,
 			@Value("${hibernate.connection.username}") String userName,
 			@Value("${hibernate.connection.password}") String password,
-			@Value("${hibernate.connection.driver_class}") String driverClass, @Value("${database.type}") String type,
+			@Value("${hibernate.connection.driver_class}") String driverClass,
+			@Value("${database.type}") String type,
 			@Value("${database.minConnections:3}") Integer minConnections,
 			@Value("${database.maxConnections:10}") Integer maxConnections,
 			@Value("${database.validationQuery}") String validationQuery,
+			@Value("${database.validationPeriod}") Integer validationPeriod,
 			@Value("${database.logPerformance:false}") boolean logPerformance
 	// @formatter:on
 	) {
@@ -94,6 +98,7 @@ public class PlatformConfig {
 				driverClass, userName, password.getBytes(), validationQuery);
 		connection.setMinConnections(minConnections);
 		connection.setMaxConnections(maxConnections);
+		connection.setValidationPeriod(validationPeriod);
 		connection.setName("appNG ROOT connection");
 		HikariCPConfigurer configurer = new HikariCPConfigurer(connection, logPerformance);
 		return new DataSourceFactory(configurer);
@@ -105,6 +110,9 @@ public class PlatformConfig {
 		lcemfb.setPersistenceProviderClass(HibernatePersistenceProvider.class);
 		lcemfb.setPersistenceUnitName("appNG");
 		lcemfb.setDataSource(dataSource);
+		Properties jpaProperties = new Properties();
+		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
+		lcemfb.setJpaProperties(jpaProperties);
 		lcemfb.setPackagesToScan("org.appng.core.domain");
 		return lcemfb;
 	}
