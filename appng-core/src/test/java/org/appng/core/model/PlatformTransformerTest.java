@@ -17,6 +17,7 @@ package org.appng.core.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -164,8 +165,8 @@ public class PlatformTransformerTest {
 		transform();
 	}
 
-	private void transform() throws IOException, TransformerConfigurationException,
-			InvalidConfigurationException, JAXBException, ParserConfigurationException, TransformerException {
+	private void transform() throws IOException, TransformerConfigurationException, InvalidConfigurationException,
+			JAXBException, ParserConfigurationException, TransformerException {
 		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
 				HttpHeaders.CHARSET_UTF8);
 		Platform transformedplatform = marshallService.unmarshall(transform, Platform.class);

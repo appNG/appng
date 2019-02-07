@@ -235,17 +235,17 @@ public class PlatformTransformer {
 			try (
 					StringWriter debugWriter = new StringWriter();
 					PrintWriter debugPrintWriter = new PrintWriter(debugWriter)) {
-			  if (null != te) {
-		  		te.printStackTrace(debugPrintWriter);
-		  	}
-		  	if (null != sourceAwareTemplate.errorCollector) {
-		  		for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
-		  			debugWriter.write("--------------------");
-			  		debugWriter.write(System.lineSeparator());
-			  		transformerException.printStackTrace(debugPrintWriter);
-		  		}
-		  	}
-      }
+				if (null != te) {
+					te.printStackTrace(debugPrintWriter);
+				}
+				if (null != sourceAwareTemplate.errorCollector) {
+					for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
+						debugWriter.write("--------------------");
+						debugWriter.write(System.lineSeparator());
+						transformerException.printStackTrace(debugPrintWriter);
+					}
+				}
+			}
 			writeDebugFile(now, AbstractRequestProcessor.STACKTRACE_TXT, platformXML, rootPath);
 		} catch (IOException e) {
 			LOGGER.error("error while writing exception details", e);
