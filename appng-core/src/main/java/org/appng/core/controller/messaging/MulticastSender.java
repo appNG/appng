@@ -47,7 +47,6 @@ public class MulticastSender extends MessageHandler implements Sender {
 	public boolean send(Event event) {
 		String groupAddress = getGroupAddress();
 		Integer groupPort = getGroupPort();
-		DatagramSocket socket = null;
 		if (!Boolean.getBoolean(APPNG_MESSAGING_DISABLED)) {
 			try {
 				String nodeAddress = System.getProperty(APPNG_MESSAGING_BIND_ADR);
@@ -56,20 +55,19 @@ public class MulticastSender extends MessageHandler implements Sender {
 					inetAddress = InetAddress.getLocalHost();
 				} else {
 					inetAddress = InetAddress.getByName(nodeAddress);
-					LOGGER.debug("{}={}", APPNG_MESSAGING_BIND_ADR , nodeAddress);
+					LOGGER.debug("{}={}", APPNG_MESSAGING_BIND_ADR, nodeAddress);
 				}
-				socket = new DatagramSocket(new InetSocketAddress(inetAddress, 0));
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				eventSerializer.serialize(out, event);
-				InetAddress address = InetAddress.getByName(groupAddress);
-				DatagramPacket outPacket = new DatagramPacket(out.toByteArray(), out.size(), address, groupPort);
-				socket.send(outPacket);
-				LOGGER.info("sending {} to {}:{} via {}", event, groupAddress, groupPort, inetAddress);
-				return true;
+				try (DatagramSocket socket = new DatagramSocket(new InetSocketAddress(inetAddress, 0))) {
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					eventSerializer.serialize(out, event);
+					InetAddress address = InetAddress.getByName(groupAddress);
+					DatagramPacket outPacket = new DatagramPacket(out.toByteArray(), out.size(), address, groupPort);
+					socket.send(outPacket);
+					LOGGER.info("sending {} to {}:{} via {}", event, groupAddress, groupPort, inetAddress);
+					return true;
+				}
 			} catch (IOException e) {
 				LOGGER.error(String.format("error while sending event %s", event), e);
-			} finally {
-				socket.close();
 			}
 		} else {
 			LOGGER.info("sending is disabled via '{}'", APPNG_MESSAGING_DISABLED);

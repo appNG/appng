@@ -143,7 +143,7 @@ public enum ResourceType implements FilenameFilter {
 	 * @return a set of all allowed file-endings. An empty set means all file types are allowed.
 	 */
 	public Set<String> getAllowedFileEndings() {
-		return Collections.unmodifiableSet(new HashSet<String>(allowedFileEndings));
+		return Collections.unmodifiableSet(new HashSet<>(allowedFileEndings));
 	}
 
 	/**

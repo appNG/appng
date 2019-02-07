@@ -79,7 +79,7 @@ public class ResultServiceTest {
 		ConversionService conversionService = conversionServiceFactoryBean.getObject();
 
 		Mockito.when(request.getEnvironment()).thenReturn(env);
-		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new HashMap<String, String>());
+		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new HashMap<>());
 		Mockito.when(request.getExpressionEvaluator()).thenReturn(expressionEvaluator);
 		Mockito.when(env.getTimeZone()).thenReturn(TimeZone.getDefault());
 		Mockito.when(env.getLocale()).thenReturn(Locale.getDefault());
@@ -112,7 +112,7 @@ public class ResultServiceTest {
 		p.setName("John");
 		p.setBirthDate(new SimpleDateFormat(pattern).parse("2012.12.12 13:14:15"));
 		Mockito.when(request.getExpressionEvaluator())
-				.thenReturn(new ExpressionEvaluator(new HashMap<String, String>()));
+				.thenReturn(new ExpressionEvaluator(new HashMap<>()));
 		Mockito.when(env.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT+3"));
 		Result result = rss.getResult(fp, p);
 		XmlValidator.validate(result);
@@ -155,7 +155,7 @@ public class ResultServiceTest {
 	@Test
 	public void testGetResultset() {
 		FieldProcessorImpl fp = new FieldProcessorImpl("action", MetaDataProvider.getMetaData());
-		List<Linkpanel> linkpanels = new ArrayList<Linkpanel>();
+		List<Linkpanel> linkpanels = new ArrayList<>();
 		Linkpanel panel = new Linkpanel();
 		panel.setId("thepanel");
 		panel.setLocation(PanelLocation.INLINE);
@@ -197,7 +197,7 @@ public class ResultServiceTest {
 	@Test
 	public void testGetEmptyResultset() {
 		FieldProcessorImpl fp = new FieldProcessorImpl("action", MetaDataProvider.getMetaData());
-		Resultset result = rss.getResultset(fp, new ArrayList<Person>());
+		Resultset result = rss.getResultset(fp, new ArrayList<>());
 		XmlValidator.validate(result);
 	}
 
@@ -207,7 +207,7 @@ public class ResultServiceTest {
 		vader.setSavings(2342535634D);
 		vader.setSize(1.98f);
 		vader.setBirthDate(new Date());
-		ArrayList<Person> offsprings = new ArrayList<Person>();
+		ArrayList<Person> offsprings = new ArrayList<>();
 		Person lea = new Person(1, "Lea", "Princess");
 		lea.setFather(vader);
 		lea.setCoordinate(new Coordinate(12.23d, 34.36d));

@@ -129,7 +129,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	private Site site;
 	private AccessibleApplication application;
 	private ApplicationConfigProvider applicationConfig;
-	private List<JarInfo> jarInfos = new ArrayList<JarInfo>();
+	private List<JarInfo> jarInfos = new ArrayList<>();
 	private ElementHelper elementHelper;
 
 	private DatabaseConnection databaseConnection;
@@ -240,7 +240,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		Environment env = applicationRequest.getEnvironment();
 
 		UrlSchema urlSchema = pageConfig.getUrlSchema();
-		Set<String> sessionParamNames = new HashSet<String>();
+		Set<String> sessionParamNames = new HashSet<>();
 		for (Param sessionParam : applicationConfig.getSession().getSessionParams().getSessionParam()) {
 			sessionParamNames.add(sessionParam.getName());
 		}
@@ -338,7 +338,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 		List<SectionDef> sectionDefs = page.getStructure().getSection();
 		boolean hasRedirect = false;
-		List<DataSourceElement> dataSourceWrappers = new ArrayList<DataSourceElement>();
+		List<DataSourceElement> dataSourceWrappers = new ArrayList<>();
 
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
@@ -829,7 +829,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			for (Application application : site.getApplications()) {
 				String sessionParamName = application.getSessionParamKey(site);
 				if (null == env.getAttribute(SESSION, sessionParamName)) {
-					env.setAttribute(SESSION, sessionParamName, new HashMap<String, String>());
+					env.setAttribute(SESSION, sessionParamName, new HashMap<>());
 				}
 			}
 		}

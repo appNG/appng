@@ -134,7 +134,7 @@ public class HeartBeat implements ExecutableCliCommand {
 			}
 		};
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, cle.getPlatformConfig());
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		List<SiteImpl> sites = cle.getCoreService().getSites();
 		for (SiteImpl site : sites) {
 			site.setSiteClassLoader(new SiteClassLoader(site.getName()));

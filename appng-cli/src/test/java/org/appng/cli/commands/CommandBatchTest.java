@@ -62,7 +62,7 @@ public class CommandBatchTest {
 
 		switch (os) {
 		case LINUX:
-			Set<String> validResults = new HashSet<String>(Arrays.asList("en_US.UTF-8", "de_DE.UTF-8"));
+			Set<String> validResults = new HashSet<>(Arrays.asList("en_US.UTF-8", "de_DE.UTF-8"));
 			Assert.assertArrayEquals(new String[0], batch.parseLine("def LANG = ${systemEnv['LANG']}"));
 			Assert.assertTrue(validResults.contains(variables.get("LANG")));
 			break;

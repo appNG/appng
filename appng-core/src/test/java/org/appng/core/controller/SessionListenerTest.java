@@ -52,7 +52,7 @@ public class SessionListenerTest {
 	@Before
 	public void setup() {
 		sessionListener = new SessionListener();
-		platformMap = new ConcurrentHashMap<String, Object>();
+		platformMap = new ConcurrentHashMap<>();
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, props);

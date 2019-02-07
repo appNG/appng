@@ -64,7 +64,7 @@ public class GlobalIndexer {
 		List<String> extensions = site.getProperties().getList(SiteProperties.INDEX_FILETYPES, ",");
 
 		FileSystemProvider fileSystemProvider = new FileSystemProvider(config, extensions, timeout, jspType, dataDir,
-				new ArrayList<File>());
+				new ArrayList<>());
 		processProducer(site, null, fileSystemProvider, timeout);
 
 		for (Application application : site.getApplications()) {

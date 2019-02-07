@@ -38,8 +38,8 @@ import org.mockito.stubbing.Answer;
 
 public class TestRequest implements Request {
 
-	Map<String, List<String>> parametersList = new HashMap<String, List<String>>();
-	Map<String, List<FormUpload>> uploads = new HashMap<String, List<FormUpload>>();
+	Map<String, List<String>> parametersList = new HashMap<>();
+	Map<String, List<FormUpload>> uploads = new HashMap<>();
 	private String encoding;
 	private boolean isGet = true;
 	private HttpServletRequest httpServletRequest;
@@ -47,7 +47,7 @@ public class TestRequest implements Request {
 	private boolean isMultiPart;
 
 	public TestRequest() {
-		this(new HashMap<String, Object>());
+		this(new HashMap<>());
 	}
 
 	public TestRequest(Map<String, Object> sessionAttributes) {
@@ -74,7 +74,7 @@ public class TestRequest implements Request {
 	}
 
 	public Map<String, String> getParameters() {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		for (String key : parametersList.keySet()) {
 			String parameter = getParameter(key);
 			if (null != parameter) {
@@ -101,7 +101,7 @@ public class TestRequest implements Request {
 		if (hasParameter(name)) {
 			return parametersList.get(name);
 		}
-		return Collections.unmodifiableList(new ArrayList<String>());
+		return Collections.unmodifiableList(new ArrayList<>());
 	}
 
 	public Map<String, List<FormUpload>> getFormUploads() {
@@ -109,7 +109,7 @@ public class TestRequest implements Request {
 	}
 
 	public List<FormUpload> getFormUploads(String name) {
-		return uploads.containsKey(name) ? uploads.get(name) : new ArrayList<FormUpload>();
+		return uploads.containsKey(name) ? uploads.get(name) : new ArrayList<>();
 	}
 
 	public void process(HttpServletRequest httpServletRequest) {

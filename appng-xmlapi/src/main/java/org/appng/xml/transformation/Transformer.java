@@ -24,6 +24,7 @@ import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.net.URL;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -105,7 +106,9 @@ public class Transformer {
 		styleSheetProvider.setName("transformer");
 		styleSheetProvider.setInsertBefore("xsl:variables");
 		styleSheetProvider.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-		styleSheetProvider.setTransformerFactory(TransformerFactory.newInstance());
+		TransformerFactory tf = TransformerFactory.newInstance();
+		tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		styleSheetProvider.setTransformerFactory(tf);
 		styleSheetProvider.init();
 
 		outputFile.getParentFile().mkdirs();

@@ -84,7 +84,7 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 			socket.joinGroup(address);
 			LOGGER.info("start listening at multicast {}:{}", groupAddress, groupPort);
 			String nodeIpsProp = System.getProperty(APPNG_MESSAGING_NODE_IPS);
-			List<String> nodeIps = new ArrayList<String>();
+			List<String> nodeIps = new ArrayList<>();
 			if (null != nodeIpsProp) {
 				nodeIps.addAll(Arrays.asList(nodeIpsProp.split(",")));
 				LOGGER.debug("node IPs: {}", nodeIpsProp);

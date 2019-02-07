@@ -66,7 +66,7 @@ public class CommandBatch implements ExecutableCliCommand {
 	private static final String VAR_PREFIX = "$";
 	private static final String VAR_DECLARATION = "def";
 	private static final char VAR_ASSIGNMENT = '=';
-	private Map<String, String> variables = new HashMap<String, String>();
+	private Map<String, String> variables = new HashMap<>();
 
 	@Parameter(names = "-f", required = true, description = "The name of the batch file.", validateWith = FileExists.class)
 	private String fileName;
@@ -104,10 +104,12 @@ public class CommandBatch implements ExecutableCliCommand {
 		String actual = null;
 		try {
 			Properties cliConfig = cle.getCliConfig();
-			List<String> lines = IOUtils.readLines(new FileInputStream(file), Charset.defaultCharset());
-			for (String command : lines) {
-				actual = command;
-				execute(cliCore, cliConfig, command);
+			try (FileInputStream fis = new FileInputStream(file)) {
+				List<String> lines = IOUtils.readLines(fis, Charset.defaultCharset());
+				for (String command : lines) {
+					actual = command;
+					execute(cliCore, cliConfig, command);
+				}
 			}
 		} catch (Exception e) {
 			if (null != actual) {
@@ -123,7 +125,7 @@ public class CommandBatch implements ExecutableCliCommand {
 			return args;
 		}
 
-		Map<String, Object> params = new HashMap<String, Object>(variables);
+		Map<String, Object> params = new HashMap<>(variables);
 		params.put("systemEnv", System.getenv());
 		params.put("systemProp", System.getProperties());
 		ExpressionEvaluator ee = new ExpressionEvaluator(params);
@@ -202,7 +204,7 @@ public class CommandBatch implements ExecutableCliCommand {
 	private class Line {
 
 		private static final char SINGLE_QUOTE = '\'';
-		private List<String> tokens = new ArrayList<String>();
+		private List<String> tokens = new ArrayList<>();
 		private boolean hasOpened = false;
 		private boolean assumeVariable = false;
 		private boolean skipAdd = false;

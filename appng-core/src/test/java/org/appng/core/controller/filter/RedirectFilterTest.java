@@ -62,7 +62,7 @@ public class RedirectFilterTest {
 
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
-		Map<String, Site> sites = new HashMap<String, Site>();
+		Map<String, Site> sites = new HashMap<>();
 		Site site = Mockito.mock(Site.class);
 		Mockito.when(site.getHost()).thenReturn("localhost");
 		Mockito.when(site.getName()).thenReturn("localhost");

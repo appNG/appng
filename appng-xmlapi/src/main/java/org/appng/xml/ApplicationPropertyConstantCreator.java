@@ -121,10 +121,11 @@ public class ApplicationPropertyConstantCreator {
 		String fileName = targetClass.replaceAll("\\.", "/") + ".java";
 		File outFile = new File(new File(outfolder).getAbsoluteFile(), fileName);
 		outFile.getParentFile().mkdirs();
-		FileOutputStream fos = new FileOutputStream(outFile);
-		fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
-		fos.close();
-		LOGGER.debug("Wrote {}", outFile.getAbsolutePath());
+		try (FileOutputStream fos = new FileOutputStream(outFile)) {
+			fos.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+			fos.close();
+			LOGGER.debug("Wrote {}", outFile.getAbsolutePath());
+		}
 	}
 
 	private static void readNameAndVersionFromPom(ApplicationInfo application, File appXml) {

@@ -46,7 +46,7 @@ class SessionEnvironment extends AbstractEnvironment {
 	public ConcurrentMap<String, Object> getContainer() {
 		Object container = session.getAttribute(getIdentifier());
 		if (null == container) {
-			container = new ConcurrentHashMap<String, Object>();
+			container = new ConcurrentHashMap<>();
 			session.setAttribute(getIdentifier(), container);
 		}
 		return (ConcurrentMap<String, Object>) container;

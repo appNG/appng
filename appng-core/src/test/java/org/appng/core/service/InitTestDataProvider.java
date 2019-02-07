@@ -37,9 +37,9 @@ public class InitTestDataProvider extends AppNGTestDataProvider {
 	@Override
 	public void writeTestData(EntityManager em) {
 
-		SubjectImpl subject1 = getSubject(3, UserType.LOCAL_USER, new ArrayList<Group>());
+		SubjectImpl subject1 = getSubject(3, UserType.LOCAL_USER, new ArrayList<>());
 		em.persist(subject1);
-		Set<Subject> subjects = new HashSet<Subject>();
+		Set<Subject> subjects = new HashSet<>();
 		subjects.add(subject1);
 
 		SiteImpl site1 = getSite(1);
@@ -58,7 +58,7 @@ public class InitTestDataProvider extends AppNGTestDataProvider {
 
 		site1.getApplications().add(application1);
 
-		Set<Role> roles = new HashSet<Role>();
+		Set<Role> roles = new HashSet<>();
 		roles.add(applicationRole1);
 
 		GroupImpl group1 = getGroup(1, roles, subjects);

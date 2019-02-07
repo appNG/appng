@@ -40,7 +40,7 @@ public class ValidatorConfig extends BaseConfig {
 		setMsgDigest(DigestAlgorithm.SHA256);
 	}
 
-	protected Map<String, String> pkgDigests = new HashMap<String, String>();
+	protected Map<String, String> pkgDigests = new HashMap<>();
 
 	protected Signature signature;
 	private byte[] signingCertsRaw;

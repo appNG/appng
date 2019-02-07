@@ -86,7 +86,7 @@ public class ApplicationStartup {
 			doInstall(arguments, conf);
 		}
 
-		List<URL> urls = new ArrayList<URL>();
+		List<URL> urls = new ArrayList<>();
 		addLib(urls, new File(webInf, "lib"));
 		URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
 		Thread.currentThread().setContextClassLoader(urlClassLoader);

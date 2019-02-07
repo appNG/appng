@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -97,8 +98,10 @@ public class HsqlStarter {
 			LOGGER.info("shutting down HSQL Server {} at {} on port {}", server.getProductVersion(),
 					server.getDatabasePath(0, false), server.getPort());
 			String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", server.getPort(), DATABASE_NAME);
-			try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "")) {
-				connection.createStatement().execute("SHUTDOWN");
+			try (
+					Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+					Statement statement = connection.createStatement()) {
+				statement.execute("SHUTDOWN");
 			} catch (SQLException e) {
 				LOGGER.warn("error while shutting down server", e);
 			}

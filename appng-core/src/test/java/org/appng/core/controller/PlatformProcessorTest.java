@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 
@@ -58,7 +59,7 @@ public class PlatformProcessorTest extends TestSupport {
 
 	private PlatformProcessor mp = new PlatformProcessor();
 
-	private ConcurrentMap<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
+	private ConcurrentMap<String, Object> sessionMap = new ConcurrentHashMap<>();
 
 	@Mock
 	private ApplicationRequest applicationRequest;
@@ -81,9 +82,10 @@ public class PlatformProcessorTest extends TestSupport {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		MarshallService marshallService = MarshallService.getMarshallService();
 		TransformerFactory tf = TransformerFactory.newInstance();
+		tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		marshallService.setDocumentBuilderFactory(dbf);
 		marshallService.setTransformerFactory(tf);
-		marshallService.setCdataElements(new ArrayList<String>());
+		marshallService.setCdataElements(new ArrayList<>());
 		StyleSheetProvider styleSheetProvider = new StyleSheetProvider();
 		styleSheetProvider.setDocumentBuilderFactory(dbf);
 		styleSheetProvider.setTransformerFactory(tf);
@@ -165,7 +167,7 @@ public class PlatformProcessorTest extends TestSupport {
 	}
 
 	private void initRequest() {
-		ConcurrentMap<String, Object> reqMap = new ConcurrentHashMap<String, Object>();
+		ConcurrentMap<String, Object> reqMap = new ConcurrentHashMap<>();
 		reqMap.put(EnvironmentKeys.RENDER, true);
 		Mockito.when(request.getAttribute(Scope.REQUEST.name())).thenReturn(reqMap);
 		Mockito.when(request.getMethod()).thenReturn("GET");

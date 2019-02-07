@@ -73,7 +73,7 @@ public class TagletProcessorTest {
 
 	private TagletProcessor tagletProcessor = new TagletProcessor();
 
-	private Map<String, String> tagletAttributes = new HashMap<String, String>();
+	private Map<String, String> tagletAttributes = new HashMap<>();
 
 	private StringWriter writer = new StringWriter();
 

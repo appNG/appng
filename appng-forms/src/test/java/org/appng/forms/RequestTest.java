@@ -39,7 +39,7 @@ public class RequestTest {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testAddParameters() {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put("foo", "bar");
 		parameters.put("john", "doe");
 		request.addParameters(parameters);

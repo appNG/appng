@@ -69,7 +69,7 @@ public class SoapClient {
 	public SoapClient(String contextPath, String uri, boolean format) {
 		this.marshaller = new Jaxb2Marshaller();
 		marshaller.setContextPath(contextPath);
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 		properties.put(Marshaller.JAXB_FORMATTED_OUTPUT, format);
 		marshaller.setMarshallerProperties(properties);
 		this.webServiceTemplate = new WebServiceTemplate();

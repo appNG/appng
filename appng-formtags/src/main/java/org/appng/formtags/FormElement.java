@@ -133,7 +133,7 @@ public class FormElement extends FormElementOwner implements ErrorAware {
 	FormElement(FormData formData) {
 		super(formData.getForm());
 		setFormData(formData);
-		this.requestValues = new ArrayList<String>();
+		this.requestValues = new ArrayList<>();
 		this.elements.add(this);
 	}
 

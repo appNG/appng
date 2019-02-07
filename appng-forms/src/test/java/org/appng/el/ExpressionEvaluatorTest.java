@@ -39,10 +39,10 @@ public class ExpressionEvaluatorTest {
 	@Before
 	public void setup() {
 		Locale.setDefault(Locale.ENGLISH);
-		parameters = new HashMap<String, Object>();
+		parameters = new HashMap<>();
 		parameters.put("a", FIVE);
 		parameters.put("b", SIX);
-		Map<String, Object> nested = new HashMap<String, Object>();
+		Map<String, Object> nested = new HashMap<>();
 		nested.put("foo", 5);
 		parameters.put("SESSION", nested);
 		evaluator = new ExpressionEvaluator(parameters);
@@ -199,7 +199,7 @@ public class ExpressionEvaluatorTest {
 
 	@Test
 	public void testMap() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("foo", "bar");
 		evaluator.setVariable("map", map);
 		assertTrue("${map['foo'] eq 'bar'}");
@@ -236,7 +236,7 @@ public class ExpressionEvaluatorTest {
 		d1.setType(Type.ON);
 		d1.setBar("bar");
 		d1.setFoo(42);
-		ArrayList<Dummy> dummies = new ArrayList<Dummy>();
+		ArrayList<Dummy> dummies = new ArrayList<>();
 		Dummy d2 = new Dummy();
 		dummies.add(d2);
 		d2.setFoo(23);

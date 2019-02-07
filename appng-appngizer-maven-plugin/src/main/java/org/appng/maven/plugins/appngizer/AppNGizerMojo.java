@@ -237,7 +237,7 @@ abstract class AppNGizerMojo extends AbstractMojo {
 			throw new MojoExecutionException(String.format("No archive file(s) starting with %s found in %s",
 					targetFile, targetFolder.getAbsolutePath()));
 		}
-		List<String> sortedFiles = new ArrayList<String>(Arrays.asList(files));
+		List<String> sortedFiles = new ArrayList<>(Arrays.asList(files));
 		Collections.sort(sortedFiles);
 		file = new File(targetFolder, sortedFiles.get(sortedFiles.size() - 1));
 

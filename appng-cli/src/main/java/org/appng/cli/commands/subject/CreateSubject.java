@@ -15,19 +15,12 @@
  */
 package org.appng.cli.commands.subject;
 
-import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
-import org.appng.api.Platform;
-import org.appng.api.auth.PasswordPolicy;
-import org.appng.api.model.Properties;
 import org.appng.api.model.UserType;
 import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.core.domain.SubjectImpl;
-import org.appng.core.security.DefaultPasswordPolicy;
-import org.appng.core.security.PasswordHandler;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -43,6 +36,9 @@ import com.beust.jcommander.Parameters;
  *        Default: <empty string>
  *   * -e
  *        The e-mail address.
+ *     -h
+ *        Has the password already been hashed using 'hash-pw &lt;password&gt'?
+ *        Default: false
  *     -l
  *        GUI language of the user.
  *        Default: de
@@ -77,6 +73,9 @@ public class CreateSubject implements ExecutableCliCommand {
 	@Parameter(names = "-p", required = false, description = "The password, mandatory for type LOCAL_USER.")
 	private String password;
 
+	@Parameter(names = "-h", required = false, description = "Has the password already been hashed using 'hash-pw <password>'?")
+	private boolean passwordHashed = false;
+
 	@Parameter(names = "-l", required = false, description = "GUI language of the user.")
 	private String language = "de";
 
@@ -91,7 +90,7 @@ public class CreateSubject implements ExecutableCliCommand {
 	}
 
 	CreateSubject(String loginName, String realName, String email, String password, String language, String description,
-			UserType type) {
+			UserType type, boolean passwordHashed) {
 		this.loginName = loginName;
 		this.realName = realName;
 		this.email = email;
@@ -99,6 +98,7 @@ public class CreateSubject implements ExecutableCliCommand {
 		this.language = language;
 		this.description = description;
 		this.type = type;
+		this.passwordHashed = passwordHashed;
 	}
 
 	public void execute(CliEnvironment cle) throws BusinessException {
@@ -107,17 +107,9 @@ public class CreateSubject implements ExecutableCliCommand {
 			if (StringUtils.isBlank(password)) {
 				throw new BusinessException(String.format("-p is mandatory for type %s", type.name()));
 			}
-			Properties platformConfig = cle.getPlatformConfig();
-			String regEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
-			String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
-			PasswordPolicy passwordPolicy = new DefaultPasswordPolicy(regEx, errorMessageKey);
-
-			if (!passwordPolicy.isValidPassword(password.toCharArray())) {
-				String errorMessage = cle.getMessageSource().getMessage(errorMessageKey, null, Locale.ENGLISH);
-				throw new BusinessException(errorMessage);
+			if (!passwordHashed) {
+				HashPassword.savePasswordForSubject(cle, subject, password);
 			}
-			PasswordHandler passwordHandler = cle.getCoreService().getDefaultPasswordHandler(subject);
-			passwordHandler.savePassword(password);
 		} else if (StringUtils.isNotBlank(password)) {
 			throw new BusinessException(String.format("-p is not allowed for type %s", type.name()));
 		}
@@ -131,6 +123,9 @@ public class CreateSubject implements ExecutableCliCommand {
 		subject.setLanguage(language);
 		subject.setDescription(description);
 		subject.setUserType(type);
+		if (passwordHashed) {
+			subject.setDigest(password);
+		}
 
 		cle.getCoreService().createSubject(subject);
 

@@ -90,7 +90,7 @@ public class PlatformTransformer {
 	private static final Map<String, SourceAwareTemplate> STYLESHEETS = Collections.synchronizedMap(new LRUMap(20));
 
 	public PlatformTransformer() {
-		this.templates = new HashSet<Template>();
+		this.templates = new HashSet<>();
 	}
 
 	/**
@@ -186,12 +186,11 @@ public class PlatformTransformer {
 					for (TransformerException t : errorCollector.exceptions) {
 						LOGGER.error(t.getMessage(), t);
 					}
-					throw tce;
+					if (!devMode) {
+						STYLESHEETS.put(styleId, sourceAwareTemplate);
+					}
+					LOGGER.debug("writing templates to cache (id: {})", styleId);
 				}
-				if (!devMode) {
-					STYLESHEETS.put(styleId, sourceAwareTemplate);
-				}
-				LOGGER.debug("writing templates to cache (id: {})", styleId);
 			}
 
 			Boolean formatOutput = platformProperties.getBoolean(org.appng.api.Platform.Property.FORMAT_OUTPUT);
@@ -233,18 +232,20 @@ public class PlatformTransformer {
 					rootPath);
 			writeDebugFile(now, AbstractRequestProcessor.PLATFORM_XML, platformXML, rootPath);
 
-			StringWriter debugWriter = new StringWriter();
-			PrintWriter debugPrintWriter = new PrintWriter(debugWriter);
-			if (null != te) {
-				te.printStackTrace(debugPrintWriter);
-			}
-			if (null != sourceAwareTemplate.errorCollector) {
-				for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
-					debugWriter.write("--------------------");
-					debugWriter.write(System.lineSeparator());
-					transformerException.printStackTrace(debugPrintWriter);
-				}
-			}
+			try (
+					StringWriter debugWriter = new StringWriter();
+					PrintWriter debugPrintWriter = new PrintWriter(debugWriter)) {
+			  if (null != te) {
+		  		te.printStackTrace(debugPrintWriter);
+		  	}
+		  	if (null != sourceAwareTemplate.errorCollector) {
+		  		for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
+		  			debugWriter.write("--------------------");
+			  		debugWriter.write(System.lineSeparator());
+			  		transformerException.printStackTrace(debugPrintWriter);
+		  		}
+		  	}
+      }
 			writeDebugFile(now, AbstractRequestProcessor.STACKTRACE_TXT, platformXML, rootPath);
 		} catch (IOException e) {
 			LOGGER.error("error while writing exception details", e);
@@ -315,7 +316,7 @@ public class PlatformTransformer {
 
 	static class ErrorCollector implements ErrorListener {
 
-		List<TransformerException> exceptions = new ArrayList<TransformerException>();
+		List<TransformerException> exceptions = new ArrayList<>();
 
 		public void warning(TransformerException exception) throws TransformerException {
 			exceptions.add(exception);

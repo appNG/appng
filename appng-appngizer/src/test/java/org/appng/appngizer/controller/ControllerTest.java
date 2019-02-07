@@ -176,7 +176,7 @@ public abstract class ControllerTest {
 	}
 
 	protected List<Property> getPlatformProperties(String prefix) {
-		List<Property> platformProperties = new ArrayList<Property>();
+		List<Property> platformProperties = new ArrayList<>();
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.VHOST_MODE, VHostMode.NAME_BASED.name()));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.LOCALE, "en"));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.TIME_ZONE, "Europe/Berlin"));

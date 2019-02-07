@@ -40,7 +40,7 @@ import org.springframework.core.io.ClassPathResource;
 
 public class ListFieldConverterTest extends AbstractFieldConverterTest {
 
-	private static final ArrayList<Integer> EMPTY_LIST = new ArrayList<Integer>();
+	private static final ArrayList<Integer> EMPTY_LIST = new ArrayList<>();
 	List<Integer> numbers = Arrays.asList(1, 2, 3);
 	List<String> stringNumbers = Arrays.asList("1", "2", "3");
 

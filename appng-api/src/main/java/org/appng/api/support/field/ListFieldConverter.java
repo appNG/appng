@@ -75,7 +75,7 @@ class ListFieldConverter extends ConverterBase {
 		if (null != values) {
 			if (wrapper.isReadableProperty(name))
 				if (FieldType.LIST_OBJECT.equals(field.getType())) {
-					List<FieldDef> innerFields = new ArrayList<FieldDef>(field.getFields());
+					List<FieldDef> innerFields = new ArrayList<>(field.getFields());
 					field.getFields().clear();
 					int maxIndex = 0;
 					Pattern pattern = Pattern.compile("^" + Pattern.quote(field.getBinding()) + "\\[(\\d+)\\]\\..+$");
@@ -128,7 +128,7 @@ class ListFieldConverter extends ConverterBase {
 			if (propertyTypeDescriptor.isCollection()) {
 				Collection<?> collection = (Collection<?>) object;
 				Datafield child = null;
-				List<FieldDef> indexedFields = new ArrayList<FieldDef>(fieldWrapper.getFields());
+				List<FieldDef> indexedFields = new ArrayList<>(fieldWrapper.getFields());
 				if (isObjectList) {
 					fieldWrapper.getFields().clear();
 				}

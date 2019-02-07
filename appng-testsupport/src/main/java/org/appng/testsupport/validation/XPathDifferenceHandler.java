@@ -37,7 +37,7 @@ import org.custommonkey.xmlunit.NodeDetail;
 public class XPathDifferenceHandler extends DifferenceHandler {
 
 	private static final String POSITON_PATTERN = "\\[\\d+\\]";
-	private Map<String, DifferenceListener> handlers = new HashMap<String, DifferenceListener>();
+	private Map<String, DifferenceListener> handlers = new HashMap<>();
 	private boolean stripPositions;
 
 	/**

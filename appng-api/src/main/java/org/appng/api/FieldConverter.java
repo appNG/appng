@@ -151,7 +151,7 @@ public interface FieldConverter {
 		 * @return the {@link Map}
 		 */
 		public Map<String, String> getFieldValues() {
-			Map<String, String> values = new HashMap<String, String>();
+			Map<String, String> values = new HashMap<>();
 			for (Datafield datafield : getFields()) {
 				values.put(datafield.getName(), datafield.getValue());
 			}

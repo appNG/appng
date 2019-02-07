@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -104,7 +105,9 @@ public class XPathProcessor {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			this.document = builder.parse(is);
 			this.xpath = XPathFactory.newInstance().newXPath();
-			this.transformer = TransformerFactory.newInstance().newTransformer();
+			TransformerFactory tf = TransformerFactory.newInstance();
+			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			this.transformer = tf.newTransformer();
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e);
 		} catch (SAXException e) {
@@ -120,7 +123,9 @@ public class XPathProcessor {
 		this.document = document;
 		try {
 			this.xpath = XPathFactory.newInstance().newXPath();
-			this.transformer = TransformerFactory.newInstance().newTransformer();
+			TransformerFactory tf = TransformerFactory.newInstance();
+			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			this.transformer = tf.newTransformer();
 		} catch (TransformerConfigurationException e) {
 			throw new IOException(e);
 		} catch (TransformerFactoryConfigurationError e) {

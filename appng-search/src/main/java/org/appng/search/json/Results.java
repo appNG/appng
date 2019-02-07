@@ -30,7 +30,7 @@ public class Results {
 
 	public List<Result> getData() {
 		if (null == data) {
-			data = new ArrayList<Result>();
+			data = new ArrayList<>();
 		}
 		return data;
 	}
