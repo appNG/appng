@@ -36,19 +36,11 @@ public class StringConsumer implements StreamConsumer<List<String>> {
 	private List<String> lines;
 
 	public void consume(InputStream is) throws IOException {
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new InputStreamReader(is));
-			lines = new ArrayList<String>();
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+			lines = new ArrayList<>();
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
-			}
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (null != reader) {
-				reader.close();
 			}
 		}
 	}

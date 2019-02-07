@@ -415,7 +415,7 @@ public class MarshallService {
 		ErrorItem(Object object, String content) {
 			this.object = object;
 			this.content = content;
-			this.errors = new ArrayList<String>();
+			this.errors = new ArrayList<>();
 		}
 
 		void addError(String error) {
@@ -431,7 +431,7 @@ public class MarshallService {
 		MarshallEventHandler(boolean throwError) throws JAXBException {
 			this.inner = new MarshallService(schema);
 			this.throwError = throwError;
-			this.errorItems = new HashMap<Integer, MarshallService.ErrorItem>();
+			this.errorItems = new HashMap<>();
 		}
 
 		public void clear() {

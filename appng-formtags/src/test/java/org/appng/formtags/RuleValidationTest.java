@@ -35,7 +35,7 @@ public class RuleValidationTest {
 	static List<FormUpload> uploads;
 
 	static {
-		uploads = new ArrayList<FormUpload>();
+		uploads = new ArrayList<>();
 		String upload_1 = new File("").getAbsolutePath() + filePath + "Jellyfish.jpg";
 		uploads.add(new FormUploadBean(new File(upload_1), "upload_1.jpg", "jpg", Arrays.asList("image/jpg"), 1024L));
 		String upload_2 = new File("").getAbsolutePath() + filePath + "Lighthouse.jpg";
@@ -47,8 +47,8 @@ public class RuleValidationTest {
 
 	@Before
 	public void setup() {
-		Map<String, Object> sessionAttribues = new HashMap<String, Object>();
-		Map<String, Object> session = new HashMap<String, Object>();
+		Map<String, Object> sessionAttribues = new HashMap<>();
+		Map<String, Object> session = new HashMap<>();
 		session.put("SESSION", sessionAttribues);
 		sessionAttribues.put("foobar", 5);
 		container = new TestRequest(sessionAttribues);

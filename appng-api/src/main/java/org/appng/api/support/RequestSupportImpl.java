@@ -224,7 +224,7 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 		}
 		BeanWrapper sourceWrapper = new BeanWrapperImpl(source);
 		BeanWrapper targetWrapper = new BeanWrapperImpl(target);
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(parameters);
 		expressionEvaluator.setVariable(CURRENT, source);
 		setPropertyValues(sourceWrapper, targetWrapper, metaData, expressionEvaluator);

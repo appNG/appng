@@ -74,7 +74,7 @@ public class Template implements Identifier, Auditable<Integer> {
 		setPackageVersion(template.getVersion());
 		setType(template.getType());
 		setTimestamp(template.getTimestamp());
-		setResources(new ArrayList<TemplateResource>());
+		setResources(new ArrayList<>());
 	}
 
 	public void update(Template template) {

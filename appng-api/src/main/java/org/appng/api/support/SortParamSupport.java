@@ -62,7 +62,7 @@ public class SortParamSupport {
 
 	private boolean isPageSet = false;
 	private boolean isPageSizeSet = false;
-	private List<String> removedProperties = new ArrayList<String>();
+	private List<String> removedProperties = new ArrayList<>();
 
 	private Pattern paramPattern = Pattern.compile("((" + ALPHA_NUM + "+(\\." + ALPHA_NUM + "+)*)(" + ASSIGN
 			+ "(asc|desc))?)" + SEPARATOR + "?");
@@ -95,7 +95,7 @@ public class SortParamSupport {
 		int pageSize = defaultPagesize;
 		int page = DEFAULT_PAGE;
 
-		List<Order> orders = new ArrayList<Sort.Order>();
+		List<Order> orders = new ArrayList<>();
 		if (null != string) {
 			String pagePart = findGroup(pagePattern, string);
 			if (null != pagePart) {
@@ -152,8 +152,8 @@ public class SortParamSupport {
 	}
 
 	private Pageable mergeOrderParams(Pageable currentParams, Pageable parseParams) {
-		Map<String, Integer> positions = new HashMap<String, Integer>();
-		List<Order> mergedOrders = new ArrayList<Order>(0);
+		Map<String, Integer> positions = new HashMap<>();
+		List<Order> mergedOrders = new ArrayList<>(0);
 		int pos = 0;
 
 		Sort currentSort = currentParams.getSort();

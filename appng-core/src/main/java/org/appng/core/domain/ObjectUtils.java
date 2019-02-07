@@ -32,13 +32,15 @@ public class ObjectUtils {
 		if (a.getId() == null) {
 			if (other.getId() != null)
 				return false;
-		} else if (!a.getId().equals(other.getId()))
+		} else if (!a.getId().equals(other.getId())) {
 			return false;
+		}
 		if (a.getName() == null) {
 			if (other.getName() != null)
 				return false;
-		} else if (!a.getName().equals(other.getName()))
+		} else if (!a.getName().equals(other.getName())) {
 			return false;
+		}
 		return true;
 	}
 
@@ -61,8 +63,9 @@ public class ObjectUtils {
 		if (a.getId() == null) {
 			if (other.getId() != null)
 				return false;
-		} else if (!a.getId().equals(other.getId()))
+		} else if (!a.getId().equals(other.getId())) {
 			return false;
+		}
 		return true;
 	}
 

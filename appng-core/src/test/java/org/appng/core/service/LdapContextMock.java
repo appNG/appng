@@ -120,7 +120,7 @@ public class LdapContextMock implements LdapContext {
 	}
 
 	// Keeps track of (simulated) Exceptions to make them available to the unit tests.
-	public ArrayList<Exception> exceptionHistory = new ArrayList<Exception>(2);
+	public ArrayList<Exception> exceptionHistory = new ArrayList<>(2);
 
 	public LdapContextMock(String userPrincipal, String userPassword, String servicePrincipal, String servicePassword,
 			HashMap<String, Object> siteProperties) throws NamingException, IOException {

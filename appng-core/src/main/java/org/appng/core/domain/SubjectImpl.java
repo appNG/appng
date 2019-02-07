@@ -68,7 +68,7 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	private String digest;
 	private String salt;
 	private Date version;
-	private List<Group> groups = new ArrayList<Group>();
+	private List<Group> groups = new ArrayList<>();
 	private UserType userType;
 	private String typeName;
 	private boolean isAuthenticated;
@@ -206,7 +206,7 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 
 	@Transient
 	public List<Role> getApplicationroles(Application application) {
-		List<Role> applicationRoles = new ArrayList<Role>();
+		List<Role> applicationRoles = new ArrayList<>();
 		for (Group g : groups) {
 			for (Role role : g.getRoles()) {
 				if (application.getRoles().contains(role)) {

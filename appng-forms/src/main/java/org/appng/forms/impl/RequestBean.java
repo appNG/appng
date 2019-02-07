@@ -76,16 +76,16 @@ public class RequestBean implements Request {
 		this.encoding = UTF_8;
 		this.tempDir = tempDir;
 		this.maxSize = maxSize;
-		this.parameters = new HashMap<String, List<String>>();
-		this.uploadFileTypes = new HashMap<String, List<String>>();
-		this.formUploads = new HashMap<String, List<FormUpload>>();
+		this.parameters = new HashMap<>();
+		this.uploadFileTypes = new HashMap<>();
+		this.formUploads = new HashMap<>();
 	}
 
 	public List<FormUpload> getFormUploads(String name) {
 		if (formUploads.containsKey(name)) {
 			return Collections.unmodifiableList(formUploads.get(name));
 		} else {
-			return Collections.unmodifiableList(new ArrayList<FormUpload>());
+			return Collections.unmodifiableList(new ArrayList<>());
 		}
 	}
 
@@ -132,7 +132,7 @@ public class RequestBean implements Request {
 						}
 						List<String> list = parameters.get(name);
 						if (list == null) {
-							list = new ArrayList<String>();
+							list = new ArrayList<>();
 							parameters.put(name, list);
 						} else {
 							LOGGER.trace("{} parameter: {} is multi-valued", method, name);
@@ -141,7 +141,7 @@ public class RequestBean implements Request {
 						LOGGER.trace("{} parameter: {} = {}", method, name, value);
 					} else {
 						if (!formUploads.containsKey(name)) {
-							formUploads.put(name, new ArrayList<FormUpload>());
+							formUploads.put(name, new ArrayList<>());
 						}
 						if (item.get().length > 0) {
 							String itemName = item.getName();
@@ -175,7 +175,7 @@ public class RequestBean implements Request {
 					if (stripXss) {
 						parameterValues = xssUtil.stripXss(parameterValues);
 					}
-					List<String> values = new ArrayList<String>(Arrays.asList(parameterValues));
+					List<String> values = new ArrayList<>(Arrays.asList(parameterValues));
 					if (values.size() > 1) {
 						LOGGER.trace("{} parameter: {} is multi-valued", method, name);
 					}
@@ -241,7 +241,7 @@ public class RequestBean implements Request {
 
 	public void setAcceptedTypes(String uploadName, String... types) {
 		if (!uploadFileTypes.containsKey(uploadName)) {
-			uploadFileTypes.put(uploadName, new ArrayList<String>());
+			uploadFileTypes.put(uploadName, new ArrayList<>());
 		}
 		uploadFileTypes.get(uploadName).clear();
 		if (null != types) {
@@ -265,7 +265,7 @@ public class RequestBean implements Request {
 
 	public void addParameter(String key, String value) {
 		if (!parameters.containsKey(key)) {
-			List<String> list = new ArrayList<String>();
+			List<String> list = new ArrayList<>();
 			list.add(value);
 			parameters.put(key, Collections.unmodifiableList(list));
 			LOGGER.debug("adding parameter {}:{}", key, value);
@@ -293,7 +293,7 @@ public class RequestBean implements Request {
 	public List<String> getParameterList(String name) {
 		List<String> list = parameters.get(name);
 		if (null == list) {
-			list = new ArrayList<String>();
+			list = new ArrayList<>();
 		}
 		return Collections.unmodifiableList(list);
 	}
@@ -304,7 +304,7 @@ public class RequestBean implements Request {
 
 	public Map<String, String> getParameters() {
 		Set<String> keySet = parameters.keySet();
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		for (String key : keySet) {
 			String value = getSingleParameter(key);
 			if (null != value) {

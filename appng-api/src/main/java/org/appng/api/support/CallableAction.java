@@ -215,7 +215,7 @@ public class CallableAction {
 					actionParamSupport, datasourceRef);
 			if (datasourceElement.doInclude()) {
 
-				List<Message> before = new ArrayList<Message>();
+				List<Message> before = new ArrayList<>();
 				Environment environment = applicationRequest.getEnvironment();
 				if (elementHelper.hasMessages(environment)) {
 					before.addAll(elementHelper.getMessages(environment).getMessageList());
@@ -227,7 +227,7 @@ public class CallableAction {
 				elementHelper.addTemplates(applicationRequest.getApplicationConfig(), dsConfig);
 				action.getConfig().setMetaData(dsConfig.getMetaData());
 
-				List<Message> after = new ArrayList<Message>();
+				List<Message> after = new ArrayList<>();
 				if (elementHelper.hasMessages(environment)) {
 					after.addAll(elementHelper.getMessages(environment).getMessageList());
 				}
@@ -249,7 +249,7 @@ public class CallableAction {
 				}
 
 				if (null != data && null != data.getResult()) {
-					Map<String, String> fieldValues = new HashMap<String, String>();
+					Map<String, String> fieldValues = new HashMap<>();
 					for (Datafield datafield : data.getResult().getFields()) {
 						fieldValues.put(datafield.getName(), datafield.getValue());
 					}
@@ -588,7 +588,7 @@ public class CallableAction {
 	// XXX MM this is the root of all evil
 	private void handleSelections() {
 		if (null != action.getData()) {
-			Map<String, Selection> selectionMap = new HashMap<String, Selection>();
+			Map<String, Selection> selectionMap = new HashMap<>();
 			for (Selection selection : action.getData().getSelections()) {
 				selectionMap.put(selection.getId(), selection);
 			}
@@ -596,11 +596,11 @@ public class CallableAction {
 			UserData userdata = action.getUserdata();
 			if (null != userdata) {
 
-				Map<String, List<String>> userinput = new HashMap<String, List<String>>();
+				Map<String, List<String>> userinput = new HashMap<>();
 				for (UserInputField userInputField : userdata.getInput()) {
 					String name = userInputField.getName();
 					if (!userinput.containsKey(name)) {
-						userinput.put(name, new ArrayList<String>());
+						userinput.put(name, new ArrayList<>());
 					}
 					userinput.get(name).add(userInputField.getContent());
 				}

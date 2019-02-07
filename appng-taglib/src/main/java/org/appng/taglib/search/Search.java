@@ -119,8 +119,8 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 	private String format;
 	private boolean useParts;
 	private String highlight;
-	private List<SearchPart> parts = new ArrayList<SearchPart>();
-	private Map<String, String> parameters = new HashMap<String, String>();
+	private List<SearchPart> parts = new ArrayList<>();
+	private Map<String, String> parameters = new HashMap<>();
 
 	@Override
 	public int doEndTag() throws JspException {
@@ -142,7 +142,7 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 
 				ApplicationContext ctx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
 
-				List<Part> results = new ArrayList<Part>();
+				List<Part> results = new ArrayList<>();
 
 				Integer maxTextLength = Integer.parseInt(getParam(PARAM_MAX_TEXT_LENGTH, "150"));
 				String fillWith = getParam(PARAM_FILL_WITH, "...");

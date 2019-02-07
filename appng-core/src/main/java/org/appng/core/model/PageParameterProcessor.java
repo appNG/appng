@@ -54,7 +54,7 @@ class PageParameterProcessor {
 		this.env = env;
 		this.sessionParamKey = sessionParamKey;
 		this.request = request;
-		this.parameters = new HashMap<String, String>();
+		this.parameters = new HashMap<>();
 		this.sessionParamNames = sessionParamNames;
 	}
 
@@ -118,7 +118,7 @@ class PageParameterProcessor {
 	private Map<String, String> getSessionParams() {
 		Map<String, String> sessionParams = env.getAttribute(SESSION, getSessionParamKey());
 		if (null == sessionParams) {
-			sessionParams = new HashMap<String, String>();
+			sessionParams = new HashMap<>();
 			env.setAttribute(SESSION, getSessionParamKey(), sessionParams);
 		}
 		return sessionParams;

@@ -148,28 +148,28 @@ public class StandardSearcherTest {
 	@Test
 	public void testSearchEn() throws IOException, URISyntaxException {
 		Iterable<Document> doSearch = standardSearcher.doSearch(env, site, application, directory, "Hitchhiker", "en",
-				PARSE_FIELDS, new EnglishAnalyzer(), "span", new HashMap<String, String>());
+				PARSE_FIELDS, new EnglishAnalyzer(), "span", new HashMap<>());
 		validate("Hitchhiker", doSearch, "search_result_en.json", "search-en");
 	}
 
 	@Test
 	public void testSearchEnFoo() throws IOException, URISyntaxException {
 		Iterable<Document> doSearch = standardSearcher.doSearch(env, site, application, directory, "foo", "en",
-				PARSE_FIELDS, new EnglishAnalyzer(), "span", new HashMap<String, String>());
+				PARSE_FIELDS, new EnglishAnalyzer(), "span", new HashMap<>());
 		validate("foo", doSearch, "search_result_en_foo.json", "search-en");
 	}
 
 	@Test
 	public void testSearchEnNoResult() throws IOException, URISyntaxException {
 		Iterable<Document> doSearch = standardSearcher.doSearch(env, site, application, directory, "ACME", "en",
-				PARSE_FIELDS, new EnglishAnalyzer(), "span", new HashMap<String, String>());
+				PARSE_FIELDS, new EnglishAnalyzer(), "span", new HashMap<>());
 		validate("ACME", doSearch, "search_result_en_no_result.json", "search-en");
 	}
 
 	@Test
 	public void testSearchDe() throws IOException, URISyntaxException {
 		Iterable<Document> doSearch = standardSearcher.doSearch(env, site, application, directory, "Anhalter", "de",
-				PARSE_FIELDS, new GermanAnalyzer(), "span", new HashMap<String, String>());
+				PARSE_FIELDS, new GermanAnalyzer(), "span", new HashMap<>());
 		SearchFormatter searchFormatter = validate("Anhalter", doSearch, "search_result_de.json", "search-de");
 		ClassLoader classLoader = getClass().getClassLoader();
 		File xslStylesheet = new File(classLoader.getResource("transform.xsl").toURI());

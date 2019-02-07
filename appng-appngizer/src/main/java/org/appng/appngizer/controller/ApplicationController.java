@@ -28,10 +28,12 @@ import org.appng.core.domain.ApplicationImpl;
 import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class ApplicationController extends PropertyBase {
 
-	@RequestMapping(value = "/application", method = RequestMethod.GET)
+	@GetMapping(value = "/application")
 	public ResponseEntity<Applications> listApplications() {
-		List<Application> appList = new ArrayList<Application>();
+		List<Application> appList = new ArrayList<>();
 		for (ApplicationImpl application : getCoreService().getApplications()) {
 			appList.add(Application.fromDomain(application));
 		}
@@ -51,7 +53,7 @@ public class ApplicationController extends PropertyBase {
 		return ok(applications);
 	}
 
-	@RequestMapping(value = "/application/{name}", method = RequestMethod.GET)
+	@GetMapping(value = "/application/{name}")
 	public ResponseEntity<Application> getApplication(@PathVariable("name") String name) {
 		ApplicationImpl application = getApplicationByName(name);
 		if (null == application) {
@@ -60,9 +62,9 @@ public class ApplicationController extends PropertyBase {
 		Application fromDomain = Application.fromDomain(application);
 		fromDomain.addLinks();
 		fromDomain.applyUriComponents(getUriBuilder());
-		// List<Role> roles = new ArrayList<Role>();
+		// List<Role> roles = new ArrayList<>();
 		// fromDomain.setRoles(new Roles(roles, name));
-		// List<Permission> permissions = new ArrayList<Permission>();
+		// List<Permission> permissions = new ArrayList<>();
 		// fromDomain.setPermissions(new Permissions(permissions, name));
 		// for (org.appng.api.model.Role r : application.getRoles()) {
 		// roles.add(Role.fromDomain(r));
@@ -73,7 +75,7 @@ public class ApplicationController extends PropertyBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/application/{name}", method = RequestMethod.PUT)
+	@PutMapping(value = "/application/{name}")
 	public ResponseEntity<Application> updateApplication(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Application application) throws BusinessException {
 		ApplicationImpl applicationByName = getApplicationByName(name);
@@ -87,7 +89,7 @@ public class ApplicationController extends PropertyBase {
 		return ok(Application.fromDomain(applicationByName));
 	}
 
-	@RequestMapping(value = "/application/{name}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/application/{name}")
 	public ResponseEntity<Void> deleteApplication(@PathVariable("name") String name) throws BusinessException {
 		ApplicationImpl currentApplication = getApplicationByName(name);
 		if (null == currentApplication) {
@@ -100,30 +102,29 @@ public class ApplicationController extends PropertyBase {
 	}
 
 	/* Properties */
-	@RequestMapping(value = "/application/{name}/property", method = RequestMethod.GET)
+	@GetMapping(value = "/application/{name}/property")
 	public ResponseEntity<Properties> listProperties(@PathVariable("name") String name) {
 		return getProperties(null, getApplicationByName(name));
 	}
 
-	@RequestMapping(value = "/application/{name}/property/{prop}", method = RequestMethod.GET)
-
+	@GetMapping(value = "/application/{name}/property/{prop}")
 	public ResponseEntity<Property> getProperty(@PathVariable("name") String name, @PathVariable("prop") String prop) {
 		return getPropertyResponse(prop, null, getApplicationByName(name));
 	}
 
-	@RequestMapping(value = "/application/{name}/property", method = RequestMethod.POST)
+	@PostMapping(value = "/application/{name}/property")
 	public ResponseEntity<Property> createProperty(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Property property) {
 		return createProperty(property, null, getApplicationByName(name));
 	}
 
-	@RequestMapping(value = "/application/{name}/property/{prop}", method = RequestMethod.PUT)
+	@PutMapping(value = "/application/{name}/property/{prop}")
 	public ResponseEntity<Property> updateProperty(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Property property) {
 		return updateProperty(property, null, getApplicationByName(name));
 	}
 
-	@RequestMapping(value = "/application/{name}/property/{prop}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/application/{name}/property/{prop}")
 	public ResponseEntity<Property> deleteProperty(@PathVariable("name") String name,
 			@PathVariable("prop") String property) {
 		return deleteProperty(property, null, getApplicationByName(name));

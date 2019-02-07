@@ -404,7 +404,7 @@ public class CoreService {
 		} else {
 			List<SubjectImpl> globalGroups = getSubjectsByType(UserType.GLOBAL_GROUP);
 			if (!globalGroups.isEmpty()) {
-				List<String> groupNames = new ArrayList<String>();
+				List<String> groupNames = new ArrayList<>();
 				for (SubjectImpl subjectImpl : globalGroups) {
 					groupNames.add(subjectImpl.getName());
 				}
@@ -675,8 +675,8 @@ public class CoreService {
 
 			if (null != applicationInfo.getRoles()) {
 				Roles roles = applicationInfo.getRoles();
-				Set<Role> applicationRoles = new HashSet<Role>();
-				Set<Role> adminRoles = new HashSet<Role>();
+				Set<Role> applicationRoles = new HashSet<>();
+				Set<Role> adminRoles = new HashSet<>();
 
 				for (org.appng.xml.application.Role role : roles.getRole()) {
 					RoleImpl applicationRole = createApplicationRole(application, role);
@@ -1309,7 +1309,7 @@ public class CoreService {
 	}
 
 	private void detachApplications(SiteImpl site) throws BusinessException {
-		Collection<SiteApplication> siteApplications = new HashSet<SiteApplication>(site.getSiteApplications());
+		Collection<SiteApplication> siteApplications = new HashSet<>(site.getSiteApplications());
 		for (SiteApplication siteApplication : siteApplications) {
 			unlinkApplicationFromSite(siteApplication);
 		}
@@ -1507,7 +1507,7 @@ public class CoreService {
 
 	protected void assignRolesToGroup(Group group, Site site, List<Integer> applicationRoleIds) {
 		Set<Role> applicationRoles = group.getRoles();
-		List<Role> currentRoles = new ArrayList<Role>(applicationRoles);
+		List<Role> currentRoles = new ArrayList<>(applicationRoles);
 		for (Role applicationRole : currentRoles) {
 			Application applicationOfRole = applicationRole.getApplication();
 			if (site.hasApplication(applicationOfRole.getName())) {
@@ -1782,7 +1782,7 @@ public class CoreService {
 	}
 
 	public Collection<ApplicationSubject> getApplicationSubjects(Integer applicationId, Site site) {
-		List<ApplicationSubject> applicationSubjects = new ArrayList<ApplicationSubject>();
+		List<ApplicationSubject> applicationSubjects = new ArrayList<>();
 		ApplicationImpl application = applicationRepository.findOne(applicationId);
 		List<SubjectImpl> subjects = subjectRepository.findSubjectsForApplication(applicationId);
 		String siteTimeZone = site.getProperties().getString(Platform.Property.TIME_ZONE);
@@ -1984,7 +1984,7 @@ public class CoreService {
 
 	public Map<String, String> getCacheStatistics(Integer siteId) {
 		SiteImpl site = getSite(siteId);
-		Map<String, String> cacheStatistics = new HashMap<String, String>();
+		Map<String, String> cacheStatistics = new HashMap<>();
 		Boolean ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
 		if (ehcacheEnabled) {
 			try {
@@ -2036,7 +2036,7 @@ public class CoreService {
 
 	public List<AppngCache> getCacheEntries(Integer siteId) {
 		SiteImpl site = siteRepository.findOne(siteId);
-		List<AppngCache> appngCacheEntries = new ArrayList<AppngCache>();
+		List<AppngCache> appngCacheEntries = new ArrayList<>();
 		try {
 			BlockingCache cache = CacheService.getBlockingCache(site);
 			if (null != cache) {

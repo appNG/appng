@@ -45,7 +45,7 @@ class PlatformEnvironment extends AbstractEnvironment {
 	public ConcurrentMap<String, Object> getContainer() {
 		ConcurrentMap<String, Object> container = (ConcurrentMap<String, Object>) ctx.getAttribute(getIdentifier());
 		if (null == container) {
-			container = new ConcurrentHashMap<String, Object>();
+			container = new ConcurrentHashMap<>();
 			ctx.setAttribute(getIdentifier(), container);
 		}
 		return container;

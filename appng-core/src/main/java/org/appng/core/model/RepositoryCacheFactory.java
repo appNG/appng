@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RepositoryCacheFactory {
 
-	private static Map<Integer, RepositoryCache> caches = new HashMap<Integer, RepositoryCache>();
+	private static Map<Integer, RepositoryCache> caches = new HashMap<>();
 	private byte[] cert;
 	private byte[] privateKey;
 	private byte[] trustStore;

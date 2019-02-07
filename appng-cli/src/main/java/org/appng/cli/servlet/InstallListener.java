@@ -54,16 +54,17 @@ public class InstallListener implements ServletContextListener {
 			if (autoInstall.exists()) {
 				LOGGER.info("processing {}", resource);
 				System.getProperties().put(CliBootstrap.APPNG_HOME, ctx.getRealPath("/"));
-				ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-				CliEnvironment.out = new PrintStream(bytesOut);
-				String[] args = new String[] { "batch", "-f", resource };
-				int status = CliBootstrap.run(args);
-				message = new String(bytesOut.toByteArray());
-				LOGGER.debug(message);
-				if (CliCore.STATUS_OK != status) {
-					LOGGER.warn("CLI returned status {}", status);
+				try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream()) {
+					CliEnvironment.out = new PrintStream(bytesOut);
+					String[] args = new String[] { "batch", "-f", resource };
+					int status = CliBootstrap.run(args);
+					message = new String(bytesOut.toByteArray());
+					LOGGER.debug(message);
+					if (CliCore.STATUS_OK != status) {
+						LOGGER.warn("CLI returned status {}", status);
+					}
+					LOGGER.info("done processing {}", resource);
 				}
-				LOGGER.info("done processing {}", resource);
 			} else {
 				LOGGER.debug("{} not present", resource);
 			}

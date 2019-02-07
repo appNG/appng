@@ -29,7 +29,7 @@ import org.appng.api.Option;
 public class OptionData {
 
 	public static Map<String, Option> getOptionsMap() {
-		Map<String, Option> optionsMap = new HashMap<String, Option>();
+		Map<String, Option> optionsMap = new HashMap<>();
 		optionsMap.put("options-1", new OptionImpl("op-1").addAttribute("attribute-1", "value-1"));
 		optionsMap.put("options-2", new OptionImpl("op-2").addAttribute("attribute-2", "value-2"));
 		optionsMap.put("options-3", new OptionImpl("op-3").addAttribute("attribute-3", "value-3"));
@@ -43,7 +43,7 @@ public class OptionData {
 	}
 
 	public static Map<String, String> getAttributesMap() {
-		Map<String, String> attributesMap = new HashMap<String, String>();
+		Map<String, String> attributesMap = new HashMap<>();
 		attributesMap.put("attribute-1", "value-1");
 		attributesMap.put("attribute-2", "value-2");
 		attributesMap.put("attribute-3", "value-3");

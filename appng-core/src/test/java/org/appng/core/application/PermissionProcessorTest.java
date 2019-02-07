@@ -75,7 +75,7 @@ public class PermissionProcessorTest {
 		site = new SiteImpl();
 		site.setName("site");
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 		GroupImpl group = new GroupImpl();
 		group.setName("admingroup");
 		groups.add(group);

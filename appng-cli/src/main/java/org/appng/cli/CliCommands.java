@@ -31,7 +31,7 @@ import com.beust.jcommander.ParameterException;
  */
 public class CliCommands {
 
-	private Map<String, ExecutableCliCommand> commands = new HashMap<String, ExecutableCliCommand>();
+	private Map<String, ExecutableCliCommand> commands = new HashMap<>();
 	private JCommander jc;
 
 	public CliCommands(JCommander jc) {

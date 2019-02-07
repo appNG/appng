@@ -37,7 +37,7 @@ public class ResourceBundleMessageSource extends org.springframework.context.sup
 	 * @see ResourceBundle#keySet()
 	 */
 	public Set<String> getKeys(Locale locale) {
-		Set<String> keys = new TreeSet<String>();
+		Set<String> keys = new TreeSet<>();
 		getBasenameSet().forEach(b -> keys.addAll(getResourceBundle(b, locale).keySet()));
 		return keys;
 	}

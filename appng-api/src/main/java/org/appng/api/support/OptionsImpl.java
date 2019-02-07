@@ -30,7 +30,7 @@ import org.appng.api.Options;
  */
 public class OptionsImpl implements Options {
 
-	protected Map<String, Option> optionsMap = new HashMap<String, Option>();
+	protected Map<String, Option> optionsMap = new HashMap<>();
 
 	public void addOption(Option option) {
 		optionsMap.put(option.getName(), option);

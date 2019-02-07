@@ -261,7 +261,7 @@ public class FieldWrapper extends FieldDef {
 	}
 
 	public void backupFields() {
-		this.originalFields = new ArrayList<FieldDef>(getFields());
+		this.originalFields = new ArrayList<>(getFields());
 	}
 
 	public void restoreFields() {

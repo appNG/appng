@@ -57,7 +57,7 @@ public class FormData extends FormElementOwner {
 	 */
 	FormData(Form form) {
 		super(form);
-		this.elementOwner = new ArrayList<FormElementOwner>();
+		this.elementOwner = new ArrayList<>();
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class FormData extends FormElementOwner {
 	 */
 	@Override
 	public List<FormElement> getElements() {
-		List<FormElement> allElements = new ArrayList<FormElement>();
+		List<FormElement> allElements = new ArrayList<>();
 		for (FormElementOwner formElementOwner : elementOwner) {
 			allElements.addAll(formElementOwner.getElements());
 		}

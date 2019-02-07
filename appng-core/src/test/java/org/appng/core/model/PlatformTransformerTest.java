@@ -16,7 +16,7 @@
 package org.appng.core.model;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -168,7 +168,7 @@ public class PlatformTransformerTest {
 		transform();
 	}
 
-	private void transform() throws FileNotFoundException, TransformerConfigurationException,
+	private void transform() throws IOException, TransformerConfigurationException,
 			InvalidConfigurationException, JAXBException, ParserConfigurationException, TransformerException {
 		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
 				HttpHeaders.CHARSET_UTF8);

@@ -60,7 +60,7 @@ public class StyleSheetProvider {
 	private DocumentBuilder documentBuilder;
 	private Transformer transformer;
 	private String insertBefore;
-	private Map<String, InputStream> styleReferences = new TreeMap<String, InputStream>();
+	private Map<String, InputStream> styleReferences = new TreeMap<>();
 	private String name;
 	private String templateRoot;
 
@@ -143,7 +143,7 @@ public class StyleSheetProvider {
 			Node rootNode = masterDoc.getFirstChild();
 			Node insertionPoint = null;
 			NodeList nodes = rootNode.getChildNodes();
-			List<Node> includes = new ArrayList<Node>();
+			List<Node> includes = new ArrayList<>();
 			int hits = nodes.getLength();
 			for (int i = 0; i < hits; i++) {
 				Node node = nodes.item(i);
@@ -171,14 +171,15 @@ public class StyleSheetProvider {
 				includeStyleSheet(rootNode, insertionPoint, reference);
 			}
 
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			DOMSource domSource = new DOMSource(masterDoc);
-			if (additionalOut != null) {
-				transformer.transform(domSource, new StreamResult(additionalOut));
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				DOMSource domSource = new DOMSource(masterDoc);
+				if (additionalOut != null) {
+					transformer.transform(domSource, new StreamResult(additionalOut));
+				}
+				transformer.transform(domSource, new StreamResult(outputStream));
+				LOGGER.debug("stylesheet complete");
+				return outputStream.toByteArray();
 			}
-			transformer.transform(domSource, new StreamResult(outputStream));
-			LOGGER.debug("stylesheet complete");
-			return outputStream.toByteArray();
 		} catch (Exception e) {
 			LOGGER.error(String.format("[%s] error writing stylesheet", name), e);
 		} finally {
@@ -286,7 +287,7 @@ public class StyleSheetProvider {
 	 * @see #addStyleSheet(InputStream, String)
 	 */
 	public String getId() {
-		return StringUtils.join(new TreeSet<String>(styleReferences.keySet()), ",");
+		return StringUtils.join(new TreeSet<>(styleReferences.keySet()), ",");
 	}
 
 	/**

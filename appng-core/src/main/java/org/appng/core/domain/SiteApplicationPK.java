@@ -82,13 +82,15 @@ public class SiteApplicationPK implements Serializable {
 		if (applicationId == null) {
 			if (other.applicationId != null)
 				return false;
-		} else if (!applicationId.equals(other.applicationId))
+		} else if (!applicationId.equals(other.applicationId)) {
 			return false;
+		}
 		if (siteId == null) {
 			if (other.siteId != null)
 				return false;
-		} else if (!siteId.equals(other.siteId))
+		} else if (!siteId.equals(other.siteId)) {
 			return false;
+		}
 		return true;
 	}
 

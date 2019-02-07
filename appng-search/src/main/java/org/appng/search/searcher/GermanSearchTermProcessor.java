@@ -40,7 +40,7 @@ public class GermanSearchTermProcessor implements SearchTermProcessor {
 	private Map<String, String> searchTerms;
 
 	public GermanSearchTermProcessor() {
-		this(new HashMap<String, String>());
+		this(new HashMap<>());
 	}
 
 	public GermanSearchTermProcessor(Map<String, String> searchTerms) {

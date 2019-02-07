@@ -70,7 +70,7 @@ public class RestActionTest extends RestOperationTest {
 		Mockito.when(application.processAction(Mockito.eq(servletResponse), Mockito.eq(false), Mockito.any(),
 				Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(processedAction);
 
-		Map<String, String> pathVariables = new HashMap<String, String>();
+		Map<String, String> pathVariables = new HashMap<>();
 		if (istGet) {
 			ResponseEntity<Action> action = new RestAction(site, application, request, messageSource, true)
 					.getAction("", actionId, pathVariables, environment, servletRequest, servletResponse);

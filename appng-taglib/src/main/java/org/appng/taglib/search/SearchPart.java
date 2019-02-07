@@ -65,7 +65,7 @@ public class SearchPart extends BodyTagSupport implements ParameterOwner, Clonea
 	private String fields;
 	private String title;
 	private String language;
-	private Map<String, String> parameters = new HashMap<String, String>();
+	private Map<String, String> parameters = new HashMap<>();
 
 	@Override
 	public int doEndTag() throws JspException {
