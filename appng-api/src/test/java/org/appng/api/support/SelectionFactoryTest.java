@@ -81,12 +81,12 @@ public class SelectionFactoryTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		allElements = new ArrayList<Person>();
+		allElements = new ArrayList<>();
 		allElements.add(darklord);
 		allElements.add(luke);
 		allElements.add(han);
 
-		selectedElements = new ArrayList<Person>();
+		selectedElements = new ArrayList<>();
 		selectedElements.add(luke);
 	}
 

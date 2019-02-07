@@ -30,7 +30,7 @@ import javax.el.ValueExpression;
  */
 class VariableMapper extends javax.el.VariableMapper {
 
-	private final Map<String, ValueExpression> map = new HashMap<String, ValueExpression>();
+	private final Map<String, ValueExpression> map = new HashMap<>();
 	private ExpressionFactory ef;
 	private ELContext ctx;
 

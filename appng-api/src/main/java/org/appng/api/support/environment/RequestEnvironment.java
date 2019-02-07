@@ -43,7 +43,7 @@ class RequestEnvironment extends AbstractEnvironment {
 	public ConcurrentMap<String, Object> getContainer() {
 		Object container = request.getAttribute(getIdentifier());
 		if (null == container) {
-			container = new ConcurrentHashMap<String, Object>();
+			container = new ConcurrentHashMap<>();
 			request.setAttribute(getIdentifier(), container);
 		}
 		return (ConcurrentMap<String, Object>) container;

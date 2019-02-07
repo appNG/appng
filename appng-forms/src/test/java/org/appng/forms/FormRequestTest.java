@@ -153,8 +153,8 @@ public class FormRequestTest {
 		String bar = "bar";
 		String answer = "42";
 
-		final Map<String, List<String>> requestParameters = new HashMap<String, List<String>>();
-		List<String> values = new ArrayList<String>();
+		final Map<String, List<String>> requestParameters = new HashMap<>();
+		List<String> values = new ArrayList<>();
 		values.add(bar);
 		values.add(answer);
 		requestParameters.put(foo, values);

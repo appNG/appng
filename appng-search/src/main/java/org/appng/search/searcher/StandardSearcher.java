@@ -55,7 +55,7 @@ public class StandardSearcher implements SearchProvider {
 	public Iterable<Document> doSearch(Environment env, Site site, Application application, Directory directory,
 			String term, String language, String[] parseFields, Analyzer analyzer, String highlightWith,
 			Map<String, String> parameters) throws IOException {
-		List<Document> docs = new ArrayList<Document>();
+		List<Document> docs = new ArrayList<>();
 
 		IndexReader reader = null;
 		try {

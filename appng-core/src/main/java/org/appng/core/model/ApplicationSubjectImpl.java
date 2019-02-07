@@ -41,7 +41,7 @@ public class ApplicationSubjectImpl implements ApplicationSubject {
 		this.language = language;
 		this.timeZone = timeZone;
 		this.email = email;
-		this.applicationRoles = new ArrayList<Role>();
+		this.applicationRoles = new ArrayList<>();
 	}
 
 	public String getAuthName() {

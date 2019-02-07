@@ -94,7 +94,7 @@ public class SoapService {
 	private static final String SLASH = "/";
 	private static final String HTTPS = "https";
 
-	private static final ConcurrentMap<String, Map<String, ConfigurableApplicationContext>> SOAP_CONTEXTS = new ConcurrentHashMap<String, Map<String, ConfigurableApplicationContext>>();
+	private static final ConcurrentMap<String, Map<String, ConfigurableApplicationContext>> SOAP_CONTEXTS = new ConcurrentHashMap<>();
 
 	private Site site;
 	private AccessibleApplication application;
@@ -154,7 +154,7 @@ public class SoapService {
 
 			Map<String, ConfigurableApplicationContext> servicesOfSite = SOAP_CONTEXTS.get(site.getName());
 			if (null == servicesOfSite) {
-				servicesOfSite = new HashMap<String, ConfigurableApplicationContext>();
+				servicesOfSite = new HashMap<>();
 				SOAP_CONTEXTS.put(site.getName(), servicesOfSite);
 			}
 			String serviceId = application.getName() + "#" + serviceName;

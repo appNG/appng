@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class TableRow {
 
-	private final List<String> values = new ArrayList<String>();
+	private final List<String> values = new ArrayList<>();
 
 	TableRow(List<TableColumn> columns, Object[] values) {
 		for (int i = 0; i < values.length; i++) {

@@ -293,6 +293,6 @@ public class ApplicationProviderTest extends TestBase {
 
 	private Path getPathInfo(String path) {
 		return new PathInfo("localhost", "http://localhost:8080", "manager", "/ws/manager/" + path, "/ws", "/services",
-				new ArrayList<String>(), new ArrayList<String>(), "repository", "jsp");
+				new ArrayList<>(), new ArrayList<>(), "repository", "jsp");
 	}
 }

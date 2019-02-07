@@ -56,8 +56,8 @@ public class GroupImpl implements Group, Auditable<Integer> {
 	private String description;
 	private Date version;
 	private boolean defaultAdmin;
-	private Set<Subject> subjects = new HashSet<Subject>();
-	private Set<Role> applicationRoles = new HashSet<Role>();
+	private Set<Subject> subjects = new HashSet<>();
+	private Set<Role> applicationRoles = new HashSet<>();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

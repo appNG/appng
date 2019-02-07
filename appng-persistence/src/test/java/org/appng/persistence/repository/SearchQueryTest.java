@@ -80,7 +80,7 @@ public class SearchQueryTest {
 		SearchQuery<TestEntity> searchQuery = new SearchQuery<TestEntity>(TestEntity.class);
 		searchQuery.and("1=1");
 
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("param1", Integer.MIN_VALUE);
 		searchQuery.and("e." + INTEGER_VALUE + " >= :param1", params);
 
@@ -94,7 +94,7 @@ public class SearchQueryTest {
 		SearchQuery<TestEntity> searchQuery = getSearchQuery(true);
 		searchQuery.isNull(BOOLEAN_VALUE);
 
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("param1", Integer.MIN_VALUE);
 		searchQuery.and("e." + INTEGER_VALUE + " >= :param1", params);
 
@@ -108,7 +108,7 @@ public class SearchQueryTest {
 		SearchQuery<TestEntity> searchQuery = new SearchQuery<TestEntity>(TestEntity.class);
 		searchQuery.isNull(BOOLEAN_VALUE);
 
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("param1", Integer.MIN_VALUE);
 		searchQuery.and("e." + INTEGER_VALUE + " >= :param1", params);
 

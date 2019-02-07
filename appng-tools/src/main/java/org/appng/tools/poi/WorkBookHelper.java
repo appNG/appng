@@ -45,7 +45,7 @@ public class WorkBookHelper {
 	private static final int POI_COLUMN_MAXWITH = 65280;
 	private Workbook wb;
 	private CreationHelper creationHelper;
-	private Map<Integer, Integer> maxRowPerSheet = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> maxRowPerSheet = new HashMap<>();
 	private Font hyperlinkFont;
 	private Font headerFont;
 	private FontBuilder fontbuilder;

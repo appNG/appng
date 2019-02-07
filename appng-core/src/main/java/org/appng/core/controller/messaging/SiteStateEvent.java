@@ -67,7 +67,7 @@ public class SiteStateEvent extends Event {
 	static Map<String, SiteState> getStateMap(Environment env) {
 		Map<String, SiteState> stateMap = env.getAttribute(Scope.PLATFORM, SITE_STATE);
 		if (null == stateMap) {
-			stateMap = new ConcurrentHashMap<String, SiteState>();
+			stateMap = new ConcurrentHashMap<>();
 			env.setAttribute(Scope.PLATFORM, SITE_STATE, stateMap);
 		}
 		return stateMap;

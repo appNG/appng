@@ -287,7 +287,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 							Action action = element.getAction();
 							if (null != action) {
 								if (!actions.containsKey(action.getEventId())) {
-									actions.put(action.getEventId(), new HashMap<String, Action>());
+									actions.put(action.getEventId(), new HashMap<>());
 								}
 								actions.get(action.getEventId()).put(action.getId(), action);
 							}
@@ -476,7 +476,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 
 		public List<Integer> pages(Resultset resultset) {
-			List<Integer> pages = new ArrayList<Integer>();
+			List<Integer> pages = new ArrayList<>();
 			for (int i = 0; i <= resultset.getLastchunk(); i++) {
 				pages.add(i);
 			}

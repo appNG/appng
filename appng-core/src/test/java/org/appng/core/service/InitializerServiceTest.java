@@ -141,7 +141,7 @@ public class InitializerServiceTest extends TestSupport
 		Mockito.when(ctx.getRealPath("/uploads")).thenReturn("target/uploads");
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES))
-				.thenReturn(new HashMap<String, Site>());
+				.thenReturn(new HashMap<>());
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);

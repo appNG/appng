@@ -53,6 +53,7 @@ import org.appng.cli.commands.site.ReloadSite;
 import org.appng.cli.commands.site.SetSiteActive;
 import org.appng.cli.commands.subject.CreateSubject;
 import org.appng.cli.commands.subject.DeleteSubject;
+import org.appng.cli.commands.subject.HashPassword;
 import org.appng.cli.commands.subject.ListSubjects;
 import org.appng.cli.commands.template.DeleteTemplate;
 import org.appng.cli.commands.template.InstallTemplate;
@@ -128,6 +129,7 @@ public class CliCore {
 
 		commands.add("list-subjects", new ListSubjects());
 		commands.add("create-subject", new CreateSubject());
+		commands.add("hash-pw", new HashPassword());
 		commands.add("delete-subject", new DeleteSubject());
 
 		commands.add("install-template", new InstallTemplate());

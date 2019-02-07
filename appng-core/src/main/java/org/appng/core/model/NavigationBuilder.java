@@ -59,7 +59,7 @@ class NavigationBuilder {
 	void processNavigation(Navigation navigation, ParameterSupport parameterSupport) {
 
 		List<NavigationItem> items = navigation.getItem();
-		List<NavigationItem> sites = new ArrayList<NavigationItem>();
+		List<NavigationItem> sites = new ArrayList<>();
 		NavigationItem siteTemplate = null;
 
 		for (NavigationItem navItem : items) {
@@ -137,7 +137,7 @@ class NavigationBuilder {
 	}
 
 	private List<NavigationItem> processSiteTemplate(NavigationItem siteTemplate) {
-		List<NavigationItem> siteItems = new ArrayList<NavigationItem>();
+		List<NavigationItem> siteItems = new ArrayList<>();
 		org.appng.api.model.Subject subject = env.getSubject();
 
 		Map<String, Site> sites = env.getAttribute(PLATFORM, Platform.Environment.SITES);
@@ -198,7 +198,7 @@ class NavigationBuilder {
 
 	private List<NavigationItem> addSiteNavigation(Site navSite, NavigationItem siteTemplate) {
 
-		List<NavigationItem> navItems = new ArrayList<NavigationItem>();
+		List<NavigationItem> navItems = new ArrayList<>();
 		List<NavigationItem> tplItems = siteTemplate.getItem();
 
 		for (NavigationItem tplItem : tplItems) {

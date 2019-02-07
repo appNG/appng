@@ -99,7 +99,7 @@ public class DefaultTransport implements MailTransport {
 	}
 
 	public void send(Mail mail) throws MailException {
-		List<String> invalid = new ArrayList<String>();
+		List<String> invalid = new ArrayList<>();
 		try {
 			send(mail, invalid);
 		} catch (MailException e) {

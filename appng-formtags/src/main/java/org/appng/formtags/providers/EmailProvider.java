@@ -272,7 +272,7 @@ public class EmailProvider implements FormProcessProvider {
 	}
 
 	private List<Receiver> getDebugReceivers(String receivers) {
-		List<Receiver> debugReceivers = new ArrayList<Receiver>();
+		List<Receiver> debugReceivers = new ArrayList<>();
 		if (isValidReceiver(receivers)) {
 			for (String receiver : receivers.split(COMMA)) {
 				debugReceivers.add(new Receiver(receiver.trim(), org.appng.mail.Mail.RecipientType.TO));

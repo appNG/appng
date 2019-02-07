@@ -66,12 +66,12 @@ import org.springframework.data.domain.Sort.Order;
  */
 public class SearchQuery<T> {
 
-	private List<SearchCriteria> criteria = new ArrayList<SearchCriteria>();
+	private List<SearchCriteria> criteria = new ArrayList<>();
 	private Class<T> domainClass;
 	private boolean distinct;
 	private String joinQuery;
 	private boolean appendEntityAlias = true;
-	private List<Clause> andClauses = new ArrayList<SearchQuery<T>.Clause>();
+	private List<Clause> andClauses = new ArrayList<>();
 
 	/**
 	 * Creates a new {@link SearchQuery} for the given type.
@@ -132,7 +132,7 @@ public class SearchQuery<T> {
 	 * @see #setAppendEntityAlias(boolean)
 	 */
 	public void and(String clause) {
-		and(clause, new HashMap<String, Object>());
+		and(clause, new HashMap<>());
 	}
 
 	/**

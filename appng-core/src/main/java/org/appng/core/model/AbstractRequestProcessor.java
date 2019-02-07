@@ -129,7 +129,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 		Properties siteProperties = applicationSite.getProperties();
 		Map<?, ?> plainSiteProperties = siteProperties.getPlainProperties();
-		Map<String, String> sitePropertyMap = new HashMap<String, String>();
+		Map<String, String> sitePropertyMap = new HashMap<>();
 		for (Object object : plainSiteProperties.keySet()) {
 			sitePropertyMap.put("site." + object.toString(), plainSiteProperties.get(object).toString());
 		}

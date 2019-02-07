@@ -27,7 +27,7 @@ import org.springframework.http.ResponseEntity;
 abstract class PropertyBase extends ControllerBase {
 
 	ResponseEntity<Properties> getProperties(org.appng.api.model.Site site, org.appng.api.model.Application app) {
-		List<Property> propsList = new ArrayList<Property>();
+		List<Property> propsList = new ArrayList<>();
 		String siteName = null == site ? null : site.getName();
 		String applicationName = null == app ? null : app.getName();
 		for (PropertyImpl prop : getCoreService().getProperties(siteName, applicationName)) {

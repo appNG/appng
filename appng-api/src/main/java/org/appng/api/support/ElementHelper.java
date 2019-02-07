@@ -112,7 +112,7 @@ public class ElementHelper {
 		if (null != linkpanel) {
 			List<Linkpanel> out = null;
 			if (null != linkpanel) {
-				out = new ArrayList<Linkpanel>();
+				out = new ArrayList<>();
 				for (Linkpanel panel : linkpanel) {
 					Linkpanel outPanel = initLinkpanel(applicationRequest, pathInfo, panel, parameterSupport);
 					if (null != outPanel) {
@@ -298,7 +298,7 @@ public class ElementHelper {
 	 */
 	private List<FieldDef> filterFieldDefinitions(ApplicationRequest request, List<FieldDef> fieldDefinitions,
 			boolean write) {
-		List<FieldDef> fields = new ArrayList<FieldDef>();
+		List<FieldDef> fields = new ArrayList<>();
 		PermissionProcessor permissionProcessor = request.getPermissionProcessor();
 		if (null != fieldDefinitions) {
 			for (FieldDef fieldDef : fieldDefinitions) {
@@ -339,8 +339,8 @@ public class ElementHelper {
 	Map<String, String> initializeParameters(String reference, ApplicationRequest applicationRequest,
 			ParameterSupport parameterSupport, Params referenceParams, Params executionParams)
 			throws ProcessingException {
-		Map<String, String> executionParameters = new HashMap<String, String>();
-		Map<String, String> referenceParameters = new HashMap<String, String>();
+		Map<String, String> executionParameters = new HashMap<>();
+		Map<String, String> referenceParameters = new HashMap<>();
 		if (null != referenceParams) {
 			for (Param p : referenceParams.getParam()) {
 				String newValue = parameterSupport.replaceParameters(p.getValue());
@@ -501,7 +501,7 @@ public class ElementHelper {
 	}
 
 	public Class<?>[] getValidationGroups(MetaData metaData, Object bindObject) {
-		List<Class<?>> groups = new ArrayList<Class<?>>();
+		List<Class<?>> groups = new ArrayList<>();
 		ValidationGroups validationGroups = metaData.getValidation();
 		if (null != validationGroups) {
 			getExpressionEvaluator().setVariable(AdapterBase.CURRENT, bindObject);
