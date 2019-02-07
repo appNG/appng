@@ -26,13 +26,17 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.ProcessingException;
 import org.appng.api.rest.model.Action;
 import org.appng.api.support.RequestSupportImpl;
+import org.appng.core.controller.rest.RestActionBase.RestRequest;
 import org.appng.core.controller.rest.RestPostProcessor.RestAction;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.MarshallService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 public class RestActionTest extends RestOperationTest {
 
@@ -54,6 +58,21 @@ public class RestActionTest extends RestOperationTest {
 	@Test
 	public void testPostAction() throws Exception {
 		runTest("action-post", getStream("action-get.xml"), false);
+	}
+
+	@Test
+	public void testRestRequest() throws Exception {
+		RestActionBase rab = new RestActionBase(null, null, null, null, false) {
+		};
+		RestRequest getRequest = rab.getRestRequest(new MockHttpServletRequest(HttpMethod.GET.name(), ""));
+		Assert.assertTrue(getRequest.isGet());
+		Assert.assertFalse(getRequest.isPost());
+		RestRequest postRequest = rab.getRestRequest(new MockHttpServletRequest(HttpMethod.POST.name(), ""));
+		Assert.assertTrue(postRequest.isPost());
+		Assert.assertFalse(postRequest.isGet());
+		RestRequest putRequest = rab.getRestRequest(new MockHttpServletRequest(HttpMethod.PUT.name(), ""));
+		Assert.assertFalse(putRequest.isGet());
+		Assert.assertFalse(putRequest.isPost());
 	}
 
 	protected void runTest(String actionId, InputStream originalData, boolean istGet)
