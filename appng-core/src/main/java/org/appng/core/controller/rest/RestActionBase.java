@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller.rest;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,6 +70,7 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -186,7 +188,7 @@ abstract class RestActionBase extends RestOperation {
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
-		RestRequest executingRequest = new RestRequest(initialAction, receivedData);
+		RestRequest executingRequest = new RestRequest(servletReq, initialAction, receivedData);
 		initRequest(site, application, env, applicationProvider, executingRequest);
 		if (supportPathParameters) {
 			applyPathParameters(pathVariables, initialAction.getConfig(), executingRequest);
@@ -208,7 +210,7 @@ abstract class RestActionBase extends RestOperation {
 
 	protected RestRequest getInitialRequest(Site site, Application application, Environment environment,
 			HttpServletRequest httpServletRequest, ApplicationProvider applicationProvider) {
-		RestRequest initialRequest = new RestRequest();
+		RestRequest initialRequest = getRestRequest(httpServletRequest);
 		httpServletRequest.getParameterMap().keySet().stream().filter(k -> !k.equals(FORM_ACTION)).forEach(key -> {
 			String[] parameterValues = httpServletRequest.getParameterValues(key);
 			for (String parameterValue : parameterValues) {
@@ -516,20 +518,24 @@ abstract class RestActionBase extends RestOperation {
 		});
 	}
 
+	RestRequest getRestRequest(HttpServletRequest servletRequest) {
+		return new RestRequest(servletRequest);
+	}
+
 	class RestRequest extends ApplicationRequest {
-		RestRequest(org.appng.xml.platform.Action original, Action receivedData) {
-			RequestBean wrappedRequest = initWrappedRequest();
+		RestRequest(HttpServletRequest servletRequest, org.appng.xml.platform.Action original, Action receivedData) {
+			RequestBean wrappedRequest = initWrappedRequest(servletRequest);
 			extractRequestParameters(original, receivedData, wrappedRequest);
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Parameters: {}", wrappedRequest.getParametersList());
 			}
 		}
 
-		RestRequest() {
-			initWrappedRequest();
+		private RestRequest(HttpServletRequest servletRequest) {
+			initWrappedRequest(servletRequest);
 		}
 
-		protected RequestBean initWrappedRequest() {
+		private RequestBean initWrappedRequest(final HttpServletRequest servletRequest) {
 			RequestBean wrappedRequest = new RequestBean() {
 				@Override
 				public void addParameter(String key, String value) {
@@ -538,6 +544,37 @@ abstract class RestActionBase extends RestOperation {
 					}
 					parameters.get(key).add(value);
 				}
+
+				@Override
+				public HttpServletRequest getHttpServletRequest() {
+					return servletRequest;
+				}
+
+				@Override
+				public boolean isGet() {
+					return HttpMethod.GET.matches(servletRequest.getMethod());
+				}
+
+				@Override
+				public boolean isPost() {
+					return HttpMethod.POST.matches(servletRequest.getMethod());
+				}
+
+				@Override
+				public boolean isValid() {
+					return true;
+				}
+
+				@Override
+				public String getEncoding() {
+					return StandardCharsets.UTF_8.name();
+				}
+
+				@Override
+				public String getHost() {
+					return servletRequest.getServerName();
+				}
+
 			};
 			setWrappedRequest(wrappedRequest);
 			return wrappedRequest;
