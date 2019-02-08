@@ -408,10 +408,6 @@ public class PlatformTransformer {
 		this.templatePath = templatePath;
 	}
 
-	String getTemplatePath() {
-		return templatePath;
-	}
-
 	/**
 	 * Clears the internal template-cache, which must be done if a {@link Site} is being reloaded.
 	 */
