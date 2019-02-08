@@ -77,7 +77,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		return platform;
 	}
 
-	public String processWithTemplate(Site applicationSite) throws InvalidConfigurationException {
+	public String processWithTemplate(Site applicationSite, File debugFolder) throws InvalidConfigurationException {
 		String result = "";
 		String platformXML = null;
 		org.appng.xml.platform.Platform platform = null;
@@ -102,7 +102,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 					platformTransformer.setEnvironment(env);
 					ApplicationProvider transformerProvider = getApplicationProvider(applicationSite);
 					result = platformTransformer.transform(transformerProvider, platformProperties, platformXML,
-							charsetName);
+							charsetName, debugFolder);
 					this.contentType = platformTransformer.getContentType();
 				}
 			}
@@ -129,8 +129,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		errorPage.append("<div><pre id=\"xslt\">");
 		try {
 			if (templateException instanceof PlatformTransformerException) {
-				SourceAwareTemplate template = PlatformTransformerException.class.cast(templateException)
-						.getTemplate();
+				SourceAwareTemplate template = PlatformTransformerException.class.cast(templateException).getTemplate();
 				template.source.reset();
 				String xsl = IOUtils.toString(template.source, StandardCharsets.UTF_8);
 				errorPage.append(StringEscapeUtils.escapeHtml4(xsl));

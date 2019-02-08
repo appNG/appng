@@ -107,6 +107,8 @@ public class PlatformTransformer {
 	 *            an XML-string retrieved from a {@link Platform}-object
 	 * @param charSet
 	 *            the character-set to used in the returned content-type (see {@link #getContentType()})
+	 * @param debugFolder
+	 *            the folder to write debug files to
 	 * @return the result of the transformation
 	 * @throws FileNotFoundException
 	 *             if a template XSL-file could not be found
@@ -114,7 +116,7 @@ public class PlatformTransformer {
 	 *             when parsing or applying the XSLT template fails
 	 */
 	public String transform(ApplicationProvider applicationProvider, Properties platformProperties, String platformXML,
-			String charSet) throws IOException, TransformerException {
+			String charSet, File debugFolder) throws IOException, TransformerException {
 		InputStream xmlSourceIn = new ByteArrayInputStream(platformXML.getBytes());
 		StreamSource xmlSource = new StreamSource(xmlSourceIn);
 		boolean deleteIncludes = false;
@@ -163,8 +165,6 @@ public class PlatformTransformer {
 		String result = null;
 		TransformerException transformerException = null;
 		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
-		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
-		Date now = new Date();
 		try {
 			ErrorCollector errorCollector = new ErrorCollector();
 			if (!devMode && STYLESHEETS.containsKey(styleId)) {
@@ -197,7 +197,7 @@ public class PlatformTransformer {
 				result = transform(xmlSource, sourceAwareTemplate, formatOutput, devMode);
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charSet);
 				if (writeDebugFiles) {
-					writeDebugFile(now, AbstractRequestProcessor.INDEX_HTML, result, rootPath);
+					writeDebugFile(AbstractRequestProcessor.INDEX_HTML, result, debugFolder);
 				}
 			} else {
 				throw errorCollector.exceptions.get(0);
@@ -207,7 +207,7 @@ public class PlatformTransformer {
 			throw transformerException;
 		} finally {
 			if (null != transformerException || writeDebugFiles) {
-				writeDebugFiles(now, rootPath, platformXML, sourceAwareTemplate, transformerException);
+				writeDebugFiles(debugFolder, platformXML, sourceAwareTemplate, transformerException);
 			}
 		}
 		return result;
@@ -226,12 +226,12 @@ public class PlatformTransformer {
 		}
 	}
 
-	private void writeDebugFile(Date now, String name, String content, String rootPath) throws IOException {
-		AbstractRequestProcessor.writeDebugFile(LOGGER, now, name, content, rootPath);
+	private void writeDebugFile(String name, String content, File outFolder) throws IOException {
+		AbstractRequestProcessor.writeDebugFile(LOGGER, outFolder, name, content);
 	}
 
-	protected void writeDebugFiles(Date now, String rootPath, String platformXML,
-			SourceAwareTemplate sourceAwareTemplate, TransformerException te) {
+	protected void writeDebugFiles(File outFolder, String platformXML, SourceAwareTemplate sourceAwareTemplate,
+			TransformerException te) {
 		try {
 			if (null == sourceAwareTemplate || null == sourceAwareTemplate.source) {
 				LOGGER.warn("can not write debug files, set 'platform.writeDebugFiles' to 'true' to make this work!");
@@ -239,14 +239,11 @@ public class PlatformTransformer {
 			}
 
 			sourceAwareTemplate.source.reset();
-			File debugFolder = AbstractRequestProcessor.getDebugFolder(rootPath);
-			File outFolder = new File(debugFolder, getDebugFilePrefix(now));
-			outFolder.mkdirs();
 			LOGGER.info("writing debug files to {} ", outFolder);
 
-			writeDebugFile(now, TEMPLATE_XSL, IOUtils.toString(sourceAwareTemplate.source, StandardCharsets.UTF_8),
-					rootPath);
-			writeDebugFile(now, AbstractRequestProcessor.PLATFORM_XML, platformXML, rootPath);
+			writeDebugFile(TEMPLATE_XSL, IOUtils.toString(sourceAwareTemplate.source, StandardCharsets.UTF_8),
+					outFolder);
+			writeDebugFile(AbstractRequestProcessor.PLATFORM_XML, platformXML, outFolder);
 
 			try (
 					StringWriter debugWriter = new StringWriter();
@@ -262,7 +259,7 @@ public class PlatformTransformer {
 					}
 				}
 			}
-			writeDebugFile(now, AbstractRequestProcessor.STACKTRACE_TXT, platformXML, rootPath);
+			writeDebugFile(AbstractRequestProcessor.STACKTRACE_TXT, platformXML, outFolder);
 		} catch (IOException e) {
 			LOGGER.error("error while writing exception details", e);
 		}

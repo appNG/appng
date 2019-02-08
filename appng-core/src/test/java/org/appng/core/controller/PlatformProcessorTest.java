@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,6 +65,8 @@ public class PlatformProcessorTest extends TestSupport {
 	@Mock
 	private ApplicationRequest applicationRequest;
 
+	private File debugFolder = new File("target/debug");
+
 	@Override
 	@Before
 	public void setup() throws Exception {
@@ -100,7 +103,7 @@ public class PlatformProcessorTest extends TestSupport {
 	@Test(expected = InvalidConfigurationException.class)
 	public void testNotLoggedInNoDefaultApplication() throws Exception {
 		try {
-			mp.processWithTemplate(siteMap.get(manager));
+			mp.processWithTemplate(siteMap.get(manager), debugFolder);
 		} catch (InvalidConfigurationException e) {
 			Assert.assertEquals("application 'appng-authentication' not found for site 'manager'", e.getMessage());
 			throw e;
@@ -119,7 +122,7 @@ public class PlatformProcessorTest extends TestSupport {
 
 		sessionMap.put(Session.Environment.SUBJECT, subject);
 		platformMap.put(Platform.Environment.APPNG_VERSION, "42-Final");
-		String result = mp.processWithTemplate(site);
+		String result = mp.processWithTemplate(site, debugFolder);
 		// Assert.assertEquals(Integer.valueOf(CONTENT_LENGTH), mp.getContentLength());
 		validateXml(result);
 	}
@@ -137,7 +140,7 @@ public class PlatformProcessorTest extends TestSupport {
 		platformMap.put(Platform.Environment.APPNG_VERSION, "42-Final");
 		mp.setPlatformTransformer(new PlatformTransformer());
 
-		String result = mp.processWithTemplate(site);
+		String result = mp.processWithTemplate(site, debugFolder);
 		Assert.assertNotNull(mp.getContentLength());
 		Assert.assertEquals("text/html; charset=UTF-8", mp.getContentType());
 		Assert.assertTrue(result.contains("<h2>500 - Internal Server Error</h2>"));
@@ -161,7 +164,7 @@ public class PlatformProcessorTest extends TestSupport {
 
 		sessionMap.put(Session.Environment.SUBJECT, subject);
 		platformMap.put(Platform.Environment.APPNG_VERSION, "42-Final");
-		String result = mp.processWithTemplate(site);
+		String result = mp.processWithTemplate(site, debugFolder);
 		Assert.assertEquals(Integer.valueOf(CONTENT_LENGTH), mp.getContentLength());
 		validateXml(result);
 	}

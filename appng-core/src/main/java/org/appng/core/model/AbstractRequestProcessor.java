@@ -478,21 +478,15 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		return stringWriter.toString();
 	}
 
-	protected static void writeDebugFile(Logger logger, Date timestmap, String name, String content, String rootPath)
+	protected static void writeDebugFile(Logger logger, File outFolder, String name, String content)
 			throws IOException {
-		File outFolder = new File(getDebugFolder(rootPath), getDebugFilePrefix(timestmap));
-		outFolder.mkdirs();
 		File outFile = new File(outFolder, name);
 		logger.info("writing debug file {}", outFile.getAbsolutePath());
 		FileUtils.write(outFile, content, StandardCharsets.UTF_8);
 	}
 
-	protected static File getDebugFolder(String rootPath) {
-		return new File(rootPath, "debug");
-	}
-
-	protected static String getDebugFilePrefix(Date timestmap) {
-		return String.format("%s_%s", DEBUG_FORMAT.format(timestmap), Thread.currentThread().getName());
+	protected static String getDebugFilePrefix(Date timestamp) {
+		return String.format("%s_%s", DEBUG_FORMAT.format(timestamp), Thread.currentThread().getName());
 	}
 
 	abstract void writeTemplateToErrorPage(Properties platformProperties, Exception templateException,

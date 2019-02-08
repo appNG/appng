@@ -168,7 +168,7 @@ public class ThymeleafProcessorTest {
 		} else {
 			thymlfPrcssr.addTemplates(Arrays.asList());
 		}
-		return thymlfPrcssr.processWithTemplate(site);
+		return thymlfPrcssr.processWithTemplate(site, new File("target/debug"));
 	}
 
 	@Test

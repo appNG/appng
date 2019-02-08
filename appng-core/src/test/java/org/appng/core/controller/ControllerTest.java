@@ -298,10 +298,8 @@ public class ControllerTest extends Controller implements Controller.Support {
 					return null;
 				}
 			};
-			Mockito.doAnswer(jspAnswer)
-					.when(jspHandler)
-					.handle(isA(HttpServletRequest.class), isA(HttpServletResponse.class), isA(Environment.class),
-							isA(Site.class), isA(PathInfo.class));
+			Mockito.doAnswer(jspAnswer).when(jspHandler).handle(isA(HttpServletRequest.class),
+					isA(HttpServletResponse.class), isA(Environment.class), isA(Site.class), isA(PathInfo.class));
 
 			doGet(base.request, base.response);
 			Assert.assertEquals(jspCalled, new String(base.out.toByteArray()));
@@ -433,7 +431,7 @@ public class ControllerTest extends Controller implements Controller.Support {
 	}
 
 	public void testApplication(String path) throws InvalidConfigurationException {
-		when(base.requestProcessor.processWithTemplate(isA(Site.class))).thenReturn("ok");
+		when(base.requestProcessor.processWithTemplate(isA(Site.class), isA(File.class))).thenReturn("ok");
 		when(base.request.getServletPath()).thenReturn(path);
 		try {
 			doGet(base.request, base.response);
@@ -441,7 +439,7 @@ public class ControllerTest extends Controller implements Controller.Support {
 			Mockito.verify(env).setAttribute(Scope.REQUEST, EnvironmentKeys.BASE_URL, "/manager");
 			String result = new String(base.out.toByteArray());
 			Assert.assertEquals("ok" + System.getProperty("line.separator"), result);
-			verify(base.requestProcessor).processWithTemplate(isA(Site.class));
+			verify(base.requestProcessor).processWithTemplate(isA(Site.class), isA(File.class));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
@@ -489,8 +487,8 @@ public class ControllerTest extends Controller implements Controller.Support {
 	}
 
 	@Override
-	public void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding)
-			throws IOException, ServletException {
+	public void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content,
+			String encoding) throws IOException, ServletException {
 		response.getOutputStream().write(request.getServletPath().getBytes());
 	}
 

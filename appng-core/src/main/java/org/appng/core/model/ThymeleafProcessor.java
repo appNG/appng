@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -126,7 +125,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		this.dbf = dbf;
 	}
 
-	public String processWithTemplate(Site applicationSite) throws InvalidConfigurationException {
+	public String processWithTemplate(Site applicationSite, File outFolder) throws InvalidConfigurationException {
 		String result;
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
@@ -141,15 +140,14 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		platform.setVersion(env.getAttributeAsString(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
 
 		Boolean render = env.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
-		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
 		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
 
 		StopWatch sw = new StopWatch("process with template " + templateName);
 		String platformXML = null;
-		Date now = new Date();
 		ApplicationProvider applicationProvider = getApplicationProvider(applicationSite);
 		ConfigurableApplicationContext context = applicationProvider.getContext();
 		ThymeleafTemplateEngine templateEngine = prepareEngine(context);
+
 		try {
 			sw.start("build platform.xml");
 			platformXML = marshallService.marshal(platform);
@@ -189,8 +187,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			if (writeDebugFiles) {
 				sw.stop();
 				sw.start("write debug files");
-				writeDebugFile(now, PLATFORM_XML, platformXML, rootPath);
-				writeTemplateFiles(rootPath, templatePrefix, now, templateEngine);
+				writeDebugFile(outFolder, PLATFORM_XML, platformXML);
+				writeTemplateFiles(outFolder, templatePrefix, templateEngine);
 			}
 
 			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
@@ -205,7 +203,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				if (writeDebugFiles) {
 					sw.stop();
 					sw.start("write index.html");
-					writeDebugFile(now, INDEX_HTML, result, rootPath);
+					writeDebugFile(outFolder, INDEX_HTML, result);
 				}
 			} else {
 				result = platformXML;
@@ -214,7 +212,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		} catch (Exception e) {
 			result = writeErrorPage(platformProperties, platformXML, templateName, e, templateEngine);
 			if (writeDebugFiles) {
-				writeStackTrace(rootPath, now, e);
+				writeStackTrace(outFolder, e);
 			}
 		}
 		sw.stop();
@@ -227,22 +225,22 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return result;
 	}
 
-	protected void writeStackTrace(String rootPath, Date now, Exception e) {
+	protected void writeStackTrace(File outfolder, Exception e) {
 		try {
 			StringWriter stackWriter = new StringWriter();
 			e.printStackTrace(new PrintWriter(stackWriter));
-			writeDebugFile(now, STACKTRACE_TXT, stackWriter.toString(), rootPath);
+			writeDebugFile(outfolder, STACKTRACE_TXT, stackWriter.toString());
 		} catch (IOException e1) {
 			logger().error("error writing stacktrace", e);
 		}
 	}
 
-	private void writeDebugFile(Date now, String name, String content, String rootPath) throws IOException {
-		writeDebugFile(LOGGER, now, name, content, rootPath);
+	private void writeDebugFile(File outfolder, String name, String content) throws IOException {
+		writeDebugFile(LOGGER, outfolder, name, content);
 	}
 
-	protected void writeTemplateFiles(String rootPath, String templatePrefix, Date now,
-			ThymeleafTemplateEngine templateEngine) throws IOException {
+	protected void writeTemplateFiles(File outfolder, String templatePrefix, ThymeleafTemplateEngine templateEngine)
+			throws IOException {
 		Set<String> templateNames = new HashSet<>();
 		for (ITemplateResolver tplRes : templateEngine.getTemplateResolvers()) {
 			String prefix = ((FileTemplateResolver) tplRes).getPrefix();
@@ -255,7 +253,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 						ITemplateResource templateResource = resolvedTemplate.getTemplateResource();
 						try {
 							String content = IOUtils.toString(templateResource.reader());
-							writeDebugFile(now, "template/" + fileName, content, rootPath);
+							writeDebugFile(outfolder, "template/" + fileName, content);
 						} catch (IOException e) {
 							logger().error("error writing template resource", e);
 						}

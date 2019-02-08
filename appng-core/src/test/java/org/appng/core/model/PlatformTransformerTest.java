@@ -77,6 +77,8 @@ public class PlatformTransformerTest {
 	private String platformXML;
 	private Platform platform;
 
+	private File debugFolder = new File("target/debug");
+
 	@Before
 	public void setup() throws Exception {
 		MockitoAnnotations.initMocks(this);
@@ -142,20 +144,25 @@ public class PlatformTransformerTest {
 		errorTransformer.setStyleSheetProvider(styleSheetProvider);
 		init(errorTransformer, template);
 		String targetDir = "target";
-		File targetFolder = new File(targetDir, "debug");
+		File targetFolder = new File(targetDir, "debug").getAbsoluteFile();
 		Mockito.when(platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH))
 				.thenReturn(targetDir);
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES)).thenReturn(true);
 		try {
-			errorTransformer.transform(applicationProvider, platformProperties, platformXML, HttpHeaders.CHARSET_UTF8);
+			errorTransformer.transform(applicationProvider, platformProperties, platformXML, HttpHeaders.CHARSET_UTF8,
+					debugFolder);
 			Assert.fail("TransformerException should be thrown");
 		} catch (TransformerException e) {
 			Assert.assertEquals(exceptionType, e.getClass());
 		}
-		Assert.assertTrue(targetFolder.exists());
-		Assert.assertTrue(new File(targetFolder, AbstractRequestProcessor.PLATFORM_XML).exists());
-		Assert.assertTrue(new File(targetFolder, AbstractRequestProcessor.STACKTRACE_TXT).exists());
-		Assert.assertTrue(new File(targetFolder, "template.xsl").exists());
+		assertFileExists(targetFolder);
+		assertFileExists(new File(targetFolder, AbstractRequestProcessor.PLATFORM_XML));
+		assertFileExists(new File(targetFolder, AbstractRequestProcessor.STACKTRACE_TXT));
+		assertFileExists(new File(targetFolder, PlatformTransformer.TEMPLATE_XSL));
+	}
+
+	protected void assertFileExists(File platformXml) {
+		Assert.assertTrue(platformXml.getAbsolutePath() + " does not exist!", platformXml.exists());
 	}
 
 	@Test
@@ -167,7 +174,7 @@ public class PlatformTransformerTest {
 	private void transform() throws IOException, TransformerConfigurationException, InvalidConfigurationException,
 			JAXBException, ParserConfigurationException, TransformerException {
 		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
-				HttpHeaders.CHARSET_UTF8);
+				HttpHeaders.CHARSET_UTF8, debugFolder);
 		Platform transformedplatform = marshallService.unmarshall(transform, Platform.class);
 		Assert.assertEquals(platformXML, marshallService.marshal(transformedplatform));
 	}
