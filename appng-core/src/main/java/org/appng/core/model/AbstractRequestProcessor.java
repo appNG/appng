@@ -424,15 +424,21 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		}
 	}
 
-	protected String writeErrorPage(Properties platformProperties, String platformXml, String templateName,
-			Exception e) {
+	protected String writeErrorPage(Properties platformProperties, String platformXml, String templateName, Exception e,
+			Object executionContext) {
 		logger().error("error while processing", e);
 		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		StringWriter stringWriter = new StringWriter();
 		stringWriter.append("<!DOCTYPE html><html><head>");
 		stringWriter.append("<style type=\"text/css\">");
+		stringWriter.append("body{font-family:Arial}");
+		stringWriter.append("h2,h3{color:#ff8f02}");
+		stringWriter.append("div{width:100%;height:300px;overflow:auto;border:1px solid grey}");
+		stringWriter.append("pre{color:#666666;counter-reset: line}");
+		stringWriter.append("pre span{display: block}");
+		stringWriter.append(".error{color:red}");
 		stringWriter.append(
-				"body{font-family:Arial;} h2,h3{color:#ff8f02;} pre{color:#ff8f02;} div{width:100%;height:300px;overflow:auto;border:1px solid grey}");
+				"pre span:before{counter-increment:line;content:counter(line);display:inline-block;color: #888}");
 		stringWriter.append("</style></head><body>");
 		stringWriter.append("<h2>500 - Internal Server Error</h2>");
 		if (platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)) {
@@ -454,7 +460,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 				stringWriter.append(StringEscapeUtils.escapeHtml4(platformXml));
 			}
 			stringWriter.append("</div></pre>");
-			writeTemplateToErrorPage(platformProperties, stringWriter);
+			writeTemplateToErrorPage(platformProperties, e, executionContext, stringWriter);
 			stringWriter.append("<h3>Stacktrace</h3>");
 			stringWriter.append("<button onclick=\"copy('stacktrace')\">Copy to clipboard</button>");
 			stringWriter.append("<div><pre id=\"stacktrace\">");
@@ -472,7 +478,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		return stringWriter.toString();
 	}
 
-	protected static void writeDebugFile(Logger logger, Date timestmap, String name, String content, String rootPath) throws IOException {
+	protected static void writeDebugFile(Logger logger, Date timestmap, String name, String content, String rootPath)
+			throws IOException {
 		File outFolder = new File(getDebugFolder(rootPath), getDebugFilePrefix(timestmap));
 		outFolder.mkdirs();
 		File outFile = new File(outFolder, name);
@@ -488,7 +495,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		return String.format("%s_%s", DEBUG_FORMAT.format(timestmap), Thread.currentThread().getName());
 	}
 
-	abstract void writeTemplateToErrorPage(Properties platformProperties, StringWriter stringWriter);
+	abstract void writeTemplateToErrorPage(Properties platformProperties, Exception templateException,
+			Object executionContext, StringWriter stringWriter);
 
 	public OutputFormat getOutputFormat() {
 		return outputFormat;

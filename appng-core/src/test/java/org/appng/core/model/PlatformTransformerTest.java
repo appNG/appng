@@ -30,6 +30,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
 import org.appng.api.model.Properties;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.model.PlatformTransformer.PlatformTransformerException;
 import org.appng.core.service.TestInitializer;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.OutputFormat;
@@ -48,8 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import net.sf.saxon.trans.XPathException;
 
 @ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -120,12 +119,12 @@ public class PlatformTransformerTest {
 
 	@Test
 	public void testCompileError() throws Exception {
-		runErrornousTest("src/test/resources/template/error-compile", TransformerConfigurationException.class);
+		runErrornousTest("src/test/resources/template/error-compile", PlatformTransformerException.class);
 	}
 
 	@Test
 	public void testRuntimeError() throws Exception {
-		runErrornousTest("src/test/resources/template/error-runtime", XPathException.class);
+		runErrornousTest("src/test/resources/template/error-runtime", PlatformTransformerException.class);
 	}
 
 	private void runErrornousTest(String template, Class<? extends TransformerException> exceptionType)

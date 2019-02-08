@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -36,9 +36,11 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -88,6 +90,7 @@ import org.appng.xml.platform.Template;
 import org.appng.xml.platform.UrlParams;
 import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationRule;
+import org.attoparser.ParseException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -96,6 +99,7 @@ import org.springframework.util.StopWatch;
 import org.thymeleaf.cache.StandardCacheManager;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.context.IExpressionContext;
+import org.thymeleaf.exceptions.TemplateProcessingException;
 import org.thymeleaf.linkbuilder.AbstractLinkBuilder;
 import org.thymeleaf.linkbuilder.ILinkBuilder;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -191,7 +195,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 				sw.stop();
-				sw.start("build contex");
+				sw.start("build context");
 				Context ctx = getContext(platform, platformXML, applicationProvider);
 				sw.stop();
 				sw.start("process template");
@@ -208,7 +212,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML, charsetName);
 			}
 		} catch (Exception e) {
-			result = writeErrorPage(platformProperties, platformXML, templateName, e);
+			result = writeErrorPage(platformProperties, platformXML, templateName, e, templateEngine);
 			if (writeDebugFiles) {
 				writeStackTrace(rootPath, now, e);
 			}
@@ -244,7 +248,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			String prefix = ((FileTemplateResolver) tplRes).getPrefix();
 			String[] fileNames = new File(prefix).list();
 			if (null != fileNames) {
-				Arrays.asList(fileNames).parallelStream().forEach(fileName -> {
+				for (String fileName : fileNames) {
 					if (!templateNames.contains(fileName)) {
 						TemplateResolution resolvedTemplate = tplRes.resolveTemplate(templateEngine.getConfiguration(),
 								null, fileName, null);
@@ -257,7 +261,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 						}
 						templateNames.add(fileName);
 					}
-				});
+				}
 			}
 		}
 	}
@@ -365,8 +369,51 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return globalTemplateResolver;
 	}
 
-	void writeTemplateToErrorPage(Properties platformProperties, StringWriter stringWriter) {
-		// do nothing
+	void writeTemplateToErrorPage(Properties platformProperties, Exception e, Object executionContext,
+			StringWriter errorPage) {
+		if (e instanceof TemplateProcessingException) {
+			try {
+				Throwable current = e;
+				Integer errorLine = null;
+				ParseException pe = null;
+				while (null != current && null == errorLine) {
+					if (current instanceof TemplateProcessingException) {
+						errorLine = ((TemplateProcessingException) current).getLine();
+					}
+					if (current instanceof ParseException) {
+						pe = (ParseException) current;
+					}
+					current = current.getCause();
+				}
+				String templateName = TemplateProcessingException.class.cast(e).getTemplateName();
+				File templatFile = new File(templateName);
+				errorPage.append("<h3>" + templatFile.getName() + "</h3>");
+				if (null != pe) {
+					errorPage.append("<span class=\"error\">");
+					errorPage.append(pe.getClass().getName() + ": " + pe.getMessage() + "</span><br/>");
+				}
+				errorPage.append("<div><pre id=\"template\">");
+				String template = FileUtils.readFileToString(templatFile, StandardCharsets.UTF_8);
+				String[] lines = template.split(StringUtils.LF);
+				int i = 1;
+				for (String line : lines) {
+					errorPage.append("<span");
+					if (null != errorLine && i++ == errorLine) {
+						errorPage.append(" id=\"error\" class=\"error\"");
+					}
+					errorPage.append(">");
+					errorPage.append(StringEscapeUtils.escapeHtml4(line));
+					errorPage.append("</span>");
+				}
+			} catch (IOException e1) {
+				errorPage.append("error while adding template: " + e1.getClass().getName() + "-" + e1.getMessage());
+
+			}
+			errorPage.append("</pre></div>");
+			errorPage.append(StringUtils.LF);
+			errorPage.append("<script>document.getElementById('error').scrollIntoView();</script>");
+			return;
+		}
 	}
 
 	Logger logger() {

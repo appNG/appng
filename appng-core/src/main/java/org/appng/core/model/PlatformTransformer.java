@@ -73,6 +73,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PlatformTransformer {
 
+	static final String TEMPLATE_XSL = "template.xsl";
 	private static final String INSERTION_NODE = "xsl:variables";
 	private static final String NO = "no";
 	private static final String YES = "yes";
@@ -165,6 +166,7 @@ public class PlatformTransformer {
 		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
 		Date now = new Date();
 		try {
+			ErrorCollector errorCollector = new ErrorCollector();
 			if (!devMode && STYLESHEETS.containsKey(styleId)) {
 				sourceAwareTemplate = STYLESHEETS.get(styleId);
 				styleSheetProvider.cleanup();
@@ -174,12 +176,10 @@ public class PlatformTransformer {
 				ByteArrayInputStream templateInputStream = new ByteArrayInputStream(xslData);
 				Source xslSource = new StreamSource(templateInputStream);
 				TransformerFactory transformerFactory = styleSheetProvider.getTransformerFactory();
-				ErrorCollector errorCollector = new ErrorCollector();
 				transformerFactory.setErrorListener(errorCollector);
 				try {
 					Templates templates = transformerFactory.newTemplates(xslSource);
-					sourceAwareTemplate = new SourceAwareTemplate(templates,
-							writeDebugFiles ? templateInputStream : null);
+					sourceAwareTemplate = new SourceAwareTemplate(templates, templateInputStream);
 				} catch (TransformerConfigurationException tce) {
 					sourceAwareTemplate = new SourceAwareTemplate(null, templateInputStream);
 					sourceAwareTemplate.errorCollector = errorCollector;
@@ -192,22 +192,38 @@ public class PlatformTransformer {
 					LOGGER.debug("writing templates to cache (id: {})", styleId);
 				}
 			}
-
-			Boolean formatOutput = platformProperties.getBoolean(org.appng.api.Platform.Property.FORMAT_OUTPUT);
-			result = transform(xmlSource, sourceAwareTemplate, formatOutput, devMode);
-			this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charSet);
-			if (writeDebugFiles) {
-				writeDebugFile(now, AbstractRequestProcessor.INDEX_HTML, result, rootPath);
+			if (!errorCollector.hasErrors()) {
+				Boolean formatOutput = platformProperties.getBoolean(org.appng.api.Platform.Property.FORMAT_OUTPUT);
+				result = transform(xmlSource, sourceAwareTemplate, formatOutput, devMode);
+				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charSet);
+				if (writeDebugFiles) {
+					writeDebugFile(now, AbstractRequestProcessor.INDEX_HTML, result, rootPath);
+				}
+			} else {
+				throw errorCollector.exceptions.get(0);
 			}
 		} catch (TransformerException te) {
-			transformerException = te;
-			throw te;
+			transformerException = new PlatformTransformerException(te, sourceAwareTemplate);
+			throw transformerException;
 		} finally {
 			if (null != transformerException || writeDebugFiles) {
 				writeDebugFiles(now, rootPath, platformXML, sourceAwareTemplate, transformerException);
 			}
 		}
 		return result;
+	}
+
+	class PlatformTransformerException extends TransformerException {
+		private SourceAwareTemplate template;
+
+		PlatformTransformerException(TransformerException te, SourceAwareTemplate sat) {
+			super(te.getMessage(), te.getLocator(), te.getCause());
+			this.template = sat;
+		}
+
+		public SourceAwareTemplate getTemplate() {
+			return template;
+		}
 	}
 
 	private void writeDebugFile(Date now, String name, String content, String rootPath) throws IOException {
@@ -228,7 +244,7 @@ public class PlatformTransformer {
 			outFolder.mkdirs();
 			LOGGER.info("writing debug files to {} ", outFolder);
 
-			writeDebugFile(now, "template.xsl", IOUtils.toString(sourceAwareTemplate.source, StandardCharsets.UTF_8),
+			writeDebugFile(now, TEMPLATE_XSL, IOUtils.toString(sourceAwareTemplate.source, StandardCharsets.UTF_8),
 					rootPath);
 			writeDebugFile(now, AbstractRequestProcessor.PLATFORM_XML, platformXML, rootPath);
 
@@ -330,6 +346,10 @@ public class PlatformTransformer {
 			exceptions.add(exception);
 		}
 
+		public boolean hasErrors() {
+			return !exceptions.isEmpty();
+		}
+
 	}
 
 	private boolean outputTypeMatches(Template template) {
@@ -386,6 +406,10 @@ public class PlatformTransformer {
 	 */
 	public void setTemplatePath(String templatePath) {
 		this.templatePath = templatePath;
+	}
+
+	String getTemplatePath() {
+		return templatePath;
 	}
 
 	/**

@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
@@ -37,6 +38,8 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.model.PlatformTransformer.PlatformTransformerException;
+import org.appng.core.model.PlatformTransformer.SourceAwareTemplate;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Template;
 import org.slf4j.Logger;
@@ -107,7 +110,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 			throw ice;
 		} catch (Exception e) {
 			String templateName = applicationSite.getProperties().getString(SiteProperties.TEMPLATE);
-			result = writeErrorPage(platformProperties, platformXML, templateName, e);
+			result = writeErrorPage(platformProperties, platformXML, templateName, e, platformTransformer);
 		} finally {
 			platform = null;
 		}
@@ -119,23 +122,31 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		return LOGGER;
 	}
 
-	protected void writeTemplateToErrorPage(Properties platformProperties, StringWriter errorPage) {
-		String prefix = getPlatformTransformer().getPrefix();
-		String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
-		File templateFile = new File(rootPath, "debug/" + prefix + "template.xsl");
-		if (templateFile.exists()) {
-			errorPage.append("<h3>XSLT</h3>");
-			errorPage.append("<div><pre id=\"xslt\">");
-			errorPage.append("<button onclick=\"copy('xslt')\">Copy to clipboard</button>");
-			try {
-				String xslt = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
-				errorPage.append(StringEscapeUtils.escapeHtml4(xslt));
-			} catch (IOException e1) {
-				errorPage.append("error while adding xsl: " + e1.getClass().getName() + "-" + e1.getMessage());
-
+	protected void writeTemplateToErrorPage(Properties platformProperties, Exception templateException,
+			Object executionContext, StringWriter errorPage) {
+		errorPage.append("<h3>XSLT</h3>");
+		errorPage.append("<button onclick=\"copy('xslt')\">Copy to clipboard</button>");
+		errorPage.append("<div><pre id=\"xslt\">");
+		try {
+			if (templateException instanceof PlatformTransformerException) {
+				SourceAwareTemplate template = PlatformTransformerException.class.cast(templateException)
+						.getTemplate();
+				template.source.reset();
+				String xsl = IOUtils.toString(template.source, StandardCharsets.UTF_8);
+				errorPage.append(StringEscapeUtils.escapeHtml4(xsl));
+			} else {
+				String prefix = getPlatformTransformer().getPrefix();
+				String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
+				File templateFile = new File(rootPath, "debug/" + prefix + PlatformTransformer.TEMPLATE_XSL);
+				if (templateFile.exists()) {
+					String xslt = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
+					errorPage.append(StringEscapeUtils.escapeHtml4(xslt));
+				}
 			}
-			errorPage.append("</pre></div>");
+		} catch (IOException e) {
+			errorPage.append("error while adding xsl: " + e.getClass().getName() + " - " + e.getMessage());
 		}
+		errorPage.append("</pre></div>");
 	}
 
 	public PlatformTransformer getPlatformTransformer() {
