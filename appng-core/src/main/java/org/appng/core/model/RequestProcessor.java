@@ -50,7 +50,7 @@ public interface RequestProcessor {
 	 * @return the {@link Platform} representing the result of calling the {@link Site}'s {@link Application}
 	 * @throws InvalidConfigurationException
 	 *             if something goes wrong while processing the request
-	 * @see #processWithTemplate(Site)
+	 * @see #processWithTemplate(Site, File)
 	 */
 	Platform processPlatform(Site site) throws InvalidConfigurationException;
 
