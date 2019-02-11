@@ -1739,6 +1739,7 @@ public class CoreService {
 					shutdownApplication(siteApplication, env);
 				}
 				shutdownSite.closeSiteContext();
+				((DefaultEnvironment) env).clearSiteScope(shutdownSite);
 				LOGGER.info("destroying site {} complete", shutdownSite);
 				setSiteStartUpTime(shutdownSite, null);
 				SoapService.clearCache(siteName);
