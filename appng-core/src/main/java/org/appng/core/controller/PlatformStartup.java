@@ -73,8 +73,8 @@ public class PlatformStartup implements ServletContextListener {
 	
 	private static Logger LOGGER;
 
-	public static final String CONFIG_LOCATION = "/WEB-INF/conf/appNG.properties";
-	private static final String CONTEXT_LOCATION = "/WEB-INF/conf/platformContext.xml";
+	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
+	private static final String CONTEXT_LOCATION = "/conf/platformContext.xml";
 	protected static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
 	protected static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
