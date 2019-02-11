@@ -61,24 +61,24 @@ public class InstallListener implements ServletContextListener {
 		String message = null;
 		try {
 			if (autoInstall.exists()) {
-				LOGGER.info("processing {}", resource);
+				LOGGER.info("processing {}", autoInstall);
 				System.getProperties().put(CliBootstrap.APPNG_HOME, ctx.getRealPath("/"));
 				try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream()) {
 					CliEnvironment.out = new PrintStream(bytesOut);
-					String[] args = new String[] { "batch", "-f", resource };
+					String[] args = new String[] { "batch", "-f", autoInstall.getAbsolutePath() };
 					int status = CliBootstrap.run(args);
 					message = new String(bytesOut.toByteArray());
 					LOGGER.debug(message);
 					if (CliCore.STATUS_OK != status) {
 						LOGGER.warn("CLI returned status {}", status);
 					}
-					LOGGER.info("done processing {}", resource);
+					LOGGER.info("done processing {}", autoInstall);
 				}
 			} else {
 				LOGGER.debug("{} not present", autoInstall);
 			}
 		} catch (Exception e) {
-			LOGGER.error(String.format("error while processing %s", resource), e);
+			LOGGER.error(String.format("error while processing %s", autoInstall), e);
 		} finally {
 			if (null != autoInstall && autoInstall.exists()) {
 				String timestamp = DateFormatUtils.format(System.currentTimeMillis(), DATE_PATTERN);

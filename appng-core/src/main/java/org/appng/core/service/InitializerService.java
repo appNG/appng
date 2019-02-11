@@ -263,7 +263,7 @@ public class InitializerService {
 			try {
 				FileUtils.forceMkdir(uploadDir);
 			} catch (IOException e) {
-				LOGGER.error(String.format("unable to create upload dir %s", tempDir), e);
+				LOGGER.error(String.format("unable to create upload dir %s", uploadDir), e);
 			}
 		}
 

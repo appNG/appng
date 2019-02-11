@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Driver;
@@ -49,6 +50,8 @@ import org.appng.core.service.HsqlStarter;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.MigrationService;
 import org.hsqldb.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -58,8 +61,6 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * This {@link ServletContextListener} is used to initialize the appNG platform. This includes loading the configuration
  * from {@value #CONFIG_LOCATION}, initializing the {@link ApplicationContext} from
@@ -68,11 +69,14 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Müller
  */
-@Slf4j
 public class PlatformStartup implements ServletContextListener {
+	
+	private static Logger LOGGER;
 
 	public static final String CONFIG_LOCATION = "/WEB-INF/conf/appNG.properties";
 	private static final String CONTEXT_LOCATION = "/WEB-INF/conf/platformContext.xml";
+	protected static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
+	protected static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
@@ -106,7 +110,6 @@ public class PlatformStartup implements ServletContextListener {
 			IOUtils.readLines(logoIs, StandardCharsets.UTF_8).forEach(l -> LOGGER.info(l));
 			logoIs.close();
 			
-			ServletContext ctx = sce.getServletContext();
 			Environment env = DefaultEnvironment.get(ctx);
 
 			Properties config = new Properties();
@@ -140,8 +143,8 @@ public class PlatformStartup implements ServletContextListener {
 	@SuppressWarnings("deprecation")
 	protected void initLogging(String log4jLocation) throws FileNotFoundException {
 		Log4jConfigurer.initLogging(log4jLocation);
-		log = LoggerFactory.getLogger(PlatformStartup.class);
-		log.info("Initialized log4j from {}", log4jLocation);
+		LOGGER = LoggerFactory.getLogger(PlatformStartup.class);
+		LOGGER.info("Initialized log4j from {}", log4jLocation);
 	}
 
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,

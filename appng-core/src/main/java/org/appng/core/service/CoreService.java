@@ -1717,7 +1717,7 @@ public class CoreService {
 				int maxWaitTime = platformConfig.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 				shutdownSite.setState(SiteState.STOPPING);
 
-				if (platformProperties.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
+				if (platformConfig.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
 					LOGGER.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
 							shutdownSite.getRequests());
 					Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
