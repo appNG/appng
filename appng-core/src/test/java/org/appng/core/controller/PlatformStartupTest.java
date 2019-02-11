@@ -63,6 +63,7 @@ public class PlatformStartupTest extends PlatformStartup {
 		URL log4jResource = getClass().getClassLoader().getResource(LOG4J_PROPERTIES.substring(6));
 		Mockito.when(servContext.getRealPath(WEB_INF + LOG4J_PROPERTIES)).thenReturn(log4jResource.getPath());
 		Mockito.when(servContext.getRealPath("")).thenReturn("target");
+		Mockito.when(servContext.getRealPath(WEB_INF + LOG4J_PROPERTIES)).thenReturn("classpath:log4j.properties");
 		contextInitialized(new ServletContextEvent(servContext));
 		Assert.assertTrue(platformEnv.get(Platform.Environment.CORE_PLATFORM_CONTEXT).equals(platformCtx));
 		Mockito.verify(initializerService).initPlatform(Mockito.isA(Properties.class), Mockito.isA(Environment.class),
@@ -81,7 +82,7 @@ public class PlatformStartupTest extends PlatformStartup {
 
 	@Override
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties properties,
-			DatabaseConnection platformConnection) throws IOException {
+			DatabaseConnection platformConnection, String dummy) throws IOException {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);
 	}
 

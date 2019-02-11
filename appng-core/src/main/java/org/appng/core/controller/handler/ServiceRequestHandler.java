@@ -147,10 +147,12 @@ public class ServiceRequestHandler implements RequestHandler {
 	protected static final String FORMAT_XML = "xml";
 	private MarshallService marshallService;
 	private PlatformTransformer transformer;
+	private final File debugFolder;
 
-	public ServiceRequestHandler(MarshallService marshallService, PlatformTransformer transformer) {
+	public ServiceRequestHandler(MarshallService marshallService, PlatformTransformer transformer, File debugFolder) {
 		this.marshallService = marshallService;
 		this.transformer = transformer;
+		this.debugFolder = debugFolder;
 	}
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
@@ -273,7 +275,7 @@ public class ServiceRequestHandler implements RequestHandler {
 		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
 		String platformXml = retrievePlatform(environment, path, siteToUse, element, platformProperties);
-		return transformer.transform(application, platformProperties, platformXml, charsetName);
+		return transformer.transform(application, platformProperties, platformXml, charsetName, debugFolder);
 	}
 
 	protected String retrievePlatform(Environment environment, Path path, Site siteToUse, Object element,

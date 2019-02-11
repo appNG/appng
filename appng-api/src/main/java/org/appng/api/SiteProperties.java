@@ -29,6 +29,9 @@ import org.appng.api.model.Site;
  */
 public class SiteProperties {
 
+	/** Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of {@link Taglet}s. */
+	public static final String ALLOW_SKIP_RENDER = "allowSkipRender";
+
 	/**
 	 * If set to true, the name of the currently selected tab is being appended to the URL as a get-parameter. Addresses
 	 * the issue that IE loses the anchor on a redirect.
@@ -133,7 +136,7 @@ public class SiteProperties {
 	/** The folder containing the Lucene-Index, relative to {@link #WWW_DIR} */
 	public static final String INDEX_DIR = "indexDir";
 	/** Set to {@code true} to enable JDBC Performance Logger */
-	public static final String LOG_JDBC_PERFORMANCE="logJdbcPerformance";
+	public static final String LOG_JDBC_PERFORMANCE = "logJdbcPerformance";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
 	/** the queue size used per directory when indexing the file system **/
@@ -166,7 +169,10 @@ public class SiteProperties {
 	public static final String SERVICE_PATH = "service-path";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
-	/** If {@code true}, a site reload is performed when a file named {@code .reload} is created in the site's root directory */
+	/**
+	 * If {@code true}, a site reload is performed when a file named {@code .reload} is created in the site's root
+	 * directory
+	 */
 	public static final String SUPPORT_RELOAD_FILE = "supportReloadFile";
 	/** The prefix used for the appNG JSP-tags. */
 	public static final String TAG_PREFIX = "tagPrefix";

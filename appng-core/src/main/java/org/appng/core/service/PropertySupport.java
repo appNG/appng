@@ -158,17 +158,17 @@ public class PropertySupport {
 		}
 	}
 
-	private void addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue) {
-		addPlatformProperty(defaultOverrides, name, defaultValue, false);
+	private String addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue) {
+		return addPlatformProperty(defaultOverrides, name, defaultValue, false);
 	}
 
-	private void addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue,
+	private String addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue,
 			boolean multilined) {
 		if (defaultOverrides.containsKey(PREFIX_PLATFORM + name)) {
 			defaultValue = defaultOverrides.get(PREFIX_PLATFORM + name);
 			defaultOverrides.remove(PREFIX_PLATFORM + name);
 		}
-		addProperty(name, defaultValue, PREFIX_PLATFORM, multilined);
+		return addProperty(name, defaultValue, PREFIX_PLATFORM, multilined);
 	}
 
 	private String addSiteProperty(String name, Object defaultValue) {
@@ -203,10 +203,9 @@ public class PropertySupport {
 	public void initSiteProperties(SiteImpl site, Properties platformConfig) {
 		bundle = ResourceBundle.getBundle("org/appng/core/site-config");
 		if (null != platformConfig) {
-			String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
+			String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
 			String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-			String siteRootDir = rootPath + "/" + repositoryPath + "/" + site.getName();
-			addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(siteRootDir));
+			addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
 			String regEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
 			String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
 			site.setPasswordPolicy(new DefaultPasswordPolicy(regEx, errorMessageKey));
@@ -240,6 +239,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DEFAULT_PAGE, "index");
 		addSiteProperty(SiteProperties.DEFAULT_PAGE_SIZE, "25");
 		addSiteProperty(SiteProperties.APPEND_TAB_ID, "false");
+		addSiteProperty(SiteProperties.ALLOW_SKIP_RENDER, "false");
 		addSiteProperty(Platform.Property.ENCODING, HttpHeaders.CHARSET_UTF8);
 		addSiteProperty(SiteProperties.ASSETS_DIR, "/assets");
 		addSiteProperty(SiteProperties.DOCUMENT_DIR, "/de");
@@ -309,7 +309,15 @@ public class PropertySupport {
 		defaultOverrides.putAll(immutableOverrides);
 		bundle = ResourceBundle.getBundle("org/appng/core/platform-config");
 		if (null != rootPath) {
-			addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_ROOT_PATH, normalizePath(rootPath));
+			String realRootPath = addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_ROOT_PATH,
+					normalizePath(rootPath));
+			String appngDataDir = System.getProperty(Platform.Property.APPNG_DATA);
+			if (StringUtils.isBlank(appngDataDir)) {
+				appngDataDir = realRootPath;
+			} else {
+				appngDataDir = normalizePath(appngDataDir);
+			}
+			addPlatformProperty(defaultOverrides, Platform.Property.APPNG_DATA, appngDataDir);
 		}
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_CACHE_FOLDER, "application");
 		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_FOLDER, "cache");
@@ -388,7 +396,7 @@ public class PropertySupport {
 		}
 	}
 
-	private String normalizePath(String path) {
-		return Paths.get(path).normalize().toString();
+	private String normalizePath(String segment, String... pathelements) {
+		return Paths.get(segment, pathelements).normalize().toString();
 	}
 }

@@ -18,6 +18,7 @@ package org.appng.core.controller;
 import static org.appng.api.Scope.REQUEST;
 import static org.appng.api.Scope.SESSION;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -239,6 +240,11 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
 
 					RequestHandler requestHandler = null;
+					String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
+					File debugFolder = new File(appngData, "debug").getAbsoluteFile();
+					if (!(debugFolder.exists() || debugFolder.mkdirs())) {
+						LOGGER.warn("Failed to create {}", debugFolder.getPath());
+					}
 
 					if (("/".equals(servletPath)) || ("".equals(servletPath)) || (null == servletPath)) {
 						if (!pathInfo.getDocumentDirectories().isEmpty()) {
@@ -253,13 +259,13 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 							|| pathInfo.isDocument()) {
 						requestHandler = new StaticContentHandler(this);
 					} else if (pathInfo.isGui()) {
-						requestHandler = new GuiHandler();
+						requestHandler = new GuiHandler(debugFolder);
 					} else if (pathInfo.isService()) {
 						ApplicationContext ctx = env.getAttribute(Scope.PLATFORM,
 								Platform.Environment.CORE_PLATFORM_CONTEXT);
 						MarshallService marshallService = ctx.getBean(MarshallService.class);
 						PlatformTransformer platformTransformer = ctx.getBean(PlatformTransformer.class);
-						requestHandler = new ServiceRequestHandler(marshallService, platformTransformer);
+						requestHandler = new ServiceRequestHandler(marshallService, platformTransformer, debugFolder);
 					} else if (pathInfo.isJsp()) {
 						requestHandler = jspHandler;
 					} else if (ERRORPAGE.equals(servletPath)) {
@@ -319,10 +325,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			env.setAttribute(REQUEST, EnvironmentKeys.BASE_URL, pathInfo.getRootPath());
 		}
 		env.setAttribute(REQUEST, EnvironmentKeys.PATH_INFO, pathInfo);
-		Boolean doXsl = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("xsl"));
-		Boolean showXsl = Boolean.TRUE.toString().equalsIgnoreCase(request.getParameter("showXsl"));
-		env.setAttribute(REQUEST, EnvironmentKeys.DO_XSL, doXsl);
-		env.setAttribute(REQUEST, EnvironmentKeys.SHOW_XSL, showXsl);
+		Boolean render = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("render"));
+		env.setAttribute(REQUEST, EnvironmentKeys.RENDER, render);
 		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 		env.setAttribute(REQUEST, HttpHeaders.USER_AGENT, null == userAgent ? "unknown" : userAgent);
 	}

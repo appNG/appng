@@ -56,7 +56,6 @@ import org.appng.api.ApplicationController;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
-import org.appng.api.Path;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
@@ -75,7 +74,6 @@ import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationConfigProviderImpl;
 import org.appng.api.support.ConfigValidator;
 import org.appng.api.support.FieldProcessorImpl;
-import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
@@ -148,6 +146,8 @@ public class InitializerService {
 
 	@Autowired
 	protected PlatformEventListener auditableListener;
+
+	protected PlatformProperties platformConfig;
 
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
@@ -239,11 +239,7 @@ public class InitializerService {
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		PropertyHolder platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
-				false);
-		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_USER);
-		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_GROUP);
-		platformConfig.setFinal();
+		platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true, false);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -259,26 +255,22 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		String ehcacheConfig = platformConfig.getString(Platform.Property.EHCACHE_CONFIG);
-		CacheManager cacheManager = CacheManager.create(rootPath + "/" + ehcacheConfig);
+		File ehcacheConfig = platformConfig.getCacheConfig();
+		CacheManager cacheManager = CacheManager.create(ehcacheConfig.getPath());
 
-		String uploadDir = platformConfig.getString(Platform.Property.UPLOAD_DIR);
-		String realPath = ((DefaultEnvironment) env).getServletContext().getRealPath(appendSlash(uploadDir));
-		File tempDir = new File(realPath);
-		if (!tempDir.exists()) {
+		File uploadDir = platformConfig.getUploadDir();
+		if (!uploadDir.exists()) {
 			try {
-				FileUtils.forceMkdir(tempDir);
+				FileUtils.forceMkdir(uploadDir);
 			} catch (IOException e) {
-				LOGGER.error(String.format("unable to create upload dir %s", tempDir), e);
+				LOGGER.error(String.format("unable to create upload dir %s", uploadDir), e);
 			}
 		}
 
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		Messaging.createMessageSender(env, executor);
 
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		String applicationRealDir = servletContext.getRealPath(appendSlash(applicationDir));
-		File applicationRootFolder = new File(applicationRealDir).getAbsoluteFile();
+		File applicationRootFolder = platformConfig.getApplicationDir();
 		if (!applicationRootFolder.exists()) {
 			LOGGER.error("could not find applicationfolder {} platform will exit!",
 					applicationRootFolder.getAbsolutePath());
@@ -379,17 +371,6 @@ public class InitializerService {
 			}
 			LOGGER.info("done watching for reload file.");
 		}
-	}
-
-	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
-			String name) {
-		if (defaultOverrides.containsKey(name)) {
-			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
-		}
-	}
-
-	private String appendSlash(String value) {
-		return value.startsWith(Path.SEPARATOR) ? value : Path.SEPARATOR + value;
 	}
 
 	private void logHeaderMessage(String message) {
@@ -514,10 +495,7 @@ public class InitializerService {
 		site.setState(SiteState.STARTING);
 		siteMap.put(site.getName(), site);
 
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String repositoryDir = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		String repositoryRealDir = servletContext.getRealPath(repositoryDir);
-		File siteRootDirectory = new File(repositoryRealDir, site.getName());
+		File siteRootDirectory = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
 		site.setRootDirectory(siteRootDirectory);
 
 		String host = site.getHost();
@@ -554,10 +532,8 @@ public class InitializerService {
 
 		Boolean devMode = platformConfig.getBoolean(Platform.Property.DEV_MODE);
 		Boolean monitorPerformance = platformConfig.getBoolean(Platform.Property.MONITOR_PERFORMANCE);
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 
-		File applicationRootFolder = new File(rootPath, applicationDir).getAbsoluteFile();
+		File applicationRootFolder = platformConfig.getApplicationDir();
 		File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
 
 		String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);

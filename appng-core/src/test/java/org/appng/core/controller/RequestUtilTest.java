@@ -27,7 +27,6 @@ import javax.servlet.ServletRequest;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
-import org.appng.api.model.Property;
 import org.appng.api.model.Site;
 import org.appng.api.support.PropertyHolder;
 import org.appng.core.domain.SiteImpl;
