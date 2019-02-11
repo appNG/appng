@@ -493,4 +493,16 @@ public class DefaultEnvironment implements Environment {
 		return initialized;
 	}
 
+	/**
+	 * Clears the site-scoped attributes for the given {@link Site}.
+	 * 
+	 * @param site
+	 *            The {@link Site} to clear the site-scope for.
+	 */
+	public void clearSiteScope(Site site) {
+		String identifier = Scope.SITE.forSite(site.getHost());
+		platform.getServletContext().removeAttribute(identifier);
+		LOGGER.info("Clearing site scope with identifier '{}'", identifier);
+	}
+
 }

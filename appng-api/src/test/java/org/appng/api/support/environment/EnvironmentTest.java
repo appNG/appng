@@ -28,7 +28,6 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
-import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +39,7 @@ import org.springframework.mock.web.MockServletContext;
 /**
  * Test for {@link DefaultEnvironment}.
  * 
- * @author Matthias Müller 
+ * @author Matthias Müller
  */
 public class EnvironmentTest extends AbstractTest {
 
@@ -158,9 +157,13 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testSiteEnv() {
-		SiteEnvironment siteEnv = new SiteEnvironment(ctx, "localhost");
-		Assert.assertEquals("localhost", siteEnv.getAttribute("host"));
+		Mockito.when(site.getHost()).thenReturn("localhost");
+		MockServletContext mockedCtx = new MockServletContext();
+		SiteEnvironment siteEnv = new SiteEnvironment(mockedCtx, site.getHost());
+		Assert.assertEquals(site.getHost(), siteEnv.getAttribute("host"));
 		Assert.assertEquals(Scope.SITE, siteEnv.getScope());
+		DefaultEnvironment.get(mockedCtx).clearSiteScope(site);
+		Assert.assertNull(siteEnv.getAttribute("host"));
 	}
 
 	@Test
