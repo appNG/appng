@@ -160,7 +160,7 @@ public class CliBootstrap {
 	static Properties getCliConfig(CliBootstrapEnvironment env, boolean logInfo, File platformRootPath)
 			throws FileNotFoundException, IOException {
 		Properties config = new Properties();
-		File properties = env.getAbsoluteFile(new File(platformRootPath, PlatformStartup.CONFIG_LOCATION));
+		File properties = env.getAbsoluteFile(new File(platformRootPath, PlatformStartup.WEB_INF +  PlatformStartup.CONFIG_LOCATION));
 		if (properties.exists()) {
 			if (logInfo) {
 				LOGGER.info("Using configuration file: {}", properties.getAbsolutePath());

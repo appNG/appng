@@ -21,9 +21,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
@@ -50,8 +53,8 @@ import com.beust.jcommander.converters.FileConverter;
  * .
  * 
  * <p>
- * Additionally, a <a href="http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html">&lt;Resources&gt;</a>
- * element is being added to {@code $APPNG_HOME/META-INF/context.xml}, referencing the {@code appngData} directory.
+ * Additionally, a <a href="http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html">&lt;Resources&gt;</a> element
+ * is being added to {@code $APPNG_HOME/META-INF/context.xml}, referencing the {@code appngData} directory.
  * </p>
  * 
  * <pre>
@@ -128,15 +131,17 @@ public class ExtractData implements ExecutableCliCommand {
 		Charset charset = StandardCharsets.UTF_8;
 		String contextXmlContent = new String(Files.readAllBytes(contextXml), charset);
 		URL resource = getClass().getClassLoader().getResource("context-resources.xml");
-		String resources = new String(Files.readAllBytes(Paths.get(resource.toURI())), charset);
-		String resourceContext = PRIVILEGED_CONTEXT + NEWLINE + resources;
-		if (revert) {
-			contextXmlContent = contextXmlContent.replace(resourceContext, PRIVILEGED_CONTEXT);
-		} else {
-			contextXmlContent = contextXmlContent.replace(PRIVILEGED_CONTEXT, resourceContext);
+		try (FileSystem fs = FileSystems.newFileSystem(resource.toURI(), new HashMap<>())) {
+			String resources = new String(Files.readAllBytes(Paths.get(resource.toURI())), charset);
+			String resourceContext = PRIVILEGED_CONTEXT + NEWLINE + resources;
+			if (revert) {
+				contextXmlContent = contextXmlContent.replace(resourceContext, PRIVILEGED_CONTEXT);
+			} else {
+				contextXmlContent = contextXmlContent.replace(PRIVILEGED_CONTEXT, resourceContext);
+			}
+			Files.write(contextXml, contextXmlContent.getBytes(charset));
+			CliEnvironment.out.println(String.format("Updated %s", contextXml.toString()));
 		}
-		Files.write(contextXml, contextXmlContent.getBytes(charset));
-		CliEnvironment.out.println(String.format("Updated %s", contextXml.toString()));
 	}
 
 	private void move(Path source, Path target) throws IOException {

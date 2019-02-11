@@ -74,7 +74,7 @@ public class PlatformStartup implements ServletContextListener {
 	private static Logger LOGGER;
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
 	protected static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
-	protected static final String WEB_INF = "/WEB-INF";
+	public static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
