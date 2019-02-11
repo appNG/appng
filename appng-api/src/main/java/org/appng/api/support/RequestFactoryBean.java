@@ -16,9 +16,9 @@
 package org.appng.api.support;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.MessageInterpolator;
 
@@ -100,14 +100,12 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 			formRequest = new RequestBean();
 			if (isPlatformPresent) {
 				Integer maxUploadSize = platformProperties.getInteger(Platform.Property.MAX_UPLOAD_SIZE);
-				String uploadDir = platformProperties.getString(Platform.Property.UPLOAD_DIR);
-				ServletContext servletContext = httpServletRequest.getServletContext();
-				String realPath = servletContext.getRealPath(uploadDir.startsWith("/") ? uploadDir : "/" + uploadDir);
-				if (null == realPath) {
+				File uploadDir = getUploadDir(platformProperties);
+				if (!uploadDir.exists()) {
 					LOGGER.warn("invalid value for platform property '{}', folder '{}' does not exist!",
 							Platform.Property.UPLOAD_DIR, uploadDir);
 				} else {
-					formRequest.setTempDir(new File(realPath));
+					formRequest.setTempDir(uploadDir);
 				}
 				formRequest.setMaxSize(maxUploadSize);
 				Site site = RequestUtil.getSite(environment, httpServletRequest);
@@ -136,6 +134,12 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 
 	public boolean isSingleton() {
 		return true;
+	}
+
+	private File getUploadDir(Properties properties) {
+		String appNGData = properties.getString(Platform.Property.APPNG_DATA);
+		String uploadDir = properties.getString(Platform.Property.UPLOAD_DIR);
+		return Paths.get(appNGData, uploadDir).normalize().toFile();
 	}
 
 }

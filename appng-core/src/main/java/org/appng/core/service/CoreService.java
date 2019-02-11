@@ -187,6 +187,9 @@ public class CoreService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
+	@Autowired
+	protected PlatformProperties platformConfig;
+
 	public Subject createSubject(SubjectImpl subject) {
 		return subjectRepository.save(subject);
 	}
@@ -204,14 +207,25 @@ public class CoreService {
 		return propertyHolder;
 	}
 
-	public PropertyHolder initPlatformConfig(java.util.Properties defaultOverrides, String rootPath, Boolean devMode,
-			boolean persist, boolean finalize) {
+	public PlatformProperties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath,
+			Boolean devMode, boolean persist, boolean finalize) {
 		PropertyHolder platformConfig = getPlatform(false);
 		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, finalize);
 		if (persist) {
 			saveProperties(platformConfig);
 		}
-		return platformConfig;
+		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_USER);
+		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_GROUP);
+		platformConfig.setFinal();
+		this.platformConfig.initialize(platformConfig);
+		return this.platformConfig;
+	}
+
+	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
+			String name) {
+		if (defaultOverrides.containsKey(name)) {
+			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
+		}
 	}
 
 	private Page<PropertyImpl> getPlatformPropertiesList(Pageable pageable) {
@@ -541,7 +555,6 @@ public class CoreService {
 	}
 
 	public boolean login(Environment env, String digest, int digestMaxValidity) {
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String sharedSecret = platformConfig.getString(Platform.Property.SHARED_SECRET);
 		DigestValidator validator = new DigestValidator(digest, digestMaxValidity);
 		String username = validator.getUsername();
@@ -613,7 +626,7 @@ public class CoreService {
 
 	protected void createSite(SiteImpl site, Environment environment) {
 		if (site.isCreateRepository()) {
-			File repositoryRootDir = getRepositoryRootFolder(environment);
+			File repositoryRootDir = platformConfig.getRepositoryRootFolder();
 			File siteRootDir = new File(repositoryRootDir, site.getName());
 			if (!siteRootDir.exists()) {
 				try {
@@ -650,7 +663,6 @@ public class CoreService {
 
 	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
-		Properties platformConfig = getPlatformConfig(environment);
 		new PropertySupport(siteProperties).initSiteProperties(site, platformConfig);
 		if (doSave) {
 			saveProperties(siteProperties);
@@ -1099,21 +1111,7 @@ public class CoreService {
 		return getApplicationFolder(env, application.getName());
 	}
 
-	private File getRepositoryRootFolder(Environment environment) {
-		Properties platformConfig = getPlatformConfig(environment);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
-		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		String repositoryRootDir = rootPath + File.separator + repositoryPath;
-		return new File(repositoryRootDir);
-	}
-
 	protected Properties getPlatformConfig(Environment environment) {
-		Properties platformConfig = null;
-		if (null == environment) {
-			platformConfig = getPlatformProperties();
-		} else {
-			platformConfig = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		}
 		return platformConfig;
 	}
 
@@ -1174,8 +1172,7 @@ public class CoreService {
 			try {
 				File outputFile = new File(outputPath);
 				FileUtils.forceMkdir(outputFile.getParentFile());
-				try (
-						OutputStream outputStream = new FileOutputStream(outputFile);
+				try (OutputStream outputStream = new FileOutputStream(outputFile);
 						InputStream inputStream = new ByteArrayInputStream(applicationResource.getBytes())) {
 					IOUtils.copy(inputStream, outputStream);
 					LOGGER.debug("writing {}", outputPath);
@@ -1289,9 +1286,8 @@ public class CoreService {
 
 	public void cleanupSite(Environment env, SiteImpl site, boolean sendDeletedEvent) {
 		if (null != site) {
-			Properties platformConfig = getPlatformConfig(env);
 			if (site.isCreateRepository()) {
-				File siteRootFolder = new File(getRepositoryRootFolder(env), site.getName());
+				File siteRootFolder = new File(platformConfig.getRepositoryRootFolder(), site.getName());
 				try {
 					FileUtils.deleteDirectory(siteRootFolder);
 					LOGGER.info("deleted site repository {}", siteRootFolder.getPath());
@@ -1299,7 +1295,7 @@ public class CoreService {
 					LOGGER.error(String.format("error while deleting site's folder %s", siteRootFolder.getName()), e);
 				}
 			}
-			CacheProvider cacheProvider = new CacheProvider(platformConfig);
+			CacheProvider cacheProvider = new CacheProvider(platformConfig.getProperties());
 			cacheProvider.clearCache(site);
 			site.setState(SiteState.DELETED);
 			if (sendDeletedEvent) {
@@ -1717,12 +1713,11 @@ public class CoreService {
 				SiteImpl shutdownSite = (SiteImpl) siteMap.get(siteName);
 				int requests;
 				int waited = 0;
-				Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
-				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+				int waitTime = platformConfig.getInteger(Platform.Property.WAIT_TIME, 1000);
+				int maxWaitTime = platformConfig.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 				shutdownSite.setState(SiteState.STOPPING);
 
-				if (platformProperties.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
+				if (platformConfig.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
 					LOGGER.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
 							shutdownSite.getRequests());
 					Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
