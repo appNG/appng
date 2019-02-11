@@ -240,10 +240,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
 
 					RequestHandler requestHandler = null;
-					String rootpath = platformProperties.getString(Platform.Property.PLATFORM_ROOT_PATH);
-					//TODO APPNG-2125 use appNGData
-					//String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
-					File debugFolder = new File(rootpath, "debug").getAbsoluteFile();
+					String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
+					File debugFolder = new File(appngData, "debug").getAbsoluteFile();
 					if (!(debugFolder.exists() || debugFolder.mkdirs())) {
 						LOGGER.warn("Failed to create {}", debugFolder.getPath());
 					}
