@@ -105,7 +105,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	private MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
 	public ServiceRequestHandlerTest() throws JAXBException {
-		super(MarshallService.getMarshallService(), new PlatformTransformer());
+		super(MarshallService.getMarshallService(), new PlatformTransformer(), null);
 	}
 
 	@Test

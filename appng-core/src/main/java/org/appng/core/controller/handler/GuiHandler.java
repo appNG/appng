@@ -17,6 +17,7 @@ package org.appng.core.controller.handler;
 
 import static org.appng.api.Scope.PLATFORM;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -56,6 +57,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class GuiHandler implements RequestHandler {
+
+	private final File debugFolder;
+
+	public GuiHandler(File debugFolder) {
+		this.debugFolder = debugFolder;
+	}
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
@@ -144,7 +151,7 @@ public class GuiHandler implements RequestHandler {
 			RequestProcessor processor = ctx.getBean(requestProcessorBeanName, RequestProcessor.class);
 			processor.init(servletRequest, servletResponse, pathInfo, templateDir);
 
-			final String result = processor.processWithTemplate(applicationSite);
+			final String result = processor.processWithTemplate(applicationSite, debugFolder);
 
 			servletResponse.setContentType(processor.getContentType());
 			servletResponse.setContentLength(processor.getContentLength());

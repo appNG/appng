@@ -239,6 +239,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DEFAULT_PAGE, "index");
 		addSiteProperty(SiteProperties.DEFAULT_PAGE_SIZE, "25");
 		addSiteProperty(SiteProperties.APPEND_TAB_ID, "false");
+		addSiteProperty(SiteProperties.ALLOW_SKIP_RENDER, "false");
 		addSiteProperty(Platform.Property.ENCODING, HttpHeaders.CHARSET_UTF8);
 		addSiteProperty(SiteProperties.ASSETS_DIR, "/assets");
 		addSiteProperty(SiteProperties.DOCUMENT_DIR, "/de");

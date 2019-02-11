@@ -79,7 +79,7 @@ public class GuiHandlerTest {
 		Environment initialEnv = DefaultEnvironment.get(servletContext);
 		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformProperties);
 		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
-		
+
 		DefaultEnvironment env = DefaultEnvironment.get(servletContext, servletRequest);
 		Mockito.when(siteProperties.getString(SiteProperties.TEMPLATE, null)).thenReturn("appng");
 		Mockito.when(siteProperties.getString(SiteProperties.DEFAULT_APPLICATION)).thenReturn("manager");
@@ -98,7 +98,7 @@ public class GuiHandlerTest {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 		PathInfo pathInfo = new PathInfo("localhost", "http://localhost", "manager", "/gui", "/gui", "/service",
 				Arrays.asList("/assets"), Arrays.asList("/de"), "/repository", "jsp");
-		new GuiHandler().handle(servletRequest, servletResponse, env, site, pathInfo);
+		new GuiHandler(null).handle(servletRequest, servletResponse, env, site, pathInfo);
 		Mockito.verify(site).sendRedirect(env, application.getName());
 	}
 }

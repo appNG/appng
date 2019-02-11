@@ -18,7 +18,12 @@ package org.appng.core.model;
 import static org.appng.api.Scope.REQUEST;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +31,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.text.StringEscapeUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
@@ -43,6 +51,7 @@ import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DollarParameterSupport;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.controller.HttpHeaders;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.TemplateService;
 import org.appng.xml.MarshallService;
@@ -64,6 +73,10 @@ import org.slf4j.Logger;
 
 public abstract class AbstractRequestProcessor implements RequestProcessor {
 
+	private static final FastDateFormat DEBUG_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd-HH:mm:ss,SSS");
+	protected static final String PLATFORM_XML = "platform.xml";
+	protected static final String STACKTRACE_TXT = "stacktrace.txt";
+	protected static final String INDEX_HTML = "index.html";
 	protected PathInfo pathInfo;
 	protected HttpServletRequest servletRequest;
 	protected HttpServletResponse servletResponse;
@@ -410,6 +423,74 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			throw new InvalidConfigurationException(path.getApplicationName(), "error while reading " + platformXML, e);
 		}
 	}
+
+	protected String writeErrorPage(Properties platformProperties, File debugFolder, String platformXml, String templateName, Exception e,
+			Object executionContext) {
+		logger().error("error while processing", e);
+		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		StringWriter stringWriter = new StringWriter();
+		stringWriter.append("<!DOCTYPE html><html><head>");
+		stringWriter.append("<style type=\"text/css\">");
+		stringWriter.append("body{font-family:Arial}");
+		stringWriter.append("h2,h3{color:#ff8f02}");
+		stringWriter.append("div{width:100%;height:300px;overflow:auto;border:1px solid grey}");
+		stringWriter.append("pre{color:#666666;counter-reset: line}");
+		stringWriter.append("pre span{display: block}");
+		stringWriter.append(".error{color:red}");
+		stringWriter.append(
+				"pre span:before{counter-increment:line;content:counter(line);display:inline-block;color: #888}");
+		stringWriter.append("</style></head><body>");
+		stringWriter.append("<h2>500 - Internal Server Error</h2>");
+		if (platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)) {
+			stringWriter.append("Path: " + servletRequest.getServletPath());
+			stringWriter.append("<br/>");
+			stringWriter.append("Site: " + pathInfo.getSiteName());
+			stringWriter.append("<br/>");
+			stringWriter.append("Application: " + pathInfo.getApplicationName());
+			stringWriter.append("<br/>");
+			stringWriter.append("Template: " + templateName);
+			stringWriter.append("<br/>");
+			stringWriter.append("Thread: " + Thread.currentThread().getName());
+			stringWriter.append("<br/>");
+
+			stringWriter.append("<h3>XML</h3>");
+			stringWriter.append("<button onclick=\"copy('xml')\">Copy to clipboard</button>");
+			stringWriter.append("<div><pre id=\"xml\">");
+			if (platformXml != null) {
+				stringWriter.append(StringEscapeUtils.escapeHtml4(platformXml));
+			}
+			stringWriter.append("</div></pre>");
+			writeTemplateToErrorPage(platformProperties, debugFolder, e, executionContext, stringWriter);
+			stringWriter.append("<h3>Stacktrace</h3>");
+			stringWriter.append("<button onclick=\"copy('stacktrace')\">Copy to clipboard</button>");
+			stringWriter.append("<div><pre id=\"stacktrace\">");
+			e.printStackTrace(new PrintWriter(stringWriter));
+			stringWriter.append("</div></pre>");
+			stringWriter.append("<textarea id=\"copy\" style=\"opacity: 0;\"></textarea>");
+			stringWriter.append("<script>function copy(id){");
+			stringWriter.append(
+					"var c =  document.getElementById('copy'); c.value = document.getElementById(id).textContent;");
+			stringWriter.append("c.select();document.execCommand('copy');alert('Copied to clipboard!')}</script>");
+		}
+		stringWriter.append("</body></html>");
+		String charsetName = platformProperties.getString(org.appng.api.Platform.Property.ENCODING);
+		this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
+		return stringWriter.toString();
+	}
+
+	protected static void writeDebugFile(Logger logger, File outFolder, String name, String content)
+			throws IOException {
+		File outFile = new File(outFolder, name);
+		logger.info("writing debug file {}", outFile.getAbsolutePath());
+		FileUtils.write(outFile, content, StandardCharsets.UTF_8);
+	}
+
+	protected static String getDebugFilePrefix(Date timestamp) {
+		return String.format("%s_%s", DEBUG_FORMAT.format(timestamp), Thread.currentThread().getName());
+	}
+
+	abstract void writeTemplateToErrorPage(Properties platformProperties, File debugFolder, Exception templateException,
+			Object executionContext, StringWriter stringWriter);
 
 	public OutputFormat getOutputFormat() {
 		return outputFormat;
