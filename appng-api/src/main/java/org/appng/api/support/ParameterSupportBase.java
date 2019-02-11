@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class ParameterSupportBase implements ParameterSupport {
 	}
 
 	protected ParameterSupportBase(String prefix, String suffix) {
-		this(prefix, suffix, new HashMap<String, String>());
+		this(prefix, suffix, new HashMap<>());
 	}
 
 	/*
@@ -96,7 +96,7 @@ public class ParameterSupportBase implements ParameterSupport {
 	 */
 	public final List<String> getParameters(String source) {
 		Matcher matcher = pattern.matcher(source);
-		List<String> matches = new ArrayList<String>();
+		List<String> matches = new ArrayList<>();
 		while (matcher.find()) {
 			String match = matcher.group();
 			String value = match.substring(getBareLength(prefix), match.length() - getBareLength(suffix));

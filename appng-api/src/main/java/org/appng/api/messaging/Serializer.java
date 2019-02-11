@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.SiteAwareObjectInputStream;
 import org.appng.api.support.SiteClassLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class helping to serialize/deserialize {@link Event}s to an {@link OutputStream}/ from an {@link InputStream}
@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @see Event
  */
+@Slf4j
 public class Serializer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Serializer.class);
 	private Environment environment;
 	private String nodeId;
 

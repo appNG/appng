@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,13 @@ public class RequestUtilTest {
 	@Test
 	public void testGetSite() {
 		MockitoAnnotations.initMocks(this);
-		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<Property>());
+		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
 		new PropertySupport(propertyHolder).initPlatformConfig("target/root", true);
 		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(
 				propertyHolder);
 
 		Mockito.when(servletRequest.getServerName()).thenReturn("host-2");
-		Map<String, Site> sites = new HashMap<String, Site>();
+		Map<String, Site> sites = new HashMap<>();
 		sites.put("site-1", getSite(1));
 		sites.put("site-2", getSite(2));
 		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.SITES)).thenReturn(sites);

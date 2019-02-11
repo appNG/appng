@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class OptionImpl implements Option {
 
 	private static final Pattern INT_PATTERN = Pattern.compile("[+-]?[\\d]+");
 	private final String name;
-	private Map<String, String> attributeMap = new HashMap<String, String>();
+	private Map<String, String> attributeMap = new HashMap<>();
 
 	public OptionImpl(String name) {
 		this.name = name;

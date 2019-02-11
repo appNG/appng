@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -40,8 +41,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -50,6 +49,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -60,9 +61,9 @@ import org.xml.sax.SAXException;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class XPathProcessor {
 
-	private static final Logger LOG = LoggerFactory.getLogger(XPathProcessor.class);
 	private final Document document;
 	private final XPath xpath;
 	private Transformer transformer;
@@ -104,7 +105,9 @@ public class XPathProcessor {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			this.document = builder.parse(is);
 			this.xpath = XPathFactory.newInstance().newXPath();
-			this.transformer = TransformerFactory.newInstance().newTransformer();
+			TransformerFactory tf = TransformerFactory.newInstance();
+			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			this.transformer = tf.newTransformer();
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e);
 		} catch (SAXException e) {
@@ -120,7 +123,9 @@ public class XPathProcessor {
 		this.document = document;
 		try {
 			this.xpath = XPathFactory.newInstance().newXPath();
-			this.transformer = TransformerFactory.newInstance().newTransformer();
+			TransformerFactory tf = TransformerFactory.newInstance();
+			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			this.transformer = tf.newTransformer();
 		} catch (TransformerConfigurationException e) {
 			throw new IOException(e);
 		} catch (TransformerFactoryConfigurationError e) {
@@ -185,7 +190,7 @@ public class XPathProcessor {
 		try {
 			transformer.transform(new DOMSource(node), new StreamResult(outputStream));
 		} catch (TransformerException e) {
-			LOG.error("error during transformation", e);
+			LOGGER.error("error during transformation", e);
 		}
 	}
 

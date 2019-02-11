@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 		Properties siteProperties = applicationSite.getProperties();
 		Map<?, ?> plainSiteProperties = siteProperties.getPlainProperties();
-		Map<String, String> sitePropertyMap = new HashMap<String, String>();
+		Map<String, String> sitePropertyMap = new HashMap<>();
 		for (Object object : plainSiteProperties.keySet()) {
 			sitePropertyMap.put("site." + object.toString(), plainSiteProperties.get(object).toString());
 		}

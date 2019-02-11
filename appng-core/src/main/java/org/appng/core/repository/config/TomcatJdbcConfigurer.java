@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import javax.sql.DataSource;
 import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.appng.core.JMXUtils;
 import org.appng.core.domain.DatabaseConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link DatasourceConfigurer} based on the <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat
@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TomcatJdbcConfigurer.class);
 	private org.apache.tomcat.jdbc.pool.DataSource tomcatDatasource;
 
 	public TomcatJdbcConfigurer() {
@@ -63,13 +63,13 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 			ConnectionPool pool = tomcatDatasource.createPool();
 			JMXUtils.register(pool.getJmxPool(), JMX_DOMAIN + ":type=" + tomcatDatasource.getName());
 		} catch (Exception e) {
-			LOGGER.error("error while creating pool " + this, e);
+			LOGGER.error(String.format("error while creating pool %s", this), e);
 		}
 	}
 
 	public void destroy() {
 		tomcatDatasource.close();
-		LOGGER.info("TomcatJdbcConfigurer#" + hashCode() + " about to destroy " + tomcatDatasource);
+		LOGGER.info("TomcatJdbcConfigurer#{} about to destroy {}", hashCode(), tomcatDatasource);
 		JMXUtils.unregister(JMX_DOMAIN + ":type=" + tomcatDatasource.getName());
 	}
 

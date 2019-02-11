@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,9 @@ import org.appng.xml.platform.Link;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.PanelLocation;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -43,9 +44,9 @@ import org.springframework.context.MessageSource;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 class LinkPanelFieldHandler extends ConverterBase {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(LinkPanelFieldHandler.class);
 	private LabelSupport labelSupport;
 
 	LinkPanelFieldHandler(ExpressionEvaluator expressionEvaluator, Environment environment, MessageSource messageSource) {
@@ -115,7 +116,7 @@ class LinkPanelFieldHandler extends ConverterBase {
 
 	@Override
 	protected Logger getLog() {
-		return LOG;
+		return LOGGER;
 	}
 
 }

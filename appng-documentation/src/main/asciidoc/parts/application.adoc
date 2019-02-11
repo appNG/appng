@@ -9,22 +9,16 @@ See <<Permissions, chapter 9>> for more information about permissions.
 
 
 === Pre-defined Beans
-The Spring application context of an appNG application comes with a number of pre defined beans of different scopes, as listed here:
+The Spring application context of an appNG application comes with a number of predefined beans of different scopes, as listed here:
 
-* `conversionService` +
-*Type:* {spring}/javadoc-api/org/springframework/core/convert/ConversionService.html[org.springframework.core.convert.ConversionService^] +
+* `site` +
+The current site. +
+*Type:* {appng}/org/appng/api/model/Site.html[org.appng.api.model.Site^] +
 *Scope:* singleton
 
-[[app-messageSource]]
-* `messageSource` +
-This mesage source is built from the resource bundle file(s) provided in the application's `dictionary` folder. +
-*Type:* {appng}/org/appng/api/support/ResourceBundleMessageSource.html[org.appng.api.support.ResourceBundleMessageSource^] +
-*Scope:*  singleton
-
-[[app-datasource]]
-* `datasource` +
-Only available if there is a `<datasource>` present in `application.xml`. Usually used to configure a JPA `EntityManagerFactory`, as described in <<Using JPA, this section>>. +
-*Type:* {jse}/javax/sql/DataSource.html[javax.sql.DataSource.html^] +
+* `application` +
+The current application. +
+*Type:* {appng}/org/appng/api/model/Application.html[org.appng.api.model.Application^] +
 *Scope:* singleton
 
 * `environment` +
@@ -37,9 +31,25 @@ A wrapper for the current {jee}/javax/servlet/http/HttpServletRequest.html[javax
 *Type:* {appng}/org/appng/api/Request.html[org.appng.api.Request^] +
 *Scope:* request
 
+[[app-messageSource]]
+* `messageSource` +
+This message-source is built from the resource bundle file(s) provided in the application's `dictionary` folder. +
+*Type:* {appng}/org/appng/api/support/ResourceBundleMessageSource.html[org.appng.api.support.ResourceBundleMessageSource^] +
+*Scope:*  singleton
+
+[[app-datasource]]
+* `datasource` +
+Only available if there is a `<datasource>` present in `application.xml`. Usually used to configure a JPA `EntityManagerFactory`, as described in <<Using JPA, this section>>. +
+*Type:* {jse}/javax/sql/DataSource.html[javax.sql.DataSource.html^] +
+*Scope:* singleton
+
 * `selectionFactory` +
 A factory for building selections, see <<building-selections, here>> for more on that topic. +
 *Type:* {appng}/org/appng/api/support/SelectionFactory.html[org.appng.api.support.SelectionFactory^] +
+*Scope:* singleton
+
+* `conversionService` +
+*Type:* {spring}/javadoc-api/org/springframework/core/convert/ConversionService.html[org.springframework.core.convert.ConversionService^] +
 *Scope:* singleton
 
 === Configurable Application Features

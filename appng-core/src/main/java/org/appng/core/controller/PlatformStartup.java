@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
@@ -48,8 +49,6 @@ import org.appng.core.service.HsqlStarter;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.MigrationService;
 import org.hsqldb.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -59,6 +58,8 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This {@link ServletContextListener} is used to initialize the appNG platform. This includes loading the configuration
  * from {@value #CONFIG_LOCATION}, initializing the {@link ApplicationContext} from
@@ -67,14 +68,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class PlatformStartup implements ServletContextListener {
 
-	private static Logger log;
-
-	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
-	private static final String CONTEXT_LOCATION = "/conf/platformContext.xml";
-	protected static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
-	protected static final String WEB_INF = "/WEB-INF";
+	public static final String CONFIG_LOCATION = "/WEB-INF/conf/appNG.properties";
+	private static final String CONTEXT_LOCATION = "/WEB-INF/conf/platformContext.xml";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
@@ -101,25 +99,14 @@ public class PlatformStartup implements ServletContextListener {
 
 			StopWatch startupWatch = new StopWatch("startup");
 			startupWatch.start();
-			log.info("");
-			log.info("Launching appNG, the Next Generation Application Platform ...");
-			log.info("");
-			log.info("  -  - ---- ----------------------------------------- -------- -  -  ");
-			log.info("              ____      _______         _____       .---,,--,-^²²^-,.");
-			log.info("     .,--^^²´´    `^^²´´       `²^-.-²´´     ``²---´ dSb. db ,dS$P² <");
-			log.info("  ,-´_.dSS$§§§§$Sb. .dS$§§§§§$Sb. : .dS$§§§§$SSb. :  $§4b.$$ l$´ ss ;");
-			log.info(",/ .dS$SP²^^^²4$§§$ $§§$P²^^^²4S$$b.`4$$P²^^^²4S§$b. 4$`4b$P `4S$SP |");
-			log.info("! .$§SP°       $§§$ $§§$´      `4S§$.`4$´      `4S§$. .-----^²------´ ");
-			log.info("; [$§$l        $§§$ $§§$        l$§$] l$        l$§$] !               ");
-			log.info("l.`S$Sb.       $§§$ $§§$       ,dS$S´ d$       ,dS$S´ ;               ");
-			log.info(" \\ `4S$Sbsaaasd$§§$ $§§$ssaaasdS$SP´,d$$ssaaasdS$SP´ l                ");
-			log.info("  \\_ ``4SS$§§§§§§§$ $§§§§§§§$SSP´´  $§§§§§§§$SSP´´_.^                 ");
-			log.info("    `----,_,.____,. $$$$  ___.___,^ $$$$  ___.,--^                    ");
-			log.info(" _  _ ______ ____ ! $§§$ ! ____ _ ! $$$$ | ________ _______ ____ _  _ ");
-			log.info("                  | $$$$ ;        l $$$$ ;                            ");
-			log.info("                  `--,.-^´        `--,.-^´");
-			log.info("");
-
+			LOGGER.info("");
+			LOGGER.info("Launching appNG, the Next Generation Application Platform ...");
+			LOGGER.info("");
+			InputStream logoIs = getClass().getResourceAsStream("logo.txt");
+			IOUtils.readLines(logoIs, StandardCharsets.UTF_8).forEach(l -> LOGGER.info(l));
+			logoIs.close();
+			
+			ServletContext ctx = sce.getServletContext();
 			Environment env = DefaultEnvironment.get(ctx);
 
 			Properties config = new Properties();
@@ -132,7 +119,7 @@ public class PlatformStartup implements ServletContextListener {
 			}
 
 			DatabaseConnection platformConnection = new MigrationService().initDatabase(config);
-			log.info("Platform connection: {}", platformConnection);
+			LOGGER.info("Platform connection: {}", platformConnection);
 
 			initPlatformContext(ctx, env, config, platformConnection, configLocation);
 			InitializerService service = getService(env, ctx);
@@ -142,10 +129,10 @@ public class PlatformStartup implements ServletContextListener {
 			service.initPlatform(config, env, platformConnection, ctx, executor);
 			startupWatch.stop();
 			String appngVersion = env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
-			log.info("appNG {} started in {} ms.", appngVersion, startupWatch.getTotalTimeMillis());
-			log.info(StringUtils.leftPad("", 100, "="));
+			LOGGER.info("appNG {} started in {} ms.", appngVersion, startupWatch.getTotalTimeMillis());
+			LOGGER.info(StringUtils.leftPad("", 100, "="));
 		} catch (Exception e) {
-			log.error("error during platform startup", e);
+			LOGGER.error("error during platform startup", e);
 			contextDestroyed(sce);
 		}
 	}
@@ -194,7 +181,7 @@ public class PlatformStartup implements ServletContextListener {
 			try {
 				DriverManager.deregisterDriver(drivers.nextElement());
 			} catch (SQLException e) {
-				log.error("error while deregistering  driver", e);
+				LOGGER.error("error while deregistering  driver", e);
 			}
 		}
 		try {
@@ -203,16 +190,16 @@ public class PlatformStartup implements ServletContextListener {
 			abandonedConnectionCleanupThread.getDeclaredMethod("shutdown").invoke(null);
 			Thread.sleep(5000);
 		} catch (ClassNotFoundException e) {
-			log.debug("AbandonedConnectionCleanupThread not present");
+			LOGGER.debug("AbandonedConnectionCleanupThread not present");
 		} catch (Exception e) {
-			log.warn("error while calling AbandonedConnectionCleanupThread.shutdown()", e);
+			LOGGER.warn("error while calling AbandonedConnectionCleanupThread.shutdown()", e);
 		}
 		Messaging.shutdown(env);
 		if (null != executor) {
 			executor.shutdownNow();
 		}
-		log.info("appNG stopped.");
-		log.info(StringUtils.leftPad("", 100, "="));
+		LOGGER.info("appNG stopped.");
+		LOGGER.info(StringUtils.leftPad("", 100, "="));
 	}
 
 	protected InitializerService getService(Environment env, ServletContext ctx) {

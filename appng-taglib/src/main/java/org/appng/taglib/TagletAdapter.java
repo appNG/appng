@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,9 @@ import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.forms.Request;
 import org.appng.forms.impl.RequestBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class wraps an appNG taglet ( {@link Taglet}/{@link GlobalTaglet}/{@link XMLTaglet}/{@link GlobalXMLTaglet} )
@@ -72,10 +72,10 @@ import org.springframework.context.ApplicationContext;
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(TagletAdapter.class);
 	private static final String TAGLET_PROCESSOR = "tagletProcessor";
 	private String application;
 	private String method;
@@ -125,7 +125,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 
 	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
-		tagletAttributes = new HashMap<String, String>();
+		tagletAttributes = new HashMap<>();
 		return super.doStartTag();
 	}
 
@@ -159,11 +159,11 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 						applicationRequest, method, type, out);
 				pageContext.getOut().write(out.toString());
 			} else {
-				log.debug("No such bean: {}", TAGLET_PROCESSOR);
+				LOGGER.debug("No such bean: {}", TAGLET_PROCESSOR);
 			}
 		} catch (Exception ex) {
-			log.error("Unable to load Taglet '" + method + "' in application '" + application + "' (path: "
-					+ servletRequest.getRequestURI() + " )", ex);
+			LOGGER.error(String.format("Unable to load Taglet '%s' in application '%s' (path: %s)", method, application,
+					servletRequest.getRequestURI()), ex);
 		} finally {
 			if (null != applicationProvider) {
 				applicationProvider.setPlatformScope(true);

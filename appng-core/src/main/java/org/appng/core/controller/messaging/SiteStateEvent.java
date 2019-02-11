@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class SiteStateEvent extends Event {
 	static Map<String, SiteState> getStateMap(Environment env) {
 		Map<String, SiteState> stateMap = env.getAttribute(Scope.PLATFORM, SITE_STATE);
 		if (null == stateMap) {
-			stateMap = new ConcurrentHashMap<String, SiteState>();
+			stateMap = new ConcurrentHashMap<>();
 			env.setAttribute(Scope.PLATFORM, SITE_STATE, stateMap);
 		}
 		return stateMap;

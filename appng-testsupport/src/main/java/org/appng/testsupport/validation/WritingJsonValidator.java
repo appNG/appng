@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import org.apache.commons.io.IOUtils;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.Datasource;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class that supports testing if two JSON documents have the same content.
@@ -40,9 +40,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class WritingJsonValidator {
-
-	private static final Logger log = LoggerFactory.getLogger(WritingJsonValidator.class);
 
 	/**
 	 * Set to {@code true} to (over)write the control-files on (default {@code false}) (see also
@@ -245,7 +244,7 @@ public class WritingJsonValidator {
 		objectMapper.writer().withDefaultPrettyPrinter().writeValue(jsonWriter, object);
 		String json = jsonWriter.toString();
 		if (logJson) {
-			log.debug(json);
+			LOGGER.debug(json);
 		}
 		return json;
 	}

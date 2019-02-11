@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class ObjectFieldConverterTest extends AbstractFieldConverterTest {
 		leia.setFather(darth);
 		luke.setFather(darth);
 
-		List<Person> offsprings = new ArrayList<Person>();
+		List<Person> offsprings = new ArrayList<>();
 		offsprings.add(luke);
 		offsprings.add(leia);
 		darth.setOffsprings(offsprings);
@@ -150,7 +150,7 @@ public class ObjectFieldConverterTest extends AbstractFieldConverterTest {
 	@Test
 	public void testAddField() throws Exception {
 
-		Map<String, Object> variables = new HashMap<String, Object>();
+		Map<String, Object> variables = new HashMap<>();
 		ResultServiceImpl resultService = new ResultServiceImpl(new ExpressionEvaluator(variables));
 		resultService.setConversionService(new DefaultConversionService());
 		resultService.setEnvironment(environment);
@@ -177,7 +177,7 @@ public class ObjectFieldConverterTest extends AbstractFieldConverterTest {
 	@Test
 	public void testSetObject() throws Exception {
 		darth.getOffsprings().clear();
-		Set<String> parameterNames = new HashSet<String>();
+		Set<String> parameterNames = new HashSet<>();
 
 		parameterNames.add(addParameter("father.name", "Vader"));
 		parameterNames.add(addParameter("father.firstname", "Darth"));

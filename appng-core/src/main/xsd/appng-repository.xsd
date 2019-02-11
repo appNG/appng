@@ -28,6 +28,7 @@
 			<xs:sequence>
 				<xs:element name="digest" type="xs:string" minOccurs="0" />
 				<xs:element name="repository-name" type="xs:string" />
+				<xs:element name="package-name" type="xs:string" minOccurs="0"/>
 			</xs:sequence>
 			<xs:attribute name="reload" type="xs:boolean" use="optional" default="false" />
 		</xs:complexType>

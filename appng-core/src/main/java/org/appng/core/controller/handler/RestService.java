@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,6 @@ import org.appng.api.Path;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.core.model.AccessibleApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -52,6 +50,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExc
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Adds support for detecting and handling {@link RestController}s. Also detects {@link ExceptionHandler}s on beans
  * annotated with {@link ControllerAdvice}.
@@ -61,9 +61,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class RestService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RestService.class);
 	private static final int REST_PATH_START_INDEX = 5;
 
 	private Site site;

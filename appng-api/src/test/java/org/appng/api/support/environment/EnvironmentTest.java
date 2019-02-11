@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class EnvironmentTest extends AbstractTest {
 		MockServletContext mockCtx = new MockServletContext();
 		Environment initialEnv = DefaultEnvironment.get(mockCtx);
 		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformProps);
-		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<String, Site>());
+		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(mockCtx);
 		String oldId = mockRequest.getSession().getId();

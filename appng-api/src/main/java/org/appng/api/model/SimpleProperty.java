@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default {@link Property}-implementation
@@ -31,9 +31,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class SimpleProperty implements Property, Identifiable<String>, Comparable<Property> {
-
-	private static final Logger log = LoggerFactory.getLogger(SimpleProperty.class);
 
 	private String value;
 	private String defaultValue;
@@ -153,7 +152,7 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 			try {
 				return Integer.parseInt(getString());
 			} catch (NumberFormatException e) {
-				log.warn("could not convert property '" + getName() + "' to an Integer");
+				LOGGER.warn("could not convert property '{}' to an Integer", getName());
 			}
 		}
 		return null;
@@ -164,7 +163,7 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 			try {
 				return Float.parseFloat(getString());
 			} catch (NumberFormatException e) {
-				log.warn("could not convert property '" + getName() + "' to a Float");
+				LOGGER.warn("could not convert property '{}' to a Float", getName());
 			}
 		}
 		return null;
@@ -175,7 +174,7 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 			try {
 				return Double.parseDouble(getString());
 			} catch (NumberFormatException e) {
-				log.warn("could not convert property '" + getName() + "' to a Double");
+				LOGGER.warn("could not convert property '{}' to a Double", getName());
 			}
 		}
 		return null;
@@ -186,7 +185,7 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 			try {
 				return "true".equalsIgnoreCase(getString()) || "1".equals(getString());
 			} catch (Exception e) {
-				log.warn("could not convert property '" + getName() + "' to a Boolean");
+				LOGGER.warn("could not convert property '{}' to a Boolean", getName());
 			}
 		}
 		return null;

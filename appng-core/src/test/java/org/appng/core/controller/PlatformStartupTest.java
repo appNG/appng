@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class PlatformStartupTest extends PlatformStartup {
 	public void testPlatformStartup() throws InvalidConfigurationException, SQLException {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(servContext.getRealPath("WEB-INF/lib")).thenReturn("");
-		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<String, Object>();
+		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		Mockito.when(servContext.getAttribute(Mockito.eq(Scope.PLATFORM.name()))).thenReturn(platformEnv);
 		InputStream configResource = getClass().getClassLoader()
 				.getResourceAsStream((WEB_INF + CONFIG_LOCATION).substring(1));

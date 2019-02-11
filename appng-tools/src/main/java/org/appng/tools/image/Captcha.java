@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,11 @@ import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.process.Pipe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Captcha {
-
-	private static Logger log = LoggerFactory.getLogger(Captcha.class);
 
 	public Captcha() {
 
@@ -78,11 +77,11 @@ public class Captcha {
 		try {
 			cmd.run(op, backgroundPath.getAbsolutePath());
 		} catch (IOException e) {
-			log.error("IOException", e);
+			LOGGER.error("IOException", e);
 		} catch (InterruptedException e) {
-			log.error("InterruptedException", e);
+			LOGGER.error("InterruptedException", e);
 		} catch (IM4JavaException e) {
-			log.error("IM4JavaException", e);
+			LOGGER.error("IM4JavaException", e);
 		} finally {
 			try {
 				out.close();

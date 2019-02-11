@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class FormData extends FormElementOwner {
 	 */
 	FormData(Form form) {
 		super(form);
-		this.elementOwner = new ArrayList<FormElementOwner>();
+		this.elementOwner = new ArrayList<>();
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class FormData extends FormElementOwner {
 	 */
 	@Override
 	public List<FormElement> getElements() {
-		List<FormElement> allElements = new ArrayList<FormElement>();
+		List<FormElement> allElements = new ArrayList<>();
 		for (FormElementOwner formElementOwner : elementOwner) {
 			allElements.addAll(formElementOwner.getElements());
 		}

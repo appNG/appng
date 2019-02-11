@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class SessionFilter implements Filter {
 			HttpSession session = httpServletRequest.getSession();
 			Boolean authorized = (Boolean) session.getAttribute(Home.AUTHORIZED);
 			if (!Boolean.TRUE.equals(authorized)) {
-				log.info("session {} is not authorized, sending 403.", session.getId());
+				LOGGER.info("session {} is not authorized, sending 403.", session.getId());
 				((HttpServletResponse) response).sendError(HttpStatus.FORBIDDEN.value(), "Please authenticate first!");
 				return;
 			}

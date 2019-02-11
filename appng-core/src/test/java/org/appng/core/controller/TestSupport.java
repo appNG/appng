@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class TestSupport {
 	@Mock
 	protected RequestDispatcher dispatcher;
 
-	protected final Map<String, List<String>> requestParameters = new HashMap<String, List<String>>();
+	protected final Map<String, List<String>> requestParameters = new HashMap<>();
 
 	protected final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -131,13 +131,13 @@ public class TestSupport {
 
 	private String sitePropPrefix = "platform.site.manager.";
 
-	private List<Property> siteProperties = new ArrayList<Property>();
+	private List<Property> siteProperties = new ArrayList<>();
 
 	protected String siteRoot;
 
 	class TestApplicationProvider extends ApplicationProvider {
 
-		private Map<String, Object> beans = new HashMap<String, Object>();
+		private Map<String, Object> beans = new HashMap<>();
 
 		public TestApplicationProvider(Site site, Application application) {
 			super(site, application);
@@ -210,7 +210,7 @@ public class TestSupport {
 		String absolutePath = new File(new File("").getAbsoluteFile(), path).getAbsolutePath();
 		Mockito.when(ctx.getRealPath("/templates/default")).thenReturn(absolutePath);
 
-		ConcurrentHashMap<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
+		ConcurrentHashMap<String, Object> sessionMap = new ConcurrentHashMap<>();
 		Mockito.when(request.getAttribute(Scope.REQUEST.name())).thenReturn(sessionMap);
 
 		Mockito.when(request.getSession()).thenReturn(httpSession);
@@ -232,7 +232,7 @@ public class TestSupport {
 		addGetParameter("xsl", "false");
 		enableParameters(requestParameters.keySet().iterator());
 
-		siteMap = new HashMap<String, Site>();
+		siteMap = new HashMap<>();
 		SiteImpl site = new SiteImpl();
 		site.setId(1);
 		site.setHost(host);
@@ -318,9 +318,9 @@ public class TestSupport {
 		site.setProperties(new PropertyHolder(sitePropPrefix, siteProperties));
 		siteMap.put(site.getName(), site);
 
-		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<Property>());
+		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
 		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true);
-		platformMap = new ConcurrentHashMap<String, Object>();
+		platformMap = new ConcurrentHashMap<>();
 		platformMap.put(Platform.Environment.SITES, siteMap);
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
 		platformMap.put(Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);
@@ -383,7 +383,7 @@ public class TestSupport {
 	}
 
 	private void addGetParameter(String name, String value) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list.add(value);
 		requestParameters.put(name, list);
 	}

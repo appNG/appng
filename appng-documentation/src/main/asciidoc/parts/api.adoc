@@ -285,8 +285,8 @@ http://localhost:8080/service/manager/myapp/rest/add/3/4
 
 ==== Exception handling
 
-For handling exceptions, you can (and should) use Spring's {spring}/javadoc-api/org/springframework/web/bind/annotation/ExceptionHandler.html[@ExceptionHandler]. You may also use 
-a bean annotated with {spring}/javadoc-api/org/springframework/web/bind/annotation/ControllerAdvice.html[@ControllerAdvice] for centralized exceptiong handling. More details can be found in the {spring}/spring-framework-reference/htmlsingle/#mvc-exceptionhandlers[corresponding section] of Spring's reference documentation.
+For handling exceptions, you can (and should) use Spring's {spring}/javadoc-api/org/springframework/web/bind/annotation/ExceptionHandler.html[@ExceptionHandler^]. You may also use 
+a bean annotated with {spring}/javadoc-api/org/springframework/web/bind/annotation/ControllerAdvice.html[@ControllerAdvice^] for centralized exception handling. More details can be found in the {spring}/spring-framework-reference/htmlsingle/#mvc-exceptionhandlers[corresponding section^] of Spring's reference documentation.
 
 [TIP]
 ====

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class TagletAdapterTest {
 				return true;
 			}
 		};
-		Map<String, String> expectedParams = new HashMap<String, String>();
+		Map<String, String> expectedParams = new HashMap<>();
 		expectedParams.put("foo", "bar");
 		Mockito.when(tagletProcessor.perform(Mockito.eq(site), Mockito.eq(site), Mockito.eq(applicationProvider),
 				Mockito.eq(expectedParams), Mockito.any(ApplicationRequest.class), Mockito.eq("method"),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class WorkBookHelper {
 	private static final int POI_COLUMN_MAXWITH = 65280;
 	private Workbook wb;
 	private CreationHelper creationHelper;
-	private Map<Integer, Integer> maxRowPerSheet = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> maxRowPerSheet = new HashMap<>();
 	private Font hyperlinkFont;
 	private Font headerFont;
 	private FontBuilder fontbuilder;

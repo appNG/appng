@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.core.controller.HttpHeaders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class for sending HTTP redirects to a {@link HttpServletResponse}.
@@ -34,9 +34,8 @@ import org.slf4j.LoggerFactory;
  * @see HttpServletResponse#SC_SEE_OTHER
  * @see HttpServletResponse#SC_TEMPORARY_REDIRECT
  */
+@Slf4j
 public class Redirect {
-
-	private static Logger log = LoggerFactory.getLogger(Redirect.class);
 
 	/**
 	 * Sends a redirect with the given {@code statusCode} and {@code target} to a {@link HttpServletResponse}.
@@ -66,9 +65,9 @@ public class Redirect {
 	 */
 	public static void to(HttpServletResponse response, Integer statusCode, String origin, String target) {
 		if (StringUtils.isNotBlank(origin)) {
-			log.info("Redirecting request {} to {} ({})", origin, target, statusCode);
+			LOGGER.info("Redirecting request {} to {} ({})", origin, target, statusCode);
 		} else {
-			log.info("Redirecting request to {} ({})", target, statusCode);
+			LOGGER.info("Redirecting request to {} ({})", target, statusCode);
 		}
 		response.setStatus(statusCode);
 		response.setHeader(HttpHeaders.LOCATION, target);

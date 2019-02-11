@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class PlatformEnvironment extends AbstractEnvironment {
 	public ConcurrentMap<String, Object> getContainer() {
 		ConcurrentMap<String, Object> container = (ConcurrentMap<String, Object>) ctx.getAttribute(getIdentifier());
 		if (null == container) {
-			container = new ConcurrentHashMap<String, Object>();
+			container = new ConcurrentHashMap<>();
 			ctx.setAttribute(getIdentifier(), container);
 		}
 		return container;

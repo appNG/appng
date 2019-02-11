@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ public class PathInfo implements Path {
 	}
 
 	private List<String> splitPath(String path) {
-		List<String> elements = new ArrayList<String>(Arrays.asList(path.split(SEPARATOR)));
+		List<String> elements = new ArrayList<>(Arrays.asList(path.split(SEPARATOR)));
 		if (elements.size() > 0) {
 			int lastIdx = elements.size() - 1;
 			String lastElement = elements.get(lastIdx);
@@ -312,12 +312,12 @@ public class PathInfo implements Path {
 				return params;
 			}
 		}
-		return new ArrayList<String>(0);
+		return new ArrayList<>(0);
 	}
 
 	public List<String> getJspUrlParameters() {
 		if (null == jspUrlParams) {
-			jspUrlParams = new ArrayList<String>();
+			jspUrlParams = new ArrayList<>();
 		}
 		return jspUrlParams;
 	}

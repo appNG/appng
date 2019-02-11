@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Permissions;
 import org.appng.xml.platform.Rule;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
@@ -68,6 +67,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import lombok.extern.slf4j.Slf4j;
 
 abstract class RestOperation {
 
@@ -184,9 +185,7 @@ abstract class RestOperation {
 						.contains(type);
 	}
 
-	Logger getLogger() {
-		return LoggerFactory.getLogger(getClass());
-	}
+	abstract Logger getLogger();
 
 	protected void applyPathParameters(Map<String, String> pathVariables, DataConfig config,
 			ApplicationRequest applicationRequest) {
@@ -289,14 +288,14 @@ abstract class RestOperation {
 		return new DecimalFormat(format, new DecimalFormatSymbols(request.getLocale()));
 	}
 
+	@Slf4j
 	@ControllerAdvice
 	static class RestErrorHandler extends ResponseEntityExceptionHandler {
-		private static final Logger LOG = LoggerFactory.getLogger(RestErrorHandler.class);
 
 		@ExceptionHandler
 		public ResponseEntity<ErrorModel> handleError(Exception exception, Site site, Application application,
 				Environment environment, HttpServletRequest request, HttpServletResponse response) throws Exception {
-			LOG.error("error in REST service", exception);
+			LOGGER.error("error in REST service", exception);
 			String message;
 			if (application.getProperties().getBoolean("restErrorPrintStackTrace", true)) {
 				StringWriter writer = new StringWriter();

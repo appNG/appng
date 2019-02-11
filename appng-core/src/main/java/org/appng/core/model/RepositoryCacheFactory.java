@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
 import org.appng.api.model.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StopWatch;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Returns instances of {@link RepositoryCache}.
@@ -39,10 +39,10 @@ import org.springframework.util.StopWatch;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class RepositoryCacheFactory {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryCacheFactory.class);
-	private static Map<Integer, RepositoryCache> caches = new HashMap<Integer, RepositoryCache>();
+	private static Map<Integer, RepositoryCache> caches = new HashMap<>();
 	private byte[] cert;
 	private byte[] privateKey;
 	private byte[] trustStore;

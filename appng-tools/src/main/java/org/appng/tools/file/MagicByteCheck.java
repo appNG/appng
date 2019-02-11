@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.j256.simplemagic.ContentInfoUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This is an utility class to to check the type of file by probing the magic bytes.
@@ -31,10 +31,9 @@ import com.j256.simplemagic.ContentInfoUtil;
  * @author Claus Stümke, aiticon GmbH, 2016
  *
  */
-
+@Slf4j
 public class MagicByteCheck {
 
-	private static Logger LOG = LoggerFactory.getLogger(MagicByteCheck.class);
 	private static final ContentInfoUtil CONTENT_INFO_UTIL = new ContentInfoUtil();
 
 	/**
@@ -58,11 +57,11 @@ public class MagicByteCheck {
 		String fileNameExtension = normalizeFileExtension(FilenameUtils.getExtension(sourceFile.getName()));
 		boolean matches = magicExtension.equalsIgnoreCase(fileNameExtension);
 		if (!matches) {
-			LOG.debug("File type detected by magic byte ({}) is not identical with file extension for file {}",
+			LOGGER.debug("File type detected by magic byte ({}) is not identical with file extension for file {}",
 					magicExtension, fileNameExtension, sourceFile.getAbsolutePath());
 		}
 		sw.stop();
-		LOG.trace(sw.toString());
+		LOGGER.trace(sw.toString());
 		return matches;
 	}
 

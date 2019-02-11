@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,14 @@ public class RepositoryCacheTest {
 		RepositoryCache cache = RepositoryCacheFactory.instance().getCache(repository);
 
 		Assert.assertEquals(1, cache.getApplications().size());
+		Assert.assertEquals(1, cache.getApplications().size());
+		Assert.assertEquals(1, cache.getApplications(null).size());
+		Assert.assertEquals(1, cache.getApplications("").size());
+		Assert.assertEquals(1, cache.getApplications("demo-").size());
+		Assert.assertEquals(1, cache.getApplications("*").size());
+		Assert.assertEquals(1, cache.getApplications("demo-*").size());
+		Assert.assertEquals(1, cache.getApplications("*emo*").size());
+		Assert.assertEquals(0, cache.getApplications("notfound").size());
 
 		PackageWrapper applicationWrapper = cache.getPublishedApplicationWrapper("demo-application");
 		String latest = "1.5.4";

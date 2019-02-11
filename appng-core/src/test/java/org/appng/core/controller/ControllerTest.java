@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,14 +59,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ControllerTest extends Controller implements Controller.Support {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ControllerTest.class);
 	private static final String host = "foo.example.com";
 	TestSupport base;
 	DefaultEnvironment env;
@@ -106,7 +106,7 @@ public class ControllerTest extends Controller implements Controller.Support {
 	}
 
 	protected void fail(Exception e) {
-		LOG.error("error during test", e);
+		LOGGER.error("error during test", e);
 		Assert.fail(e.getMessage());
 	}
 

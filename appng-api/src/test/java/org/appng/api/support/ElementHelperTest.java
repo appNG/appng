@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,7 +158,7 @@ public class ElementHelperTest {
 
 		Mockito.when(pcp.getDatasource("dsId")).thenReturn(ds);
 		Mockito.when(applicationRequest.getPermissionProcessor()).thenReturn(permissionProcessor);
-		parameterSupport = new DollarParameterSupport(new HashMap<String, String>());
+		parameterSupport = new DollarParameterSupport(new HashMap<>());
 		Mockito.when(applicationRequest.getParameterSupportDollar()).thenReturn(parameterSupport);
 		elementHelper = new ElementHelper(site, application);
 		elementHelper.initializeParameters(DATASOURCE_TEST, applicationRequest, parameterSupport, new Params(),
@@ -361,7 +361,7 @@ public class ElementHelperTest {
 	}
 
 	private List<BeanOption> getOptions() {
-		List<BeanOption> beanOptions = new ArrayList<BeanOption>();
+		List<BeanOption> beanOptions = new ArrayList<>();
 		BeanOption option = new BeanOption();
 		option.setName("action");
 		option.getOtherAttributes().put(new QName("id"), "foobar");
@@ -456,7 +456,7 @@ public class ElementHelperTest {
 		addParam(executionParams, "p8", "jin", null);
 		addParam(executionParams, "p9", null, "fizz");
 
-		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<String, String>());
+		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<>());
 		Map<String, String> actual = elementHelper.initializeParameters(DATASOURCE_TEST, applicationRequest,
 				parameterSupport, referenceParams, executionParams);
 
@@ -474,7 +474,7 @@ public class ElementHelperTest {
 	@Test
 	@Ignore("APPNG-442")
 	public void testOverlappingParams() {
-		Map<String, List<String>> postParameters = new HashMap<String, List<String>>();
+		Map<String, List<String>> postParameters = new HashMap<>();
 		postParameters.put("p5", Arrays.asList("a"));
 
 		Mockito.when(applicationRequest.getParametersList()).thenReturn(postParameters);
@@ -486,7 +486,7 @@ public class ElementHelperTest {
 		Params executionParams = new Params();
 		addParam(executionParams, "p5", null, "b");
 
-		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<String, String>());
+		DollarParameterSupport parameterSupport = new DollarParameterSupport(new HashMap<>());
 		try {
 			elementHelper.initializeParameters(DATASOURCE_TEST, applicationRequest, parameterSupport, referenceParams,
 					executionParams);
@@ -501,7 +501,7 @@ public class ElementHelperTest {
 
 	@Test
 	public void testInitializeParameters() throws ProcessingException {
-		Map<String, List<String>> postParameters = new HashMap<String, List<String>>();
+		Map<String, List<String>> postParameters = new HashMap<>();
 		postParameters.put("postParam1", Arrays.asList("a"));
 		postParameters.put("postParam2", Arrays.asList("b"));
 		postParameters.put("postParam3", Arrays.asList("x", "y", "z"));
@@ -521,7 +521,7 @@ public class ElementHelperTest {
 		addParam(executionParams, "p3", "9", "18");
 		addParam(executionParams, "p4", null, null);
 
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put("req_1", "42");
 
 		DollarParameterSupport parameterSupport = new DollarParameterSupport(parameters);

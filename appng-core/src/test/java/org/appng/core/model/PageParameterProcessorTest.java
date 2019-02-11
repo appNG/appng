@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,11 +55,11 @@ public class PageParameterProcessorTest extends TestSupport {
 
 	private PageParameterProcessor ppp;
 
-	private Set<String> sessionParamNames = new HashSet<String>();
+	private Set<String> sessionParamNames = new HashSet<>();
 
-	private List<String> applicationUrlParameter = new ArrayList<String>();
+	private List<String> applicationUrlParameter = new ArrayList<>();
 
-	private Map<String, String> sessionParams = new HashMap<String, String>();
+	private Map<String, String> sessionParams = new HashMap<>();
 
 	@Before
 	public void setup() {

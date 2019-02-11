@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ package org.appng.tools.os;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to conveniently execute command via {@link Runtime#exec(String)}.
@@ -27,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class Command {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Command.class);
 	public static final int ERROR = -1;
 	public static final int WRONG_OS = -2;
 
@@ -57,7 +56,7 @@ public class Command {
 			}
 			return process.waitFor();
 		} catch (Exception e) {
-			LOGGER.warn("error while executing: " + command, e);
+			LOGGER.warn(String.format("error while executing: %s", command), e);
 		}
 		return ERROR;
 	}

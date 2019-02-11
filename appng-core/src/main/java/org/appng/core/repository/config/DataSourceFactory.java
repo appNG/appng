@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package org.appng.core.repository.config;
 import javax.sql.DataSource;
 
 import org.appng.core.domain.DatabaseConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -29,9 +29,9 @@ import org.springframework.beans.factory.FactoryBean;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceConfigurer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceFactory.class);
 	private DatasourceConfigurer configurer;
 
 	private String configurerClass;
@@ -59,7 +59,7 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceCon
 			this.configurer = (DatasourceConfigurer) loadClass.newInstance();
 			this.configurer.setLogPerformance(logPerformance);
 		} catch (Exception e) {
-			LOGGER.error("error creating instance of '" + configurerClass + "' ", e);
+			LOGGER.error(String.format("error creating instance of '%s'", configurerClass), e);
 		}
 		return configurer;
 	}

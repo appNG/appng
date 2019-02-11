@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,7 +264,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	private boolean useFullClassname = false;
 
-	private Map<String, String> parameters = new HashMap<String, String>();
+	private Map<String, String> parameters = new HashMap<>();
 
 	public TestBase() {
 		this("application", APPLICATION_HOME);
@@ -276,13 +276,13 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	protected void subjectWithRole(String roleName) {
 		Group group = Mockito.mock(Group.class);
-		Mockito.when(group.getRoles()).thenReturn(new HashSet<Role>());
+		Mockito.when(group.getRoles()).thenReturn(new HashSet<>());
 		for (Role role : application.getRoles()) {
 			if (role.getName().equals(roleName)) {
 				group.getRoles().add(role);
 			}
 		}
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 		groups.add(group);
 		Mockito.when(subject.getGroups()).thenReturn(groups);
 	}
@@ -300,7 +300,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		applicationContext.addBeanFactoryPostProcessor(placeholderConfigurer);
 
 		File dictFolder = new File(applicationLocation + "/dictionary").getAbsoluteFile();
-		final List<String> baseNames = new ArrayList<String>();
+		final List<String> baseNames = new ArrayList<>();
 		if (dictFolder.exists() && dictFolder.list() != null) {
 
 			for (String file : dictFolder.list()) {
@@ -372,7 +372,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	protected List<ApplicationSubject> getApplicationSubjects() {
-		return new ArrayList<ApplicationSubject>();
+		return new ArrayList<>();
 	}
 
 	protected void initRequest() throws InvalidConfigurationException, JAXBException {
@@ -410,7 +410,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	protected void initEnvironment() {
-		ConcurrentHashMap<String, Object> platformEnv = new ConcurrentHashMap<String, Object>();
+		ConcurrentHashMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		List<Property> platformProperties = getPlatformProperties("platform.");
 		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, new PropertyHolder("platform.", platformProperties));
 
@@ -418,7 +418,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		Mockito.when(site.getDomain()).thenReturn("localhost");
 		Mockito.when(site.getHost()).thenReturn("localhost");
 		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
-		Map<String, Site> sites = new HashMap<String, Site>();
+		Map<String, Site> sites = new HashMap<>();
 		sites.put("localhost", site);
 		platformEnv.put(Platform.Environment.SITES, sites);
 
@@ -439,7 +439,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	protected List<Property> getSiteProperties(String prefix) {
-		List<Property> siteProperties = new ArrayList<Property>();
+		List<Property> siteProperties = new ArrayList<>();
 		siteProperties.add(new SimpleProperty(prefix + SiteProperties.SERVICE_PATH, SITE_SERVICE_PATH));
 		siteProperties.add(new SimpleProperty(prefix + SiteProperties.MANAGER_PATH, SITE_MANAGER_PATH));
 		siteProperties.add(new SimpleProperty(prefix + SiteProperties.DEFAULT_PAGE_SIZE, "25"));
@@ -447,7 +447,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	protected List<Property> getPlatformProperties(String prefix) {
-		List<Property> platformProperties = new ArrayList<Property>();
+		List<Property> platformProperties = new ArrayList<>();
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.VHOST_MODE, VHostMode.NAME_BASED.name()));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.LOCALE, "en"));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.TIME_ZONE, "Europe/Berlin"));
@@ -541,7 +541,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	class ParametrizedCall {
-		private Map<String, String> configParams = new HashMap<String, String>();
+		private Map<String, String> configParams = new HashMap<>();
 		private Params params;
 
 		ParametrizedCall(Params params) {
@@ -761,7 +761,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 		private String name;
 		private ConfigurableApplicationContext context;
-		private Map<String, Permission> permissionMap = new HashMap<String, Permission>();
+		private Map<String, Permission> permissionMap = new HashMap<>();
 		private Set<Role> roleSet;
 		private org.appng.api.model.Properties properties;
 		private List<ApplicationSubject> applicationSubjects;
@@ -769,7 +769,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		private ApplicationInfo applicationInfo;
 
 		protected SimpleApplication(String name, ConfigurableApplicationContext context) {
-			this(name, context, new ArrayList<ApplicationSubject>());
+			this(name, context, new ArrayList<>());
 		}
 
 		protected SimpleApplication(String name, ConfigurableApplicationContext context,
@@ -786,7 +786,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 				permissionMap.put(p.getId(), simplePermission);
 			}
 
-			roleSet = new HashSet<Role>();
+			roleSet = new HashSet<>();
 			int roleId = 1;
 			for (org.appng.xml.application.Role r : applicationInfo.getRoles().getRole()) {
 				SimpleRole role = new SimpleRole(r, roleId++);
@@ -797,7 +797,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 				}
 				roleSet.add(role);
 			}
-			Set<Property> props = new HashSet<Property>();
+			Set<Property> props = new HashSet<>();
 			for (org.appng.xml.application.Property prop : applicationInfo.getProperties().getProperty()) {
 				String propName = prop.getId();
 				String value = overrides.containsKey(propName) ? overrides.getProperty(propName) : prop.getValue();
@@ -860,7 +860,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		}
 
 		public Set<Permission> getPermissions() {
-			return new HashSet<Permission>(permissionMap.values());
+			return new HashSet<>(permissionMap.values());
 		}
 
 		public Set<Role> getRoles() {
@@ -928,7 +928,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			String sessionParamKey = getSessionParamKey(site);
 			Map<String, String> sessionsParams = environment.getAttribute(Scope.SESSION, sessionParamKey);
 			if (null == sessionsParams) {
-				sessionsParams = new HashMap<String, String>();
+				sessionsParams = new HashMap<>();
 				environment.setAttribute(Scope.SESSION, sessionParamKey, sessionsParams);
 			}
 			return sessionsParams;
@@ -1004,7 +1004,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	class SimpleRole implements Role {
 
 		private org.appng.xml.application.Role role;
-		private Set<Permission> permissions = new HashSet<Permission>();
+		private Set<Permission> permissions = new HashSet<>();
 		private Integer id;
 
 		public SimpleRole(org.appng.xml.application.Role role, Integer id) {

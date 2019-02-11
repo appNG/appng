@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,13 @@ import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TribesReceiver extends MessageHandler implements Receiver, Runnable, ChannelListener {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TribesReceiver.class);
 	private GroupChannel channel = new GroupChannel();
 	private Serializer eventSerializer;
 	private EventRegistry eventRegistry = new EventRegistry();
@@ -133,7 +133,7 @@ public class TribesReceiver extends MessageHandler implements Receiver, Runnable
 					}
 				}
 			} catch (InvalidConfigurationException | BusinessException e) {
-				LOGGER.error("error performing event " + msg, e);
+				LOGGER.error(String.format("error performing event %s", msg), e);
 			}
 		}
 	}

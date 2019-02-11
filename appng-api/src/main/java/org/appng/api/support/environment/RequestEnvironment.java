@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class RequestEnvironment extends AbstractEnvironment {
 	public ConcurrentMap<String, Object> getContainer() {
 		Object container = request.getAttribute(getIdentifier());
 		if (null == container) {
-			container = new ConcurrentHashMap<String, Object>();
+			container = new ConcurrentHashMap<>();
 			request.setAttribute(getIdentifier(), container);
 		}
 		return (ConcurrentMap<String, Object>) container;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,9 +43,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -60,21 +60,21 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 	static final String ROOT = "/";
 	ExecutorService executor;
 
-	@RequestMapping(value = ROOT, method = RequestMethod.POST)
+	@PostMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> login(@RequestBody String sharedSecret,
 			HttpServletRequest request) {
 		String platformSecret = getSharedSecret();
 		if (!platformSecret.equals(sharedSecret)) {
-			log.info("invalid shared secret for session {}", session.getId());
+			LOGGER.info("invalid shared secret for session {}", session.getId());
 			return reply(HttpStatus.FORBIDDEN);
 		}
 		session.setAttribute(AUTHORIZED, true);
-		log.info("session {} has been authorized (user-agent: {})", session.getId(),
+		LOGGER.info("session {} has been authorized (user-agent: {})", session.getId(),
 				request.getHeader(HttpHeaders.USER_AGENT));
 		return welcome();
 	}
 
-	@RequestMapping(value = ROOT, method = RequestMethod.GET)
+	@GetMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> welcome() {
 		String appngVersion = (String) context.getAttribute(AppNGizer.APPNG_VERSION);
 		boolean dbInitialized = getDatabaseStatus() != null;
@@ -85,7 +85,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 	public void afterPropertiesSet() throws Exception {
@@ -128,7 +128,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, true, true);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
-		Map<String, org.appng.api.model.Site> siteMap = new HashMap<String, org.appng.api.model.Site>();
+		Map<String, org.appng.api.model.Site> siteMap = new HashMap<>();
 		for (SiteImpl site : getCoreService().getSites()) {
 			if (site.isActive()) {
 				SiteImpl s = getCoreService().getSite(site.getId());

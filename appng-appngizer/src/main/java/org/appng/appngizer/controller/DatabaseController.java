@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,11 @@ import org.appng.core.service.MigrationService;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class DatabaseController extends ControllerBase {
 
-	@RequestMapping(value = "/platform/database", method = RequestMethod.GET)
+	@GetMapping(value = "/platform/database")
 	public ResponseEntity<Database> info() throws Exception {
 		Properties props = configurer.getProps();
 		DatabaseType type = DatabaseType.valueOf(props.getProperty(MigrationService.DATABASE_TYPE).toUpperCase());
@@ -58,7 +59,7 @@ public class DatabaseController extends ControllerBase {
 		return info(platformConnection);
 	}
 
-	@RequestMapping(value = "/platform/database", method = RequestMethod.PUT)
+	@PutMapping(value = "/platform/database")
 	public ResponseEntity<Database> updateRootConnection(@RequestBody org.appng.appngizer.model.xml.Database database)
 			throws Exception {
 		DatabaseConnection platformConnection = databaseService
@@ -74,7 +75,7 @@ public class DatabaseController extends ControllerBase {
 		return info(platformConnection);
 	}
 
-	@RequestMapping(value = "/platform/database/initialize", method = RequestMethod.POST)
+	@PostMapping(value = "/platform/database/initialize")
 	public ResponseEntity<Database> initialize(
 			@RequestParam(name = "managed", required = false, defaultValue = "false") boolean isManaged)
 			throws Exception {
@@ -94,7 +95,7 @@ public class DatabaseController extends ControllerBase {
 		return ok(db);
 	}
 
-	@RequestMapping(value = "/site/{name}/database", method = RequestMethod.GET)
+	@GetMapping(value = "/site/{name}/database")
 	public ResponseEntity<Databases> getDatabaseConnections(@PathVariable("name") String name) {
 		SiteImpl site = getSiteByName(name);
 		if (null == site) {
@@ -120,7 +121,7 @@ public class DatabaseController extends ControllerBase {
 		}
 	}
 
-	@RequestMapping(value = "/site/{site}/application/{app}/database", method = RequestMethod.GET)
+	@GetMapping(value = "/site/{site}/application/{app}/database")
 	public ResponseEntity<Database> getDatabaseConnectionForApplication(@PathVariable("site") String site,
 			@PathVariable("app") String app) {
 		SiteApplication siteApplication = coreService.getSiteApplication(site, app);
@@ -145,7 +146,7 @@ public class DatabaseController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/site/{site}/application/{app}/database", method = RequestMethod.PUT)
+	@PutMapping(value = "/site/{site}/application/{app}/database")
 	public ResponseEntity<Database> updateDatabaseConnectionforApplication(@PathVariable("site") String site,
 			@PathVariable("app") String app, @RequestBody org.appng.appngizer.model.xml.Database database) {
 		SiteApplication siteApplication = coreService.getSiteApplication(site, app);
@@ -162,7 +163,7 @@ public class DatabaseController extends ControllerBase {
 		return ok(updated.getBody());
 	}
 
-	@RequestMapping(value = "/site/{name}/database/{id}", method = RequestMethod.GET)
+	@GetMapping(value = "/site/{name}/database/{id}")
 	public ResponseEntity<Database> getDatabaseConnection(@PathVariable("name") String name,
 			@PathVariable("id") Integer id) {
 		SiteImpl site = getSiteByName(name);
@@ -180,7 +181,7 @@ public class DatabaseController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/site/{name}/database/{id}", method = RequestMethod.PUT)
+	@PutMapping(value = "/site/{name}/database/{id}")
 	public ResponseEntity<Database> updateDatabaseConnection(@PathVariable("name") String name,
 			@PathVariable("id") Integer id, @RequestBody org.appng.appngizer.model.xml.Database database) {
 		SiteImpl site = getSiteByName(name);
@@ -198,7 +199,7 @@ public class DatabaseController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 }

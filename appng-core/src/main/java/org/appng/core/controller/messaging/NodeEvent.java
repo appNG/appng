@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public class NodeEvent extends Event {
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
 		Map<String, NodeState> stateMap = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
 		if (null == stateMap) {
-			stateMap = new ConcurrentHashMap<String, NodeState>();
+			stateMap = new ConcurrentHashMap<>();
 			environment.setAttribute(Scope.PLATFORM, NODE_STATE, stateMap);
 		}
 		stateMap.put(getNodeId(), this.nodeState);
@@ -135,7 +135,7 @@ public class NodeEvent extends Event {
 			this.nonHeap = new MemoryUsage(memoryMXBean.getNonHeapMemoryUsage());
 			this.props = new Properties();
 			props.putAll(System.getProperties());
-			this.env = new HashMap<String, String>(System.getenv());
+			this.env = new HashMap<>(System.getenv());
 			this.siteStates = siteStates;
 			this.date = new Date();
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,8 @@ import org.appng.xml.platform.OutputType;
 import org.appng.xml.platform.Platform;
 import org.appng.xml.platform.Template;
 import org.appng.xml.transformation.StyleSheetProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Responsible for transforming a XML document (retrieved from a {@link Platform}-object) to XHTML.
@@ -76,9 +76,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class PlatformTransformer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PlatformTransformer.class);
 	private static final String INSERTION_NODE = "xsl:variables";
 	private static final String NO = "no";
 	private static final String YES = "yes";
@@ -97,7 +97,7 @@ public class PlatformTransformer {
 	private static final Map<String, SourceAwareTemplate> STYLESHEETS = Collections.synchronizedMap(new LRUMap(20));
 
 	public PlatformTransformer() {
-		this.templates = new HashSet<Template>();
+		this.templates = new HashSet<>();
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class PlatformTransformer {
 	 *             when parsing or applying the XSLT template fails
 	 */
 	public String transform(ApplicationProvider applicationProvider, Properties platformProperties, String platformXML,
-			String charSet) throws FileNotFoundException, TransformerException {
+			String charSet) throws IOException, TransformerException {
 		InputStream xmlSourceIn = new ByteArrayInputStream(platformXML.getBytes());
 		StreamSource xmlSource = new StreamSource(xmlSourceIn);
 		boolean deleteIncludes = false;
@@ -149,12 +149,12 @@ public class PlatformTransformer {
 				Resources applicationResourceHolder = applicationProvider.getResources();
 				Resource resource = applicationResourceHolder.getResource(ResourceType.XSL, fileName);
 				if (null == resource) {
-					LOGGER.warn("missing resource: no resource named '" + fileName + "' is assigned to application '"
-							+ applicationProvider.getName() + "'");
+					LOGGER.warn("missing resource: no resource named '{}' is assigned to application '{}'", fileName,
+							applicationProvider.getName());
 				} else {
 					if (devMode) {
 						File cachedFile = resource.getCachedFile();
-						LOGGER.debug("devMode is active, reading from cached file " + cachedFile.getAbsolutePath());
+						LOGGER.debug("devMode is active, reading from cached file {}", cachedFile.getAbsolutePath());
 						styleSheetProvider.addStyleSheet(new FileInputStream(cachedFile),
 								applicationProvider.getName() + ":" + fileName);
 					} else {
@@ -175,33 +175,34 @@ public class PlatformTransformer {
 			if (!devMode && STYLESHEETS.containsKey(styleId)) {
 				sourceAwareTemplate = STYLESHEETS.get(styleId);
 				styleSheetProvider.cleanup();
-				LOGGER.debug("reading templates from cache (id:" + styleId + " )");
+				LOGGER.debug("reading templates from cache (id: {})", styleId);
 			} else {
 				if (showXsl) {
 					xslOut = new ByteArrayOutputStream();
 				}
 				byte[] xslData = styleSheetProvider.getStyleSheet(deleteIncludes, xslOut);
-				ByteArrayInputStream templateInputStream = new ByteArrayInputStream(xslData);
-				Source xslSource = new StreamSource(templateInputStream);
-				TransformerFactory transformerFactory = styleSheetProvider.getTransformerFactory();
-				ErrorCollector errorCollector = new ErrorCollector();
-				transformerFactory.setErrorListener(errorCollector);
-				try {
-					Templates templates = transformerFactory.newTemplates(xslSource);
-					sourceAwareTemplate = new SourceAwareTemplate(templates,
-							writeDebugFiles ? templateInputStream : null);
-				} catch (TransformerConfigurationException tce) {
-					sourceAwareTemplate = new SourceAwareTemplate(null, templateInputStream);
-					sourceAwareTemplate.errorCollector = errorCollector;
-					for (TransformerException t : errorCollector.exceptions) {
-						LOGGER.error(t.getMessage(), t);
+				try (ByteArrayInputStream templateInputStream = new ByteArrayInputStream(xslData)) {
+					Source xslSource = new StreamSource(templateInputStream);
+					TransformerFactory transformerFactory = styleSheetProvider.getTransformerFactory();
+					ErrorCollector errorCollector = new ErrorCollector();
+					transformerFactory.setErrorListener(errorCollector);
+					try {
+						Templates templates = transformerFactory.newTemplates(xslSource);
+						sourceAwareTemplate = new SourceAwareTemplate(templates,
+								writeDebugFiles ? templateInputStream : null);
+					} catch (TransformerConfigurationException tce) {
+						sourceAwareTemplate = new SourceAwareTemplate(null, templateInputStream);
+						sourceAwareTemplate.errorCollector = errorCollector;
+						for (TransformerException t : errorCollector.exceptions) {
+							LOGGER.error(t.getMessage(), t);
+						}
+						throw tce;
 					}
-					throw tce;
+					if (!devMode) {
+						STYLESHEETS.put(styleId, sourceAwareTemplate);
+					}
+					LOGGER.debug("writing templates to cache (id: {})", styleId);
 				}
-				if (!devMode) {
-					STYLESHEETS.put(styleId, sourceAwareTemplate);
-				}
-				LOGGER.debug("writing templates to cache (id:" + styleId + " )");
 			}
 
 			if (devMode && showXsl) {
@@ -242,15 +243,16 @@ public class PlatformTransformer {
 			File traceOut = new File(debugFolder, prefix + "stacktrace.txt");
 			IOUtils.write(IOUtils.toByteArray(sourceAwareTemplate.source), new FileOutputStream(xslOut));
 			FileUtils.write(xmlOut, platformXML, Charset.defaultCharset());
-			PrintWriter debugWriter = new PrintWriter(traceOut);
-			if (null != te) {
-				te.printStackTrace(debugWriter);
-			}
-			if (null != sourceAwareTemplate.errorCollector) {
-				for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
-					debugWriter.write("--------------------");
-					debugWriter.write(System.lineSeparator());
-					transformerException.printStackTrace(debugWriter);
+			try (PrintWriter debugWriter = new PrintWriter(traceOut)) {
+				if (null != te) {
+					te.printStackTrace(debugWriter);
+				}
+				if (null != sourceAwareTemplate.errorCollector) {
+					for (TransformerException transformerException : sourceAwareTemplate.errorCollector.exceptions) {
+						debugWriter.write("--------------------");
+						debugWriter.write(System.lineSeparator());
+						transformerException.printStackTrace(debugWriter);
+					}
 				}
 			}
 			if (traceOut.length() == 0) {
@@ -332,7 +334,7 @@ public class PlatformTransformer {
 
 	static class ErrorCollector implements ErrorListener {
 
-		List<TransformerException> exceptions = new ArrayList<TransformerException>();
+		List<TransformerException> exceptions = new ArrayList<>();
 
 		public void warning(TransformerException exception) throws TransformerException {
 			exceptions.add(exception);

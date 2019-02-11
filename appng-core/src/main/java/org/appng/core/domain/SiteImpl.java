@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ import org.appng.core.Redirect;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.model.AccessibleApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -73,12 +73,12 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 @Entity
 @Table(name = "site")
 @EntityListeners(PlatformEventListener.class)
 public class SiteImpl implements Site, Auditable<Integer> {
 
-	private static final Logger log = LoggerFactory.getLogger(SiteImpl.class);
 	private static final String SLASH = "/";
 	private static final String TAB_PARAM_NAME = "tab";
 	private static final String AGENT_MSIE = "MSIE";
@@ -92,12 +92,12 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private Date version;
 	private String host;
 	private String domain;
-	private Set<SiteApplication> applications = new HashSet<SiteApplication>();
+	private Set<SiteApplication> applications = new HashSet<>();
 	private boolean active;
 	private boolean createRepository = false;
 	private SiteClassLoader siteClassLoader;
 	private Properties properties;
-	private Set<Named<Integer>> groups = new HashSet<Named<Integer>>();
+	private Set<Named<Integer>> groups = new HashSet<>();
 	private File siteRootDirectory;
 	private PasswordPolicy policy;
 	private Date startupTime;
@@ -158,7 +158,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	@Transient
 	public Set<Application> getApplications() {
-		Set<Application> applicationList = new HashSet<Application>();
+		Set<Application> applicationList = new HashSet<>();
 		for (SiteApplication application : applications) {
 			applicationList.add(application.getApplication());
 		}
@@ -206,7 +206,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	@Transient
 	public Map<String, Application> getApplicationMap() {
-		Map<String, Application> map = new HashMap<String, Application>();
+		Map<String, Application> map = new HashMap<>();
 		for (SiteApplication p : applications) {
 			map.put(p.getApplication().getName(), p.getApplication());
 		}
@@ -260,7 +260,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	public boolean sendEvent(Event event) {
 		if (null == sender) {
-			log.debug("messaging is disabled, not sending event {}", event);
+			LOGGER.debug("messaging is disabled, not sending event {}", event);
 			return false;
 		}
 		return sender.send(event);
@@ -326,7 +326,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	}
 
 	public void closeSiteContext() {
-		log.info("closing context for site {}", this);
+		LOGGER.info("closing context for site {}", this);
 		for (SiteApplication p : getSiteApplications()) {
 			((AccessibleApplication) p.getApplication()).closeContext();
 		}
@@ -337,7 +337,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 		try {
 			siteClassLoader.close();
 		} catch (IOException e) {
-			log.error("error while closing classloader", e);
+			LOGGER.error("error while closing classloader", e);
 		}
 		siteClassLoader = null;
 	}
@@ -390,7 +390,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	public void setState(SiteState state) {
 		SiteState oldState = getState();
 		this.state.set(state);
-		log.debug("set state for site {} (was: {})", toString(), oldState);
+		LOGGER.debug("set state for site {} (was: {})", toString(), oldState);
 		sendEvent(new SiteStateEvent(getName(), state));
 	}
 

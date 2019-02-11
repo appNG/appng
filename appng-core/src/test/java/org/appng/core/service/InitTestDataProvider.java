@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,9 @@ public class InitTestDataProvider extends AppNGTestDataProvider {
 	@Override
 	public void writeTestData(EntityManager em) {
 
-		SubjectImpl subject1 = getSubject(3, UserType.LOCAL_USER, new ArrayList<Group>());
+		SubjectImpl subject1 = getSubject(3, UserType.LOCAL_USER, new ArrayList<>());
 		em.persist(subject1);
-		Set<Subject> subjects = new HashSet<Subject>();
+		Set<Subject> subjects = new HashSet<>();
 		subjects.add(subject1);
 
 		SiteImpl site1 = getSite(1);
@@ -58,7 +58,7 @@ public class InitTestDataProvider extends AppNGTestDataProvider {
 
 		site1.getApplications().add(application1);
 
-		Set<Role> roles = new HashSet<Role>();
+		Set<Role> roles = new HashSet<>();
 		roles.add(applicationRole1);
 
 		GroupImpl group1 = getGroup(1, roles, subjects);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,11 @@ import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class MulticastReceiver extends MessageHandler implements Receiver, Runnable {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(MulticastReceiver.class);
 
 	static final String APPNG_MESSAGING_NODE_IPS = "appng.messaging.node_ips";
 
@@ -85,7 +84,7 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 			socket.joinGroup(address);
 			LOGGER.info("start listening at multicast {}:{}", groupAddress, groupPort);
 			String nodeIpsProp = System.getProperty(APPNG_MESSAGING_NODE_IPS);
-			List<String> nodeIps = new ArrayList<String>();
+			List<String> nodeIps = new ArrayList<>();
 			if (null != nodeIpsProp) {
 				nodeIps.addAll(Arrays.asList(nodeIpsProp.split(",")));
 				LOGGER.debug("node IPs: {}", nodeIpsProp);
@@ -127,7 +126,7 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 						eventHandler.onEvent(event, eventSerializer.getEnvironment(), site);
 					}
 				} catch (Exception e) {
-					LOGGER.error("error while performing event " + event, e);
+					LOGGER.error(String.format("error while performing event %s", event), e);
 				}
 			} else {
 				LOGGER.debug("message is from myself and can be ignored");
