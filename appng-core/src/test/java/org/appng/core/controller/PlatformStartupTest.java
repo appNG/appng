@@ -58,7 +58,8 @@ public class PlatformStartupTest extends PlatformStartup {
 		Mockito.when(servContext.getRealPath("WEB-INF/lib")).thenReturn("");
 		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		Mockito.when(servContext.getAttribute(Mockito.eq(Scope.PLATFORM.name()))).thenReturn(platformEnv);
-		InputStream configResource = getClass().getClassLoader().getResourceAsStream(WEB_INF.substring(1) + CONFIG_LOCATION);
+		InputStream configResource = getClass().getClassLoader()
+				.getResourceAsStream(WEB_INF.substring(1) + CONFIG_LOCATION);
 		Mockito.when(servContext.getResourceAsStream(WEB_INF + CONFIG_LOCATION)).thenReturn(configResource);
 		URL log4jResource = getClass().getClassLoader().getResource(LOG4J_PROPERTIES.substring(6));
 		Mockito.when(servContext.getRealPath(WEB_INF + LOG4J_PROPERTIES)).thenReturn(log4jResource.getPath());
@@ -81,8 +82,8 @@ public class PlatformStartupTest extends PlatformStartup {
 	}
 
 	@Override
-	protected void initPlatformContext(ServletContext ctx, Environment env, Properties properties,
-			DatabaseConnection platformConnection, String dummy) throws IOException {
+	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
+			DatabaseConnection platformConnection) throws IOException {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);
 	}
 
