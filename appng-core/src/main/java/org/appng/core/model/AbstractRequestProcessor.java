@@ -424,7 +424,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		}
 	}
 
-	protected String writeErrorPage(Properties platformProperties, String platformXml, String templateName, Exception e,
+	protected String writeErrorPage(Properties platformProperties, File debugFolder, String platformXml, String templateName, Exception e,
 			Object executionContext) {
 		logger().error("error while processing", e);
 		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -460,7 +460,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 				stringWriter.append(StringEscapeUtils.escapeHtml4(platformXml));
 			}
 			stringWriter.append("</div></pre>");
-			writeTemplateToErrorPage(platformProperties, e, executionContext, stringWriter);
+			writeTemplateToErrorPage(platformProperties, debugFolder, e, executionContext, stringWriter);
 			stringWriter.append("<h3>Stacktrace</h3>");
 			stringWriter.append("<button onclick=\"copy('stacktrace')\">Copy to clipboard</button>");
 			stringWriter.append("<div><pre id=\"stacktrace\">");
@@ -489,7 +489,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		return String.format("%s_%s", DEBUG_FORMAT.format(timestamp), Thread.currentThread().getName());
 	}
 
-	abstract void writeTemplateToErrorPage(Properties platformProperties, Exception templateException,
+	abstract void writeTemplateToErrorPage(Properties platformProperties, File debugFolder, Exception templateException,
 			Object executionContext, StringWriter stringWriter);
 
 	public OutputFormat getOutputFormat() {

@@ -110,7 +110,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 			throw ice;
 		} catch (Exception e) {
 			String templateName = applicationSite.getProperties().getString(SiteProperties.TEMPLATE);
-			result = writeErrorPage(platformProperties, platformXML, templateName, e, platformTransformer);
+			result = writeErrorPage(platformProperties, debugFolder, platformXML, templateName, e, platformTransformer);
 		} finally {
 			platform = null;
 		}
@@ -122,8 +122,8 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		return LOGGER;
 	}
 
-	protected void writeTemplateToErrorPage(Properties platformProperties, Exception templateException,
-			Object executionContext, StringWriter errorPage) {
+	protected void writeTemplateToErrorPage(Properties platformProperties, File debugFolder,
+			Exception templateException, Object executionContext, StringWriter errorPage) {
 		errorPage.append("<h3>XSLT</h3>");
 		errorPage.append("<button onclick=\"copy('xslt')\">Copy to clipboard</button>");
 		errorPage.append("<div><pre id=\"xslt\">");
@@ -135,8 +135,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 				errorPage.append(StringEscapeUtils.escapeHtml4(xsl));
 			} else {
 				String prefix = getPlatformTransformer().getPrefix();
-				String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
-				File templateFile = new File(rootPath, "debug/" + prefix + PlatformTransformer.TEMPLATE_XSL);
+				File templateFile = new File(debugFolder, prefix + PlatformTransformer.TEMPLATE_XSL);
 				if (templateFile.exists()) {
 					String xslt = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
 					errorPage.append(StringEscapeUtils.escapeHtml4(xslt));

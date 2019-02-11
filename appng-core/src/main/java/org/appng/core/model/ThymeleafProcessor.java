@@ -125,7 +125,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		this.dbf = dbf;
 	}
 
-	public String processWithTemplate(Site applicationSite, File outFolder) throws InvalidConfigurationException {
+	public String processWithTemplate(Site applicationSite, File debugFolder) throws InvalidConfigurationException {
 		String result;
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
@@ -187,8 +187,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			if (writeDebugFiles) {
 				sw.stop();
 				sw.start("write debug files");
-				writeDebugFile(outFolder, PLATFORM_XML, platformXML);
-				writeTemplateFiles(outFolder, templatePrefix, templateEngine);
+				writeDebugFile(debugFolder, PLATFORM_XML, platformXML);
+				writeTemplateFiles(debugFolder, templatePrefix, templateEngine);
 			}
 
 			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
@@ -203,16 +203,16 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				if (writeDebugFiles) {
 					sw.stop();
 					sw.start("write index.html");
-					writeDebugFile(outFolder, INDEX_HTML, result);
+					writeDebugFile(debugFolder, INDEX_HTML, result);
 				}
 			} else {
 				result = platformXML;
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML, charsetName);
 			}
 		} catch (Exception e) {
-			result = writeErrorPage(platformProperties, platformXML, templateName, e, templateEngine);
+			result = writeErrorPage(platformProperties, debugFolder, platformXML, templateName, e, templateEngine);
 			if (writeDebugFiles) {
-				writeStackTrace(outFolder, e);
+				writeStackTrace(debugFolder, e);
 			}
 		}
 		sw.stop();
@@ -367,7 +367,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return globalTemplateResolver;
 	}
 
-	void writeTemplateToErrorPage(Properties platformProperties, Exception e, Object executionContext,
+	void writeTemplateToErrorPage(Properties platformProperties, File debugFolder, Exception e, Object executionContext,
 			StringWriter errorPage) {
 		if (e instanceof TemplateProcessingException) {
 			try {
