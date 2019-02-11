@@ -34,6 +34,8 @@ import org.appng.api.Platform;
 import org.appng.api.model.Properties;
 import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
+import org.appng.core.domain.PropertyImpl;
+import org.appng.core.service.PropertySupport;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -92,13 +94,6 @@ public class ExtractData implements ExecutableCliCommand {
 
 	}
 
-	ExtractData(File appngData, File appngHome, boolean copy, boolean revert) throws BusinessException {
-		this.appngData = appngData;
-		this.copy = copy;
-		this.revert = revert;
-		extract(appngHome.getAbsolutePath(), "applications", "repository");
-	}
-
 	public void execute(CliEnvironment cle) throws BusinessException {
 		if (appngData.isFile()) {
 			CliEnvironment.out.println(String.format("%s is a not a directory!", appngData));
@@ -109,10 +104,11 @@ public class ExtractData implements ExecutableCliCommand {
 		String appngHome = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
 		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		extract(appngHome, applicationDir, repositoryPath);
+		extract(appngHome, cle, applicationDir, repositoryPath);
 	}
 
-	protected void extract(String appngHome, String applicationDir, String repositoryPath) throws BusinessException {
+	protected void extract(String appngHome, CliEnvironment cle, String applicationDir, String repositoryPath)
+			throws BusinessException {
 		try {
 			move(Paths.get(appngHome, WEB_INF, "web.xml"), Paths.get(appngData.toString(), WEB_INF, "web.xml"));
 			move(Paths.get(appngHome, WEB_INF, "conf"), Paths.get(appngData.toString(), "conf"));
@@ -121,6 +117,7 @@ public class ExtractData implements ExecutableCliCommand {
 			move(Paths.get(appngHome, applicationDir), Paths.get(appngData.toString(), applicationDir));
 			move(Paths.get(appngHome, repositoryPath), Paths.get(appngData.toString(), repositoryPath));
 			writeContextXml(appngHome);
+			setCacheConfig(cle);
 		} catch (IOException | URISyntaxException e) {
 			throw new BusinessException(e);
 		}
@@ -142,6 +139,19 @@ public class ExtractData implements ExecutableCliCommand {
 			Files.write(contextXml, contextXmlContent.getBytes(charset));
 			CliEnvironment.out.println(String.format("Updated %s", contextXml.toString()));
 		}
+	}
+
+	protected void setCacheConfig(CliEnvironment cle) {
+		PropertyImpl ehcacheConfig = cle.getCoreService()
+				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.EHCACHE_CONFIG);
+		String defaultValue = "conf/ehcache.xml";
+		if (revert) {
+			defaultValue = WEB_INF + "/" + defaultValue;
+		}
+		ehcacheConfig.setString(defaultValue);
+		CliEnvironment.out
+				.println(String.format("Setting default value for %s: %s", ehcacheConfig.getName(), defaultValue));
+		cle.getCoreService().saveProperty(ehcacheConfig);
 	}
 
 	private void move(Path source, Path target) throws IOException {
