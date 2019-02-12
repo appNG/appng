@@ -145,7 +145,9 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 	}
 
 	public void close() throws IOException {
-		socket.close();
+		if (null != socket) {
+			socket.close();
+		}
 	}
 
 }
