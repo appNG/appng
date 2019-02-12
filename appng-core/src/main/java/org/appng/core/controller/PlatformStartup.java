@@ -57,7 +57,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.util.Log4jConfigurer;
 import org.springframework.util.StopWatch;
-import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -70,13 +70,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * @author Matthias Müller
  */
 public class PlatformStartup implements ServletContextListener {
-	
-	private static Logger LOGGER;
 
+	private static Logger LOGGER;
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
-	private static final String CONTEXT_LOCATION = "/conf/platformContext.xml";
 	protected static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
-	protected static final String WEB_INF = "/WEB-INF";
+	public static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
@@ -84,15 +82,12 @@ public class PlatformStartup implements ServletContextListener {
 		String appngData = System.getProperty(Platform.Property.APPNG_DATA);
 		try {
 			InputStream configIs;
-			String configLocation;
 			String log4jLocation = ctx.getRealPath(WEB_INF + LOG4J_PROPERTIES);
 
 			if (StringUtils.isBlank(appngData)) {
 				configIs = ctx.getResourceAsStream(WEB_INF + CONFIG_LOCATION);
-				configLocation = WEB_INF + CONTEXT_LOCATION;
 			} else {
 				configIs = new FileInputStream(Paths.get(appngData, CONFIG_LOCATION).toFile());
-				configLocation = Paths.get(appngData, CONTEXT_LOCATION).toUri().toString();
 				Path log4jPath = Paths.get(appngData, LOG4J_PROPERTIES);
 				if (log4jPath.toFile().exists()) {
 					log4jLocation = log4jPath.toUri().toString();
@@ -109,7 +104,7 @@ public class PlatformStartup implements ServletContextListener {
 			InputStream logoIs = getClass().getResourceAsStream("logo.txt");
 			IOUtils.readLines(logoIs, StandardCharsets.UTF_8).forEach(l -> LOGGER.info(l));
 			logoIs.close();
-			
+
 			Environment env = DefaultEnvironment.get(ctx);
 
 			Properties config = new Properties();
@@ -124,7 +119,7 @@ public class PlatformStartup implements ServletContextListener {
 			DatabaseConnection platformConnection = new MigrationService().initDatabase(config);
 			LOGGER.info("Platform connection: {}", platformConnection);
 
-			initPlatformContext(ctx, env, config, platformConnection, configLocation);
+			initPlatformContext(ctx, env, config, platformConnection);
 			InitializerService service = getService(env, ctx);
 			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
 			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
@@ -148,10 +143,10 @@ public class PlatformStartup implements ServletContextListener {
 	}
 
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
-			DatabaseConnection platformConnection, String configLocation) throws IOException {
-		XmlWebApplicationContext platformCtx = new XmlWebApplicationContext();
+			DatabaseConnection platformConnection) throws IOException {
+		AnnotationConfigWebApplicationContext platformCtx = new AnnotationConfigWebApplicationContext();
+		platformCtx.register(PlatformConfig.class);
 		platformCtx.setDisplayName("appNG platform context");
-		platformCtx.setConfigLocation(configLocation);
 		platformCtx.setServletContext(ctx);
 		PropertySourcesPlaceholderConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		config.put(DatabaseService.DATABASE_TYPE, platformConnection.getType().name());

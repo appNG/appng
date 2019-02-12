@@ -21,9 +21,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
@@ -31,6 +34,8 @@ import org.appng.api.Platform;
 import org.appng.api.model.Properties;
 import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
+import org.appng.core.domain.PropertyImpl;
+import org.appng.core.service.PropertySupport;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -50,8 +55,8 @@ import com.beust.jcommander.converters.FileConverter;
  * .
  * 
  * <p>
- * Additionally, a <a href="http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html">&lt;Resources&gt;</a>
- * element is being added to {@code $APPNG_HOME/META-INF/context.xml}, referencing the {@code appngData} directory.
+ * Additionally, a <a href="http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html">&lt;Resources&gt;</a> element
+ * is being added to {@code $APPNG_HOME/META-INF/context.xml}, referencing the {@code appngData} directory.
  * </p>
  * 
  * <pre>
@@ -89,13 +94,6 @@ public class ExtractData implements ExecutableCliCommand {
 
 	}
 
-	ExtractData(File appngData, File appngHome, boolean copy, boolean revert) throws BusinessException {
-		this.appngData = appngData;
-		this.copy = copy;
-		this.revert = revert;
-		extract(appngHome.getAbsolutePath(), "applications", "repository");
-	}
-
 	public void execute(CliEnvironment cle) throws BusinessException {
 		if (appngData.isFile()) {
 			CliEnvironment.out.println(String.format("%s is a not a directory!", appngData));
@@ -106,10 +104,11 @@ public class ExtractData implements ExecutableCliCommand {
 		String appngHome = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
 		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		extract(appngHome, applicationDir, repositoryPath);
+		extract(appngHome, cle, applicationDir, repositoryPath);
 	}
 
-	protected void extract(String appngHome, String applicationDir, String repositoryPath) throws BusinessException {
+	protected void extract(String appngHome, CliEnvironment cle, String applicationDir, String repositoryPath)
+			throws BusinessException {
 		try {
 			move(Paths.get(appngHome, WEB_INF, "web.xml"), Paths.get(appngData.toString(), WEB_INF, "web.xml"));
 			move(Paths.get(appngHome, WEB_INF, "conf"), Paths.get(appngData.toString(), "conf"));
@@ -118,6 +117,7 @@ public class ExtractData implements ExecutableCliCommand {
 			move(Paths.get(appngHome, applicationDir), Paths.get(appngData.toString(), applicationDir));
 			move(Paths.get(appngHome, repositoryPath), Paths.get(appngData.toString(), repositoryPath));
 			writeContextXml(appngHome);
+			setCacheConfig(cle);
 		} catch (IOException | URISyntaxException e) {
 			throw new BusinessException(e);
 		}
@@ -128,15 +128,30 @@ public class ExtractData implements ExecutableCliCommand {
 		Charset charset = StandardCharsets.UTF_8;
 		String contextXmlContent = new String(Files.readAllBytes(contextXml), charset);
 		URL resource = getClass().getClassLoader().getResource("context-resources.xml");
-		String resources = new String(Files.readAllBytes(Paths.get(resource.toURI())), charset);
-		String resourceContext = PRIVILEGED_CONTEXT + NEWLINE + resources;
-		if (revert) {
-			contextXmlContent = contextXmlContent.replace(resourceContext, PRIVILEGED_CONTEXT);
-		} else {
-			contextXmlContent = contextXmlContent.replace(PRIVILEGED_CONTEXT, resourceContext);
+		try (FileSystem fs = FileSystems.newFileSystem(resource.toURI(), new HashMap<>())) {
+			String resources = new String(Files.readAllBytes(Paths.get(resource.toURI())), charset);
+			String resourceContext = PRIVILEGED_CONTEXT + NEWLINE + resources;
+			if (revert) {
+				contextXmlContent = contextXmlContent.replace(resourceContext, PRIVILEGED_CONTEXT);
+			} else {
+				contextXmlContent = contextXmlContent.replace(PRIVILEGED_CONTEXT, resourceContext);
+			}
+			Files.write(contextXml, contextXmlContent.getBytes(charset));
+			CliEnvironment.out.println(String.format("Updated %s", contextXml.toString()));
 		}
-		Files.write(contextXml, contextXmlContent.getBytes(charset));
-		CliEnvironment.out.println(String.format("Updated %s", contextXml.toString()));
+	}
+
+	protected void setCacheConfig(CliEnvironment cle) {
+		PropertyImpl ehcacheConfig = cle.getCoreService()
+				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.EHCACHE_CONFIG);
+		String defaultValue = "conf/ehcache.xml";
+		if (revert) {
+			defaultValue = WEB_INF + "/" + defaultValue;
+		}
+		ehcacheConfig.setString(defaultValue);
+		CliEnvironment.out
+				.println(String.format("Setting default value for %s: %s", ehcacheConfig.getName(), defaultValue));
+		cle.getCoreService().saveProperty(ehcacheConfig);
 	}
 
 	private void move(Path source, Path target) throws IOException {

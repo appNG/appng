@@ -61,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = InitializerServiceTest.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = InitializerServiceTest.class)
 @DirtiesContext
 public class InitializerServiceTest extends TestSupport
 		implements ApplicationContextInitializer<GenericApplicationContext> {

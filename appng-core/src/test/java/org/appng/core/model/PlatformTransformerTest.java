@@ -30,6 +30,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
 import org.appng.api.model.Properties;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.service.PlatformTestConfig;
 import org.appng.core.model.PlatformTransformer.PlatformTransformerException;
 import org.appng.core.service.TestInitializer;
 import org.appng.xml.MarshallService;
@@ -50,7 +51,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
 public class PlatformTransformerTest {

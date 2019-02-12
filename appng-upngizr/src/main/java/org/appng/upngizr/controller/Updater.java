@@ -97,7 +97,6 @@ public class Updater {
 	private static final String WEB_INF_LIB = WEB_INF + "lib/";
 	private ServletContext context;
 	private String buildRepository = String.format("https://appng.org/appng/builds/%s/", BUILD);
-	private boolean replacePlatformContext = true;
 	private boolean replaceWebXml = true;
 	private boolean replaceBin = false;
 	private boolean blockRemoteIps = true;
@@ -114,9 +113,6 @@ public class Updater {
 		if (null != context.getInitParameter(INIT_PARAM_BUILD_REPOSITORY)) {
 			this.buildRepository = context.getInitParameter(INIT_PARAM_BUILD_REPOSITORY);
 		}
-		if (null != context.getInitParameter(INIT_PARAM_REPLACE_PLATFORMCONTEXT)) {
-			this.replacePlatformContext = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_PLATFORMCONTEXT));
-		}
 		if (null != context.getInitParameter(INIT_PARAM_REPLACE_WEB_XML)) {
 			this.replaceWebXml = Boolean.valueOf(context.getInitParameter(INIT_PARAM_REPLACE_WEB_XML));
 		}
@@ -129,12 +125,13 @@ public class Updater {
 		if (null != context.getInitParameter(INIT_PARAM_USE_FQDN)) {
 			this.useFQDN = Boolean.valueOf(context.getInitParameter(INIT_PARAM_USE_FQDN));
 		}
+
 		LOGGER.info("{}: {}", INIT_PARAM_BUILD_REPOSITORY, buildRepository);
-		LOGGER.info("{}: {}", INIT_PARAM_REPLACE_PLATFORMCONTEXT, replacePlatformContext);
 		LOGGER.info("{}: {}", INIT_PARAM_REPLACE_WEB_XML, replaceWebXml);
 		LOGGER.info("{}: {}", INIT_PARAM_REPLACE_BIN, replaceBin);
 		LOGGER.info("{}: {}", INIT_PARAM_BLOCK_REMOTE_IPS, blockRemoteIps);
 		LOGGER.info("{}: {}", INIT_PARAM_USE_FQDN, useFQDN);
+
 		if (blockRemoteIps) {
 			try {
 				Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -398,11 +395,6 @@ public class Updater {
 					case WEB_INF_LIB:
 					case WEB_INF_CLASSES:
 						writeFile(appNGHome, zip.getInputStream(entry), name);
-						break;
-					case WEB_INF + "conf/":
-						if (replacePlatformContext && name.endsWith("platformContext.xml")) {
-							writeFile(appNGHome, zip.getInputStream(entry), name);
-						}
 						break;
 					case WEB_INF + "/bin/":
 						if (replaceBin) {
