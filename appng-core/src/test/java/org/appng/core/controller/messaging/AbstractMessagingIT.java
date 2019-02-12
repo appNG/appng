@@ -31,7 +31,6 @@ import org.appng.api.messaging.Messaging;
 import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Sender;
 import org.appng.api.model.Properties;
-import org.appng.api.model.Site;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;

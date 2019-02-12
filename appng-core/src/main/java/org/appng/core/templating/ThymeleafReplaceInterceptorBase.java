@@ -19,7 +19,6 @@ import org.thymeleaf.context.EngineContext;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
-import org.thymeleaf.standard.expression.StandardExpressionExecutionContext;
 import org.thymeleaf.standard.expression.StandardExpressions;
 
 /**
@@ -43,8 +42,7 @@ public abstract class ThymeleafReplaceInterceptorBase implements ThymeleafReplac
 				"~{" + attributeValue.trim() + "}");
 
 		final FragmentExpression.ExecutedFragmentExpression executedFragmentExpression = FragmentExpression
-				.createExecutedFragmentExpression(context, fragmentExpression,
-						StandardExpressionExecutionContext.NORMAL);
+				.createExecutedFragmentExpression(context, fragmentExpression);
 		return executedFragmentExpression;
 	}
 

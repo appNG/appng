@@ -27,7 +27,6 @@ import org.appng.api.Path;
 import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
-import org.appng.api.model.Site;
 import org.appng.core.service.TemplateService;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.OutputFormat;

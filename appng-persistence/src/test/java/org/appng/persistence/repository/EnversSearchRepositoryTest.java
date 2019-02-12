@@ -28,7 +28,6 @@ import org.springframework.data.history.Revision;
 
 public class EnversSearchRepositoryTest {
 
-
 	private TestEntityEnversRepo repo;
 
 	private AnnotationConfigApplicationContext ctx;
@@ -71,13 +70,8 @@ public class EnversSearchRepositoryTest {
 		Assert.assertNotNull(entityRevisions.get(0).getMetadata());
 		Assert.assertNotNull(repo.findRevision(entityId, entityRevisions.get(0).getRevisionNumber()));
 		Assert.assertEquals(1, repo.findRevisions(all.get(1).getId()).getContent().size());
-		Assert.assertEquals(entityRevisions.get(entityRevisions.size() - 1).getRevisionNumber(), repo
-				.findLastChangeRevision(entityId).getRevisionNumber());
+		Assert.assertEquals(entityRevisions.get(entityRevisions.size() - 1).getRevisionNumber(),
+				repo.findLastChangeRevision(entityId).getRevisionNumber());
 	}
 
-	private void incrementVersion(Integer entityId) {
-		EnversTestEntity entity = repo.findOne(entityId);
-		entity.setIntegerValue(entity.getIntegerValue() + 1);
-		repo.save(entity);
-	}
 }

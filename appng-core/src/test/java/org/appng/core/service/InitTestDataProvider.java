@@ -21,7 +21,6 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 
-import org.appng.api.model.Group;
 import org.appng.api.model.Role;
 import org.appng.api.model.Subject;
 import org.appng.api.model.UserType;

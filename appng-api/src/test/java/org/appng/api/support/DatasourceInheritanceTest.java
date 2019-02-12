@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -31,10 +32,6 @@ import org.appng.api.model.Resources;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.BeanOption;
 import org.appng.xml.platform.Datasource;
-import org.appng.xml.platform.FieldDef;
-import org.appng.xml.platform.Linkpanel;
-import org.appng.xml.platform.Param;
-import org.appng.xml.platform.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -96,7 +93,8 @@ public class DatasourceInheritanceTest {
 					new FileOutputStream("src/test/resources/marshalledEnhancedClone.xml"));
 		}
 
-		String expected = IOUtils.toString(new FileInputStream("src/test/resources/marshalledEnhancedClone.xml"));
+		String expected = IOUtils.toString(new FileInputStream("src/test/resources/marshalledEnhancedClone.xml"),
+				StandardCharsets.UTF_8);
 		Assert.assertEquals(expected, marshalledEnhancedClone);
 
 		Datasource overrideBeanClone = applicationConfigProvider.getDatasource("overrideBeanClone");
@@ -107,51 +105,7 @@ public class DatasourceInheritanceTest {
 		Assert.assertEquals(1, options.get(0).getOtherAttributes().size());
 		Assert.assertEquals("[harrison]", options.get(0).getOtherAttributes().keySet().toString());
 		Assert.assertEquals("[han]", options.get(0).getOtherAttributes().values().toString());
-
+		applicationConfigProvider.close();
 	}
 
-	private BeanOption getBeanOption(List<BeanOption> options, String name) {
-		for (BeanOption bo : options) {
-			if (bo.getName().equals(name)) {
-				return bo;
-			}
-		}
-		return null;
-	}
-
-	private Permission getPermission(List<Permission> permissionList, String ref) {
-		for (Permission p : permissionList) {
-			if (p.getRef().equals(ref)) {
-				return p;
-			}
-		}
-		return null;
-	}
-
-	private Param getParam(List<Param> params, String name) {
-		for (Param p : params) {
-			if (p.getName().equals(name)) {
-				return p;
-			}
-		}
-		return null;
-	}
-
-	private FieldDef getField(List<FieldDef> inheritedFields, String name) {
-		for (FieldDef f : inheritedFields) {
-			if (f.getName().equals(name)) {
-				return f;
-			}
-		}
-		return null;
-	}
-
-	private Linkpanel getLinkpanel(List<Linkpanel> inheritedLinkPanels, String id) {
-		for (Linkpanel lp : inheritedLinkPanels) {
-			if (lp.getId().equals(id)) {
-				return lp;
-			}
-		}
-		return null;
-	}
 }

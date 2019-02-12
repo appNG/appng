@@ -27,7 +27,6 @@ import javax.persistence.EntityManager;
 
 import org.appng.api.model.Application;
 import org.appng.api.model.Group;
-import org.appng.api.model.Permission;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Role;
 import org.appng.api.model.Subject;
