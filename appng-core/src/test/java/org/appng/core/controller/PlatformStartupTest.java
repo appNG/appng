@@ -61,10 +61,15 @@ public class PlatformStartupTest extends PlatformStartup {
 		InputStream configResource = getClass().getClassLoader()
 				.getResourceAsStream(WEB_INF.substring(1) + CONFIG_LOCATION);
 		Mockito.when(servContext.getResourceAsStream(WEB_INF + CONFIG_LOCATION)).thenReturn(configResource);
-		URL log4jResource = getClass().getClassLoader().getResource(LOG4J_PROPERTIES.substring(6));
-		Mockito.when(servContext.getRealPath(WEB_INF + LOG4J_PROPERTIES)).thenReturn(log4jResource.getPath());
+
+		URL log4jResource = getClass().getClassLoader().getResource(Log4jConfigurer.LOG4J_PROPERTIES.substring(6));
+		Mockito.when(servContext.getRealPath(WEB_INF + Log4jConfigurer.LOG4J_PROPERTIES))
+				.thenReturn(log4jResource.getPath());
 		Mockito.when(servContext.getRealPath("")).thenReturn("target");
-		Mockito.when(servContext.getRealPath(WEB_INF + LOG4J_PROPERTIES)).thenReturn("classpath:log4j.properties");
+		Mockito.when(servContext.getRealPath(WEB_INF + Log4jConfigurer.LOG4J_PROPERTIES))
+				.thenReturn("classpath:log4j.properties");
+		new Log4jConfigurer().contextInitialized(new ServletContextEvent(servContext));
+
 		contextInitialized(new ServletContextEvent(servContext));
 		Assert.assertTrue(platformEnv.get(Platform.Environment.CORE_PLATFORM_CONTEXT).equals(platformCtx));
 		Mockito.verify(initializerService).initPlatform(Mockito.isA(Properties.class), Mockito.isA(Environment.class),
