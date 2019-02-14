@@ -55,6 +55,7 @@ public class PlatformStartupTest extends PlatformStartup {
 	@Test
 	public void testPlatformStartup() throws InvalidConfigurationException, SQLException {
 		MockitoAnnotations.initMocks(this);
+		Mockito.when(servContext.getRealPath("/")).thenReturn("");
 		Mockito.when(servContext.getRealPath("WEB-INF/lib")).thenReturn("");
 		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		Mockito.when(servContext.getAttribute(Mockito.eq(Scope.PLATFORM.name()))).thenReturn(platformEnv);
