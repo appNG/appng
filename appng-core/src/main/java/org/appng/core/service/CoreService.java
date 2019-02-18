@@ -187,9 +187,6 @@ public class CoreService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
-	@Autowired
-	protected PlatformProperties platformConfig;
-
 	public Subject createSubject(SubjectImpl subject) {
 		return subjectRepository.save(subject);
 	}
@@ -217,8 +214,7 @@ public class CoreService {
 		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_USER);
 		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_GROUP);
 		platformConfig.setFinal();
-		this.platformConfig.initialize(platformConfig);
-		return this.platformConfig;
+		return PlatformProperties.get(platformConfig);
 	}
 
 	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
@@ -555,7 +551,7 @@ public class CoreService {
 	}
 
 	public boolean login(Environment env, String digest, int digestMaxValidity) {
-		String sharedSecret = platformConfig.getString(Platform.Property.SHARED_SECRET);
+		String sharedSecret = getPlatformConfig(env).getString(Platform.Property.SHARED_SECRET);
 		DigestValidator validator = new DigestValidator(digest, digestMaxValidity);
 		String username = validator.getUsername();
 		if (StringUtils.isNotBlank(username)) {
@@ -624,9 +620,9 @@ public class CoreService {
 		return propertyRepository.findOne(propertyId);
 	}
 
-	protected void createSite(SiteImpl site, Environment environment) {
+	protected void createSite(SiteImpl site, Environment env) {
 		if (site.isCreateRepository()) {
-			File repositoryRootDir = platformConfig.getRepositoryRootFolder();
+			File repositoryRootDir = getPlatformConfig(env).getRepositoryRootFolder();
 			File siteRootDir = new File(repositoryRootDir, site.getName());
 			if (!siteRootDir.exists()) {
 				try {
@@ -639,7 +635,7 @@ public class CoreService {
 			}
 		}
 
-		initSiteProperties(site, environment, true);
+		initSiteProperties(site, env, true);
 		siteRepository.save(site);
 	}
 
@@ -663,7 +659,7 @@ public class CoreService {
 
 	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
-		new PropertySupport(siteProperties).initSiteProperties(site, platformConfig);
+		new PropertySupport(siteProperties).initSiteProperties(site, getPlatformConfig(environment));
 		if (doSave) {
 			saveProperties(siteProperties);
 		}
@@ -1111,8 +1107,8 @@ public class CoreService {
 		return getApplicationFolder(env, application.getName());
 	}
 
-	protected Properties getPlatformConfig(Environment environment) {
-		return platformConfig;
+	protected PlatformProperties getPlatformConfig(Environment environment) {
+		return PlatformProperties.get(environment);
 	}
 
 	protected String deleteResource(Environment env, Integer applicationId, Integer resourceId)
@@ -1285,6 +1281,7 @@ public class CoreService {
 	}
 
 	public void cleanupSite(Environment env, SiteImpl site, boolean sendDeletedEvent) {
+		PlatformProperties platformConfig = getPlatformConfig(env);
 		if (null != site) {
 			if (site.isCreateRepository()) {
 				File siteRootFolder = new File(platformConfig.getRepositoryRootFolder(), site.getName());
@@ -1295,7 +1292,7 @@ public class CoreService {
 					LOGGER.error(String.format("error while deleting site's folder %s", siteRootFolder.getName()), e);
 				}
 			}
-			CacheProvider cacheProvider = new CacheProvider(platformConfig.getProperties());
+			CacheProvider cacheProvider = new CacheProvider(platformConfig);
 			cacheProvider.clearCache(site);
 			site.setState(SiteState.DELETED);
 			if (sendDeletedEvent) {
@@ -1707,6 +1704,7 @@ public class CoreService {
 	}
 
 	public SiteImpl shutdownSite(Environment env, String siteName) {
+		PlatformProperties platformConfig = getPlatformConfig(env);
 		if (null != env) {
 			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 			if (siteMap.containsKey(siteName) && null != siteMap.get(siteName)) {
