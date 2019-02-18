@@ -16,10 +16,13 @@
 package org.appng.core.service;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
@@ -398,5 +401,12 @@ public class PropertySupport {
 
 	private String normalizePath(String segment, String... pathelements) {
 		return Paths.get(segment, pathelements).normalize().toString();
+	}
+
+	static List<String> getSiteRelevantPlatformProps() {
+		return Arrays
+				.asList(Platform.Property.APPNG_DATA, Platform.Property.REPOSITORY_PATH,
+						Platform.Property.PASSWORD_POLICY_REGEX, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY)
+				.stream().map(p -> PropertySupport.PREFIX_PLATFORM + p).collect(Collectors.toList());
 	}
 }

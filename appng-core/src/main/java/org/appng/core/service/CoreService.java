@@ -119,6 +119,7 @@ import org.appng.xml.application.Permissions;
 import org.appng.xml.application.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -659,7 +660,11 @@ public class CoreService {
 
 	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
-		new PropertySupport(siteProperties).initSiteProperties(site, getPlatformConfig(environment));
+		List<String> platformProps = PropertySupport.getSiteRelevantPlatformProps();
+		SearchQuery<PropertyImpl> query = propertyRepository.createSearchQuery().in("name", platformProps);
+		Page<PropertyImpl> properties = propertyRepository.search(query, new PageRequest(0, platformProps.size()));
+		new PropertySupport(siteProperties).initSiteProperties(site,
+				new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties));
 		if (doSave) {
 			saveProperties(siteProperties);
 		}
@@ -923,8 +928,7 @@ public class CoreService {
 		Integer sitesUsingTemplate = propertyRepository.countByActualStringAndNameLike(template.getDisplayName(),
 				"platform\\.site\\.%\\." + SiteProperties.TEMPLATE);
 		if (0 == sitesUsingTemplate) {
-			Properties platformConfig = getPlatformConfig(null);
-			return templateService.deleteTemplate(template, platformConfig);
+			return templateService.deleteTemplate(template);
 		}
 		return -2;
 	}
@@ -1092,15 +1096,11 @@ public class CoreService {
 	}
 
 	protected File getApplicationRootFolder(Environment environment) {
-		Properties platformConfig = getPlatformConfig(environment);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		return new File(rootPath, applicationDir);
+		return getPlatformConfig(environment).getApplicationDir();
 	}
 
 	public File getApplicationFolder(Environment env, String applicationName) {
-		File applicationRootFolder = getApplicationRootFolder(env);
-		return new File(applicationRootFolder, applicationName);
+		return new File(getApplicationRootFolder(env), applicationName);
 	}
 
 	private File getApplicationFolder(Environment env, Application application) {
@@ -1108,7 +1108,7 @@ public class CoreService {
 	}
 
 	protected PlatformProperties getPlatformConfig(Environment environment) {
-		return PlatformProperties.get(environment);
+		return null == environment ? PlatformProperties.get(getPlatform(false)) : PlatformProperties.get(environment);
 	}
 
 	protected String deleteResource(Environment env, Integer applicationId, Integer resourceId)
