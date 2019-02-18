@@ -406,7 +406,8 @@ public class PropertySupport {
 	static List<String> getSiteRelevantPlatformProps() {
 		return Arrays
 				.asList(Platform.Property.APPNG_DATA, Platform.Property.REPOSITORY_PATH,
-						Platform.Property.PASSWORD_POLICY_REGEX, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY)
-				.stream().map(p -> PropertySupport.PREFIX_PLATFORM + p).collect(Collectors.toList());
+						Platform.Property.PASSWORD_POLICY_REGEX, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
+						Platform.Property.TEMPLATE_PREFIX)
+				.stream().map(p -> PREFIX_PLATFORM + p).collect(Collectors.toList());
 	}
 }
