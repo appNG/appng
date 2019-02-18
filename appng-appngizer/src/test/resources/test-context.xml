@@ -87,7 +87,6 @@
 		<property name="basename" value="messages-core" />
 		<property name="fallbackToSystemLocale" value="false" />
 	</bean>
-	<bean id="platformProperties" class="org.appng.core.service.PlatformProperties" />
 	<bean id="marshallService" class="org.appng.xml.MarshallService" factory-method="getMarshallService" />
 	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean" />
 	<bean id="databaseService" class="org.appng.core.service.DatabaseService" />
