@@ -125,7 +125,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 
 	protected Properties initPlatform(java.util.Properties defaultOverrides, Environment env) {
 		String rootPath = (String) context.getAttribute(AppNGizer.APPNG_HOME);
-		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, true, true);
+		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, false);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		Map<String, org.appng.api.model.Site> siteMap = new HashMap<>();

@@ -237,8 +237,8 @@ public class InitializerService {
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
-				false);
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
+				true);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -398,19 +398,6 @@ public class InitializerService {
 					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm) : value;
 			LOGGER.info("{}: {}", StringNormalizer.replaceNonPrintableCharacters(key, qm), logValue);
 		}
-	}
-
-	/**
-	 * Initialized and returns the platform configuration represented by a {@link Properties} object.
-	 * 
-	 * @param rootPath
-	 *            the root path of the platform (see {@link org.appng.api.Platform.Property#PLATFORM_ROOT_PATH})
-	 * @param devMode
-	 *            value for the {@link org.appng.api.Platform.Property#DEV_MODE} property to set
-	 * @return the platform configuration
-	 */
-	public Properties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath, Boolean devMode) {
-		return getCoreService().initPlatformConfig(defaultOverrides, rootPath, devMode, false, true);
 	}
 
 	/**

@@ -206,9 +206,9 @@ public class CoreService {
 	}
 
 	public PlatformProperties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath,
-			Boolean devMode, boolean persist, boolean finalize) {
+			Boolean devMode, boolean persist) {
 		PropertyHolder platformConfig = getPlatform(false);
-		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, finalize);
+		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, false);
 		if (persist) {
 			saveProperties(platformConfig);
 		}
