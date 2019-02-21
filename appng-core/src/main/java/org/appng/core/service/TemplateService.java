@@ -365,7 +365,7 @@ public class TemplateService {
 		return templateRepository.findByName(name);
 	}
 
-	public Integer deleteTemplate(Template template, Properties platformConfig) {
+	public Integer deleteTemplate(Template template) {
 		if (null == template) {
 			return -1;
 		}

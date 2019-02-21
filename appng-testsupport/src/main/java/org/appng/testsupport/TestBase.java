@@ -107,11 +107,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
@@ -197,6 +194,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @DirtiesContext
 public class TestBase implements ApplicationContextInitializer<GenericApplicationContext> {
 
+	private static final String SITE_PROP_PREFIX = "platform.site.localhost.";
+
 	public static final String TESTCONTEXT = "classpath:org/appng/testsupport/application-testcontext.xml";
 
 	public static final String TESTCONTEXT_CORE = "classpath:org/appng/testsupport/application-testcontext-core.xml";
@@ -245,7 +244,6 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	protected Application application;
 
-	@Mock
 	protected Site site;
 
 	@Mock
@@ -320,14 +318,65 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			}
 		}
 
-		applicationContext.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
-			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-				baseNames.add("messages-core");
-				ResourceBundleMessageSource bean = beanFactory.getBean(ResourceBundleMessageSource.class);
-				bean.setBasenames(baseNames.toArray(new String[baseNames.size()]));
-			}
+		applicationContext.addBeanFactoryPostProcessor(pp -> {
+			baseNames.add("messages-core");
+			ResourceBundleMessageSource bean = pp.getBean(ResourceBundleMessageSource.class);
+			bean.setBasenames(baseNames.toArray(new String[baseNames.size()]));
 		});
+		application = mockApplication(applicationContext);
+		mockSite(applicationContext);
+	}
 
+	protected void mockSite(GenericApplicationContext applicationContext) {
+		if (null == site) {
+			site = Mockito.mock(Site.class);
+		}
+		Mockito.when(site.getName()).thenReturn("localhost");
+		Mockito.when(site.getDomain()).thenReturn("localhost");
+		Mockito.when(site.getHost()).thenReturn("localhost");
+		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
+		List<Property> siteProperties = getSiteProperties(SITE_PROP_PREFIX);
+		Mockito.when(site.getProperties()).thenReturn(new PropertyHolder(SITE_PROP_PREFIX, siteProperties));
+		if (null != applicationContext) {
+			applicationContext.addBeanFactoryPostProcessor(pp -> pp.registerSingleton("site", site));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Application mockApplication(GenericApplicationContext applicationContext) {
+		if (null == application) {
+			application = Mockito.mock(Application.class);
+		}
+		Mockito.when(application.getName()).thenReturn(applicationName);
+		Mockito.when(application.isFileBased()).thenReturn(true);
+		try {
+			Resources resources = getApplicationResources(MarshallService.getApplicationMarshallService());
+			Mockito.when(application.getResources()).thenReturn(resources);
+		} catch (JAXBException e) {
+			throw new RuntimeException("error reading resources", e);
+		}
+		Mockito.when(application.getBean(Mockito.any(Class.class)))
+				.thenAnswer(i -> applicationContext.getBean(i.getArgumentAt(0, Class.class)));
+		Mockito.when(application.getBean(Mockito.any(String.class)))
+				.thenAnswer(i -> applicationContext.getBean(i.getArgumentAt(0, String.class)));
+		Mockito.when(application.getBean(Mockito.any(String.class), Mockito.any(Class.class))).thenAnswer(
+				i -> applicationContext.getBean(i.getArgumentAt(0, String.class), i.getArgumentAt(1, Class.class)));
+		applicationContext.addBeanFactoryPostProcessor(pp -> pp.registerSingleton("application", application));
+
+		return application;
+	}
+
+	protected Resources getApplicationResources(MarshallService applicationMarshallService) {
+		try {
+			return new ApplicationResourceHolder(application, applicationMarshallService, new File(applicationLocation),
+					new File("target/temp"));
+		} catch (InvalidConfigurationException e) {
+			throw new RuntimeException("error reading resources", e);
+		}
+	}
+
+	protected Resources mockResources() {
+		return Mockito.mock(Resources.class);
 	}
 
 	protected Properties getProperties() {
@@ -376,10 +425,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	protected void initRequest() throws InvalidConfigurationException, JAXBException {
-		File targetFolder = new File("target/temp");
-		File applicationFolder = new File(applicationLocation);
-		Resources applicationResources = new ApplicationResourceHolder(application, applicationMarshallService,
-				applicationFolder, targetFolder);
+		Resources applicationResources = getApplicationResources(applicationMarshallService);
 		ApplicationConfigProvider applicationConfigProvider = new ApplicationConfigProviderImpl(marshallService,
 				applicationName, applicationResources, false);
 		request = (ApplicationRequest) context.getBean(Request.class);
@@ -414,17 +460,10 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		List<Property> platformProperties = getPlatformProperties("platform.");
 		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, new PropertyHolder("platform.", platformProperties));
 
-		Mockito.when(site.getName()).thenReturn("localhost");
-		Mockito.when(site.getDomain()).thenReturn("localhost");
-		Mockito.when(site.getHost()).thenReturn("localhost");
-		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
+		mockSite(null);
 		Map<String, Site> sites = new HashMap<>();
-		sites.put("localhost", site);
+		sites.put(site.getHost(), site);
 		platformEnv.put(Platform.Environment.SITES, sites);
-
-		List<Property> siteProperties = getSiteProperties("platform.site.localhost.");
-
-		Mockito.when(site.getProperties()).thenReturn(new PropertyHolder("platform.site.localhost.", siteProperties));
 
 		this.session = new MockHttpSession(servletContext);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformEnv);
@@ -1059,4 +1098,5 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		}
 
 	}
+
 }

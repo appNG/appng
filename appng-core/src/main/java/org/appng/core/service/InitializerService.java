@@ -147,8 +147,6 @@ public class InitializerService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
-	protected PlatformProperties platformConfig;
-
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
@@ -239,7 +237,8 @@ public class InitializerService {
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true, false);
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
+				false);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -510,6 +509,7 @@ public class InitializerService {
 		SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
 		Set<ApplicationProvider> applications = new HashSet<>();
 
+		PlatformProperties platformConfig = PlatformProperties.get(env);
 		// platform and application cache
 		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 		cacheProvider.clearCache(site);
@@ -593,15 +593,14 @@ public class InitializerService {
 					applicationProvider.setResources(applicationResources);
 					applicationProvider.setDatabaseConnection(siteApplication.getDatabaseConnection());
 
-					applicationResources.dumpToCache(ResourceType.BEANS_XML);
-					applicationResources.dumpToCache(ResourceType.JAR);
-					applicationResources.dumpToCache(ResourceType.SQL);
-					applicationResources.dumpToCache(ResourceType.DICTIONARY);
-					applicationResources.dumpToCache(ResourceType.RESOURCE);
-					applicationResources.dumpToCache(ResourceType.TPL);
+					List<ResourceType> resourceTypes = Arrays.asList(ResourceType.BEANS_XML, ResourceType.JAR,
+							ResourceType.SQL, ResourceType.DICTIONARY, ResourceType.RESOURCE, ResourceType.TPL);
 					if (devMode) {
-						applicationResources.dumpToCache(ResourceType.XSL, ResourceType.XML);
+						resourceTypes = new ArrayList<>(resourceTypes);
+						resourceTypes.add(ResourceType.XSL);
+						resourceTypes.add(ResourceType.XML);
 					}
+					applicationResources.dumpToCache(resourceTypes.toArray(new ResourceType[0]));
 
 					ApplicationConfigProvider applicationConfig = new ApplicationConfigProviderImpl(marshallService,
 							application.getName(), applicationResources, devMode);

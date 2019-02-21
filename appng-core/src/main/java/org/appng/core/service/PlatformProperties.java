@@ -5,21 +5,25 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
+import org.appng.api.Environment;
 import org.appng.api.Platform;
+import org.appng.api.Scope;
 import org.appng.api.model.Properties;
-import org.springframework.stereotype.Service;
 
-@Service
 public class PlatformProperties implements Properties {
+
+	public static PlatformProperties get(Environment env) {
+		return get((Properties) env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG));
+	}
+
+	public static PlatformProperties get(Properties platformConfig) {
+		return new PlatformProperties(platformConfig);
+	}
 
 	private Properties properties;
 
-	void initialize(Properties properties) {
+	private PlatformProperties(Properties properties) {
 		this.properties = properties;
-	}
-
-	Properties getProperties() {
-		return properties;
 	}
 
 	public List<String> getList(String name, String defaultValue, String delimiter) {
