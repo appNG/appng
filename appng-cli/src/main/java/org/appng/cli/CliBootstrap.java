@@ -120,7 +120,7 @@ public class CliBootstrap {
 								String.format("Failed to start HSQL Server %s on port %s",
 										hsqlServer.getProductVersion(), hsqlServer.getPort()),
 								hsqlServer.getServerError());
-						return CliCore.COMMAND_EXECUTION_ERROR;
+						return CliCore.DATABASE_ERROR;
 					}
 				}
 
