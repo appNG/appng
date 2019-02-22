@@ -39,6 +39,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.ActionProvider;
 import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.BusinessException;
@@ -334,6 +335,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		Mockito.when(site.getName()).thenReturn("localhost");
 		Mockito.when(site.getDomain()).thenReturn("localhost");
 		Mockito.when(site.getHost()).thenReturn("localhost");
+		Mockito.when(site.getApplication(applicationName)).thenReturn(application);
 		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
 		List<Property> siteProperties = getSiteProperties(SITE_PROP_PREFIX);
 		Mockito.when(site.getProperties()).thenReturn(new PropertyHolder(SITE_PROP_PREFIX, siteProperties));
@@ -352,6 +354,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		try {
 			Resources resources = getApplicationResources(MarshallService.getApplicationMarshallService());
 			Mockito.when(application.getResources()).thenReturn(resources);
+			ApplicationInfo applicationInfo = resources.getApplicationInfo();
+			org.appng.api.model.Properties properties = extractProperties(getProperties(), applicationInfo);
+			Mockito.when(application.getProperties()).thenReturn(properties);
 		} catch (JAXBException e) {
 			throw new RuntimeException("error reading resources", e);
 		}
@@ -637,6 +642,24 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		return new ActionCall(eventId, id);
 	}
 
+	org.appng.api.model.Properties extractProperties(Properties overrides, ApplicationInfo applicationInfo) {
+		Set<Property> props = new HashSet<>();
+		for (org.appng.xml.application.Property prop : applicationInfo.getProperties().getProperty()) {
+			String propName = prop.getId();
+			String value = overrides.containsKey(propName) ? overrides.getProperty(propName) : prop.getValue();
+			SimpleProperty property;
+			if (Boolean.TRUE.equals(prop.isClob())) {
+				property = new SimpleProperty(propName, null);
+				property.setClob(value);
+			} else {
+				property = new SimpleProperty(propName, value);
+			}
+			property.setDescription(prop.getDescription());
+			props.add(property);
+		}
+		return new PropertyHolder(StringUtils.EMPTY, props);
+	}
+
 	/**
 	 * Returns a {@link HandlerMethodArgumentResolver} that can resolve a(n)
 	 * <ul>
@@ -836,21 +859,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 				}
 				roleSet.add(role);
 			}
-			Set<Property> props = new HashSet<>();
-			for (org.appng.xml.application.Property prop : applicationInfo.getProperties().getProperty()) {
-				String propName = prop.getId();
-				String value = overrides.containsKey(propName) ? overrides.getProperty(propName) : prop.getValue();
-				SimpleProperty property;
-				if (Boolean.TRUE.equals(prop.isClob())) {
-					property = new SimpleProperty(propName, null);
-					property.setClob(value);
-				} else {
-					property = new SimpleProperty(propName, value);
-				}
-				property.setDescription(prop.getDescription());
-				props.add(property);
-			}
-			properties = new PropertyHolder("", props);
+			properties = extractProperties(overrides, applicationInfo);
 			featureProvider = new SimpleFeatureProvider(properties);
 		}
 
