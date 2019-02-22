@@ -71,7 +71,7 @@
 		<docDir>./target/generated-docs</docDir>
 		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
-		<manager.version>1.13.1</manager.version>
+		<manager.version>1.14.0</manager.version>
 		<scheduler.version>1.11.6</scheduler.version>
 		<authentication.version>1.11.2</authentication.version>
 		<template.name>appng-template</template.name>
