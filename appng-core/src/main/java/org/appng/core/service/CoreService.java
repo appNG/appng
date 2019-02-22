@@ -623,7 +623,7 @@ public class CoreService {
 
 	protected void createSite(SiteImpl site, Environment env) {
 		if (site.isCreateRepository()) {
-			File repositoryRootDir = getPlatformConfig(env).getRepositoryRootFolder();
+			File repositoryRootDir = PlatformProperties.get(getPlatformConfig(env)).getRepositoryRootFolder();
 			File siteRootDir = new File(repositoryRootDir, site.getName());
 			if (!siteRootDir.exists()) {
 				try {
@@ -1096,7 +1096,7 @@ public class CoreService {
 	}
 
 	protected File getApplicationRootFolder(Environment environment) {
-		return getPlatformConfig(environment).getApplicationDir();
+		return PlatformProperties.get(getPlatformConfig(environment)).getApplicationDir();
 	}
 
 	public File getApplicationFolder(Environment env, String applicationName) {
@@ -1107,8 +1107,9 @@ public class CoreService {
 		return getApplicationFolder(env, application.getName());
 	}
 
-	protected PlatformProperties getPlatformConfig(Environment environment) {
-		return null == environment ? PlatformProperties.get(getPlatform(false)) : PlatformProperties.get(environment);
+	protected Properties getPlatformConfig(Environment environment) {
+		return null == environment ? getPlatform(false)
+				: environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 	}
 
 	protected String deleteResource(Environment env, Integer applicationId, Integer resourceId)
@@ -1281,7 +1282,7 @@ public class CoreService {
 	}
 
 	public void cleanupSite(Environment env, SiteImpl site, boolean sendDeletedEvent) {
-		PlatformProperties platformConfig = getPlatformConfig(env);
+		PlatformProperties platformConfig = PlatformProperties.get(getPlatformConfig(env));
 		if (null != site) {
 			if (site.isCreateRepository()) {
 				File siteRootFolder = new File(platformConfig.getRepositoryRootFolder(), site.getName());
@@ -1704,7 +1705,7 @@ public class CoreService {
 	}
 
 	public SiteImpl shutdownSite(Environment env, String siteName) {
-		PlatformProperties platformConfig = getPlatformConfig(env);
+		Properties platformConfig = getPlatformConfig(env);
 		if (null != env) {
 			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 			if (siteMap.containsKey(siteName) && null != siteMap.get(siteName)) {
