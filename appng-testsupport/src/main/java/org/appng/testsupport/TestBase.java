@@ -384,6 +384,15 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		return Mockito.mock(Resources.class);
 	}
 
+	/**
+	 * Returns the {@link Properties} used by
+	 * {@link ApplicationContextInitializer#initialize(ConfigurableApplicationContext)} and also for the
+	 * {@link Application}'s properties. Override in subclasses to add custom values.
+	 * 
+	 * @return the properties to use
+	 * @see Application#getProperties()
+	 * @see #initialize(GenericApplicationContext)
+	 */
 	protected Properties getProperties() {
 		Properties properties = new Properties();
 		properties.put("entityPackage", entityPackage);
