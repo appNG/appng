@@ -51,19 +51,19 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.21.RELEASE</springVersion>
-		<springWSVersion>2.4.3.RELEASE</springWSVersion>
+		<springVersion>4.3.22.RELEASE</springVersion>
+		<springWSVersion>2.4.4.RELEASE</springWSVersion>
 		<springSecurityVersion>4.2.10.RELEASE</springSecurityVersion>
-		<springDataVersion>1.13.17.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.17.RELEASE</springDataJpaVersion>
-		<springDataEnversVersion>1.1.17.RELEASE</springDataEnversVersion>
+		<springDataVersion>1.13.18.RELEASE</springDataVersion>
+		<springDataJpaVersion>1.11.18.RELEASE</springDataJpaVersion>
+		<springDataEnversVersion>1.1.18.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.2.1</queryDslVersion>
 		<luceneVersion>6.6.5</luceneVersion>
 		<tikaVersion>1.16</tikaVersion>
-		<hibernateVersion>5.3.7.Final</hibernateVersion>
-		<slf4jVersion>1.7.25</slf4jVersion>
+		<hibernateVersion>5.4.1.Final</hibernateVersion>
+		<slf4jVersion>1.7.26</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
-		<jacksonVersion>2.9.7</jacksonVersion>
+		<jacksonVersion>2.9.8</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
 		<tomcat.version>8.5.35</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
@@ -844,7 +844,7 @@
 			<dependency>
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
-				<version>1.3.3</version>
+				<version>1.4</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -859,7 +859,7 @@
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.11</version>
+				<version>1.12</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -911,7 +911,7 @@
 			<dependency>
 				<groupId>org.hibernate.validator</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>6.0.13.Final</version>
+				<version>6.0.15.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
@@ -944,7 +944,7 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -979,7 +979,7 @@
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.43</version>
+				<version>5.1.47</version>
 			</dependency>
 			<dependency>
 				<groupId>org.im4java</groupId>
@@ -1039,12 +1039,12 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.10</version>
+				<version>4.4.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.6</version>
+				<version>4.5.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
@@ -1055,7 +1055,7 @@
 			<dependency>
 				<groupId>com.j256.simplemagic</groupId>
 				<artifactId>simplemagic</artifactId>
-				<version>1.14</version>
+				<version>1.16</version>
 			</dependency>
 			<dependency>
 				<groupId>joda-time</groupId>
