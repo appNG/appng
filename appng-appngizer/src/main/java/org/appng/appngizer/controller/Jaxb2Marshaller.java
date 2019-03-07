@@ -26,11 +26,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.appngizer.model.xml.Linkable;
 import org.springframework.oxm.UncategorizedMappingException;
 
-@SuppressWarnings("restriction")
-public class Jaxb2Marshaller extends org.springframework.oxm.jaxb.Jaxb2Marshaller
-		implements com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler {
+import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 
-	private static final String CHARACTER_ESCAPE_HANDLER = "com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler";
+public class Jaxb2Marshaller extends org.springframework.oxm.jaxb.Jaxb2Marshaller implements CharacterEscapeHandler {
+
 	private final String[] searchList = new String[] { "<", ">", "&" };
 	private final String[] replacementList = new String[] { "&lt;", "&gt;", "&amp;" };
 
@@ -43,9 +42,9 @@ public class Jaxb2Marshaller extends org.springframework.oxm.jaxb.Jaxb2Marshalle
 	protected Marshaller createMarshaller() {
 		javax.xml.bind.Marshaller marshaller = super.createMarshaller();
 		try {
-			marshaller.setProperty(CHARACTER_ESCAPE_HANDLER, this);
+			marshaller.setProperty(CharacterEscapeHandler.class.getName(), this);
 		} catch (PropertyException e) {
-			throw new UncategorizedMappingException("error setting " + CHARACTER_ESCAPE_HANDLER, e);
+			throw new UncategorizedMappingException("error setting CharacterEscapeHandler", e);
 		}
 		return marshaller;
 	}
