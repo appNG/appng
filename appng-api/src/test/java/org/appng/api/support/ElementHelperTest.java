@@ -191,6 +191,32 @@ public class ElementHelperTest {
 	}
 
 	@Test
+	public void testInitNavigationNoPermission() {
+		Linkpanel linkpanel = new Linkpanel();
+		Permissions permissions = new Permissions();
+		Permission p1 = new Permission();
+		p1.setRef("foo");
+		permissions.getPermissionList().add(p1);
+		linkpanel.setPermissions(permissions);
+		linkpanel.setId("panel");
+		linkpanel.setLocation(PanelLocation.TOP);
+		addLink(linkpanel, "link1", "target", "${1 eq 1}");
+		addLink(linkpanel, "link2", "target", "${1 eq 2}");
+		rootCfg.setNavigation(linkpanel);
+		PageConfig pageConfig = new PageConfig();
+		Linkpanel pageLinks = new Linkpanel();
+		pageLinks.setPermissions(new Permissions());
+		Link page = new Link();
+		page.setMode(Linkmode.INTERN);
+		page.setLabel(new Label());
+		pageLinks.getLinks().add(page);
+		pageConfig.setLinkpanel(pageLinks);
+		Mockito.when(permissionProcessor.hasPermissions(Mockito.any(PermissionOwner.class))).thenReturn(true, false);
+		elementHelper.initNavigation(applicationRequest, path, pageConfig);
+		Assert.assertNull(pageConfig.getLinkpanel());
+	}
+
+	@Test
 	public void testLinkPanel() {
 		DataConfig config = new DataConfig();
 		Linkpanel linkpanel1 = new Linkpanel();
@@ -566,7 +592,7 @@ public class ElementHelperTest {
 		groups.getGroups().add(groupB);
 
 		metaData.setValidation(groups);
-		
+
 		Class<?>[] validationGroups = elementHelper.getValidationGroups(metaData, "foo");
 		Assert.assertArrayEquals(new Class[] { Serializable.class, Closeable.class }, validationGroups);
 		Assert.assertEquals(condition, groupB.getCondition());
