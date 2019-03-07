@@ -634,6 +634,12 @@ public class InitializerService {
 
 		LOGGER.info(siteClassLoader.toString());
 		site.setSiteClassLoader(siteClassLoader);
+		if (LOGGER.isDebugEnabled()) {
+			List<URL> urlList = Arrays.asList(siteClassLoader.getURLs());
+			urlList.sort((a, b) -> StringUtils.compare(a.toString(), b.toString()));
+			LOGGER.debug("Classloader for site {} contains the following URLs: {}", site.getName(),
+					StringUtils.join(urlList, ','));
+		}
 
 		startIndexThread(site, documentIndexer);
 		startRepositoryWatcher(site, ehcacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
@@ -703,7 +709,7 @@ public class InitializerService {
 						.getApplicationSubjects(application.getId(), site);
 				application.getApplicationSubjects().addAll(applicationSubjects);
 				validApplications.add(application);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				String message = String.format("Error while loading application %s.", application.getName());
 				fp.addErrorMessage(message);
 				LOGGER.error(message, e);
