@@ -113,8 +113,6 @@
 		<module>appng-persistence</module>
 		<module>appng-search</module>
 		<module>appng-core</module>
-		<module>appng-tomcat7</module>
-		<module>appng-tomcat8</module>
 		<module>appng-cli</module>
 		<module>appng-taglib</module>
 		<module>appng-application</module>
@@ -270,8 +268,6 @@
 				<module>appng-persistence</module>
 				<module>appng-search</module>
 				<module>appng-core</module>
-				<module>appng-tomcat7</module>
-				<module>appng-tomcat8</module>
 				<module>appng-cli</module>
 				<module>appng-taglib</module>
 				<module>appng-appngizer</module>
