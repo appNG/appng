@@ -65,7 +65,7 @@
 		<poiVersion>3.17</poiVersion>
 		<jacksonVersion>2.9.8</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>8.5.35</tomcat.version>
+		<tomcat.version>9.0.16</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 		<esapi.version>2.1.0.1</esapi.version>
 		<docDir>./target/generated-docs</docDir>

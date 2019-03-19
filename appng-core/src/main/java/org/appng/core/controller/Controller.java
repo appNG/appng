@@ -20,22 +20,25 @@ import static org.appng.api.Scope.SESSION;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.catalina.ContainerServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.servlets.DefaultServlet;
-import org.apache.catalina.util.ServerInfo;
+import org.apache.commons.io.output.NullOutputStream;
 import org.appng.api.Environment;
 import org.appng.api.Path;
 import org.appng.api.PathInfo;
@@ -64,8 +67,8 @@ import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The controller {@link Servlet} of appNG, delegating {@link HttpServletRequest}s to an appropriate
- * {@link RequestHandler}.
+ * The controller {@link Servlet} of appNG, delegating
+ * {@link HttpServletRequest}s to an appropriate {@link RequestHandler}.
  * 
  * @author Matthias Müller
  */
@@ -90,61 +93,43 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	private Manager manager;
 
-	private Support support;
-
 	public Controller() {
 		LOGGER.info("Controller created");
 	}
 
-	/** a SPI to support different versions of Tomcat */
-	interface Support {
-		void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding)
-				throws IOException, ServletException;
-
-		HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response);
-
-		void init(ServletConfig config) throws ServletException;
-	}
-
-	protected void setSupport(Support support) {
-		this.support = support;
-	}
-
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		try {
-			char tomcatMajor = ServerInfo.getServerNumber().charAt(0);
-			Class<?> supportClassName = Class
-					.forName(String.format("org.appng.core.controller.Tomcat%sSupport", tomcatMajor));
-			setSupport((Support) supportClassName.newInstance());
-			LOGGER.debug("created {}", support.getClass().getName());
-		} catch (ReflectiveOperationException o) {
-			throw new ServletException("error while creating Controller.Support", o);
-		}
-		support.init(config);
-	}
-
-	// for Tomcat 7 compatibility
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content)
+	protected void doHead(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		support.serveResource(request, response, content, null);
+		doGet(request, wrapResponseForHeadRequest(response));
 	}
 
-	@Override
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content,
-			String encoding) throws IOException, ServletException {
-		support.serveResource(request, response, content, encoding);
-	}
+	private HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response) {
+		return new HttpServletResponseWrapper(response) {
+			@Override
+			public ServletOutputStream getOutputStream() throws IOException {
+				return new ServletOutputStream() {
 
+					public void write(int b) throws IOException {
+					}
+
+					public boolean isReady() {
+						return false;
+					}
+
+					public void setWriteListener(WriteListener listener) {
+					}
+				};
+			}
+
+			@Override
+			public PrintWriter getWriter() throws IOException {
+				return new PrintWriter(new NullOutputStream());
+			}
+		};
+	}
+	
 	public void serveResource(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		serveResource(request, response, true, null);
-	}
-
-	protected void doHead(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
-		doGet(request, support.wrapResponseForHeadRequest(response));
 	}
 
 	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
