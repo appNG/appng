@@ -11,7 +11,7 @@
 	</parent>
 
 	<properties>
-		<perfLoggerVersion>0.8.2</perfLoggerVersion>
+		<perfLoggerVersion>0.9.0</perfLoggerVersion>
 	</properties>
 
 	<dependencies>
