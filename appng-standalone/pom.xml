@@ -158,17 +158,4 @@
 		</dependency>
 	</dependencies>
 
-	<repositories>
-		<repository>
-			<id>appng-snapshot</id>
-			<name>appNG snapshot</name>
-			<url>https://appng.org/nexus/repository/appng-snapshot/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 </project>
