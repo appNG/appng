@@ -139,16 +139,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
-			<artifactId>appng-tomcat7</artifactId>
-			<version>${appNGVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.appng</groupId>
-			<artifactId>appng-tomcat8</artifactId>
-			<version>${appNGVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.appng</groupId>
 			<artifactId>appng-cli</artifactId>
 		</dependency>
 		<dependency>

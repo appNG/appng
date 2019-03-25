@@ -65,7 +65,7 @@ import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ControllerTest extends Controller implements Controller.Support {
+public class ControllerTest extends Controller {
 
 	private static final String host = "foo.example.com";
 	TestSupport base;
@@ -85,7 +85,6 @@ public class ControllerTest extends Controller implements Controller.Support {
 		base.provider.registerBean("request", applicationRequest);
 		env = Mockito.spy(new DefaultEnvironment(base.ctx, host));
 		base.provider.registerBean("environment", env);
-		setSupport(this);
 	}
 
 	@Test
