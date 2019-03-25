@@ -156,11 +156,11 @@ public class ElementHelper {
 						outPanel.getLinks().add(link);
 						String currentTarget = link.getTarget();
 						String newTarget = parameterSupport.replaceParameters(currentTarget);
-						if (link.getMode().equals(Linkmode.WEBSERVICE)) {
+						if (Linkmode.WEBSERVICE.equals(link.getMode())) {
 							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
 									+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
 						}
-						if (link.getMode().equals(Linkmode.REST)) {
+						if (Linkmode.REST.equals(link.getMode())) {
 							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
 									+ Platform.SERVICE_TYPE_REST + SLASH + newTarget;
 						}
@@ -198,7 +198,7 @@ public class ElementHelper {
 		Linkpanel navigation = applicationRequest.getApplicationConfig().getApplicationRootConfig().getNavigation();
 		if (null != navigation) {
 			navigation = initLinkpanel(applicationRequest, pathInfo, navigation, parameterSupport);
-			if (null != pageLinks) {
+			if (!(null == pageLinks || null == navigation)) {
 				List<Link> links = navigation.getLinks();
 				for (Link link : links) {
 					pageLinks.getLinks().add(link);
