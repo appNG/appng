@@ -77,7 +77,7 @@ OpenJDK 64-Bit Server VM (build 25.131-b11, mixed mode)
 Unzip the file, change into the extracted folder and run
 [source,subs=normal]
 ----
-$ java -jar appng-standalone-{stable}.jar -i -u
+$ java -jar appng-standalone-{stable}.jar
 ----
 
 [NOTE]
@@ -91,8 +91,10 @@ Sign-in with the username `admin` and the password `s3cr3t`.
 
 [NOTE]
 ====
-When executing the jar for the next time, you *must* omit the parameters `-u` and `-i`, as they are only
-allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the appNG applications and the template).
+On the first run, some unpacking and installation opertations are performed, this my take a few seconds. The subsequent starts will be much faster.
+
+If you accidentally misconfigured your appNG instance, you can force a clean re-installation with the `-i` option: +
+`java -jar appng-standalone-{stable}.jar -i`
 ====
 
 === Download and run the appNG web-application version

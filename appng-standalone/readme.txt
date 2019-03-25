@@ -18,23 +18,20 @@ This is a standalone version of appNG - the [app]lication platform of the [N]ext
 
 Prerequisites:
 =============
-* JRE/JDK 1.8
+* JRE/JDK >= 1.8
 
 Usage:
 ======
 * unzip appng-standalone-x.y.z.zip
-* on the FIRST start, run
-	java -jar appng-standalone-x.y.z.jar -i -u
+* run
+	java -jar appng-standalone-x.y.z.jar 
   (when running under Windows, you have to add the option `-Dfile.encoding=UTF-8` before the `-jar` option)
 * go to http://localhost:8080/manager in your browser
   User: admin
   Password: s3cr3t
-* on the following starts, run
-	java -jar appng-standalone-x.y.z.jar
 
 	
 Options:
 ========
--i [<filename>]	executes an install-skript, if filename is omitted, a build-in one is used
--u				unzip the WAR-Archive, only needed on the first execution
--p <port>		the port used by Tomcat (default:8080)
+-i			performs a fresh installation
+-p <port>	the port used by Tomcat (default:8080)
