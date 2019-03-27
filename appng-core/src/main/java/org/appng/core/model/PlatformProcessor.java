@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,7 +78,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		return platform;
 	}
 
-	public String processWithTemplate(Site applicationSite, File debugFolder) throws InvalidConfigurationException {
+	public String processWithTemplate(Site applicationSite, File debugRootFolder) throws InvalidConfigurationException {
 		String result = "";
 		String platformXML = null;
 		org.appng.xml.platform.Platform platform = null;
@@ -85,6 +86,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
 		Charset charset = Charset.forName(charsetName);
 		this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML, charsetName);
+		File debugFolder = new File(debugRootFolder, getDebugFilePrefix(new Date()));
 
 		try {
 			platform = processPlatform(applicationSite);

@@ -86,6 +86,14 @@ public class ThymeleafProcessorTest {
 	public void testProcessRenderWithCustomTemplate() throws Exception {
 		String result = doProcess(true, true);
 		Assert.assertTrue(result.contains("<span>Hello John Doe, how are you today?</span>"));
+
+		String[] debugFolders = PlatformTransformerTest.DEBUG_FOLDER.list();
+		Assert.assertTrue(debugFolders.length > 0);
+		File debugFolder = new File(PlatformTransformerTest.DEBUG_FOLDER, debugFolders[0]);
+		PlatformTransformerTest.assertFolderContains(debugFolder, "platform.xml", "index.html", "template");
+
+		File debugTemplate = new File(debugFolder, "template");
+		PlatformTransformerTest.assertFolderContains(debugTemplate, "platform.html", "hello.html", "hello-custom.html");
 	}
 
 	@Test
@@ -168,7 +176,7 @@ public class ThymeleafProcessorTest {
 		} else {
 			thymlfPrcssr.addTemplates(Arrays.asList());
 		}
-		return thymlfPrcssr.processWithTemplate(site, new File("target/debug"));
+		return thymlfPrcssr.processWithTemplate(site, PlatformTransformerTest.DEBUG_FOLDER);
 	}
 
 	@Test

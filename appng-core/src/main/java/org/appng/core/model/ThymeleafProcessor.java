@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -125,7 +126,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		this.dbf = dbf;
 	}
 
-	public String processWithTemplate(Site applicationSite, File debugFolder) throws InvalidConfigurationException {
+	public String processWithTemplate(Site applicationSite, File debugRootFolder) throws InvalidConfigurationException {
 		String result;
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
@@ -147,6 +148,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		ApplicationProvider applicationProvider = getApplicationProvider(applicationSite);
 		ConfigurableApplicationContext context = applicationProvider.getContext();
 		ThymeleafTemplateEngine templateEngine = prepareEngine(context);
+		File debugFolder = new File(debugRootFolder, getDebugFilePrefix(new Date()));
 
 		try {
 			sw.start("build platform.xml");

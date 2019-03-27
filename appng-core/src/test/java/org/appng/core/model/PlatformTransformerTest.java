@@ -17,7 +17,9 @@ package org.appng.core.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -78,7 +80,7 @@ public class PlatformTransformerTest {
 	private String platformXML;
 	private Platform platform;
 
-	private File debugFolder = new File("target/debug");
+	static final File DEBUG_FOLDER = new File("target/debug");
 
 	@Before
 	public void setup() throws Exception {
@@ -144,26 +146,26 @@ public class PlatformTransformerTest {
 		styleSheetProvider.cleanup();
 		errorTransformer.setStyleSheetProvider(styleSheetProvider);
 		init(errorTransformer, template);
-		String targetDir = "target";
-		File targetFolder = new File(targetDir, "debug").getAbsoluteFile();
 		Mockito.when(platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH))
-				.thenReturn(targetDir);
+				.thenReturn(DEBUG_FOLDER.getParent());
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES)).thenReturn(true);
 		try {
 			errorTransformer.transform(applicationProvider, platformProperties, platformXML, HttpHeaders.CHARSET_UTF8,
-					debugFolder);
+					DEBUG_FOLDER);
 			Assert.fail("TransformerException should be thrown");
 		} catch (TransformerException e) {
 			Assert.assertEquals(exceptionType, e.getClass());
 		}
-		assertFileExists(targetFolder);
-		assertFileExists(new File(targetFolder, AbstractRequestProcessor.PLATFORM_XML));
-		assertFileExists(new File(targetFolder, AbstractRequestProcessor.STACKTRACE_TXT));
-		assertFileExists(new File(targetFolder, PlatformTransformer.TEMPLATE_XSL));
+		assertFolderContains(DEBUG_FOLDER, AbstractRequestProcessor.PLATFORM_XML,
+				AbstractRequestProcessor.STACKTRACE_TXT, PlatformTransformer.TEMPLATE_XSL);
 	}
 
-	protected void assertFileExists(File platformXml) {
-		Assert.assertTrue(platformXml.getAbsolutePath() + " does not exist!", platformXml.exists());
+	static void assertFolderContains(File folder, String... files) {
+		List<String> fileList = Arrays.asList(folder.list());
+		for (String file : files) {
+			Assert.assertTrue(file + " does not exist in folder " + folder.getAbsolutePath() + "!",
+					fileList.contains(file));
+		}
 	}
 
 	@Test
@@ -175,7 +177,7 @@ public class PlatformTransformerTest {
 	private void transform() throws IOException, TransformerConfigurationException, InvalidConfigurationException,
 			JAXBException, ParserConfigurationException, TransformerException {
 		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
-				HttpHeaders.CHARSET_UTF8, debugFolder);
+				HttpHeaders.CHARSET_UTF8, DEBUG_FOLDER);
 		Platform transformedplatform = marshallService.unmarshall(transform, Platform.class);
 		Assert.assertEquals(platformXML, marshallService.marshal(transformedplatform));
 	}

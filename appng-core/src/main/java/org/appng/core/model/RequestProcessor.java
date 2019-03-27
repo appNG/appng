@@ -60,7 +60,7 @@ public interface RequestProcessor {
 	 * 
 	 * @param site
 	 *            the {@link Site} for which the process the request
-	 * @param debugFolder
+	 * @param debugRootFolder
 	 *            the folder to write debug files to
 	 * @return the result of calling the {@link Application} and applying the {@link Template}. This should then be
 	 *         written to the {@link HttpServletResponse}
@@ -68,7 +68,7 @@ public interface RequestProcessor {
 	 *             if something goes wrong while processing the request
 	 * @see #processPlatform(Site)
 	 */
-	String processWithTemplate(Site site, File debugFolder) throws InvalidConfigurationException;
+	String processWithTemplate(Site site, File debugRootFolder) throws InvalidConfigurationException;
 
 	/**
 	 * Returns the content-type of the response
