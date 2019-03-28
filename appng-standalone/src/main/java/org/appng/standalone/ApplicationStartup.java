@@ -123,9 +123,6 @@ public class ApplicationStartup {
 		Path path = file.toPath();
 		Charset charset = StandardCharsets.UTF_8;
 		String content = new String(Files.readAllBytes(path), charset);
-		if (isWindows()) {
-			replacement = "/" + replacement;
-		}
 		content = content.replaceAll(Pattern.quote(search), Matcher.quoteReplacement(replacement));
 		System.out.println("Replaced " + search + " with " + replacement + " in " + path);
 		Files.write(path, content.getBytes(charset));
@@ -137,7 +134,7 @@ public class ApplicationStartup {
 
 	protected static void unzipWarFile(File targetFolder, String warFile)
 			throws FileNotFoundException, ZipException, IOException {
-		File warFileAbsolute = new File(warFile).getAbsoluteFile();
+		File warFileAbsolute = new File("archive", warFile).getAbsoluteFile();
 		if (!warFileAbsolute.exists()) {
 			throw new FileNotFoundException(warFileAbsolute.getAbsolutePath() + " does not exist!");
 		}
@@ -162,8 +159,7 @@ public class ApplicationStartup {
 					if (null != folder && !target.getParentFile().exists()) {
 						target.getParentFile().mkdirs();
 					}
-					try (
-							InputStream in = zipFile.getInputStream(zipEntry);
+					try (InputStream in = zipFile.getInputStream(zipEntry);
 							OutputStream out = new FileOutputStream(target)) {
 						write(in, out);
 					}
@@ -180,8 +176,7 @@ public class ApplicationStartup {
 	}
 
 	private static File copyTo(String name, File targetFile) throws IOException, FileNotFoundException {
-		try (
-				InputStream in = ApplicationStartup.class.getClassLoader().getResourceAsStream(name);
+		try (InputStream in = ApplicationStartup.class.getClassLoader().getResourceAsStream(name);
 				OutputStream out = new FileOutputStream(targetFile)) {
 			write(in, out);
 			return targetFile;

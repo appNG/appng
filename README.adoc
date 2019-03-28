@@ -77,12 +77,12 @@ OpenJDK 64-Bit Server VM (build 25.171-b11, mixed mode)
 Unzip the file, change into the extracted folder and run
 [source,subs=normal]
 ----
-$ java -jar appng-standalone-{stable}.jar
+./appng.sh
 ----
 
 [NOTE]
 ====
-When running under Windows, you have to add the option `-Dfile.encoding=UTF-8` before the `-jar` option.
+When running under Windows, use `appng.bat`.
 ====
 
 Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
@@ -94,7 +94,7 @@ Sign-in with the username `admin` and the password `s3cr3t`.
 On the first run, some unpacking and installation operations are performed, this my take a few seconds. The subsequent starts will be much faster.
 
 If you accidentally misconfigured your appNG instance, you can force a clean re-installation with the `-i` option: +
-`java -jar appng-standalone-{stable}.jar -i`
+`./appng.sh -i`
 ====
 
 === Download and run the appNG web-application version

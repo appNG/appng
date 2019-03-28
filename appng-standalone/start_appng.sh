@@ -34,7 +34,7 @@ do
       break
       ;;
 	"install & start")
-	  APPNG_START_OPTIONS="-i -u"
+	  APPNG_START_OPTIONS="-i"
 	  break
 	  ;;
 	*)

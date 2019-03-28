@@ -36,7 +36,6 @@
 					<archive>
 						<index>true</index>
 						<manifest>
-							<classpathPrefix>lib/</classpathPrefix>
 							<addClasspath>true</addClasspath>
 							<mainClass>org.appng.standalone.ApplicationStartup</mainClass>
 						</manifest>

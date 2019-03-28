@@ -19,13 +19,14 @@ This is a standalone version of appNG - the [app]lication platform of the [N]ext
 Prerequisites:
 =============
 * JRE/JDK >= 1.8
+* Ports 8080 (Tomcat) and 9010 (HSQL) must be available
 
 Usage:
 ======
 * unzip appng-standalone-x.y.z.zip
 * run
-	java -jar appng-standalone-x.y.z.jar 
-  (when running under Windows, you have to add the option `-Dfile.encoding=UTF-8` before the `-jar` option)
+	for Unix/Linux/MacOS:    ./appng.sh
+	for Windows:             appng.bat
 * go to http://localhost:8080/manager in your browser
   User: admin
   Password: s3cr3t
