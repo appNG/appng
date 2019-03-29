@@ -62,9 +62,6 @@ import org.springframework.mock.web.MockServletContext;
 
 import com.google.common.io.Files;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class ThymeleafProcessorTest {
 
 	private static ThymeleafProcessor.AppNG appNG;
@@ -90,10 +87,9 @@ public class ThymeleafProcessorTest {
 		String result = doProcess(true, true);
 		Assert.assertTrue(result.contains("<span>Hello John Doe, how are you today?</span>"));
 
-		String[] debugFolders = PlatformTransformerTest.DEBUG_FOLDER.list();
+		String[] debugFolders = PlatformTransformerTest.DEBUG_FOLDER.list((f, n) -> new File(f, n).isDirectory());
 		Assert.assertTrue(debugFolders.length > 0);
 		File debugFolder = new File(PlatformTransformerTest.DEBUG_FOLDER, debugFolders[0]);
-		LOGGER.info("Debug folder is {}", debugFolder.getAbsolutePath());
 		PlatformTransformerTest.assertFolderContains(debugFolder, "platform.xml", "index.html", "template");
 
 		File debugTemplate = new File(debugFolder, "template");
