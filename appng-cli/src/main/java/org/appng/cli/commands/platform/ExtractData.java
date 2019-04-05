@@ -16,7 +16,9 @@
 package org.appng.cli.commands.platform;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -27,8 +29,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
 import org.appng.api.model.Properties;
@@ -78,9 +83,15 @@ import com.beust.jcommander.converters.FileConverter;
 @Parameters(commandDescription = "Extracts the data from $APPNG_HOME to the given folder.")
 public class ExtractData implements ExecutableCliCommand {
 
+	private static final String CONF = "conf";
+	private static final String LOG = "log";
+	private static final String WEB_XML = "web.xml";
+	private static final String WEB_INF = "WEB-INF";
 	private static final String PRIVILEGED_CONTEXT = "<Context privileged=\"true\">";
 	private static final String NEWLINE = "\r\n";
-	private static final String WEB_INF = "WEB-INF";
+	private static final String $APPNG_HOME = "${appng.home}";
+	private static final String $APPNG_DATA = "${appng.data}";
+	private static final String $WEBAPP_ROOT = "${webapp.root}/" + WEB_INF;
 	@Parameter(names = "-appngData", required = true, description = "The folder to extract the data to.", converter = FileConverter.class)
 	private File appngData;
 
@@ -110,17 +121,37 @@ public class ExtractData implements ExecutableCliCommand {
 	protected void extract(String appngHome, CliEnvironment cle, String applicationDir, String repositoryPath)
 			throws BusinessException {
 		try {
-			move(Paths.get(appngHome, WEB_INF, "web.xml"), Paths.get(appngData.toString(), WEB_INF, "web.xml"));
-			move(Paths.get(appngHome, WEB_INF, "conf"), Paths.get(appngData.toString(), "conf"));
-			move(Paths.get(appngHome, WEB_INF, "bin"), Paths.get(appngData.toString(), "bin"));
-			move(Paths.get(appngHome, WEB_INF, "log"), Paths.get(appngData.toString(), "log"));
+			move(Paths.get(appngHome, WEB_INF, WEB_XML), Paths.get(appngData.toString(), WEB_INF, WEB_XML));
+			move(Paths.get(appngHome, WEB_INF, CONF), Paths.get(appngData.toString(), CONF));
+			move(Paths.get(appngHome, WEB_INF, LOG), Paths.get(appngData.toString(), LOG));
 			move(Paths.get(appngHome, applicationDir), Paths.get(appngData.toString(), applicationDir));
 			move(Paths.get(appngHome, repositoryPath), Paths.get(appngData.toString(), repositoryPath));
 			writeContextXml(appngHome);
 			setCacheConfig(cle);
+			File log4jProperties = Paths.get(appngData.toString(), CONF, "log4j.properties").toFile();
+			if (revert) {
+				replaceInFile(log4jProperties, $APPNG_DATA, $WEBAPP_ROOT);
+			} else {
+				replaceInFile(log4jProperties, $WEBAPP_ROOT, $APPNG_DATA);
+				File binFolder = new File(appngData, "bin");
+				binFolder.mkdirs();
+				copyBatchFileToBin(binFolder, appngData.toString(), appngHome, "appng");
+				copyBatchFileToBin(binFolder, appngData.toString(), appngHome, "appng.bat");
+			}
 		} catch (IOException | URISyntaxException e) {
 			throw new BusinessException(e);
 		}
+	}
+
+	protected void copyBatchFileToBin(File binFolder, String appngData, String appngHome, String name)
+			throws IOException {
+		File targetFile = new File(binFolder, name);
+		try (InputStream is = getClass().getResourceAsStream(name); FileWriter fw = new FileWriter(targetFile);) {
+			IOUtils.copy(is, fw, StandardCharsets.UTF_8);
+		}
+		targetFile.setExecutable(true, true);
+		replaceInFile(targetFile, $APPNG_DATA, appngData.toString());
+		replaceInFile(targetFile, $APPNG_HOME, appngHome);
 	}
 
 	protected void writeContextXml(String appngHome) throws IOException, URISyntaxException {
@@ -154,17 +185,27 @@ public class ExtractData implements ExecutableCliCommand {
 		cle.getCoreService().saveProperty(ehcacheConfig);
 	}
 
-	private void move(Path source, Path target) throws IOException {
+	private File move(Path source, Path target) throws IOException {
 		File sourceFile = revert ? target.toFile() : source.toFile();
 		File targetFile = revert ? source.toFile() : target.toFile();
 		if (sourceFile.exists()) {
-			moveResource(sourceFile, targetFile);
+			return moveResource(sourceFile, targetFile);
 		} else {
 			CliEnvironment.out.println(String.format("%s does not exist.", sourceFile));
+			return null;
 		}
 	}
 
-	private void moveResource(File sourceFile, File targetFile) throws IOException {
+	protected static void replaceInFile(File file, String search, String replacement) throws IOException {
+		Path path = file.toPath();
+		Charset charset = StandardCharsets.UTF_8;
+		String content = new String(Files.readAllBytes(path), charset);
+		content = content.replaceAll(Pattern.quote(search), Matcher.quoteReplacement(replacement));
+		Files.write(path, content.getBytes(charset));
+		CliEnvironment.out.println("Replaced " + search + " with " + replacement + " in " + path);
+	}
+
+	private File moveResource(File sourceFile, File targetFile) throws IOException {
 		if (copy) {
 			if (sourceFile.isFile()) {
 				FileUtils.copyFile(sourceFile, targetFile, true);
@@ -179,5 +220,6 @@ public class ExtractData implements ExecutableCliCommand {
 			}
 		}
 		CliEnvironment.out.println(String.format("%s\t%s -> %s", copy ? "copied" : "moved", sourceFile, targetFile));
+		return targetFile;
 	}
 }
