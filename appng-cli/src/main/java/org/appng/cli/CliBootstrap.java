@@ -179,20 +179,26 @@ public class CliBootstrap {
 
 	static Properties getCliConfig(CliBootstrapEnvironment env, boolean logInfo, File platformRootPath)
 			throws FileNotFoundException, IOException {
-		Properties config = new Properties();
-		File properties = env
-				.getAbsoluteFile(new File(platformRootPath, PlatformStartup.WEB_INF + PlatformStartup.CONFIG_LOCATION));
+		File configFile;
+		String appngData = System.getProperty(Platform.Property.APPNG_DATA);
+		if (StringUtils.isBlank(appngData)) {
+			configFile = new File(platformRootPath, PlatformStartup.WEB_INF + PlatformStartup.CONFIG_LOCATION);
+		} else {
+			configFile = new File(appngData, PlatformStartup.CONFIG_LOCATION);
+		}
+		File properties = env.getAbsoluteFile(configFile);
 		if (properties.exists()) {
 			if (logInfo) {
 				LOGGER.info("Using configuration file: {}", properties.getAbsolutePath());
 			}
+			Properties config = new Properties();
 			config.load(new FileReader(properties));
+			config.setProperty(Platform.Property.PLATFORM_ROOT_PATH, platformRootPath.getAbsolutePath());
+			config.put(DatabaseService.DATABASE_TYPE, config.getProperty(DatabaseService.DATABASE_TYPE).toUpperCase());
+			return config;
 		} else {
 			throw new FileNotFoundException("Configuration file not found: " + properties.getAbsolutePath());
 		}
-		config.setProperty(Platform.Property.PLATFORM_ROOT_PATH, platformRootPath.getAbsolutePath());
-		config.put(DatabaseService.DATABASE_TYPE, config.getProperty(DatabaseService.DATABASE_TYPE).toUpperCase());
-		return config;
 	}
 
 	static File getPlatformRootPath(CliBootstrapEnvironment env) {
