@@ -400,7 +400,10 @@ public class PropertySupport {
 	}
 
 	private String normalizePath(String segment, String... pathelements) {
-		return Paths.get(segment, pathelements).normalize().toString();
+		if(StringUtils.isNotBlank(segment) &&  StringUtils.isNoneBlank(pathelements)){
+			return Paths.get(segment, pathelements).normalize().toString();
+		}
+		return StringUtils.EMPTY;
 	}
 
 	static List<String> getSiteRelevantPlatformProps() {
