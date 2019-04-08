@@ -864,10 +864,11 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			DatasourceRef datasourceRef = callableTestAction.getAction().getDatasource();
 			if (null != datasourceRef) {
 				DataSourceCall dataSourceCall = new DataSourceCall(datasourceRef.getId());
-				Map<String, String> parameters = getParameterSupport().getParameters();
-				datasourceRef.getParams().getParam()
-						.forEach(p -> dataSourceCall.withParam(p.getName(), parameters.get(p.getName())));
-
+				if (null != datasourceRef.getParams()) {
+					Map<String, String> parameters = getParameterSupport().getParameters();
+					datasourceRef.getParams().getParam()
+							.forEach(p -> dataSourceCall.withParam(p.getName(), parameters.get(p.getName())));
+				}
 				Datasource datasource = dataSourceCall.getCallableDataSource().getDatasource();
 
 				OptionsImpl options = new OptionsImpl();
