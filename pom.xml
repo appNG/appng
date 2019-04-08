@@ -51,7 +51,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.22.RELEASE</springVersion>
+		<springVersion>4.3.23.RELEASE</springVersion>
 		<springWSVersion>2.4.3.RELEASE</springWSVersion>
 		<springSecurityVersion>4.2.10.RELEASE</springSecurityVersion>
 		<springDataVersion>1.13.18.RELEASE</springDataVersion>
