@@ -15,6 +15,8 @@
  */
 package org.appng.core.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
@@ -78,10 +80,7 @@ public class DatabaseServiceTest extends TestInitializer {
 			case HSQL:
 				Assert.assertTrue(connection.isActive());
 				break;
-			case MSSQL:
-				Assert.assertFalse(connection.isActive());
-				break;
-			case MYSQL:
+			default:
 				Assert.assertFalse(connection.isActive());
 				break;
 			}
@@ -105,6 +104,8 @@ public class DatabaseServiceTest extends TestInitializer {
 		Assert.assertEquals(DatabaseType.MYSQL, platformConnection.getType());
 		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
 		validateSchemaVersion(platformConnection, "4.0.0");
+
+		validateCreateAndDropApplicationConnection(platformConnection);
 	}
 
 	@Test
@@ -126,6 +127,42 @@ public class DatabaseServiceTest extends TestInitializer {
 		DataSource sqlDataSource = new HikariCPConfigurer(platformConnection).getDataSource();
 		DatabaseMetaData metaData = sqlDataSource.getConnection().getMetaData();
 		Assert.assertTrue(metaData.getDatabaseProductName().startsWith("Microsoft SQL Server"));
+
+		validateCreateAndDropApplicationConnection(platformConnection);
+	}
+
+	@Test
+	@Ignore("run locally")
+	public void testInitDatabasePostgresql() throws Exception {
+		String jdbcUrl = "jdbc:postgresql://localhost:5432/appng";
+		String user = "postgres";
+		String password = "postgres";
+		Properties platformProperties = getProperties(DatabaseType.POSTGRESQL, jdbcUrl, user, password,
+				DatabaseType.POSTGRESQL.getDefaultDriver());
+		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
+		StringBuilder dbInfo = new StringBuilder();
+		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
+		Assert.assertTrue(dbInfo.toString().startsWith("PostgreSQL 11.2"));
+		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
+		Assert.assertEquals(DatabaseType.POSTGRESQL, platformConnection.getType());
+		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
+		validateSchemaVersion(platformConnection, "4.0.0");
+
+		validateCreateAndDropApplicationConnection(platformConnection);
+	}
+
+	private void validateCreateAndDropApplicationConnection(DatabaseConnection platformConnection)
+			throws IOException, URISyntaxException {
+		DatabaseType type = platformConnection.getType();
+		String jdbcUrl = type.getTemplateUrl().replace("<name>", "appng_database");
+		DatabaseConnection applicationConnection = new DatabaseConnection(type, jdbcUrl, type.getDefaultDriver(),
+				"appng_user", "appng_password".getBytes(), type.getDefaultValidationQuery());
+		applicationConnection.setName("appng_database");
+		databaseService.initApplicationConnection(applicationConnection, platformConnection.getDataSource());
+		Assert.assertTrue(applicationConnection.testConnection(null));
+
+		databaseService.dropApplicationConnection(applicationConnection, platformConnection.getDataSource());
+		Assert.assertFalse(applicationConnection.testConnection(null));
 	}
 
 	private Properties getProperties(DatabaseType databaseType, String jdbcUrl, String user, String password,

@@ -59,8 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * Represents a connection to a database which is being used either by the platform itself ("root-connection") or by a
- * {@link SiteApplication}.
+ * Represents a connection to a database which is being used either by the
+ * platform itself ("root-connection") or by a {@link SiteApplication}.
  * 
  * @author Matthias Müller
  * 
@@ -80,13 +80,20 @@ public class DatabaseConnection implements Auditable<Integer> {
 	public enum DatabaseType {
 
 		/** MySQL */
-		MYSQL("com.mysql.jdbc.Driver", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
+		MYSQL("com.mysql.jdbc.Driver", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
+				"jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
 
 		/** Microsoft SQL Server */
-		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource", "jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
+		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
+				"jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
+
+		/** PostgreSQL */
+		POSTGRESQL("org.postgresql.Driver", "org.postgresql.ds.PGSimpleDataSource",
+				"jdbc:postgresql://localhost:5432/" + DB_PLACEHOLDER, "select 1"),
 
 		/** HSQL DB */
-		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
+		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource",
+				"jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
 
 		private final String defaultDriver;
 		private final String templateUrl;
@@ -172,7 +179,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
@@ -410,17 +417,13 @@ public class DatabaseConnection implements Auditable<Integer> {
 
 	public String getDatabaseConnectionString(String databaseName) {
 		switch (type) {
-		case MYSQL:
-			return getJdbcUrl().substring(0, getJdbcUrl().lastIndexOf('/') + 1) + databaseName;
 
 		case MSSQL:
 			return getJdbcUrl().substring(0, getJdbcUrl().indexOf(DATABASE_NAME) + DATABASE_NAME.length())
 					+ databaseName;
-		case HSQL:
+		default:
 			return getJdbcUrl().substring(0, getJdbcUrl().lastIndexOf('/') + 1) + databaseName;
 
-		default:
-			return null;
 		}
 	}
 

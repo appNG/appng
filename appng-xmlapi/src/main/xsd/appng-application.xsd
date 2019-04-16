@@ -240,6 +240,11 @@
                     <xs:documentation>Microsoft SQL Server</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
+            <xs:enumeration value="postgresql">
+                <xs:annotation>
+                    <xs:documentation>PostgreSQL</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
 

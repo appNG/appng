@@ -57,7 +57,6 @@
 			<property name="hibernate.hbm2ddl.auto" value="create" />
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
-			<property name="hibernate.id.new_generator_mappings" value="false"/>
 		</properties>
 	</persistence-unit>
 	
@@ -86,7 +85,6 @@
 			<property name="hibernate.hbm2ddl.auto" value="create" />
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
-			<property name="hibernate.id.new_generator_mappings" value="false"/>
 		</properties>
 	</persistence-unit>
 
@@ -108,7 +106,7 @@
 		<class>org.appng.core.domain.PlatformEvent</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/appng" />
-			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect" />
 			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
 			<property name="hibernate.connection.username" value="postgres" />
 			<property name="hibernate.connection.password" value="postgres" />

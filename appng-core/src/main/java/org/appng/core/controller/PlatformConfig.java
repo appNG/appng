@@ -42,7 +42,6 @@ import org.appng.persistence.repository.SearchRepositoryImpl;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.transformation.StyleSheetProvider;
-import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,7 +110,6 @@ public class PlatformConfig {
 		lcemfb.setPersistenceUnitName("appNG");
 		lcemfb.setDataSource(dataSource);
 		Properties jpaProperties = new Properties();
-		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
 		lcemfb.setJpaProperties(jpaProperties);
 		lcemfb.setPackagesToScan("org.appng.core.domain");
 		return lcemfb;
