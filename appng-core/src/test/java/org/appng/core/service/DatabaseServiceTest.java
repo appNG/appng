@@ -73,7 +73,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		databaseService.setActiveConnection(platformConnection, false);
 
 		List<DatabaseConnection> connections = databaseConnectionRepository.findAll();
-		Assert.assertEquals(3, connections.size());
+		Assert.assertEquals(4, connections.size());
 
 		for (DatabaseConnection connection : connections) {
 			switch (connection.getType()) {
