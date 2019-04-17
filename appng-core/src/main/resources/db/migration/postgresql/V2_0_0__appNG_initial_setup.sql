@@ -305,3 +305,5 @@ alter table template_resource
 add constraint FK__TEMPLATE_RESOURCE__TEMPLATE_ID 
 foreign key (template_id) 
 references template;
+
+insert into authgroup (name,description,default_admin,version) values ('Administrators','appNG Administrators group',true,now());
