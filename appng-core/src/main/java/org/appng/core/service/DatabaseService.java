@@ -271,7 +271,7 @@ public class DatabaseService extends MigrationService {
 			throws IOException, URISyntaxException {
 		executeSqlScript(databaseConnection, dataSource, SCRIPT_DROP);
 		LOGGER.info("dropped database at {}", databaseConnection.getJdbcUrl());
-		LOGGER.info("dropped user  {}", databaseConnection.getUserName());
+		LOGGER.info("dropped user {}", databaseConnection.getUserName());
 	}
 
 	/**

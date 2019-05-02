@@ -80,31 +80,33 @@ public class DatabaseConnection implements Auditable<Integer> {
 	public enum DatabaseType {
 
 		/** MySQL */
-		MYSQL("com.mysql.jdbc.Driver", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
-				"jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
+		MYSQL("com.mysql.jdbc.Driver", 3306, "com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
+				"jdbc:mysql://localhost:%s/%s", "select 1"),
 
 		/** Microsoft SQL Server */
-		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
-				"jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
+		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", 1433, "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
+				"jdbc:sqlserver://localhost:%s;databaseName=%s", "select 1"),
 
 		/** PostgreSQL */
-		POSTGRESQL("org.postgresql.Driver", "org.postgresql.ds.PGSimpleDataSource",
-				"jdbc:postgresql://localhost:5432/" + DB_PLACEHOLDER, "select 1"),
+		POSTGRESQL("org.postgresql.Driver", 5432, "org.postgresql.ds.PGSimpleDataSource",
+				"jdbc:postgresql://localhost:%s/%s", "select 1"),
 
 		/** HSQL DB */
-		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource",
-				"jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
+		HSQL("org.hsqldb.jdbc.JDBCDriver", 9001, "org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:hsql://localhost:%s/%s",
+				"select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
 
 		private final String defaultDriver;
 		private final String templateUrl;
+		private final Integer defaultPort;
 		private String validationQuery;
 		private String dataSourceClassName;
 
-		private DatabaseType(String defaultDriver, String dataSourceClassName, String templateUrl,
+		private DatabaseType(String defaultDriver, Integer defaultPort, String dataSourceClassName, String templateUrl,
 				String validationQuery) {
 			this.defaultDriver = defaultDriver;
+			this.defaultPort = defaultPort;
 			this.dataSourceClassName = dataSourceClassName;
-			this.templateUrl = templateUrl;
+			this.templateUrl = String.format(templateUrl, defaultPort, DB_PLACEHOLDER);
 			this.validationQuery = validationQuery;
 		}
 
@@ -118,6 +120,11 @@ public class DatabaseConnection implements Auditable<Integer> {
 		/** an example JDBC-URL */
 		public String getTemplateUrl() {
 			return templateUrl;
+		}
+
+		/** the default port */
+		public Integer getDefaultPort() {
+			return defaultPort;
 		}
 
 		/** the default validation query */

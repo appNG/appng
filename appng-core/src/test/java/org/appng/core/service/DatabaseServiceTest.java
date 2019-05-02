@@ -40,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
@@ -89,23 +91,28 @@ public class DatabaseServiceTest extends TestInitializer {
 	}
 
 	@Test
-	@Ignore("run locally")
+	@Ignore("uses testcontainers, which needs docker")
 	public void testInitDatabaseMysql() throws Exception {
-		String jdbcUrl = "jdbc:mysql://localhost:3306/appng_migration";
-		String user = "user";
-		String password = "password";
-		Properties platformProperties = getProperties(DatabaseType.MYSQL, jdbcUrl, user, password,
-				DatabaseType.MYSQL.getDefaultDriver());
-		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
-		StringBuilder dbInfo = new StringBuilder();
-		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
-		Assert.assertTrue(dbInfo.toString().startsWith("MySQL 5.6"));
-		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
-		Assert.assertEquals(DatabaseType.MYSQL, platformConnection.getType());
-		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
-		validateSchemaVersion(platformConnection, "4.0.0");
+		String mysqlVersion = "5.6";
+		try (MySQLContainer<?> mysql = new MySQLContainer<>("mysql:" + mysqlVersion)) {
+			mysql.withUsername("root").withPassword("").start();
+			String jdbcUrl = mysql.getJdbcUrl();
+			String user = mysql.getUsername();
+			String password = mysql.getPassword();
 
-		validateCreateAndDropApplicationConnection(platformConnection);
+			Properties platformProperties = getProperties(DatabaseType.MYSQL, jdbcUrl, user, password,
+					DatabaseType.MYSQL.getDefaultDriver());
+			DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
+			StringBuilder dbInfo = new StringBuilder();
+			Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
+			Assert.assertTrue(dbInfo.toString().startsWith("MySQL " + mysqlVersion));
+			Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
+			Assert.assertEquals(DatabaseType.MYSQL, platformConnection.getType());
+			Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
+			validateSchemaVersion(platformConnection, "4.0.0");
+
+			validateCreateAndDropApplicationConnection(platformConnection, mysql.getFirstMappedPort());
+		}
 	}
 
 	@Test
@@ -128,35 +135,41 @@ public class DatabaseServiceTest extends TestInitializer {
 		DatabaseMetaData metaData = sqlDataSource.getConnection().getMetaData();
 		Assert.assertTrue(metaData.getDatabaseProductName().startsWith("Microsoft SQL Server"));
 
-		validateCreateAndDropApplicationConnection(platformConnection);
+		validateCreateAndDropApplicationConnection(platformConnection, DatabaseType.MSSQL.getDefaultPort());
 	}
 
 	@Test
-	@Ignore("run locally")
+	@Ignore("uses testcontainers, which needs docker")
 	public void testInitDatabasePostgresql() throws Exception {
-		String jdbcUrl = "jdbc:postgresql://localhost:5432/appng";
-		String user = "postgres";
-		String password = "postgres";
-		Properties platformProperties = getProperties(DatabaseType.POSTGRESQL, jdbcUrl, user, password,
-				DatabaseType.POSTGRESQL.getDefaultDriver());
-		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
-		StringBuilder dbInfo = new StringBuilder();
-		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
-		Assert.assertTrue(dbInfo.toString().startsWith("PostgreSQL 11.2"));
-		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
-		Assert.assertEquals(DatabaseType.POSTGRESQL, platformConnection.getType());
-		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
-		validateSchemaVersion(platformConnection, "4.0.0");
+		String postgresVersion = "10.2";
+		try (PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:" + postgresVersion)) {
+			postgres.start();
+			String jdbcUrl = postgres.getJdbcUrl();
+			String user = postgres.getUsername();
+			String password = postgres.getPassword();
 
-		validateCreateAndDropApplicationConnection(platformConnection);
+			Properties platformProperties = getProperties(DatabaseType.POSTGRESQL, jdbcUrl, user, password,
+					DatabaseType.POSTGRESQL.getDefaultDriver());
+			DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
+			StringBuilder dbInfo = new StringBuilder();
+			Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
+			Assert.assertTrue(dbInfo.toString().startsWith("PostgreSQL " + postgresVersion));
+			Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
+			Assert.assertEquals(DatabaseType.POSTGRESQL, platformConnection.getType());
+			Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
+			validateSchemaVersion(platformConnection, "4.0.0");
+
+			validateCreateAndDropApplicationConnection(platformConnection, postgres.getFirstMappedPort());
+		}
 	}
 
-	private void validateCreateAndDropApplicationConnection(DatabaseConnection platformConnection)
+	private void validateCreateAndDropApplicationConnection(DatabaseConnection platformConnection, Integer port)
 			throws IOException, URISyntaxException {
 		DatabaseType type = platformConnection.getType();
-		String jdbcUrl = type.getTemplateUrl().replace("<name>", "appng_database");
+		String jdbcUrl = type.getTemplateUrl().replace("<name>", "appng_database")
+				.replace(type.getDefaultPort().toString(), port.toString());
 		DatabaseConnection applicationConnection = new DatabaseConnection(type, jdbcUrl, type.getDefaultDriver(),
-				"appng_user", "appng_password".getBytes(), type.getDefaultValidationQuery());
+				"appng_user", "appng_password42".getBytes(), type.getDefaultValidationQuery());
 		applicationConnection.setName("appng_database");
 		databaseService.initApplicationConnection(applicationConnection, platformConnection.getDataSource());
 		Assert.assertTrue(applicationConnection.testConnection(null));
