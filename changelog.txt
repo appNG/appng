@@ -1,3 +1,35 @@
+Release Notes - appNG - Version 1.18.0 (2019-05-02)
+---------------------------------------------------
+Release Notes - appNG - Version 1.19.0
+* [APPNG-2256] - Release appNG 1.19.0
+* [APPNG-2254] - Lack of support for different output-types in ThymeleafProcessor
+* [APPNG-2252] - Bump version to 1.19.0
+* [APPNG-2251] - Possible NPE in PropertySupport#normalizePath when running tests
+* [APPNG-2247] - Simplify usage of standalone version
+* [APPNG-2245] - Support Tomcat 9.x, drop support for Tomcat 7.x
+* [APPNG-2244] - appNG fails to start when an Error is thrown in InitialiterService#loadSite
+* [APPNG-2243] - Use appng-manager 1.14.0
+* [APPNG-2241] - Possible NPE in ElementHelper
+* [APPNG-2240] - environment attributes with scope SITE are not removed on site reload
+* [APPNG-2239] - RestRequest.isGet() and isPost() do not work
+* [APPNG-2238] - CLI closes HSQL server instance
+* [APPNG-2236] - Fix some issues reported by sonar
+* [APPNG-2235] - Rework Logging: Use @Slf4j and parameter placeholders
+* [APPNG-2234] - Replace platformContext.xml with a programmatic @Configuration
+* [APPNG-2233] - Beans for site and application missing in test-context
+* [APPNG-2231] - CLI command create-subject should allow pre-hashed passwords
+* [APPNG-2230] - Create a CLI command that creates a hash for a given password
+* [APPNG-2229] - Add the possibility to skip template rendering in the manager GUI
+* [APPNG-2228] - Add a build profile for sonar
+* [APPNG-2227] - Writing debug files does not work when using ThymeleafProcessor
+* [APPNG-2226] - Possible NPE in ThymeleafProcessor.AppNG.param(Params params, String name)
+* [APPNG-2225] - It should be possible to retrieve an action's initial form for testing
+* [APPNG-2223] - Add 1.18.0 to changelog.txt
+* [APPNG-2222] - Update license header to 2019
+* [APPNG-2221] - Dependency upgrade for 1.19.x
+* [APPNG-2210] - In a repository, it should be possible to filter by package name
+* [APPNG-2125] - Separation of application and user data
+
 Release Notes - appNG - Version 1.18.0 (2018-12-12)
 ---------------------------------------------------
 * [APPNG-2220] - Update links to bean validation API 2.0
