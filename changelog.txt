@@ -1,6 +1,7 @@
 Release Notes - appNG - Version 1.18.0 (2019-05-02)
 ---------------------------------------------------
 Release Notes - appNG - Version 1.19.0
+* [APPNG-2257] - SignerTest#testverify fails due to outdated certificate
 * [APPNG-2256] - Release appNG 1.19.0
 * [APPNG-2254] - Lack of support for different output-types in ThymeleafProcessor
 * [APPNG-2252] - Bump version to 1.19.0
