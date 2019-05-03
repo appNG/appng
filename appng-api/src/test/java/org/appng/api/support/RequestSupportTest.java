@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class RequestSupportTest extends RequestSupportImpl {
 	private Request request;
 	@Mock
 	private Environment env;
-	private static ExpressionEvaluator params = new ExpressionEvaluator(new HashMap<String, String>());
+	private static ExpressionEvaluator params = new ExpressionEvaluator(new HashMap<>());
 
 	final @Before
 	public void setUp() throws Exception {
@@ -88,7 +88,7 @@ public class RequestSupportTest extends RequestSupportImpl {
 
 	@Test
 	public void testTypes() {
-		List<FieldType> allTypes = new ArrayList<FieldType>(Arrays.asList(FieldType.values()));
+		List<FieldType> allTypes = new ArrayList<>(Arrays.asList(FieldType.values()));
 		allTypes.remove(FieldType.FILE);
 		allTypes.remove(FieldType.FILE_MULTIPLE);
 		for (FieldType fieldType : allTypes) {

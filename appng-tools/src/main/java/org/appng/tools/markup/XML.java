@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.tools.markup;
 
 import java.io.StringWriter;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -26,24 +27,23 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class XML {
-
-	private static Logger LOG = LoggerFactory.getLogger(XML.class);
 
 	public static String transform(Source xmlSource, Source xsltSource) {
 		String result = "";
 		ErrorListener errorListener = getErrorListener();
-		TransformerFactory tf = TransformerFactory.newInstance();
-		tf.setErrorListener(errorListener);
 		try {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			tf.setErrorListener(errorListener);
 			Templates templates = tf.newTemplates(xsltSource);
 			Transformer transformer = templates.newTransformer();
 			transformer.setErrorListener(errorListener);
@@ -59,15 +59,15 @@ public class XML {
 	private static ErrorListener getErrorListener() {
 		return new ErrorListener() {
 			public void warning(TransformerException te) throws TransformerException {
-				LOG.warn(te.getMessageAndLocation(), te);
+				LOGGER.warn(te.getMessageAndLocation(), te);
 			}
 
 			public void fatalError(TransformerException te) throws TransformerException {
-				LOG.error(te.getMessageAndLocation(), te);
+				LOGGER.error(te.getMessageAndLocation(), te);
 			}
 
 			public void error(TransformerException te) throws TransformerException {
-				LOG.error(te.getMessageAndLocation(), te);
+				LOGGER.error(te.getMessageAndLocation(), te);
 			}
 		};
 	}

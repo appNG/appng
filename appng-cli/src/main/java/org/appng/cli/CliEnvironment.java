@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ import java.io.PrintStream;
 
 import org.appng.api.Platform;
 import org.appng.api.model.Properties;
-import org.appng.api.support.PropertyHolder;
 import org.appng.core.service.CoreService;
-import org.appng.core.service.InitializerService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 
@@ -58,19 +56,7 @@ public class CliEnvironment {
 	 */
 	public void initPlatform(java.util.Properties defaultOverrides) {
 		String platformRootPath = cliConfig.getProperty(Platform.Property.PLATFORM_ROOT_PATH);
-		PropertyHolder propertyHolder = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode,
-				true, false);
-		addPropertyIfExists(propertyHolder, defaultOverrides, InitializerService.APPNG_GROUP);
-		addPropertyIfExists(propertyHolder, defaultOverrides, InitializerService.APPNG_USER);
-		propertyHolder.setFinal();
-		this.platformConfig = propertyHolder;
-	}
-
-	private void addPropertyIfExists(PropertyHolder propertyHolder, java.util.Properties defaultOverrides,
-			String name) {
-		if (defaultOverrides.containsKey(name)) {
-			propertyHolder.addProperty(name, defaultOverrides.get(name), null);
-		}
+		this.platformConfig = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode, true);
 	}
 
 	/**

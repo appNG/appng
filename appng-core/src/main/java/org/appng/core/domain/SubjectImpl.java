@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	private String digest;
 	private String salt;
 	private Date version;
-	private List<Group> groups = new ArrayList<Group>();
+	private List<Group> groups = new ArrayList<>();
 	private UserType userType;
 	private String typeName;
 	private boolean isAuthenticated;
@@ -206,7 +206,7 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 
 	@Transient
 	public List<Role> getApplicationroles(Application application) {
-		List<Role> applicationRoles = new ArrayList<Role>();
+		List<Role> applicationRoles = new ArrayList<>();
 		for (Group g : groups) {
 			for (Role role : g.getRoles()) {
 				if (application.getRoles().contains(role)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public enum RepositoryScheme {
 	}
 
 	public static Set<RepositoryScheme> getSchemes(RepositoryType repositoryType) {
-		Set<RepositoryScheme> supportedSchemes = new HashSet<RepositoryScheme>();
+		Set<RepositoryScheme> supportedSchemes = new HashSet<>();
 		for (RepositoryScheme scheme : RepositoryScheme.values()) {
 			if (repositoryType.equals(scheme.getSupportedRepositoryType())) {
 				supportedSchemes.add(scheme);

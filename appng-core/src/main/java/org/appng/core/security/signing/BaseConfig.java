@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public abstract class BaseConfig {
 		SHA256withRSA, SHA512withRSA
 	}
 
-	static final LinkedHashSet<String> validRepoAttributes = new LinkedHashSet<String>();
+	static final LinkedHashSet<String> validRepoAttributes = new LinkedHashSet<>();
 
 	static {
 		validRepoAttributes.add("repoCodeName");
@@ -59,7 +59,7 @@ public abstract class BaseConfig {
 		validRepoAttributes.add("repoVersion");
 	}
 
-	protected HashMap<String, String> repoAttributes = new HashMap<String, String>();
+	protected HashMap<String, String> repoAttributes = new HashMap<>();
 	protected Collection<X509Certificate> signingCertChain;
 	protected MessageDigest digest;
 	protected Charset charset = Charset.forName(StandardCharsets.UTF_8.name());

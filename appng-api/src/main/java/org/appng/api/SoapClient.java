@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class SoapClient {
 	public SoapClient(String contextPath, String uri, boolean format) {
 		this.marshaller = new Jaxb2Marshaller();
 		marshaller.setContextPath(contextPath);
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 		properties.put(Marshaller.JAXB_FORMATTED_OUTPUT, format);
 		marshaller.setMarshallerProperties(properties);
 		this.webServiceTemplate = new WebServiceTemplate();

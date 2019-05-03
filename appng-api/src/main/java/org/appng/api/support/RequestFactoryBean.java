@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package org.appng.api.support;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.MessageInterpolator;
 
@@ -37,13 +37,13 @@ import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.forms.XSSUtil;
 import org.appng.forms.impl.RequestBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -52,9 +52,9 @@ import org.springframework.core.convert.ConversionService;
  * @author Matthias Müller
  * 
  */
-public class RequestFactoryBean implements FactoryBean<Request>, InitializingBean {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RequestFactoryBean.class);
+@Slf4j
+public class RequestFactoryBean implements FactoryBean<Request>, InitializingBean {
 
 	private Environment environment;
 
@@ -100,14 +100,12 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 			formRequest = new RequestBean();
 			if (isPlatformPresent) {
 				Integer maxUploadSize = platformProperties.getInteger(Platform.Property.MAX_UPLOAD_SIZE);
-				String uploadDir = platformProperties.getString(Platform.Property.UPLOAD_DIR);
-				ServletContext servletContext = httpServletRequest.getServletContext();
-				String realPath = servletContext.getRealPath(uploadDir.startsWith("/") ? uploadDir : "/" + uploadDir);
-				if (null == realPath) {
+				File uploadDir = getUploadDir(platformProperties);
+				if (!uploadDir.exists()) {
 					LOGGER.warn("invalid value for platform property '{}', folder '{}' does not exist!",
 							Platform.Property.UPLOAD_DIR, uploadDir);
 				} else {
-					formRequest.setTempDir(new File(realPath));
+					formRequest.setTempDir(uploadDir);
 				}
 				formRequest.setMaxSize(maxUploadSize);
 				Site site = RequestUtil.getSite(environment, httpServletRequest);
@@ -136,6 +134,12 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 
 	public boolean isSingleton() {
 		return true;
+	}
+
+	private File getUploadDir(Properties properties) {
+		String appNGData = properties.getString(Platform.Property.APPNG_DATA);
+		String uploadDir = properties.getString(Platform.Property.UPLOAD_DIR);
+		return Paths.get(appNGData, uploadDir).normalize().toFile();
 	}
 
 }

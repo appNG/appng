@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.appng.core.model;
+
+import java.io.File;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,7 +50,7 @@ public interface RequestProcessor {
 	 * @return the {@link Platform} representing the result of calling the {@link Site}'s {@link Application}
 	 * @throws InvalidConfigurationException
 	 *             if something goes wrong while processing the request
-	 * @see #processWithTemplate(Site)
+	 * @see #processWithTemplate(Site, File)
 	 */
 	Platform processPlatform(Site site) throws InvalidConfigurationException;
 
@@ -58,13 +60,15 @@ public interface RequestProcessor {
 	 * 
 	 * @param site
 	 *            the {@link Site} for which the process the request
+	 * @param debugRootFolder
+	 *            the folder to write debug files to
 	 * @return the result of calling the {@link Application} and applying the {@link Template}. This should then be
 	 *         written to the {@link HttpServletResponse}
 	 * @throws InvalidConfigurationException
 	 *             if something goes wrong while processing the request
 	 * @see #processPlatform(Site)
 	 */
-	String processWithTemplate(Site site) throws InvalidConfigurationException;
+	String processWithTemplate(Site site, File debugRootFolder) throws InvalidConfigurationException;
 
 	/**
 	 * Returns the content-type of the response

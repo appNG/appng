@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public class LabelSupportTest {
 	@Test
 	public void testFieldParams() {
 		LabelSupport labelSupport = getLabelSupport();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("name", "foo");
 		params.put("name.with.dots", "foo");
 		Label label = new Label();
@@ -101,7 +101,7 @@ public class LabelSupportTest {
 	@Test
 	public void testI18n() {
 		LabelSupport labelSupport = getLabelSupport();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("name", "foo");
 		Label label = new Label();
 		label.setId(KEY);
@@ -170,7 +170,7 @@ public class LabelSupportTest {
 
 		LabelSupport labelSupport = new LabelSupport(messageSource, locale);
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("id", 5);
 		parameters.put("date", new GregorianCalendar(2013, Calendar.MARCH, 8).getTime());
 		parameters.put("number", new Double(42000000.42d));

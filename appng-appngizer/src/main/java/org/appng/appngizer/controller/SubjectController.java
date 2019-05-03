@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,12 @@ import org.appng.core.security.BCryptPasswordHandler;
 import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SubjectController extends ControllerBase {
 
-	@RequestMapping(value = "/subject", method = RequestMethod.GET)
+	@GetMapping(value = "/subject")
 	public ResponseEntity<Subjects> listSubjects() {
-		List<Subject> subjects = new ArrayList<Subject>();
+		List<Subject> subjects = new ArrayList<>();
 		for (org.appng.api.model.Subject g : getCoreService().getSubjects()) {
 			subjects.add(Subject.fromDomain(g, false));
 		}
@@ -53,7 +55,7 @@ public class SubjectController extends ControllerBase {
 		return ok(entity);
 	}
 
-	@RequestMapping(value = "/subject/{name}", method = RequestMethod.GET)
+	@GetMapping(value = "/subject/{name}")
 	public ResponseEntity<Subject> getSubject(@PathVariable("name") String name) {
 		SubjectImpl subject = getCoreService().getSubjectByName(name, true);
 		if (null == subject) {
@@ -77,7 +79,7 @@ public class SubjectController extends ControllerBase {
 		return fromDomain;
 	}
 
-	@RequestMapping(value = "/subject", method = RequestMethod.POST)
+	@PostMapping(value = "/subject")
 	public ResponseEntity<Subject> createSubject(@RequestBody org.appng.appngizer.model.xml.Subject subject)
 			throws BusinessException {
 		SubjectImpl currentSubject = getCoreService().getSubjectByName(subject.getName(), false);
@@ -92,7 +94,7 @@ public class SubjectController extends ControllerBase {
 		return created(getSubject(subject.getName()).getBody());
 	}
 
-	@RequestMapping(value = "/subject/{name}", method = RequestMethod.PUT)
+	@PutMapping(value = "/subject/{name}")
 	public ResponseEntity<Subject> updateSubject(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Subject subject) throws BusinessException {
 		SubjectImpl subjectByName = getCoreService().getSubjectByName(name, true);
@@ -126,7 +128,7 @@ public class SubjectController extends ControllerBase {
 	}
 
 	public void assignGroups(String name, org.appng.appngizer.model.xml.Subject subject) throws BusinessException {
-		List<String> groupNames = new ArrayList<String>();
+		List<String> groupNames = new ArrayList<>();
 		if (null != subject.getGroups() && null != subject.getGroups().getGroup()) {
 			for (org.appng.appngizer.model.xml.Group group : subject.getGroups().getGroup()) {
 				groupNames.add(group.getName());
@@ -135,7 +137,7 @@ public class SubjectController extends ControllerBase {
 		getCoreService().addGroupsToSubject(name, groupNames, true);
 	}
 
-	@RequestMapping(value = "/subject/{name}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/subject/{name}")
 	public ResponseEntity<Void> deleteSubject(@PathVariable("name") String name) {
 		SubjectImpl currentSubject = getCoreService().getSubjectByName(name, false);
 		if (null == currentSubject) {
@@ -149,6 +151,6 @@ public class SubjectController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

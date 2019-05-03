@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.core.controller.handler;
 
 import static org.appng.api.Scope.PLATFORM;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -41,10 +42,10 @@ import org.appng.core.controller.HttpHeaders;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
 import org.appng.xml.application.Template;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StopWatch;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link RequestHandler} responsible for handling requests to the appNG GUI provided by the several
@@ -54,9 +55,14 @@ import org.springframework.util.StopWatch;
  * 
  * @see RequestProcessor
  */
+@Slf4j
 public class GuiHandler implements RequestHandler {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GuiHandler.class);
+	private final File debugFolder;
+
+	public GuiHandler(File debugFolder) {
+		this.debugFolder = debugFolder;
+	}
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
@@ -73,8 +79,8 @@ public class GuiHandler implements RequestHandler {
 			Site errorSite = e.getSite();
 			if (null != errorSite && !errorSite.equals(site)) {
 				String guiPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
-				LOGGER.warn("application '" + e.getApplicationName() + "' not found for site '" + errorSite.getName()
-						+ "', redirecting to " + guiPath, e);
+				LOGGER.warn(String.format("application '%s' not found for site '%s', redirecting to %s",
+						e.getApplicationName(), errorSite.getName(), guiPath), e);
 				Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, guiPath);
 			} else {
 				LOGGER.error("error while processing appNG GUI", e);
@@ -120,10 +126,10 @@ public class GuiHandler implements RequestHandler {
 		String applicationName = pathInfo.getApplicationName();
 		boolean hasApplication = applicationSite.hasApplication(applicationName);
 		if (hasApplication) {
-			LOGGER.debug("calling application " + applicationName);
+			LOGGER.debug("calling application {}", applicationName);
 		} else {
 			applicationName = applicationSite.getProperties().getString(SiteProperties.DEFAULT_APPLICATION);
-			LOGGER.debug("no application set, using default '" + applicationName + "'");
+			LOGGER.debug("no application set, using default '{}'", applicationName);
 			pathInfo.setApplicationName(applicationName);
 		}
 
@@ -145,7 +151,7 @@ public class GuiHandler implements RequestHandler {
 			RequestProcessor processor = ctx.getBean(requestProcessorBeanName, RequestProcessor.class);
 			processor.init(servletRequest, servletResponse, pathInfo, templateDir);
 
-			final String result = processor.processWithTemplate(applicationSite);
+			final String result = processor.processWithTemplate(applicationSite, debugFolder);
 
 			servletResponse.setContentType(processor.getContentType());
 			servletResponse.setContentLength(processor.getContentLength());

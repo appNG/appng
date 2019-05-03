@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class PathInfoTest {
 		Assert.assertNull(pathInfo.getPage());
 		Assert.assertEquals(CURRENT_SITE, pathInfo.getSiteName());
 		Assert.assertTrue(pathInfo.isGui());
-		Assert.assertEquals(new ArrayList<String>(), pathInfo.getApplicationUrlParameters());
+		Assert.assertEquals(new ArrayList<>(), pathInfo.getApplicationUrlParameters());
 		Assert.assertFalse(pathInfo.isDocument());
 		Assert.assertFalse(pathInfo.isStaticContent());
 		Assert.assertFalse(pathInfo.isService());
@@ -116,7 +116,7 @@ public class PathInfoTest {
 		Assert.assertNull(pathInfo.getPage());
 		Assert.assertEquals(CURRENT_SITE, pathInfo.getSiteName());
 		Assert.assertTrue(pathInfo.isGui());
-		Assert.assertEquals(new ArrayList<String>(), pathInfo.getApplicationUrlParameters());
+		Assert.assertEquals(new ArrayList<>(), pathInfo.getApplicationUrlParameters());
 		Assert.assertFalse(pathInfo.isDocument());
 		Assert.assertFalse(pathInfo.isStaticContent());
 		Assert.assertFalse(pathInfo.isService());
@@ -131,7 +131,7 @@ public class PathInfoTest {
 		Assert.assertNull(pathInfo.getPage());
 		Assert.assertEquals("admin", pathInfo.getSiteName());
 		Assert.assertTrue(pathInfo.isGui());
-		Assert.assertEquals(new ArrayList<String>(), pathInfo.getApplicationUrlParameters());
+		Assert.assertEquals(new ArrayList<>(), pathInfo.getApplicationUrlParameters());
 		Assert.assertFalse(pathInfo.isDocument());
 		Assert.assertFalse(pathInfo.isStaticContent());
 		Assert.assertFalse(pathInfo.isService());
@@ -163,7 +163,7 @@ public class PathInfoTest {
 		Assert.assertEquals(CURRENT_SITE, pathInfo.getSiteName());
 		Assert.assertEquals("manager", pathInfo.getSiteName());
 		Assert.assertEquals("sites", pathInfo.getService());
-		Assert.assertEquals(new ArrayList<String>(), pathInfo.getApplicationUrlParameters());
+		Assert.assertEquals(new ArrayList<>(), pathInfo.getApplicationUrlParameters());
 		Assert.assertFalse(pathInfo.isDocument());
 		Assert.assertFalse(pathInfo.isStaticContent());
 		Assert.assertFalse(pathInfo.isGui());
@@ -226,7 +226,7 @@ public class PathInfoTest {
 		Assert.assertNull(pathInfo.getApplicationName());
 		Assert.assertEquals(CURRENT_SITE, pathInfo.getSiteName());
 		Assert.assertNull(pathInfo.getService());
-		Assert.assertEquals(new ArrayList<String>(), pathInfo.getApplicationUrlParameters());
+		Assert.assertEquals(new ArrayList<>(), pathInfo.getApplicationUrlParameters());
 		Assert.assertTrue(pathInfo.isDocument());
 		Assert.assertFalse(pathInfo.isStaticContent());
 		Assert.assertFalse(pathInfo.isGui());
@@ -241,7 +241,7 @@ public class PathInfoTest {
 		Assert.assertNull(pathInfo.getApplicationName());
 		Assert.assertEquals(CURRENT_SITE, pathInfo.getSiteName());
 		Assert.assertNull(pathInfo.getService());
-		Assert.assertEquals(new ArrayList<String>(), pathInfo.getApplicationUrlParameters());
+		Assert.assertEquals(new ArrayList<>(), pathInfo.getApplicationUrlParameters());
 		Assert.assertFalse(pathInfo.isDocument());
 		Assert.assertTrue(pathInfo.isStaticContent());
 		Assert.assertFalse(pathInfo.isGui());

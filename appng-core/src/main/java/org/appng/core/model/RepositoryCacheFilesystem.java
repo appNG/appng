@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,9 @@ import org.appng.core.security.signing.SigningException;
 import org.appng.core.xml.repository.Certification;
 import org.appng.core.xml.repository.PackageType;
 import org.appng.xml.application.PackageInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of {@link RepositoryCache} that retrieves the packages from the local filesystem.
@@ -49,15 +49,15 @@ import org.springframework.util.StopWatch;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryCacheFilesystem.class);
 	private static final String ZIP = ".zip";
 	private static final String MINUS = "-";
 	private Long lastScan;
 	private Long scanPeriod = TimeUnit.SECONDS.toMillis(10);
-	private Map<File, PackageInfo> activeFileMap = new HashMap<File, PackageInfo>();
-	private Set<String> invalidFileMap = new HashSet<String>();
+	private Map<File, PackageInfo> activeFileMap = new HashMap<>();
+	private Set<String> invalidFileMap = new HashSet<>();
 	private RepositoryMode repositoryMode;
 	private File directory;
 	protected byte[] privateKey;
@@ -71,8 +71,8 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 	}
 
 	void init() throws BusinessException {
-		activeFileMap = new HashMap<File, PackageInfo>();
-		invalidFileMap = new HashSet<String>();
+		activeFileMap = new HashMap<>();
+		invalidFileMap = new HashSet<>();
 		lastScan = null;
 		directory = new File(repository.getUri());
 		repositoryMode = repository.getRepositoryMode();
@@ -128,8 +128,8 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		if (null == lastScan || currentTime - lastScan >= scanPeriod) {
 			StopWatch stopWatch = new StopWatch("RepositoryCacheFilesystem: scan repository");
 			stopWatch.start();
-			Map<File, PackageInfo> newfileMap = new HashMap<File, PackageInfo>();
-			Set<TypedPackage> changedPackages = new HashSet<TypedPackage>();
+			Map<File, PackageInfo> newfileMap = new HashMap<>();
+			Set<TypedPackage> changedPackages = new HashSet<>();
 			File[] currentFiles = getFiles();
 			for (File file : currentFiles) {
 				if (!activeFileMap.containsKey(file)) {
@@ -137,19 +137,19 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 					PackageArchive archive = new PackageArchiveImpl(file, repository.isStrict());
 					PackageType type = archive.getType();
 					if (archive.isValid()) {
-						LOGGER.debug("New file found in repository: " + file.getAbsolutePath());
+						LOGGER.debug("New file found in repository: {}", file.getAbsolutePath());
 						PackageInfo packageInfo = archive.getPackageInfo();
 						newfileMap.put(file, packageInfo);
 						String packageName = addApplication(packageInfo);
 						changedPackages.add(new TypedPackage(packageName, type));
 					} else {
 						// invalid file
-						LOGGER.trace("Invalid file found in repository: " + file.getAbsolutePath());
+						LOGGER.trace("Invalid file found in repository: {}", file.getAbsolutePath());
 						invalidFileMap.add(file.getName());
 					}
 				} else {
 					// existing file --> take archive from activeFileMap.
-					LOGGER.trace("Existing file in repository: " + file.getAbsolutePath());
+					LOGGER.trace("Existing file in repository: {}", file.getAbsolutePath());
 					PackageInfo applicationInfo = activeFileMap.get(file);
 					newfileMap.put(file, applicationInfo);
 				}
@@ -159,7 +159,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 			keySet.removeAll(newfileMap.keySet());
 			for (File file : keySet) {
 				// deleted file
-				LOGGER.debug("Deleted file from repository: " + file.getAbsolutePath());
+				LOGGER.debug("Deleted file from repository: {}", file.getAbsolutePath());
 				PackageInfo applicationInfo = activeFileMap.get(file);
 				removePackage(applicationInfo);
 			}
@@ -211,7 +211,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 			File applicationFile = getPackageFile(packageName, packageVersion, packageTimestamp);
 			if (applicationFile.delete()) {
 				deletePackage(packageName, packageVersion, packageTimestamp, true);
-				LOGGER.info("deleted " + packageVersionSignature + " from repository " + directory.getAbsolutePath());
+				LOGGER.info("deleted {} from repository {}", packageVersionSignature, directory.getAbsolutePath());
 			} else {
 				throw new BusinessException("Unable to delete application: " + packageVersionSignature + ", file: "
 						+ applicationFile.getAbsolutePath());

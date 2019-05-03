@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.18.0</version>
+		<version>1.19.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -136,16 +136,6 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.appng</groupId>
-			<artifactId>appng-tomcat7</artifactId>
-			<version>${appNGVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.appng</groupId>
-			<artifactId>appng-tomcat8</artifactId>
-			<version>${appNGVersion}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>

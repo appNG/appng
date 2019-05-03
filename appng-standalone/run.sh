@@ -3,4 +3,4 @@ mvn package -Dmaven.test.skip
 rm -rf target/appng-standalone-$version
 unzip target/appng-standalone-$version.zip -d target
 cd target/appng-standalone-$version
-java -jar appng-standalone-$version.jar -i -u
+java -jar appng-standalone-$version.jar

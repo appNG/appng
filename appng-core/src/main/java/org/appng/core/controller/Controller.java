@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,27 @@ package org.appng.core.controller;
 import static org.appng.api.Scope.REQUEST;
 import static org.appng.api.Scope.SESSION;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.catalina.ContainerServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.servlets.DefaultServlet;
-import org.apache.catalina.util.ServerInfo;
+import org.apache.commons.io.output.NullOutputStream;
 import org.appng.api.Environment;
 import org.appng.api.Path;
 import org.appng.api.PathInfo;
@@ -57,21 +61,20 @@ import org.appng.core.controller.handler.StaticContentHandler;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.xml.MarshallService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * The controller {@link Servlet} of appNG, delegating {@link HttpServletRequest}s to an appropriate
- * {@link RequestHandler}.
+ * The controller {@link Servlet} of appNG, delegating
+ * {@link HttpServletRequest}s to an appropriate {@link RequestHandler}.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 @WebServlet(name = "controller", urlPatterns = { "/", "*.jsp" }, loadOnStartup = 1)
 public class Controller extends DefaultServlet implements ContainerServlet {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
 	private static final String ALLOW_PLAIN_REQUESTS = "allowPlainRequests";
 	private static final String ERRORPAGE = "/errorpage";
@@ -90,61 +93,43 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	private Manager manager;
 
-	private Support support;
-
 	public Controller() {
 		LOGGER.info("Controller created");
 	}
 
-	/** a SPI to support different versions of Tomcat */
-	interface Support {
-		void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding)
-				throws IOException, ServletException;
-
-		HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response);
-
-		void init(ServletConfig config) throws ServletException;
-	}
-
-	protected void setSupport(Support support) {
-		this.support = support;
-	}
-
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		try {
-			char tomcatMajor = ServerInfo.getServerNumber().charAt(0);
-			Class<?> supportClassName = Class
-					.forName(String.format("org.appng.core.controller.Tomcat%sSupport", tomcatMajor));
-			setSupport((Support) supportClassName.newInstance());
-			LOGGER.debug("created {}", support.getClass().getName());
-		} catch (ReflectiveOperationException o) {
-			throw new ServletException("error while creating Controller.Support", o);
-		}
-		support.init(config);
-	}
-
-	// for Tomcat 7 compatibility
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content)
+	protected void doHead(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		support.serveResource(request, response, content, null);
+		doGet(request, wrapResponseForHeadRequest(response));
 	}
 
-	@Override
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content,
-			String encoding) throws IOException, ServletException {
-		support.serveResource(request, response, content, encoding);
-	}
+	private HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response) {
+		return new HttpServletResponseWrapper(response) {
+			@Override
+			public ServletOutputStream getOutputStream() throws IOException {
+				return new ServletOutputStream() {
 
+					public void write(int b) throws IOException {
+					}
+
+					public boolean isReady() {
+						return false;
+					}
+
+					public void setWriteListener(WriteListener listener) {
+					}
+				};
+			}
+
+			@Override
+			public PrintWriter getWriter() throws IOException {
+				return new PrintWriter(new NullOutputStream());
+			}
+		};
+	}
+	
 	public void serveResource(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		serveResource(request, response, true, null);
-	}
-
-	protected void doHead(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
-		doGet(request, support.wrapResponseForHeadRequest(response));
 	}
 
 	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
@@ -240,6 +225,11 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
 
 					RequestHandler requestHandler = null;
+					String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
+					File debugFolder = new File(appngData, "debug").getAbsoluteFile();
+					if (!(debugFolder.exists() || debugFolder.mkdirs())) {
+						LOGGER.warn("Failed to create {}", debugFolder.getPath());
+					}
 
 					if (("/".equals(servletPath)) || ("".equals(servletPath)) || (null == servletPath)) {
 						if (!pathInfo.getDocumentDirectories().isEmpty()) {
@@ -247,20 +237,20 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 							String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
 							Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
 						} else {
-							LOGGER.warn(SiteProperties.DOCUMENT_DIR + " is empty for site " + site.getName()
-									+ ", can not process request!");
+							LOGGER.warn("{} is empty for site {}, can not process request!",
+									SiteProperties.DOCUMENT_DIR, site.getName());
 						}
 					} else if (pathInfo.isStaticContent() || pathInfo.getServletPath().startsWith(templatePrefix)
 							|| pathInfo.isDocument()) {
 						requestHandler = new StaticContentHandler(this);
 					} else if (pathInfo.isGui()) {
-						requestHandler = new GuiHandler();
+						requestHandler = new GuiHandler(debugFolder);
 					} else if (pathInfo.isService()) {
 						ApplicationContext ctx = env.getAttribute(Scope.PLATFORM,
 								Platform.Environment.CORE_PLATFORM_CONTEXT);
 						MarshallService marshallService = ctx.getBean(MarshallService.class);
 						PlatformTransformer platformTransformer = ctx.getBean(PlatformTransformer.class);
-						requestHandler = new ServiceRequestHandler(marshallService, platformTransformer);
+						requestHandler = new ServiceRequestHandler(marshallService, platformTransformer, debugFolder);
 					} else if (pathInfo.isJsp()) {
 						requestHandler = jspHandler;
 					} else if (ERRORPAGE.equals(servletPath)) {
@@ -269,10 +259,10 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 						if (allowPlainRequests && !pathInfo.isRepository()) {
 							super.doGet(servletRequest, servletResponse);
 							int status = servletResponse.getStatus();
-							LOGGER.debug("returned " + status + " for request " + servletPath);
+							LOGGER.debug("returned {} for request {}", status, servletPath);
 						} else {
 							servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-							LOGGER.debug("was not an internal request, rejecting " + servletPath);
+							LOGGER.debug("was not an internal request, rejecting {}", servletPath);
 						}
 					}
 					if (null != requestHandler) {
@@ -300,12 +290,12 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 
 		} else if (allowPlainRequests) {
-			LOGGER.debug("no site found for request '" + servletPath + "'");
+			LOGGER.debug("no site found for request '{}'", servletPath);
 			super.doGet(servletRequest, servletResponse);
 			int status = servletResponse.getStatus();
-			LOGGER.debug("returned " + status + " for request " + servletPath);
+			LOGGER.debug("returned {} for request '{}'", status, servletPath);
 		} else {
-			LOGGER.debug("access to '" + servletPath + "' not allowed");
+			LOGGER.debug("access to '{}' not allowed", servletPath);
 		}
 
 	}
@@ -320,10 +310,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			env.setAttribute(REQUEST, EnvironmentKeys.BASE_URL, pathInfo.getRootPath());
 		}
 		env.setAttribute(REQUEST, EnvironmentKeys.PATH_INFO, pathInfo);
-		Boolean doXsl = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("xsl"));
-		Boolean showXsl = Boolean.TRUE.toString().equalsIgnoreCase(request.getParameter("showXsl"));
-		env.setAttribute(REQUEST, EnvironmentKeys.DO_XSL, doXsl);
-		env.setAttribute(REQUEST, EnvironmentKeys.SHOW_XSL, showXsl);
+		Boolean render = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("render"));
+		env.setAttribute(REQUEST, EnvironmentKeys.RENDER, render);
 		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 		env.setAttribute(REQUEST, HttpHeaders.USER_AGENT, null == userAgent ? "unknown" : userAgent);
 	}
@@ -372,7 +360,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		try {
 			return manager.findSession(sessionId);
 		} catch (IOException e) {
-			LOGGER.warn("errow while retrieving session " + sessionId, e);
+			LOGGER.warn(String.format("error while retrieving session %s", sessionId), e);
 		}
 		return null;
 	}

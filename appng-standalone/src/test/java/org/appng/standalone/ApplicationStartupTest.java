@@ -44,7 +44,7 @@ public class ApplicationStartupTest {
 		Charset utf8 = StandardCharsets.UTF_8;
 		String replacement = IOUtils.toString(new FileInputStream(replacementSource), utf8);
 		System.out.println("Replacement String: " + replacement);
-		ApplicationStartup.replaceInFile(copy.getAbsolutePath(), "${replaceMe}", replacement);
+		ApplicationStartup.replaceInFile(copy, "${replaceMe}", replacement);
 		String newContent = IOUtils.toString(new FileInputStream(copy), utf8);
 		Assert.assertEquals("C:\\Foo\\Bar\\Bla\\Blubb", newContent);
 	}

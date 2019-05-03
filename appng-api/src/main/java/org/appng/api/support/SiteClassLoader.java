@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ import java.security.AccessControlContext;
 import java.security.ProtectionDomain;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.SmartClassLoader;
 import org.springframework.util.ReflectionUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SiteClassLoader extends URLClassLoader implements SmartClassLoader {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(SiteClassLoader.class);
 	private final String site;
 
 	public SiteClassLoader(URL[] urls, ClassLoader parent, String site) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,10 @@ import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.service.CoreService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of creation/destruction and usage of
@@ -55,16 +55,16 @@ import org.springframework.context.ApplicationContext;
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 @WebListener
 public class SessionListener implements ServletContextListener, HttpSessionListener, ServletRequestListener {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
 	private static final Class<org.apache.catalina.connector.Request> CATALINA_REQUEST = org.apache.catalina.connector.Request.class;
 	private static final String HTTPS = "https";
 	public static final String SESSIONS = "sessions";
 	public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
-	private static final ConcurrentMap<String, Session> SESSION_MAP = new ConcurrentHashMap<String, Session>();
+	private static final ConcurrentMap<String, Session> SESSION_MAP = new ConcurrentHashMap<>();
 
 	public void contextInitialized(ServletContextEvent sce) {
 		DefaultEnvironment env = DefaultEnvironment.get(sce.getServletContext());
@@ -205,7 +205,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	private static void saveSessions(Environment env) {
 		env.setAttribute(Scope.PLATFORM, SESSIONS,
-				UnmodifiableList.decorate(new ArrayList<Session>(SESSION_MAP.values())));
+				UnmodifiableList.decorate(new ArrayList<>(SESSION_MAP.values())));
 	}
 
 }

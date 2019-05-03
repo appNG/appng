@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,14 +103,14 @@ import org.appng.xml.platform.Structure;
 import org.appng.xml.platform.Template;
 import org.appng.xml.platform.UrlParams;
 import org.appng.xml.platform.UrlSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.util.StopWatch;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * An {@link ApplicationProvider} actually processes the {@link ApplicationRequest} by building and executing
@@ -123,14 +123,13 @@ import org.springframework.util.StopWatch;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class ApplicationProvider extends SiteApplication implements AccessibleApplication {
-
-	private static final Logger log = LoggerFactory.getLogger(ApplicationProvider.class);
 
 	private Site site;
 	private AccessibleApplication application;
 	private ApplicationConfigProvider applicationConfig;
-	private List<JarInfo> jarInfos = new ArrayList<JarInfo>();
+	private List<JarInfo> jarInfos = new ArrayList<>();
 	private ElementHelper elementHelper;
 
 	private DatabaseConnection databaseConnection;
@@ -241,7 +240,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		Environment env = applicationRequest.getEnvironment();
 
 		UrlSchema urlSchema = pageConfig.getUrlSchema();
-		Set<String> sessionParamNames = new HashSet<String>();
+		Set<String> sessionParamNames = new HashSet<>();
 		for (Param sessionParam : applicationConfig.getSession().getSessionParams().getSessionParam()) {
 			sessionParamNames.add(sessionParam.getName());
 		}
@@ -339,7 +338,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 		List<SectionDef> sectionDefs = page.getStructure().getSection();
 		boolean hasRedirect = false;
-		List<DataSourceElement> dataSourceWrappers = new ArrayList<DataSourceElement>();
+		List<DataSourceElement> dataSourceWrappers = new ArrayList<>();
 
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
@@ -555,32 +554,32 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private void trace(String message) {
-		if (log.isTraceEnabled()) {
-			log.trace(getPrefix() + message);
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace(getPrefix() + message);
 		}
 	}
 
 	private void debug(String message) {
-		if (log.isDebugEnabled()) {
-			log.debug(getPrefix() + message);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(getPrefix() + message);
 		}
 	}
 
 	private void info(String message) {
-		if (log.isInfoEnabled()) {
-			log.info(getPrefix() + message);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(getPrefix() + message);
 		}
 	}
 
 	private void warn(String message) {
-		if (log.isWarnEnabled()) {
-			log.warn(getPrefix() + message);
+		if (LOGGER.isWarnEnabled()) {
+			LOGGER.warn(getPrefix() + message);
 		}
 	}
 
 	private void error(String message, Exception e) {
-		if (log.isErrorEnabled()) {
-			log.error(getPrefix() + message, e);
+		if (LOGGER.isErrorEnabled()) {
+			LOGGER.error(getPrefix() + message, e);
 		}
 	}
 
@@ -743,7 +742,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		try {
 			applicationConfig.close();
 		} catch (IOException e) {
-			log.warn("error closing {}", applicationConfig);
+			LOGGER.warn("error closing {}", applicationConfig);
 		}
 		applicationConfig = null;
 		application.closeContext();
@@ -830,7 +829,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			for (Application application : site.getApplications()) {
 				String sessionParamName = application.getSessionParamKey(site);
 				if (null == env.getAttribute(SESSION, sessionParamName)) {
-					env.setAttribute(SESSION, sessionParamName, new HashMap<String, String>());
+					env.setAttribute(SESSION, sessionParamName, new HashMap<>());
 				}
 			}
 		}
@@ -844,7 +843,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Action action = applicationConfigProvider.getAction(eventId, actionId);
 		if (null == action) {
-			log.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
 					site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return null;
@@ -864,7 +863,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableAction callableAction = new CallableAction(site, application, applicationRequest, actionRef);
 
 			if (callableAction.doInclude() || callableAction.doExecute()) {
-				log.debug("Performing action {}:{} of application {} on site {}", eventId, actionId,
+				LOGGER.debug("Performing action {}:{} of application {} on site {}", eventId, actionId,
 						application.getName(), site.getName());
 				callableAction.perform(false);
 				Messages messages = elementHelper.removeMessages(environment);
@@ -874,11 +873,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 				}
 				return action;
 			}
-			log.debug("Include condition for action {}:{} of application {} on site {} does not match.", eventId,
+			LOGGER.debug("Include condition for action {}:{} of application {} on site {} does not match.", eventId,
 					actionId, application.getName(), site.getName());
 		}
 		Subject subject = environment.getSubject();
-		log.debug(
+		LOGGER.debug(
 				"Action {}:{} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
 				eventId, actionId, application.getName(), site.getName(),
 				subject == null ? "<unknown>" : subject.getAuthName());
@@ -905,7 +904,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Datasource dataSource = applicationConfigProvider.getDatasource(dataSourceId);
 		if (null == dataSource) {
-			log.debug("DataSource {} not found on application {} of site {}", dataSource, application.getName(),
+			LOGGER.debug("DataSource {} not found on application {} of site {}", dataSource, application.getName(),
 					site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return null;
@@ -926,16 +925,16 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
 					parameterSupport, datasourceRef);
 			if (callableDataSource.doInclude()) {
-				log.debug("Performing dataSource {} of application {} on site {}", dataSourceId, application.getName(),
+				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId, application.getName(),
 						site.getName());
 				callableDataSource.perform("service");
 				return callableDataSource.getDatasource();
 			}
-			log.debug("Include condition for dataSource {} of application {} on site {} does not match.", dataSourceId,
+			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.", dataSourceId,
 					application.getName(), site.getName());
 		}
 		Subject subject = environment.getSubject();
-		log.debug(
+		LOGGER.debug(
 				"DataSource {} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
 				dataSource, application.getName(), site.getName(),
 				subject == null ? "<unknown>" : subject.getAuthName());

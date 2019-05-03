@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,12 @@ import org.appng.api.search.Producer;
 import org.appng.search.DocumentProvider;
 import org.appng.search.Search;
 import org.appng.search.indexer.IndexConfig.ConfigEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class FileSystemProvider implements DocumentProvider {
 
-	private static Logger log = LoggerFactory.getLogger(FileSystemProvider.class);
 	private IndexConfig config;
 	private List<String> extensions;
 	private long timeout;
@@ -87,8 +87,8 @@ public class FileSystemProvider implements DocumentProvider {
 	 */
 	public Iterable<DocumentProducer> indexDirectory(int documentQueueSize)
 			throws InterruptedException, TimeoutException {
-		List<DocumentProducer> producers = new ArrayList<DocumentProducer>();
-		log.info("dataDir: " + dataDir.getPath());
+		List<DocumentProducer> producers = new ArrayList<>();
+		LOGGER.info("dataDir: {}", dataDir.getPath());
 
 		DocumentProducer clearer = new DocumentProducer(1, Search.getDefaultAnalyzerClass(), "clear index");
 		clearer.put(new DocumentEvent(null, DocumentIndexer.CLEAR_INDEX), timeout);
@@ -98,13 +98,13 @@ public class FileSystemProvider implements DocumentProvider {
 		int numIndexed = 0;
 		long start = System.currentTimeMillis();
 		if (!dataDir.exists() || !dataDir.isDirectory()) {
-			log.error(dataDir + " does not exist or is not a directory");
+			LOGGER.error("{} does not exist or is not a directory", dataDir);
 		} else {
 
 			Set<String> folders = config.getFolders();
 			for (String folder : folders) {
-				List<File> skippedFolders = new ArrayList<File>(protectedFolders);
-				List<String> skipList = new ArrayList<String>(folders);
+				List<File> skippedFolders = new ArrayList<>(protectedFolders);
+				List<String> skipList = new ArrayList<>(folders);
 				skipList.remove(folder);
 				for (String skipfolder : skipList) {
 					skippedFolders.add(new File(dataDir, skipfolder));
@@ -121,14 +121,14 @@ public class FileSystemProvider implements DocumentProvider {
 							skippedFolders);
 					producers.add(documentProducer);
 				} else {
-					log.warn("The folder {} does not exist, probably the site property {} is misconfigured!",
+					LOGGER.warn("The folder {} does not exist, probably the site property {} is misconfigured!",
 							contentFolder.getAbsolutePath(), SiteProperties.INDEX_CONFIG);
 				}
 
 			}
 		}
 		long end = System.currentTimeMillis();
-		log.info("Indexing " + numIndexed + " files took " + (end - start) + " milliseconds");
+		LOGGER.info("Indexing {} files took {} milliseconds", numIndexed, end - start);
 		return producers;
 	}
 
@@ -194,26 +194,26 @@ public class FileSystemProvider implements DocumentProvider {
 						document.addField(customField);
 					}
 
-					log.debug("indexing (" + fileNo + "/" + total + "):" + file.getAbsolutePath());
+					LOGGER.debug("indexing ({}/{}):{}", fileNo,total, file.getAbsolutePath());
 				} else {
-					log.debug("skipping " + file.getAbsolutePath());
+					LOGGER.debug("skipping {}", file.getAbsolutePath());
 				}
 			} else {
 				try (Reader parsingReader = new ParsingReader(file)) {
-					log.debug("indexing (" + fileNo + "/" + total + "):" + file.getAbsolutePath());
+					LOGGER.debug("indexing ({}/{}):{}", fileNo,total, file.getAbsolutePath());
 					byte[] bytes = IOUtils.toByteArray(parsingReader, Charset.defaultCharset());
 					content = new String(bytes);
 					document.setName(FilenameUtils.getName(file.getName()));
 				}
 			}
 		} catch (IOException e) {
-			log.error("error while indexing " + file.getAbsolutePath(), e);
+			LOGGER.error(String.format("error while indexing %s", file.getAbsolutePath()), e);
 			return null;
 		}
 		document.setContent(content);
 		document.setId(serverPath);
 		long duration = System.currentTimeMillis() - start;
-		log.trace("extraction took " + (duration) + "ms");
+		LOGGER.trace("extraction took {}ms", duration);
 		return new DocumentEvent(document, Document.CREATE);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public class PropertyHolderTest {
 		plainProperties.put("list", "1,2");
 		plainProperties.put("properties", "a = 1\r\nb=2");
 
-		List<Property> properties = new ArrayList<Property>();
+		List<Property> properties = new ArrayList<>();
 		addProperty(properties, "integer", false, null);
 		addProperty(properties, "string", false, null);
 		addProperty(properties, "emptyCustomString", false, "");

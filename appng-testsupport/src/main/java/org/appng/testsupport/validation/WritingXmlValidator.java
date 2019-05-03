@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,12 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class that supports testing if two XML documents have the same content.
@@ -44,9 +44,8 @@ import org.xml.sax.SAXParseException;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class WritingXmlValidator {
-
-	private static final Logger log = LoggerFactory.getLogger(WritingXmlValidator.class);
 
 	/**
 	 * Set to {@code true} to (over)write the control-files on (default {@code false}) (see also
@@ -84,11 +83,12 @@ public class WritingXmlValidator {
 	 */
 	public static File writeToDisk(Object data, String name) throws IOException {
 		File target = new File(controlFileSource + name);
-		FileOutputStream out = new FileOutputStream(target);
-		try {
-			getMarshallService().marshallNonRoot(data, out);
-		} catch (JAXBException e) {
-			throw new IOException("error while marshalling " + data, e);
+		try (FileOutputStream out = new FileOutputStream(target)) {
+			try {
+				getMarshallService().marshallNonRoot(data, out);
+			} catch (JAXBException e) {
+				throw new IOException("error while marshalling " + data, e);
+			}
 		}
 		return target;
 	}
@@ -106,9 +106,9 @@ public class WritingXmlValidator {
 	 */
 	public static File writeToDiskPlain(String data, String name) throws IOException {
 		File target = new File(controlFileSource + name);
-		FileOutputStream out = new FileOutputStream(target);
-		out.write(data.getBytes());
-		out.close();
+		try (FileOutputStream out = new FileOutputStream(target)) {
+			out.write(data.getBytes());
+		}
 		return target;
 	}
 
@@ -307,7 +307,7 @@ public class WritingXmlValidator {
 			myDiff.overrideDifferenceListener(differenceListener);
 		}
 		if (logXml) {
-			log.debug("\r\n" + resultXml);
+			LOGGER.debug("\r\n{}", resultXml);
 		}
 		String message = "XML does not match control XML\r\n" + myDiff.toString() + "\r\n" + resultXml;
 		XMLAssert.assertXMLIdentical(message, myDiff, true);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,15 @@ import java.lang.management.ManagementFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility-class for registering/unregistering JMX-objects.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class JMXUtils {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(JMXUtils.class);
 
 	/**
 	 * Registers the given object under the given name, if no other object is already registered under this name.
@@ -51,7 +49,7 @@ public class JMXUtils {
 				return true;
 			}
 		} catch (Exception e) {
-			LOGGER.error("error while registering " + name, e);
+			LOGGER.error(String.format("error while registering %s", name), e);
 		}
 		return false;
 	}
@@ -73,7 +71,7 @@ public class JMXUtils {
 				return true;
 			}
 		} catch (Exception e) {
-			LOGGER.error("error while deregistering " + name, e);
+			LOGGER.error(String.format("error while deregistering %s", name), e);
 		}
 		return false;
 	}

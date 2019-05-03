@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,14 +47,24 @@ public class CommandCreateSubjectTest extends AbstractCommandTest {
 	@Test
 	@Override
 	public void test() throws BusinessException {
-		new CreateSubject(authName, realName, email, password, language, description, type).execute(cliEnv);
+		new CreateSubject(authName, realName, email, password, language, description, type, false).execute(cliEnv);
+		validate();
+	}
+
+	@Test
+	public void testPasswordHashed() throws BusinessException {
+		email = "pass@word.com";
+		authName = "preHashedPassword";
+		new CreateSubject(authName, realName, email, "$2a$13$qCikwbm6MpoQVcNr0Q66sufn1boqx7AErXAucGeuprSmW/gME3qIG",
+				language, description, type, true).execute(cliEnv);
 		validate();
 	}
 
 	@Test
 	public void testInvalidPassword() {
 		try {
-			new CreateSubject("anotheruser", realName, email, "test", language, description, type).execute(cliEnv);
+			new CreateSubject("anotheruser", realName, email, "test", language, description, type, false)
+					.execute(cliEnv);
 			fail("Must throw BusinessException!");
 		} catch (BusinessException e) {
 			assertEquals("The password should be built up of 6 to 64 characters and must not contain spaces.",
@@ -65,7 +75,7 @@ public class CommandCreateSubjectTest extends AbstractCommandTest {
 	@Test
 	public void testLocalNoPassword() {
 		try {
-			new CreateSubject("anotheruser", realName, email, null, language, description, type).execute(cliEnv);
+			new CreateSubject("anotheruser", realName, email, null, language, description, type, false).execute(cliEnv);
 			fail("Must throw BusinessException!");
 		} catch (BusinessException e) {
 			assertEquals("-p is mandatory for type LOCAL_USER", e.getMessage());
@@ -77,14 +87,14 @@ public class CommandCreateSubjectTest extends AbstractCommandTest {
 		authName = "adminFromLdap";
 		email = "adldap@min.com";
 		type = UserType.GLOBAL_GROUP;
-		new CreateSubject(authName, realName, email, null, language, description, type).execute(cliEnv);
+		new CreateSubject(authName, realName, email, null, language, description, type, false).execute(cliEnv);
 		validate();
 	}
 
 	@Test
 	public void testGroupWithPassword() throws BusinessException {
 		try {
-			new CreateSubject(authName, realName, email, password, language, description, UserType.GLOBAL_GROUP)
+			new CreateSubject(authName, realName, email, password, language, description, UserType.GLOBAL_GROUP, false)
 					.execute(cliEnv);
 			fail("Must throw BusinessException!");
 		} catch (BusinessException e) {
@@ -95,7 +105,7 @@ public class CommandCreateSubjectTest extends AbstractCommandTest {
 	@Test
 	public void testUserExists() {
 		try {
-			new CreateSubject(authName, realName, email, password, language, description, type).execute(cliEnv);
+			new CreateSubject(authName, realName, email, password, language, description, type, false).execute(cliEnv);
 			fail("Must throw BusinessException!");
 		} catch (BusinessException e) {
 			assertEquals("Subject with name 'admin' already exists.", e.getMessage());

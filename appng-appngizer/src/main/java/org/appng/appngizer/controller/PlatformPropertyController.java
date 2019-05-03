@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ import org.appng.appngizer.model.Properties;
 import org.appng.appngizer.model.Property;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,32 +33,32 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class PlatformPropertyController extends PropertyBase {
 
-	@RequestMapping(value = "/platform/property", method = RequestMethod.GET)
+	@GetMapping(value = "/platform/property")
 	public ResponseEntity<Properties> listProperties() {
 		return getProperties(null, null);
 	}
 
-	@RequestMapping(value = "/platform/property/{prop}", method = RequestMethod.GET)
+	@GetMapping(value = "/platform/property/{prop}")
 	public ResponseEntity<Property> getProperty(@PathVariable("prop") String prop) {
 		return getPropertyResponse(prop, null, null);
 	}
 
-	@RequestMapping(value = "/platform/property", method = RequestMethod.POST)
+	@PostMapping(value = "/platform/property")
 	public ResponseEntity<Property> createProperty(@RequestBody org.appng.appngizer.model.xml.Property property) {
 		return createProperty(property, null, null);
 	}
 
-	@RequestMapping(value = "/platform/property/{prop}", method = RequestMethod.PUT)
+	@PutMapping(value = "/platform/property/{prop}")
 	public ResponseEntity<Property> updateProperty(@RequestBody org.appng.appngizer.model.xml.Property property) {
 		return updateProperty(property, null, null);
 	}
 
-	@RequestMapping(value = "/platform/property/{prop}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/platform/property/{prop}")
 	public ResponseEntity<Property> deleteProperty(@PathVariable("prop") String property) {
 		return deleteProperty(property, null, null);
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

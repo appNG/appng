@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +53,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SiteController extends ControllerBase {
 
-	@RequestMapping(value = "/site", method = RequestMethod.GET)
+	@GetMapping(value = "/site")
 	public ResponseEntity<Sites> listSites() {
-		List<Site> siteList = new ArrayList<Site>();
+		List<Site> siteList = new ArrayList<>();
 		for (SiteImpl site : getCoreService().getSites()) {
 			Site fromDomain = Site.fromDomain(site);
 			fromDomain.applyUriComponents(getUriBuilder());
@@ -64,7 +66,7 @@ public class SiteController extends ControllerBase {
 		return new ResponseEntity<Sites>(sites, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/site/{name}", method = RequestMethod.GET)
+	@GetMapping(value = "/site/{name}")
 	public ResponseEntity<Site> getSite(@PathVariable("name") String name) {
 		SiteImpl site = getSiteByName(name);
 		if (null == site) {
@@ -78,7 +80,7 @@ public class SiteController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/site/{name}/reload", method = RequestMethod.PUT)
+	@PutMapping(value = "/site/{name}/reload")
 	public ResponseEntity<Void> reloadSite(@PathVariable("name") String name) throws BusinessException {
 		SiteImpl site = getSiteByName(name);
 		if (null == site) {
@@ -86,13 +88,13 @@ public class SiteController extends ControllerBase {
 		}
 		Sender sender = getSender(DefaultEnvironment.get(context));
 		if (null != sender) {
-			log.debug("messaging is active, sending ReloadSiteEvent");
+			LOGGER.debug("messaging is active, sending ReloadSiteEvent");
 			sender.send(new ReloadSiteEvent(name));
 		} else if (supportsReloadFile(site)) {
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			File reloadFile = new File(rootDir, ".reload");
 			try {
-				log.debug("Created reload marker {}", reloadFile.getAbsolutePath());
+				LOGGER.debug("Created reload marker {}", reloadFile.getAbsolutePath());
 				FileUtils.touch(reloadFile);
 			} catch (IOException e) {
 				throw new BusinessException(e);
@@ -111,7 +113,7 @@ public class SiteController extends ControllerBase {
 		return Boolean.TRUE.equals(site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE));
 	}
 
-	@RequestMapping(value = "/site", method = RequestMethod.POST)
+	@PostMapping(value = "/site")
 	public ResponseEntity<Site> createSite(@RequestBody org.appng.appngizer.model.xml.Site site) {
 		SiteImpl currentSite = getSiteByName(site.getName());
 		if (null != currentSite) {
@@ -121,7 +123,7 @@ public class SiteController extends ControllerBase {
 		return created(getSite(site.getName()).getBody());
 	}
 
-	@RequestMapping(value = "/site/{name}", method = RequestMethod.PUT)
+	@PutMapping(value = "/site/{name}")
 	public ResponseEntity<Site> updateSite(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Site site) {
 		SiteImpl siteByName = getSiteByName(name);
@@ -136,7 +138,7 @@ public class SiteController extends ControllerBase {
 		return ok(getSite(name).getBody());
 	}
 
-	@RequestMapping(value = "/site/{name}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/site/{name}")
 	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name) throws BusinessException {
 		SiteImpl currentSite = getSiteByName(name);
 		if (null == currentSite) {
@@ -149,7 +151,7 @@ public class SiteController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 }

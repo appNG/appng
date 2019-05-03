@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class SessionListenerTest {
 	@Before
 	public void setup() {
 		sessionListener = new SessionListener();
-		platformMap = new ConcurrentHashMap<String, Object>();
+		platformMap = new ConcurrentHashMap<>();
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, props);

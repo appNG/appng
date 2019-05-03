@@ -32,13 +32,13 @@ node {
             sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
         }
 
-        stage('Results') {
-            junit '**/target/surefire-reports/*.xml'
-        }
-
         currentBuild.result = 'SUCCESS'
     } catch (Exception err) {
         currentBuild.result = 'FAILURE'
+    }
+
+    stage('Results') {
+        junit '**/target/surefire-reports/*.xml'
     }
 
     stage ('notifyFinish'){

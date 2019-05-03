@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.appng.api.Environment;
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of {@link Sender}, {@link Receiver} and {@link Serializer} for testing purposes.
@@ -33,9 +33,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class TestReceiver implements Receiver, Runnable {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(TestReceiver.class);
 
 	private ArrayBlockingQueue<Event> events = new ArrayBlockingQueue<>(10);
 	private Serializer eventDeserializer;

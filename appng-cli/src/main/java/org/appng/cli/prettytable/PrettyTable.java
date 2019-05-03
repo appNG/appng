@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,9 @@ public class PrettyTable {
 	private static final char DOUBLE_LINE = '=';
 	private static final char SINGLE_LINE = '-';
 
-	private List<TableColumn> columns = new ArrayList<TableColumn>();
-	private List<TableRow> rows = new ArrayList<TableRow>();
-	private Map<String, TableColumn> columnMap = new HashMap<String, TableColumn>();
+	private List<TableColumn> columns = new ArrayList<>();
+	private List<TableRow> rows = new ArrayList<>();
+	private Map<String, TableColumn> columnMap = new HashMap<>();
 	private int tableWidth = 0;
 
 	public PrettyTable() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ public interface FieldConverter {
 		 * @return the {@link Map}
 		 */
 		public Map<String, String> getFieldValues() {
-			Map<String, String> values = new HashMap<String, String>();
+			Map<String, String> values = new HashMap<>();
 			for (Datafield datafield : getFields()) {
 				values.put(datafield.getName(), datafield.getValue());
 			}

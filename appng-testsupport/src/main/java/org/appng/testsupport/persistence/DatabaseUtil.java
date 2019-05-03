@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ import org.dbunit.dataset.xml.FlatDtdDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.dataset.xml.FlatXmlWriter;
 import org.dbunit.operation.DatabaseOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A utility class helping importing/exporting data and retrieving connection information.
@@ -51,9 +51,10 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  *
  */
+
+@Slf4j
 public class DatabaseUtil {
 
-	private final Logger logger = LoggerFactory.getLogger(DatabaseUtil.class);
 	private final static ClassLoader CLASS_LOADER = DatabaseUtil.class.getClassLoader();
 	private final FlatXmlDataSetBuilder XML_BUILDER = new FlatXmlDataSetBuilder();
 	private IDatabaseConnection connection;
@@ -65,11 +66,11 @@ public class DatabaseUtil {
 	private synchronized void openConnection() throws Exception {
 		try {
 			jdbcConnection = getJDBConnection();
-			logger.info("JDBC-Connection created: " + jdbcConnection);
+			LOGGER.info("JDBC-Connection created: {}", jdbcConnection);
 			connection = getConnection();
-			logger.debug("connection created: " + connection.getClass().getName());
+			LOGGER.debug("connection created: {}", connection.getClass().getName());
 		} catch (Exception e) {
-			logger.error("an error occured", e);
+			LOGGER.error("an error occured", e);
 			throw e;
 		}
 	}
@@ -80,7 +81,7 @@ public class DatabaseUtil {
 		String userName = connectionInfo.getUser();
 		String password = connectionInfo.getPassword();
 
-		logger.info("using datasource " + connectionUrl + " " + userName + "/****");
+		LOGGER.info("using datasource {} {}/****", connectionUrl, userName);
 		Class.forName(driver);
 		Connection connection = DriverManager.getConnection(connectionUrl, userName, password);
 		return connection;
@@ -101,7 +102,7 @@ public class DatabaseUtil {
 	}
 
 	public void importData(Class<? extends TestDataProvider> testDataProviderClass) throws Exception {
-		logger.info("found TestDataProvider " + testDataProviderClass);
+		LOGGER.info("found TestDataProvider {}", testDataProviderClass);
 		TestDataProvider testDataProvider = testDataProviderClass.newInstance();
 		clearDBJPA(true, testDataProvider);
 	}
@@ -126,7 +127,7 @@ public class DatabaseUtil {
 			} finally {
 				end = System.currentTimeMillis();
 			}
-			logger.info("finished DBExport in " + (end - start) + "ms");
+			LOGGER.info("finished DBExport in {}ms", end - start);
 		}
 	}
 
@@ -139,16 +140,16 @@ public class DatabaseUtil {
 		long start = System.currentTimeMillis();
 		try {
 			openConnection();
-			logger.info("found TestDataProvider " + testDataProviderClass);
+			LOGGER.info("found TestDataProvider {}", testDataProviderClass);
 			TestDataProvider testDataProvider = testDataProviderClass.newInstance();
 			clearDBJPA(clearDb, testDataProvider);
 			export(dataName);
 			shutDown();
 		} catch (Exception e) {
-			logger.error("an error occured", e);
+			LOGGER.error("an error occured", e);
 		} finally {
 			long end = System.currentTimeMillis();
-			logger.info("finished DBExport in " + (end - start) + "ms");
+			LOGGER.info("finished DBExport in {}ms", end - start);
 		}
 	}
 
@@ -160,36 +161,36 @@ public class DatabaseUtil {
 		try {
 			connection.close();
 			jdbcConnection.close();
-			logger.debug("shutting down connection " + connection.getClass().getSimpleName());
+			LOGGER.debug("shutting down connection {}", connection.getClass().getSimpleName());
 		} catch (SQLException e) {
-			logger.error("error whole closing the connection", e);
+			LOGGER.error("error whole closing the connection", e);
 			throw e;
 		}
 	}
 
 	public void importData(Map<String, String> properties, Class<? extends TestDataProvider> testDataProvider)
 			throws Exception {
-		Map<String, String> copy = new HashMap<String, String>(properties);
+		Map<String, String> copy = new HashMap<>(properties);
 		copy.put("hibernate.hbm2ddl.auto", "create");
 		EntityManagerFactory emf = null;
 		EntityManager em = null;
 		EntityTransaction tx = null;
 		try {
-			logger.info("clearing database...");
-			Map<String, String> props = new HashMap<String, String>();
+			LOGGER.info("clearing database...");
+			Map<String, String> props = new HashMap<>();
 			props.put("hibernate.hbm2ddl.auto", "create");
 			emf = Persistence.createEntityManagerFactory(connectionInfo.getPersistenceUnit(), copy);
 			em = emf.createEntityManager();
 			tx = em.getTransaction();
 			tx.begin();
 			if (testDataProvider != null) {
-				logger.info("writing testdata");
+				LOGGER.info("writing testdata");
 				testDataProvider.newInstance().writeTestData(em);
-				logger.info("done importing testdata");
+				LOGGER.info("done importing testdata");
 			}
-			logger.info("...done clearing");
+			LOGGER.info("...done clearing");
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			LOGGER.error(e.getMessage(), e);
 			throw e;
 		} finally {
 			if (tx != null) {
@@ -217,31 +218,31 @@ public class DatabaseUtil {
 		EntityManagerFactory emf = null;
 		EntityManager em = null;
 		try {
-			logger.info("clearing database...");
-			Map<String, String> props = new HashMap<String, String>();
+			LOGGER.info("clearing database...");
+			Map<String, String> props = new HashMap<>();
 			if (createSchema) {
 				props.put("hibernate.hbm2ddl.auto", "create");
 				if (showSql) {
 					props.put("hibernate.show_sql", "true");
 				}
-				logger.info("setting hibernate.hbm2ddl.auto to 'create'");
+				LOGGER.info("setting hibernate.hbm2ddl.auto to 'create'");
 			}
 			emf = Persistence.createEntityManagerFactory(connectionInfo.getPersistenceUnit(), props);
 			em = emf.createEntityManager();
 			em.getTransaction().begin();
 
-			logger.info("EntityManager created");
-			logger.info("EntityTransaction created");
-			logger.info("EntityTransaction started");
+			LOGGER.info("EntityManager created");
+			LOGGER.info("EntityTransaction created");
+			LOGGER.info("EntityTransaction started");
 
 			if (testDataProvider != null) {
-				logger.info("writing testdata");
+				LOGGER.info("writing testdata");
 				testDataProvider.writeTestData(em);
-				logger.info("done importing testdata");
+				LOGGER.info("done importing testdata");
 			}
-			logger.info("...done clearing");
+			LOGGER.info("...done clearing");
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			LOGGER.error(e.getMessage(), e);
 			throw e;
 		}
 		em.getTransaction().commit();
@@ -251,19 +252,18 @@ public class DatabaseUtil {
 
 	public void clearDB() {
 		try {
-			logger.info("clearing database...");
+			LOGGER.info("clearing database...");
 			for (int i = connectionInfo.getTableNames().size(); i > 0; i--) {
 				String table = connectionInfo.getTableNames().get(i - 1);
-				Statement statement = jdbcConnection.createStatement();
-				String stmt = "delete from " + ((null != SCHEMA) ? SCHEMA + "." : "") + table;
-				int rows = statement.executeUpdate(stmt);
-				logger.debug(".....clearing " + table + " (" + rows + " rows deleted)");
-				statement.close();
+				try (Statement statement = jdbcConnection.createStatement()) {
+					String stmt = "delete from " + ((null != SCHEMA) ? SCHEMA + "." : "") + table;
+					int rows = statement.executeUpdate(stmt);
+					LOGGER.debug(".....clearing {} ({} rows deleted)", table, rows);
+				}
 			}
-
-			logger.info("...done clearing");
+			LOGGER.info("...done clearing");
 		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 		}
 	}
@@ -273,9 +273,9 @@ public class DatabaseUtil {
 		try {
 			execute(path, DatabaseOperation.INSERT);
 			long end = System.currentTimeMillis();
-			logger.info("imported " + path + " in " + (end - start) + "ms");
+			LOGGER.info("imported {} in {}ms", path, end - start);
 		} catch (Exception e) {
-			logger.error("error while importing file", e);
+			LOGGER.error("error while importing file", e);
 			throw e;
 		}
 	}
@@ -284,7 +284,7 @@ public class DatabaseUtil {
 		try {
 			execute(path, DatabaseOperation.DELETE);
 		} catch (Exception e) {
-			logger.error("error while importing file", e);
+			LOGGER.error("error while importing file", e);
 		}
 	}
 
@@ -309,7 +309,7 @@ public class DatabaseUtil {
 		}
 		QueryDataSet dataSet = new QueryDataSet(connection);
 		for (String table : connectionInfo.getTableNames()) {
-			logger.info("adding table '" + table + "' to testdata");
+			LOGGER.info("adding table '{}' to testdata", table);
 			dataSet.addTable(table);
 		}
 		exportDTD(dataSet, name);
@@ -323,7 +323,7 @@ public class DatabaseUtil {
 		}
 		File out = new File(outFolder, name + ".dtd");
 		FlatDtdDataSet.write(dataSet, new FileOutputStream(out));
-		logger.info("created " + out.getAbsolutePath());
+		LOGGER.info("created {}", out.getAbsolutePath());
 	}
 
 	private void exportXml(IDataSet dataSet, String name) throws Exception {
@@ -332,7 +332,7 @@ public class DatabaseUtil {
 		FlatXmlWriter datasetWriter = new FlatXmlWriter(outStream);
 		datasetWriter.setDocType(name + ".dtd");
 		datasetWriter.write(dataSet);
-		logger.info("created " + out.getAbsolutePath());
+		LOGGER.info("created {}", out.getAbsolutePath());
 	}
 
 	private void exportXls(IDataSet dataSet, String file) throws Exception {
@@ -351,8 +351,8 @@ public class DatabaseUtil {
 	}
 
 	private IDatabaseConnection getConnection() throws Exception, DatabaseUnitException {
-		Constructor<? extends IDatabaseConnection> constructor = connectionInfo.getConnection().getConstructor(
-				Connection.class, String.class);
+		Constructor<? extends IDatabaseConnection> constructor = connectionInfo.getConnection()
+				.getConstructor(Connection.class, String.class);
 		IDatabaseConnection connection = constructor.newInstance(jdbcConnection, null);
 		return connection;
 	}
@@ -378,7 +378,7 @@ public class DatabaseUtil {
 	public static Map<String, String> importTestData(Class<? extends TestDataProvider> class1,
 			ConnectionInfo connectionInfo) throws Exception {
 		String jdbcUrl = connectionInfo.getJdbcUrl();
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(ConnectionHelper.HIBERNATE_CONNECTION_URL, jdbcUrl);
 		DatabaseUtil databaseUtil = new DatabaseUtil(connectionInfo);
 		databaseUtil.importData(properties, class1);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class MultiSiteSupportTest {
 
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
-		Map<String, Object> platformScope = new ConcurrentHashMap<String, Object>();
+		Map<String, Object> platformScope = new ConcurrentHashMap<>();
 		platformScope.put(Platform.Environment.PLATFORM_CONFIG, properties);
 
 		Site site = Mockito.mock(SiteImpl.class);
@@ -61,7 +61,7 @@ public class MultiSiteSupportTest {
 		Mockito.when(site.getHost()).thenReturn(siteName);
 		Mockito.when(site.getDomain()).thenReturn(siteName);
 		Mockito.when(site.getProperties()).thenReturn(Mockito.mock(Properties.class));
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(siteName, site);
 		platformScope.put(Platform.Environment.SITES, siteMap);
 

@@ -1,5 +1,5 @@
 :snapshot: 1.18.1-SNAPSHOT
-:stable: 1.18.1-SNAPSHOT
+:stable: 1.19.0
 :current: {stable}
 
 == upNGizr
@@ -62,11 +62,6 @@ You can also use the *local filesystem*:
 </context-param>
 ----
 
-
-==== replacePlatformContext
-Default: `true`
-
-Whether or not `WEB-INF/conf/platformContext.xml` should be replaced during the update.
 
 ==== replaceBin
 Default: `false`

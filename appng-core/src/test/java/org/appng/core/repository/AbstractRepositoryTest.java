@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.appng.core.repository;
 
+import org.appng.core.service.PlatformTestConfig;
 import org.appng.core.service.TestInitializer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Rollback(true)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT)
+@ContextConfiguration(classes = PlatformTestConfig.class)
 @DirtiesContext
 public abstract class AbstractRepositoryTest extends TestInitializer {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,9 @@ public final class Platform {
 	public final class Property {
 		/** The absolute root-path of the platform */
 		public static final String PLATFORM_ROOT_PATH = "platformRootPath";
+
+		/** The absolute path to the data directory */
+		public static final String APPNG_DATA = "appngData";
 		/**
 		 * The folder for the application-cache, relative to {@link #CACHE_FOLDER}. Applications might use this folder
 		 * to cache temporary data.

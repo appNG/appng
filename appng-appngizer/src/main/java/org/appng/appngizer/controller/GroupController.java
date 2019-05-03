@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,12 @@ import org.appng.core.domain.GroupImpl;
 import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class GroupController extends ControllerBase {
 
-	@RequestMapping(value = "/group", method = RequestMethod.GET)
+	@GetMapping(value = "/group")
 	public ResponseEntity<Groups> listGroups() {
-		List<Group> groupList = new ArrayList<Group>();
+		List<Group> groupList = new ArrayList<>();
 		for (org.appng.api.model.Group g : getCoreService().getGroups()) {
 			groupList.add(Group.fromDomain(g));
 		}
@@ -50,7 +52,7 @@ public class GroupController extends ControllerBase {
 		return ok(groups);
 	}
 
-	@RequestMapping(value = "/group/{name}", method = RequestMethod.GET)
+	@GetMapping(value = "/group/{name}")
 	public ResponseEntity<Group> getGroup(@PathVariable("name") String name) {
 		GroupImpl group = getCoreService().getGroupByName(name, true);
 		if (null == group) {
@@ -69,7 +71,7 @@ public class GroupController extends ControllerBase {
 		}
 	}
 
-	@RequestMapping(value = "/group", method = RequestMethod.POST)
+	@PostMapping(value = "/group")
 	public ResponseEntity<Group> createGroup(@RequestBody org.appng.appngizer.model.xml.Group group) {
 		GroupImpl currentGroup = getCoreService().getGroupByName(group.getName());
 		if (null != currentGroup) {
@@ -81,7 +83,7 @@ public class GroupController extends ControllerBase {
 		return created(getGroup(group.getName()).getBody());
 	}
 
-	@RequestMapping(value = "/group/{name}", method = RequestMethod.PUT)
+	@PutMapping(value = "/group/{name}")
 	public ResponseEntity<Group> updateGroup(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Group group) {
 		boolean nameChanged = nameChanged(group, name);
@@ -124,7 +126,7 @@ public class GroupController extends ControllerBase {
 		}
 	}
 
-	@RequestMapping(value = "/group/{name}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/group/{name}")
 	public ResponseEntity<Void> deleteGroup(@PathVariable("name") String name) {
 		GroupImpl currentGroup = getCoreService().getGroupByName(name);
 		if (null == currentGroup) {
@@ -141,7 +143,7 @@ public class GroupController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
 }

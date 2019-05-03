@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ abstract class OptionFactory<T extends OptionOwner> {
 	public <N extends Named<?>> T fromNamed(String id, String titleId, Iterable<? extends N> allElements,
 			Selector selector, NameProvider<N> nameProvider) {
 		T owner = getOwner(id, titleId);
-		addNamedOptions(allElements, new ArrayList<N>(), owner, nameProvider);
+		addNamedOptions(allElements, new ArrayList<>(), owner, nameProvider);
 		applySelector(owner, selector);
 		return owner;
 	}
@@ -297,7 +297,7 @@ abstract class OptionFactory<T extends OptionOwner> {
 	public <I extends Identifiable<?>> T fromIdentifiable(String id, String titleId, Iterable<? extends I> allElements,
 			Selector selector, NameProvider<I> nameProvider) {
 		T owner = getOwner(id, titleId);
-		addIdentifiableOptions(allElements, new ArrayList<I>(), owner, nameProvider);
+		addIdentifiableOptions(allElements, new ArrayList<>(), owner, nameProvider);
 		applySelector(owner, selector);
 		return owner;
 	}
@@ -428,7 +428,7 @@ abstract class OptionFactory<T extends OptionOwner> {
 	public <S> T fromObjects(String id, String titleId, S[] allElements, Selector selector,
 			NameProvider<S> nameProvider) {
 		T owner = getOwner(id, titleId);
-		addOptions(allElements, new ArrayList<S>(), owner, nameProvider);
+		addOptions(allElements, new ArrayList<>(), owner, nameProvider);
 		applySelector(owner, selector);
 		return owner;
 	}

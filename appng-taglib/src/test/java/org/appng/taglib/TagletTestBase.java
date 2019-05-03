@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public abstract class TagletTestBase {
 		MockServletContext servletContext = new MockServletContext();
 
 		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-		Map<String, Object> requestScope = new ConcurrentHashMap<String, Object>();
+		Map<String, Object> requestScope = new ConcurrentHashMap<>();
 		requestScope.put("variable", "fromRequest");
 		requestScope.put(EnvironmentKeys.SERVLETPATH, "/en/page/fromUrl");
 		request.setAttribute(Scope.REQUEST.name(), requestScope);
@@ -48,16 +48,16 @@ public abstract class TagletTestBase {
 			request.addParameters(parameters);
 		}
 
-		Map<String, Object> sessionScope = new ConcurrentHashMap<String, Object>();
+		Map<String, Object> sessionScope = new ConcurrentHashMap<>();
 		request.setSession(new MockHttpSession(servletContext));
 		request.getSession().setAttribute(Scope.SESSION.name(), sessionScope);
 		sessionScope.put("variable", "fromSession");
 
 		Properties properties = Mockito.mock(Properties.class);
 		Mockito.when(properties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
-		Map<String, Object> platformScope = new ConcurrentHashMap<String, Object>();
+		Map<String, Object> platformScope = new ConcurrentHashMap<>();
 		platformScope.put(Platform.Environment.PLATFORM_CONFIG, properties);
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		Site site = Mockito.mock(Site.class);
 		Mockito.when(site.getName()).thenReturn("localhost");
 		Mockito.when(site.getHost()).thenReturn("localhost");
@@ -68,7 +68,7 @@ public abstract class TagletTestBase {
 		platformScope.put("variable", "fromPlatform");
 
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformScope);
-		Map<String, Object> siteScope = new ConcurrentHashMap<String, Object>();
+		Map<String, Object> siteScope = new ConcurrentHashMap<>();
 		siteScope.put("variable", "fromSite");
 		servletContext.setAttribute(Scope.SITE.name() + ".localhost", siteScope);
 		return new MockPageContext(servletContext, request);

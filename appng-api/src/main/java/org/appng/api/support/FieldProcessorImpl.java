@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,14 +48,14 @@ import org.springframework.data.domain.Sort.Order;
  */
 public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 
-	private List<Message> noticeMessages = new ArrayList<Message>();
-	private List<Message> okMessages = new ArrayList<Message>();
-	private List<Message> errorMessages = new ArrayList<Message>();
-	private List<Message> invalidMessages = new ArrayList<Message>();
+	private List<Message> noticeMessages = new ArrayList<>();
+	private List<Message> okMessages = new ArrayList<>();
+	private List<Message> errorMessages = new ArrayList<>();
+	private List<Message> invalidMessages = new ArrayList<>();
 	private final String reference;
 	private Map<String, FieldDef> fieldMap;
 	private MetaData metaData;
-	private List<Linkpanel> panels = new ArrayList<Linkpanel>();
+	private List<Linkpanel> panels = new ArrayList<>();
 	private Pageable pageable;
 
 	public void addLinkPanels(List<Linkpanel> panels) {
@@ -73,7 +73,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	public FieldProcessorImpl(String reference, MetaData metaData) {
 		this.reference = reference;
 		this.metaData = metaData;
-		this.fieldMap = new HashMap<String, FieldDef>();
+		this.fieldMap = new HashMap<>();
 		if (null != metaData) {
 			for (FieldDef fieldDef : metaData.getFields()) {
 				fieldMap.put(fieldDef.getBinding(), fieldDef);
@@ -291,8 +291,8 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	private Sort getSort() {
 		Sort sort = null;
 		if (pageable.getSort() != null) {
-			List<Order> orders = new ArrayList<Sort.Order>();
-			List<FieldDef> activeSortFields = new ArrayList<FieldDef>();
+			List<Order> orders = new ArrayList<>();
+			List<FieldDef> activeSortFields = new ArrayList<>();
 			for (Order order : pageable.getSort()) {
 				String property = order.getProperty();
 				boolean ignoreCase = false;
@@ -347,14 +347,14 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	private Sort getDefaultSort() {
 		Sort sort = null;
 		if (null != getMetaData()) {
-			List<FieldDef> sortFields = new ArrayList<FieldDef>();
+			List<FieldDef> sortFields = new ArrayList<>();
 			for (FieldDef field : getMetaData().getFields()) {
 				if (null != field.getSort()) {
 					sortFields.add(field);
 				}
 			}
 			Collections.sort(sortFields, new SortComparator());
-			List<Order> orders = new ArrayList<Sort.Order>();
+			List<Order> orders = new ArrayList<>();
 			for (FieldDef field : sortFields) {
 				org.appng.xml.platform.Sort fieldSort = field.getSort();
 				if (isValidSort(fieldSort)) {

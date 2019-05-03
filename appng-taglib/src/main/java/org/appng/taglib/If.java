@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.appng.el.ExpressionEvaluator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Processes the taglet's body if the given condition evaluates to be true. In the condition, any request parameter can
@@ -40,10 +40,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Herlitzius
  */
+@Slf4j
 public class If extends TagSupport {
 
 	private static final long serialVersionUID = 1L;
-	private static Logger log = LoggerFactory.getLogger(If.class);
 	private String condition;
 
 	@Override
@@ -52,10 +52,10 @@ public class If extends TagSupport {
 		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(parameters);
 		boolean matches = expressionEvaluator.evaluate("${" + condition + "}");
 		if (matches) {
-			log.debug("{} = {}, evaluating body", condition, matches);
+			LOGGER.debug("{} = {}, evaluating body", condition, matches);
 			return EVAL_BODY_INCLUDE;
 		}
-		log.debug("{} = {}, skipping body", condition, matches);
+		LOGGER.debug("{} = {}, skipping body", condition, matches);
 		return SKIP_BODY;
 	}
 

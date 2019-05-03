@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,24 @@
 package org.appng.core.model;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
-import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.service.PlatformTestConfig;
+import org.appng.core.model.PlatformTransformer.PlatformTransformerException;
 import org.appng.core.service.TestInitializer;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.OutputFormat;
@@ -48,9 +53,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import net.sf.saxon.trans.XPathException;
-
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
 public class PlatformTransformerTest {
@@ -77,11 +80,12 @@ public class PlatformTransformerTest {
 	private String platformXML;
 	private Platform platform;
 
+	static final File DEBUG_FOLDER = new File("target/debug");
+
 	@Before
 	public void setup() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)).thenReturn(Boolean.FALSE);
-		Mockito.when(environment.getAttribute(Scope.REQUEST, "showXsl")).thenReturn(Boolean.TRUE);
 		setFormatAndType(platformTransformer, true);
 	}
 
@@ -115,28 +119,26 @@ public class PlatformTransformerTest {
 	@Test
 	public void test() throws Exception {
 		init(platformTransformer, TEMPLATE_PATH);
-		Mockito.when(environment.getAttribute(Scope.REQUEST, "showXsl")).thenReturn(Boolean.FALSE);
 		transform();
 	}
 
 	@Test
 	public void testCompileError() throws Exception {
-		runErrornousTest("src/test/resources/template/error-compile", TransformerConfigurationException.class);
+		runErrornousTest("src/test/resources/template/error-compile", PlatformTransformerException.class);
 	}
 
 	@Test
 	public void testRuntimeError() throws Exception {
-		runErrornousTest("src/test/resources/template/error-runtime", XPathException.class);
+		runErrornousTest("src/test/resources/template/error-runtime", PlatformTransformerException.class);
 	}
 
 	private void runErrornousTest(String template, Class<? extends TransformerException> exceptionType)
 			throws Exception {
 		PlatformTransformer.clearCache();
-		final String prefix = String.valueOf(exceptionType.hashCode()) + "-";
 		PlatformTransformer errorTransformer = new PlatformTransformer() {
 			@Override
-			protected String getDebugFilePrefix(TransformerException te, String platformXml) {
-				return prefix;
+			protected String getDebugFilePrefix(Date now) {
+				return StringUtils.EMPTY;
 			}
 		};
 		setFormatAndType(errorTransformer, false);
@@ -144,50 +146,40 @@ public class PlatformTransformerTest {
 		styleSheetProvider.cleanup();
 		errorTransformer.setStyleSheetProvider(styleSheetProvider);
 		init(errorTransformer, template);
-		String targetDir = "target";
-		File targetFolder = new File(targetDir, "debug");
-		Mockito.when(environment.getAttribute(Scope.REQUEST, "showXsl")).thenReturn(Boolean.FALSE);
 		Mockito.when(platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH))
-				.thenReturn(targetDir);
+				.thenReturn(DEBUG_FOLDER.getParent());
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES)).thenReturn(true);
 		try {
-			errorTransformer.transform(applicationProvider, platformProperties, platformXML, HttpHeaders.CHARSET_UTF8);
+			errorTransformer.transform(applicationProvider, platformProperties, platformXML, HttpHeaders.CHARSET_UTF8,
+					DEBUG_FOLDER);
 			Assert.fail("TransformerException should be thrown");
 		} catch (TransformerException e) {
 			Assert.assertEquals(exceptionType, e.getClass());
 		}
-		Assert.assertTrue(targetFolder.exists());
-		Assert.assertTrue(new File(targetFolder, prefix + "platform.xml").exists());
-		Assert.assertTrue(new File(targetFolder, prefix + "stacktrace.txt").exists());
-		Assert.assertTrue(new File(targetFolder, prefix + "template.xsl").exists());
+		assertFolderContains(DEBUG_FOLDER, AbstractRequestProcessor.PLATFORM_XML,
+				AbstractRequestProcessor.STACKTRACE_TXT, PlatformTransformer.TEMPLATE_XSL);
+	}
+
+	static void assertFolderContains(File folder, String... files) {
+		List<String> fileList = Arrays.asList(folder.list());
+		for (String file : files) {
+			Assert.assertTrue(file + " does not exist in folder " + folder.getAbsolutePath() + "!",
+					fileList.contains(file));
+		}
 	}
 
 	@Test
-	public void testDevModeShowXsl() throws Exception {
+	public void testDevMode() throws Exception {
 		init(platformTransformer, TEMPLATE_PATH);
 		transform();
 	}
 
-	private void transform() throws FileNotFoundException, TransformerConfigurationException,
-			InvalidConfigurationException, JAXBException, ParserConfigurationException, TransformerException {
+	private void transform() throws IOException, TransformerConfigurationException, InvalidConfigurationException,
+			JAXBException, ParserConfigurationException, TransformerException {
 		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
-				HttpHeaders.CHARSET_UTF8);
+				HttpHeaders.CHARSET_UTF8, DEBUG_FOLDER);
 		Platform transformedplatform = marshallService.unmarshall(transform, Platform.class);
 		Assert.assertEquals(platformXML, marshallService.marshal(transformedplatform));
 	}
 
-	@Test
-	public void testShowXsl() throws Exception {
-		init(platformTransformer, TEMPLATE_PATH);
-		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)).thenReturn(Boolean.TRUE);
-		String transform = platformTransformer.transform(applicationProvider, platformProperties, platformXML,
-				HttpHeaders.CHARSET_UTF8);
-
-		String xsl = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:ait=\"http://aiticon.de\" exclude-result-prefixes=\"ait xs\" version=\"2.0\">\n"
-				+ "\n	<xsl:output indent=\"no\" method=\"xml\" omit-xml-declaration=\"yes\"/>\n"
-				+ "\n	<xsl:template match=\"/\">\n" + "		<xsl:copy-of select=\".\"/>\n" + "	</xsl:template>\n"
-				+ "\n" + "<!--[BEGIN] embed 'src/test/resources/template/appng:utils.xsl'-->\n"
-				+ "<!--[END] embed 'src/test/resources/template/appng:utils.xsl'--></xsl:stylesheet>";
-		Assert.assertEquals(xsl, transform);
-	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -214,7 +214,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 		Map<String, Identifier> installedPackages = getInstalledPackagesMap(provisionedPackages);
 		RepositoryCache cache = getRepositoryCache();
 		List<PackageWrapper> publishedApplications = cache.getApplications();
-		List<InstallablePackage> provisionableApplications = new ArrayList<InstallablePackage>();
+		List<InstallablePackage> provisionableApplications = new ArrayList<>();
 		for (PackageWrapper publishedApplicationWrapper : publishedApplications) {
 			InstallablePackage provisionableApplication;
 			String packageName = publishedApplicationWrapper.getName();
@@ -232,7 +232,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 
 	@Transient
 	private Map<String, Identifier> getInstalledPackagesMap(List<? extends Identifier> installedPackages) {
-		Map<String, Identifier> installedPackagesMap = new HashMap<String, Identifier>();
+		Map<String, Identifier> installedPackagesMap = new HashMap<>();
 		for (Identifier pckg : installedPackages) {
 			installedPackagesMap.put(pckg.getName(), pckg);
 		}
@@ -245,7 +245,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 		Map<String, Identifier> provisionedApplications = getInstalledPackagesMap(provisionedApplicationsList);
 		RepositoryCache cache = getRepositoryCache();
 		List<PackageInfo> publishedApplicationVersions = cache.getVersions(name);
-		List<PackageVersion> provisionableApplicationVersions = new ArrayList<PackageVersion>();
+		List<PackageVersion> provisionableApplicationVersions = new ArrayList<>();
 		for (PackageInfo applicationInfo : publishedApplicationVersions) {
 			PackageVersion provisionableApplicationVersion;
 			String applicationName = applicationInfo.getName();
@@ -265,10 +265,15 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 
 	@Transient
 	public Packages getPackages() throws BusinessException {
+		return getPackages(null);
+	}
+
+	@Transient
+	public Packages getPackages(String packageName) throws BusinessException {
 		RepositoryCache cache = getRepositoryCache();
 		Packages packages = new Packages();
 		packages.setCertification(cache.getCertification());
-		for (PackageWrapper packageWrapper : cache.getApplications()) {
+		for (PackageWrapper packageWrapper : cache.getApplications(packageName)) {
 			org.appng.core.xml.repository.Package publishedPackage = packageWrapper.getPackage();
 			packages.getPackage().add(publishedPackage);
 		}

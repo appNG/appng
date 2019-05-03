@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,8 +114,7 @@ public abstract class ControllerTest {
 		this.differenceListener = new XPathDifferenceHandler();
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		if (!platformInitialized) {
-			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true,
-					true);
+			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true);
 			platformInitialized = true;
 		}
 	}
@@ -176,7 +175,7 @@ public abstract class ControllerTest {
 	}
 
 	protected List<Property> getPlatformProperties(String prefix) {
-		List<Property> platformProperties = new ArrayList<Property>();
+		List<Property> platformProperties = new ArrayList<>();
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.VHOST_MODE, VHostMode.NAME_BASED.name()));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.LOCALE, "en"));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.TIME_ZONE, "Europe/Berlin"));

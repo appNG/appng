@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.hsqldb.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class responsible for starting and stopping a HSQL {@link Server} in case appNG is configured to use
@@ -35,9 +36,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class HsqlStarter {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(HsqlStarter.class);
 
 	private static final String APPNG_HSQL_LOG = "appng-hsql.log";
 	private static final String APPNG_HSQL_ERROR_LOG = "appng-hsql-error.log";
@@ -98,8 +98,10 @@ public class HsqlStarter {
 			LOGGER.info("shutting down HSQL Server {} at {} on port {}", server.getProductVersion(),
 					server.getDatabasePath(0, false), server.getPort());
 			String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", server.getPort(), DATABASE_NAME);
-			try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "")) {
-				connection.createStatement().execute("SHUTDOWN");
+			try (
+					Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+					Statement statement = connection.createStatement()) {
+				statement.execute("SHUTDOWN");
 			} catch (SQLException e) {
 				LOGGER.warn("error while shutting down server", e);
 			}

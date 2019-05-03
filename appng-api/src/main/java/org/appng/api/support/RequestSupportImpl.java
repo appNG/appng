@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,14 +33,14 @@ import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.Condition;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.MetaData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.util.ClassUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -49,14 +49,14 @@ import org.springframework.util.ClassUtils;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class RequestSupportImpl extends AdapterBase implements RequestSupport {
-
-	private static final Logger log = LoggerFactory.getLogger(RequestSupportImpl.class);
 
 	public RequestSupportImpl() {
 	}
 
-	public RequestSupportImpl(ConversionService conversionService, Environment environment, MessageSource messageSource) {
+	public RequestSupportImpl(ConversionService conversionService, Environment environment,
+			MessageSource messageSource) {
 		setConversionService(conversionService);
 		setEnvironment(environment);
 		setMessageSource(messageSource);
@@ -83,7 +83,7 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 					FieldWrapper fieldWrapper = new FieldWrapper(fieldDef, beanWrapper);
 					fieldConverter.setObject(fieldWrapper, container);
 				} else {
-					log.trace(fieldDef.getBinding() + " is readonly!");
+					LOGGER.trace("{} is readonly!", fieldDef.getBinding());
 				}
 			}
 		} catch (Exception e) {
@@ -224,7 +224,7 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 		}
 		BeanWrapper sourceWrapper = new BeanWrapperImpl(source);
 		BeanWrapper targetWrapper = new BeanWrapperImpl(target);
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(parameters);
 		expressionEvaluator.setVariable(CURRENT, source);
 		setPropertyValues(sourceWrapper, targetWrapper, metaData, expressionEvaluator);
@@ -248,10 +248,10 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 				if (StringUtils.isNotBlank(expression)) {
 					doWrite = expressionEvaluator.evaluate(expression);
 					if (doWrite) {
-						log.debug("condition '" + expression + "' for property '" + fieldBinding + "' matched");
+						LOGGER.debug("condition '{}' for property '{}' matched", expression, fieldBinding);
 					} else {
-						log.debug("condition '" + expression + "' for property '" + fieldBinding
-								+ "' did not match, skipping field");
+						LOGGER.debug("condition '{}' for property '{}' did not match, skipping field", expression,
+								fieldBinding);
 					}
 				}
 			}
@@ -267,14 +267,15 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 				if (targetWrapper.isWritableProperty(property)) {
 					Object propertyValue = sourceWrapper.getPropertyValue(property);
 					if (!(propertyValue instanceof Collection<?>)) {
-						log.debug("setting property '" + property + "' of class '"
-								+ targetWrapper.getWrappedClass().getName() + "' to '" + propertyValue + "'");
+						LOGGER.debug("setting property '{}' of class '{}' to '{}'", property,
+								targetWrapper.getWrappedClass().getName(), propertyValue);
 						targetWrapper.setPropertyValue(property, propertyValue);
 					}
 				}
 			} else {
 				// should never ever happen
-				log.error("property '" + property + "' not readable in class '" + sourceWrapper.getWrappedClass() + "'");
+				LOGGER.error(
+						"property '" + property + "' not readable in class '" + sourceWrapper.getWrappedClass() + "'");
 			}
 		}
 	}

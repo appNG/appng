@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public abstract class AbstractFieldConverterTest {
 	protected FieldDef field;
 
 	protected void setup(FieldType type) throws Exception {
-		setup(type, new HashMap<String, Object>());
+		setup(type, new HashMap<>());
 	}
 
 	protected void setup(FieldType type, Map<String, Object> params) throws Exception {
@@ -82,8 +82,8 @@ public abstract class AbstractFieldConverterTest {
 
 	protected DatafieldOwner getDatafieldOwner() {
 		return new DatafieldOwner() {
-			private List<Datafield> fields = new ArrayList<Datafield>();
-			private List<Linkpanel> linkpanels = new ArrayList<Linkpanel>();
+			private List<Datafield> fields = new ArrayList<>();
+			private List<Linkpanel> linkpanels = new ArrayList<>();
 
 			public List<Linkpanel> getLinkpanels() {
 				return linkpanels;

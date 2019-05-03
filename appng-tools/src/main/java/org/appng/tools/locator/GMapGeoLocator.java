@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,24 +25,25 @@ import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * Retrieves coordinates from Google Maps via its <a
- * href="https://developers.google.com/maps/documentation/geocoding/#JSON">JSON API</a>.
+ * Retrieves coordinates from Google Maps via its
+ * <a href="https://developers.google.com/maps/documentation/geocoding/#JSON">JSON API</a>.
  * 
  * @author mueller.matthias
  * 
  */
-public class GMapGeoLocator implements GeoLocator {
 
-	private static final Logger logger = LoggerFactory.getLogger(GMapGeoLocator.class);
+@Slf4j
+public class GMapGeoLocator implements GeoLocator {
 
 	public static final String GOOGLE_URI = "googleUri";
 	public static final String GOOGLE_SUFFIX = "googleSuffix";
@@ -85,7 +86,6 @@ public class GMapGeoLocator implements GeoLocator {
 	}
 
 	public Coordinate locate(String zip, String city, String street, String country) {
-		HttpURLConnection connection = null;
 		try {
 			StringBuilder query = new StringBuilder();
 			boolean space = append(query, street, false);
@@ -99,9 +99,9 @@ public class GMapGeoLocator implements GeoLocator {
 			}
 			JsonNode response = getJsonResponse(buildUrl(requestUrl));
 
-			if (logger.isTraceEnabled()) {
-				logger.trace(requestUrl);
-				logger.trace(response.toString());
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace(requestUrl);
+				LOGGER.trace(response.toString());
 			}
 
 			JsonNode status = response.get(STATUS);
@@ -112,18 +112,14 @@ public class GMapGeoLocator implements GeoLocator {
 				double lat = location.get(LAT).doubleValue();
 				double lng = location.get(LNG).doubleValue();
 				Coordinate coordinate = new Coordinate(lat, lng);
-				logger.debug("found coordinates for address '" + address + "': " + coordinate);
+				LOGGER.debug("found coordinates for address '{}': {}", address, coordinate);
 				return coordinate;
 			} else {
-				logger.debug("return-code was '" + status.textValue() + "' for request '" + requestUrl
-						+ "', no coordinates retrieved");
+				LOGGER.debug("return-code was '{}' for request '{}', no coordinates retrieved", status.textValue(),
+						requestUrl);
 			}
 		} catch (Exception e) {
-			logger.warn("error while retrieving coordinates", e);
-		} finally {
-			if (null != connection) {
-				connection.disconnect();
-			}
+			LOGGER.warn("error while retrieving coordinates", e);
 		}
 		return null;
 	}
@@ -179,7 +175,7 @@ public class GMapGeoLocator implements GeoLocator {
 
 		public String signRequest(String path, String query) throws GeneralSecurityException {
 			String resource = path + '?' + query;
-			byte[] sigBytes = HmacUtils.getHmacSha1(key).doFinal(resource.getBytes());
+			byte[] sigBytes = HmacUtils.getInitializedMac(HmacAlgorithms.HMAC_SHA_1, key).doFinal(resource.getBytes());
 			String signature = Base64.encodeBase64URLSafeString(sigBytes);
 			return resource + "&signature=" + signature;
 		}
