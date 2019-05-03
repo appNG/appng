@@ -1,6 +1,6 @@
 :snapshot: 1.18.1-SNAPSHOT
-:stable: 1.18.0
-:current: {snapshot}
+:stable: 1.19.0
+:current: {stable}
 
 == upNGizr
 
