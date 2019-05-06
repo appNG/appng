@@ -24,6 +24,7 @@ import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.ApplicationProvider;
@@ -33,8 +34,9 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Utility class to retrieve the calling and the executing {@link Site} and the right {@link ApplicationProvider} that
- * is responsible for handling a taglet-call.
+ * Utility class to retrieve the calling and the executing {@link Site} and the
+ * right {@link ApplicationProvider} that is responsible for handling a
+ * taglet-call.
  * 
  * @author Matthias Müller
  * @author Matthias Herlitzius
@@ -67,10 +69,9 @@ public class MultiSiteSupport {
 			if (null != site) {
 				LOGGER.debug("site '{}' is granting site '{}' access to application '{}'", site.getName(),
 						callingSite.getName(), application);
-				executingSite = (SiteImpl) RequestUtil.getSiteByName(env, site.getName());
-				if (null != executingSite) {
-					applicationProvider = (ApplicationProvider) ((SiteImpl) executingSite)
-							.getSiteApplication(application);
+				executingSite = (SiteImpl) RequestUtil.waitForSite(env, site.getName());
+				if (null != executingSite && executingSite.hasState(SiteState.STARTED)) {
+					applicationProvider = (ApplicationProvider) executingSite.getSiteApplication(application);
 					if (null == applicationProvider) {
 						throw new JspException(
 								String.format(

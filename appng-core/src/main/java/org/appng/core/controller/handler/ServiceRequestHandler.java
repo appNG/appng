@@ -47,6 +47,7 @@ import org.appng.api.Webservice;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
@@ -80,12 +81,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link RequestHandler} which handles {@link HttpServletRequest}s for different types of services.<br/>
+ * A {@link RequestHandler} which handles {@link HttpServletRequest}s for
+ * different types of services.<br/>
  * The schema for a complate path to a service is
  * <p>
  * {@code <site-domain>/<service-path>/<site-name>/<application-name>/<service-type/<service-name>/<additional-params>}
  * </p>
- * The service-path is configurable, see {@link SiteProperties#SERVICE_PATH}.<br/>
+ * The service-path is configurable, see
+ * {@link SiteProperties#SERVICE_PATH}.<br/>
  * Supported service-types are:<br/>
  * <ul>
  * <li><b>webservice</b><br/>
@@ -116,7 +119,8 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * <li><b>soap</b><br/>
- * Used for calling a {@link org.appng.api.SoapService} provided by a {@link Application}.<br/>
+ * Used for calling a {@link org.appng.api.SoapService} provided by a
+ * {@link Application}.<br/>
  * Example (GET for the wsdl):
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-demoapplication/soap/PersonService/PersonService.wsdl
@@ -127,7 +131,8 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * <li><b>rest</b><br/>
- * Used for addressing a {@link org.springframework.web.bind.annotation.RestController} offered by an
+ * Used for addressing a
+ * {@link org.springframework.web.bind.annotation.RestController} offered by an
  * {@link Application}<br/>
  * Example:
  * <ul>
@@ -166,9 +171,11 @@ public class ServiceRequestHandler implements RequestHandler {
 				String applicationName = path.getApplicationName();
 				String serviceType = path.getElementAt(path.getApplicationIndex() + 1);
 
-				Site siteToUse = RequestUtil.getSiteByName(environment, siteName);
+				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
-					throw new IOException("no such site: " + siteName);
+					throw new IOException("No such site: " + siteName);
+				} else if (!site.hasState(SiteState.STARTED)) {
+					throw new IOException("Site not started: " + siteName);
 				}
 				URLClassLoader siteClassLoader = siteToUse.getSiteClassLoader();
 				Thread.currentThread().setContextClassLoader(siteClassLoader);
