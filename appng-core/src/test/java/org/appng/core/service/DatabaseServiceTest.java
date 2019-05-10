@@ -133,9 +133,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		}
 	}
 
-	@Test
-	@Ignore("uses testcontainers, which needs docker")
-	public void testInitDatabaseMsSql() throws Exception {
+	void testInitDatabaseMsSql() throws Exception {
 		try (MSSQLServerContainer<?> mssql = new MSSQLServerContainer<>()) {
 			mssql.start();
 			validateConnectionType(mssql, DatabaseType.MSSQL, "Microsoft SQL Server", "14.00", false, true);
