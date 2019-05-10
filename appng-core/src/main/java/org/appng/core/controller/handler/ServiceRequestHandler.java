@@ -81,14 +81,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link RequestHandler} which handles {@link HttpServletRequest}s for
- * different types of services.<br/>
+ * A {@link RequestHandler} which handles {@link HttpServletRequest}s for different types of services.<br/>
  * The schema for a complate path to a service is
  * <p>
  * {@code <site-domain>/<service-path>/<site-name>/<application-name>/<service-type/<service-name>/<additional-params>}
  * </p>
- * The service-path is configurable, see
- * {@link SiteProperties#SERVICE_PATH}.<br/>
+ * The service-path is configurable, see {@link SiteProperties#SERVICE_PATH}.<br/>
  * Supported service-types are:<br/>
  * <ul>
  * <li><b>webservice</b><br/>
@@ -119,8 +117,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * <li><b>soap</b><br/>
- * Used for calling a {@link org.appng.api.SoapService} provided by a
- * {@link Application}.<br/>
+ * Used for calling a {@link org.appng.api.SoapService} provided by a {@link Application}.<br/>
  * Example (GET for the wsdl):
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-demoapplication/soap/PersonService/PersonService.wsdl
@@ -131,8 +128,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * <li><b>rest</b><br/>
- * Used for addressing a
- * {@link org.springframework.web.bind.annotation.RestController} offered by an
+ * Used for addressing a {@link org.springframework.web.bind.annotation.RestController} offered by an
  * {@link Application}<br/>
  * Example:
  * <ul>

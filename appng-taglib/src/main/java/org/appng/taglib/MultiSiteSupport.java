@@ -34,9 +34,8 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Utility class to retrieve the calling and the executing {@link Site} and the
- * right {@link ApplicationProvider} that is responsible for handling a
- * taglet-call.
+ * Utility class to retrieve the calling and the executing {@link Site} and the right {@link ApplicationProvider} that
+ * is responsible for handling a taglet-call.
  * 
  * @author Matthias Müller
  * @author Matthias Herlitzius
