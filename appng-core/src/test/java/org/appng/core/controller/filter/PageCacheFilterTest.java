@@ -15,15 +15,18 @@
  */
 package org.appng.core.controller.filter;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.zip.DataFormatException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.appng.api.model.Site;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,6 +43,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.web.Header;
 import net.sf.ehcache.constructs.web.PageInfo;
+import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 
 public class PageCacheFilterTest {
 
@@ -54,13 +58,23 @@ public class PageCacheFilterTest {
 		String modifiedDate = "Wed, 28 Mar 2018 09:04:12 GMT";
 		String content = "foobar";
 		PageCacheFilter pageCacheFilter = new PageCacheFilter() {
-			protected net.sf.ehcache.constructs.web.PageInfo buildPage(HttpServletRequest request,
+			@Override
+			protected PageInfo buildPage(HttpServletRequest request,
 					HttpServletResponse response, FilterChain chain, BlockingCache blockingCache)
 					throws net.sf.ehcache.constructs.web.AlreadyGzippedException, Exception {
 				List<Header<? extends Serializable>> headers = new ArrayList<>();
 				headers.add(new Header<String>(HttpHeaders.LAST_MODIFIED, modifiedDate));
 				return new PageInfo(200, "text/plain", new ArrayList<>(), content.getBytes(), false, 1800, headers);
 			};
+
+			@Override
+			protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo)
+					throws IOException, DataFormatException, ResponseHeadersNotModifiableException {
+				if ("/aborted".equals(request.getServletPath())) {
+					throw new ClientAbortException("aborted!");
+				}
+				super.writeResponse(request, response, pageInfo);
+			}
 		};
 		AtomicReference<PageInfo> actual = new AtomicReference<>();
 		Mockito.doAnswer(new Answer<Void>() {
@@ -84,6 +98,13 @@ public class PageCacheFilterTest {
 		pageCacheFilter.handleCaching(req, response, Mockito.mock(Site.class), chain, cache);
 		Assert.assertEquals(HttpStatus.NOT_MODIFIED.value(), response.getStatus());
 		Assert.assertEquals(0, response.getContentLength());
+
+		MockHttpServletRequest aborted = new MockHttpServletRequest(new MockServletContext());
+		aborted.setServletPath("/aborted");
+		MockHttpServletResponse abortedResponse = new MockHttpServletResponse();
+		pageCacheFilter.handleCaching(aborted, abortedResponse, Mockito.mock(Site.class), chain, cache);
+		Assert.assertEquals(HttpStatus.OK.value(), abortedResponse.getStatus());
+		Assert.assertEquals(0, abortedResponse.getContentLength());
 	}
 
 }
