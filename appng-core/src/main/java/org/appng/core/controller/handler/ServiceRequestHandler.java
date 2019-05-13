@@ -47,6 +47,7 @@ import org.appng.api.Webservice;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
@@ -166,9 +167,11 @@ public class ServiceRequestHandler implements RequestHandler {
 				String applicationName = path.getApplicationName();
 				String serviceType = path.getElementAt(path.getApplicationIndex() + 1);
 
-				Site siteToUse = RequestUtil.getSiteByName(environment, siteName);
+				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
-					throw new IOException("no such site: " + siteName);
+					throw new IOException("No such site: " + siteName);
+				} else if (!siteToUse.hasState(SiteState.STARTED)) {
+					throw new IOException("Site not started: " + siteName);
 				}
 				URLClassLoader siteClassLoader = siteToUse.getSiteClassLoader();
 				Thread.currentThread().setContextClassLoader(siteClassLoader);

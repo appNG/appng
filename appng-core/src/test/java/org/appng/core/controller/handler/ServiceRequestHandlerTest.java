@@ -43,6 +43,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.RequestSupportImpl;
@@ -392,6 +393,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 				Arrays.asList(new SimpleProperty("permissionsEnabled", Boolean.TRUE.toString())));
 		Mockito.when(application.getProperties()).thenReturn(applicationProps);
 		site = new SiteImpl();
+		site.setState(SiteState.STARTED);
 		site.setHost("localhost");
 		site.setName("localhost");
 		site.setDomain("localhost");
@@ -435,6 +437,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(site.getName(), site);
 		SiteImpl site1 = new SiteImpl();
+		site1.setState(SiteState.STARTED);
 		site1.setHost("site1");
 		site1.setName("site1");
 		site1.setDomain("site1");

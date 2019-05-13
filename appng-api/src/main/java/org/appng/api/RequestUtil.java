@@ -24,6 +24,7 @@ import javax.servlet.ServletRequest;
 
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -101,6 +102,51 @@ public class RequestUtil {
 			site = sites.get(name);
 		}
 		return site;
+	}
+
+	/**
+	 * Retrieves a {@link Site} by its name, waiting up to
+	 * {@code Platform.Property#MAX_WAIT_TIME} milliseconds until it's state is {@code SiteState#STARTED}.
+	 * 
+	 * @param env  the current {@link Environment}
+	 * @param name the name of the {@link Site}
+	 * @return the {@link Site}, if any
+	 * 
+	 * @see #getSiteByName(Environment, String)
+	 * @see Site#hasState(SiteState...)
+	 */
+	public static Site waitForSite(Environment env, String name) {
+		Site site = getSiteByName(env, name);
+		if (site.hasState(SiteState.STARTED)) {
+			return site;
+		}
+
+		long waited = 0;
+		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
+		int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+
+		while (waited < maxWaitTime
+				&& (site = getSiteByName(env, name)).hasState(SiteState.STOPPING, SiteState.STOPPED)) {
+			try {
+				Thread.sleep(waitTime);
+				waited += waitTime;
+			} catch (InterruptedException e) {
+				LOGGER.error("error while waiting for site to be started", e);
+			}
+			LOGGER.info("site '{}' is currently in state {}, waited {}ms", site, site.getState(), waited);
+		}
+
+		while (waited < maxWaitTime && (site = getSiteByName(env, name)).hasState(SiteState.STARTING)) {
+			try {
+				Thread.sleep(waitTime);
+				waited += waitTime;
+			} catch (InterruptedException e) {
+				LOGGER.error("error while waiting for site to be started", e);
+			}
+			LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
+		}
+		return getSiteByName(env, name);
 	}
 
 	private static Map<String, Site> getSiteMap(Environment env) {

@@ -126,7 +126,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 		};
 	}
-	
+
 	public void serveResource(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		serveResource(request, response, true, null);
@@ -183,33 +183,9 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			try {
 				int requests = ((SiteImpl) site).addRequest();
 				LOGGER.debug("site {} currently handles {} requests", site, requests);
-				long waited = 0;
-				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
-				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+				site = RequestUtil.waitForSite(env, site.getName());
 
-				while (waited < maxWaitTime && (site = RequestUtil.getSiteByName(env, site.getName()))
-						.hasState(SiteState.STOPPING, SiteState.STOPPED)) {
-					try {
-						Thread.sleep(waitTime);
-						waited += waitTime;
-					} catch (InterruptedException e) {
-						LOGGER.error("error while waiting for site to be started", e);
-					}
-					LOGGER.info("site '{}' is currently beeing stopped, waited {}ms", site, waited);
-				}
-
-				while (waited < maxWaitTime
-						&& (site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTING)) {
-					try {
-						Thread.sleep(waitTime);
-						waited += waitTime;
-					} catch (InterruptedException e) {
-						LOGGER.error("error while waiting for site to be started", e);
-					}
-					LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
-				}
-
-				if ((site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTED)) {
+				if (site.hasState(SiteState.STARTED)) {
 					boolean enforcePrimaryDomain = site.getProperties()
 							.getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
 					if (enforcePrimaryDomain) {
@@ -279,7 +255,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					}
 
 				} else {
-					LOGGER.error("timeout while waiting for site {}, waited {}ms", site, waited);
+					LOGGER.error("timeout while waiting for site {}", site);
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 				}
 			} finally {
