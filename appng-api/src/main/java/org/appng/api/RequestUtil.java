@@ -134,7 +134,7 @@ public class RequestUtil {
 			} catch (InterruptedException e) {
 				LOGGER.error("error while waiting for site to be started", e);
 			}
-			LOGGER.info("site '{}' is currently beeing stopped, waited {}ms", site, waited);
+			LOGGER.info("site '{}' is currently in state {}, waited {}ms", site, site.getState(), waited);
 		}
 
 		while (waited < maxWaitTime && (site = getSiteByName(env, name)).hasState(SiteState.STARTING)) {

@@ -170,7 +170,7 @@ public class ServiceRequestHandler implements RequestHandler {
 				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
 					throw new IOException("No such site: " + siteName);
-				} else if (!site.hasState(SiteState.STARTED)) {
+				} else if (!siteToUse.hasState(SiteState.STARTED)) {
 					throw new IOException("Site not started: " + siteName);
 				}
 				URLClassLoader siteClassLoader = siteToUse.getSiteClassLoader();
