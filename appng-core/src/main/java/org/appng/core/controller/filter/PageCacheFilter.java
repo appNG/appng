@@ -33,6 +33,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
@@ -125,6 +126,10 @@ public class PageCacheFilter extends CachingFilter {
 			}
 		} catch (CacheException e) {
 			LOGGER.warn(String.format("error while adding/retrieving from/to cache: %s", calculateKey(request)), e);
+		} catch (ClientAbortException e) {
+			if(LOGGER.isDebugEnabled()) {
+				LOGGER.debug(String.format("client aborted request: %s", calculateKey(request)), e);
+			}
 		}
 	}
 
