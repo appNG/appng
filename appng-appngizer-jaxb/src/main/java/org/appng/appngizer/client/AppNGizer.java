@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -62,17 +63,28 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Delegate;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A client for appNGizer.
+ * A client for appNGizer.<br/>
+ * Usage:
+ * 
+ * <pre>
+ * AppNGizer appNGizer = AppNGizer.Builder.getInstance("http://localhost:8080");
+ * appNGizer.login("TheSecret");
+ * </pre>
+ * 
+ * Check out the <a href=
+ * "https://appng.org/appng/docs/current/appngizer/html/appngizer-user-manual.html">appNGizer
+ * User Manual</a> for a detailed description of the possible operations.
  * 
  * @author Matthias Müller
  *
@@ -281,7 +293,7 @@ public interface AppNGizer {
 	// site application properties
 	@GET
 	@Path("site/{site}/application/{app}/property")
-	Properties getApplicationProperties(@PathParam("site") String site, @PathParam("app") String app);
+	Properties applicationProperties(@PathParam("site") String site, @PathParam("app") String app);
 
 	@POST
 	@Path("site/{site}/application/{app}/property")
@@ -366,28 +378,75 @@ public interface AppNGizer {
 		 * Reads a {@link Site}'s {@link Properties} with the given {@link AppNGizer}
 		 * and writes these to the given {@link OutputStream} using YAML format.
 		 * 
-		 * @param appNGizer the {@link AppNGizer} to use
-		 * @param name      the name of the {@link Site}
-		 * @param out       the target to write to
+		 * @param appNGizer      the {@link AppNGizer} to use
+		 * @param name           the name of the {@link Site}
+		 * @param out            the target to write to
+		 * @param nonDefaultOnly write only those properties where the value differs
+		 *                       from the default value
 		 * @return the {@link Site}'s {@link Properties}
 		 * @throws IOException if an error occurred while writing the output
 		 */
-		public static Properties readSiteProperties(AppNGizer appNGizer, String name, OutputStream out)
-				throws IOException {
-			Site site = appNGizer.getSite(name);
+		public static Properties readSiteProperties(AppNGizer appNGizer, String name, OutputStream out,
+				boolean nonDefaultOnly) throws IOException {
 			Properties siteProperties = appNGizer.siteProperties(name);
 			LOGGER.info("Read {} properties for site {}", siteProperties.getProperty().size(), name);
+			return writeYamlProperties(name, out, siteProperties, nonDefaultOnly);
+		}
+
+		/**
+		 * Reads an {@link Application}'s {@link Properties} with the given
+		 * {@link AppNGizer} and writes these to the given {@link OutputStream} using
+		 * YAML format.
+		 * 
+		 * @param appNGizer      the {@link AppNGizer} to use
+		 * @param site           the {@link Site} where the {@link Application} is
+		 *                       installed on
+		 * @param app            the {@link Application}'s name
+		 * @param out            the target to write to
+		 * @param nonDefaultOnly write only those properties where the value differs
+		 *                       from the default value
+		 * @return the {@link Application}'s {@link Properties}
+		 * @throws IOException
+		 */
+		public static Properties readSiteApplicationProperties(AppNGizer appNGizer, String site, String app,
+				OutputStream out, boolean nonDefaultOnly) throws IOException {
+			Properties applicationProperties = appNGizer.applicationProperties(site, app);
+			LOGGER.info("Read {} properties for site {} with application {}",
+					applicationProperties.getProperty().size(), site, app);
+			return writeYamlProperties(app, out, applicationProperties, nonDefaultOnly);
+		}
+
+		/**
+		 * Reads the platform's {@link Properties} with the given {@link AppNGizer} and
+		 * writes these to the given {@link OutputStream} using YAML format.
+		 * 
+		 * @param appNGizer      the {@link AppNGizer} to use
+		 * @param out            the target to write to
+		 * @param nonDefaultOnly write only those properties where the value differs
+		 *                       from the default value
+		 * @return the platform's {@link Properties}
+		 * @throws IOException if an error occurred while writing the output
+		 */
+		public static Properties readPlatformProperties(AppNGizer appNGizer, OutputStream out, boolean nonDefaultOnly)
+				throws IOException {
+			Properties platformProperties = appNGizer.platformProperties();
+			LOGGER.info("Read {} platform properties", platformProperties.getProperty().size());
+			return writeYamlProperties("appNG", out, platformProperties, nonDefaultOnly);
+		}
+
+		private static Properties writeYamlProperties(String name, OutputStream out, Properties properties,
+				boolean nonDefaultOnly) throws IOException, JsonGenerationException, JsonMappingException {
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			mapper.setDefaultPropertyInclusion(Include.NON_NULL);
-			Map<String, SiteWrapper> data = new HashMap<>();
-			SiteWrapper s = new SiteWrapper();
-			Map<String, Property> props = siteProperties.getProperty().stream()
+			Map<String, PropertyWrapper> data = new HashMap<>();
+			PropertyWrapper wrapper = new PropertyWrapper();
+			Map<String, Property> props = properties.getProperty().stream()
+					.filter(p -> nonDefaultOnly ? (!isDefaultValue(p)) : true)
 					.collect(Collectors.toMap(p -> p.getName(), p -> removeUnusedFields(p)));
-			s.setProperties(new TreeMap<>(props));
-			s.setSite(removeUnusedFields(site));
-			data.put(name, s);
+			wrapper.setProperties(new TreeMap<>(props));
+			data.put(name, wrapper);
 			mapper.writer().writeValue(out, data);
-			return siteProperties;
+			return properties;
 		}
 
 		private static <T extends Nameable> T removeUnusedFields(T nameable) {
@@ -406,32 +465,86 @@ public interface AppNGizer {
 		 * @return the {@link Site}'s {@link Properties}
 		 * @throws IOException if an error occurred while reading the input
 		 */
-		public static Properties writeSiteProperties(AppNGizer appNGizer, InputStream in) throws IOException {
-			Map<String, SiteWrapper> site = new ObjectMapper(new YAMLFactory()).readValue(in,
-					new TypeReference<HashMap<String, SiteWrapper>>() {
+		public static Properties writeSiteProperties(AppNGizer appNGizer, String site, InputStream in)
+				throws IOException {
+			PropertyWrapper wrapper = readProperties(in);
+			for (Property prop : new TreeMap<>(wrapper.properties).values()) {
+				appNGizer.updateSiteProperty(site, prop.getName(), prop);
+			}
+			LOGGER.info("Wrote {} properties for site {}", wrapper.properties.size(), site);
+			return appNGizer.siteProperties(site);
+		}
+
+		/**
+		 * Writes the platform's {@link Properties} defined by the given
+		 * {@link InputStream} with the given {@link AppNGizer}
+		 * 
+		 * @param appNGizer the {@link AppNGizer} to use
+		 * @param in        the {@link InputStream} to read from
+		 * @return the platform's {@link Properties}
+		 * @throws IOException if an error occurred while reading the input
+		 */
+		public static Properties writePlatformProperties(AppNGizer appNGizer, InputStream in) throws IOException {
+			PropertyWrapper wrapper = readProperties(in);
+			for (Property prop : new TreeMap<>(wrapper.properties).values()) {
+				appNGizer.updatePlatformProperty(prop.getName(), prop);
+			}
+			LOGGER.info("Wrote {} platform properties", wrapper.properties.size());
+			return appNGizer.platformProperties();
+		}
+
+		/**
+		 * Writes an {@link Application}'s {@link Properties} defined by the given
+		 * {@link InputStream} with the given {@link AppNGizer}
+		 * 
+		 * @param appNGizer the {@link AppNGizer} to use
+		 * @param site      the {@link Site} where the {@link Application} is installed
+		 *                  on
+		 * @param app       the {@link Application}'s name
+		 * @param in        the {@link InputStream} to read from
+		 * @return the {@link Application}'s {@link Properties}
+		 * @throws IOException if an error occurred while reading the input
+		 */
+		public static Properties writeSiteApplicationProperties(AppNGizer appNGizer, String site, String app,
+				InputStream in) throws IOException {
+			PropertyWrapper wrapper = readProperties(in);
+			for (Property prop : new TreeMap<>(wrapper.properties).values()) {
+				appNGizer.updateApplicationProperty(site, app, prop);
+			}
+			LOGGER.info("Wrote {} properties for application {} on site {}", wrapper.properties.size(), app, site);
+			return appNGizer.applicationProperties(site, app);
+		}
+
+		private static PropertyWrapper readProperties(InputStream in)
+				throws IOException, JsonParseException, JsonMappingException {
+			Map<String, PropertyWrapper> wrappers = new ObjectMapper(new YAMLFactory()).readValue(in,
+					new TypeReference<HashMap<String, PropertyWrapper>>() {
 					});
 
-			Entry<String, SiteWrapper> siteEntry = site.entrySet().iterator().next();
-			SiteWrapper wrapper = siteEntry.getValue();
-			wrapper.setName(siteEntry.getKey());
+			Entry<String, PropertyWrapper> wrapperEntry = wrappers.entrySet().iterator().next();
+			PropertyWrapper wrapper = wrapperEntry.getValue();
+			wrapper.setName(wrapperEntry.getKey());
 			for (Entry<String, Property> entry : wrapper.getProperties().entrySet()) {
 				String name = entry.getKey();
 				Property prop = entry.getValue();
 				prop.setName(name);
-				appNGizer.updateSiteProperty(wrapper.getName(), name, prop);
+				if (isDefaultValue(prop)) {
+					prop.setValue(null);
+				}
 			}
-			LOGGER.info("Wrote {} properties for site {}", wrapper.getProperties().size(), wrapper.getName());
-			return appNGizer.siteProperties(wrapper.getName());
+			return wrapper;
 		}
+
+		private static boolean isDefaultValue(Property prop) {
+			return !Boolean.TRUE.equals(prop.isClob()) && Objects.equals(prop.getDefaultValue(), prop.getValue());
+		}
+
 	}
 
-	class SiteWrapper {
-		@Getter
-		@Setter
-		Map<String, Property> properties;
-		@Delegate
-		@Setter
-		org.appng.appngizer.model.xml.Site site = new org.appng.appngizer.model.xml.Site();
+	@Data
+	class PropertyWrapper {
+		private String name;
+		private Map<String, Property> properties;
 	}
 
 }
