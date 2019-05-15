@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -106,7 +107,7 @@ public interface AppNGizerClient {
 
 	Property updateApplicationProperty(String app, Property property);
 
-	void deleteApplicationProperty(String app,String name);
+	void deleteApplicationProperty(String app, String name);
 
 	// roles
 	Roles roles(String app);
@@ -145,7 +146,7 @@ public interface AppNGizerClient {
 
 	// site properties
 	Properties siteProperties(String site);
-	
+
 	Property siteProperty(String site, String name);
 
 	Property createSiteProperty(String site, Property property);
@@ -193,7 +194,7 @@ public interface AppNGizerClient {
 
 	// platform properties
 	Properties platformProperties();
-	
+
 	Property platformProperty(String name);
 
 	Property createPlatformProperty(Property property);
@@ -212,7 +213,7 @@ public interface AppNGizerClient {
 	Database initializeDatabase();
 
 	/**
-	 * 
+	 * Utility class to read and write {@link Properties} from/to YAML files.
 	 */
 	@Slf4j
 	class YamlConfig {
@@ -234,7 +235,21 @@ public interface AppNGizerClient {
 				boolean nonDefaultOnly) throws IOException {
 			Properties siteProperties = appNGizer.siteProperties(name);
 			LOGGER.info("Read {} properties for site {}", siteProperties.getProperty().size(), name);
-			return writeYamlProperties(name, out, siteProperties, nonDefaultOnly);
+			SiteConfig wrapper = new SiteConfig();
+			wrapper.setName(name);
+			wrapper.setProperties(getWrapper(siteProperties, name, nonDefaultOnly).properties);
+
+			List<Application> applications = appNGizer.applications(name).getApplication();
+			Map<String, PropertyWrapper> applicationMap = applications.stream()
+					.collect(Collectors.toMap(Application::getName, a -> {
+						PropertyWrapper appWrapper = getWrapper(appNGizer.applicationProperties(name, a.getName()),
+								a.getName(), false);
+						appWrapper.setName(null);
+						return appWrapper;
+					}));
+			wrapper.setApplications(applicationMap);
+			writeYaml(out, wrapper);
+			return appNGizer.siteProperties(name);
 		}
 
 		/**
@@ -281,17 +296,28 @@ public interface AppNGizerClient {
 
 		private static Properties writeYamlProperties(String name, OutputStream out, Properties properties,
 				boolean nonDefaultOnly) throws IOException, JsonGenerationException, JsonMappingException {
-			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-			mapper.setDefaultPropertyInclusion(Include.NON_NULL);
-			Map<String, PropertyWrapper> data = new HashMap<>();
+			PropertyWrapper wrapper = getWrapper(properties, name, nonDefaultOnly);
+			writeYaml(out, wrapper);
+			return properties;
+		}
+
+		private static PropertyWrapper getWrapper(Properties properties, String name, boolean nonDefaultOnly) {
 			PropertyWrapper wrapper = new PropertyWrapper();
+			wrapper.setName(name);
 			Map<String, Property> props = properties.getProperty().stream()
-					.filter(p -> nonDefaultOnly ? (!isDefaultValue(p)) : true)
+					.filter(p -> nonDefaultOnly ? (!isDefaultOrMultilined(p)) : true)
 					.collect(Collectors.toMap(p -> p.getName(), p -> removeUnusedFields(p)));
 			wrapper.setProperties(new TreeMap<>(props));
-			data.put(name, wrapper);
+			return wrapper;
+		}
+
+		private static void writeYaml(OutputStream out, PropertyWrapper wrapper)
+				throws IOException, JsonGenerationException, JsonMappingException {
+			Map<String, PropertyWrapper> data = new HashMap<>();
+			data.put(wrapper.getName(), wrapper);
+			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+			mapper.setDefaultPropertyInclusion(Include.NON_NULL);
 			mapper.writer().writeValue(out, data);
-			return properties;
 		}
 
 		private static <T extends Nameable> T removeUnusedFields(T nameable) {
@@ -312,11 +338,25 @@ public interface AppNGizerClient {
 		 */
 		public static Properties writeSiteProperties(AppNGizerClient appNGizer, String site, InputStream in)
 				throws IOException {
-			PropertyWrapper wrapper = readProperties(in);
-			for (Property prop : new TreeMap<>(wrapper.properties).values()) {
-				appNGizer.updateSiteProperty(site, prop.getName(), prop);
+
+			Map<String, SiteConfig> wrappers = new ObjectMapper(new YAMLFactory()).readValue(in,
+					new TypeReference<HashMap<String, SiteConfig>>() {
+					});
+			preparePropertiesForWrite(wrappers);
+			SiteConfig wrapper = wrappers.values().iterator().next();
+
+			for (Entry<String, Property> propEntry : wrapper.getProperties().entrySet()) {
+				appNGizer.updateSiteProperty(site, propEntry.getKey(), propEntry.getValue());
 			}
-			LOGGER.info("Wrote {} properties for site {}", wrapper.properties.size(), site);
+
+			preparePropertiesForWrite(wrapper.getApplications());
+			for (String app : wrapper.getApplications().keySet()) {
+				PropertyWrapper appProps = wrapper.getApplications().get(app);
+				for (Entry<String, Property> propEntry : appProps.getProperties().entrySet()) {
+					appNGizer.updateApplicationProperty(site, app, propEntry.getKey(), propEntry.getValue());
+				}
+			}
+			LOGGER.info("Wrote {} properties for site {}", wrapper.getProperties().size(), site);
 			return appNGizer.siteProperties(site);
 		}
 
@@ -365,22 +405,25 @@ public interface AppNGizerClient {
 			Map<String, PropertyWrapper> wrappers = new ObjectMapper(new YAMLFactory()).readValue(in,
 					new TypeReference<HashMap<String, PropertyWrapper>>() {
 					});
+			return preparePropertiesForWrite(wrappers);
+		}
 
-			Entry<String, PropertyWrapper> wrapperEntry = wrappers.entrySet().iterator().next();
+		private static PropertyWrapper preparePropertiesForWrite(Map<String, ? extends PropertyWrapper> wrappers) {
+			Entry<String, ? extends PropertyWrapper> wrapperEntry = wrappers.entrySet().iterator().next();
 			PropertyWrapper wrapper = wrapperEntry.getValue();
 			wrapper.setName(wrapperEntry.getKey());
 			for (Entry<String, Property> entry : wrapper.getProperties().entrySet()) {
 				String name = entry.getKey();
 				Property prop = entry.getValue();
 				prop.setName(name);
-				if (isDefaultValue(prop)) {
+				if (isDefaultOrMultilined(prop)) {
 					prop.setValue(null);
 				}
 			}
 			return wrapper;
 		}
 
-		private static boolean isDefaultValue(Property prop) {
+		private static boolean isDefaultOrMultilined(Property prop) {
 			return !Boolean.TRUE.equals(prop.isClob()) && Objects.equals(prop.getDefaultValue(), prop.getValue());
 		}
 
@@ -390,6 +433,11 @@ public interface AppNGizerClient {
 	class PropertyWrapper {
 		private String name;
 		private Map<String, Property> properties;
+	}
+
+	@Data
+	class SiteConfig extends PropertyWrapper {
+		private Map<String, PropertyWrapper> applications;
 	}
 
 }
