@@ -30,27 +30,20 @@ import org.appng.appngizer.client.AppNGizerClient.PropertyWrapper;
 import org.appng.appngizer.client.AppNGizerClient.SiteConfig;
 import org.appng.appngizer.model.xml.Home;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.web.client.HttpClientErrorException;
 
 public class AppNGizerTest {
 
-	static AppNGizer appNGizer;
 	static String host = "http://localhost:8080";
 	static String sharedSecret = "Vu5w1HkkIcYGaGZXG9KJhFZcYQCkWVwLE3vnaVY5eRA=";
 
-	@BeforeClass
-	public static void setup() {
-		appNGizer = new AppNGizer(host, sharedSecret);
+	private AppNGizer getAppNGizer() {
+		AppNGizer appNGizer = new AppNGizer(host, sharedSecret);
 		Home login = appNGizer.login();
 		Assert.assertNotNull(login);
-	}
-
-	@Test(expected = HttpClientErrorException.class)
-	public void testUploadPackage() throws Exception {
-		appNGizer.uploadPackage("local", new File("pom.xml"));
+		return appNGizer;
 	}
 
 	@Test
@@ -104,11 +97,18 @@ public class AppNGizerTest {
 		Assert.assertEquals(expected, actual);
 	}
 
+	@Ignore("Run locally")
+	@Test(expected = HttpClientErrorException.class)
+	public void testUploadPackage() throws Exception {
+		getAppNGizer().uploadPackage("local", new File("pom.xml"));
+	}
+
 	@Test
 	@Ignore("Run locally")
 	public void testWriteAndReadSiteYaml() throws Exception {
 		File config = new File("target/yaml/manager.yaml");
 		FileOutputStream out = new FileOutputStream(config);
+		AppNGizer appNGizer = getAppNGizer();
 		AppNGizer.Config.readSiteProperties(appNGizer, "manager", out, Format.YAML, false);
 		AppNGizer.Config.writeSiteProperties(appNGizer, "manager", new FileInputStream(config), Format.YAML);
 	}
