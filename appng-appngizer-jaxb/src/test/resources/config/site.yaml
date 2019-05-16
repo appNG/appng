@@ -1,0 +1,649 @@
+---
+localhost:
+  properties:
+    DatasourceConfigurer:
+      value: "org.appng.core.repository.config.HikariCPConfigurer"
+      defaultValue: "org.appng.core.repository.config.HikariCPConfigurer"
+      description: "The fully qualified name of a class implementing org.appng.core.repository.config.DatasourceConfigurer,\
+        \ which is responsible for JDBC connection-pooling. Supported are 'org.appng.core.repository.config.HikariCPConfigurer'\
+        \ and 'org.appng.core.repository.config.TomcatJdbcConfigurer'"
+    allowSkipRender:
+      value: "false"
+      defaultValue: "false"
+      description: "Allow skipping of the render phase using render=false for the\
+        \ manager GUI or the XSLT based rendering of taglets."
+    appendTabId:
+      value: "false"
+      defaultValue: "false"
+      description: "If set to true, the name of the currently selected tab is being\
+        \ appended to the URL as a get-parameter. Addresses the issue that IE loses\
+        \ the anchor on a redirect."
+    assetsDir:
+      value: "/assets"
+      defaultValue: "/assets"
+      description: "A semicolon-separated list of folder-names (relative to 'wwwDir')\
+        \ containing static resources such as images or pdfs"
+    authApplication:
+      value: "appng-authentication"
+      defaultValue: "appng-authentication"
+      description: "The name of the application which is responsible for the authentication"
+    authLoginPage:
+      value: "webform"
+      defaultValue: "webform"
+      description: "The names of the login-pages (comma-separated) within the application\
+        \ defined in 'authApplication'. The number of comma-separated pages must be\
+        \ the same as in 'authLoginRef', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!"
+    authLoginRef:
+      value: "webform"
+      defaultValue: "webform"
+      description: "The action names (comma-separated) for the pages defined in {@link\
+        \ #AUTH_LOGIN_PAGE}. The number of comma-separated names must be the same\
+        \ as in 'authLoginPage', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!"
+    authLogoutActionName:
+      value: "action"
+      defaultValue: "action"
+      description: "The name for the parameter defining the action on the logout-page"
+    authLogoutActionValue:
+      value: "logout"
+      defaultValue: "logout"
+      description: "The value for the parameter defining the action on the logout-page"
+    authLogoutPage:
+      value: "webform"
+      defaultValue: "webform"
+      description: "The name of the logout-page within the application defined in\
+        \ 'authApplication'"
+    authLogoutRef:
+      value: "webform/logout"
+      defaultValue: "webform/logout"
+      description: "The reference-path for the logout-action"
+    csrfProtectedMethods:
+      value: "POST,PUT"
+      defaultValue: "POST,PUT"
+      description: "a comma-separated list of HTTP-methods to enable CSRF protection\
+        \ for"
+    csrfProtectedPaths:
+      value: "/manager"
+      defaultValue: "/manager"
+      description: "a comma-separated list of path-prefixes to enable CSRF protection\
+        \ for"
+    csrfProtectionEnabled:
+      value: "false"
+      defaultValue: "false"
+      description: "Set to true to enable CSRF-protection for this site"
+    defaultApplication:
+      value: "appng-manager"
+      defaultValue: "appng-manager"
+      description: "The application to be called after a successful login"
+    defaultPage:
+      value: "index"
+      defaultValue: "index"
+      description: "The name of the default-page (without extension) relative to one\
+        \ of the directories defined in 'documentDir'"
+    defaultPageSize:
+      value: "25"
+      defaultValue: "25"
+      description: "The default page size (items per page)"
+    documentDir:
+      value: "/de"
+      defaultValue: "/de"
+      description: "A semicolon-separated list of folder-names (relative to 'wwwDir')\
+        \ containing JSP-files and static resources"
+    ehcacheBlockingTimeout:
+      value: "10000"
+      defaultValue: "10000"
+      description: "The time, in milliseconds, to wait for the filter before a LockTimeoutException\
+        \ is thrown"
+    ehcacheClearOnShutdown:
+      value: "true"
+      defaultValue: "true"
+      description: "Whether or not the Ehcache is cleared on a site shutdown/reload"
+    ehcacheEnabled:
+      value: "false"
+      defaultValue: "false"
+      description: "Set to true to enable Ehcache for this site"
+    ehcacheExceptions:
+      value: "/manager"
+      description: "URL path prefixes which are never cached. Contains one prefix\
+        \ per line (CLOB value)."
+      clob: true
+    ehcacheStatistics:
+      value: "false"
+      defaultValue: "false"
+      description: "Set to true to enable Ehcache statistics"
+    encoding:
+      value: "UTF-8"
+      defaultValue: "UTF-8"
+      description: "The encoding for file-resources"
+    enforcePrimaryDomain:
+      value: "false"
+      defaultValue: "false"
+      description: "Set to true to enforce the protocol used by the site (http or\
+        \ https)"
+    errorPage:
+      value: "error"
+      defaultValue: "error"
+      description: "The name of the default error-page (without extension) relative\
+        \ to 'wwwDir'"
+    errorPages:
+      value: "/de=fehler|/en=error"
+      defaultValue: "/de=fehler|/en=error"
+      description: "The name of the error-page per document-directory (see 'documentDir'),\
+        \ multiple entries separated by a pipe (|)"
+    host:
+      value: "localhost"
+      defaultValue: "localhost"
+      description: "The host of the site. For convenience only, do not change!"
+    indexConfig:
+      value: "/de;de;GermanAnalyzer|/assets;de;GermanAnalyzer"
+      defaultValue: "/de;de;GermanAnalyzer|/assets;de;GermanAnalyzer"
+      description: "For each directory defined in 'documentDir', there can be defined\
+        \ which locale and which Lucene-analyzer to use for indexing."
+    indexDir:
+      value: "/index"
+      defaultValue: "/index"
+      description: "The folder containing the Lucene-Index, relative to 'wwwDir'"
+    indexFileSystemQueueSize:
+      value: "2500"
+      defaultValue: "2500"
+      description: "the queue size used per directory when indexing the file system"
+    indexFileTypes:
+      value: "jsp,pdf,doc"
+      defaultValue: "jsp,pdf,doc"
+      description: "A list of comma-separated file-extensions (without leading dot)\
+        \ which are being indexed"
+    indexQueueSize:
+      value: "1000"
+      defaultValue: "1000"
+      description: "The queue size used for document indexing"
+    indexTimeout:
+      value: "5000"
+      defaultValue: "5000"
+      description: "The timeout in milliseconds for indexing"
+    ldapDomain:
+      value: "EXAMPLE"
+      defaultValue: "EXAMPLE"
+      description: "The Domain for the LDAP authentication"
+    ldapGroupBaseDn:
+      value: "OU=Groups,DC=example,DC=com"
+      defaultValue: "OU=Groups,DC=example,DC=com"
+      description: "The base-DN for LDAP-groups"
+    ldapHost:
+      value: "ldap(s):<host>:<port>"
+      defaultValue: "ldap(s):<host>:<port>"
+      description: "The LDAP host in provider URL format (\"ldap(s)://<host>:<port>\"\
+        ). Note that you might need to add CA certificates to the truststore of the\
+        \ executing JVM if you enable \"ldaps://\"."
+    ldapIdAttribute:
+      value: "sAMAccountName"
+      defaultValue: "sAMAccountName"
+      description: "The name of the LDAP-attribute containing the user-id used for\
+        \ authentication"
+    ldapPassword:
+      value: "secret"
+      defaultValue: "secret"
+      description: "Password of the LDAP service-user"
+    ldapPrincipalScheme:
+      value: "SAM"
+      defaultValue: "SAM"
+      description: "How the LDAP principal is built from a given username when logging\
+        \ in. [\"DN\": results in \"${site.ldapIdAttribute}=<username>,${site.ldapUserBaseDn}\"\
+        \ - \"UPN\": results in \"<username>@${site.ldapDomain}\" - \"SAM\": results\
+        \ in \"${site.ldapDomain}\\\\<username>\"]. \"UPN\" and \"SAM\" are ActiveDirectory\
+        \ specific and \"SAM\" is the default to stay backward compatible."
+    ldapStartTls:
+      value: "false"
+      defaultValue: "false"
+      description: "Use STARTTLS for the LDAP connection. If you set this to \"true\"\
+        \ the value of ${site.ldapHost} should begin with \"ldap://\" (not \"ldaps://\"\
+        ), because STARTTLS and LDAP over SSL (which is used when \"ldaps://\" is\
+        \ in place) are mutually exclusive."
+    ldapUser:
+      value: "serviceUser"
+      defaultValue: "serviceUser"
+      description: "The name of the LDAP service-user for general LDAP lookups. If\
+        \ the value is a Distinguished Name (e.g. \"cn=Service User,dc=mycompany,dc=com\"\
+        ) it will be used directly as LDAP principal. Otherwise the principal will\
+        \ be derived according to the value specified for ${site.ldapPrincipalScheme}."
+    ldapUserBaseDn:
+      value: "OU=Users,DC=example,DC=com"
+      defaultValue: "OU=Users,DC=example,DC=com"
+      description: "The base-DN which is used to map a plain username to a Distinguished\
+        \ Name, if \"DN\" is used as principal scheme (see property \"ldapPrincipalScheme\"\
+        )."
+    locale:
+      value: "de"
+      defaultValue: "de"
+      description: "The default locale for the site. Use one of java.util.Locale.getAvailableLocales()"
+    mailDisabled:
+      value: "true"
+      defaultValue: "true"
+      description: "Set to 'true' to disable mailing and log the e-mails instead."
+    mailHost:
+      value: "localhost"
+      defaultValue: "localhost"
+      description: "The mail-host to use."
+    mailPort:
+      value: "25"
+      defaultValue: "25"
+      description: "The mail-port to use"
+    manager-path:
+      value: "/manager"
+      defaultValue: "/manager"
+      description: "The path-suffix for the appNG-Webapplication"
+    name:
+      value: "manager"
+      defaultValue: "manager"
+      description: "The name of the site. For convenience only, do not change!"
+    rewriteConfig:
+      value: "/meta/conf/urlrewrite.xml"
+      defaultValue: "/meta/conf/urlrewrite.xml"
+      description: "the location of the rewrite rules for UrlRewriteFilter (http://tuckey.org/urlrewrite),\
+        \ relative to 'siteRootDir'."
+    searchChunkSize:
+      value: "20"
+      defaultValue: "20"
+      description: "The chunksize (items per page) for the search-tag"
+    searchMaxHits:
+      value: "100"
+      defaultValue: "100"
+      description: "The maximum number of hits for the search-tag"
+    service-path:
+      value: "/service"
+      defaultValue: "/service"
+      description: "The path-suffix for the services offered by appNG (such as Webservices,\
+        \ SOAP, Actions, Datasources)"
+    serviceOutputFormat:
+      value: "html"
+      defaultValue: "html"
+      description: "The output format to be used when actions/datasources are being\
+        \ called through service URLs"
+    serviceOutputType:
+      value: "service"
+      defaultValue: "service"
+      description: "The output type to be used when actions/datasources are being\
+        \ called through service URLs"
+    siteRootDir:
+      value: "/home/mm/servers/apache-tomcat-9.0.17/webapps/ROOT/repository/manager"
+      defaultValue: "/home/mm/servers/apache-tomcat-9.0.17/webapps/ROOT/repository/manager"
+      description: "The absolute path to the sites root-directory"
+    supportReloadFile:
+      value: "false"
+      defaultValue: "false"
+      description: "If true, a site reload is performed when a file named .reload\
+        \ is created in the site's root directory."
+    supportedLanguages:
+      value: "en, de"
+      defaultValue: "en, de"
+      description: "A comma-separated list of the languages supported by the site."
+    tagPrefix:
+      value: "appNG"
+      defaultValue: "appNG"
+      description: "The prefix used for the appNG JSP-tags."
+    template:
+      value: "tupperware-template-bootgenthy"
+      defaultValue: "appng"
+      description: "The name of the template to use"
+    timeZone:
+      value: "Europe/Berlin"
+      defaultValue: "Europe/Berlin"
+      description: "The default timezone for the site. Use one of java.util.TimeZone.getAvailableIDs()."
+    wwwDir:
+      value: "/www"
+      defaultValue: "/www"
+      description: "The name of the folder containing the web-contents, relative to\
+        \ 'repositoryPath' configured at the platform"
+    xssExceptions:
+      value: "# template\n/template\n# appng-manager\n/manager/manager/appng-manager\n"
+      description: "URL path prefixes where XSS protection is omitted. Contains one\
+        \ prefix per line (CLOB value). Supports blank lines and comments (#)."
+      clob: true
+  applications:
+    appng-scheduler:
+      properties:
+        bearerToken:
+          value: ""
+          defaultValue: ""
+          description: "shared secret for the job records rest API. API is not available\
+            \ if this property is blank"
+        enableJobRecord:
+          value: "true"
+          defaultValue: "true"
+          description: "so to false to disable that scheduler saves records for each\
+            \ job execution"
+        featureIndexing:
+          value: "true"
+          defaultValue: "true"
+        houseKeepingEnabled:
+          value: "true"
+          defaultValue: "true"
+        houseKeepingExpression:
+          value: "0 0 2 * * ?"
+          defaultValue: "0 0 2 * * ?"
+        indexEnabled:
+          value: "true"
+          defaultValue: "true"
+        indexExpression:
+          value: "0 0 3 * * ?"
+          defaultValue: "0 0 3 * * ?"
+        indexTimeout:
+          value: "2000"
+          defaultValue: "2000"
+          description: "The timeout in milliseconds when indexing files"
+        quartzClusterCheckinInterval:
+          value: "20000"
+          defaultValue: "20000"
+          description: "the intervall in ms to check for failed jobs on the cluster"
+        quartzDriverDelegate:
+          value: "org.quartz.impl.jdbcjobstore.StdJDBCDelegate"
+          defaultValue: "org.quartz.impl.jdbcjobstore.StdJDBCDelegate"
+          description: "the driver delegate for quartz"
+        quartzIsClustered:
+          value: "false"
+          defaultValue: "false"
+          description: "set to true to enable quartz clustering support"
+        recordLifeTime:
+          value: "90"
+          defaultValue: "90"
+          description: "life time of job record entries before getting erased from\
+            \ the database. Leaf blank for endless life time"
+        validateJobsOnStartup:
+          value: "true"
+          defaultValue: "true"
+          description: "validate jobs on startup"
+    tupperware-products:
+      properties:
+        aspectRatio:
+          value: "1.0"
+          defaultValue: "1.0"
+          description: "the aspect ratio (width/height) for search result images,\
+            \ with a precisons of 0.0001"
+        careInstructionImageSize:
+          value: "240"
+          defaultValue: "240"
+        downloadImageHeight:
+          value: "149"
+          defaultValue: "149"
+          description: "the height for an image that belongs to a download"
+        downloadImageWidth:
+          value: "220"
+          defaultValue: "220"
+          description: "the width for an image that belongs to a download"
+        emailNotifyEnabled:
+          value: "true"
+          defaultValue: "true"
+          description: "whether or not e-mail notifications about new requests are\
+            \ enabled or not"
+        emailNotifyRoles:
+          value: "Admin"
+          defaultValue: "Admin"
+          description: "a comma-separated list of role names to notify about new requests"
+        emailNotifySender:
+          value: "info@aiticon.de"
+          defaultValue: "info@aiticon.de"
+          description: "the sender address for the notification e-mail"
+        emailNotifySubject:
+          value: "[PROMISE ${project}] - A new request has been placed"
+          defaultValue: "[PROMISE ${project}] - A new request has been placed"
+          description: "the subject for the e-mail notification"
+        emailNotifySubjectGlobal:
+          value: "[PROMISE ${project}] - New global product request by ${requestor}"
+          defaultValue: "[PROMISE ${project}] - New global product request by ${requestor}"
+          description: "the subject for the e-mail notification"
+        emailNotifyTemplate:
+          value: "Hello ${user},\n${requestor} has requested the ${type} ${itemName}\
+            \ (${originalName}) for variant ${project}/${variant}.\nGo to this URL\
+            \ to edit this request:\n${url}"
+          description: "the freemarker template for sending request notifications"
+          clob: true
+        emailNotifyTemplateGlobal:
+          value: "Dear ${user},\n\nthe user ${requestor} of variant ${project}/${variant}\
+            \ requested to add the product ${originalName} to the global product database.\n\
+            \nPlease have a look at PROMISE!\nGo to this URL to edit the product:\n\
+            ${url}\n\nThank you!"
+          description: "the freemarker template for sending the notification about\
+            \ a new product"
+          clob: true
+        featureImageProcessing:
+          value: "true"
+          defaultValue: "true"
+        featureIndexing:
+          value: "true"
+          defaultValue: "true"
+        forceAspectRatio:
+          value: "true"
+          defaultValue: "true"
+          description: "set to true to force the aspect ratio for search preview images"
+        hibernateFormatSql:
+          value: "false"
+          defaultValue: "false"
+        hibernateShowSql:
+          value: "false"
+          defaultValue: "false"
+        imageCacheFolder:
+          value: "/tmp/promise/images"
+          defaultValue: "/tmp/promise/images"
+          description: "the absolute path to the image cache folder"
+        imageGalleryHeight:
+          value: "135"
+          defaultValue: "135"
+          description: "the height of an image displayed in a gallery"
+        imageGalleryWidth:
+          value: "180"
+          defaultValue: "180"
+          description: "the width of an image displayed in a gallery"
+        imageIndexPreviewHeight:
+          value: "107"
+          defaultValue: "107"
+          description: "the width of an image for the search preview"
+        imageIndexPreviewWidth:
+          value: "107"
+          defaultValue: "107"
+          description: "the height of an image for the search preview"
+        imagePreviewCropHeight:
+          value: "384"
+          defaultValue: "384"
+          description: "the height of an image for variant editing"
+        imagePreviewCropWidth:
+          value: "512"
+          defaultValue: "512"
+          description: "the width of an image for variant editing"
+        imagePreviewHeight:
+          value: "240"
+          defaultValue: "240"
+          description: "the height of a preview image displayed in the editing mode"
+        imagePreviewWidth:
+          value: "320"
+          defaultValue: "320"
+          description: "the width of a preview image displayed in the editing mode"
+        imageQuality:
+          value: "90"
+          defaultValue: "90"
+          description: "the image quality in percent"
+        imageQuickSearchHeight:
+          value: "60"
+          defaultValue: "60"
+          description: "the width of an image for the quick search"
+        imageQuickSearchWidth:
+          value: "60"
+          defaultValue: "60"
+          description: "the height of an image for the quick search"
+        imageSearchPageHeight:
+          value: "219"
+          defaultValue: "219"
+          description: "the height of an image displayed on the product search page"
+        imageSearchPageWidth:
+          value: "219"
+          defaultValue: "219"
+          description: "the width of an image displayed on the product search page"
+        imageTableHeight:
+          value: "67"
+          defaultValue: "67"
+          description: "the height of an image displayed in a table"
+        imageTableWidth:
+          value: "90"
+          defaultValue: "90"
+          description: "the width of an image displayed in a table"
+        imageVariantAspectRatio:
+          value: "1.42"
+          defaultValue: "1.42"
+          description: "the aspect ratio for image variants (w/h)"
+        indexQueueSize:
+          value: "1000"
+          defaultValue: "1000"
+          description: "the queue size when indexing recipes/products"
+        indexTimeout:
+          value: "30000"
+          defaultValue: "30000"
+          description: "the timeout when indexing recipes/products (ms)"
+        maxTextLength:
+          value: "180"
+          defaultValue: "180"
+          description: "the maximum text length displayed when searching products"
+        pdfExportCommand:
+          value: "\n\t\t\twkhtmltopdf-i386 --cookie JSESSIONID <sessionID> --print-media-type\
+            \ <source> <target>\n\t\t"
+          defaultValue: "\n\t\t\twkhtmltopdf-i386 --cookie JSESSIONID <sessionID>\
+            \ --print-media-type <source> <target>\n\t\t"
+          description: "the command to export the wishlist as pdf"
+        pdfFileName:
+          value: "tupperware-favourites.pdf"
+          defaultValue: "tupperware-favourites.pdf"
+          description: "the name of thw wishlist pdf"
+        productPreviewPage:
+          value: "/en/product-preview/<variantId>/<productId>"
+          defaultValue: "/en/product-preview/<variantId>/<productId>"
+          description: "the (absolute or relative) path to the product preview page,\
+            \ using <variantId> and <productId> as placeholders"
+        propertyDefaultHeight:
+          value: "120"
+          defaultValue: "120"
+          description: "the default height for an image property, used when the assigned\
+            \ position has no height specified"
+        propertyDefaultWidth:
+          value: "120"
+          defaultValue: "120"
+          description: "the default width for an image property, used when the assigned\
+            \ position has no width specified"
+        recipePreviewImageHeight:
+          value: "420"
+          defaultValue: "420"
+          description: "height for the recipe image in preview"
+        recipePreviewImageWidth:
+          value: "600"
+          defaultValue: "600"
+          description: "width for the recipe image in preview"
+        recipePreviewPage:
+          value: "https://base2018-cws.testtup.com/en/recipe/${current.recipe.id}/preview"
+          defaultValue: "https://base2018-cws.testtup.com/en/recipe/${current.recipe.id}/preview"
+          description: "the (absolute or relative) path to the recipe preview page"
+        restBearerToken:
+          value: "49664b7ad74a7fa4e20ef05a64676557"
+          defaultValue: "49664b7ad74a7fa4e20ef05a64676557"
+          description: "Bearer token for REST products"
+        restBearerTokenRecipes:
+          value: "2A6BBC36-FA39-4803-A0A7-EC3E859B1669"
+          defaultValue: "2A6BBC36-FA39-4803-A0A7-EC3E859B1669"
+          description: "Bearer Token for REST recipes"
+        restPrettyPrint:
+          value: "false"
+          defaultValue: "false"
+          description: "do pretty formatting for JSON"
+        restServiceGallerySize:
+          value: "1200x845"
+          defaultValue: "1200x845"
+          description: "image size for gallery images"
+        restServicePreviewSize:
+          value: "240x240"
+          defaultValue: "240x240"
+          description: "image size for search result picture"
+        searchTermTransform:
+          value: "<searchterm> <searchterm>*"
+          defaultValue: "<searchterm> <searchterm>*"
+          description: "how to transform the lucene search term"
+        sortByPrice:
+          value: "true"
+          defaultValue: "true"
+        specialOfferPropertyName:
+          value: "Special Offer"
+          defaultValue: "Special Offer"
+          description: "the name of the custom property used to mark a product as\
+            \ special offer"
+        videoPreviewImageAspectRatio:
+          value: "1.7777"
+          defaultValue: "1.7777"
+          description: "The aspect ratio for video preview images, must use 4 decimal\
+            \ digits (16:9 = 1.7777)"
+    appng-manager:
+      properties:
+        clusterInterfaceName:
+          value: "eth0"
+          defaultValue: "eth0"
+          description: "the name of the network interface who's first assigned IP\
+            \ address is used as system property appng.node.id in case it was not\
+            \ set an JVM startup"
+        databaseReportReceivers:
+          value: ""
+          defaultValue: ""
+          description: "a semicolon separted list of receviers for DatabaseReportJob,\
+            \ additional to all users with role 'Database report receiver'"
+        databaseReportSender:
+          value: "report@example.com"
+          defaultValue: "report@example.com"
+          description: "the sender for the database report email"
+        databaseReportSubject:
+          value: "appNG database report"
+          defaultValue: "appNG database report"
+          description: "the subject for the database report email"
+        databaseReportText:
+          value: "See attached file for a report of the database related platform\
+            \ events."
+          defaultValue: "See attached file for a report of the database related platform\
+            \ events."
+          description: "the text for the database report email"
+        eventReportReceivers:
+          value: ""
+          defaultValue: ""
+          description: "a semicolon separted list of receviers for PlatformEventReportJob,\
+            \ additional to all users with role 'Event report receiver'"
+        eventReportSender:
+          value: "report@example.com"
+          defaultValue: "report@example.com"
+          description: "the sender for the event report email"
+        eventReportSubject:
+          value: "appNG event report"
+          defaultValue: "appNG event report"
+          description: "the subject for the event report email"
+        eventReportText:
+          value: "See attached file for a report of the recent appNG platform events."
+          defaultValue: "See attached file for a report of the recent appNG platform\
+            \ events."
+          description: "the text for the event report email"
+        eventReportTypes:
+          value: "CREATE UPDATE DELETE INFO ERROR WARN"
+          defaultValue: "CREATE UPDATE DELETE INFO ERROR WARN"
+          description: "the event types to be included in the even report email (CREATE,\
+            \ UPDATE, DELETE, INFO, ERROR, WARN)"
+    appng-authentication:
+      properties:
+        digestLoginRedirectWithServletPath:
+          value: "false"
+          defaultValue: "false"
+          description: "set to true to redirect to the original servlet path after\
+            \ a digest login (without query params)"
+        digestMaxValidity:
+          value: "3"
+          defaultValue: "3"
+          description: "the maximum validity of a login digest in minutes"
+        enableDeeplinks:
+          value: "true"
+          defaultValue: "true"
+          description: "set to true to forward the user to the originally requested\
+            \ page"
+        mailFrom:
+          value: "support@example.com"
+          defaultValue: "support@example.com"
+          description: "the sender address for emails send during passwort retrieval"
+        successPage:
+          value: "/appng-manager"
+          defaultValue: "/appng-manager"
+          description: "The path the user is forwarded to after successfull login"

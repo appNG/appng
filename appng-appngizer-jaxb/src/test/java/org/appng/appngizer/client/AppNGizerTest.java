@@ -17,8 +17,17 @@ package org.appng.appngizer.client;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
 
+import org.appng.appngizer.client.AppNGizerClient.Config.Format;
+import org.appng.appngizer.client.AppNGizerClient.PropertyWrapper;
+import org.appng.appngizer.client.AppNGizerClient.SiteConfig;
 import org.appng.appngizer.model.xml.Home;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -26,7 +35,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.web.client.HttpClientErrorException;
 
-@Ignore("Run locally")
 public class AppNGizerTest {
 
 	static AppNGizer appNGizer;
@@ -46,28 +54,63 @@ public class AppNGizerTest {
 	}
 
 	@Test
-	public void testWriteAndReadPlatformYaml() throws Exception {
-		File config = new File("target/yaml/platform.yaml");
-		FileOutputStream out = new FileOutputStream(config);
-		AppNGizer.YamlConfig.readPlatformProperties(appNGizer, out, false);
-		AppNGizer.YamlConfig.writePlatformProperties(appNGizer, new FileInputStream(config));
+	public void testReadAndWriteSiteYaml() throws IOException {
+		testSite("config/site.yaml", Format.YAML, "target/localhost.yaml");
 	}
 
 	@Test
+	public void testReadAndWriteSiteJson() throws IOException {
+		testSite("config/site.json", Format.JSON, "target/localhost.json");
+	}
+
+	private void testSite(String source, Format format, String output) throws IOException, FileNotFoundException {
+		InputStream in = getClass().getClassLoader().getResourceAsStream(source);
+		Map<String, SiteConfig> sites = AppNGizer.Config.readSite(in, format);
+		Assert.assertEquals(1, sites.size());
+		Assert.assertEquals("localhost", sites.keySet().iterator().next());
+		SiteConfig localhost = sites.get("localhost");
+		Assert.assertEquals(63, localhost.getProperties().size());
+		File controlfile = new File(output);
+		AppNGizer.Config.write("localhost", new FileOutputStream(controlfile), format, localhost);
+		validate(source, controlfile);
+	}
+
+	@Test
+	public void testReadAndWritePlatformYaml() throws Exception {
+		testPlatform("config/platform.yaml", Format.YAML, "target/platform.yaml");
+	}
+
+	@Test
+	public void testReadAndWritePlatformJson() throws Exception {
+		testPlatform("config/platform.json", Format.JSON, "target/platform.json");
+	}
+
+	private void testPlatform(String source, Format format, String output) throws Exception {
+		InputStream in = getClass().getClassLoader().getResourceAsStream(source);
+		Map<String, PropertyWrapper> platform = AppNGizer.Config.read(in, format);
+		Assert.assertEquals(1, platform.size());
+		Assert.assertEquals("appNG", platform.keySet().iterator().next());
+		PropertyWrapper config = platform.get("appNG");
+		Assert.assertEquals(51, config.getProperties().size());
+		File controlfile = new File(output);
+		AppNGizer.Config.write("appNG", new FileOutputStream(controlfile), format, config);
+		validate(source, controlfile);
+	}
+
+	private void validate(String source, File controlfile) throws IOException {
+		List<String> expected = Files.readAllLines(controlfile.toPath());
+		List<String> actual = Files
+				.readAllLines(new File(getClass().getClassLoader().getResource(source).getPath()).toPath());
+		Assert.assertEquals(expected, actual);
+	}
+
+	@Test
+	@Ignore("Run locally")
 	public void testWriteAndReadSiteYaml() throws Exception {
 		File config = new File("target/yaml/manager.yaml");
 		FileOutputStream out = new FileOutputStream(config);
-		AppNGizer.YamlConfig.readSiteProperties(appNGizer, "manager", out, false);
-		AppNGizer.YamlConfig.writeSiteProperties(appNGizer, "manager", new FileInputStream(config));
-	}
-
-	@Test
-	public void testWriteAndReadApplicationYaml() throws Exception {
-		File config = new File("target/yaml/appng-authentication.yaml");
-		FileOutputStream out = new FileOutputStream(config);
-		AppNGizer.YamlConfig.readSiteApplicationProperties(appNGizer, "manager", "appng-authentication", out, false);
-		AppNGizer.YamlConfig.writeSiteApplicationProperties(appNGizer, "manager", "appng-authentication",
-				new FileInputStream(config));
+		AppNGizer.Config.readSiteProperties(appNGizer, "manager", out, Format.YAML, false);
+		AppNGizer.Config.writeSiteProperties(appNGizer, "manager", new FileInputStream(config), Format.YAML);
 	}
 
 }
