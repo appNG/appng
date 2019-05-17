@@ -117,7 +117,7 @@ public class RequestUtil {
 	 */
 	public static Site waitForSite(Environment env, String name) {
 		Site site = getSiteByName(env, name);
-		if (site.hasState(SiteState.STARTED)) {
+		if (null == site || site.hasState(SiteState.STARTED)) {
 			return site;
 		}
 
