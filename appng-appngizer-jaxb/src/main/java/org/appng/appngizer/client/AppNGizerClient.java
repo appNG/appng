@@ -216,7 +216,7 @@ public interface AppNGizerClient {
 	@Slf4j
 	class Config {
 
-		enum Format {
+		public enum Format {
 			YAML, JSON
 		}
 
