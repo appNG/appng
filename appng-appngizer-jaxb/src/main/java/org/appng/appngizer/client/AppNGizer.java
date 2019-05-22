@@ -240,7 +240,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Role updateRole(String app, String name, Role role) {
-		return post("/application/" + app + "/role/" + name, role, Role.class);
+		return put("/application/" + app + "/role/" + name, role, Role.class);
 	}
 
 	public void deleteRole(String app, String name) {
