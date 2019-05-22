@@ -17,8 +17,11 @@ package org.appng.appngizer.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +64,7 @@ import lombok.extern.slf4j.Slf4j;
  * Usage:
  * 
  * <pre>
- * AppNGizer appNGizer = new AppNGizer("http://localhost:8080", "TheSecret ");
+ * AppNGizer appNGizer = new AppNGizer("http://localhost:8080", "TheSecret");
  * appNGizer.login();
  * </pre>
  * 
@@ -160,7 +163,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Subject subject(String name) {
-		return get("/subject/" + name, Subject.class);
+		return get("/subject/" + encode(name), Subject.class);
 	}
 
 	public Subject createSubject(Subject subject) {
@@ -168,11 +171,11 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Subject updateSubject(String name, Subject subject) {
-		return put("/subject/" + name, subject, Subject.class);
+		return put("/subject/" + encode(name), subject, Subject.class);
 	}
 
 	public void deleteSubject(String name) {
-		delete("/subject/" + name);
+		delete("/subject/" + encode(name));
 	}
 
 	public Groups groups() {
@@ -180,7 +183,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Group group(String name) {
-		return get("/group/" + name, Group.class);
+		return get("/group/" + encode(name), Group.class);
 	}
 
 	public Group createGroup(Group group) {
@@ -188,11 +191,11 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Group updateGroup(String name, Group group) {
-		return put("/group/" + name, group, Group.class);
+		return put("/group/" + encode(name), group, Group.class);
 	}
 
 	public void deleteGroup(String name) {
-		delete("/group/" + name);
+		delete("/group/" + encode(name));
 	}
 
 	public Applications applications() {
@@ -200,71 +203,71 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Application application(String app) {
-		return get("/application/" + app, Application.class);
+		return get("/application/" + encode(app), Application.class);
 	}
 
 	public Application updateApplication(String app, Application application) {
-		return put("/application/" + app, application, Application.class);
+		return put("/application/" + encode(app), application, Application.class);
 	}
 
 	public void deleteApplication(String app) {
-		delete("/application/" + app);
+		delete("/application/" + encode(app));
 	}
 
 	public Properties applicationProperties(String app) {
-		return get("/application/" + app + "/property", Properties.class);
+		return get("/application/" + encode(app) + "/property", Properties.class);
 	}
 
 	public Property createApplicationProperty(String app, Property property) {
-		return post("/application/" + app + "/property", property, Property.class);
+		return post("/application/" + encode(app) + "/property", property, Property.class);
 	}
 
 	public Property updateApplicationProperty(String app, Property property) {
-		return put("/application/" + app + "/property/" + property.getName(), property, Property.class);
+		return put("/application/" + encode(app) + "/property/" + property.getName(), property, Property.class);
 	}
 
 	public void deleteApplicationProperty(String app, String name) {
-		delete("/application/" + app + "/property/" + name);
+		delete("/application/" + encode(app) + "/property/" + encode(name));
 	}
 
 	public Roles roles(String app) {
-		return get("/application/" + app + "/role", Roles.class);
+		return get("/application/" + encode(app) + "/role", Roles.class);
 	}
 
 	public Role role(String app, String name) {
-		return get("/application/" + app + "/role/" + name, Role.class);
+		return get("/application/" + encode(app) + "/role/" + encode(name), Role.class);
 	}
 
 	public Role createRole(String app, Role role) {
-		return post("/application/" + app + "/role", role, Role.class);
+		return post("/application/" + encode(app) + "/role", role, Role.class);
 	}
 
 	public Role updateRole(String app, String name, Role role) {
-		return put("/application/" + app + "/role/" + name, role, Role.class);
+		return put("/application/" + encode(app) + "/role/" + encode(name), role, Role.class);
 	}
 
 	public void deleteRole(String app, String name) {
-		delete("/application/" + app + "/role/" + name);
+		delete("/application/" + encode(app) + "/role/" + encode(name));
 	}
 
 	public Permissions permissions(String app) {
-		return get("/application/" + app + "/permission", Permissions.class);
+		return get("/application/" + encode(app) + "/permission", Permissions.class);
 	}
 
 	public Permission permission(String app, String name) {
-		return get("/application/" + app + "/permission/" + name, Permission.class);
+		return get("/application/" + encode(app) + "/permission/" + encode(name), Permission.class);
 	}
 
 	public Permission createPermission(String app, Permission permission) {
-		return post("/application/" + app + "/permission", permission, Permission.class);
+		return post("/application/" + encode(app) + "/permission", permission, Permission.class);
 	}
 
 	public Permission updatePermission(String app, String name, Permission permission) {
-		return put("/application/" + app + "/permission/" + name, permission, Permission.class);
+		return put("/application/" + encode(app) + "/permission/" + encode(name), permission, Permission.class);
 	}
 
 	public void deletePermission(String app, String name) {
-		delete("/application/" + app + "/permission/" + name);
+		delete("/application/" + encode(app) + "/permission/" + encode(name));
 	}
 
 	public Sites sites() {
@@ -272,7 +275,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Site site(String name) {
-		return get("/site/" + name, Site.class);
+		return get("/site/" + encode(name), Site.class);
 	}
 
 	public Site createSite(Site site) {
@@ -280,75 +283,76 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Site updateSite(String name, Site site) {
-		return put("/site/" + name, site, Site.class);
+		return put("/site/" + encode(name), site, Site.class);
 	}
 
 	public void deleteSite(String name) {
-		delete("/site/" + name);
+		delete("/site/" + encode(name));
 	}
 
 	public void reloadSite(String name) {
-		put("/site/" + name + "/reload", null, Void.class);
+		put("/site/" + encode(name) + "/reload", null, Void.class);
 	}
 
 	public Properties siteProperties(String site) {
-		return get("/site/" + site + "/property", Properties.class);
+		return get("/site/" + encode(site) + "/property", Properties.class);
 	}
 
 	public Property siteProperty(String site, String name) {
-		return get("/site/" + site + "/property/" + name, Property.class);
+		return get("/site/" + encode(site) + "/property/" + encode(name), Property.class);
 	}
 
 	public Property createSiteProperty(String site, Property property) {
-		return post("/site/" + site + "/property", property, Property.class);
+		return post("/site/" + encode(site) + "/property", property, Property.class);
 	}
 
 	public Property updateSiteProperty(String site, String name, Property property) {
-		return put("/site/" + site + "/property/" + name, property, Property.class);
+		return put("/site/" + encode(site) + "/property/" + encode(name), property, Property.class);
 	}
 
 	public void deleteSiteProperty(String site, String name) {
-		delete("/site/" + site + "/property/" + name);
+		delete("/site/" + encode(site) + "/property/" + encode(name));
 	}
 
 	public Applications applications(String site) {
-		return get("/site/" + site + "/application", Applications.class);
+		return get("/site/" + encode(site) + "/application", Applications.class);
 	}
 
 	public Application application(String site, String app) {
-		return get("/site/" + site + "/application/" + app, Application.class);
+		return get("/site/" + encode(site) + "/application/" + encode(app), Application.class);
 	}
 
 	public void activateApplication(String site, String app) {
-		post("/site/" + site + "/application/" + app, null, Void.class);
+		post("/site/" + encode(site) + "/application/" + encode(app), null, Void.class);
 	}
 
 	public void deactivateApplication(String site, String app) {
-		delete("/site/" + site + "/application/" + app);
+		delete("/site/" + encode(site) + "/application/" + encode(app));
 	}
 
 	public Grants siteGrants(String site, String app) {
-		return get("/site/" + site + "/application/" + app + "/grants", Grants.class);
+		return get("/site/" + encode(site) + "/application/" + encode(app) + "/grants", Grants.class);
 	}
 
 	public Grants updateSiteGrants(String site, String app, Grants grants) {
-		return put("/site/" + site + "/application/" + app + "/grants", grants, Grants.class);
+		return put("/site/" + encode(site) + "/application/" + encode(app) + "/grants", grants, Grants.class);
 	}
 
 	public Properties applicationProperties(String site, String app) {
-		return get("/site/" + site + "/application/" + app + "/property", Properties.class);
+		return get("/site/" + encode(site) + "/application/" + encode(app) + "/property", Properties.class);
 	}
 
 	public Property createApplicationProperty(String site, String app, Property property) {
-		return post("/site/" + site + "/application/" + app + "/property", property, Property.class);
+		return post("/site/" + encode(site) + "/application/" + encode(app) + "/property", property, Property.class);
 	}
 
 	public Property updateApplicationProperty(String site, String app, String name, Property property) {
-		return put("/site/" + site + "/application/" + app + "/property/" + name, property, Property.class);
+		return put("/site/" + encode(site) + "/application/" + encode(app) + "/property/" + encode(name), property,
+				Property.class);
 	}
 
 	public void deleteApplicationProperty(String site, String app, String name) {
-		delete("/site/" + site + "/application/" + app + "/property/" + name);
+		delete("/site/" + encode(site) + "/application/" + encode(app) + "/property/" + encode(name));
 	}
 
 	public Repositories repositories() {
@@ -356,7 +360,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Repository repository(String name) {
-		return get("/repository/" + name, Repository.class);
+		return get("/repository/" + encode(name), Repository.class);
 	}
 
 	public Repository createRepository(Repository repository) {
@@ -364,15 +368,15 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Repository updateRepository(String name, Repository repository) {
-		return put("/repository/" + name, repository, Repository.class);
+		return put("/repository/" + encode(name), repository, Repository.class);
 	}
 
 	public void deleteRepository(String name) {
-		delete("/repository/" + name);
+		delete("/repository/" + encode(name));
 	}
 
 	public Package installPackage(String name, Package packageToInstall) {
-		return put("/repository/" + name + "/install/" + name, packageToInstall, Package.class);
+		return put("/repository/" + encode(name) + "/install/", packageToInstall, Package.class);
 	}
 
 	public Package uploadPackage(String name, File archive) throws IOException {
@@ -380,7 +384,8 @@ public class AppNGizer implements AppNGizerClient {
 		multipartRequest.add("file", new FileSystemResource(archive));
 		HttpHeaders headers = getHeaders(false);
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-		return exchange("/repository/" + name + "/upload", multipartRequest, HttpMethod.POST, headers, Package.class);
+		return exchange("/repository/" + encode(name) + "/upload", multipartRequest, HttpMethod.POST, headers,
+				Package.class);
 	}
 
 	public Properties platformProperties() {
@@ -388,7 +393,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Property platformProperty(String name) {
-		return get("/platform/property/" + name, Property.class);
+		return get("/platform/property/" + encode(name), Property.class);
 	}
 
 	public Property createPlatformProperty(Property property) {
@@ -396,11 +401,11 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	public Property updatePlatformProperty(String name, Property property) {
-		return put("/platform/property/" + name, property, Property.class);
+		return put("/platform/property/" + encode(name), property, Property.class);
 	}
 
 	public void deletePlatformProperty(String name) {
-		delete("/platform/property/" + name);
+		delete("/platform/property/" + encode(name));
 	}
 
 	public Properties environment() {
@@ -417,6 +422,14 @@ public class AppNGizer implements AppNGizerClient {
 
 	public Database initializeDatabase() {
 		return post("/platform/database/initialize", null, Database.class);
+	}
+
+	private String encode(String name) {
+		try {
+			return URLEncoder.encode(name, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			return name;
+		}
 	}
 
 }
