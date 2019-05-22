@@ -47,6 +47,11 @@ public class AppNGizerTest {
 	}
 
 	@Test
+	public void testEncode() {
+		Assert.assertEquals("name%20with%20spaces", AppNGizer.encode("name with spaces"));
+	}
+
+	@Test
 	public void testReadAndWriteSiteYaml() throws IOException {
 		testSite("config/site.yaml", Format.YAML, "target/localhost.yaml");
 	}

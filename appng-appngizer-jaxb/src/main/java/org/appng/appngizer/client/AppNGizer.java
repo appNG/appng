@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +55,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -424,11 +424,11 @@ public class AppNGizer implements AppNGizerClient {
 		return post("/platform/database/initialize", null, Database.class);
 	}
 
-	private String encode(String name) {
+	static String encode(String segment) {
 		try {
-			return URLEncoder.encode(name, StandardCharsets.UTF_8.name());
+			return UriUtils.encodePathSegment(segment, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
-			return name;
+			return segment;
 		}
 	}
 
