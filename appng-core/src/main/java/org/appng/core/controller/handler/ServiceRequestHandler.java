@@ -117,8 +117,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * <li><b>soap</b><br/>
- * Used for calling a {@link org.appng.api.SoapService} provided by a
- * {@link Application}.<br/>
+ * Used for calling a {@link org.appng.api.SoapService} provided by a {@link Application}.<br/>
  * Example (GET for the wsdl):
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-demoapplication/soap/PersonService/PersonService.wsdl
@@ -129,8 +128,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * <li><b>rest</b><br/>
- * Used for addressing a
- * {@link org.springframework.web.bind.annotation.RestController} offered by an
+ * Used for addressing a {@link org.springframework.web.bind.annotation.RestController} offered by an
  * {@link Application}<br/>
  * Example:
  * <ul>
@@ -171,12 +169,12 @@ public class ServiceRequestHandler implements RequestHandler {
 
 				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
-					LOGGER.warn("No such site: {}, returning {} for {}", siteName, HttpStatus.NOT_FOUND.value(),
+					LOGGER.warn("No such site: '{}', returning {} (path: {})", siteName, HttpStatus.NOT_FOUND.value(),
 							path.getServletPath());
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 					return;
 				} else if (!siteToUse.hasState(SiteState.STARTED)) {
-					LOGGER.warn("Site {} is in state {}, returning {} for {}", siteName, siteToUse.getState(),
+					LOGGER.warn("Site '{}' is in state {}, returning {} (path: {})", siteName, siteToUse.getState(),
 							HttpStatus.SERVICE_UNAVAILABLE.value(), path.getServletPath());
 					servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 					return;
@@ -186,7 +184,7 @@ public class ServiceRequestHandler implements RequestHandler {
 				ApplicationProvider application = (ApplicationProvider) ((SiteImpl) siteToUse)
 						.getSiteApplication(applicationName);
 				if (null == application) {
-					LOGGER.warn("No such application '{}', for site '{}' returning {} for {}", applicationName,
+					LOGGER.warn("No such application '{}' for site '{}' returning {} (path: {})", applicationName,
 							siteName, HttpStatus.NOT_FOUND.value(), path.getServletPath());
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 					return;
