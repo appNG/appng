@@ -623,6 +623,7 @@ public class InitializerService {
 				} catch (InvalidConfigurationException ice) {
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
+					auditableListener.createEvent(Type.ERROR, errorMessage);
 				}
 			}
 		}
