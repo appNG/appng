@@ -169,16 +169,25 @@ public class ServiceRequestHandler implements RequestHandler {
 
 				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
-					throw new IOException("No such site: " + siteName);
+					LOGGER.warn("No such site: '{}', returning {} (path: {})", siteName, HttpStatus.NOT_FOUND.value(),
+							path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
 				} else if (!siteToUse.hasState(SiteState.STARTED)) {
-					throw new IOException("Site not started: " + siteName);
+					LOGGER.warn("Site '{}' is in state {}, returning {} (path: {})", siteName, siteToUse.getState(),
+							HttpStatus.SERVICE_UNAVAILABLE.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+					return;
 				}
 				URLClassLoader siteClassLoader = siteToUse.getSiteClassLoader();
 				Thread.currentThread().setContextClassLoader(siteClassLoader);
 				ApplicationProvider application = (ApplicationProvider) ((SiteImpl) siteToUse)
 						.getSiteApplication(applicationName);
 				if (null == application) {
-					throw new IOException("no such application: " + applicationName);
+					LOGGER.warn("No such application '{}' for site '{}' returning {} (path: {})", applicationName,
+							siteName, HttpStatus.NOT_FOUND.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
 				}
 				ApplicationRequest applicationRequest = application.getApplicationRequest(servletRequest,
 						servletResponse);
