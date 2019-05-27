@@ -70,6 +70,7 @@ import org.appng.xml.platform.SessionInfo;
 import org.appng.xml.platform.Subject;
 import org.appng.xml.platform.Template;
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 
 public abstract class AbstractRequestProcessor implements RequestProcessor {
 
@@ -277,8 +278,9 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			ApplicationReference applicationReference = applicationProvider.process(applicationRequest, marshallService,
 					pathInfo, platformConfig);
 			long end = System.currentTimeMillis() - start;
-			logger().debug("succesfully called application \"" + pathInfo.getApplicationName() + "\" in site \""
-					+ applicationSite.getName() + "\" in " + end + " ms");
+
+			logger().debug("succesfully called application '{}' in site '{}' in {} ms", pathInfo.getApplicationName(),
+					applicationSite.getName(), end);
 			ApplicationConfig config = applicationReference.getConfig();
 			if (null != config) {
 				addTemplates(config.getTemplates());
@@ -286,8 +288,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			setRedirect(applicationRequest.isRedirect());
 			return applicationReference;
 		} else {
-			logger().info("no application called, missing outputformat '" + outputFormat.getId()
-					+ "' and/or outputType '" + outputType.getId() + "'");
+			logger().info("no application called, missing outputformat '{}' and/or outputType '{}'",
+					outputFormat.getId(), outputType.getId());
 			// forward to first non-hidden application the user has access to
 			for (Application p : applicationSite.getApplications()) {
 				if (env.getSubject().hasApplication(p) && !p.isHidden()) {
@@ -295,7 +297,19 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 							+ applicationSite.getName() + SLASH + p.getName();
 					applicationSite.sendRedirect(env, path);
 					setRedirect(true);
+					logger().debug("Redirecting to application '{}' ({})", p.getName(), path);
 					break;
+				}
+			}
+			if (!isRedirect()) {
+				logger().warn(
+						"No application found to redirect to. Make sure there is at least one visisble application the user has access to."
+								+ " In case new roles have been created, reloading the site {} could fix this problem.",
+						applicationSite.getName());
+				try {
+					servletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value());
+				} catch (IOException e) {
+					logger().error("Error sending status 500");
 				}
 			}
 		}
