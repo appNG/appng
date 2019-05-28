@@ -15,8 +15,6 @@
  */
 package org.appng.core.controller;
 
-import static org.apache.commons.lang3.time.DateFormatUtils.format;
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
@@ -35,6 +33,7 @@ import javax.servlet.http.HttpSessionListener;
 
 import org.apache.catalina.Manager;
 import org.apache.catalina.session.StandardManager;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
@@ -55,7 +54,8 @@ import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 
 /**
  * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
- * creation/destruction and usage of {@link HttpSession}s.
+ * creation/destruction and usage of {@link HttpSession}s by creating a
+ * {@link Session} that is a lightweight copy.
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
@@ -64,10 +64,24 @@ import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 @WebListener
 public class SessionListener implements ServletContextListener, HttpSessionListener, ServletRequestListener {
 
+	/**
+	 * Value to be set for the session-scoped parameter {@link Environment}
+	 * attribute #EXPIRE_SESSIONS} to indicate that all sessions should be expired.
+	 */
+	public static final String ALL = "ALL";
+	/**
+	 * A string flag to be set in the {@link Environment} with
+	 * {@link Scope#SESSION}, indicating that
+	 * {@link #expireSessions(Environment, Site)} should be called.
+	 */
+	public static final String EXPIRE_SESSIONS = "expireSessions";
+
+	/** name for the cache containing the {@link Session}s */
+	static final String SESSIONS = "sessions";
+	private static final String MDC_SESSION_ID = "sessionID";
 	private static final Class<org.apache.catalina.connector.Request> CATALINA_REQUEST = org.apache.catalina.connector.Request.class;
 	private static final String HTTPS = "https";
-	public static final String SESSIONS = "sessions";
-	public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	public void contextInitialized(ServletContextEvent sce) {
 		CacheService.getCacheManager().addCache(SESSIONS);
@@ -80,7 +94,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
-		// nothing to do, session cache is destroyed by ehcache
+		getSessionCache().dispose();
 	}
 
 	public void sessionCreated(HttpSessionEvent event) {
@@ -104,8 +118,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 					httpSession.getMaxInactiveInterval());
 			env.setAttribute(Scope.SESSION, org.appng.api.Session.Environment.STARTTIME,
 					httpSession.getCreationTime() / 1000L);
+			MDC.put(MDC_SESSION_ID, session.getId());
 			LOGGER.info("Session created: {} (created: {})", session.getId(),
-					format(session.getCreationTime(), DATE_PATTERN));
+					DATE_PATTERN.format(session.getCreationTime()));
 			getSessionCache().put(new Element(httpSession.getId(), session));
 		}
 		return session;
@@ -120,8 +135,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		}
 		if (!destroySession(httpSession.getId(), env)) {
 			LOGGER.info("Session destroyed: {} (created: {}, accessed: {})", httpSession.getId(),
-					format(httpSession.getCreationTime(), DATE_PATTERN),
-					format(httpSession.getLastAccessedTime(), DATE_PATTERN));
+					DATE_PATTERN.format(httpSession.getCreationTime()),
+					DATE_PATTERN.format(httpSession.getLastAccessedTime()));
 		}
 	}
 
@@ -130,8 +145,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		if (null != session) {
 			getSessionCache().remove(sessionId);
 			LOGGER.info("Session destroyed: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {})",
-					session.getId(), format(session.getCreationTime(), DATE_PATTERN),
-					format(session.getLastAccessedTime(), DATE_PATTERN), session.getRequests(), session.getDomain(),
+					session.getId(), DATE_PATTERN.format(session.getCreationTime()),
+					DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
 					session.getUserAgent());
 			return true;
 		}
@@ -169,8 +184,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			String referer = httpServletRequest.getHeader(HttpHeaders.REFERER);
 			LOGGER.trace(
 					"Session updated: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {}, path: {}, referer: {})",
-					session.getId(), format(session.getCreationTime(), DATE_PATTERN),
-					format(session.getLastAccessedTime(), DATE_PATTERN), session.getRequests(), session.getDomain(),
+					session.getId(), DATE_PATTERN.format(session.getCreationTime()),
+					DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
 					session.getUserAgent(), httpServletRequest.getServletPath(), referer);
 		}
 
@@ -188,7 +203,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			if (null != queryString) {
 				MDC.put("query", queryString);
 			}
-			MDC.put("sessionID", httpServletRequest.getSession().getId());
+			MDC.put(MDC_SESSION_ID, httpServletRequest.getSession().getId());
 			if (null != site) {
 				MDC.put("site", site.getName());
 			}
@@ -233,8 +248,12 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 				.collect(Collectors.toList());
 	}
 
+	static void expire(Manager manager, Environment env, Site site) {
+		expire(manager, env, env.removeAttribute(Scope.SESSION, EXPIRE_SESSIONS), site);
+	}
+
 	static void expire(Manager manager, Environment env, String sessionId, Site site) {
-		if ("ALL".equals(sessionId)) {
+		if (ALL.equals(sessionId)) {
 			getSessions().parallelStream().forEach(session -> expireSession(manager, env, session, site));
 		} else {
 			expireSession(manager, env, getSession(sessionId), site);

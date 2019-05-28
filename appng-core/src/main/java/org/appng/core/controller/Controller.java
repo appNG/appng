@@ -82,11 +82,6 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTPS = "https://";
 	private static final String SCHEME_HTTP = "http://";
 
-	/**
-	 * A string flag to be set in the {@link Environment} with {@link Scope#SESSION}, indicating that
-	 * {@link #expireSessions(Environment, Site)} should be called
-	 */
-	public static final String EXPIRE_SESSIONS = "expireSessions";
 	protected static final String SESSION_MANAGER = "sessionManager";
 
 	protected JspHandler jspHandler;
@@ -312,8 +307,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));
 	}
 
-	protected void expireSessions(Environment env,Site site) {
-		SessionListener.expire(manager, env, env.removeAttribute(SESSION, EXPIRE_SESSIONS), site);
+	protected void expireSessions(Environment env, Site site) {
+		SessionListener.expire(manager, env, site);
 	}
 
 	public JspHandler getJspHandler() {
