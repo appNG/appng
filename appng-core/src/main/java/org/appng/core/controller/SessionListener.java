@@ -255,7 +255,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	static void expire(Manager manager, Environment env, String sessionId, Site site) {
 		if (ALL.equals(sessionId)) {
 			getSessions().parallelStream().forEach(session -> expireSession(manager, env, session, site));
-		} else {
+		} else if (null != sessionId) {
 			expireSession(manager, env, getSession(sessionId), site);
 		}
 	}
