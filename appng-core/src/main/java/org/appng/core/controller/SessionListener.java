@@ -72,7 +72,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	/**
 	 * A string flag to be set in the {@link Environment} with
 	 * {@link Scope#SESSION}, indicating that
-	 * {@link #expireSessions(Environment, Site)} should be called.
+	 * {@link #expire(Manager, Environment, Site)} should be called.
 	 */
 	public static final String EXPIRE_SESSIONS = "expireSessions";
 
