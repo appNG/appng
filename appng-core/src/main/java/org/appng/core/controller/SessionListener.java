@@ -50,7 +50,6 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 
 /**
  * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
@@ -84,13 +83,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	public void contextInitialized(ServletContextEvent sce) {
-		CacheService.getCacheManager().addCache(SESSIONS);
-		Cache cache = CacheService.getCacheManager().getCache(SESSIONS);
-		cache.getCacheConfiguration().setTimeToIdleSeconds(0);
-		cache.getCacheConfiguration().setTimeToLiveSeconds(0);
-		cache.getCacheConfiguration().eternal(true);
-		cache.getCacheConfiguration().getPersistenceConfiguration().setStrategy(Strategy.NONE.name());
-		LOGGER.info("Created eternal cache '{}'.", SESSIONS);
+		Cache cache = new Cache(SESSIONS, 1000000, false, true, 0, 0);
+		LOGGER.info("Created eternal cache '{}'.", cache.getName());
+		CacheService.getCacheManager().addCache(cache);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
