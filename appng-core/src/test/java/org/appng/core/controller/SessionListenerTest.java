@@ -31,27 +31,32 @@ import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
 
+import net.sf.ehcache.Status;
+
 public class SessionListenerTest {
 
-	private ServletContext servletContext = new MockServletContext();
+	private static ServletContext servletContext = new MockServletContext();
 	private MockHttpSession session1 = new MockHttpSession(servletContext, "ZUS383883OTOTOLSKKL");
 	private MockHttpSession session2 = new MockHttpSession(servletContext, "ERTERTZGFHFGHGFH234");
-	private Map<String, Object> platformMap;
+	private static Map<String, Object> platformMap;
 
-	private SessionListener sessionListener;
+	private static SessionListener sessionListener;
 
-	@Before
-	public void setup() {
+	@BeforeClass
+	public static void setup() {
 		sessionListener = new SessionListener();
+		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
+		Assert.assertEquals(Status.STATUS_ALIVE, SessionListener.getSessionCache().getStatus());
+
 		platformMap = new ConcurrentHashMap<>();
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
@@ -64,14 +69,13 @@ public class SessionListenerTest {
 		sitemap.put(site.getHost(), site);
 		platformMap.put(Platform.Environment.SITES, sitemap);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformMap);
-		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
 	}
 
-	@After
-	public void tearDown() {
-		Assert.assertNotNull(platformMap.get(SessionListener.SESSIONS));
+	@AfterClass
+	public static void tearDown() {
+		Assert.assertNotNull(SessionListener.getSessions());
 		sessionListener.contextDestroyed(new ServletContextEvent(servletContext));
-		Assert.assertNull(platformMap.get(SessionListener.SESSIONS));
+		Assert.assertEquals(Status.STATUS_SHUTDOWN, SessionListener.getSessionCache().getStatus());
 	}
 
 	@Test
@@ -100,9 +104,7 @@ public class SessionListenerTest {
 		sessionListener.requestInitialized(requestEvent);
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<Session> getSessions() {
-		Map<String, Object> platformMap = (Map<String, Object>) servletContext.getAttribute(Scope.PLATFORM.name());
-		return (List<Session>) platformMap.get(SessionListener.SESSIONS);
+		return SessionListener.getSessions();
 	}
 }

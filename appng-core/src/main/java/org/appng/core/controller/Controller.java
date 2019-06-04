@@ -21,7 +21,6 @@ import static org.appng.api.Scope.SESSION;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
@@ -83,11 +82,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTPS = "https://";
 	private static final String SCHEME_HTTP = "http://";
 
-	/**
-	 * a boolean flag to be set in the {@link Environment} with {@link Scope#SESSION}, indicating that
-	 * {@link #expireSessions(HttpServletRequest, Environment, Site)} should be called
-	 */
-	public static final String EXPIRE_SESSIONS = "expireSessions";
+	protected static final String SESSION_MANAGER = "sessionManager";
 
 	protected JspHandler jspHandler;
 
@@ -177,7 +172,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, true);
 
-		expireSessions(servletRequest, env, site);
+		expireSessions(env, site);
 
 		if (site != null) {
 			try {
@@ -304,44 +299,20 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	public void setWrapper(Wrapper wrapper) {
 		Context context = ((Context) wrapper.getParent());
+		this.manager = context.getManager();
+		context.getServletContext().setAttribute(SESSION_MANAGER, manager);
 		Environment env = DefaultEnvironment.get(context.getServletContext());
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
 		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));
-		this.manager = context.getManager();
 	}
 
-	protected void expireSessions(HttpServletRequest servletRequest, Environment env, Site site) {
-		if (null != manager && Boolean.TRUE.equals(env.removeAttribute(SESSION, EXPIRE_SESSIONS))) {
-			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM,
-					SessionListener.SESSIONS);
-			for (org.appng.core.controller.Session session : sessions) {
-				org.apache.catalina.Session containerSession = getContainerSession(session.getId());
-				if (null != containerSession) {
-					if (session.isExpired()) {
-						LOGGER.info("expiring session {}", session.getId());
-						containerSession.expire();
-					}
-				} else {
-					LOGGER.debug("session to expire not found in {}: {} (created: {}, last access: {})",
-							manager.getClass().getSimpleName(), session.getId(), session.getCreationTime(),
-							session.getLastAccessedTime());
-					SessionListener.destroySession(session.getId(), env);
-				}
-			}
-		}
-	}
-
-	private org.apache.catalina.Session getContainerSession(String sessionId) {
-		try {
-			return manager.findSession(sessionId);
-		} catch (IOException e) {
-			LOGGER.warn(String.format("error while retrieving session %s", sessionId), e);
-		}
-		return null;
+	protected void expireSessions(Environment env, Site site) {
+		SessionListener.expire(manager, env, site);
 	}
 
 	public JspHandler getJspHandler() {
 		return jspHandler;
 	}
+
 }
