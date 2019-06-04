@@ -740,7 +740,7 @@ public class InitializerService {
 			site.sendEvent(new ReloadSiteEvent(site.getName()));
 		}
 
-		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE, false)) {
+		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
 			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
 					new SiteReloadWatcher(env, site));
 		}

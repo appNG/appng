@@ -254,7 +254,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
 		addSiteProperty(SiteProperties.TAG_PREFIX, "appNG");
 		addSiteProperty(SiteProperties.REWRITE_CONFIG, "/meta/conf/urlrewrite.xml");
-		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE, false);
+		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE, !platformConfig.getBoolean(Platform.Property.MESSAGING_ENABLED));
 
 		addSiteProperty(SiteProperties.AUTH_APPLICATION, "appng-authentication");
 		addSiteProperty(SiteProperties.AUTH_LOGIN_PAGE, "webform");
@@ -410,7 +410,7 @@ public class PropertySupport {
 		return Arrays
 				.asList(Platform.Property.APPNG_DATA, Platform.Property.REPOSITORY_PATH,
 						Platform.Property.PASSWORD_POLICY_REGEX, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
-						Platform.Property.TEMPLATE_PREFIX)
+						Platform.Property.TEMPLATE_PREFIX, Platform.Property.MESSAGING_ENABLED)
 				.stream().map(p -> PREFIX_PLATFORM + p).collect(Collectors.toList());
 	}
 }
