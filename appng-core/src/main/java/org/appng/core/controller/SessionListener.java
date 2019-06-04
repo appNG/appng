@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSessionListener;
 
 import org.apache.catalina.Manager;
 import org.apache.catalina.session.StandardManager;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
@@ -239,7 +240,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	 */
 	public static List<Session> getSessions() {
 		Cache sessionCache = getSessionCache();
-		return sessionCache.getAll(sessionCache.getKeys()).values().stream().map(e -> (Session) e.getObjectValue())
+		return sessionCache.getAll(sessionCache.getKeys()).values().parallelStream()
+				.map(e -> (Session) e.getObjectValue())
+				.sorted((s1, s2) -> ObjectUtils.compare(s1.getCreationTime(), s2.getCreationTime()))
 				.collect(Collectors.toList());
 	}
 
