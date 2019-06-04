@@ -84,9 +84,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	public void contextInitialized(ServletContextEvent sce) {
-		Cache cache = new Cache(SESSIONS, 1000000, false, true, 0, 0);
-		LOGGER.info("Created eternal cache '{}'.", cache.getName());
+		Cache cache = new Cache(SESSIONS, 0, false, true, 0, 0);
 		CacheService.getCacheManager().addCache(cache);
+		LOGGER.info("Created eternal cache '{}'.", cache.getName());
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
