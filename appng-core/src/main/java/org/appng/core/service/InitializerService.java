@@ -623,6 +623,7 @@ public class InitializerService {
 				} catch (InvalidConfigurationException ice) {
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
+					auditableListener.createEvent(Type.ERROR, errorMessage);
 				}
 			}
 		}
@@ -713,6 +714,7 @@ public class InitializerService {
 				String message = String.format("Error while loading application %s.", application.getName());
 				fp.addErrorMessage(message);
 				LOGGER.error(message, e);
+				auditableListener.createEvent(Type.ERROR, message);
 			}
 		}
 		site.getSiteApplications().clear();
