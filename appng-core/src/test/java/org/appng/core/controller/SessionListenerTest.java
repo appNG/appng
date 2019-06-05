@@ -40,6 +40,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 
 public class SessionListenerTest {
@@ -53,6 +54,7 @@ public class SessionListenerTest {
 
 	@BeforeClass
 	public static void setup() {
+		CacheManager.create(SessionListenerTest.class.getClassLoader().getResourceAsStream("WEB-INF/conf/ehcache.xml"));
 		sessionListener = new SessionListener();
 		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
 		Assert.assertEquals(Status.STATUS_ALIVE, SessionListener.getSessionCache().getStatus());

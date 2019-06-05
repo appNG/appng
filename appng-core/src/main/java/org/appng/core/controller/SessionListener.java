@@ -119,7 +119,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
-		// getSessionCache().dispose();
+		getSessionCache().dispose();
 	}
 
 	public void sessionCreated(HttpSessionEvent event) {
