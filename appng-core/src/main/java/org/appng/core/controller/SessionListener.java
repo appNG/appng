@@ -51,7 +51,13 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
+import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
+import net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory;
+import net.sf.ehcache.distribution.RMICacheReplicatorFactory;
 
 /**
  * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
@@ -85,18 +91,35 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	public void contextInitialized(ServletContextEvent sce) {
-		CacheService.getCacheManager().addCache(SESSIONS);
-		Cache cache = getSessionCache();
-		cache.getCacheConfiguration().setTimeToIdleSeconds(0);
-		cache.getCacheConfiguration().setTimeToLiveSeconds(0);
-		cache.getCacheConfiguration().setMaxEntriesLocalDisk(0);
-		cache.getCacheConfiguration().eternal(true);
-		cache.getCacheConfiguration().getPersistenceConfiguration().setStrategy(Strategy.NONE.name());
+		CacheConfiguration cacheConfiguration = new CacheConfiguration();
+		cacheConfiguration.eternal(true);
+		cacheConfiguration.setName(SESSIONS);
+		cacheConfiguration.setTimeToIdleSeconds(0);
+		cacheConfiguration.setTimeToLiveSeconds(0);
+		cacheConfiguration.setMaxEntriesLocalDisk(0);
+
+		PersistenceConfiguration persistenceConfiguration = new PersistenceConfiguration();
+		persistenceConfiguration.setStrategy(Strategy.LOCALTEMPSWAP.name());
+		cacheConfiguration.addPersistence(persistenceConfiguration);
+
+		BootstrapCacheLoaderFactoryConfiguration bclfc = new BootstrapCacheLoaderFactoryConfiguration();
+		bclfc.className(RMIBootstrapCacheLoaderFactory.class.getName());
+		bclfc.setProperties("bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000");
+		cacheConfiguration.bootstrapCacheLoaderFactory(bclfc);
+
+		CacheEventListenerFactoryConfiguration celfc = new CacheEventListenerFactoryConfiguration();
+		celfc.setClass(RMICacheReplicatorFactory.class.getName());
+		celfc.setProperties("replicateAsynchronously=true,replicatePuts=true,replicateUpdates=true,"
+				+ "replicateUpdatesViaCopy=true,replicateRemovals=true");
+		cacheConfiguration.cacheEventListenerFactory(celfc);
+
+		Cache cache = new Cache(cacheConfiguration);
+		CacheService.getCacheManager().addCache(cache);
 		LOGGER.info("Created eternal cache '{}'.", SESSIONS);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
-		getSessionCache().dispose();
+		// getSessionCache().dispose();
 	}
 
 	public void sessionCreated(HttpSessionEvent event) {
