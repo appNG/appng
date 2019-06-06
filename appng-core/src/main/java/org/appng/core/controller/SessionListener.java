@@ -97,6 +97,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		cacheConfiguration.setTimeToIdleSeconds(0);
 		cacheConfiguration.setTimeToLiveSeconds(0);
 		cacheConfiguration.setMaxEntriesLocalDisk(0);
+		cacheConfiguration.setMaxEntriesLocalHeap(0);
 
 		PersistenceConfiguration persistenceConfiguration = new PersistenceConfiguration();
 		persistenceConfiguration.setStrategy(Strategy.LOCALTEMPSWAP.name());
