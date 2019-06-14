@@ -101,18 +101,14 @@ public class CacheService {
 			config.setInstanceName("appNG");
 			config.getNetworkConfig().setPort(Integer.valueOf(port));
 			JoinConfig joinConfig = config.getNetworkConfig().getJoin();
-			String providerType = "server";
 			switch (mode) {
 			case "client":
-				providerType = mode;
-
 				ClientConfig clientConfig = new ClientConfig();
 				clientConfig.getGroupConfig().setName(group);
 				String[] addressArr = addresses.split(",");
 				for (String address : addressArr) {
 					clientConfig.getNetworkConfig().addAddress(address.trim());
 				}
-				System.setProperty("hazelcast.jcache.provider.type", providerType);
 				instance = HazelcastClient.newHazelcastClient(clientConfig);
 				break;
 
@@ -120,7 +116,6 @@ public class CacheService {
 				joinConfig.getTcpIpConfig().setEnabled(true);
 				joinConfig.getMulticastConfig().setEnabled(false);
 				joinConfig.getTcpIpConfig().addMember(addresses);
-				System.setProperty("hazelcast.jcache.provider.type", providerType);
 				instance = Hazelcast.getOrCreateHazelcastInstance(config);
 				break;
 
@@ -131,11 +126,9 @@ public class CacheService {
 				joinConfig.getMulticastConfig().setMulticastPort(Integer.valueOf(multicastPort));
 				joinConfig.getMulticastConfig().setMulticastTimeoutSeconds(Integer.valueOf(multicastTimeoutSeconds));
 				joinConfig.getMulticastConfig().setMulticastTimeToLive(Integer.valueOf(multicastTimeToLive));
-				System.setProperty("hazelcast.jcache.provider.type", providerType);
 				instance = Hazelcast.getOrCreateHazelcastInstance(config);
 				break;
 			}
-
 			
 			Properties properties = new Properties();
 			properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
