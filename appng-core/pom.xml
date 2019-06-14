@@ -24,6 +24,7 @@
 						<!-- skip integration tests -->
 						<exclude>**/*IT.java</exclude>
 					</excludes>
+					<argLine>${argLine} -Dfile.encoding=${project.build.sourceEncoding} -Dhazelcast.jcache.provider.type=server</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -315,16 +316,8 @@
 			<version>6.2.1.jre8</version>
 			<scope>provided</scope>
 		</dependency>
-		<!--dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-web</artifactId>
-			<scope>provided</scope>
-		</dependency-->
+		<!--dependency> <groupId>net.sf.ehcache</groupId> <artifactId>ehcache-core</artifactId> <scope>provided</scope> </dependency> 
+			<dependency> <groupId>net.sf.ehcache</groupId> <artifactId>ehcache-web</artifactId> <scope>provided</scope> </dependency -->
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>

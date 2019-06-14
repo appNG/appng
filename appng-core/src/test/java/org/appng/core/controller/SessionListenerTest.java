@@ -31,6 +31,7 @@ import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.core.service.CacheService;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -39,9 +40,6 @@ import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
-
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Status;
 
 public class SessionListenerTest {
 
@@ -54,10 +52,10 @@ public class SessionListenerTest {
 
 	@BeforeClass
 	public static void setup() {
-		CacheManager.create(SessionListenerTest.class.getClassLoader().getResourceAsStream("WEB-INF/conf/ehcache.xml"));
+		CacheService.createCacheManager(new java.util.Properties());
 		sessionListener = new SessionListener();
 		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
-		Assert.assertEquals(Status.STATUS_ALIVE, SessionListener.getSessionCache().getStatus());
+		Assert.assertEquals(SessionListener.SESSIONS, SessionListener.getSessionCache().getName());
 
 		platformMap = new ConcurrentHashMap<>();
 		Properties props = Mockito.mock(Properties.class);
@@ -77,7 +75,6 @@ public class SessionListenerTest {
 	public static void tearDown() {
 		Assert.assertNotNull(SessionListener.getSessions());
 		sessionListener.contextDestroyed(new ServletContextEvent(servletContext));
-		Assert.assertEquals(Status.STATUS_SHUTDOWN, SessionListener.getSessionCache().getStatus());
 	}
 
 	@Test

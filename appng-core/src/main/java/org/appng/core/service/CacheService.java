@@ -54,6 +54,7 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -87,23 +88,31 @@ public class CacheService {
 			String addresses = cachingProps.getProperty("addresses", "localhost:5701");
 			String group = cachingProps.getProperty("group", "dev");
 			String port = cachingProps.getProperty("port", "5701");
-			String multicastGroup = cachingProps.getProperty("multicastGroup", "localhost:5701");
-			String multicastPort = cachingProps.getProperty("multicastPort", "localhost:5701");
-			String multicastTimeoutSeconds = cachingProps.getProperty("multicastTimeoutSeconds", "localhost:5701");
-			String multicastTimeToLive = cachingProps.getProperty("multicastTimeToLive", "localhost:5701");
+			String multicastGroup = cachingProps.getProperty("multicastGroup", MulticastConfig.DEFAULT_MULTICAST_GROUP);
+			String multicastPort = cachingProps.getProperty("multicastPort",
+					String.valueOf(MulticastConfig.DEFAULT_MULTICAST_PORT));
+			String multicastTimeoutSeconds = cachingProps.getProperty("multicastTimeoutSeconds",
+					String.valueOf(MulticastConfig.DEFAULT_MULTICAST_TIMEOUT_SECONDS));
+			String multicastTimeToLive = cachingProps.getProperty("multicastTimeToLive",
+					String.valueOf(MulticastConfig.DEFAULT_MULTICAST_TTL));
 
 			HazelcastInstance instance;
 			Config config = new Config();
+			config.setInstanceName("appNG");
 			config.getNetworkConfig().setPort(Integer.valueOf(port));
 			JoinConfig joinConfig = config.getNetworkConfig().getJoin();
+			String providerType = "server";
 			switch (mode) {
 			case "client":
+				providerType = mode;
+
 				ClientConfig clientConfig = new ClientConfig();
 				clientConfig.getGroupConfig().setName(group);
 				String[] addressArr = addresses.split(",");
 				for (String address : addressArr) {
 					clientConfig.getNetworkConfig().addAddress(address.trim());
 				}
+				System.setProperty("hazelcast.jcache.provider.type", providerType);
 				instance = HazelcastClient.newHazelcastClient(clientConfig);
 				break;
 
@@ -111,7 +120,8 @@ public class CacheService {
 				joinConfig.getTcpIpConfig().setEnabled(true);
 				joinConfig.getMulticastConfig().setEnabled(false);
 				joinConfig.getTcpIpConfig().addMember(addresses);
-				instance = Hazelcast.newHazelcastInstance(config);
+				System.setProperty("hazelcast.jcache.provider.type", providerType);
+				instance = Hazelcast.getOrCreateHazelcastInstance(config);
 				break;
 
 			default:
@@ -121,10 +131,12 @@ public class CacheService {
 				joinConfig.getMulticastConfig().setMulticastPort(Integer.valueOf(multicastPort));
 				joinConfig.getMulticastConfig().setMulticastTimeoutSeconds(Integer.valueOf(multicastTimeoutSeconds));
 				joinConfig.getMulticastConfig().setMulticastTimeToLive(Integer.valueOf(multicastTimeToLive));
-				instance = Hazelcast.newHazelcastInstance(config);
+				System.setProperty("hazelcast.jcache.provider.type", providerType);
+				instance = Hazelcast.getOrCreateHazelcastInstance(config);
 				break;
 			}
 
+			
 			Properties properties = new Properties();
 			properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
 			return cachingProvider.getCacheManager(null, null, properties);
@@ -171,7 +183,7 @@ public class CacheService {
 	 * @param statisticsEnabled
 	 * @return The {@link Cache} instance for the specified site.
 	 */
-	synchronized static Cache<String, AppngCacheElement> createCache(Site site, Integer ttl,
+	public synchronized static Cache<String, AppngCacheElement> createCache(Site site, Integer ttl,
 			Boolean statisticsEnabled) {
 		String cacheKey = getCacheKey(site);
 		CacheManager cacheManager = getCacheManager();

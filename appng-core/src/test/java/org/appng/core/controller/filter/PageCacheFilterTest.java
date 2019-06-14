@@ -16,18 +16,17 @@
 package org.appng.core.controller.filter;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.zip.DataFormatException;
 
+import javax.cache.Cache;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.appng.api.model.Site;
+import org.appng.core.controller.AppngCacheElement;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,12 +38,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.constructs.blocking.BlockingCache;
-import net.sf.ehcache.constructs.web.Header;
-import net.sf.ehcache.constructs.web.PageInfo;
-import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
-
 public class PageCacheFilterTest {
 
 	@Test
@@ -52,43 +45,44 @@ public class PageCacheFilterTest {
 		MockHttpServletRequest req = new MockHttpServletRequest(new MockServletContext());
 		req.setServletPath("/foo/bar");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
-		BlockingCache cache = Mockito.mock(BlockingCache.class);
+		@SuppressWarnings("unchecked")
+		Cache<String, AppngCacheElement> cache = Mockito.mock(Cache.class);
 		Mockito.when(cache.getName()).thenReturn("testcache");
 		FilterChain chain = Mockito.mock(FilterChain.class);
 		String modifiedDate = "Wed, 28 Mar 2018 09:04:12 GMT";
 		String content = "foobar";
 		PageCacheFilter pageCacheFilter = new PageCacheFilter() {
 			@Override
-			protected PageInfo buildPage(HttpServletRequest request,
-					HttpServletResponse response, FilterChain chain, BlockingCache blockingCache)
-					throws net.sf.ehcache.constructs.web.AlreadyGzippedException, Exception {
-				List<Header<? extends Serializable>> headers = new ArrayList<>();
-				headers.add(new Header<String>(HttpHeaders.LAST_MODIFIED, modifiedDate));
-				return new PageInfo(200, "text/plain", new ArrayList<>(), content.getBytes(), false, 1800, headers);
+			protected AppngCacheElement buildPage(HttpServletRequest request,
+					HttpServletResponse response, FilterChain chain, Cache<String, AppngCacheElement> blockingCache)
+					throws ServletException, IOException {
+				HttpHeaders headers = new HttpHeaders();
+				headers.add(HttpHeaders.LAST_MODIFIED, modifiedDate);
+				return new AppngCacheElement(200, "text/plain", content.getBytes(), headers);
 			};
 
 			@Override
-			protected void writeResponse(HttpServletRequest request, HttpServletResponse response, PageInfo pageInfo)
-					throws IOException, DataFormatException, ResponseHeadersNotModifiableException {
+			protected void writeResponse(HttpServletRequest request, HttpServletResponse response, AppngCacheElement pageInfo)
+					throws IOException {
 				if ("/aborted".equals(request.getServletPath())) {
 					throw new ClientAbortException("aborted!");
 				}
 				super.writeResponse(request, response, pageInfo);
 			}
 		};
-		AtomicReference<PageInfo> actual = new AtomicReference<>();
+		AtomicReference<AppngCacheElement> actual = new AtomicReference<>();
 		Mockito.doAnswer(new Answer<Void>() {
 			public Void answer(InvocationOnMock invocation) throws Throwable {
-				Element element = invocation.getArgumentAt(0, Element.class);
-				actual.set((PageInfo) element.getObjectValue());
+				AppngCacheElement element = invocation.getArgumentAt(1, AppngCacheElement.class);
+				actual.set(element);
 				return null;
 			}
-		}).when(cache).put(Mockito.any(Element.class));
-		PageInfo pageInfo = pageCacheFilter.buildPageInfo(req, resp, chain, cache);
+		}).when(cache).put(Mockito.any(),Mockito.any());
+		AppngCacheElement pageInfo = pageCacheFilter.buildPageInfo(req, resp, chain, cache);
 
 		Assert.assertEquals(pageInfo, actual.get());
-		Assert.assertEquals(modifiedDate, actual.get().getHeaders().stream()
-				.filter(h -> h.getName().equals(HttpHeaders.LAST_MODIFIED)).findFirst().get().getValue());
+		long dateAsMillis=1522227852000L;
+		Assert.assertEquals(dateAsMillis, actual.get().getHeaders().getLastModified());
 		pageCacheFilter.handleCaching(req, resp, Mockito.mock(Site.class), chain, cache);
 		Assert.assertEquals(HttpStatus.OK.value(), resp.getStatus());
 		Assert.assertEquals(content.length(), resp.getContentLength());

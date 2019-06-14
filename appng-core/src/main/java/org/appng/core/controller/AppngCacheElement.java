@@ -15,16 +15,12 @@
  */
 package org.appng.core.controller;
 
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.appng.api.model.Site;
-import org.appng.core.model.ResponseType;
 import org.springframework.http.HttpHeaders;
-import org.tuckey.web.filters.urlrewrite.gzip.GenericResponseWrapper;
+import org.springframework.http.HttpStatus;
 
 import lombok.Data;
 
@@ -35,7 +31,7 @@ import lombok.Data;
  * @author Matthias Herlitzius
  */
 @Data
-public class AppngCacheElement {
+public class AppngCacheElement implements Serializable {
 
 	private String id;
 	private String site;
@@ -44,7 +40,7 @@ public class AppngCacheElement {
 	private Date creationTime;
 	private Date lastAccessedTime;
 	private Date expirationTime;
-	private int status;
+	private HttpStatus status;
 	private int timeToLive;
 	protected String servletPath;
 	protected String queryString;
@@ -58,10 +54,11 @@ public class AppngCacheElement {
 	}
 
 	public AppngCacheElement(int status, String contentType, byte[] data, HttpHeaders headers) {
-		this.status = status;
+		this.status = HttpStatus.valueOf(status);
 		this.contentType = contentType;
 		this.data = data;
 		this.headers = headers;
+		this.contentLength = data.length;
 	}
 
 	@Override
