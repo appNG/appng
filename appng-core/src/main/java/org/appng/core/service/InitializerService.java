@@ -18,6 +18,7 @@ package org.appng.core.service;
 import static org.appng.api.support.environment.EnvironmentKeys.JAR_INFO_MAP;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -46,6 +47,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
+import javax.cache.CacheManager;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FileUtils;
@@ -111,11 +113,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.constructs.blocking.BlockingCache;
 
 /**
- * A service responsible for initializing the appNG platform with all active {@link Site}s.
+ * A service responsible for initializing the appNG platform with all active
+ * {@link Site}s.
  * 
  * @author Matthias Müller
  */
@@ -148,19 +149,17 @@ public class InitializerService {
 	protected PlatformEventListener auditableListener;
 
 	/**
-	 * Initializes and loads the platform, which includes logging some environment settings.
+	 * Initializes and loads the platform, which includes logging some environment
+	 * settings.
 	 * 
-	 * @param env
-	 *            the current {@link Environment}
-	 * @param rootConnection
-	 *            the root {@link DatabaseConnection}
-	 * @param ctx
-	 *            the current {@link ServletContext}
-	 * @param executor
-	 *            an {@link ExecutorService} used by the cluster messaging
-	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
-	 * @see #loadPlatform(java.util.Properties, Environment, String, String, ExecutorService)
+	 * @param env            the current {@link Environment}
+	 * @param rootConnection the root {@link DatabaseConnection}
+	 * @param ctx            the current {@link ServletContext}
+	 * @param executor       an {@link ExecutorService} used by the cluster
+	 *                       messaging
+	 * @throws InvalidConfigurationException if an configuration error occurred
+	 * @see #loadPlatform(java.util.Properties, Environment, String, String,
+	 *      ExecutorService)
 	 */
 	@Transactional
 	public void initPlatform(java.util.Properties defaultOverrides, Environment env, DatabaseConnection rootConnection,
@@ -175,14 +174,11 @@ public class InitializerService {
 	/**
 	 * Reloads the platform with all of it's {@link Site}s.
 	 * 
-	 * @param env
-	 *            the current {@link Environment}
-	 * @param siteName
-	 *            the (optional) name of the {@link Site} that caused the platform reload
-	 * @param target
-	 *            an (optional) target to redirect to after platform reload
-	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 * @param env      the current {@link Environment}
+	 * @param siteName the (optional) name of the {@link Site} that caused the
+	 *                 platform reload
+	 * @param target   an (optional) target to redirect to after platform reload
+	 * @throws InvalidConfigurationException if an configuration error occurred
 	 */
 	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
@@ -224,14 +220,11 @@ public class InitializerService {
 	/**
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
-	 * @param env
-	 *            the current {@link Environment}
-	 * @param siteName
-	 *            the (optional) name of the {@link Site} that caused the platform reload
-	 * @param target
-	 *            an (optional) target to redirect to after platform reload
-	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 * @param env      the current {@link Environment}
+	 * @param siteName the (optional) name of the {@link Site} that caused the
+	 *                 platform reload
+	 * @param target   an (optional) target to redirect to after platform reload
+	 * @throws InvalidConfigurationException if an configuration error occurred
 	 */
 	public void loadPlatform(java.util.Properties defaultOverrides, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
@@ -254,8 +247,20 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		File ehcacheConfig = platformConfig.getCacheConfig();
-		CacheManager cacheManager = CacheManager.create(ehcacheConfig.getPath());
+		File cacheConfig = platformConfig.getCacheConfig();
+		java.util.Properties cachingProperties = null;
+		if (cacheConfig.exists()) {
+			try {
+				cachingProperties = new java.util.Properties();
+				cachingProperties.load(new FileInputStream(cacheConfig));
+			} catch (IOException e) {
+				LOGGER.error("error loading caching properties", e);
+			}
+		} else {
+			cachingProperties = platformConfig.getProperties(Platform.Property.EHCACHE_CONFIG);
+		}
+		CacheService.createCacheManager(cachingProperties);
+		CacheManager cacheManager = CacheService.getCacheManager();
 
 		File uploadDir = platformConfig.getUploadDir();
 		if (!uploadDir.exists()) {
@@ -307,7 +312,7 @@ public class InitializerService {
 		if (0 == activeSites) {
 			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
 		}
-		LOGGER.info("Current Ehcache configuration:\n{}", cacheManager.getActiveConfigurationText());
+		LOGGER.info("Current cache configuration:\n{}", cacheManager.getProperties());
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
@@ -395,7 +400,8 @@ public class InitializerService {
 		for (String key : keyList) {
 			Object value = map.get(key);
 			Object logValue = (value instanceof String)
-					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm) : value;
+					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm)
+					: value;
 			LOGGER.info("{}: {}", StringNormalizer.replaceNonPrintableCharacters(key, qm), logValue);
 		}
 	}
@@ -403,12 +409,9 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *            the current {@link Environment}
-	 * @param siteToLoad
-	 *            the {@link Site} to load
-	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 * @param env        the current {@link Environment}
+	 * @param siteToLoad the {@link Site} to load
+	 * @throws InvalidConfigurationException if an configuration error occurred
 	 */
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -418,12 +421,9 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *            the current {@link Environment}
-	 * @param siteToLoad
-	 *            the {@link Site} to load
-	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 * @param env        the current {@link Environment}
+	 * @param siteToLoad the {@link Site} to load
+	 * @throws InvalidConfigurationException if an configuration error occurred
 	 */
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
@@ -434,12 +434,9 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *            the {@link Site} to load
-	 * @param servletContext
-	 *            the current {@link ServletContext}
-	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 * @param siteToLoad     the {@link Site} to load
+	 * @param servletContext the current {@link ServletContext}
+	 * @throws InvalidConfigurationException if an configuration error occurred
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -449,17 +446,14 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *            the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
-	 *            {@link CoreService#getSiteByName(String)}
-	 * @param env
-	 *            the current {@link Environment}
-	 * @param sendReloadEvent
-	 *            whether or not a {@link ReloadSiteEvent} should be sent
-	 * @param fp
-	 *            a {@link FieldProcessor} to attach messages to
-	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 * @param siteToLoad      the {@link Site} to load, freshly loaded with
+	 *                        {@link CoreService#getSite(Integer)} or
+	 *                        {@link CoreService#getSiteByName(String)}
+	 * @param env             the current {@link Environment}
+	 * @param sendReloadEvent whether or not a {@link ReloadSiteEvent} should be
+	 *                        sent
+	 * @param fp              a {@link FieldProcessor} to attach messages to
+	 * @throws InvalidConfigurationException if an configuration error occurred
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -502,12 +496,12 @@ public class InitializerService {
 		cacheProvider.clearCache(site);
 
 		// ehcache
-		Integer ehcacheBlockingTimeout = site.getProperties().getInteger(SiteProperties.EHCACHE_BLOCKING_TIMEOUT);
-		BlockingCache cache = CacheService.getBlockingCache(site, ehcacheBlockingTimeout);
-		Boolean ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
-		cache.setDisabled(!ehcacheEnabled);
-		Boolean ehcacheStatistics = site.getProperties().getBoolean(SiteProperties.EHCACHE_STATISTICS);
-		cache.setStatisticsEnabled(ehcacheStatistics);
+		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
+		if (cacheEnabled) {
+			Integer cacheTtl = site.getProperties().getInteger("cacheTtl", 1800);
+			Boolean cacheStatistics = site.getProperties().getBoolean(SiteProperties.EHCACHE_STATISTICS);
+			CacheService.createCache(site, cacheTtl, cacheStatistics);
+		}
 
 		Properties siteProps = site.getProperties();
 		String siteRoot = siteProps.getString(SiteProperties.SITE_ROOT_DIR);
@@ -643,7 +637,7 @@ public class InitializerService {
 		}
 
 		startIndexThread(site, documentIndexer);
-		startRepositoryWatcher(site, ehcacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
+		startRepositoryWatcher(site, cacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
 
 		String datasourceConfigurerName = siteProps.getString(SiteProperties.DATASOURCE_CONFIGURER);
 		try {
@@ -807,8 +801,7 @@ public class InitializerService {
 	/**
 	 * Shuts down the whole platform by shutting down every active {@link Site}.
 	 * 
-	 * @param ctx
-	 *            the current {@link ServletContext}
+	 * @param ctx the current {@link ServletContext}
 	 * @see #shutDownSite(Environment, Site)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
@@ -832,10 +825,8 @@ public class InitializerService {
 	/**
 	 * Shuts down the given {@link Site}.
 	 * 
-	 * @param env
-	 *            the current {@link Environment}.
-	 * @param site
-	 *            the {@link Site} to shut down
+	 * @param env  the current {@link Environment}.
+	 * @param site the {@link Site} to shut down
 	 */
 	public void shutDownSite(Environment env, Site site) {
 		List<ExecutorService> executors = siteThreads.get(site.getName());

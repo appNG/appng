@@ -28,6 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.cache.Cache;
+import javax.cache.Cache.Entry;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.SiteProperties;
@@ -40,16 +43,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.Ehcache;
 
 /**
  * <p>
- * A service that watches for modified/deleted files in a {@link Site}'s www-directory (see
- * {@link SiteProperties#WWW_DIR}) using a {@link WatchService}.
+ * A service that watches for modified/deleted files in a {@link Site}'s
+ * www-directory (see {@link SiteProperties#WWW_DIR}) using a
+ * {@link WatchService}.
  * </p>
- * If caching for the site is active (see {@link SiteProperties#EHCACHE_ENABLED}), cache entries for the
- * modified/deleted files are removed from the cache. Since there could be some forwarding rules defined in the site's
- * {@code urlrewrite.xml}, it is also necessary to parse these rules and remove the 'aliases' from the cache.
+ * If caching for the site is active (see
+ * {@link SiteProperties#EHCACHE_ENABLED}), cache entries for the
+ * modified/deleted files are removed from the cache. Since there could be some
+ * forwarding rules defined in the site's {@code urlrewrite.xml}, it is also
+ * necessary to parse these rules and remove the 'aliases' from the cache.
  * 
  * @author Matthias Müller
  *
@@ -68,7 +73,7 @@ public class RepositoryWatcher implements Runnable {
 
 	private String wwwDir;
 
-	private Ehcache cache;
+	private Cache<String, ?> cache;
 
 	private File configFile;
 
@@ -79,7 +84,7 @@ public class RepositoryWatcher implements Runnable {
 			this.jspExtension = "." + jspExtension;
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			String wwwdir = site.getProperties().getString(SiteProperties.WWW_DIR);
-			Ehcache cache = CacheService.getBlockingCache(site);
+			Cache<String, ?> cache = CacheService.getCache(site);
 			String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
 			List<String> documentsDirs = site.getProperties().getList(SiteProperties.DOCUMENT_DIR, ";");
 			init(cache, rootDir + wwwdir, site.readFile(rewriteConfig), ruleSourceSuffix, documentsDirs);
@@ -92,8 +97,8 @@ public class RepositoryWatcher implements Runnable {
 
 	}
 
-	void init(Ehcache cache, String wwwDir, File configFile, String ruleSourceSuffix, List<String> documentDirs)
-			throws Exception {
+	void init(Cache<String, ?> cache, String wwwDir, File configFile, String ruleSourceSuffix,
+			List<String> documentDirs) throws Exception {
 		this.cache = cache;
 		this.watcher = FileSystems.getDefault().newWatchService();
 		this.wwwDir = FilenameUtils.normalize(wwwDir, true);
@@ -159,17 +164,17 @@ public class RepositoryWatcher implements Runnable {
 
 	private int removeFromCache(String relativePathName) {
 		int count = 0;
-		@SuppressWarnings("unchecked")
-		List<String> keys = cache.getKeys();
-		for (String cacheKey : keys) {
-			if (cacheKey.startsWith(HttpMethod.GET.name() + relativePathName)) {
-				if (cache.remove(cacheKey)) {
-					LOGGER.debug("removed from cache: {}", cacheKey);
-					count++;
+		int removed = 0;
+		for (Entry<String, ?> entry : cache) {
+			count++;
+			if (entry.getKey().startsWith(HttpMethod.GET.name() + relativePathName)) {
+				if (cache.remove(entry.getKey())) {
+					LOGGER.debug("removed from cache: {}", entry.getKey());
+					removed++;
 				}
 			}
 		}
-		LOGGER.info("removed {} cache elements for {} (cache size: {})", count, relativePathName, keys.size());
+		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, relativePathName, count);
 		return count;
 	}
 

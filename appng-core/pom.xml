@@ -161,6 +161,16 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-search</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>edu.ucar</groupId>
+					<artifactId>cdm</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- END PROJECT DEPENDENCIES -->
 		<!-- BEGIN FRAMEWORK DEPENDENCIES -->
@@ -305,7 +315,7 @@
 			<version>6.2.1.jre8</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
 			<scope>provided</scope>
@@ -314,7 +324,7 @@
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-web</artifactId>
 			<scope>provided</scope>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
@@ -349,6 +359,16 @@
 			<groupId>de.skuzzle</groupId>
 			<artifactId>semantic-version</artifactId>
 			<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-client</artifactId>
+			<version>3.12</version>
 		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->

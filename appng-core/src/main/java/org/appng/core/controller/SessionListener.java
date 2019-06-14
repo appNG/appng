@@ -16,10 +16,13 @@
 package org.appng.core.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.EternalExpiryPolicy;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletRequest;
@@ -49,15 +52,6 @@ import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
-import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
-import net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory;
-import net.sf.ehcache.distribution.RMICacheReplicatorFactory;
 
 /**
  * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
@@ -91,36 +85,14 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	public void contextInitialized(ServletContextEvent sce) {
-		CacheConfiguration cacheConfiguration = new CacheConfiguration();
-		cacheConfiguration.eternal(true);
-		cacheConfiguration.setName(SESSIONS);
-		cacheConfiguration.setTimeToIdleSeconds(0);
-		cacheConfiguration.setTimeToLiveSeconds(0);
-		cacheConfiguration.setMaxEntriesLocalDisk(0);
-		cacheConfiguration.setMaxEntriesLocalHeap(0);
-
-		PersistenceConfiguration persistenceConfiguration = new PersistenceConfiguration();
-		persistenceConfiguration.setStrategy(Strategy.LOCALTEMPSWAP.name());
-		cacheConfiguration.addPersistence(persistenceConfiguration);
-
-		BootstrapCacheLoaderFactoryConfiguration bclfc = new BootstrapCacheLoaderFactoryConfiguration();
-		bclfc.className(RMIBootstrapCacheLoaderFactory.class.getName());
-		bclfc.setProperties("bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000");
-		cacheConfiguration.bootstrapCacheLoaderFactory(bclfc);
-
-		CacheEventListenerFactoryConfiguration celfc = new CacheEventListenerFactoryConfiguration();
-		celfc.setClass(RMICacheReplicatorFactory.class.getName());
-		celfc.setProperties("replicateAsynchronously=true,replicatePuts=true,replicateUpdates=true,"
-				+ "replicateUpdatesViaCopy=true,replicateRemovals=true");
-		cacheConfiguration.cacheEventListenerFactory(celfc);
-
-		Cache cache = new Cache(cacheConfiguration);
-		CacheService.getCacheManager().addCache(cache);
+		MutableConfiguration<String, Session> mutableConfiguration = new MutableConfiguration<>();
+		mutableConfiguration.setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf());
+		CacheService.getCacheManager().createCache(SESSIONS, mutableConfiguration);
 		LOGGER.info("Created eternal cache '{}'.", SESSIONS);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
-		getSessionCache().dispose();
+		// getSessionCache().removeAll();
 	}
 
 	public void sessionCreated(HttpSessionEvent event) {
@@ -129,8 +101,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	private Session createSession(HttpSession httpSession) {
 		Session session;
-		if (getSessionCache().isKeyInCache(httpSession.getId())) {
-			session = (Session) getSessionCache().get(httpSession.getId()).getObjectValue();
+		if (getSessionCache().containsKey(httpSession.getId())) {
+			session = getSessionCache().get(httpSession.getId());
 		} else {
 			DefaultEnvironment env = DefaultEnvironment.get(httpSession);
 			Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
@@ -147,7 +119,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			MDC.put(MDC_SESSION_ID, session.getId());
 			LOGGER.info("Session created: {} (created: {})", session.getId(),
 					DATE_PATTERN.format(session.getCreationTime()));
-			getSessionCache().put(new Element(httpSession.getId(), session));
+			getSessionCache().put(httpSession.getId(), session);
 		}
 		return session;
 	}
@@ -180,8 +152,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	private static Session getSession(String sessionId) {
-		Element sessionElement = getSessionCache().get(sessionId);
-		return null == sessionElement ? null : (Session) sessionElement.getObjectValue();
+		return getSessionCache().get(sessionId);
 	}
 
 	public void requestInitialized(ServletRequestEvent sre) {
@@ -217,7 +188,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	}
 
-	static Cache getSessionCache() {
+	static javax.cache.Cache<String, Session> getSessionCache() {
 		return CacheService.getCacheManager().getCache(SESSIONS);
 	}
 
@@ -269,11 +240,11 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	 * @return the list
 	 */
 	public static List<Session> getSessions() {
-		Cache sessionCache = getSessionCache();
-		return sessionCache.getAll(sessionCache.getKeys()).values().parallelStream()
-				.map(e -> (Session) e.getObjectValue())
-				.sorted((s1, s2) -> ObjectUtils.compare(s1.getCreationTime(), s2.getCreationTime()))
-				.collect(Collectors.toList());
+		javax.cache.Cache<String, Session> sessionCache = getSessionCache();
+		List<Session> sessions = new ArrayList<>();
+		sessionCache.forEach(s -> sessions.add(s.getValue()));
+		Collections.sort(sessions, (s1, s2) -> ObjectUtils.compare(s1.getCreationTime(), s2.getCreationTime()));
+		return sessions;
 	}
 
 	static void expire(Manager manager, Environment env, Site site) {
