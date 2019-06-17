@@ -46,12 +46,6 @@ import org.appng.core.controller.AppngCache;
 import org.appng.core.domain.SiteImpl;
 
 import com.hazelcast.cache.HazelcastCachingProvider;
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.JoinConfig;
-import com.hazelcast.config.MulticastConfig;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,61 +72,17 @@ public class CacheService {
 	public static CacheManager createCacheManager(Properties cachingProps) {
 		CachingProvider cachingProvider = Caching.getCachingProvider();
 		if (null == cachingProps) {
-			return cacheManager = cachingProvider.getCacheManager();
+			cacheManager = cachingProvider.getCacheManager();
 		} else {
-
-			String mode = cachingProps.getProperty("mode", "server");
-			String addresses = cachingProps.getProperty("addresses", "localhost:5701");
-			String group = cachingProps.getProperty("group", "dev");
-			String port = cachingProps.getProperty("port", "5701");
-			String multicastGroup = cachingProps.getProperty("multicastGroup", MulticastConfig.DEFAULT_MULTICAST_GROUP);
-			String multicastPort = cachingProps.getProperty("multicastPort",
-					String.valueOf(MulticastConfig.DEFAULT_MULTICAST_PORT));
-			String multicastTimeoutSeconds = cachingProps.getProperty("multicastTimeoutSeconds",
-					String.valueOf(MulticastConfig.DEFAULT_MULTICAST_TIMEOUT_SECONDS));
-			String multicastTimeToLive = cachingProps.getProperty("multicastTimeToLive",
-					String.valueOf(MulticastConfig.DEFAULT_MULTICAST_TTL));
-
-			HazelcastInstance instance;
-			Config config = new Config();
-			// config.setProperty( "hazelcast.logging.type", "slf4j" );
-			config.setInstanceName("appNG");
-			config.getNetworkConfig().setPort(Integer.valueOf(port));
-			JoinConfig joinConfig = config.getNetworkConfig().getJoin();
-			switch (mode) {
-			case "client":
-				ClientConfig clientConfig = new ClientConfig();
-				clientConfig.getGroupConfig().setName(group);
-				String[] addressArr = addresses.split(",");
-				for (String address : addressArr) {
-					clientConfig.getNetworkConfig().addAddress(address.trim());
-				}
-				instance = HazelcastClient.newHazelcastClient(clientConfig);
-				break;
-
-			case "tcp":
-				joinConfig.getTcpIpConfig().setEnabled(true);
-				joinConfig.getMulticastConfig().setEnabled(false);
-				joinConfig.getTcpIpConfig().addMember(addresses);
-				instance = Hazelcast.getOrCreateHazelcastInstance(config);
-				break;
-
-			default:
-				joinConfig.getTcpIpConfig().setEnabled(false);
-				joinConfig.getMulticastConfig().setEnabled(true);
-				joinConfig.getMulticastConfig().setMulticastGroup(multicastGroup);
-				joinConfig.getMulticastConfig().setMulticastPort(Integer.valueOf(multicastPort));
-				joinConfig.getMulticastConfig().setMulticastTimeoutSeconds(Integer.valueOf(multicastTimeoutSeconds));
-				joinConfig.getMulticastConfig().setMulticastTimeToLive(Integer.valueOf(multicastTimeToLive));
-				instance = Hazelcast.getOrCreateHazelcastInstance(config);
-				break;
+			HazelcastInstance instance = HazelcastConfigurer.getInstance();
+			if (instance == null) {
+				instance = HazelcastConfigurer.configure(cachingProps);
 			}
-
 			Properties properties = new Properties();
 			properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
 			cacheManager = cachingProvider.getCacheManager(null, null, properties);
-			return cacheManager;
 		}
+		return cacheManager;
 	}
 
 	/**
