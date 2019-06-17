@@ -101,8 +101,7 @@ public class HazelcastConfigurer {
 		String multicastTimeToLive = cachingProps.getProperty(MULTICAST_TIME_TO_LIVE,
 				String.valueOf(MulticastConfig.DEFAULT_MULTICAST_TTL));
 
-		Mode mode = EnumUtils.getEnumIgnoreCase(Mode.class, modeString);
-		HazelcastInstance instance;
+		Mode mode = EnumUtils.getEnumIgnoreCase(Mode.class, modeString);	
 		Config config = new Config();
 		config.setProperty("hazelcast.logging.type", loggingType);
 		config.setInstanceName(instanceName);
