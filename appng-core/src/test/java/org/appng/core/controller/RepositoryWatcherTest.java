@@ -25,6 +25,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.cache.Cache;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -33,6 +34,7 @@ import org.appng.core.service.CacheService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -49,16 +51,24 @@ public class RepositoryWatcherTest {
 		SiteImpl site = new SiteImpl();
 		site.setHost("localhost");
 		CacheService.createCacheManager(new Properties());
-		Cache<String, AppngCacheElement> cache = CacheService.createCache(site, 1800, true);
+		Cache<String, AppngCache> cache = CacheService.createCache(site, 1800, true);
 
 		String fehlerJsp = "/de/fehler.jsp";
 		String testJsp = "/de/test.jsp";
 		String keyFehlerJsp = "GET" + fehlerJsp;
 		String keyTestJsp = "GET" + testJsp;
-		cache.put(keyFehlerJsp, new AppngCacheElement(200, "text/plain", "a value".getBytes(), new HttpHeaders()));
-		cache.put(keyTestJsp, new AppngCacheElement(200, "text/plain", "a value".getBytes(), new HttpHeaders()));
-		cache.put("GET/de/error", new AppngCacheElement(200, "text/plain", "a value".getBytes(), new HttpHeaders()));
-		cache.put("GET/de/fault", new AppngCacheElement(200, "text/plain", "a value".getBytes(), new HttpHeaders()));
+		int timeToLive = 1800;
+		HttpServletRequest req = new MockHttpServletRequest();
+		String contentType = "text/plain";
+		byte[] bytes = "a value".getBytes();
+		cache.put(keyFehlerJsp,
+				new AppngCache(keyFehlerJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+		cache.put(keyTestJsp,
+				new AppngCache(keyTestJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+		cache.put("GET/de/error",
+				new AppngCache("GET/de/error", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+		cache.put("GET/de/fault",
+				new AppngCache("GET/de/fault", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
 
 		int size = getCacheSize(cache);
 		Assert.assertEquals(4, size);
@@ -83,9 +93,9 @@ public class RepositoryWatcherTest {
 		Assert.assertTrue(repositoryWatcher.forwardsUpdatedAt > forwardsUpdatedAt);
 	}
 
-	private int getCacheSize(Cache<String, AppngCacheElement> cache) {
-		AtomicInteger size=new AtomicInteger(0);
-		cache.iterator().forEachRemaining(e->size.getAndIncrement());
+	private int getCacheSize(Cache<String, AppngCache> cache) {
+		AtomicInteger size = new AtomicInteger(0);
+		cache.iterator().forEachRemaining(e -> size.getAndIncrement());
 		return size.get();
 	}
 }

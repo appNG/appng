@@ -498,7 +498,7 @@ public class InitializerService {
 		// ehcache
 		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
 		if (cacheEnabled) {
-			Integer cacheTtl = site.getProperties().getInteger("cacheTtl", 1800);
+			Integer cacheTtl = site.getProperties().getInteger("cacheTimeToLive", 1800);
 			Boolean cacheStatistics = site.getProperties().getBoolean(SiteProperties.EHCACHE_STATISTICS);
 			CacheService.createCache(site, cacheTtl, cacheStatistics);
 		}

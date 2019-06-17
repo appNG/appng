@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.cache.Cache;
@@ -45,12 +44,13 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.api.support.environment.DefaultEnvironment;
-import org.appng.core.controller.AppngCacheElement;
+import org.appng.core.controller.AppngCache;
 import org.appng.core.service.CacheService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.tuckey.web.filters.urlrewrite.gzip.GenericResponseWrapper;
+import org.tuckey.web.filters.urlrewrite.gzip.ResponseUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,7 +79,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			throws IOException, ServletException {
 
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		HttpServletResponse httpServletResponse = (HttpServletResponse) request;
+		HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 		String servletPath = httpServletRequest.getServletPath();
 		if (response.isCommitted()) {
 			throw new IOException("The response has already been committed for servletPath: " + servletPath);
@@ -105,11 +105,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected void handleCaching(final HttpServletRequest request, final HttpServletResponse response, Site site,
-			final FilterChain chain, Cache<String, AppngCacheElement> cache) throws ServletException, IOException {
+			final FilterChain chain, Cache<String, AppngCache> cache) throws ServletException, IOException {
 		try {
-			AppngCacheElement pageInfo = buildPageInfo(request, response, chain, cache);
+			AppngCache pageInfo = getCacheElement(request, response, chain, site, cache);
 			if (null != pageInfo) {
-				if (pageInfo.getStatus().equals(HttpStatus.OK) && response.isCommitted()) {
+				if (pageInfo.isOk() && response.isCommitted()) {
 					throw new ServletException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
@@ -133,41 +133,44 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		}
 	}
 
-	protected void writeResponse(HttpServletRequest request, HttpServletResponse response, AppngCacheElement pageInfo)
+	protected void writeResponse(HttpServletRequest request, HttpServletResponse response, AppngCache pageInfo)
 			throws IOException {
 		byte[] body = new byte[0];
 
 		HttpStatus status = pageInfo.getStatus();
-		boolean shouldBodyBeZero = HttpStatus.NO_CONTENT.equals(status) || HttpStatus.NOT_MODIFIED.equals(status);
+		boolean shouldBodyBeZero = ResponseUtil.shouldBodyBeZero(request, status.value());
+		boolean acceptGzip = acceptsGzipEncoding(request);
 		if (shouldBodyBeZero) {
 			body = new byte[0];
-		} else if (acceptsGzipEncoding(request)) {
-			// TODO handle gzip
-//			body = pageInfo.getGzippedBody();
-//			if (ResponseUtil.shouldGzippedBodyBeZero(body, request)) {
-//				body = new byte[0];
-//			} else {
-//				ResponseUtil.addGzipHeader(response);
-//			}
-
+		} else if (acceptGzip) {
+			if (ResponseUtil.shouldGzippedBodyBeZero(body, request)) {
+				body = new byte[0];
+			} else {
+				body = pageInfo.getGzippedBody();
+			}
 		} else {
 			body = pageInfo.getData();
 		}
 		response.setStatus(pageInfo.getStatus().value());
 		response.setContentLength(body.length);
 		response.setContentType(pageInfo.getContentType());
-		setHeaders(response, false, pageInfo);
+		if (pageInfo.getHitCount() > 0) {
+			writeCachedHeaders(response, acceptGzip, pageInfo);
+		}
 		OutputStream out = new BufferedOutputStream(response.getOutputStream());
 		out.write(body);
 		out.flush();
 	}
 
-	private void setHeaders(HttpServletResponse response, boolean acceptsGzip, AppngCacheElement pageInfo) {
-		pageInfo.getHeaders().forEach((n, vs) -> vs.forEach(v -> response.addHeader(n, v)));
+	private void writeCachedHeaders(HttpServletResponse response, boolean acceptsGzip, AppngCache pageInfo) {
+		pageInfo.getHeaders().forEach((n, vs) -> vs.forEach(v -> response.setHeader(n, v)));
+		if (acceptsGzip) {
+			response.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+		}
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
-			AppngCacheElement pageInfo, long lastModified) throws IOException {
+			AppngCache pageInfo, long lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
 			public long update() throws IOException {
@@ -186,7 +189,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				return pageInfo.getContentType();
 			}
 		}, true);
-		setHeaders(response, acceptsGzipEncoding(request), pageInfo);
+		writeCachedHeaders(response, acceptsGzipEncoding(request), pageInfo);
 	}
 
 	static class CacheHeaderUtils extends HttpHeaderUtils {
@@ -199,40 +202,51 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		}
 	}
 
-	protected AppngCacheElement buildPageInfo(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Cache<String, AppngCacheElement> cache) throws ServletException, IOException {
+	protected AppngCache getCacheElement(final HttpServletRequest request, final HttpServletResponse response,
+			final FilterChain chain, Site site, Cache<String, AppngCache> cache) throws ServletException, IOException {
 		final String key = calculateKey(request);
-
-		AppngCacheElement pageInfo = cache.get(key);
+		AppngCache pageInfo = cache.get(key);
 		if (pageInfo == null) {
-			pageInfo = buildPage(request, response, chain, cache);
+			pageInfo = performRequest(request, response, chain, site, cache);
 			int size = pageInfo.getContentLength();
-			if (pageInfo.getStatus().equals(HttpStatus.OK) && size > 0) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("PageInfo ok. Adding to cache {} with key {}", cache.getName(), key);
-				}
+			if (pageInfo.isOk()) {
 				cache.put(key, pageInfo);
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {})", cache.getName(), key,
+							pageInfo.getContentType(), size);
+				}
 			} else {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("PageInfo was not ok (status: {}, size: {}) for key {}", pageInfo.getStatus(), key);
+					LOGGER.debug("PageInfo was not ok (status: {}, size: {}) for key {}", pageInfo.getStatus(), size,
+							key);
 				}
 			}
-
+		} else {
+			// update hit statistic
+			long hits = pageInfo.incrementHit();
+			cache.replace(key, pageInfo);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Hit in cache {}: {} (type: {}, size: {}, hits: {})", cache.getName(), key,
+						pageInfo.getContentType(), pageInfo.getContentLength(), hits);
+			}
 		}
 		return pageInfo;
 	}
 
-	protected AppngCacheElement buildPage(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Cache<String, AppngCacheElement> cache) throws IOException, ServletException {
+	protected AppngCache performRequest(final HttpServletRequest request, final HttpServletResponse response,
+			final FilterChain chain, Site site, Cache<String, AppngCache> cache) throws IOException, ServletException {
 		final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
 		final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, outstr);
 		chain.doFilter(request, wrapper);
 		wrapper.flush();
 
 		HttpHeaders headers = new HttpHeaders();
-		response.getHeaderNames().forEach(n -> response.getHeaders(n).forEach(v -> headers.add(n, v)));
+		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
+				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
+		Integer ttl = site.getProperties().getInteger("cacheTimeToLife", 1800);
 
-		return new AppngCacheElement(wrapper.getStatus(), wrapper.getContentType(), outstr.toByteArray(), headers);
+		return new AppngCache(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
+				outstr.toByteArray(), headers, ttl);
 	}
 
 	private boolean isCacheableRequest(HttpServletRequest httpServletRequest) {
@@ -242,8 +256,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	private boolean isException(String servletPath, Site site) {
 		String clob = site.getProperties().getClob(SiteProperties.EHCACHE_EXCEPTIONS);
 		if (null != clob) {
-			List<String> exceptionList = Arrays.asList(clob.split("\n"));
-			Set<String> exceptions = new HashSet<>(exceptionList);
+			Set<String> exceptions = new HashSet<>(Arrays.asList(clob.split(StringUtils.LF)));
 			for (String e : exceptions) {
 				if (servletPath.startsWith(e.trim())) {
 					return true;

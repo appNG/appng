@@ -15,10 +15,17 @@
  */
 package org.appng.core.controller;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPOutputStream;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.time.DateUtils;
+import org.appng.api.model.Site;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
@@ -29,9 +36,10 @@ import lombok.Data;
  * this class will be put into the cache.
  * 
  * @author Matthias Herlitzius
+ * @author Matthias Müller
  */
 @Data
-public class AppngCacheElement implements Serializable {
+public class AppngCache implements Serializable {
 
 	private String id;
 	private String site;
@@ -49,16 +57,50 @@ public class AppngCacheElement implements Serializable {
 	protected HttpHeaders headers;
 	protected byte[] data;
 
-	public void incrementHit() {
-		hits.incrementAndGet();
+	public long incrementHit() {
+		calculateExpire(this.lastAccessedTime = new Date());
+		return hits.incrementAndGet();
 	}
 
-	public AppngCacheElement(int status, String contentType, byte[] data, HttpHeaders headers) {
+	public AppngCache(String id, Site site, HttpServletRequest request, int status, String contentType, byte[] data,
+			HttpHeaders headers, int timeToLive) {
+		this.id = id;
 		this.status = HttpStatus.valueOf(status);
 		this.contentType = contentType;
 		this.data = data;
 		this.headers = headers;
 		this.contentLength = data.length;
+		this.timeToLive = timeToLive;
+		this.site = site.getName();
+		this.domain = site.getDomain();
+		calculateExpire(this.creationTime = new Date());
+		this.servletPath = request.getServletPath();
+		this.queryString = request.getQueryString();
+	}
+
+	private void calculateExpire(Date baseline) {
+		this.expirationTime = DateUtils.addSeconds(baseline, timeToLive);
+	}
+
+	public long getHitCount() {
+		return hits.get();
+	}
+
+	public Date getCreatedOrUpdated() {
+		return creationTime;
+	}
+
+	public boolean isOk() {
+		return status.equals(HttpStatus.OK) && contentLength > 0;
+	}
+
+	public byte[] getGzippedBody() throws IOException {
+		final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		final GZIPOutputStream gzipped = new GZIPOutputStream(bytes);
+		gzipped.write(data);
+		gzipped.flush();
+		gzipped.close();
+		return bytes.toByteArray();
 	}
 
 	@Override
