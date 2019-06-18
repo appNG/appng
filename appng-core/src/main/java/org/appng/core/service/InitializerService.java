@@ -18,7 +18,6 @@ package org.appng.core.service;
 import static org.appng.api.support.environment.EnvironmentKeys.JAR_INFO_MAP;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -195,10 +194,10 @@ public class InitializerService {
 		startSiteThread(site, "appng-indexthread-" + site.getName(), THREAD_PRIORITY_LOW, documentIndexer);
 	}
 
-	private void startRepositoryWatcher(Site site, boolean ehcacheEnabled, String jspType) {
-		if (ehcacheEnabled && site.getProperties().getBoolean(SiteProperties.EHCACHE_WATCH_REPOSITORY, false)) {
-			String watcherRuleSourceSuffix = site.getProperties().getString(
-					SiteProperties.EHCACHE_WATCHER_RULE_SOURCE_SUFFIX, RepositoryWatcher.DEFAULT_RULE_SUFFIX);
+	private void startRepositoryWatcher(Site site, boolean cacheEnabled, String jspType) {
+		if (cacheEnabled && site.getProperties().getBoolean(SiteProperties.CACHE_WATCH_REPOSITORY, false)) {
+			String watcherRuleSourceSuffix = site.getProperties()
+					.getString(SiteProperties.CACHE_WATCHER_RULE_SOURCE_SUFFIX, RepositoryWatcher.DEFAULT_RULE_SUFFIX);
 			String threadName = String.format("appng-repositoryWatcher-%s", site.getName());
 			RepositoryWatcher repositoryWatcher = new RepositoryWatcher(site, jspType, watcherRuleSourceSuffix);
 			startSiteThread(site, threadName, THREAD_PRIORITY_LOW, repositoryWatcher);
@@ -246,20 +245,8 @@ public class InitializerService {
 		}
 
 		RepositoryCacheFactory.init(platformConfig);
+		platformConfig.initializeCaching();
 
-		File cacheConfig = platformConfig.getCacheConfig();
-		java.util.Properties cachingProperties = null;
-		if (cacheConfig.exists()) {
-			try {
-				cachingProperties = new java.util.Properties();
-				cachingProperties.load(new FileInputStream(cacheConfig));
-			} catch (IOException e) {
-				LOGGER.error("error loading caching properties", e);
-			}
-		} else {
-			cachingProperties = platformConfig.getProperties(Platform.Property.EHCACHE_CONFIG);
-		}
-		CacheService.createCacheManager(cachingProperties);
 		CacheManager cacheManager = CacheService.getCacheManager();
 
 		File uploadDir = platformConfig.getUploadDir();
@@ -375,6 +362,7 @@ public class InitializerService {
 			}
 			LOGGER.info("done watching for reload file.");
 		}
+
 	}
 
 	private void logHeaderMessage(String message) {
@@ -495,11 +483,11 @@ public class InitializerService {
 		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 		cacheProvider.clearCache(site);
 
-		// ehcache
-		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
+		// cache
+		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
 		if (cacheEnabled) {
-			Integer cacheTtl = site.getProperties().getInteger("cacheTimeToLive", 1800);
-			Boolean cacheStatistics = site.getProperties().getBoolean(SiteProperties.EHCACHE_STATISTICS);
+			Integer cacheTtl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+			Boolean cacheStatistics = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
 			CacheService.createCache(site, cacheTtl, cacheStatistics);
 		}
 

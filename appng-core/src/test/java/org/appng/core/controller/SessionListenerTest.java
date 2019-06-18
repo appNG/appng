@@ -52,7 +52,7 @@ public class SessionListenerTest {
 
 	@BeforeClass
 	public static void setup() {
-		CacheService.createCacheManager(new java.util.Properties());
+		CacheService.createCacheManager(null);
 		sessionListener = new SessionListener();
 		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
 		Assert.assertEquals(SessionListener.SESSIONS, SessionListener.getSessionCache().getName());

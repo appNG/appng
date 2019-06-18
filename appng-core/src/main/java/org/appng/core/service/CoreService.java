@@ -1740,7 +1740,7 @@ public class CoreService {
 				LOGGER.info("destroying site {} complete", shutdownSite);
 				setSiteStartUpTime(shutdownSite, null);
 				SoapService.clearCache(siteName);
-				if (shutdownSite.getProperties().getBoolean(SiteProperties.EHCACHE_CLEAR_ON_SHUTDOWN)) {
+				if (shutdownSite.getProperties().getBoolean(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN)) {
 					CacheService.clearCache(shutdownSite);
 				}
 				shutdownSite.setState(SiteState.STOPPED);

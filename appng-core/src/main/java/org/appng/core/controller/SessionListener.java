@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.cache.Cache;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.EternalExpiryPolicy;
 import javax.servlet.ServletContextEvent;
@@ -176,6 +177,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		session.setIp(request.getRemoteAddr());
 		session.setUserAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
 		session.addRequest();
+		getSessionCache().replace(httpSession.getId(), session);
 
 		if (LOGGER.isTraceEnabled()) {
 			String referer = httpServletRequest.getHeader(HttpHeaders.REFERER);
@@ -188,7 +190,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	}
 
-	static javax.cache.Cache<String, Session> getSessionCache() {
+	static Cache<String, Session> getSessionCache() {
 		return CacheService.getCacheManager().getCache(SESSIONS);
 	}
 
@@ -240,7 +242,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	 * @return the list
 	 */
 	public static List<Session> getSessions() {
-		javax.cache.Cache<String, Session> sessionCache = getSessionCache();
+		Cache<String, Session> sessionCache = getSessionCache();
 		List<Session> sessions = new ArrayList<>();
 		sessionCache.forEach(s -> sessions.add(s.getValue()));
 		Collections.sort(sessions, (s1, s2) -> ObjectUtils.compare(s1.getCreationTime(), s2.getCreationTime()));

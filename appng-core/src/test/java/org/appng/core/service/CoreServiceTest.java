@@ -411,7 +411,7 @@ public class CoreServiceTest {
 		while (null == nodeStates.get(nodeId)) {
 			Thread.sleep(100);
 		}
-		CacheService.createCacheManager(new java.util.Properties());
+		CacheService.createCacheManager(null);
 		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
 		// 5x NodeEvent

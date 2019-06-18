@@ -15,6 +15,7 @@
  */
 package org.appng.core.service;
 
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
-import javax.cache.spi.CachingProvider;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -64,24 +64,14 @@ public class CacheService {
 	public static final String DASH = "-";
 	private static CacheManager cacheManager;
 
-	/**
-	 * Returns the {@link CacheManager} instance.
-	 * 
-	 * @return The {@link CacheManager} instance.
-	 */
-	public static CacheManager createCacheManager(Properties cachingProps) {
-		CachingProvider cachingProvider = Caching.getCachingProvider();
-		if (null == cachingProps) {
-			cacheManager = cachingProvider.getCacheManager();
-		} else {
-			HazelcastInstance instance = HazelcastConfigurer.getInstance();
-			if (instance == null) {
-				instance = HazelcastConfigurer.configure(cachingProps);
-			}
-			Properties properties = new Properties();
-			properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
-			cacheManager = cachingProvider.getCacheManager(null, null, properties);
+	public static CacheManager createCacheManager(InputStream inputStream) {
+		HazelcastInstance instance = HazelcastConfigurer.getInstance();
+		if (instance == null) {
+			instance = HazelcastConfigurer.configure(inputStream);
 		}
+		Properties properties = new Properties();
+		properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
+		cacheManager = Caching.getCachingProvider().getCacheManager(null, null, properties);
 		return cacheManager;
 	}
 
@@ -153,7 +143,7 @@ public class CacheService {
 
 	public static Map<String, String> getCacheStatistics(SiteImpl site) {
 		Map<String, String> stats = new HashMap<>();
-		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
+		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
 		if (cacheEnabled) {
 			try {
 				Cache<String, AppngCache> cache = CacheService.getCache(site);

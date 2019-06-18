@@ -1,6 +1,9 @@
 package org.appng.core.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +13,9 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PlatformProperties implements Properties {
 
 	public static PlatformProperties get(Environment env) {
@@ -106,8 +112,18 @@ public class PlatformProperties implements Properties {
 		return properties.getDescriptionFor(name);
 	}
 
-	public File getCacheConfig() {
-		return getAbsoluteFile(Platform.Property.EHCACHE_CONFIG);
+	public void initializeCaching() {
+		try {
+			String cacheConfig = getClob(Platform.Property.CACHE_CONFIG);
+			if (null != cacheConfig) {
+				CacheService.createCacheManager(new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8)));
+			} else {
+				File cacheConfigFile = getAbsoluteFile(Platform.Property.CACHE_CONFIG);
+				CacheService.createCacheManager(new FileInputStream(cacheConfigFile));
+			}
+		} catch (Exception e) {
+			LOGGER.error("failed to initialize caching!", e);
+		}
 	}
 
 	public File getUploadDir() {

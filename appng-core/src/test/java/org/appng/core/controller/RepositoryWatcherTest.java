@@ -18,7 +18,6 @@ package org.appng.core.controller;
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -50,7 +49,7 @@ public class RepositoryWatcherTest {
 		RepositoryWatcher repositoryWatcher = new RepositoryWatcher();
 		SiteImpl site = new SiteImpl();
 		site.setHost("localhost");
-		CacheService.createCacheManager(new Properties());
+		CacheService.createCacheManager(null);
 		Cache<String, AppngCache> cache = CacheService.createCache(site, 1800, true);
 
 		String fehlerJsp = "/de/fehler.jsp";

@@ -64,6 +64,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PageCacheFilter implements javax.servlet.Filter {
 
+	private static final String GZIP = "gzip";
 	private FilterConfig filterConfig;
 	private Set<String> cacheableHttpMethods = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
@@ -91,7 +92,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		boolean ehcacheEnabled = false;
 		boolean isException = false;
 		if (null != site) {
-			ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
+			ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
 			isException = isException(servletPath, site);
 		} else {
 			LOGGER.info("no site found for path {} and host {}", servletPath, hostIdentifier);
@@ -165,7 +166,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	private void writeCachedHeaders(HttpServletResponse response, boolean acceptsGzip, AppngCache pageInfo) {
 		pageInfo.getHeaders().forEach((n, vs) -> vs.forEach(v -> response.setHeader(n, v)));
 		if (acceptsGzip) {
-			response.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+			response.setHeader(HttpHeaders.CONTENT_ENCODING, GZIP);
 		}
 	}
 
@@ -243,7 +244,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		HttpHeaders headers = new HttpHeaders();
 		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
 				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
-		Integer ttl = site.getProperties().getInteger("cacheTimeToLife", 1800);
+		Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 
 		return new AppngCache(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
 				outstr.toByteArray(), headers, ttl);
@@ -254,7 +255,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	private boolean isException(String servletPath, Site site) {
-		String clob = site.getProperties().getClob(SiteProperties.EHCACHE_EXCEPTIONS);
+		String clob = site.getProperties().getClob(SiteProperties.CACHE_EXCEPTIONS);
 		if (null != clob) {
 			Set<String> exceptions = new HashSet<>(Arrays.asList(clob.split(StringUtils.LF)));
 			for (String e : exceptions) {
@@ -277,7 +278,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected boolean acceptsGzipEncoding(HttpServletRequest request) {
-		return StringUtils.containsIgnoreCase(request.getHeader(HttpHeaders.ACCEPT_ENCODING), "gzip");
+		return StringUtils.containsIgnoreCase(request.getHeader(HttpHeaders.ACCEPT_ENCODING), GZIP);
 	}
 
 }
