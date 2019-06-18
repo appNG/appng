@@ -116,9 +116,11 @@ public class PlatformProperties implements Properties {
 		try {
 			String cacheConfig = getClob(Platform.Property.CACHE_CONFIG);
 			if (null != cacheConfig) {
+				LOGGER.info("Initializing caching from property {}", Platform.Property.CACHE_CONFIG);
 				CacheService.createCacheManager(new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8)));
 			} else {
 				File cacheConfigFile = getAbsoluteFile(Platform.Property.CACHE_CONFIG);
+				LOGGER.info("Initializing caching from {}", cacheConfigFile);
 				CacheService.createCacheManager(new FileInputStream(cacheConfigFile));
 			}
 		} catch (Exception e) {

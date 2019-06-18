@@ -330,7 +330,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_VALIDATION_PERIOD, 15);
 		addPlatformProperty(defaultOverrides, Platform.Property.DEFAULT_TEMPLATE, "appng");
 		addPlatformProperty(defaultOverrides, Platform.Property.DEV_MODE, devMode);
-		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_CONFIG, "WEB-INF/conf/ehcache.xml");
+		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_CONFIG, "WEB-INF/conf/hazelcast.xml");
 		addPlatformProperty(defaultOverrides, Platform.Property.ENCODING, HttpHeaders.CHARSET_UTF8);
 		addPlatformProperty(defaultOverrides, Platform.Property.FILEBASED_DEPLOYMENT, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.FORMAT_OUTPUT, false);

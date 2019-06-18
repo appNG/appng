@@ -71,6 +71,7 @@ public class CacheService {
 		}
 		Properties properties = new Properties();
 		properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
+		properties.put(HazelcastCachingProvider.HAZELCAST_CONFIG_LOCATION, "appNG configuration");
 		cacheManager = Caching.getCachingProvider().getCacheManager(null, null, properties);
 		return cacheManager;
 	}
@@ -134,11 +135,11 @@ public class CacheService {
 	}
 
 	public static void shutdown() {
-		CacheManager cm = getCacheManager();
-		for (String cacheName : cm.getCacheNames()) {
-			cm.getCache(cacheName).close();
+		for (String cacheName : cacheManager.getCacheNames()) {
+			cacheManager.getCache(cacheName).close();
 			LOGGER.info("Shutting down cache: {}", cacheName);
 		}
+		cacheManager.close();
 	}
 
 	public static Map<String, String> getCacheStatistics(SiteImpl site) {
