@@ -20,50 +20,50 @@ import org.appng.api.messaging.Event;
 import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.EventRegistry;
 import org.appng.api.messaging.Receiver;
-import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Site;
 import org.slf4j.Logger;
 
 /**
- * Base class for {@link Receiver}s and {@link Sender}s.
+ * Utility class for {@link Receiver}s to handle {@link Event}s
  * 
  * @author Matthias Müller
  *
  */
-abstract class Messaging {
-
-	protected Serializer serializer;
+class Messaging {
 
 	Messaging() {
 	}
 
-	protected void handleMessage(byte[] body, EventRegistry eventRegistry) {
-		Event event = serializer.deserialize(body);
+	static void handleEvent(final Logger logger, EventRegistry registry, Serializer serializer, byte[] eventData) {
+		handleEvent(logger, registry, serializer, eventData, false);
+	}
+
+	static void handleEvent(final Logger logger, EventRegistry registry, Serializer serializer, byte[] eventData,
+			boolean alternativeCondition) {
+		Event event = serializer.deserialize(eventData);
 		if (null != event) {
 			try {
 				Site site = serializer.getSite(event.getSiteName());
 				String currentNode = serializer.getNodeId();
 				String originNode = event.getNodeId();
-				logger().debug("current node: {}, originNode node: {}", currentNode, originNode);
+				logger.debug("current node: {}, originNode node: {}", currentNode, originNode);
 				boolean sameNode = StringUtils.equals(currentNode, originNode);
-				if (!sameNode) {
-					logger().info("about to execute {} ", event);
-					for (EventHandler<Event> eventHandler : eventRegistry.getHandlers(event)) {
+				if (!sameNode || alternativeCondition) {
+					logger.info("about to execute {} ", event);
+					for (EventHandler<Event> eventHandler : registry.getHandlers(event)) {
 						eventHandler.onEvent(event, serializer.getEnvironment(), site);
 					}
 				} else {
-					logger().debug("message is from myself and can be ignored");
+					logger.debug("message is from myself and can be ignored");
 				}
 
 			} catch (Exception e) {
-				logger().error(String.format("Error while executing event %s", event), e);
+				logger.error(String.format("Error while executing event %s", event), e);
 			}
 		} else {
-			logger().debug("could not read event");
+			logger.debug("could not read event");
 		}
 	}
-
-	abstract Logger logger();
 
 }

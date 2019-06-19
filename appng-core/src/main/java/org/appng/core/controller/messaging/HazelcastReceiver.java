@@ -69,7 +69,7 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 	}
 
 	public void onMessage(Message<byte[]> message) {
-		handleMessage(message.getMessageObject(), eventRegistry);
+		Messaging.handleEvent(LOGGER, eventRegistry, serializer, message.getMessageObject());
 	}
 
 	protected Logger logger() {
