@@ -82,7 +82,7 @@ public class RepositoryWatcherTest {
 		FileUtils.touch(new File(rootDir, testJsp));
 		FileUtils.touch(new File(urlrewrite));
 		while (getCacheSize(cache) != 0 || forwardsUpdatedAt == repositoryWatcher.forwardsUpdatedAt) {
-			Thread.sleep(100);
+			Thread.sleep(50);
 		}
 		Assert.assertNull(cache.get(keyFehlerJsp));
 		Assert.assertNull(cache.get(keyTestJsp));

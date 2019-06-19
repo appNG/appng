@@ -37,7 +37,6 @@ import org.appng.api.XPathProcessor;
 import org.appng.api.model.Site;
 import org.appng.core.controller.filter.RedirectFilter;
 import org.appng.core.service.CacheService;
-import org.springframework.http.HttpMethod;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -162,7 +161,7 @@ public class RepositoryWatcher implements Runnable {
 	}
 
 	private int removeFromCache(String relativePathName) {
-		return CacheService.expireCacheElementsStartingWith(cache, HttpMethod.GET.name() + relativePathName);
+		return CacheService.expireCacheElementsStartingWith(cache, relativePathName);
 	}
 
 	public boolean needsToBeWatched() {
