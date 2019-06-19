@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
+import javax.cache.Cache.Entry;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.Factory;
@@ -43,7 +44,7 @@ import org.appng.api.BusinessException;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.AppngCache;
-import org.appng.core.domain.SiteImpl;
+import org.springframework.http.HttpMethod;
 
 import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.core.HazelcastInstance;
@@ -142,7 +143,7 @@ public class CacheService {
 		cacheManager.close();
 	}
 
-	public static Map<String, String> getCacheStatistics(SiteImpl site) {
+	public static Map<String, String> getCacheStatistics(Site site) {
 		Map<String, String> stats = new HashMap<>();
 		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
 		if (cacheEnabled) {
@@ -198,12 +199,12 @@ public class CacheService {
 		}
 	}
 
-	public static List<AppngCache> getCacheEntries(SiteImpl site) {
+	public static List<AppngCache> getCacheEntries(Site site) {
 		List<AppngCache> appngCacheEntries = new ArrayList<>();
 		try {
 			Cache<String, AppngCache> cache = CacheService.getCache(site);
 			if (null != cache) {
-				for (javax.cache.Cache.Entry<String, AppngCache> entry : cache) {
+				for (Entry<String, AppngCache> entry : cache) {
 					appngCacheEntries.add(entry.getValue());
 				}
 			}
@@ -214,19 +215,22 @@ public class CacheService {
 	}
 
 	public static int expireCacheElementsStartingWith(Site site, String cacheElementPrefix) {
+		return expireCacheElementsStartingWith(CacheService.getCache(site), cacheElementPrefix);
+	}
+
+	public static int expireCacheElementsStartingWith(Cache<String, AppngCache> cache, String cacheElementPrefix) {
 		int count = 0;
-		try {
-			Cache<String, AppngCache> cache = CacheService.getCache(site);
-			for (javax.cache.Cache.Entry<String, AppngCache> entry : cache) {
-				if (entry.getKey().startsWith(cacheElementPrefix)) {
-					if (cache.remove(entry.getKey())) {
-						count++;
-					}
+		int removed = 0;
+		for (Entry<String, AppngCache> entry : cache) {
+			count++;
+			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)) {
+				if (cache.remove(entry.getKey())) {
+					LOGGER.debug("removed from cache: {}", entry.getKey());
+					removed++;
 				}
 			}
-		} catch (IllegalStateException e) {
-			LOGGER.error(String.format("Error while expiring cache entries starting with '%s'", cacheElementPrefix), e);
 		}
+		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
 		return count;
 	}
 

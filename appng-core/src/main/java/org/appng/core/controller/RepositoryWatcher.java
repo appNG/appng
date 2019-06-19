@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.cache.Cache;
-import javax.cache.Cache.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,7 +72,7 @@ public class RepositoryWatcher implements Runnable {
 
 	private String wwwDir;
 
-	private Cache<String, ?> cache;
+	private Cache<String, AppngCache> cache;
 
 	private File configFile;
 
@@ -84,7 +83,7 @@ public class RepositoryWatcher implements Runnable {
 			this.jspExtension = "." + jspExtension;
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			String wwwdir = site.getProperties().getString(SiteProperties.WWW_DIR);
-			Cache<String, ?> cache = CacheService.getCache(site);
+			Cache<String, AppngCache> cache = CacheService.getCache(site);
 			String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
 			List<String> documentsDirs = site.getProperties().getList(SiteProperties.DOCUMENT_DIR, ";");
 			init(cache, rootDir + wwwdir, site.readFile(rewriteConfig), ruleSourceSuffix, documentsDirs);
@@ -97,7 +96,7 @@ public class RepositoryWatcher implements Runnable {
 
 	}
 
-	void init(Cache<String, ?> cache, String wwwDir, File configFile, String ruleSourceSuffix,
+	void init(Cache<String, AppngCache> cache, String wwwDir, File configFile, String ruleSourceSuffix,
 			List<String> documentDirs) throws Exception {
 		this.cache = cache;
 		this.watcher = FileSystems.getDefault().newWatchService();
@@ -163,19 +162,7 @@ public class RepositoryWatcher implements Runnable {
 	}
 
 	private int removeFromCache(String relativePathName) {
-		int count = 0;
-		int removed = 0;
-		for (Entry<String, ?> entry : cache) {
-			count++;
-			if (entry.getKey().startsWith(HttpMethod.GET.name() + relativePathName)) {
-				if (cache.remove(entry.getKey())) {
-					LOGGER.debug("removed from cache: {}", entry.getKey());
-					removed++;
-				}
-			}
-		}
-		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, relativePathName, count);
-		return count;
+		return CacheService.expireCacheElementsStartingWith(cache, HttpMethod.GET.name() + relativePathName);
 	}
 
 	public boolean needsToBeWatched() {
