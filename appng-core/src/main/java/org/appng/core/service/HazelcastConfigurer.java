@@ -18,6 +18,7 @@ package org.appng.core.service;
 import java.io.InputStream;
 
 import org.appng.core.controller.messaging.HazelcastReceiver;
+import org.springframework.util.ClassUtils;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
@@ -47,7 +48,9 @@ public class HazelcastConfigurer {
 	public static HazelcastInstance configure(InputStream inputStream) {
 		if (null != inputStream) {
 			String providerType = System.getProperty("hazelcast.jcache.provider.type");
-			if ("server".equals(providerType)) {
+			boolean clientPresent = ClassUtils.isPresent("com.hazelcast.client.HazelcastClient",
+					HazelcastConfigurer.class.getClassLoader());
+			if ("server".equals(providerType) || !clientPresent) {
 				Config config = new XmlConfigBuilder(inputStream).build();
 				instance = Hazelcast.getOrCreateHazelcastInstance(config);
 			} else {
