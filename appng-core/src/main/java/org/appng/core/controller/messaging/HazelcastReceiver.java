@@ -65,7 +65,7 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 	public void runWith(ExecutorService executorService) {
 		ITopic<byte[]> topic = getTopic();
 		topic.addMessageListener(this);
-		LOGGER.info("Listening to topic {} on instance", topic.getName(), instance.getName());
+		LOGGER.info("Listening to topic {} on {}", topic.getName(), instance);
 	}
 
 	public void onMessage(Message<byte[]> message) {
