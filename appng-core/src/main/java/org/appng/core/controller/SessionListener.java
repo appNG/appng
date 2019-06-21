@@ -289,4 +289,12 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		return null;
 	}
 
+	public static void markSessionExpired(String id) {
+		Session session = getSession(id);
+		if (null != session) {
+			session.expire();
+			getSessionCache().replace(id, session);
+		}
+	}
+
 }
