@@ -486,9 +486,7 @@ public class InitializerService {
 		// cache
 		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
 		if (cacheEnabled) {
-			Integer cacheTtl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-			Boolean cacheStatistics = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
-			CacheService.createCache(site, cacheTtl, cacheStatistics);
+			CacheService.createCache(site);
 		}
 
 		Properties siteProps = site.getProperties();

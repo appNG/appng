@@ -100,6 +100,8 @@ public class SiteProperties {
 	 * value).
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
+	/** Should cache elements be expired by creation time? */
+	public static final String CACHE_EXPIRE_BY_CREATION = "cacheExpireByCreation";
 	/** @deprecated no more used */
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
 	/** The time a cache entry lives, in seconds */
@@ -220,6 +222,7 @@ public class SiteProperties {
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";
+
 
 	private SiteProperties() {
 

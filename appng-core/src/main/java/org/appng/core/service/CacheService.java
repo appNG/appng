@@ -16,7 +16,6 @@
 package org.appng.core.service;
 
 import java.io.InputStream;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,14 +30,9 @@ import javax.cache.Caching;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
 
 import org.appng.api.BusinessException;
 import org.appng.api.SiteProperties;
@@ -46,7 +40,9 @@ import org.appng.api.model.Site;
 import org.appng.core.controller.AppngCache;
 import org.springframework.http.HttpMethod;
 
+import com.hazelcast.cache.CacheStatistics;
 import com.hazelcast.cache.HazelcastCachingProvider;
+import com.hazelcast.cache.ICache;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -113,17 +109,22 @@ public class CacheService {
 	 * {@link InitializerService}
 	 * 
 	 * @param site              The site.
-	 * @param ttl               the ttl for a cache element on seconds
-	 * @param statisticsEnabled
 	 * @return The {@link Cache} instance for the specified site.
 	 */
-	public synchronized static Cache<String, AppngCache> createCache(Site site, Integer ttl,
-			Boolean statisticsEnabled) {
+	public synchronized static Cache<String, AppngCache> createCache(Site site) {
 		String cacheKey = getCacheKey(site);
 		Cache<String, AppngCache> cache = cacheManager.getCache(cacheKey);
 		if (null == cache) {
+			Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+			Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
 			MutableConfiguration<String, AppngCache> configuration = new MutableConfiguration<>();
-			Factory<ExpiryPolicy> expiryPolicy = AccessedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl));
+			Duration duration = new Duration(TimeUnit.SECONDS, ttl);
+			Factory<ExpiryPolicy> expiryPolicy;
+			if (site.getProperties().getBoolean(SiteProperties.CACHE_EXPIRE_BY_CREATION, true)) {
+				expiryPolicy = CreatedExpiryPolicy.factoryOf(duration);
+			} else {
+				expiryPolicy = AccessedExpiryPolicy.factoryOf(duration);
+			}
 			configuration.setExpiryPolicyFactory(expiryPolicy);
 			configuration.setStatisticsEnabled(statisticsEnabled);
 			cache = cacheManager.createCache(cacheKey, configuration);
@@ -150,26 +151,24 @@ public class CacheService {
 			try {
 				Cache<String, AppngCache> cache = CacheService.getCache(site);
 				if (null != cache) {
-					ObjectName objectName = new ObjectName(
-							String.format("javax.cache:type=CacheStatistics,CacheManager=%s,Cache=%s",
-									cache.getCacheManager().getURI(), cache.getName()));
+					@SuppressWarnings("unchecked")
+					ICache<String, AppngCache> cacheInternal = cache.unwrap(ICache.class);
+					CacheStatistics cacheStatistics = cacheInternal.getLocalCacheStatistics();
 
-					MBeanServer mbeans = ManagementFactory.getPlatformMBeanServer();
-					stats.put("Average get time", getAttribute(mbeans, objectName, "AverageGetTime"));
-					stats.put("Average put time", getAttribute(mbeans, objectName, "AveragePutTime"));
-					stats.put("Average removal time", getAttribute(mbeans, objectName, "AverageRemoveTime"));
-					stats.put("Hits", getAttribute(mbeans, objectName, "CacheHits"));
-					stats.put("Misses", getAttribute(mbeans, objectName, "CacheMisses"));
+					stats.put("Average get time", String.valueOf(cacheStatistics.getAverageGetTime()));
+					stats.put("Average put time", String.valueOf(cacheStatistics.getAveragePutTime()));
+					stats.put("Average removal time", String.valueOf(cacheStatistics.getAverageRemoveTime()));
+					stats.put("Hits", String.valueOf(cacheStatistics.getCacheHits()));
+					stats.put("Misses", String.valueOf(cacheStatistics.getCacheMisses()));
 					stats.put("Name", cache.getName());
-					stats.put("Hits (%)", getAttribute(mbeans, objectName, "CacheHitPercentage"));
-					stats.put("Misses (%)", getAttribute(mbeans, objectName, "CacheMissPercentage"));
-					stats.put("Gets", getAttribute(mbeans, objectName, "CacheGets"));
-					stats.put("Puts", getAttribute(mbeans, objectName, "CachePuts"));
-					stats.put("Removals", getAttribute(mbeans, objectName, "CacheRemovals"));
+					stats.put("Hits (%)", String.valueOf(cacheStatistics.getCacheHitPercentage()));
+					stats.put("Misses (%)", String.valueOf(cacheStatistics.getCacheMissPercentage()));
+					stats.put("Gets", String.valueOf(cacheStatistics.getCacheGets()));
+					stats.put("Puts", String.valueOf(cacheStatistics.getCachePuts()));
+					stats.put("Removals", String.valueOf(cacheStatistics.getCacheRemovals()));
 				} else {
 					stats.put("Status",
-							"Statistics are disabled for this site. To enable statistics set the site property 'platform.site."
-									+ site.getName() + ".ehcacheStatistics' to 'true'.");
+							String.format("Failed to retrieve caching statistics for site %s", site.getName()));
 				}
 			} catch (Exception e) {
 				LOGGER.error("Error while getting cache statistics.", e);
@@ -177,14 +176,9 @@ public class CacheService {
 		} else {
 			stats.put("Status",
 					"Ehcache is disabled for this site. To enable the cache set the site property 'platform.site."
-							+ site.getName() + ".ehcacheEnabled' to 'true'.");
+							+ site.getName() + ".cacheEnabled' to 'true'.");
 		}
 		return stats;
-	}
-
-	private static String getAttribute(MBeanServer mBeanServer, ObjectName objectName, String attribute)
-			throws InstanceNotFoundException, AttributeNotFoundException, ReflectionException, MBeanException {
-		return String.valueOf(mBeanServer.getAttribute(objectName, attribute));
 	}
 
 	public static void expireCacheElement(Site site, String cacheElement) {
