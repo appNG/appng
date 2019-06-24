@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.appng.api.SiteProperties;
+import org.appng.api.support.PropertyHolder;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.CacheService;
 import org.junit.Assert;
@@ -49,8 +51,13 @@ public class RepositoryWatcherTest {
 		RepositoryWatcher repositoryWatcher = new RepositoryWatcher();
 		SiteImpl site = new SiteImpl();
 		site.setHost("localhost");
+		PropertyHolder siteProps = new PropertyHolder();
+		siteProps.addProperty(SiteProperties.CACHE_TIME_TO_LIVE, "1800", null);
+		siteProps.addProperty(SiteProperties.CACHE_STATISTICS, "true", null);
+		siteProps.addProperty(SiteProperties.CACHE_EXPIRE_BY_CREATION, "true", null);
+		site.setProperties(siteProps);
 		CacheService.createCacheManager(null);
-		Cache<String, AppngCache> cache = CacheService.createCache(site, 1800, true);
+		Cache<String, AppngCache> cache = CacheService.createCache(site);
 
 		String fehlerJsp = "/de/fehler.jsp";
 		String testJsp = "/de/test.jsp";
