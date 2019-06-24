@@ -239,7 +239,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					if (null != requestHandler) {
 						if (site.hasState(SiteState.STARTED)) {
 							requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
-							if (pathInfo.isGui()) {
+							if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
 								getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
 										EnvironmentKeys.PREVIOUS_PATH, servletPath);
 							}
