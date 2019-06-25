@@ -15,7 +15,6 @@
  */
 package org.appng.core.service;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +42,7 @@ import org.springframework.http.HttpMethod;
 import com.hazelcast.cache.CacheStatistics;
 import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
+import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,11 +61,7 @@ public class CacheService {
 	public static final String DASH = "-";
 	private static CacheManager cacheManager;
 
-	public static CacheManager createCacheManager(InputStream inputStream) {
-		HazelcastInstance instance = HazelcastConfigurer.getInstance();
-		if (instance == null) {
-			instance = HazelcastConfigurer.configure(inputStream);
-		}
+	public static CacheManager createCacheManager(HazelcastInstance instance) {
 		Properties properties = new Properties();
 		properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
 		properties.put(HazelcastCachingProvider.HAZELCAST_CONFIG_LOCATION, "appNG configuration");
@@ -141,7 +137,6 @@ public class CacheService {
 			cacheManager.getCache(cacheName).close();
 			LOGGER.info("Shutting down cache: {}", cacheName);
 		}
-		cacheManager.close();
 	}
 
 	public static Map<String, String> getCacheStatistics(Site site) {

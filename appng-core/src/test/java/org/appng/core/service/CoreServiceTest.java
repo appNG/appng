@@ -411,7 +411,7 @@ public class CoreServiceTest {
 		while (null == nodeStates.get(nodeId)) {
 			Thread.sleep(100);
 		}
-		CacheService.createCacheManager(null);
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
 		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
 		// 5x NodeEvent
@@ -788,12 +788,15 @@ public class CoreServiceTest {
 		validatePermissionsPresent(application, new ArrayList(Arrays.asList("testPermission")));
 		validateRolesPresent(application, new ArrayList(Arrays.asList("Tester")));
 
-		// the clob property has been updated in the platform, therefore it is the new clob value
+		// the clob property has been updated in the platform, therefore it is the new
+		// clob value
 		// of the latest package
 		validateProperties((PropertyHolder) application.getProperties(), "d\ne\nf");
 
-		// the clob property, configured in the site was not updated by updating the package. It is still
-		// the old one which has been defined initially when the application has been assigned to the site
+		// the clob property, configured in the site was not updated by updating the
+		// package. It is still
+		// the old one which has been defined initially when the application has been
+		// assigned to the site
 		coreService.initApplicationProperties(site, currentApplication);
 		validateProperties((PropertyHolder) currentApplication.getProperties(), "a\nb\nc");
 

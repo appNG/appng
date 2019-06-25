@@ -110,6 +110,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -245,7 +246,8 @@ public class InitializerService {
 		}
 
 		RepositoryCacheFactory.init(platformConfig);
-		platformConfig.initializeCaching();
+		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
+		CacheService.createCacheManager(hazelcast);
 
 		CacheManager cacheManager = CacheService.getCacheManager();
 

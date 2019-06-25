@@ -32,6 +32,7 @@ import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.service.CacheService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -52,7 +53,7 @@ public class SessionListenerTest {
 
 	@BeforeClass
 	public static void setup() {
-		CacheService.createCacheManager(null);
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
 		sessionListener = new SessionListener();
 		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
 		Assert.assertEquals(SessionListener.SESSIONS, SessionListener.getSessionCache().getName());

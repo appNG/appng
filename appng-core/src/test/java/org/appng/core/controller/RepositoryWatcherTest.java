@@ -32,6 +32,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.support.PropertyHolder;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.CacheService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
@@ -56,7 +57,8 @@ public class RepositoryWatcherTest {
 		siteProps.addProperty(SiteProperties.CACHE_STATISTICS, "true", null);
 		siteProps.addProperty(SiteProperties.CACHE_EXPIRE_BY_CREATION, "true", null);
 		site.setProperties(siteProps);
-		CacheService.createCacheManager(null);
+
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
 		Cache<String, AppngCache> cache = CacheService.createCache(site);
 
 		String fehlerJsp = "/de/fehler.jsp";

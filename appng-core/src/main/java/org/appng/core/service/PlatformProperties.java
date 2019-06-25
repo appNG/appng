@@ -3,6 +3,8 @@ package org.appng.core.service;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
@@ -112,20 +114,18 @@ public class PlatformProperties implements Properties {
 		return properties.getDescriptionFor(name);
 	}
 
-	public void initializeCaching() {
-		try {
-			String cacheConfig = getClob(Platform.Property.CACHE_CONFIG);
-			if (null != cacheConfig) {
-				LOGGER.info("Initializing caching from property {}", Platform.Property.CACHE_CONFIG);
-				CacheService.createCacheManager(new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8)));
-			} else {
-				File cacheConfigFile = getAbsoluteFile(Platform.Property.CACHE_CONFIG);
-				LOGGER.info("Initializing caching from {}", cacheConfigFile);
-				CacheService.createCacheManager(new FileInputStream(cacheConfigFile));
-			}
-		} catch (Exception e) {
-			LOGGER.error("failed to initialize caching!", e);
+	public InputStream getCacheConfig() throws IOException {
+
+		String cacheConfig = getClob(Platform.Property.CACHE_CONFIG);
+		if (null != cacheConfig) {
+			LOGGER.info("Reading cache config from property {}", Platform.Property.CACHE_CONFIG);
+			return new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8));
+		} else {
+			File cacheConfigFile = getAbsoluteFile(Platform.Property.CACHE_CONFIG);
+			LOGGER.info("Reading caching config from {}", cacheConfigFile);
+			return new FileInputStream(cacheConfigFile);
 		}
+
 	}
 
 	public File getUploadDir() {

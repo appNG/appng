@@ -15,8 +15,12 @@
  */
 package org.appng.core.controller.messaging;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
+import org.appng.api.Environment;
+import org.appng.api.Platform;
+import org.appng.api.Scope;
 import org.appng.api.messaging.Event;
 import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.EventRegistry;
@@ -51,10 +55,13 @@ import lombok.extern.slf4j.Slf4j;
 public class HazelcastReceiver extends HazelcastBase implements Receiver, MessageListener<byte[]> {
 
 	private EventRegistry eventRegistry = new EventRegistry();
+	private String listenerId;
 
 	public Receiver configure(Serializer serializer) {
 		this.serializer = serializer;
-		instance = HazelcastConfigurer.getInstance();
+		Environment env = serializer.getEnvironment();
+		instance = HazelcastConfigurer.getInstance(
+				env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG), serializer.getNodeId());
 		return this;
 	}
 
@@ -64,8 +71,18 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 
 	public void runWith(ExecutorService executorService) {
 		ITopic<byte[]> topic = getTopic();
-		topic.addMessageListener(this);
-		LOGGER.info("Listening to topic {} on {}", topic.getName(), instance);
+		this.listenerId = topic.addMessageListener(this);
+		LOGGER.info("Listening to topic {} on {} with id {}", topic.getName(), instance, listenerId);
+	}
+
+	@Override
+	public void close() throws IOException {
+		getTopic().removeMessageListener(listenerId);
+		String appngVersion = serializer.getEnvironment().getAttribute(Scope.PLATFORM,
+				Platform.Environment.APPNG_VERSION);
+		if (null == appngVersion) {
+			instance.shutdown();
+		}
 	}
 
 	public void onMessage(Message<byte[]> message) {
