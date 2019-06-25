@@ -105,6 +105,7 @@ public class HazelcastConfigurer {
 		if (null != instance) {
 			LOGGER.info("Shutting down instance {}", instance.getName());
 			instance.shutdown();
+			instance = null;
 		}
 	}
 
