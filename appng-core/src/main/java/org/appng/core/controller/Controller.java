@@ -84,10 +84,12 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTP = "http://";
 
 	/**
-	 * a boolean flag to be set in the {@link Environment} with {@link Scope#SESSION}, indicating that
-	 * {@link #expireSessions(HttpServletRequest, Environment, Site)} should be called
+	 * a boolean flag to be set in the {@link Environment} with
+	 * {@link Scope#SESSION}, indicating that
+	 * {@link #expireSessions(Environment, Site)} should be called
 	 */
 	public static final String EXPIRE_SESSIONS = "expireSessions";
+	protected static final String SESSION_MANAGER = "sessionManager";
 
 	protected JspHandler jspHandler;
 
@@ -126,7 +128,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 		};
 	}
-	
+
 	public void serveResource(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		serveResource(request, response, true, null);
@@ -177,39 +179,15 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, true);
 
-		expireSessions(servletRequest, env, site);
+		expireSessions(env, site);
 
 		if (site != null) {
 			try {
 				int requests = ((SiteImpl) site).addRequest();
 				LOGGER.debug("site {} currently handles {} requests", site, requests);
-				long waited = 0;
-				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
-				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+				site = RequestUtil.waitForSite(env, site.getName());
 
-				while (waited < maxWaitTime && (site = RequestUtil.getSiteByName(env, site.getName()))
-						.hasState(SiteState.STOPPING, SiteState.STOPPED)) {
-					try {
-						Thread.sleep(waitTime);
-						waited += waitTime;
-					} catch (InterruptedException e) {
-						LOGGER.error("error while waiting for site to be started", e);
-					}
-					LOGGER.info("site '{}' is currently beeing stopped, waited {}ms", site, waited);
-				}
-
-				while (waited < maxWaitTime
-						&& (site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTING)) {
-					try {
-						Thread.sleep(waitTime);
-						waited += waitTime;
-					} catch (InterruptedException e) {
-						LOGGER.error("error while waiting for site to be started", e);
-					}
-					LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
-				}
-
-				if ((site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTED)) {
+				if (site.hasState(SiteState.STARTED)) {
 					boolean enforcePrimaryDomain = site.getProperties()
 							.getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
 					if (enforcePrimaryDomain) {
@@ -268,7 +246,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					if (null != requestHandler) {
 						if (site.hasState(SiteState.STARTED)) {
 							requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
-							if (pathInfo.isGui()) {
+							if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
 								getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
 										EnvironmentKeys.PREVIOUS_PATH, servletPath);
 							}
@@ -279,7 +257,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					}
 
 				} else {
-					LOGGER.error("timeout while waiting for site {}, waited {}ms", site, waited);
+					LOGGER.error("timeout while waiting for site {}", site);
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 				}
 			} finally {
@@ -328,19 +306,21 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	public void setWrapper(Wrapper wrapper) {
 		Context context = ((Context) wrapper.getParent());
+		this.manager = context.getManager();
+		context.getServletContext().setAttribute(SESSION_MANAGER, manager);
 		Environment env = DefaultEnvironment.get(context.getServletContext());
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
 		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));
-		this.manager = context.getManager();
 	}
 
-	protected void expireSessions(HttpServletRequest servletRequest, Environment env, Site site) {
+	protected void expireSessions(Environment env, Site site) {
 		if (null != manager && Boolean.TRUE.equals(env.removeAttribute(SESSION, EXPIRE_SESSIONS))) {
 			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM,
 					SessionListener.SESSIONS);
 			for (org.appng.core.controller.Session session : sessions) {
-				org.apache.catalina.Session containerSession = getContainerSession(session.getId());
+				org.apache.catalina.Session containerSession = SessionListener.getContainerSession(manager,
+						session.getId());
 				if (null != containerSession) {
 					if (session.isExpired()) {
 						LOGGER.info("expiring session {}", session.getId());
@@ -356,16 +336,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		}
 	}
 
-	private org.apache.catalina.Session getContainerSession(String sessionId) {
-		try {
-			return manager.findSession(sessionId);
-		} catch (IOException e) {
-			LOGGER.warn(String.format("error while retrieving session %s", sessionId), e);
-		}
-		return null;
-	}
-
 	public JspHandler getJspHandler() {
 		return jspHandler;
 	}
+
 }

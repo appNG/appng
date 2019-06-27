@@ -43,7 +43,7 @@ The `<digest>` needs to be a valid https://en.wikipedia.org/wiki/Bcrypt[Bcrypt] 
 
 [IMPORTANT]
 ====
-If the digest starts with the Bcrypt-prefix `$2a$`, it will be taken as is. Otherwise, it will be encrypted by appNGizer. If ommitted, the users's digest remains unchainged.
+If the digest starts with the Bcrypt-prefix `$2a$`, it will be taken as is. Otherwise, it will be encrypted by appNGizer. If omitted, the user's digest remains unchanged.
 ====
 
 *Response Body:* -none-

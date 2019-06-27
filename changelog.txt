@@ -1,6 +1,19 @@
-Release Notes - appNG - Version 1.18.0 (2019-05-02)
+Release Notes - appNG - Version 1.19.1 (2019-06-27)
 ---------------------------------------------------
-Release Notes - appNG - Version 1.19.0
+* [APPNG-2271] - Build Release 1.19.1
+* [APPNG-2270] - Avoid IllegalStateException when user logs out
+* [APPNG-2268] - No event is being written when starting an application fails
+* [APPNG-2266] - Site property 'supportReloadFile' should be true when clustering is disabled
+* [APPNG-2265] - ServiceRequestHandler should return a more speaking state when site is not available/not started
+* [APPNG-2263] - UI: Improve logging for the case that the user does not have access to any visible application
+* [APPNG-2262] - Provide a REST client for appNGizer
+* [APPNG-2261] - Fix typos and formatting in documentation
+* [APPNG-2260] - PageCacheFilter should generously ignore Tomcat's ClientAbortException
+* [APPNG-2259] - Possible NPE in LdapService.getMembersOfGroup
+* [APPNG-2258] - Enforce waiting for a site's STARTED state before processing service requests and taglets
+
+Release Notes - appNG - Version 1.19.0 (2019-05-02)
+---------------------------------------------------
 * [APPNG-2257] - SignerTest#testverify fails due to outdated certificate
 * [APPNG-2256] - Release appNG 1.19.0
 * [APPNG-2254] - Lack of support for different output-types in ThymeleafProcessor

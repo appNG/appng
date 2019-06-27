@@ -623,6 +623,7 @@ public class InitializerService {
 				} catch (InvalidConfigurationException ice) {
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
+					auditableListener.createEvent(Type.ERROR, errorMessage);
 				}
 			}
 		}
@@ -713,6 +714,7 @@ public class InitializerService {
 				String message = String.format("Error while loading application %s.", application.getName());
 				fp.addErrorMessage(message);
 				LOGGER.error(message, e);
+				auditableListener.createEvent(Type.ERROR, message);
 			}
 		}
 		site.getSiteApplications().clear();
@@ -740,7 +742,7 @@ public class InitializerService {
 			site.sendEvent(new ReloadSiteEvent(site.getName()));
 		}
 
-		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE, false)) {
+		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
 			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
 					new SiteReloadWatcher(env, site));
 		}
