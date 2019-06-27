@@ -21,6 +21,7 @@ import static org.appng.api.Scope.SESSION;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
@@ -82,6 +83,12 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTPS = "https://";
 	private static final String SCHEME_HTTP = "http://";
 
+	/**
+	 * a boolean flag to be set in the {@link Environment} with
+	 * {@link Scope#SESSION}, indicating that
+	 * {@link #expireSessions(Environment, Site)} should be called
+	 */
+	public static final String EXPIRE_SESSIONS = "expireSessions";
 	protected static final String SESSION_MANAGER = "sessionManager";
 
 	protected JspHandler jspHandler;
@@ -308,7 +315,25 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	protected void expireSessions(Environment env, Site site) {
-		SessionListener.expire(manager, env, site);
+		if (null != manager && Boolean.TRUE.equals(env.removeAttribute(SESSION, EXPIRE_SESSIONS))) {
+			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM,
+					SessionListener.SESSIONS);
+			for (org.appng.core.controller.Session session : sessions) {
+				org.apache.catalina.Session containerSession = SessionListener.getContainerSession(manager,
+						session.getId());
+				if (null != containerSession) {
+					if (session.isExpired()) {
+						LOGGER.info("expiring session {}", session.getId());
+						containerSession.expire();
+					}
+				} else {
+					LOGGER.debug("session to expire not found in {}: {} (created: {}, last access: {})",
+							manager.getClass().getSimpleName(), session.getId(), session.getCreationTime(),
+							session.getLastAccessedTime());
+					SessionListener.destroySession(session.getId(), env);
+				}
+			}
+		}
 	}
 
 	public JspHandler getJspHandler() {
