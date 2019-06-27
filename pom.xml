@@ -443,7 +443,7 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.0.0-M3</version>
 					<configuration>
-						<argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
+						<argLine>-Xms1g -Xmx2g -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 					</configuration>
 				</plugin>
 				<plugin>
