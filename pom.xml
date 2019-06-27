@@ -239,6 +239,7 @@
 					<plugin>
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
+							<forkCount>0</forkCount>
 							<argLine>${argLine} -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 						</configuration>
 					</plugin>
