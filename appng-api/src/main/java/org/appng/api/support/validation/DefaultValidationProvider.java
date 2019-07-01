@@ -205,8 +205,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 						Valid fieldAnnotation = field.getAnnotation(Valid.class);
 						Method getter = ReflectionUtils.findMethod(propertyType,
 								"get" + StringUtils.capitalize(segment));
-						Valid methodAnnotarion = null == getter ? null : getter.getAnnotation(Valid.class);
-						if (null == fieldAnnotation && null == methodAnnotarion) {
+						Valid methodAnnotation = null == getter ? null : getter.getAnnotation(Valid.class);
+						if (null == fieldAnnotation && null == methodAnnotation) {
 							LOGGER.debug("Annotation @{} not found on property {}.{} of {}, returning",
 									Valid.class.getName(), ancestor.getName(), field.getName(), validationClass);
 							return null;
@@ -214,7 +214,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 						LOGGER.debug("Annotation @{} found on property {}.{} of {}", Valid.class.getName(),
 								ancestor.getName(), field.getName(), validationClass);
 					}
-					propertyType = field.getType();
+					propertyType = new BeanWrapperImpl(propertyType).getPropertyType(segment);
 					ancestor = field;
 					if (Collection.class.isAssignableFrom(propertyType)) {
 						concreteType = (Class<?>) ((ParameterizedType) field.getGenericType())
@@ -443,8 +443,9 @@ public class DefaultValidationProvider implements ValidationProvider {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.appng.api.validation.ValidationProvider#validateBean(java.lang.Object , org.appng.api.FieldProcessor,
-	 * java.lang.Class<?>[])
+	 * @see
+	 * org.appng.api.validation.ValidationProvider#validateBean(java.lang.Object ,
+	 * org.appng.api.FieldProcessor, java.lang.Class<?>[])
 	 */
 	public void validateBean(Object bean, FieldProcessor fp, Class<?>... groups) {
 		if (null != bean) {
@@ -512,8 +513,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.appng.api.ValidationProvider#validateBean(java.lang.Object, org.appng.api.FieldProcessor,
-	 * java.lang.String[], java.lang.Class[])
+	 * @see org.appng.api.ValidationProvider#validateBean(java.lang.Object,
+	 * org.appng.api.FieldProcessor, java.lang.String[], java.lang.Class[])
 	 */
 	public void validateBean(Object bean, FieldProcessor fp, String[] excludeBindings, Class<?>... groups) {
 		List<String> excludeFields = Arrays.asList(excludeBindings);
@@ -528,8 +529,9 @@ public class DefaultValidationProvider implements ValidationProvider {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.appng.api.validation.ValidationProvider#validateField(java.lang.Object , org.appng.api.FieldProcessor,
-	 * java.lang.String, java.lang.Class<?>[])
+	 * @see
+	 * org.appng.api.validation.ValidationProvider#validateField(java.lang.Object ,
+	 * org.appng.api.FieldProcessor, java.lang.String, java.lang.Class<?>[])
 	 */
 	public void validateField(Object bean, FieldProcessor fp, String fieldBinding, Class<?>... groups) {
 		FieldDef field = fp.getField(fieldBinding);
