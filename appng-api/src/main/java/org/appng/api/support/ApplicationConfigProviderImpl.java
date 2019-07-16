@@ -80,7 +80,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	protected EventMap eventMap;
 	protected Map<String, String> resourceMap;
 
-	protected List<Object[]> descendantDatasources = new ArrayList<Object[]>();
+	protected List<Object[]> descendantDatasources = new ArrayList<>();
 
 	protected ConfigValidator validator;
 
@@ -106,7 +106,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationInfo;
 		this.validator = new ConfigValidator(this);
-		this.resourceMap = new HashMap<String, String>();
+		this.resourceMap = new HashMap<>();
 		this.resources = resources;
 		setDevMode(devMode);
 		loadConfig(marshallService);
@@ -128,7 +128,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationResources.getApplicationInfo();
 		this.validator = new ConfigValidator(this);
-		this.resourceMap = new HashMap<String, String>();
+		this.resourceMap = new HashMap<>();
 		setDevMode(devMode);
 		loadConfig(marshallService);
 	}
@@ -210,7 +210,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		// descendants until all have been processed
 		while (!descendantDatasources.isEmpty()) {
 			int actualSize = descendantDatasources.size();
-			List<Object[]> descendantsWithoutAncestor = new ArrayList<Object[]>();
+			List<Object[]> descendantsWithoutAncestor = new ArrayList<>();
 			for (Object[] descendantDef : descendantDatasources) {
 				Datasource ds = (Datasource) descendantDef[0];
 				Datasource ancestor = getDatasource(DatasourceInheritanceHelper.getAncestorId(ds.getId()));
@@ -322,7 +322,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	private void addEvent(Event e, String resourceName) {
 		Event oldVal = eventMap.put(e.getId(), e);
 		resourceMap.put(RESOURCE_MAP_KEY_EVENT + e.getId(), resourceName);
-		Map<String, Action> actions = new HashMap<String, Action>();
+		Map<String, Action> actions = new HashMap<>();
 		for (Action action : e.getActions()) {
 			actions.put(action.getId(), action);
 		}
@@ -348,7 +348,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	}
 
 	protected synchronized void clear() {
-		this.sessionParams = new HashSet<String>();
+		this.sessionParams = new HashSet<>();
 		this.pageMap = new PageMap();
 		this.datasourceMap = new DataSourceMap();
 		this.eventMap = new EventMap();

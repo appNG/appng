@@ -15,9 +15,11 @@
  */
 package org.appng.core.controller;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -50,7 +52,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.util.StopWatch;
-import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -67,12 +69,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PlatformStartup implements ServletContextListener {
 
-	public static final String CONFIG_LOCATION = "/WEB-INF/conf/appNG.properties";
-	private static final String CONTEXT_LOCATION = "/WEB-INF/conf/platformContext.xml";
+	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
+	public static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
 
 	public void contextInitialized(ServletContextEvent sce) {
+		ServletContext ctx = sce.getServletContext();
+		String appngData = System.getProperty(Platform.Property.APPNG_DATA);
 		try {
+			InputStream configIs;
+			if (StringUtils.isBlank(appngData)) {
+				configIs = ctx.getResourceAsStream(WEB_INF + CONFIG_LOCATION);
+			} else {
+				configIs = new FileInputStream(Paths.get(appngData, CONFIG_LOCATION).toFile());
+			}
+
 			StopWatch startupWatch = new StopWatch("startup");
 			startupWatch.start();
 			LOGGER.info("");
@@ -81,12 +92,10 @@ public class PlatformStartup implements ServletContextListener {
 			InputStream logoIs = getClass().getResourceAsStream("logo.txt");
 			IOUtils.readLines(logoIs, StandardCharsets.UTF_8).forEach(l -> LOGGER.info(l));
 			logoIs.close();
-			
-			ServletContext ctx = sce.getServletContext();
+
 			Environment env = DefaultEnvironment.get(ctx);
 
 			Properties config = new Properties();
-			InputStream configIs = ctx.getResourceAsStream(CONFIG_LOCATION);
 			config.load(configIs);
 			configIs.close();
 
@@ -116,9 +125,9 @@ public class PlatformStartup implements ServletContextListener {
 
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
 			DatabaseConnection platformConnection) throws IOException {
-		XmlWebApplicationContext platformCtx = new XmlWebApplicationContext();
+		AnnotationConfigWebApplicationContext platformCtx = new AnnotationConfigWebApplicationContext();
+		platformCtx.register(PlatformConfig.class);
 		platformCtx.setDisplayName("appNG platform context");
-		platformCtx.setConfigLocation(CONTEXT_LOCATION);
 		platformCtx.setServletContext(ctx);
 		PropertySourcesPlaceholderConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		config.put(DatabaseService.DATABASE_TYPE, platformConnection.getType().name());

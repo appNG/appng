@@ -4,6 +4,7 @@
 		<link name="properties" self="http://localhost/site/anotherSite/property" />
 		<link name="applications" self="http://localhost/site/anotherSite/application" />
 		<link name="databases" self="http://localhost/site/anotherSite/database" />
+		<link name="reload" self="http://localhost/site/anotherSite/reload" />
 	</links>
 	<host>anotherHost</host>
 	<domain>http://localhost:8082</domain>

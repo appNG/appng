@@ -181,7 +181,7 @@ public class Attribute extends TagSupport implements Tag {
 		default:
 			String attributeRealName = resolveRealAttributeName(env, name);
 			int dotIdx = attributeRealName.lastIndexOf('.');
-			Map<String, Object> params = new HashMap<String, Object>();
+			Map<String, Object> params = new HashMap<>();
 			String parameterName = attributeRealName.substring((dotIdx > 0 ? dotIdx : -1) + 1);
 			Object attribute = env.getAttribute(scopeInternal, attributeRealName);
 			if (null != attribute) {

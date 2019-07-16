@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<platform xmlns="http://www.appng.org/schema/platform" version="1.17.1">
+	<config>
+		<labels>
+			<label id="submit"><![CDATA[Submit]]></label>
+			<label id="cancel"><![CDATA[Reset]]></label>
+			<label id="yes"><![CDATA[Yes]]></label>
+			<label id="no"><![CDATA[No]]></label>
+			<label id="abort"><![CDATA[abort]]></label>
+			<label id="reject.updates"><![CDATA[reject.updates]]></label>
+			<label id="uploaded.item"><![CDATA[uploaded.item]]></label>
+			<label id="uploaded.items"><![CDATA[uploaded.items]]></label>
+			<label id="close"><![CDATA[close]]></label>
+			<label id="logged.in"><![CDATA[Logged in as]]></label>
+			<label id="switch.output-type"><![CDATA[switch.output-type]]></label>
+			<label id="label.nodata"><![CDATA[No data present.]]></label>
+			<label id="label.first"><![CDATA[first]]></label>
+			<label id="label.last"><![CDATA[last]]></label>
+			<label id="label.previous"><![CDATA[previous]]></label>
+			<label id="label.next"><![CDATA[next]]></label>
+			<label id="label.chunkSize"><![CDATA[Items per Page]]></label>
+			<label id="label.of"><![CDATA[of]]></label>
+			<label id="username"><![CDATA[User]]></label>
+			<label id="password"><![CDATA[Password]]></label>
+			<label id="logon"><![CDATA[Login]]></label>
+			<label id="forgot.password"><![CDATA[Forgot password?]]></label>
+			<label id="preview.text"><![CDATA[XML preview]]></label>
+			<label id="copy.clipboard"><![CDATA[Copy to clipboard]]></label>
+			<label id="reset"><![CDATA[Reset]]></label>
+			<label id="site.properties"><![CDATA[Site properties]]></label>
+			<label id="choose.site-plugin"><![CDATA[choose.site-plugin]]></label>
+			<label id="app.properties"><![CDATA[app.properties]]></label>
+			<label id="true"><![CDATA[yes]]></label>
+			<label id="false"><![CDATA[no]]></label>
+			<label id="plugin.properties"><![CDATA[plugin.properties]]></label>
+			<label id="select"><![CDATA[Select]]></label>
+			<label id="asc"><![CDATA[ascending]]></label>
+			<label id="desc"><![CDATA[descending]]></label>
+			<label id="data.sort"><![CDATA[Sort]]></label>
+			<label id="change.password"><![CDATA[Change password]]></label>
+			<label id="logout"><![CDATA[Logout]]></label>
+			<label id="confirmation.password"><![CDATA[confirmation.password]]></label>
+		</labels>
+		<output-format default="true" id="html">
+			<permissions>
+				<permission mode="set" ref="output-format.html">true</permission>
+			</permissions>
+			<output-type default="true" id="webgui">
+				<permissions>
+					<permission mode="set" ref="output-type.webgui">true</permission>
+				</permissions>
+			</output-type>			
+		</output-format>
+		<output-format id="html">
+			<output-type id="webgui">
+				<template delete-includes="true" path="platform.html" type="master" />
+			</output-type>
+		</output-format>
+		<authentications>
+			<authentication application="appng-authentication" index="index" page="webform" ref="webform" site="manager" />
+		</authentications>
+		<session id="79DF4BFA80B669FA038E22C9222C74A1" starttime="1548400730" timeout="1800" />
+		<platform-url>https://appng.org/manager/manager/appng-manager/sites</platform-url>
+		<base-url>/manager</base-url>
+		<current-url>/manager/manager/appng-manager/sites</current-url>
+		<output format="html" type="webgui" />
+	</config>
+	<subject>
+		<username>doe.john</username>
+		<name>John Doe</name>
+		<localization>
+			<language>en</language>
+			<decimalSeparator>.</decimalSeparator>
+			<groupingSeparator>,</groupingSeparator>
+		</localization>
+	</subject>
+	<navigation>
+		<item actionName="action" actionValue="changePassword" application="appng-authentication" page="webform"
+			ref="webform/changePassword" site="manager" type="anchor">
+			<label><![CDATA[change.password]]></label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+		<item actionName="action" actionValue="logout" application="appng-authentication" page="webform" ref="webform/logout"
+			site="manager" type="anchor">
+			<label><![CDATA[logout]]></label>
+			<icon>/template/assets/goto_icon.gif</icon>
+		</item>
+		<item name="de-f2-p-appngdev0.stack.aiticon.net" ref="manager" selected="true" type="site">
+			<label><![CDATA[manager]]></label>
+			<item hidden="true" ref="appng-authentication" site="manager" type="application">
+				<label><![CDATA[Authentication]]></label>
+			</item>
+			<item hidden="false" ref="appng-manager" selected="true" site="manager" type="application">
+				<label><![CDATA[Manager]]></label>
+			</item>
+			<item hidden="false" ref="appng-scheduler" site="manager" type="application">
+				<label><![CDATA[Scheduler]]></label>
+			</item>
+		</item>
+	</navigation>
+	<content>
+		<application id="appng-manager" version="1.14.0">
+			<config>
+				<title><![CDATA[Manager]]></title>
+				<permissions>
+					<permission mode="set" ref="debug">false</permission>
+				</permissions>
+				<session id="79DF4BFA80B669FA038E22C9222C74A1">
+					<session-params>
+						<session-param name="selectedappid" />
+						<session-param name="f_type" />
+						<session-param name="f_name" />
+						<session-param name="fSess" />
+						<session-param name="fAgnt" />
+						<session-param name="fCrAf" />
+						<session-param name="fCrBf" />
+						<session-param name="fDmn" />
+						<session-param name="fUsr" />
+						<session-param name="fEtr" />
+						<session-param name="fCtpe" />
+						<session-param name="fLgn" />
+						<session-param name="fTps" />
+						<session-param name="fTxt" />
+						<session-param name="fUsr" />
+						<session-param name="fHst" />
+						<session-param name="fHstNm" />
+						<session-param name="fBf" />
+						<session-param name="fAf" />
+						<session-param name="eA" />
+						<session-param name="eAp" />
+						<session-param name="eB" />
+						<session-param name="eT" />
+						<session-param name="eX" />
+						<session-param name="eU" />
+						<session-param name="eH" />
+						<session-param name="eN" />
+					</session-params>
+				</session>
+			</config>
+			<pages>
+				<page id="sites" type="index">
+					<config>
+						<title id="sites"><![CDATA[Sites]]></title>
+						<permissions>
+							<permission mode="set" ref="page.sites">true</permission>
+						</permissions>
+						<url-schema>
+							<url-params>
+								<url-param name="action" />
+								<url-param name="siteid" />
+								<url-param name="subentity1" />
+								<url-param name="subaction1" />
+								<url-param name="subentityid1" />
+								<url-param name="subentityid2" />
+							</url-params>
+							<get-params>
+								<get-param name="form_action" />
+								<get-param name="selectedappid" />
+								<get-param name="appid" />
+								<get-param name="siteid" />
+								<get-param name="sitename" />
+								<get-param name="conId" />
+								<get-param name="propertyid" />
+								<get-param name="expandSql" />
+								<get-param name="action" />
+								<get-param name="sessid" />
+								<get-param name="cacheElement" />
+								<get-param name="fSess" />
+								<get-param name="fAgnt" />
+								<get-param name="fCrAf" />
+								<get-param name="fCrBf" />
+								<get-param name="fDmn" />
+								<get-param name="fUsr" />
+								<get-param name="fEtr" />
+								<get-param name="fCtpe" />
+							</get-params>
+							<post-params>
+								<post-param name="form_action" />
+							</post-params>
+						</url-schema>
+						<linkpanel id="topnav" location="top">
+							<link active="true" id="topnav[1]" mode="intern" target="/sites">
+								<permissions>
+									<permission mode="set" ref="page.sites">true</permission>
+								</permissions>
+								<label id="sites"><![CDATA[Sites]]></label>
+							</link>
+							<link id="topnav[2]" mode="intern" target="/applications">
+								<permissions>
+									<permission mode="set" ref="page.applications">true</permission>
+								</permissions>
+								<label id="applications"><![CDATA[Applications]]></label>
+							</link>
+							<link id="topnav[3]" mode="intern" target="/users">
+								<permissions>
+									<permission mode="set" ref="page.subjects">true</permission>
+								</permissions>
+								<label id="subjects"><![CDATA[Users]]></label>
+							</link>
+							<link id="topnav[4]" mode="intern" target="/repositories">
+								<permissions>
+									<permission mode="set" ref="page.repositories">true</permission>
+								</permissions>
+								<label id="repositories"><![CDATA[Repositories]]></label>
+							</link>
+							<link id="topnav[5]" mode="intern" target="/platform">
+								<permissions>
+									<permission mode="set" ref="page.platform">true</permission>
+								</permissions>
+								<label id="platform"><![CDATA[Platform]]></label>
+							</link>
+							<link id="topnav[6]" mode="intern" target="/system">
+								<permissions>
+									<permission mode="set" ref="page.system">true</permission>
+								</permissions>
+								<label id="system"><![CDATA[System]]></label>
+							</link>
+						</linkpanel>
+					</config>
+					<structure>
+						<section>
+							<element>
+								<datasource id="sites">
+									<config>
+										<title id="sites"><![CDATA[Sites]]></title>
+										<permissions>
+											<permission mode="set" ref="site.list">true</permission>
+										</permissions>
+										<params />
+										<meta-data bindClass="org.appng.api.model.Site">
+											<field binding="id" format="#" hidden="true" name="id" type="int">
+												<label id="id"><![CDATA[ID]]></label>
+											</field>
+											<field binding="name" name="name" type="text">
+												<sort />
+												<label id="name"><![CDATA[Name]]></label>
+											</field>
+											<field binding="host" name="host" type="text">
+												<sort />
+												<label id="host"><![CDATA[Host]]></label>
+											</field>
+											<field binding="domain" name="domain" type="text">
+												<sort />
+												<label id="domain"><![CDATA[Domain]]></label>
+											</field>
+											<field binding="description" name="description" type="text">
+												<label id="description"><![CDATA[Description]]></label>
+											</field>
+											<field binding="active" name="active" type="image">
+												<sort />
+												<label id="active"><![CDATA[Active]]></label>
+												<icon condition="${current.active}">led_green</icon>
+												<icon condition="${!current.active}">led_red</icon>
+											</field>
+											<field binding="running" name="running" type="image">
+												<label id="running"><![CDATA[Running]]></label>
+												<icon condition="${current.running}">led_green</icon>
+												<icon condition="${!current.running}">led_red</icon>
+											</field>
+											<field binding="startupTime" format="yyyy-MM-dd HH:mm:ss" name="startupTime" type="date">
+												<label id="startupTime"><![CDATA[Startup time]]></label>
+											</field>
+											<field binding="actions" name="actions" type="linkpanel">
+												<label id="actions"><![CDATA[Actions]]></label>
+											</field>
+										</meta-data>
+										<linkpanel id="other" location="both">
+											<link id="other[1]" mode="intern" target="/sites/create">
+												<permissions>
+													<permission mode="set" ref="site.create">true</permission>
+												</permissions>
+												<label id="site.create"><![CDATA[Create site]]></label>
+												<icon>new</icon>
+											</link>
+										</linkpanel>
+										<linkpanel id="actions" location="inline">
+											<link default="true" id="actions[1]" mode="intern" target="/sites/update/#{id}">
+												<permissions>
+													<permission mode="set" ref="site.edit">true</permission>
+												</permissions>
+												<label id="edit"><![CDATA[Edit]]></label>
+												<icon>edit</icon>
+											</link>
+											<link id="actions[2]" mode="intern" target="/sites?form_action=delete&amp;siteid=#{id}">
+												<permissions>
+													<permission mode="set" ref="site.delete">true</permission>
+												</permissions>
+												<label id="delete"><![CDATA[Delete]]></label>
+												<icon>delete</icon>
+												<confirmation id="site.delete.confirm" params="#{name}">Do you really want to delete the site "#{name}"?</confirmation>
+											</link>
+											<link id="actions[3]" mode="intern" target="/sites?form_action=reload&amp;siteid=#{id}">
+												<permissions>
+													<permission mode="set" ref="site.reload">true</permission>
+												</permissions>
+												<label id="reload"><![CDATA[Reload]]></label>
+												<icon>reload</icon>
+											</link>
+										</linkpanel>
+									</config>
+									<data>
+										<resultset chunk="0" chunkname="sites" chunksize="25" firstchunk="0" hits="1" lastchunk="0"
+											nextchunk="0" previouschunk="0">
+											<result>
+												<field name="id" type="int">
+													<value><![CDATA[1]]></value>
+												</field>
+												<field name="name" type="text">
+													<value><![CDATA[manager]]></value>
+												</field>
+												<field name="host" type="text">
+													<value><![CDATA[appng.org]]></value>
+												</field>
+												<field name="domain" type="text">
+													<value><![CDATA[https://appng.org]]></value>
+												</field>
+												<field name="description" type="text">
+													<value><![CDATA[appng Manager Instance]]></value>
+												</field>
+												<field name="active" type="image">
+													<value><![CDATA[true]]></value>
+													<icon type="class">led_green</icon>
+												</field>
+												<field name="running" type="image">
+													<value><![CDATA[true]]></value>
+													<icon type="class">led_green</icon>
+												</field>
+												<field name="startupTime" type="date">
+													<value><![CDATA[2019-01-24 17:23:50]]></value>
+												</field>
+												<linkpanel id="actions" location="inline">
+													<link default="true" id="actions[1]" mode="intern" target="/sites/update/1">
+														<label id="edit"><![CDATA[Edit]]></label>
+														<icon>edit</icon>
+													</link>
+													<link id="actions[2]" mode="intern" target="/sites?form_action=delete&amp;siteid=1">
+														<label id="delete"><![CDATA[Delete]]></label>
+														<icon>delete</icon>
+														<confirmation id="site.delete.confirm" params="#{name}">Do you really want to delete the site
+															"manager"?</confirmation>
+													</link>
+													<link id="actions[3]" mode="intern" target="/sites?form_action=reload&amp;siteid=1">
+														<label id="reload"><![CDATA[Reload]]></label>
+														<icon>reload</icon>
+													</link>
+												</linkpanel>
+											</result>
+										</resultset>
+									</data>
+								</datasource>
+							</element>
+						</section>
+						<section hidden="true">
+							<element>
+								<action eventId="databaseConnectionEvent" id="delete" onSuccess="appng-manager/sites/update/#tab_databaseConnections">
+									<config>
+										<title id="connection.delete"><![CDATA[Delete database connection]]></title>
+										<params>
+											<param name="form_action" />
+											<param name="id" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${form_action eq 'deleteConnection' and not empty id}" />
+									<bean id="databaseConnections">
+										<option id="" name="connection" />
+										<option id="delete" name="action" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="databaseConnectionEvent" id="testConnection" onSuccess="appng-manager/sites/update/#tab_databaseConnections">
+									<config>
+										<title id="connection.test"><![CDATA[Test database connection]]></title>
+										<params>
+											<param name="form_action" />
+											<param name="id" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${form_action eq 'testConnection' and not empty id}" />
+									<bean id="databaseConnections">
+										<option id="test" name="action" />
+										<option id="" name="connection" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="databaseConnectionEvent" id="resetConnection" onSuccess="appng-manager/sites/update/#tab_databaseConnections">
+									<config>
+										<title id="connection.reset"><![CDATA[Reset database connection]]></title>
+										<params>
+											<param name="form_action" />
+											<param name="id" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${form_action eq 'resetConnection' and not empty id}" />
+									<bean id="databaseConnections">
+										<option id="reset" name="action" />
+										<option id="" name="connection" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="siteEvent" id="delete" onSuccess="appng-manager/sites">
+									<config>
+										<title id="site.delete"><![CDATA[Delete site]]></title>
+										<permissions>
+											<permission mode="set" ref="site.delete">true</permission>
+										</permissions>
+										<params>
+											<param name="form_action" />
+											<param name="siteid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${form_action eq 'delete'}" />
+									<bean id="sites">
+										<option id="" name="site" />
+										<option id="delete" name="action" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="siteEvent" id="reload" onSuccess="appng-manager/sites">
+									<config>
+										<title id="site.reload"><![CDATA[Reload site]]></title>
+										<permissions>
+											<permission mode="set" ref="site.reload">true</permission>
+										</permissions>
+										<params>
+											<param name="form_action" />
+											<param name="siteid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${form_action eq 'reload'}" />
+									<bean id="sites">
+										<option id="" name="site" />
+										<option id="reload" name="action" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="applicationEvent" id="toggle-applicationstate" onSuccess="appng-manager/sites/update/#tab_site-applications">
+									<config>
+										<title id="application.toggle"><![CDATA[Toggle application]]></title>
+										<permissions>
+											<permission mode="set" ref="site.application.togglestate">true</permission>
+										</permissions>
+										<params>
+											<param name="siteid" />
+											<param name="appid" />
+											<param name="applicationstate" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${applicationstate eq 'activateApplication' or applicationstate eq 'deactivateApplication'}" />
+									<bean id="applications">
+										<option id="" name="application" />
+										<option id="" name="site" />
+										<option form_action="" id="configure-application" name="action" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="propertyEvent" id="delete-site-property" onSuccess="appng-manager/sites/update/#tab_site-properties">
+									<config>
+										<title id="property.delete"><![CDATA[Delete property]]></title>
+										<permissions>
+											<permission mode="set" ref="site.property.delete">true</permission>
+										</permissions>
+										<params>
+											<param name="form_action" />
+											<param name="propertyid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${form_action eq 'delete-site-property' and not empty propertyid}" />
+									<bean id="properties">
+										<option id="" name="property" />
+										<option id="delete" name="action" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="propertyEvent" id="delete-site-application-property"
+									onSuccess="appng-manager/sites/update/?selectedappid=#tab_select-site-application">
+									<config>
+										<title id="property.delete"><![CDATA[Delete property]]></title>
+										<permissions>
+											<permission mode="set" ref="site.application.property.delete">true</permission>
+										</permissions>
+										<params>
+											<param name="form_action" />
+											<param name="propertyid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${form_action eq 'delete-site-application-property' and not empty propertyid}" />
+									<bean id="properties">
+										<option id="" name="property" />
+										<option id="delete" name="action" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="sessionEvent" id="expire" onSuccess="appng-manager/sites/update/#tab_cacheStatistics">
+									<config>
+										<title id="session.expire"><![CDATA[Expire]]></title>
+										<permissions>
+											<permission mode="set" ref="session.expire">true</permission>
+										</permissions>
+										<params>
+											<param name="action" />
+											<param name="sessid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${action eq 'expire' and not empty sessid}" />
+									<bean id="sessions">
+										<option id="" name="session" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="sessionEvent" id="expireAll" onSuccess="appng-manager/sites/update/#tab_cacheStatistics">
+									<config>
+										<title id="session.expireAll"><![CDATA[Expire all]]></title>
+										<permissions>
+											<permission mode="set" ref="session.expire">true</permission>
+										</permissions>
+										<params>
+											<param name="action" />
+											<param name="siteid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${action eq 'expireAll'}" />
+									<bean id="sessions">
+										<option id="" name="site" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="cacheEvent" id="clearCache" onSuccess="appng-manager/sites/update/#tab_cacheStatistics">
+									<config>
+										<title id="cache.clear"><![CDATA[Clear cache]]></title>
+										<permissions>
+											<permission mode="set" ref="cache.clear">true</permission>
+										</permissions>
+										<params>
+											<param name="action" />
+											<param name="siteid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${action eq 'clearCache'}" />
+									<bean id="cache">
+										<option id="clearCache" name="action" />
+										<option id="" name="site" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="cacheEvent" id="expireCacheElement" onSuccess="appng-manager/sites/update/#tab_cacheStatistics">
+									<config>
+										<title id="cache.element.expire"><![CDATA[Remove element from cache]]></title>
+										<permissions>
+											<permission mode="set" ref="cache.element.expire">true</permission>
+										</permissions>
+										<params>
+											<param name="action" />
+											<param name="cacheElement" />
+											<param name="siteid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${action eq 'expireCacheElement' and not empty cacheElement}" />
+									<bean id="cache">
+										<option id="expireCacheElement" name="action" />
+										<option id="" name="cacheElement" />
+										<option id="" name="site" />
+									</bean>
+								</action>
+							</element>
+							<element>
+								<action eventId="cacheEvent" id="clearCacheStatistics" onSuccess="appng-manager/sites/update/#tab_cacheStatistics">
+									<config>
+										<title id="cache.statistics.clear"><![CDATA[Clear cache statistics]]></title>
+										<permissions>
+											<permission mode="set" ref="cache.statistics.clear">true</permission>
+										</permissions>
+										<params>
+											<param name="action" />
+											<param name="siteid" />
+										</params>
+										<meta-data />
+									</config>
+									<condition expression="${action eq 'clearCacheStatistics'}" />
+									<bean id="cache">
+										<option id="clearCacheStatistics" name="action" />
+										<option id="" name="site" />
+									</bean>
+								</action>
+							</element>
+						</section>
+					</structure>
+				</page>
+			</pages>
+		</application>
+	</content>
+</platform>
+

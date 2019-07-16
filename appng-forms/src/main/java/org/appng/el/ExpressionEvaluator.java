@@ -64,7 +64,7 @@ public final class ExpressionEvaluator {
 	private ExpressionFactory ef;
 	private ELContext ctx;
 	private javax.el.VariableMapper variableMapper;
-	private final Map<String, Method> methods = new HashMap<String, Method>();
+	private final Map<String, Method> methods = new HashMap<>();
 
 	/**
 	 * Creates a new {@link ExpressionEvaluator} using the given variables.

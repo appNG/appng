@@ -27,7 +27,6 @@ import javax.persistence.EntityManager;
 
 import org.appng.api.model.Application;
 import org.appng.api.model.Group;
-import org.appng.api.model.Permission;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Role;
 import org.appng.api.model.Subject;
@@ -52,9 +51,9 @@ public class AppNGTestDataProvider implements TestDataProvider {
 	public static final String DIGEST = "VlBQQcXL+lpSZwu86CSYmdaB3pY=";
 
 	public void writeTestData(EntityManager em) {
-		SubjectImpl subject1 = getSubject(1, UserType.GLOBAL_GROUP, new ArrayList<Group>());
-		SubjectImpl subject2 = getSubject(2, UserType.GLOBAL_USER, new ArrayList<Group>());
-		SubjectImpl subject3 = getSubject(3, UserType.LOCAL_USER, new ArrayList<Group>());
+		SubjectImpl subject1 = getSubject(1, UserType.GLOBAL_GROUP, new ArrayList<>());
+		SubjectImpl subject2 = getSubject(2, UserType.GLOBAL_USER, new ArrayList<>());
+		SubjectImpl subject3 = getSubject(3, UserType.LOCAL_USER, new ArrayList<>());
 		subject3.setDigest(DIGEST);
 		subject3.setSalt(SALT);
 
@@ -62,7 +61,7 @@ public class AppNGTestDataProvider implements TestDataProvider {
 		em.persist(subject2);
 		em.persist(subject3);
 
-		Set<Subject> subjects = new HashSet<Subject>();
+		Set<Subject> subjects = new HashSet<>();
 		subjects.add(subject1);
 		subjects.add(subject2);
 		subjects.add(subject3);
@@ -137,7 +136,7 @@ public class AppNGTestDataProvider implements TestDataProvider {
 		em.persist(siteApplication3);
 		site3.getSiteApplications().add(siteApplication3);
 
-		Set<Role> applicationRoles = new HashSet<Role>();
+		Set<Role> applicationRoles = new HashSet<>();
 		applicationRoles.add(applicationRole1);
 		applicationRoles.add(applicationRole2);
 		applicationRoles.add(applicationRole3);
@@ -198,8 +197,8 @@ public class AppNGTestDataProvider implements TestDataProvider {
 		application.setDescription("description");
 		application.setFileBased(false);
 		application.setName(name);
-		application.setPermissions(new HashSet<Permission>());
-		application.setRoles(new HashSet<Role>());
+		application.setPermissions(new HashSet<>());
+		application.setRoles(new HashSet<>());
 
 		ResourceImpl applicationResource = new ResourceImpl();
 		applicationResource.setResourceType(ResourceType.APPLICATION);
@@ -216,7 +215,7 @@ public class AppNGTestDataProvider implements TestDataProvider {
 		RoleImpl pRole = new RoleImpl();
 		pRole.setDescription("ApplicationRole description-" + i);
 		pRole.setName(name);
-		pRole.setPermissions(new HashSet<Permission>());
+		pRole.setPermissions(new HashSet<>());
 		pRole.setApplication(application);
 		pRole.setVersion(new Date());
 		return pRole;

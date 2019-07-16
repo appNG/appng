@@ -1,6 +1,6 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
-:snapshot: 1.18.1-SNAPSHOT
-:stable: 1.18.0
+:snapshot: 1.20.0-SNAPSHOT
+:stable: 1.19.1
 :current: {snapshot}
 ifdef::env-github[]
 :caution-caption: :fire:
@@ -66,23 +66,23 @@ The standalone version also comes with *appNGizer*, the REST-based administratio
 The standalone version can be found here:
 https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
 
-Check that Java 1.8 is available in your system's path:
+Check that Java >= 1.8 is available in your system's path:
 ----
 $ java -version
-openjdk version "1.8.0_131"
-OpenJDK Runtime Environment (build 1.8.0_131-8u131-b11-1~bpo8+1-b11)
-OpenJDK 64-Bit Server VM (build 25.131-b11, mixed mode)
+openjdk version "1.8.0_171"
+OpenJDK Runtime Environment (build 1.8.0_171-8u171-b11-1~bpo8+1-b11)
+OpenJDK 64-Bit Server VM (build 25.171-b11, mixed mode)
 ----
 
 Unzip the file, change into the extracted folder and run
 [source,subs=normal]
 ----
-$ java -jar appng-standalone-{stable}.jar -i -u
+./appng.sh
 ----
 
 [NOTE]
 ====
-When running under Windows, you have to add the option `-Dfile.encoding=UTF-8` before the `-jar` option.
+When running under Windows, use `appng.bat`.
 ====
 
 Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
@@ -91,8 +91,10 @@ Sign-in with the username `admin` and the password `s3cr3t`.
 
 [NOTE]
 ====
-When executing the jar for the next time, you *must* omit the parameters `-u` and `-i`, as they are only
-allowed on the very first run (`-u` unpacks and configures the wrapped web applications, `-i` is for installing the appNG applications and the template).
+On the first run, some unpacking and installation operations are performed, this my take a few seconds. The subsequent starts will be much faster.
+
+If you accidentally misconfigured your appNG instance, you can force a clean re-installation with the `-i` option: +
+`./appng.sh -i`
 ====
 
 === Download and run the appNG web-application version

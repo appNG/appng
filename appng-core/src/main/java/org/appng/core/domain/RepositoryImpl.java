@@ -214,7 +214,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 		Map<String, Identifier> installedPackages = getInstalledPackagesMap(provisionedPackages);
 		RepositoryCache cache = getRepositoryCache();
 		List<PackageWrapper> publishedApplications = cache.getApplications();
-		List<InstallablePackage> provisionableApplications = new ArrayList<InstallablePackage>();
+		List<InstallablePackage> provisionableApplications = new ArrayList<>();
 		for (PackageWrapper publishedApplicationWrapper : publishedApplications) {
 			InstallablePackage provisionableApplication;
 			String packageName = publishedApplicationWrapper.getName();
@@ -232,7 +232,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 
 	@Transient
 	private Map<String, Identifier> getInstalledPackagesMap(List<? extends Identifier> installedPackages) {
-		Map<String, Identifier> installedPackagesMap = new HashMap<String, Identifier>();
+		Map<String, Identifier> installedPackagesMap = new HashMap<>();
 		for (Identifier pckg : installedPackages) {
 			installedPackagesMap.put(pckg.getName(), pckg);
 		}
@@ -245,7 +245,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 		Map<String, Identifier> provisionedApplications = getInstalledPackagesMap(provisionedApplicationsList);
 		RepositoryCache cache = getRepositoryCache();
 		List<PackageInfo> publishedApplicationVersions = cache.getVersions(name);
-		List<PackageVersion> provisionableApplicationVersions = new ArrayList<PackageVersion>();
+		List<PackageVersion> provisionableApplicationVersions = new ArrayList<>();
 		for (PackageInfo applicationInfo : publishedApplicationVersions) {
 			PackageVersion provisionableApplicationVersion;
 			String applicationName = applicationInfo.getName();

@@ -61,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = InitializerServiceTest.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = InitializerServiceTest.class)
 @DirtiesContext
 public class InitializerServiceTest extends TestSupport
 		implements ApplicationContextInitializer<GenericApplicationContext> {
@@ -141,7 +141,7 @@ public class InitializerServiceTest extends TestSupport
 		Mockito.when(ctx.getRealPath("/uploads")).thenReturn("target/uploads");
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES))
-				.thenReturn(new HashMap<String, Site>());
+				.thenReturn(new HashMap<>());
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);

@@ -33,6 +33,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
@@ -69,7 +70,7 @@ import net.sf.ehcache.constructs.web.filter.FilterNonReentrantException;
 @Slf4j
 public class PageCacheFilter extends CachingFilter {
 
-	private Set<String> cacheableHttpMethods = new HashSet<String>(
+	private Set<String> cacheableHttpMethods = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
 
 	@Override
@@ -125,6 +126,10 @@ public class PageCacheFilter extends CachingFilter {
 			}
 		} catch (CacheException e) {
 			LOGGER.warn(String.format("error while adding/retrieving from/to cache: %s", calculateKey(request)), e);
+		} catch (ClientAbortException e) {
+			if(LOGGER.isDebugEnabled()) {
+				LOGGER.debug(String.format("client aborted request: %s", calculateKey(request)), e);
+			}
 		}
 	}
 
@@ -229,7 +234,7 @@ public class PageCacheFilter extends CachingFilter {
 		String clob = site.getProperties().getClob(SiteProperties.EHCACHE_EXCEPTIONS);
 		if (null != clob) {
 			List<String> exceptionList = Arrays.asList(clob.split("\n"));
-			Set<String> exceptions = new HashSet<String>(exceptionList);
+			Set<String> exceptions = new HashSet<>(exceptionList);
 			for (String e : exceptions) {
 				if (servletPath.startsWith(e.trim())) {
 					return true;

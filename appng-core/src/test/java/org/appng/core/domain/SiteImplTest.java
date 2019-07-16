@@ -107,7 +107,7 @@ public class SiteImplTest {
 
 	@Test
 	public void testCloseClassloader() throws IOException {
-		site.setSiteApplications(new HashSet<SiteApplication>());
+		site.setSiteApplications(new HashSet<>());
 		site.closeSiteContext();
 		try {
 			URLClassLoader.class.getMethod("close");

@@ -17,6 +17,7 @@ package org.appng.tools.markup;
 
 import java.io.StringWriter;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -39,9 +40,10 @@ public class XML {
 	public static String transform(Source xmlSource, Source xsltSource) {
 		String result = "";
 		ErrorListener errorListener = getErrorListener();
-		TransformerFactory tf = TransformerFactory.newInstance();
-		tf.setErrorListener(errorListener);
 		try {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			tf.setErrorListener(errorListener);
 			Templates templates = tf.newTemplates(xsltSource);
 			Transformer transformer = templates.newTransformer();
 			transformer.setErrorListener(errorListener);

@@ -29,10 +29,12 @@ import org.appng.core.model.AccessibleApplication;
 import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +43,13 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class RoleController extends ControllerBase {
 
-	@RequestMapping(value = "/application/{app}/role", method = RequestMethod.GET)
+	@GetMapping(value = "/application/{app}/role")
 	public ResponseEntity<Roles> listRoles(@PathVariable("app") String app) {
 		AccessibleApplication appByName = getApplicationByName(app);
 		if (null == appByName) {
 			return notFound();
 		}
-		List<Role> roleList = new ArrayList<Role>();
+		List<Role> roleList = new ArrayList<>();
 		for (RoleImpl r : getCoreService().getApplicationRolesForApplication(appByName.getId())) {
 			roleList.add(Role.fromDomain(r));
 		}
@@ -56,7 +58,7 @@ public class RoleController extends ControllerBase {
 		return ok(roles);
 	}
 
-	@RequestMapping(value = "/application/{app}/role/{name}", method = RequestMethod.GET)
+	@GetMapping(value = "/application/{app}/role/{name}")
 	public ResponseEntity<Role> getRole(@PathVariable("app") String app, @PathVariable("name") String name) {
 		org.appng.api.model.Role role = getApplicationRole(app, name);
 		if (null == role) {
@@ -71,7 +73,7 @@ public class RoleController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/application/{app}/role", method = RequestMethod.POST)
+	@PostMapping(value = "/application/{app}/role")
 	public ResponseEntity<Role> createRole(@PathVariable("app") String app,
 			@RequestBody org.appng.appngizer.model.xml.Role role) {
 		org.appng.api.model.Role existing = getApplicationRole(app, role.getName());
@@ -85,7 +87,7 @@ public class RoleController extends ControllerBase {
 		return created(getRole(app, role.getName()).getBody());
 	}
 
-	@RequestMapping(value = "/application/{app}/role/{name}", method = RequestMethod.PUT)
+	@PutMapping(value = "/application/{app}/role/{name}")
 	public ResponseEntity<Role> updateRole(@PathVariable("app") String app, @PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Role role) {
 		org.appng.core.domain.RoleImpl appRole = getApplicationRole(app, name);
@@ -113,7 +115,7 @@ public class RoleController extends ControllerBase {
 		getCoreService().saveRole((RoleImpl) appRole);
 	}
 
-	@RequestMapping(value = "/application/{app}/role/{name}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/application/{app}/role/{name}")
 	public ResponseEntity<Void> deleteRole(@PathVariable("app") String app, @PathVariable("name") String name)
 			throws BusinessException {
 		org.appng.api.model.Role appRole = getApplicationRole(app, name);

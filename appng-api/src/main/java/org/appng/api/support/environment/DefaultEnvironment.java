@@ -58,7 +58,7 @@ public class DefaultEnvironment implements Environment {
 	private boolean initialized;
 	private Locale locale = Locale.getDefault();
 	private TimeZone timeZone = TimeZone.getDefault();
-	private Map<Scope, Boolean> scopeEnabled = new ConcurrentHashMap<Scope, Boolean>(4);
+	private Map<Scope, Boolean> scopeEnabled = new ConcurrentHashMap<>(4);
 
 	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession, ServletRequest servletRequest,
 			ServletResponse servletResponse) {
@@ -499,6 +499,18 @@ public class DefaultEnvironment implements Environment {
 	 */
 	public boolean isInitialized() {
 		return initialized;
+	}
+
+	/**
+	 * Clears the site-scoped attributes for the given {@link Site}.
+	 * 
+	 * @param site
+	 *            The {@link Site} to clear the site-scope for.
+	 */
+	public void clearSiteScope(Site site) {
+		String identifier = Scope.SITE.forSite(site.getHost());
+		platform.getServletContext().removeAttribute(identifier);
+		LOGGER.info("Clearing site scope with identifier '{}'", identifier);
 	}
 
 }

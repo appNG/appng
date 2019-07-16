@@ -119,6 +119,7 @@ import org.appng.xml.application.Permissions;
 import org.appng.xml.application.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -204,14 +205,24 @@ public class CoreService {
 		return propertyHolder;
 	}
 
-	public PropertyHolder initPlatformConfig(java.util.Properties defaultOverrides, String rootPath, Boolean devMode,
-			boolean persist, boolean finalize) {
+	public PlatformProperties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath,
+			Boolean devMode, boolean persist) {
 		PropertyHolder platformConfig = getPlatform(false);
-		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, finalize);
+		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, false);
 		if (persist) {
 			saveProperties(platformConfig);
 		}
-		return platformConfig;
+		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_USER);
+		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_GROUP);
+		platformConfig.setFinal();
+		return PlatformProperties.get(platformConfig);
+	}
+
+	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
+			String name) {
+		if (defaultOverrides.containsKey(name)) {
+			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
+		}
 	}
 
 	private Page<PropertyImpl> getPlatformPropertiesList(Pageable pageable) {
@@ -404,7 +415,7 @@ public class CoreService {
 		} else {
 			List<SubjectImpl> globalGroups = getSubjectsByType(UserType.GLOBAL_GROUP);
 			if (!globalGroups.isEmpty()) {
-				List<String> groupNames = new ArrayList<String>();
+				List<String> groupNames = new ArrayList<>();
 				for (SubjectImpl subjectImpl : globalGroups) {
 					groupNames.add(subjectImpl.getName());
 				}
@@ -566,8 +577,7 @@ public class CoreService {
 	}
 
 	public boolean login(Environment env, String digest, int digestMaxValidity) {
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String sharedSecret = platformConfig.getString(Platform.Property.SHARED_SECRET);
+		String sharedSecret = getPlatformConfig(env).getString(Platform.Property.SHARED_SECRET);
 		DigestValidator validator = new DigestValidator(digest, digestMaxValidity);
 		String username = validator.getUsername();
 		if (StringUtils.isNotBlank(username)) {
@@ -636,9 +646,9 @@ public class CoreService {
 		return propertyRepository.findOne(propertyId);
 	}
 
-	protected void createSite(SiteImpl site, Environment environment) {
+	protected void createSite(SiteImpl site, Environment env) {
 		if (site.isCreateRepository()) {
-			File repositoryRootDir = getRepositoryRootFolder(environment);
+			File repositoryRootDir = PlatformProperties.get(getPlatformConfig(env)).getRepositoryRootFolder();
 			File siteRootDir = new File(repositoryRootDir, site.getName());
 			if (!siteRootDir.exists()) {
 				try {
@@ -651,7 +661,7 @@ public class CoreService {
 			}
 		}
 
-		initSiteProperties(site, environment, true);
+		initSiteProperties(site, env, true);
 		siteRepository.save(site);
 	}
 
@@ -675,8 +685,11 @@ public class CoreService {
 
 	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
-		Properties platformConfig = getPlatformConfig(environment);
-		new PropertySupport(siteProperties).initSiteProperties(site, platformConfig);
+		List<String> platformProps = PropertySupport.getSiteRelevantPlatformProps();
+		SearchQuery<PropertyImpl> query = propertyRepository.createSearchQuery().in("name", platformProps);
+		Page<PropertyImpl> properties = propertyRepository.search(query, new PageRequest(0, platformProps.size()));
+		new PropertySupport(siteProperties).initSiteProperties(site,
+				new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties));
 		if (doSave) {
 			saveProperties(siteProperties);
 		}
@@ -700,8 +713,8 @@ public class CoreService {
 
 			if (null != applicationInfo.getRoles()) {
 				Roles roles = applicationInfo.getRoles();
-				Set<Role> applicationRoles = new HashSet<Role>();
-				Set<Role> adminRoles = new HashSet<Role>();
+				Set<Role> applicationRoles = new HashSet<>();
+				Set<Role> adminRoles = new HashSet<>();
 
 				for (org.appng.xml.application.Role role : roles.getRole()) {
 					RoleImpl applicationRole = createApplicationRole(application, role);
@@ -940,8 +953,7 @@ public class CoreService {
 		Integer sitesUsingTemplate = propertyRepository.countByActualStringAndNameLike(template.getDisplayName(),
 				"platform\\.site\\.%\\." + SiteProperties.TEMPLATE);
 		if (0 == sitesUsingTemplate) {
-			Properties platformConfig = getPlatformConfig(null);
-			return templateService.deleteTemplate(template, platformConfig);
+			return templateService.deleteTemplate(template);
 		}
 		return -2;
 	}
@@ -1109,37 +1121,20 @@ public class CoreService {
 	}
 
 	protected File getApplicationRootFolder(Environment environment) {
-		Properties platformConfig = getPlatformConfig(environment);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		return new File(rootPath, applicationDir);
+		return PlatformProperties.get(getPlatformConfig(environment)).getApplicationDir();
 	}
 
 	public File getApplicationFolder(Environment env, String applicationName) {
-		File applicationRootFolder = getApplicationRootFolder(env);
-		return new File(applicationRootFolder, applicationName);
+		return new File(getApplicationRootFolder(env), applicationName);
 	}
 
 	private File getApplicationFolder(Environment env, Application application) {
 		return getApplicationFolder(env, application.getName());
 	}
 
-	private File getRepositoryRootFolder(Environment environment) {
-		Properties platformConfig = getPlatformConfig(environment);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
-		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		String repositoryRootDir = rootPath + File.separator + repositoryPath;
-		return new File(repositoryRootDir);
-	}
-
 	protected Properties getPlatformConfig(Environment environment) {
-		Properties platformConfig = null;
-		if (null == environment) {
-			platformConfig = getPlatformProperties();
-		} else {
-			platformConfig = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		}
-		return platformConfig;
+		return null == environment ? getPlatform(false)
+				: environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 	}
 
 	protected String deleteResource(Environment env, Integer applicationId, Integer resourceId)
@@ -1312,10 +1307,10 @@ public class CoreService {
 	}
 
 	public void cleanupSite(Environment env, SiteImpl site, boolean sendDeletedEvent) {
+		PlatformProperties platformConfig = PlatformProperties.get(getPlatformConfig(env));
 		if (null != site) {
-			Properties platformConfig = getPlatformConfig(env);
 			if (site.isCreateRepository()) {
-				File siteRootFolder = new File(getRepositoryRootFolder(env), site.getName());
+				File siteRootFolder = new File(platformConfig.getRepositoryRootFolder(), site.getName());
 				try {
 					FileUtils.deleteDirectory(siteRootFolder);
 					LOGGER.info("deleted site repository {}", siteRootFolder.getPath());
@@ -1333,7 +1328,7 @@ public class CoreService {
 	}
 
 	private void detachApplications(SiteImpl site) throws BusinessException {
-		Collection<SiteApplication> siteApplications = new HashSet<SiteApplication>(site.getSiteApplications());
+		Collection<SiteApplication> siteApplications = new HashSet<>(site.getSiteApplications());
 		for (SiteApplication siteApplication : siteApplications) {
 			unlinkApplicationFromSite(siteApplication);
 		}
@@ -1531,7 +1526,7 @@ public class CoreService {
 
 	protected void assignRolesToGroup(Group group, Site site, List<Integer> applicationRoleIds) {
 		Set<Role> applicationRoles = group.getRoles();
-		List<Role> currentRoles = new ArrayList<Role>(applicationRoles);
+		List<Role> currentRoles = new ArrayList<>(applicationRoles);
 		for (Role applicationRole : currentRoles) {
 			Application applicationOfRole = applicationRole.getApplication();
 			if (site.hasApplication(applicationOfRole.getName())) {
@@ -1735,18 +1730,18 @@ public class CoreService {
 	}
 
 	public SiteImpl shutdownSite(Environment env, String siteName) {
+		Properties platformConfig = getPlatformConfig(env);
 		if (null != env) {
 			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 			if (siteMap.containsKey(siteName) && null != siteMap.get(siteName)) {
 				SiteImpl shutdownSite = (SiteImpl) siteMap.get(siteName);
 				int requests;
 				int waited = 0;
-				Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
-				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+				int waitTime = platformConfig.getInteger(Platform.Property.WAIT_TIME, 1000);
+				int maxWaitTime = platformConfig.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 				shutdownSite.setState(SiteState.STOPPING);
 
-				if (platformProperties.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
+				if (platformConfig.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
 					LOGGER.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
 							shutdownSite.getRequests());
 					Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
@@ -1768,6 +1763,7 @@ public class CoreService {
 					shutdownApplication(siteApplication, env);
 				}
 				shutdownSite.closeSiteContext();
+				((DefaultEnvironment) env).clearSiteScope(shutdownSite);
 				LOGGER.info("destroying site {} complete", shutdownSite);
 				setSiteStartUpTime(shutdownSite, null);
 				SoapService.clearCache(siteName);
@@ -1806,7 +1802,7 @@ public class CoreService {
 	}
 
 	public Collection<ApplicationSubject> getApplicationSubjects(Integer applicationId, Site site) {
-		List<ApplicationSubject> applicationSubjects = new ArrayList<ApplicationSubject>();
+		List<ApplicationSubject> applicationSubjects = new ArrayList<>();
 		ApplicationImpl application = applicationRepository.findOne(applicationId);
 		List<SubjectImpl> subjects = subjectRepository.findSubjectsForApplication(applicationId);
 		String siteTimeZone = site.getProperties().getString(Platform.Property.TIME_ZONE);
@@ -2008,7 +2004,7 @@ public class CoreService {
 
 	public Map<String, String> getCacheStatistics(Integer siteId) {
 		SiteImpl site = getSite(siteId);
-		Map<String, String> cacheStatistics = new HashMap<String, String>();
+		Map<String, String> cacheStatistics = new HashMap<>();
 		Boolean ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
 		if (ehcacheEnabled) {
 			try {
@@ -2060,7 +2056,7 @@ public class CoreService {
 
 	public List<AppngCache> getCacheEntries(Integer siteId) {
 		SiteImpl site = siteRepository.findOne(siteId);
-		List<AppngCache> appngCacheEntries = new ArrayList<AppngCache>();
+		List<AppngCache> appngCacheEntries = new ArrayList<>();
 		try {
 			BlockingCache cache = CacheService.getBlockingCache(site);
 			if (null != cache) {

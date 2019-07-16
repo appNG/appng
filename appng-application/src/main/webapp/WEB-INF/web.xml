@@ -4,12 +4,8 @@
 
 	<!-- init Logging -->
 	<listener>
-		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+		<listener-class>org.appng.core.controller.Log4jConfigurer</listener-class>
 	</listener>
-	<context-param>
-		<param-name>log4jConfigLocation</param-name>
-		<param-value>/WEB-INF/conf/log4j.properties</param-value>
-	</context-param>
 
 	<!-- install listener, looks for WEB-INF/conf/auto-install.list and executes it, if present -->
 	<listener>

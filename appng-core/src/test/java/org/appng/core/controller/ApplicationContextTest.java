@@ -116,7 +116,7 @@ public class ApplicationContextTest extends TestBase {
 	}
 
 	private void assertRoleWithPermissions(String role, String... permissions) {
-		List<String> permissionList = new ArrayList<String>(Arrays.asList(permissions));
+		List<String> permissionList = new ArrayList<>(Arrays.asList(permissions));
 		for (Role applicationRole : application.getRoles()) {
 			if (applicationRole.getName().equals(role)) {
 				for (Permission permission : applicationRole.getPermissions()) {

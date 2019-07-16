@@ -58,7 +58,7 @@ public class ApplicationResourceHolder implements Resources {
 	private static final String APPLICATION_XML_MISSING = ResourceType.APPLICATION_XML_NAME + " missing";
 
 	private Map<Integer, Resource> idMap;
-	private Map<ResourceType, Map<String, Resource>> storage = new HashMap<ResourceType, Map<String, Resource>>();
+	private Map<ResourceType, Map<String, Resource>> storage = new HashMap<>();
 	private Application application;
 	private File applicationFolder;
 	private File outputFolder;
@@ -87,9 +87,9 @@ public class ApplicationResourceHolder implements Resources {
 		this.application = application;
 		this.applicationFolder = applicationFolder;
 		this.outputFolder = outputFolder;
-		idMap = new HashMap<Integer, Resource>();
+		idMap = new HashMap<>();
 		for (ResourceType type : ResourceType.values()) {
-			storage.put(type, new HashMap<String, Resource>());
+			storage.put(type, new HashMap<>());
 		}
 		load();
 		Resource applicationResource = getResource(ResourceType.APPLICATION, ResourceType.APPLICATION_XML_NAME);
@@ -126,7 +126,7 @@ public class ApplicationResourceHolder implements Resources {
 	}
 
 	public Set<Resource> getResources(ResourceType type) {
-		return Collections.unmodifiableSet(new HashSet<Resource>(storage.get(type).values()));
+		return Collections.unmodifiableSet(new HashSet<>(storage.get(type).values()));
 	}
 
 	private File getCacheDirectory(ResourceType type) {
@@ -153,11 +153,9 @@ public class ApplicationResourceHolder implements Resources {
 					if (cachedFile.exists()) {
 						FileUtils.deleteQuietly(cachedFile);
 					} else {
-						File parentFolder = cachedFile.getParentFile();
-						if (!parentFolder.exists()) {
-							FileUtils.forceMkdir(parentFolder);
+						if (!cachedFile.getParentFile().exists()) {
+							FileUtils.forceMkdir(cachedFile.getParentFile());
 						}
-						cachedFile.createNewFile();
 					}
 					try (FileOutputStream fos = new FileOutputStream(cachedFile)) {
 						fos.write(resource.getBytes());
@@ -176,7 +174,7 @@ public class ApplicationResourceHolder implements Resources {
 	}
 
 	public Set<Resource> getResources() {
-		Set<Resource> resources = new HashSet<Resource>();
+		Set<Resource> resources = new HashSet<>();
 		for (ResourceType type : ResourceType.values()) {
 			resources.addAll(storage.get(type).values());
 		}
@@ -214,7 +212,7 @@ public class ApplicationResourceHolder implements Resources {
 		Set<String> allowedFileEndings = type.getAllowedFileEndings();
 		File typeRootFolder = new File(applicationFolder, type.getFolder());
 		if (typeRootFolder.exists()) {
-			Collection<File> files = new ArrayList<File>();
+			Collection<File> files = new ArrayList<>();
 			if (type.supportsSubfolders()) {
 				String[] fileExtensions = null;
 				if (!allowedFileEndings.isEmpty()) {

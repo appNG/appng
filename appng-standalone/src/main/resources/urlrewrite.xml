@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN" "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+<urlrewrite>
+
+	<!-- see https://appng.org/appng/docs/current/reference/html/developerguide.html#beautifying-urls for details -->
+
+	<rule>
+		<from>^/$</from>
+		<to type="redirect" last="true">/manager/manager/appng-manager/sites</to>
+	</rule>
+</urlrewrite>

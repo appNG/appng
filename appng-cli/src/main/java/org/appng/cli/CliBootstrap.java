@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.BindException;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import org.appng.core.controller.PlatformStartup;
 import org.appng.core.service.DatabaseService;
 import org.appng.core.service.HsqlStarter;
 import org.hsqldb.Server;
+import org.hsqldb.server.ServerConstants;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.context.ApplicationContext;
@@ -107,6 +109,20 @@ public class CliBootstrap {
 				Properties cliConfig = getCliConfig(env, true, platformRootPath);
 
 				Server hsqlServer = HsqlStarter.startHsql(cliConfig, platformRootPath.getAbsolutePath());
+				boolean isHsql = null != hsqlServer;
+				boolean serverStarted = isHsql && ServerConstants.SERVER_STATE_ONLINE == hsqlServer.getState();
+				if (isHsql && !serverStarted) {
+					if (hsqlServer.getServerError().getClass().isAssignableFrom(BindException.class)) {
+						LOGGER.info("HSQL Server {} already running on port {}", hsqlServer.getProductVersion(),
+								hsqlServer.getPort());
+					} else {
+						LOGGER.error(
+								String.format("Failed to start HSQL Server %s on port %s",
+										hsqlServer.getProductVersion(), hsqlServer.getPort()),
+								hsqlServer.getServerError());
+						return CliCore.DATABASE_ERROR;
+					}
+				}
 
 				try {
 					ConfigurableApplicationContext context = getContext(cliConfig, CLI_CONTEXT_XML);
@@ -116,7 +132,11 @@ public class CliBootstrap {
 					cliWatch.stop();
 					LOGGER.info("duration: {}ms", cliWatch.getTotalTimeMillis());
 					context.close();
-					HsqlStarter.shutdown(hsqlServer);
+					if (serverStarted) {
+						HsqlStarter.shutdown(hsqlServer);
+					} else {
+						LOGGER.info("HSQL server was already running, shutdown not required.");
+					}
 				} catch (BeansException e) {
 					cliCore.logError("error while building context, see logs for details.");
 					LOGGER.error("error while building context", e);
@@ -159,19 +179,26 @@ public class CliBootstrap {
 
 	static Properties getCliConfig(CliBootstrapEnvironment env, boolean logInfo, File platformRootPath)
 			throws FileNotFoundException, IOException {
-		Properties config = new Properties();
-		File properties = env.getAbsoluteFile(new File(platformRootPath, PlatformStartup.CONFIG_LOCATION));
+		File configFile;
+		String appngData = System.getProperty(Platform.Property.APPNG_DATA);
+		if (StringUtils.isBlank(appngData)) {
+			configFile = new File(platformRootPath, PlatformStartup.WEB_INF + PlatformStartup.CONFIG_LOCATION);
+		} else {
+			configFile = new File(appngData, PlatformStartup.CONFIG_LOCATION);
+		}
+		File properties = env.getAbsoluteFile(configFile);
 		if (properties.exists()) {
 			if (logInfo) {
 				LOGGER.info("Using configuration file: {}", properties.getAbsolutePath());
 			}
+			Properties config = new Properties();
 			config.load(new FileReader(properties));
+			config.setProperty(Platform.Property.PLATFORM_ROOT_PATH, platformRootPath.getAbsolutePath());
+			config.put(DatabaseService.DATABASE_TYPE, config.getProperty(DatabaseService.DATABASE_TYPE).toUpperCase());
+			return config;
 		} else {
 			throw new FileNotFoundException("Configuration file not found: " + properties.getAbsolutePath());
 		}
-		config.setProperty(Platform.Property.PLATFORM_ROOT_PATH, platformRootPath.getAbsolutePath());
-		config.put(DatabaseService.DATABASE_TYPE, config.getProperty(DatabaseService.DATABASE_TYPE).toUpperCase());
-		return config;
 	}
 
 	static File getPlatformRootPath(CliBootstrapEnvironment env) {

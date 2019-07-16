@@ -23,7 +23,7 @@ import javax.persistence.Persistence;
 public class SchemaGen {
 
 	public static void main(String[] args) {
-		Map<String, String> props = new HashMap<String, String>();
+		Map<String, String> props = new HashMap<>();
 		Persistence.generateSchema("mysql-testdb", props);
 	}
 

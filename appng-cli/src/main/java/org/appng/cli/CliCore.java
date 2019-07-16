@@ -38,6 +38,7 @@ import org.appng.cli.commands.heartbeat.HeartBeat;
 import org.appng.cli.commands.permission.AddPermission;
 import org.appng.cli.commands.permission.ListPermissions;
 import org.appng.cli.commands.permission.RemovePermission;
+import org.appng.cli.commands.platform.ExtractData;
 import org.appng.cli.commands.property.CreateProperty;
 import org.appng.cli.commands.property.DeleteProperty;
 import org.appng.cli.commands.property.ListProperties;
@@ -53,6 +54,7 @@ import org.appng.cli.commands.site.ReloadSite;
 import org.appng.cli.commands.site.SetSiteActive;
 import org.appng.cli.commands.subject.CreateSubject;
 import org.appng.cli.commands.subject.DeleteSubject;
+import org.appng.cli.commands.subject.HashPassword;
 import org.appng.cli.commands.subject.ListSubjects;
 import org.appng.cli.commands.template.DeleteTemplate;
 import org.appng.cli.commands.template.InstallTemplate;
@@ -128,12 +130,14 @@ public class CliCore {
 
 		commands.add("list-subjects", new ListSubjects());
 		commands.add("create-subject", new CreateSubject());
+		commands.add("hash-pw", new HashPassword());
 		commands.add("delete-subject", new DeleteSubject());
 
 		commands.add("install-template", new InstallTemplate());
 		commands.add("delete-template", new DeleteTemplate());
 
 		commands.add("heartbeat", new HeartBeat());
+		commands.add("extract-data", new ExtractData());
 
 		commands.add(COMMAND_BATCH, new CommandBatch());
 

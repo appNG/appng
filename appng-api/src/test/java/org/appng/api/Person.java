@@ -61,16 +61,16 @@ public class Person implements Named<Integer> {
 
 	private String description;
 
-	private List<Integer> integerList = new ArrayList<Integer>();
+	private List<Integer> integerList = new ArrayList<>();
 
-	private List<String> strings = new ArrayList<String>();
+	private List<String> strings = new ArrayList<>();
 
 	@Valid
-	private List<Person> offsprings = new ArrayList<Person>();
+	private List<Person> offsprings = new ArrayList<>();
 
 	private FormUpload picture;
 
-	private List<FormUpload> morePictures = new ArrayList<FormUpload>();
+	private List<FormUpload> morePictures = new ArrayList<>();
 
 	private Date version;
 
@@ -264,7 +264,7 @@ public class Person implements Named<Integer> {
 	}
 
 	public Map<String, Person> getOffspringNames() {
-		Map<String, Person> map = new HashMap<String, Person>();
+		Map<String, Person> map = new HashMap<>();
 		for (Person p : offsprings) {
 			map.put(p.getName(), p);
 		}

@@ -250,11 +250,11 @@ public class LdapService {
 		if (loginUser(site, username, password)) {
 			return getUserGroups(username, site, subject, groupNames);
 		}
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	private List<String> getUserGroups(String username, Site site, SubjectImpl subject, List<String> groupNames) {
-		List<String> userGroups = new ArrayList<String>();
+		List<String> userGroups = new ArrayList<>();
 
 		String serviceUser = site.getProperties().getString(LDAP_USER);
 		char[] servicePassword = site.getProperties().getString(LDAP_PASSWORD).toCharArray();
@@ -270,8 +270,8 @@ public class LdapService {
 				Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
 				for (String member : getMemberNames(memberAttrs)) {
 					Attributes userAttrs = ctx.getAttributes(member);
-					String id = (String) userAttrs.get(idAttribute).get();
-					String realName = (String) userAttrs.get(CN_ATTRIBUTE).get();
+					String id = getAttribute(userAttrs, idAttribute);
+					String realName = getAttribute(userAttrs, CN_ATTRIBUTE);
 					if (username.equalsIgnoreCase(id)) {
 						userGroups.add(group);
 						subject.setName(username);
@@ -299,7 +299,7 @@ public class LdapService {
 	 * @return the members of the groupName (may be empty)
 	 */
 	public List<SubjectImpl> getMembersOfGroup(Site site, String groupName) {
-		List<SubjectImpl> subjects = new ArrayList<SubjectImpl>();
+		List<SubjectImpl> subjects = new ArrayList<>();
 
 		String serviceUser = site.getProperties().getString(LDAP_USER);
 		char[] servicePassword = site.getProperties().getString(LDAP_PASSWORD).toCharArray();
@@ -314,13 +314,10 @@ public class LdapService {
 			Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
 			for (String member : getMemberNames(memberAttrs)) {
 				Attributes userAttrs = ctx.getAttributes(member);
-				String realName = (String) userAttrs.get(CN_ATTRIBUTE).get();
-				String username = (String) userAttrs.get(idAttribute).get();
-				String email = (String) userAttrs.get(MAIL_ATTRIBUTE).get();
 				SubjectImpl ldapSubject = new SubjectImpl();
-				ldapSubject.setName(username);
-				ldapSubject.setRealname(realName);
-				ldapSubject.setEmail(email.toLowerCase());
+				ldapSubject.setName(getAttribute(userAttrs, idAttribute));
+				ldapSubject.setRealname(getAttribute(userAttrs, CN_ATTRIBUTE));
+				ldapSubject.setEmail(getAttribute(userAttrs, MAIL_ATTRIBUTE).toLowerCase());
 				subjects.add(ldapSubject);
 			}
 		} catch (IOException | NamingException ex) {
@@ -330,6 +327,11 @@ public class LdapService {
 		}
 
 		return subjects;
+	}
+
+	private String getAttribute(Attributes attrs, String attribute) throws NamingException {
+		Attribute attr = attrs.get(attribute);
+		return null == attr ? null : ((String) attr.get());
 	}
 
 	private LdapContext getContext(LdapCredentials ldapCredentials) throws NamingException, IOException {
@@ -388,7 +390,7 @@ public class LdapService {
 		if (memberAttr == null)
 			return Collections.emptyList();
 		else {
-			List<String> result = new ArrayList<String>();
+			List<String> result = new ArrayList<>();
 			NamingEnumeration<?> memberAttrEnum = memberAttr.getAll();
 			while (memberAttrEnum.hasMoreElements())
 				result.add(memberAttrEnum.nextElement().toString());

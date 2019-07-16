@@ -112,7 +112,7 @@ public class ElementHelper {
 		if (null != linkpanel) {
 			List<Linkpanel> out = null;
 			if (null != linkpanel) {
-				out = new ArrayList<Linkpanel>();
+				out = new ArrayList<>();
 				for (Linkpanel panel : linkpanel) {
 					Linkpanel outPanel = initLinkpanel(applicationRequest, pathInfo, panel, parameterSupport);
 					if (null != outPanel) {
@@ -156,11 +156,11 @@ public class ElementHelper {
 						outPanel.getLinks().add(link);
 						String currentTarget = link.getTarget();
 						String newTarget = parameterSupport.replaceParameters(currentTarget);
-						if (link.getMode().equals(Linkmode.WEBSERVICE)) {
+						if (Linkmode.WEBSERVICE.equals(link.getMode())) {
 							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
 									+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
 						}
-						if (link.getMode().equals(Linkmode.REST)) {
+						if (Linkmode.REST.equals(link.getMode())) {
 							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
 									+ Platform.SERVICE_TYPE_REST + SLASH + newTarget;
 						}
@@ -198,7 +198,7 @@ public class ElementHelper {
 		Linkpanel navigation = applicationRequest.getApplicationConfig().getApplicationRootConfig().getNavigation();
 		if (null != navigation) {
 			navigation = initLinkpanel(applicationRequest, pathInfo, navigation, parameterSupport);
-			if (null != pageLinks) {
+			if (!(null == pageLinks || null == navigation)) {
 				List<Link> links = navigation.getLinks();
 				for (Link link : links) {
 					pageLinks.getLinks().add(link);
@@ -298,7 +298,7 @@ public class ElementHelper {
 	 */
 	private List<FieldDef> filterFieldDefinitions(ApplicationRequest request, List<FieldDef> fieldDefinitions,
 			boolean write) {
-		List<FieldDef> fields = new ArrayList<FieldDef>();
+		List<FieldDef> fields = new ArrayList<>();
 		PermissionProcessor permissionProcessor = request.getPermissionProcessor();
 		if (null != fieldDefinitions) {
 			for (FieldDef fieldDef : fieldDefinitions) {
@@ -339,8 +339,8 @@ public class ElementHelper {
 	Map<String, String> initializeParameters(String reference, ApplicationRequest applicationRequest,
 			ParameterSupport parameterSupport, Params referenceParams, Params executionParams)
 			throws ProcessingException {
-		Map<String, String> executionParameters = new HashMap<String, String>();
-		Map<String, String> referenceParameters = new HashMap<String, String>();
+		Map<String, String> executionParameters = new HashMap<>();
+		Map<String, String> referenceParameters = new HashMap<>();
 		if (null != referenceParams) {
 			for (Param p : referenceParams.getParam()) {
 				String newValue = parameterSupport.replaceParameters(p.getValue());
@@ -501,7 +501,7 @@ public class ElementHelper {
 	}
 
 	public Class<?>[] getValidationGroups(MetaData metaData, Object bindObject) {
-		List<Class<?>> groups = new ArrayList<Class<?>>();
+		List<Class<?>> groups = new ArrayList<>();
 		ValidationGroups validationGroups = metaData.getValidation();
 		if (null != validationGroups) {
 			getExpressionEvaluator().setVariable(AdapterBase.CURRENT, bindObject);

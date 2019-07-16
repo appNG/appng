@@ -34,7 +34,7 @@ public class OptionImpl implements Option {
 
 	private static final Pattern INT_PATTERN = Pattern.compile("[+-]?[\\d]+");
 	private final String name;
-	private Map<String, String> attributeMap = new HashMap<String, String>();
+	private Map<String, String> attributeMap = new HashMap<>();
 
 	public OptionImpl(String name) {
 		this.name = name;

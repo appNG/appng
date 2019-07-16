@@ -83,11 +83,12 @@ public class WritingXmlValidator {
 	 */
 	public static File writeToDisk(Object data, String name) throws IOException {
 		File target = new File(controlFileSource + name);
-		FileOutputStream out = new FileOutputStream(target);
-		try {
-			getMarshallService().marshallNonRoot(data, out);
-		} catch (JAXBException e) {
-			throw new IOException("error while marshalling " + data, e);
+		try (FileOutputStream out = new FileOutputStream(target)) {
+			try {
+				getMarshallService().marshallNonRoot(data, out);
+			} catch (JAXBException e) {
+				throw new IOException("error while marshalling " + data, e);
+			}
 		}
 		return target;
 	}
@@ -105,9 +106,9 @@ public class WritingXmlValidator {
 	 */
 	public static File writeToDiskPlain(String data, String name) throws IOException {
 		File target = new File(controlFileSource + name);
-		FileOutputStream out = new FileOutputStream(target);
-		out.write(data.getBytes());
-		out.close();
+		try (FileOutputStream out = new FileOutputStream(target)) {
+			out.write(data.getBytes());
+		}
 		return target;
 	}
 

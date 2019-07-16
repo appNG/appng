@@ -47,6 +47,7 @@ import org.appng.api.Webservice;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
@@ -147,10 +148,12 @@ public class ServiceRequestHandler implements RequestHandler {
 	protected static final String FORMAT_XML = "xml";
 	private MarshallService marshallService;
 	private PlatformTransformer transformer;
+	private final File debugFolder;
 
-	public ServiceRequestHandler(MarshallService marshallService, PlatformTransformer transformer) {
+	public ServiceRequestHandler(MarshallService marshallService, PlatformTransformer transformer, File debugFolder) {
 		this.marshallService = marshallService;
 		this.transformer = transformer;
+		this.debugFolder = debugFolder;
 	}
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
@@ -164,16 +167,27 @@ public class ServiceRequestHandler implements RequestHandler {
 				String applicationName = path.getApplicationName();
 				String serviceType = path.getElementAt(path.getApplicationIndex() + 1);
 
-				Site siteToUse = RequestUtil.getSiteByName(environment, siteName);
+				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
-					throw new IOException("no such site: " + siteName);
+					LOGGER.warn("No such site: '{}', returning {} (path: {})", siteName, HttpStatus.NOT_FOUND.value(),
+							path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
+				} else if (!siteToUse.hasState(SiteState.STARTED)) {
+					LOGGER.warn("Site '{}' is in state {}, returning {} (path: {})", siteName, siteToUse.getState(),
+							HttpStatus.SERVICE_UNAVAILABLE.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+					return;
 				}
 				URLClassLoader siteClassLoader = siteToUse.getSiteClassLoader();
 				Thread.currentThread().setContextClassLoader(siteClassLoader);
 				ApplicationProvider application = (ApplicationProvider) ((SiteImpl) siteToUse)
 						.getSiteApplication(applicationName);
 				if (null == application) {
-					throw new IOException("no such application: " + applicationName);
+					LOGGER.warn("No such application '{}' for site '{}' returning {} (path: {})", applicationName,
+							siteName, HttpStatus.NOT_FOUND.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
 				}
 				ApplicationRequest applicationRequest = application.getApplicationRequest(servletRequest,
 						servletResponse);
@@ -273,7 +287,7 @@ public class ServiceRequestHandler implements RequestHandler {
 		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
 		String platformXml = retrievePlatform(environment, path, siteToUse, element, platformProperties);
-		return transformer.transform(application, platformProperties, platformXml, charsetName);
+		return transformer.transform(application, platformProperties, platformXml, charsetName, debugFolder);
 	}
 
 	protected String retrievePlatform(Environment environment, Path path, Site siteToUse, Object element,

@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
@@ -40,9 +41,11 @@ import org.appng.api.SoapService;
 import org.appng.api.VHostMode;
 import org.appng.api.Webservice;
 import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.RequestSupportImpl;
@@ -105,14 +108,14 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	private MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
 	public ServiceRequestHandlerTest() throws JAXBException {
-		super(MarshallService.getMarshallService(), new PlatformTransformer());
+		super(MarshallService.getMarshallService(), new PlatformTransformer(), null);
 	}
 
 	@Test
 	public void testSoap() throws Exception {
 		String servletPath = "/services/site1/appng-demoapplication/soap/personService/personService.wsdl";
 		setup(servletPath);
-		List<String> emptyList = new ArrayList<String>();
+		List<String> emptyList = new ArrayList<>();
 		PathInfo pathInfo = new PathInfo("localhost", "localhost", "localhost", servletPath, "/ws", "/services",
 				emptyList, emptyList, "", "");
 		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathInfo);
@@ -167,7 +170,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		ac.refresh();
 		setup(servletPath, ac);
 		servletRequest.setMethod(HttpMethod.GET.name());
-		List<String> emptyList = new ArrayList<String>();
+		List<String> emptyList = new ArrayList<>();
 		PathInfo pathInfo = new PathInfo("localhost", "localhost", "localhost", servletPath, "/ws", "/services",
 				emptyList, emptyList, "", "");
 		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathInfo);
@@ -299,10 +302,9 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	@Test
 	public void testActionJson() throws Exception {
 		String trimmed = getAction(FORMAT_JSON);
-		Assert.assertEquals(
-				"{\"action\" : "
-						+ "{\"messages\" : {\"messageList\" : [ {\"content\" : \"Action-Call\",\"ref\" : \"create\"} ],"
-						+ "\"ref\" : \"create\"},\"id\" : \"create\",\"eventId\" : \"siteEvent\",\"async\" : \"false\"}}",
+		Assert.assertEquals("{\"action\" : "
+				+ "{\"messages\" : {\"messageList\" : [ {\"content\" : \"Action-Call\",\"ref\" : \"create\"} ],"
+				+ "\"ref\" : \"create\"},\"id\" : \"create\",\"eventId\" : \"siteEvent\",\"async\" : \"false\"}}",
 				trimmed);
 		Assert.assertEquals(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON, servletResponse.getContentType());
 	}
@@ -332,13 +334,36 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	}
 
 	@Test
-	public void testError() throws Exception {
-		String servletPath = "/services/foo/bar?jin=fizz";
+	public void testNoSite() throws Exception {
+		testNotFound("/services/foo/bar?jin=fizz");
+	}
+
+	@Test
+	public void testSiteNotStarted() throws Exception {
+		PathInfo pathInfo = setupPath("/services/localhost/foobar");
+		site.setState(SiteState.STARTING);
+		handle(servletRequest, servletResponse, environment, site, pathInfo);
+		Assert.assertEquals(StringUtils.EMPTY, servletResponse.getContentAsString());
+		Assert.assertNull(servletResponse.getContentType());
+		Assert.assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), servletResponse.getStatus());
+	}
+
+	@Test
+	public void testNoApp() throws Exception {
+		testNotFound("/services/localhost/bar?jin=fizz");
+	}
+
+	@Test
+	public void testNoWebservice() throws Exception {
+		testNotFound("/services/localhost/appng-demoapplication/webservice/foobar");
+	}
+
+	private void testNotFound(String servletPath) throws JAXBException, IOException, UnsupportedEncodingException {
 		PathInfo pathInfo = setupPath(servletPath);
 		handle(servletRequest, servletResponse, environment, site, pathInfo);
-		Assert.assertEquals("an error occured", servletResponse.getContentAsString());
-		Assert.assertEquals(HttpHeaders.CONTENT_TYPE_TEXT_PLAIN, servletResponse.getContentType());
-		Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), servletResponse.getStatus());
+		Assert.assertEquals(StringUtils.EMPTY, servletResponse.getContentAsString());
+		Assert.assertNull(servletResponse.getContentType());
+		Assert.assertEquals(HttpStatus.NOT_FOUND.value(), servletResponse.getStatus());
 	}
 
 	private void setup(String servletPath) throws JAXBException {
@@ -351,11 +376,12 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		servletRequest.setServletPath(servletPath);
 		servletRequest.setRequestURI(servletPath);
 		servletResponse.setWriterAccessAllowed(true);
-		List<Property> platformProps = new ArrayList<Property>();
+		List<Property> platformProps = new ArrayList<>();
 		platformProps.add(new PropertyImpl(PropertySupport.PREFIX_PLATFORM + Platform.Property.VHOST_MODE,
 				VHostMode.NAME_BASED.name()));
 		platformProps
 				.add(new PropertyImpl(PropertySupport.PREFIX_PLATFORM + Platform.Property.MAX_UPLOAD_SIZE, "10000"));
+		platformProps.add(new PropertyImpl(PropertySupport.PREFIX_PLATFORM + Platform.Property.MAX_WAIT_TIME, "1000"));
 		PropertyHolder properties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, platformProps);
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(properties);
@@ -392,6 +418,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 				Arrays.asList(new SimpleProperty("permissionsEnabled", Boolean.TRUE.toString())));
 		Mockito.when(application.getProperties()).thenReturn(applicationProps);
 		site = new SiteImpl();
+		site.setState(SiteState.STARTED);
 		site.setHost("localhost");
 		site.setName("localhost");
 		site.setDomain("localhost");
@@ -432,9 +459,10 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		};
 		site.getSiteApplications().add(applicationProvider);
 		site.setProperties(new PropertyHolder());
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(site.getName(), site);
 		SiteImpl site1 = new SiteImpl();
+		site1.setState(SiteState.STARTED);
 		site1.setHost("site1");
 		site1.setName("site1");
 		site1.setDomain("site1");

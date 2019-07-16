@@ -73,7 +73,7 @@ public class FormConfirmation extends BodyTagSupport implements ParameterOwner {
 			throw new JspTagException("<formConfirmation> can only be used inside <form>!");
 		}
 		getForm().setFormConfirmation(this);
-		tagletAttributes = new HashMap<String, String>();
+		tagletAttributes = new HashMap<>();
 
 		switch (getWrappedFormConfirmation().getMode()) {
 
@@ -115,7 +115,7 @@ public class FormConfirmation extends BodyTagSupport implements ParameterOwner {
 				wrappedForm.getRequest().getParameters()) {
 		};
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		for (String paramName : tagletAttributes.keySet()) {
 			parameters.put(paramName, parameterSupport.replaceParameters(tagletAttributes.get(paramName)));
 		}

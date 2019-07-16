@@ -42,9 +42,9 @@ public class MailImpl implements Mail {
 	private String encoding;
 
 	MailImpl() {
-		this.replyTo = new ArrayList<Receiver>();
-		this.receivers = new ArrayList<Receiver>();
-		this.attachments = new ArrayList<Attachment>();
+		this.replyTo = new ArrayList<>();
+		this.receivers = new ArrayList<>();
+		this.attachments = new ArrayList<>();
 	}
 
 	public Mail addReceiver(Receiver receiver) {

@@ -41,9 +41,9 @@ public class IndexConfig {
 
 	private static final String SLASH = "/";
 
-	private List<ConfigEntry> entries = new ArrayList<IndexConfig.ConfigEntry>();
+	private List<ConfigEntry> entries = new ArrayList<>();
 
-	private Map<String, ConfigEntry> entryMap = new HashMap<String, IndexConfig.ConfigEntry>();
+	private Map<String, ConfigEntry> entryMap = new HashMap<>();
 
 	private OpenMode openMode;
 
@@ -173,7 +173,7 @@ public class IndexConfig {
 	}
 
 	public SortedSet<String> getFolders() {
-		SortedSet<String> folders = new TreeSet<String>();
+		SortedSet<String> folders = new TreeSet<>();
 		folders.addAll(entryMap.keySet());
 		return folders;
 	}

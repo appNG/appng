@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,7 +73,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RedirectFilter extends UrlRewriteFilter {
 
-	private static ConcurrentMap<String, CachedUrlRewriter> REWRITERS = new ConcurrentHashMap<String, CachedUrlRewriter>();
+	private static ConcurrentMap<String, CachedUrlRewriter> REWRITERS = new ConcurrentHashMap<>();
 	private FilterConfig filterConfig;
 
 	@Override
@@ -116,7 +117,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 		public CachedUrlRewriter(UrlRewriteConfig conf, String domain, String jspType) {
 			super(conf);
 			created = System.currentTimeMillis();
-			redirectRules = new ArrayList<RedirectRule>();
+			redirectRules = new ArrayList<>();
 			for (Rule rule : conf.getRules()) {
 				if (rule instanceof NormalRule) {
 					NormalRule normalRule = (NormalRule) rule;
@@ -180,7 +181,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 
 		Element rootElement = doc.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
-		List<Node> deprecatedNodes = new ArrayList<Node>();
+		List<Node> deprecatedNodes = new ArrayList<>();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE && !"rule".equals(node.getNodeName())) {
@@ -255,12 +256,10 @@ public class RedirectFilter extends UrlRewriteFilter {
 	}
 
 	private static URL getConfPath(Environment env, Site site) {
-		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String repositoryDirectory = platformProperties.getString(Platform.Property.REPOSITORY_PATH);
+		String rootPath = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 		String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
-		String confPath = repositoryDirectory + "/" + site.getName() + rewriteConfig;
 		try {
-			return ((DefaultEnvironment) env).getServletContext().getResource(confPath);
+			return Paths.get(rootPath, rewriteConfig).toUri().toURL();
 		} catch (MalformedURLException e) {
 			LOGGER.warn(String.format("unable to read redirects for site '%s'", site.getName()), e);
 		}

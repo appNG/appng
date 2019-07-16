@@ -173,7 +173,7 @@ public final class PermissionOwner {
 
 	private void setPermissions(Permissions permissions) {
 		if (null == permissions) {
-			this.permissions = Collections.unmodifiableList(new ArrayList<Permission>());
+			this.permissions = Collections.unmodifiableList(new ArrayList<>());
 		} else {
 			this.permissions = Collections.unmodifiableList(permissions.getPermissionList());
 		}

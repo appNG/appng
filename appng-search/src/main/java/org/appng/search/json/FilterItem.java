@@ -25,7 +25,7 @@ import org.appng.api.model.Named;
 public class FilterItem {
 
 	private FilterConfig config;
-	private List<FilterData> data = new ArrayList<FilterData>();
+	private List<FilterData> data = new ArrayList<>();
 
 	public FilterConfig getConfig() {
 		return config;

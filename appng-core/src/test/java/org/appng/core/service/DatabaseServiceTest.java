@@ -40,7 +40,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = DatabaseServiceTest.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
 @DirtiesContext
 public class DatabaseServiceTest extends TestInitializer {
 

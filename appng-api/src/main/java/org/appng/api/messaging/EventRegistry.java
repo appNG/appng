@@ -36,7 +36,7 @@ import org.appng.api.model.Site;
  */
 public class EventRegistry {
 
-	private Map<Class<? extends Event>, List<EventHandler<? extends Event>>> handlers = new ConcurrentHashMap<Class<? extends Event>, List<EventHandler<? extends Event>>>();
+	private Map<Class<? extends Event>, List<EventHandler<? extends Event>>> handlers = new ConcurrentHashMap<>();
 	private EventHandler<? extends Event> defaultHandler;
 
 	/**

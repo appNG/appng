@@ -26,7 +26,7 @@ abstract class FormElementOwner {
 
 	FormElementOwner(Form form) {
 		this.form = form;
-		this.elements = new ArrayList<FormElement>();
+		this.elements = new ArrayList<>();
 	}
 
 	abstract FormElement addFormElement();

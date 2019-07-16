@@ -18,23 +18,27 @@ package org.appng.core.controller;
 import static org.appng.api.Scope.REQUEST;
 import static org.appng.api.Scope.SESSION;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.catalina.ContainerServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.servlets.DefaultServlet;
-import org.apache.catalina.util.ServerInfo;
+import org.apache.commons.io.output.NullOutputStream;
 import org.appng.api.Environment;
 import org.appng.api.Path;
 import org.appng.api.PathInfo;
@@ -63,8 +67,8 @@ import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The controller {@link Servlet} of appNG, delegating {@link HttpServletRequest}s to an appropriate
- * {@link RequestHandler}.
+ * The controller {@link Servlet} of appNG, delegating
+ * {@link HttpServletRequest}s to an appropriate {@link RequestHandler}.
  * 
  * @author Matthias Müller
  */
@@ -80,70 +84,54 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTP = "http://";
 
 	/**
-	 * a boolean flag to be set in the {@link Environment} with {@link Scope#SESSION}, indicating that
-	 * {@link #expireSessions(HttpServletRequest, Environment, Site)} should be called
+	 * a boolean flag to be set in the {@link Environment} with
+	 * {@link Scope#SESSION}, indicating that
+	 * {@link #expireSessions(Environment, Site)} should be called
 	 */
 	public static final String EXPIRE_SESSIONS = "expireSessions";
+	protected static final String SESSION_MANAGER = "sessionManager";
 
 	protected JspHandler jspHandler;
 
 	private Manager manager;
 
-	private Support support;
-
 	public Controller() {
 		LOGGER.info("Controller created");
 	}
 
-	/** a SPI to support different versions of Tomcat */
-	interface Support {
-		void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding)
-				throws IOException, ServletException;
-
-		HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response);
-
-		void init(ServletConfig config) throws ServletException;
-	}
-
-	protected void setSupport(Support support) {
-		this.support = support;
-	}
-
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		try {
-			char tomcatMajor = ServerInfo.getServerNumber().charAt(0);
-			Class<?> supportClassName = Class
-					.forName(String.format("org.appng.core.controller.Tomcat%sSupport", tomcatMajor));
-			setSupport((Support) supportClassName.newInstance());
-			LOGGER.debug("created {}", support.getClass().getName());
-		} catch (ReflectiveOperationException o) {
-			throw new ServletException("error while creating Controller.Support", o);
-		}
-		support.init(config);
-	}
-
-	// for Tomcat 7 compatibility
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content)
+	protected void doHead(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		support.serveResource(request, response, content, null);
+		doGet(request, wrapResponseForHeadRequest(response));
 	}
 
-	@Override
-	protected void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content,
-			String encoding) throws IOException, ServletException {
-		support.serveResource(request, response, content, encoding);
+	private HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response) {
+		return new HttpServletResponseWrapper(response) {
+			@Override
+			public ServletOutputStream getOutputStream() throws IOException {
+				return new ServletOutputStream() {
+
+					public void write(int b) throws IOException {
+					}
+
+					public boolean isReady() {
+						return false;
+					}
+
+					public void setWriteListener(WriteListener listener) {
+					}
+				};
+			}
+
+			@Override
+			public PrintWriter getWriter() throws IOException {
+				return new PrintWriter(new NullOutputStream());
+			}
+		};
 	}
 
 	public void serveResource(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		serveResource(request, response, true, null);
-	}
-
-	protected void doHead(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
-		doGet(request, support.wrapResponseForHeadRequest(response));
 	}
 
 	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
@@ -191,39 +179,15 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, true);
 
-		expireSessions(servletRequest, env, site);
+		expireSessions(env, site);
 
 		if (site != null) {
 			try {
 				int requests = ((SiteImpl) site).addRequest();
 				LOGGER.debug("site {} currently handles {} requests", site, requests);
-				long waited = 0;
-				int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
-				int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+				site = RequestUtil.waitForSite(env, site.getName());
 
-				while (waited < maxWaitTime && (site = RequestUtil.getSiteByName(env, site.getName()))
-						.hasState(SiteState.STOPPING, SiteState.STOPPED)) {
-					try {
-						Thread.sleep(waitTime);
-						waited += waitTime;
-					} catch (InterruptedException e) {
-						LOGGER.error("error while waiting for site to be started", e);
-					}
-					LOGGER.info("site '{}' is currently beeing stopped, waited {}ms", site, waited);
-				}
-
-				while (waited < maxWaitTime
-						&& (site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTING)) {
-					try {
-						Thread.sleep(waitTime);
-						waited += waitTime;
-					} catch (InterruptedException e) {
-						LOGGER.error("error while waiting for site to be started", e);
-					}
-					LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
-				}
-
-				if ((site = RequestUtil.getSiteByName(env, site.getName())).hasState(SiteState.STARTED)) {
+				if (site.hasState(SiteState.STARTED)) {
 					boolean enforcePrimaryDomain = site.getProperties()
 							.getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
 					if (enforcePrimaryDomain) {
@@ -239,6 +203,11 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
 
 					RequestHandler requestHandler = null;
+					String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
+					File debugFolder = new File(appngData, "debug").getAbsoluteFile();
+					if (!(debugFolder.exists() || debugFolder.mkdirs())) {
+						LOGGER.warn("Failed to create {}", debugFolder.getPath());
+					}
 
 					if (("/".equals(servletPath)) || ("".equals(servletPath)) || (null == servletPath)) {
 						if (!pathInfo.getDocumentDirectories().isEmpty()) {
@@ -253,13 +222,13 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 							|| pathInfo.isDocument()) {
 						requestHandler = new StaticContentHandler(this);
 					} else if (pathInfo.isGui()) {
-						requestHandler = new GuiHandler();
+						requestHandler = new GuiHandler(debugFolder);
 					} else if (pathInfo.isService()) {
 						ApplicationContext ctx = env.getAttribute(Scope.PLATFORM,
 								Platform.Environment.CORE_PLATFORM_CONTEXT);
 						MarshallService marshallService = ctx.getBean(MarshallService.class);
 						PlatformTransformer platformTransformer = ctx.getBean(PlatformTransformer.class);
-						requestHandler = new ServiceRequestHandler(marshallService, platformTransformer);
+						requestHandler = new ServiceRequestHandler(marshallService, platformTransformer, debugFolder);
 					} else if (pathInfo.isJsp()) {
 						requestHandler = jspHandler;
 					} else if (ERRORPAGE.equals(servletPath)) {
@@ -277,7 +246,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					if (null != requestHandler) {
 						if (site.hasState(SiteState.STARTED)) {
 							requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
-							if (pathInfo.isGui()) {
+							if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
 								getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
 										EnvironmentKeys.PREVIOUS_PATH, servletPath);
 							}
@@ -288,7 +257,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					}
 
 				} else {
-					LOGGER.error("timeout while waiting for site {}, waited {}ms", site, waited);
+					LOGGER.error("timeout while waiting for site {}", site);
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 				}
 			} finally {
@@ -319,10 +288,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			env.setAttribute(REQUEST, EnvironmentKeys.BASE_URL, pathInfo.getRootPath());
 		}
 		env.setAttribute(REQUEST, EnvironmentKeys.PATH_INFO, pathInfo);
-		Boolean doXsl = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("xsl"));
-		Boolean showXsl = Boolean.TRUE.toString().equalsIgnoreCase(request.getParameter("showXsl"));
-		env.setAttribute(REQUEST, EnvironmentKeys.DO_XSL, doXsl);
-		env.setAttribute(REQUEST, EnvironmentKeys.SHOW_XSL, showXsl);
+		Boolean render = !Boolean.FALSE.toString().equalsIgnoreCase(request.getParameter("render"));
+		env.setAttribute(REQUEST, EnvironmentKeys.RENDER, render);
 		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 		env.setAttribute(REQUEST, HttpHeaders.USER_AGENT, null == userAgent ? "unknown" : userAgent);
 	}
@@ -339,19 +306,21 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	public void setWrapper(Wrapper wrapper) {
 		Context context = ((Context) wrapper.getParent());
+		this.manager = context.getManager();
+		context.getServletContext().setAttribute(SESSION_MANAGER, manager);
 		Environment env = DefaultEnvironment.get(context.getServletContext());
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
 		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));
-		this.manager = context.getManager();
 	}
 
-	protected void expireSessions(HttpServletRequest servletRequest, Environment env, Site site) {
+	protected void expireSessions(Environment env, Site site) {
 		if (null != manager && Boolean.TRUE.equals(env.removeAttribute(SESSION, EXPIRE_SESSIONS))) {
 			List<org.appng.core.controller.Session> sessions = env.getAttribute(Scope.PLATFORM,
 					SessionListener.SESSIONS);
 			for (org.appng.core.controller.Session session : sessions) {
-				org.apache.catalina.Session containerSession = getContainerSession(session.getId());
+				org.apache.catalina.Session containerSession = SessionListener.getContainerSession(manager,
+						session.getId());
 				if (null != containerSession) {
 					if (session.isExpired()) {
 						LOGGER.info("expiring session {}", session.getId());
@@ -367,16 +336,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		}
 	}
 
-	private org.apache.catalina.Session getContainerSession(String sessionId) {
-		try {
-			return manager.findSession(sessionId);
-		} catch (IOException e) {
-			LOGGER.warn(String.format("error while retrieving session %s", sessionId), e);
-		}
-		return null;
-	}
-
 	public JspHandler getJspHandler() {
 		return jspHandler;
 	}
+
 }

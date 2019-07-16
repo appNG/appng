@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FieldConversionFactory implements FieldConverter, InitializingBean {
 
-	private Map<FieldType, FieldConverter> converters = new HashMap<FieldType, FieldConverter>();
+	private Map<FieldType, FieldConverter> converters = new HashMap<>();
 
 	private Environment environment;
 	private MessageSource messageSource;

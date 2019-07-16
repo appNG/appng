@@ -56,7 +56,7 @@ public class SignerTest {
 		Assert.assertArrayEquals(expectedSig, signRepo.getSignature());
 	}
 
-	@Test
+	@Test(expected = SigningException.class)
 	public void testVerfiy() throws IOException {
 		ValidatorConfig config = new ValidatorConfig();
 		config.setSigningCert(FileUtils.readFileToByteArray(certFile), SigningAlgorithm.SHA512withRSA);

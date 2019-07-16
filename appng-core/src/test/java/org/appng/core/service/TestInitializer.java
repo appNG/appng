@@ -23,7 +23,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 public class TestInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
 	protected boolean showSql = false;
-	public static final String PLATFORM_CONTEXT = "classpath:platformContext.xml";
 
 	public void initialize(ConfigurableApplicationContext applicationContext) {
 		java.util.Properties properties = getProperties();

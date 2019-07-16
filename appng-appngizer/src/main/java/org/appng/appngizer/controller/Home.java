@@ -43,9 +43,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -60,7 +60,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 	static final String ROOT = "/";
 	ExecutorService executor;
 
-	@RequestMapping(value = ROOT, method = RequestMethod.POST)
+	@PostMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> login(@RequestBody String sharedSecret,
 			HttpServletRequest request) {
 		String platformSecret = getSharedSecret();
@@ -74,7 +74,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 		return welcome();
 	}
 
-	@RequestMapping(value = ROOT, method = RequestMethod.GET)
+	@GetMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> welcome() {
 		String appngVersion = (String) context.getAttribute(AppNGizer.APPNG_VERSION);
 		boolean dbInitialized = getDatabaseStatus() != null;
@@ -125,10 +125,10 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 
 	protected Properties initPlatform(java.util.Properties defaultOverrides, Environment env) {
 		String rootPath = (String) context.getAttribute(AppNGizer.APPNG_HOME);
-		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, true, true);
+		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, false);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
-		Map<String, org.appng.api.model.Site> siteMap = new HashMap<String, org.appng.api.model.Site>();
+		Map<String, org.appng.api.model.Site> siteMap = new HashMap<>();
 		for (SiteImpl site : getCoreService().getSites()) {
 			if (site.isActive()) {
 				SiteImpl s = getCoreService().getSite(site.getId());

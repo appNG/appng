@@ -85,7 +85,7 @@ public class TemplateService {
 		ZipFileProcessor<Template> templateExtractor = new ZipFileProcessor<Template>() {
 			public Template process(ZipFile zipFile) throws IOException {
 				org.appng.xml.application.Template templateXml = null;
-				List<TemplateResource> resources = new ArrayList<TemplateResource>();
+				List<TemplateResource> resources = new ArrayList<>();
 				try {
 					Enumeration<ZipArchiveEntry> entries = zipFile.getEntriesInPhysicalOrder();
 					MarshallService applicationMarshallService = MarshallService.getApplicationMarshallService();
@@ -210,7 +210,7 @@ public class TemplateService {
 	 * @return a list containing the {@link Identifier}s of all installed templates
 	 */
 	public List<Identifier> getInstalledTemplates() {
-		return new ArrayList<Identifier>(templateRepository.findAll());
+		return new ArrayList<>(templateRepository.findAll());
 	}
 
 	class TemplateIdentifier implements Identifier {
@@ -365,7 +365,7 @@ public class TemplateService {
 		return templateRepository.findByName(name);
 	}
 
-	public Integer deleteTemplate(Template template, Properties platformConfig) {
+	public Integer deleteTemplate(Template template) {
 		if (null == template) {
 			return -1;
 		}
