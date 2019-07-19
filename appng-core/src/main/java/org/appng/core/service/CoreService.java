@@ -599,6 +599,31 @@ public class CoreService {
 		return false;
 	}
 
+	public boolean loginUserWithGroups(Environment env, String userName, String email, String realName,
+			List<String> appNGGroups) {
+		List<Group> groups = groupRepository.findByNameIn(appNGGroups);
+		if (groups.isEmpty()) {
+			return false;
+		}
+		SubjectImpl subject = new SubjectImpl();
+		subject.setEmail(email);
+		subject.setName(userName);
+		subject.setRealname(realName);
+		subject.setGroups(groups);
+		initializeSubject(subject);
+		return login(env, subject);
+	}
+
+	public boolean loginByUserName(Environment env, String username) {
+		Subject subject = getSubjectByName(username, true);
+		if (null != subject && UserType.LOCAL_USER.equals(subject.getUserType())) {
+			return login(env, subject);
+		} else {
+			LOGGER.info("User {} not found or not a local user!", username);
+			return false;
+		}
+	}
+
 	private boolean login(Environment env, Subject subject) {
 		if (subject != null) {
 			initAuthenticatedSubject(subject);
