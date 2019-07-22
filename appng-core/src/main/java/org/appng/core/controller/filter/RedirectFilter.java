@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,8 +48,6 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tuckey.web.filters.urlrewrite.Conf;
 import org.tuckey.web.filters.urlrewrite.ConfHandler;
 import org.tuckey.web.filters.urlrewrite.NormalRule;
@@ -63,17 +62,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A {@link Filter} extending <a href="http://www.tuckey.org/urlrewrite/">UrlRewriteFilter</a> that supports
  * configuration per {@link Site}.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class RedirectFilter extends UrlRewriteFilter {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RedirectFilter.class);
-
-	private static ConcurrentMap<String, CachedUrlRewriter> REWRITERS = new ConcurrentHashMap<String, CachedUrlRewriter>();
+	private static ConcurrentMap<String, CachedUrlRewriter> REWRITERS = new ConcurrentHashMap<>();
 	private FilterConfig filterConfig;
 
 	@Override
@@ -117,7 +117,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 		public CachedUrlRewriter(UrlRewriteConfig conf, String domain, String jspType) {
 			super(conf);
 			created = System.currentTimeMillis();
-			redirectRules = new ArrayList<RedirectRule>();
+			redirectRules = new ArrayList<>();
 			for (Rule rule : conf.getRules()) {
 				if (rule instanceof NormalRule) {
 					NormalRule normalRule = (NormalRule) rule;
@@ -181,7 +181,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 
 		Element rootElement = doc.getDocumentElement();
 		NodeList children = rootElement.getChildNodes();
-		List<Node> deprecatedNodes = new ArrayList<Node>();
+		List<Node> deprecatedNodes = new ArrayList<>();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE && !"rule".equals(node.getNodeName())) {
@@ -234,10 +234,10 @@ public class RedirectFilter extends UrlRewriteFilter {
 							LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, resource,
 									conf.getRules().size());
 						} else {
-							LOGGER.warn("invalid config-file for site '" + siteName + "': " + resource);
+							LOGGER.warn("invalid config-file for site '{}': {}", siteName, resource);
 						}
 					} catch (IOException | SAXException | ParserConfigurationException | URISyntaxException e) {
-						LOGGER.error("error processing " + resource);
+						LOGGER.error("error processing {}", resource);
 					}
 				}
 			}
@@ -256,14 +256,12 @@ public class RedirectFilter extends UrlRewriteFilter {
 	}
 
 	private static URL getConfPath(Environment env, Site site) {
-		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String repositoryDirectory = platformProperties.getString(Platform.Property.REPOSITORY_PATH);
+		String rootPath = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 		String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
-		String confPath = repositoryDirectory + "/" + site.getName() + rewriteConfig;
 		try {
-			return ((DefaultEnvironment) env).getServletContext().getResource(confPath);
+			return Paths.get(rootPath, rewriteConfig).toUri().toURL();
 		} catch (MalformedURLException e) {
-			LOGGER.warn("unable to read redirects for site '" + site.getName() + "' ", e);
+			LOGGER.warn(String.format("unable to read redirects for site '%s'", site.getName()), e);
 		}
 		return null;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,7 @@ public class MagicByteCheckTest {
 
 	private void checkDir(File directory, boolean expected) {
 		for (File f : directory.listFiles()) {
-			// https://github.com/arimus/jmimemagic/issues/35
-			// bmp support is broken
-			if (!f.isDirectory() && !f.getName().endsWith("bmp")) {
+			if (!f.isDirectory()) {
 				boolean result = MagicByteCheck.compareFileExtensionWithMagicBytes(f);
 				boolean matches = expected == result;
 				if (!matches) {

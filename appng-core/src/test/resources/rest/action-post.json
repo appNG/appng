@@ -1,0 +1,77 @@
+{
+  "id" : "create",
+  "event-id" : "siteEvent",
+  "parameters" : [ {
+    "name" : "form_action"
+  } ],
+  "user" : {
+    "locale" : "de_DE",
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ",",
+    "groupingSeparator" : "."
+  },
+  "fields" : [ {
+    "name" : "name",
+    "value" : "appng",
+    "label" : "name",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "host",
+    "value" : "localhorst",
+    "label" : "host",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "domain",
+    "value" : "https://localhorst:8080",
+    "label" : "domain",
+    "fieldType" : "text",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "description",
+    "value" : "a site",
+    "label" : "description",
+    "fieldType" : "longtext",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "active",
+    "value" : true,
+    "label" : "active",
+    "fieldType" : "checkbox",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "createRepository",
+    "value" : true,
+    "label" : "site.createRepository",
+    "fieldType" : "checkbox",
+    "readonly" : false,
+    "visible" : true
+  }, {
+    "name" : "template",
+    "label" : "template",
+    "fieldType" : "list_radio",
+    "readonly" : false,
+    "visible" : true,
+    "options" : {
+      "entries" : [ {
+        "value" : "appng",
+        "label" : "appng",
+        "selected" : true
+      }, {
+        "value" : "appng-bootstrap-gentelella",
+        "label" : "appng-bootstrap-gentelella",
+        "selected" : false
+      }, {
+        "value" : "appng-bootstrapped",
+        "label" : "appng-bootstrapped",
+        "selected" : false
+      } ]
+    }
+  } ]
+}

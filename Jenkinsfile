@@ -21,23 +21,24 @@ node {
         }
 
         stage('Maven Build') {
+            def SNAPSHOT = 'SNAPSHOT'        
             def CURRENT = sh (
                 script: "mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version|grep -Ev '(^\\[|Download\\w+:)'",
                 returnStdout: true
             ).trim()
-            replaceVersionInResources(CURRENT, CURRENT + '_' + BUILD_VERSION, readme)
-            replaceVersionInResources(CURRENT, CURRENT + '_' + BUILD_VERSION, resources)
+            replaceVersionInResources(SNAPSHOT, BUILD_VERSION + '-' + SNAPSHOT, readme)
+            replaceVersionInResources(SNAPSHOT, BUILD_VERSION + '-' + SNAPSHOT, resources)
             sh "'${mvnHome}/bin/mvn' clean deploy -Pci -Djavax.xml.accessExternalSchema=all"
             sh "'${mvnHome}/bin/mvn' javadoc:aggregate"
-        }
-
-        stage('Results') {
-            junit '**/target/surefire-reports/*.xml'
         }
 
         currentBuild.result = 'SUCCESS'
     } catch (Exception err) {
         currentBuild.result = 'FAILURE'
+    }
+
+    stage('Results') {
+        junit '**/target/surefire-reports/*.xml'
     }
 
     stage ('notifyFinish'){

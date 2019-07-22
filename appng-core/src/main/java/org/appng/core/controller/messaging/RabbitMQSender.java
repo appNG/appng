@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ import org.appng.api.messaging.Event;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Message sender implementing {@link Sender} to use a RabbitMQ message broker. See {@link RabbitMQReceiver} for
@@ -32,10 +33,10 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * @see RabbitMQReceiver
  */
+@Slf4j
 public class RabbitMQSender extends RabbitMQBase implements Sender {
 
 	private static final String APPNG_MESSAGING_DISABLED = "appng.messaging.disabled";
-	private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQSender.class);
 
 	public RabbitMQSender configure(Serializer eventDeserializer) {
 		this.eventSerializer = eventDeserializer;
@@ -52,7 +53,7 @@ public class RabbitMQSender extends RabbitMQBase implements Sender {
 				channel.basicPublish(this.exchange, "", null, out.toByteArray());
 				return true;
 			} catch (IOException e) {
-				LOGGER.error("error while sending event " + event, e);
+				LOGGER.error(String.format("error while sending event %s", event), e);
 			}
 		}
 		return false;

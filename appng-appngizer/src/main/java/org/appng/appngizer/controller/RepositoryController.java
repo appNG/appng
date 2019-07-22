@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,10 +48,12 @@ import org.springframework.beans.support.PropertyComparator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,9 +64,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class RepositoryController extends ControllerBase {
 
-	@RequestMapping(value = "/repository", method = RequestMethod.GET)
+	@GetMapping(value = "/repository")
 	public ResponseEntity<Repositories> listRepositories() {
-		List<Repository> repoList = new ArrayList<Repository>();
+		List<Repository> repoList = new ArrayList<>();
 		for (RepositoryImpl r : getCoreService().getApplicationRepositories()) {
 			repoList.add(org.appng.appngizer.model.Repository.fromDomain(r));
 		}
@@ -73,7 +75,7 @@ public class RepositoryController extends ControllerBase {
 		return ok(entity);
 	}
 
-	@RequestMapping(value = "/repository/{name}", method = RequestMethod.GET)
+	@GetMapping(value = "/repository/{name}")
 	public ResponseEntity<Repository> getRepository(@PathVariable("name") String name) throws BusinessException {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
 		if (null == r) {
@@ -81,7 +83,7 @@ public class RepositoryController extends ControllerBase {
 		}
 		Repository fromDomain = Repository.fromDomain(r);
 		fromDomain.setPackages(new Packages());
-		List<Identifier> provisionedPackages = new ArrayList<Identifier>();
+		List<Identifier> provisionedPackages = new ArrayList<>();
 		provisionedPackages.addAll(getCoreService().getApplications());
 		provisionedPackages.addAll(getTemplateService().getInstalledTemplates());
 		List<InstallablePackage> installablePackages = r.getInstallablePackages(provisionedPackages);
@@ -99,7 +101,7 @@ public class RepositoryController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/repository/{name}/{package}", method = RequestMethod.GET)
+	@GetMapping(value = "/repository/{name}/{package}")
 	public ResponseEntity<Packages> getRepositoryPackages(@PathVariable("name") String name,
 			@PathVariable("package") String packageName) {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
@@ -136,7 +138,7 @@ public class RepositoryController extends ControllerBase {
 		return p;
 	}
 
-	@RequestMapping(value = "/repository/{name}/{package}/{version}/{timestamp}", method = RequestMethod.GET)
+	@GetMapping(value = "/repository/{name}/{package}/{version}/{timestamp}")
 	public ResponseEntity<Package> getRepositoryPackage(@PathVariable("name") String name,
 			@PathVariable("package") String packageName, @PathVariable("version") String packageVersion,
 			@PathVariable("timestamp") String packageTimestamp) {
@@ -161,7 +163,7 @@ public class RepositoryController extends ControllerBase {
 		}
 	}
 
-	@RequestMapping(value = "/repository/{name}/{package}/{version}/{timestamp}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/repository/{name}/{package}/{version}/{timestamp}")
 	public ResponseEntity<Packages> deleteRepositoryPackage(@PathVariable("name") String name,
 			@PathVariable("package") String packageName, @PathVariable("version") String packageVersion,
 			@PathVariable("timestamp") String packageTimestamp) throws BusinessException {
@@ -188,7 +190,7 @@ public class RepositoryController extends ControllerBase {
 				&& installed.getTimestamp().equals(pkg.getTimestamp());
 	}
 
-	@RequestMapping(value = "/repository", method = RequestMethod.POST)
+	@PostMapping(value = "/repository")
 	public ResponseEntity<Repository> createRepository(@RequestBody org.appng.appngizer.model.xml.Repository repository)
 			throws BusinessException, URISyntaxException {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(repository.getName());
@@ -201,7 +203,7 @@ public class RepositoryController extends ControllerBase {
 		return created(getRepository(repository.getName()).getBody());
 	}
 
-	@RequestMapping(value = "/repository/{name}", method = RequestMethod.PUT)
+	@PutMapping(value = "/repository/{name}")
 	public ResponseEntity<Repository> updateRepository(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Repository repository) throws URISyntaxException {
 		boolean nameChanged = nameChanged(repository, name);
@@ -233,7 +235,7 @@ public class RepositoryController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/repository/{name}/install", method = RequestMethod.PUT)
+	@PutMapping(value = "/repository/{name}/install")
 	public ResponseEntity<Package> installPackage(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Package pkg) throws BusinessException {
 		RepositoryImpl r = (RepositoryImpl) getCoreService().getApplicationRepositoryByName(name);
@@ -251,7 +253,7 @@ public class RepositoryController extends ControllerBase {
 		return getRepositoryPackage(name, pkg.getName(), pkg.getVersion(), pkg.getTimestamp());
 	}
 
-	@RequestMapping(value = "/repository/{name}/upload", method = RequestMethod.POST)
+	@PostMapping(value = "/repository/{name}/upload")
 	public ResponseEntity<Package> uploadPackage(@PathVariable("name") String name,
 			@RequestParam("file") MultipartFile file) throws BusinessException {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
@@ -279,7 +281,7 @@ public class RepositoryController extends ControllerBase {
 		}
 	}
 
-	@RequestMapping(value = "/repository/{name}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/repository/{name}")
 	public ResponseEntity<Void> deleteRepository(@PathVariable("name") String name) {
 		RepositoryImpl repository = (RepositoryImpl) getCoreService().getApplicationRepositoryByName(name);
 		if (null == repository) {
@@ -292,6 +294,6 @@ public class RepositoryController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

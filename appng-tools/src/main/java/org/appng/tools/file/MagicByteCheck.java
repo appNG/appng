@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 package org.appng.tools.file;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import net.sf.jmimemagic.Magic;
-import net.sf.jmimemagic.MagicException;
-import net.sf.jmimemagic.MagicMatchNotFoundException;
-import net.sf.jmimemagic.MagicParseException;
+import com.j256.simplemagic.ContentInfoUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This is an utility class to to check the type of file by probing the magic bytes.
@@ -33,10 +31,10 @@ import net.sf.jmimemagic.MagicParseException;
  * @author Claus Stümke, aiticon GmbH, 2016
  *
  */
-
+@Slf4j
 public class MagicByteCheck {
 
-	private static Logger LOG = LoggerFactory.getLogger(MagicByteCheck.class);
+	private static final ContentInfoUtil CONTENT_INFO_UTIL = new ContentInfoUtil();
 
 	/**
 	 * It checks the magic bytes of the file and compares the extension by magic byte match with the extension in the
@@ -59,11 +57,11 @@ public class MagicByteCheck {
 		String fileNameExtension = normalizeFileExtension(FilenameUtils.getExtension(sourceFile.getName()));
 		boolean matches = magicExtension.equalsIgnoreCase(fileNameExtension);
 		if (!matches) {
-			LOG.debug("File type detected by magic byte ({}) is not identical with file extension for file {}",
+			LOGGER.debug("File type detected by magic byte ({}) is not identical with file extension for file {}",
 					magicExtension, fileNameExtension, sourceFile.getAbsolutePath());
 		}
 		sw.stop();
-		LOG.trace(sw.toString());
+		LOGGER.trace(sw.toString());
 		return matches;
 	}
 
@@ -76,10 +74,11 @@ public class MagicByteCheck {
 	 *             if there is any issue reading the file
 	 */
 	public static String getExtensionByMagicBytes(File file) {
+		String[] fileExtensions;
 		try {
-			return normalizeFileExtension(Magic.getMagicMatch(file, false).getExtension());
-		} catch (MagicParseException | MagicMatchNotFoundException | MagicException e) {
-			LOG.error("Magic Exception for file " + file.getAbsolutePath(), e);
+			fileExtensions = CONTENT_INFO_UTIL.findMatch(file).getFileExtensions();
+			return null == fileExtensions ? null : normalizeFileExtension(fileExtensions[0]);
+		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}

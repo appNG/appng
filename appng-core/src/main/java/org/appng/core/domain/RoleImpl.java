@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class RoleImpl implements Role, Auditable<Integer> {
 	private String description;
 	private Date version;
 	private Application application;
-	private Set<Permission> permissions = new HashSet<Permission>();
+	private Set<Permission> permissions = new HashSet<>();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

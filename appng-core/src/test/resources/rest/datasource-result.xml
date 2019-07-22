@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasource id="site" xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd">
+    <config>
+        <title id="site">Site</title>
+        <params>
+            <param name="siteid">1</param>
+        </params>
+        <meta-data binding="site" bindClass="org.appng.core.controller.rest.model.SiteForm">
+            <field name="id" type="int" format="#" readonly="true" binding="site.id">
+                <label id="id">ID</label>
+            </field>
+            <field name="name" type="text" readonly="true" binding="site.name">
+                <label id="name">Name</label>
+            </field>
+            <field name="host" type="text" binding="site.host">
+                <label id="host">Host</label>
+            </field>
+            <field name="domain" type="text" binding="site.domain">
+                <label id="domain">Domain</label>
+            </field>
+            <field name="description" type="longtext" binding="site.description">
+                <label id="description">Description</label>
+            </field>
+            <field name="active" type="checkbox" binding="site.active">
+                <label id="active">Active</label>
+            </field>
+            <field name="template" type="list:radio" binding="template">
+                <label id="template">Template</label>
+            </field>
+        </meta-data>
+    </config>
+    <data>
+        <selection id="template">
+            <title id="template">Template</title>
+            <option value="appng" name="appng" selected="true"/>
+            <option value="appng-bootstrap-gentelella" name="appng-bootstrap-gentelella" selected="false"/>
+            <option value="appng-bootstrapped" name="appng-bootstrapped" selected="false"/>
+        </selection>
+        <result>
+            <field name="id" type="int">
+                <value>1</value>
+            </field>
+            <field name="name" type="text">
+                <value>appng</value>
+            </field>
+            <field name="host" type="text">
+                <value>dev.appng.io</value>
+            </field>
+            <field name="domain" type="text">
+                <value>https://dev.appng.io</value>
+            </field>
+            <field name="description" type="longtext">
+                <value>appng Manager Instance</value>
+            </field>
+            <field name="active" type="checkbox">
+                <value>true</value>
+            </field>
+            <field name="template" type="list:radio">
+                <value></value>
+            </field>
+        </result>
+    </data>
+</datasource>

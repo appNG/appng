@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class OptionImpl implements Option {
 
 	private static final Pattern INT_PATTERN = Pattern.compile("[+-]?[\\d]+");
 	private final String name;
-	private Map<String, String> attributeMap = new HashMap<String, String>();
+	private Map<String, String> attributeMap = new HashMap<>();
 
 	public OptionImpl(String name) {
 		this.name = name;
@@ -54,21 +54,21 @@ public class OptionImpl implements Option {
 		return this;
 	}
 
-	public OptionImpl addAttribute(String key, String value) {
-		attributeMap.put(key, value);
+	public OptionImpl addAttribute(String name, String value) {
+		attributeMap.put(name, value);
 		return this;
 	}
 
-	public boolean containsAttribute(String key) {
-		return attributeMap.containsKey(key);
+	public boolean containsAttribute(String name) {
+		return attributeMap.containsKey(name);
 	}
 
-	public String getAttribute(String key) {
-		return attributeMap.get(key);
+	public String getAttribute(String name) {
+		return getString(name);
 	}
 
-	public int getAttributeAsInteger(String key) {
-		return Integer.valueOf(attributeMap.get(key));
+	public int getAttributeAsInteger(String name) {
+		return Integer.valueOf(attributeMap.get(name));
 	}
 
 	public Set<String> getAttributeNames() {
@@ -80,7 +80,7 @@ public class OptionImpl implements Option {
 	}
 
 	public String getString(String name) {
-		return getAttribute(name);
+		return attributeMap.get(name);
 	}
 
 	public Integer getInteger(String name) {
@@ -99,7 +99,7 @@ public class OptionImpl implements Option {
 
 	public String toString() {
 		StringBuffer result = new StringBuffer(getName() + " [ ");
-		getAttributeNames().forEach(key -> result.append(key + "=\"" + getAttribute(key) + "\" "));
+		getAttributeNames().forEach(key -> result.append(key + "=\"" + getString(key) + "\" "));
 		result.append("]");
 		return result.toString();
 	}

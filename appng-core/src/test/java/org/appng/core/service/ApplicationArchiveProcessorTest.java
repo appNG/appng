@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,10 +40,10 @@ public class ApplicationArchiveProcessorTest {
 		PackageArchive applicationArchive = PackageArchiveTest.getPackageArchive();
 		ApplicationArchiveProcessor processor = new ApplicationArchiveProcessor(application);
 		List<Resource> resources = applicationArchive.processZipFile(processor);
-		List<String> expectedNames = new ArrayList<String>(Arrays.asList("datasources.xml", "events.xml", "master.xml",
+		List<String> expectedNames = new ArrayList<>(Arrays.asList("datasources.xml", "events.xml", "master.xml",
 				"page.xml", "plugin.xml", "messages-demo.properties", "mssql/V1.0_script.sql", "mysql/V1.0_script.sql",
 				ResourceType.BEANS_XML_NAME, ResourceType.APPLICATION_XML_NAME));
-		List<ResourceType> expectedTypes = new ArrayList<ResourceType>(Arrays.asList(ResourceType.XML,
+		List<ResourceType> expectedTypes = new ArrayList<>(Arrays.asList(ResourceType.XML,
 				ResourceType.XML, ResourceType.XML, ResourceType.XML, ResourceType.XML, ResourceType.DICTIONARY,
 				ResourceType.SQL, ResourceType.SQL, ResourceType.BEANS_XML, ResourceType.APPLICATION));
 		for (Resource applicationResource : resources) {

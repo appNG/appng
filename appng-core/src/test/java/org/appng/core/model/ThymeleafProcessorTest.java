@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,29 @@
  */
 package org.appng.core.model;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+
+import org.appng.api.InvalidConfigurationException;
+import org.appng.api.PathInfo;
+import org.appng.api.Platform;
+import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
+import org.appng.api.VHostMode;
+import org.appng.api.model.Properties;
+import org.appng.api.model.Site;
+import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.domain.SiteImpl;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.Datafield;
@@ -26,20 +45,29 @@ import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Link;
 import org.appng.xml.platform.Linkpanel;
+import org.appng.xml.platform.OutputFormat;
+import org.appng.xml.platform.OutputType;
 import org.appng.xml.platform.PageReference;
-import org.appng.xml.platform.Platform;
 import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Section;
 import org.appng.xml.platform.Selection;
+import org.appng.xml.platform.Template;
 import org.appng.xml.platform.ValidationRule;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
+
+import com.google.common.io.Files;
 
 public class ThymeleafProcessorTest {
 
 	private static ThymeleafProcessor.AppNG appNG;
-	private static Platform platform;
+	private static org.appng.xml.platform.Platform platform;
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -48,6 +76,115 @@ public class ThymeleafProcessorTest {
 		InputStream is = classLoader.getResourceAsStream("xml/ThymeleafProcessorTest-platform.xml");
 		platform = ms.unmarshall(is, org.appng.xml.platform.Platform.class);
 		appNG = new ThymeleafProcessor.AppNG(platform, null);
+	}
+
+	@Test
+	public void testProcessRender() throws Exception {
+		String result = doProcess(true, false);
+		Assert.assertTrue(result.contains("<span>Hello John Doe!</span>"));
+	}
+
+	@Test
+	public void testProcessRenderWithCustomTemplate() throws Exception {
+		String result = doProcess(true, true);
+		Assert.assertTrue(result.contains("<span>Hello John Doe, how are you today?</span>"));
+
+		String[] debugFolders = PlatformTransformerTest.DEBUG_FOLDER.list((f, n) -> new File(f, n).isDirectory());
+		Assert.assertTrue(debugFolders.length > 0);
+		File debugFolder = new File(PlatformTransformerTest.DEBUG_FOLDER, debugFolders[0]);
+		PlatformTransformerTest.assertFolderContains(debugFolder, "platform.xml", "index.html", "template");
+
+		File debugTemplate = new File(debugFolder, "template");
+		PlatformTransformerTest.assertFolderContains(debugTemplate, "platform.html", "hello.html", "hello-custom.html");
+	}
+
+	@Test
+	public void testProcessNoRender() throws Exception {
+		String result = doProcess(false, false);
+		Assert.assertTrue(result.contains("<platform xmlns=\"http://www.appng.org/schema/platform\">"));
+	}
+
+	protected String doProcess(boolean render, boolean withCustomTemplate) throws Exception {
+		MockServletContext servletContext = new MockServletContext();
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		DefaultEnvironment env = DefaultEnvironment.get(servletContext);
+
+		Properties platformCfg = Mockito.mock(Properties.class);
+		Mockito.when(platformCfg.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
+		Mockito.when(platformCfg.getString(Platform.Property.PLATFORM_ROOT_PATH)).thenReturn("target/rootpath");
+		Mockito.when(platformCfg.getBoolean(Platform.Property.WRITE_DEBUG_FILES)).thenReturn(true);
+		Mockito.when(platformCfg.getString(Platform.Property.CACHE_FOLDER)).thenReturn("cache");
+		Mockito.when(platformCfg.getString(Platform.Property.PLATFORM_CACHE_FOLDER)).thenReturn("platform");
+		Mockito.when(platformCfg.getString(Platform.Property.APPLICATION_CACHE_FOLDER)).thenReturn("application");
+		Mockito.when(platformCfg.getString(Platform.Property.IMAGE_CACHE_FOLDER)).thenReturn("images");
+		Mockito.when(platformCfg.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
+		Mockito.when(platformCfg.getString(Platform.Property.ENCODING)).thenReturn("UTF-8");
+		Mockito.when(platformCfg.getString(Platform.Property.TEMPLATE_PREFIX)).thenReturn("./template");
+		env.setAttribute(Scope.PLATFORM, org.appng.api.Platform.Environment.PLATFORM_CONFIG, platformCfg);
+
+		Map<String, Site> sites = new HashMap<String, Site>();
+		SiteImpl site = new SiteImpl();
+		site.setHost("localhost");
+		site.setName("localhost");
+		sites.put(site.getHost(), site);
+		Properties siteProps = Mockito.mock(Properties.class);
+		Mockito.when(siteProps.getString(SiteProperties.TEMPLATE)).thenReturn("thymeleaf");
+		Mockito.when(siteProps.getBoolean(SiteProperties.ALLOW_SKIP_RENDER)).thenReturn(true);
+		site.setProperties(siteProps);
+
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, sites);
+		env.setAttribute(Scope.PLATFORM, Platform.Property.TIME_ZONE, TimeZone.getDefault());
+		DefaultEnvironment.get(request, response).setAttribute(Scope.REQUEST, EnvironmentKeys.RENDER, render);
+
+		MarshallService marshallService = MarshallService.getMarshallService();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		marshallService.setDocumentBuilderFactory(dbf);
+		marshallService.setTransformerFactory(TransformerFactory.newInstance());
+		marshallService.setCdataElements(new ArrayList<>());
+
+		ThymeleafProcessor thymlfPrcssr = new ThymeleafProcessor(dbf) {
+			@Override
+			public org.appng.xml.platform.Platform processPlatform(Site applicationSite)
+					throws InvalidConfigurationException {
+				try {
+					outputFormat = new OutputFormat();
+					outputType = new OutputType();
+					Template template = new Template();
+					template.setPath(ThymeleafProcessor.PLATFORM_HTML);
+					outputType.getTemplates().add(template);
+					outputFormat.getOutputType().add(outputType);
+					File file = new ClassPathResource("template/thymeleaf/conf/platform.xml").getFile();
+					return (org.appng.xml.platform.Platform) marshallService.unmarshall(file);
+				} catch (Exception e) {
+					throw new InvalidConfigurationException("application", e.getMessage(), e);
+				}
+			}
+
+			@Override
+			protected ApplicationProvider getApplicationProvider(Site site) throws InvalidConfigurationException {
+				ApplicationProvider applicationProvider = Mockito.mock(ApplicationProvider.class);
+				Mockito.when(applicationProvider.getName()).thenReturn("application");
+				return applicationProvider;
+			}
+		};
+		thymlfPrcssr.setMarshallService(marshallService);
+
+		PathInfo path = Mockito.mock(PathInfo.class);
+		String templateDir = "target/test-classes/template/thymeleaf";
+		thymlfPrcssr.init(request, response, path, templateDir);
+		if (withCustomTemplate) {
+			Template custom = new Template();
+			custom.setPath("hello.html");
+			File customTplFolder = new File("target/rootpath/WEB-INF/cache/platform/localhost/application/tpl");
+			customTplFolder.mkdirs();
+			Files.copy(new File(templateDir, "resources/html/hello-custom.html"),
+					new File(customTplFolder, "hello.html"));
+			thymlfPrcssr.addTemplates(Arrays.asList(custom));
+		} else {
+			thymlfPrcssr.addTemplates(Arrays.asList());
+		}
+		return thymlfPrcssr.processWithTemplate(site, PlatformTransformerTest.DEBUG_FOLDER);
 	}
 
 	@Test
@@ -95,11 +232,17 @@ public class ThymeleafProcessorTest {
 
 		Assert.assertTrue(appNG.hasSort(datasource.getConfig()));
 	}
-	
+
 	@Test
-	public void testHasSort(){
+	public void testHasSort() {
 		Datasource datasource = appNG.datasource("cacheElements");
 		Assert.assertTrue(appNG.hasSort(datasource.getConfig()));
+	}
+
+	@Test
+	public void testIsFiltered() {
+		boolean filtered = appNG.isFiltered("sites", appNG.datasource("sessions"));
+		Assert.assertTrue(filtered);
 	}
 
 	@Test

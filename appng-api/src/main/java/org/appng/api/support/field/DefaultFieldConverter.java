@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import org.appng.forms.RequestContainer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.platform.FieldType;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default {@link FieldConverter}-implementation.
@@ -34,9 +35,8 @@ import org.springframework.core.convert.ConversionService;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 class DefaultFieldConverter extends ConverterBase {
-
-	protected static final Logger LOG = LoggerFactory.getLogger(DefaultFieldConverter.class);
 
 	DefaultFieldConverter(ExpressionEvaluator expressionEvaluator, ConversionService conversionService,
 			Environment environment, MessageSource messageSource) {
@@ -63,13 +63,13 @@ class DefaultFieldConverter extends ConverterBase {
 			}
 		}
 	}
-	
+
 	static String stripNonPrintableCharacter(String value) {
 		return StringNormalizer.removeNonPrintableCharacters(value);
 	}
 
 	protected Logger getLog() {
-		return LOG;
+		return LOGGER;
 	}
 
 }

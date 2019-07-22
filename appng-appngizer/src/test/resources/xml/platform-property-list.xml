@@ -5,6 +5,11 @@
 		<defaultValue>/applications</defaultValue>
 		<description>The folder used for installing file-based-applications, relative to the webapp-root</description>
 	</property>
+	<property name="appngData" self="http://localhost/platform/property/appngData">
+		<value>target/webapps/ROOT</value>
+		<defaultValue>target/webapps/ROOT</defaultValue>
+		<description>The data directory for appNG</description>
+	</property>
 	<property name="cacheApplicationFolder" self="http://localhost/platform/property/cacheApplicationFolder">
 		<value>application</value>
 		<defaultValue>application</defaultValue>
@@ -27,6 +32,12 @@
 		<defaultValue>platform</defaultValue>
 		<description>The folder for the platform-cache, relative to platform.cacheFolder. The platform cache is used by appNG
 			to cache application resources.</description>
+	</property>
+	<property name="cleanTempFolderOnStartup" self="http://localhost/platform/property/cleanTempFolderOnStartup">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>If set to true, the temp folder (defined by the system property java.io.tmpdir) is cleaned on a platform startup. 
+			WARNING: Only set to true if appNG was started with a custom value (e.g. -Djava.io.tmpdir=/appng-temp).</description>
 	</property>
 	<property name="csrfFilterEnabled" self="http://localhost/platform/property/csrfFilterEnabled">
 		<value>false</value>

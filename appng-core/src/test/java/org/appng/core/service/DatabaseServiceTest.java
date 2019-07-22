@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = DatabaseServiceTest.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
 @DirtiesContext
 public class DatabaseServiceTest extends TestInitializer {
 
@@ -56,12 +56,12 @@ public class DatabaseServiceTest extends TestInitializer {
 		Properties platformProperties = getProperties(DatabaseType.HSQL, jdbcUrl, "sa", "", JDBCDriver.class.getName());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
 		StringBuilder dbInfo = new StringBuilder();
-		Assert.assertTrue(platformConnection.testConnection(dbInfo, false, true));
+		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
 		Assert.assertTrue(dbInfo.toString().startsWith("HSQL Database Engine"));
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "2.0.0");
+		validateSchemaVersion(platformConnection, "4.0.0");
 
 		DatabaseConnection mssql = new DatabaseConnection(DatabaseType.MSSQL, rootName, "", "".getBytes());
 		mssql.setName(rootName);
@@ -99,12 +99,12 @@ public class DatabaseServiceTest extends TestInitializer {
 				DatabaseType.MYSQL.getDefaultDriver());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
 		StringBuilder dbInfo = new StringBuilder();
-		Assert.assertTrue(platformConnection.testConnection(dbInfo, false, true));
+		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
 		Assert.assertTrue(dbInfo.toString().startsWith("MySQL 5.6"));
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.MYSQL, platformConnection.getType());
 		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
-		validateSchemaVersion(platformConnection, "3.0.0");
+		validateSchemaVersion(platformConnection, "4.0.0");
 	}
 
 	@Test
@@ -117,12 +117,12 @@ public class DatabaseServiceTest extends TestInitializer {
 				DatabaseType.MSSQL.getDefaultDriver());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
 		StringBuilder dbInfo = new StringBuilder();
-		Assert.assertTrue(platformConnection.testConnection(dbInfo, false, true));
+		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
 		Assert.assertTrue(dbInfo.toString().startsWith("Microsoft SQL Server"));
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.MSSQL, platformConnection.getType());
 		Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
-		validateSchemaVersion(platformConnection, "3.0.0");
+		validateSchemaVersion(platformConnection, "4.0.0");
 		DataSource sqlDataSource = new HikariCPConfigurer(platformConnection).getDataSource();
 		DatabaseMetaData metaData = sqlDataSource.getConnection().getMetaData();
 		Assert.assertTrue(metaData.getDatabaseProductName().startsWith("Microsoft SQL Server"));

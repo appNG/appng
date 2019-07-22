@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,11 +51,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SiteApplicationController extends ControllerBase {
 
-	@RequestMapping(value = "/site/{site}/application", method = RequestMethod.GET)
+	@GetMapping(value = "/site/{site}/application")
 	public ResponseEntity<Applications> listApplications(@PathVariable("site") String site) {
 		SiteImpl siteByName = getSiteByName(site);
-		List<Application> applicationList = new ArrayList<Application>();
-		List<String> sortedNames = new ArrayList<String>(siteByName.getApplicationMap().keySet());
+		List<Application> applicationList = new ArrayList<>();
+		List<String> sortedNames = new ArrayList<>(siteByName.getApplicationMap().keySet());
 		Collections.sort(sortedNames);
 		for (String appName : sortedNames) {
 			ApplicationImpl application = (ApplicationImpl) siteByName.getApplication(appName);
@@ -67,7 +69,7 @@ public class SiteApplicationController extends ControllerBase {
 		return ok(applications);
 	}
 
-	@RequestMapping(value = "/site/{site}/application/{app}", method = RequestMethod.GET)
+	@GetMapping(value = "/site/{site}/application/{app}")
 	public ResponseEntity<Application> getApplication(@PathVariable("site") String site,
 			@PathVariable("app") String app) {
 		SiteImpl siteByName = getSiteByName(site);
@@ -91,7 +93,7 @@ public class SiteApplicationController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/site/{site}/application/{app}/grants", method = RequestMethod.PUT)
+	@PutMapping(value = "/site/{site}/application/{app}/grants")
 	public ResponseEntity<Grants> grantApplicationForSites(@PathVariable("site") String site,
 			@PathVariable("app") String appName, @RequestBody Grants grants) {
 		SiteApplication application = getSiteApplication(site, appName);
@@ -108,7 +110,7 @@ public class SiteApplicationController extends ControllerBase {
 		return getGrantsForApplication(site, appName);
 	}
 
-	@RequestMapping(value = "/site/{site}/application/{app}/grants", method = RequestMethod.GET)
+	@GetMapping(value = "/site/{site}/application/{app}/grants")
 	public ResponseEntity<Grants> getGrantsForApplication(@PathVariable("site") String site,
 			@PathVariable("app") String app) {
 		SiteApplication application = getSiteApplication(site, app);
@@ -131,7 +133,7 @@ public class SiteApplicationController extends ControllerBase {
 		return ok(grants);
 	}
 
-	@RequestMapping(value = "/site/{site}/application/{app}", method = RequestMethod.POST)
+	@PostMapping(value = "/site/{site}/application/{app}")
 	public ResponseEntity<Void> activateApplication(@PathVariable("site") String site,
 			@PathVariable("app") String app) {
 		SiteImpl siteByName = getSiteByName(site);
@@ -145,7 +147,7 @@ public class SiteApplicationController extends ControllerBase {
 		boolean isAssigned = siteByName.getApplications().contains(appByName);
 		if (isAssigned) {
 			HttpHeaders httpHeaders = new HttpHeaders();
-			httpHeaders.setAllow(new HashSet<HttpMethod>(Arrays.asList(HttpMethod.GET)));
+			httpHeaders.setAllow(new HashSet<>(Arrays.asList(HttpMethod.GET)));
 			return reply(httpHeaders, HttpStatus.METHOD_NOT_ALLOWED);
 		}
 		getCoreService().assignApplicationToSite(siteByName, appByName, true);
@@ -153,7 +155,7 @@ public class SiteApplicationController extends ControllerBase {
 		return seeOther(location);
 	}
 
-	@RequestMapping(value = "/site/{site}/application/{app}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/site/{site}/application/{app}")
 	public ResponseEntity<Void> deactivateApplication(@PathVariable("site") String site,
 			@PathVariable("app") String app) {
 		SiteImpl siteByName = getSiteByName(site);
@@ -170,6 +172,6 @@ public class SiteApplicationController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

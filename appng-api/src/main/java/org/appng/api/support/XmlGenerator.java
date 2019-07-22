@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,12 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 
@@ -130,8 +132,8 @@ public class XmlGenerator {
 
 	private MarshallService marshallService;
 	private boolean addPermissions;
-	private SortedMap<String, String> dictionary = new TreeMap<String, String>();
-	private SortedMap<String, String> permissionNames = new TreeMap<String, String>();
+	private SortedMap<String, String> dictionary = new TreeMap<>();
+	private SortedMap<String, String> permissionNames = new TreeMap<>();
 	private String datePattern = "yyyy-MM-dd HH:mm:ss";
 
 	/**
@@ -248,21 +250,25 @@ public class XmlGenerator {
 	 *            if {@link Permissions} should be generated and used when referencing {@link Action}s
 	 * @throws JAXBException
 	 *             if creating a {@link MarshallService} fails
+	 * @throws TransformerConfigurationException
+	 *             if an error occurs while configuring the {@link TransformerFactory}
 	 */
-	public XmlGenerator(boolean addPermissions) throws JAXBException {
+	public XmlGenerator(boolean addPermissions) throws JAXBException, TransformerConfigurationException {
 		this.addPermissions = addPermissions;
 		this.marshallService = new MarshallService();
 		marshallService.setSchema(AppNGSchema.PLATFORM);
 		marshallService.setPrettyPrint(true);
 		marshallService.setSchemaLocation("http://www.appng.org/schema/platform/appng-platform.xsd");
 		marshallService.setUseSchema(true);
-		marshallService.setCdataElements(new ArrayList<String>());
+		marshallService.setCdataElements(new ArrayList<>());
 		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-		marshallService.setTransformerFactory(TransformerFactory.newInstance());
+		TransformerFactory tf = TransformerFactory.newInstance();
+		tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		marshallService.setTransformerFactory(tf);
 		marshallService.init();
 	}
 
-	public XmlGenerator() throws JAXBException {
+	public XmlGenerator() throws JAXBException, TransformerConfigurationException {
 		this(true);
 	}
 
@@ -562,7 +568,7 @@ public class XmlGenerator {
 		boolean skipVersion = true;
 		List<String> propertyNames;
 		if (null == properties || properties.length == 0) {
-			propertyNames = new ArrayList<String>();
+			propertyNames = new ArrayList<>();
 			PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
 			for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 				propertyNames.add(propertyDescriptor.getName());

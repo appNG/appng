@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.17.1-SNAPSHOT</version>
+	<version>1.20.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
@@ -51,28 +51,28 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.12.RELEASE</springVersion>
-		<springWSVersion>2.4.0.RELEASE</springWSVersion>
-		<springSecurityVersion>4.2.3.RELEASE</springSecurityVersion>
-		<springDataVersion>1.13.8.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.8.RELEASE</springDataJpaVersion>
-		<springDataEnversVersion>1.1.8.RELEASE</springDataEnversVersion>
-		<queryDslVersion>4.1.4</queryDslVersion>
-		<luceneVersion>6.6.2</luceneVersion>
+		<springVersion>4.3.23.RELEASE</springVersion>
+		<springWSVersion>2.4.3.RELEASE</springWSVersion>
+		<springSecurityVersion>4.2.10.RELEASE</springSecurityVersion>
+		<springDataVersion>1.13.18.RELEASE</springDataVersion>
+		<springDataJpaVersion>1.11.18.RELEASE</springDataJpaVersion>
+		<springDataEnversVersion>1.1.18.RELEASE</springDataEnversVersion>
+		<queryDslVersion>4.2.1</queryDslVersion>
+		<luceneVersion>6.6.5</luceneVersion>
 		<tikaVersion>1.16</tikaVersion>
-		<hibernateVersion>5.2.12.Final</hibernateVersion>
-		<slf4jVersion>1.7.25</slf4jVersion>
+		<hibernateVersion>5.4.2.Final</hibernateVersion>
+		<slf4jVersion>1.7.26</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
-		<jacksonVersion>2.9.2</jacksonVersion>
+		<jacksonVersion>2.9.8</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>8.5.23</tomcat.version>
+		<tomcat.version>9.0.17</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
 		<esapi.version>2.1.0.1</esapi.version>
 		<docDir>./target/generated-docs</docDir>
 		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
-		<manager.version>1.13.0</manager.version>
-		<scheduler.version>1.11.5</scheduler.version>
+		<manager.version>1.14.0</manager.version>
+		<scheduler.version>1.12.0</scheduler.version>
 		<authentication.version>1.11.2</authentication.version>
 		<template.name>appng-template</template.name>
 		<template.version>1.14.3</template.version>
@@ -109,11 +109,10 @@
 		<module>appng-xmlapi</module>
 		<module>appng-testsupport</module>
 		<module>appng-api</module>
+		<module>appng-rest-api</module>
 		<module>appng-persistence</module>
 		<module>appng-search</module>
 		<module>appng-core</module>
-		<module>appng-tomcat7</module>
-		<module>appng-tomcat8</module>
 		<module>appng-cli</module>
 		<module>appng-taglib</module>
 		<module>appng-application</module>
@@ -203,12 +202,49 @@
 		<profile>
 			<id>ci</id>
 			<distributionManagement>
-				<repository>
+				<snapshotRepository>
 					<id>appng-ci-builds</id>
 					<name>appNG CI Builds</name>
 					<url>https://appng.org/nexus/repository/appng-ci-builds/</url>
-				</repository>
+				</snapshotRepository>
 			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>sonar</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<configuration>
+							<append>true</append>
+						</configuration>
+						<executions>
+							<execution>
+								<id>agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>jacoco-site</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<forkCount>0</forkCount>
+							<argLine>${argLine} -Dfile.encoding=${project.build.sourceEncoding}</argLine>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 
 		<profile>
@@ -233,8 +269,6 @@
 				<module>appng-persistence</module>
 				<module>appng-search</module>
 				<module>appng-core</module>
-				<module>appng-tomcat7</module>
-				<module>appng-tomcat8</module>
 				<module>appng-cli</module>
 				<module>appng-taglib</module>
 				<module>appng-appngizer</module>
@@ -407,14 +441,14 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.20</version>
+					<version>3.0.0-M3</version>
 					<configuration>
-						<argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
+						<argLine>-Xms1g -Xmx2g -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>2.20</version>
+					<version>3.0.0-M3</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -442,6 +476,16 @@
 							<version>1.5.0-alpha.15</version>
 						</dependency>
 					</dependencies>
+				</plugin>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>3.6.0.1398</version>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -545,6 +589,15 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.22</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
@@ -662,6 +715,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
+				<artifactId>appng-rest-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.appng</groupId>
 				<artifactId>appng-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -696,7 +754,7 @@
 			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
-				<version>2.3.23</version>
+				<version>2.3.28</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
@@ -783,7 +841,7 @@
 			<dependency>
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
-				<version>1.3.3</version>
+				<version>1.4</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -793,17 +851,17 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.6</version>
+				<version>3.8.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.11</version>
+				<version>1.12</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.15</version>
+				<version>1.18</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-collections</groupId>
@@ -813,7 +871,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.1</version>
+				<version>1.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
@@ -845,17 +903,17 @@
 			<dependency>
 				<groupId>org.hibernate.javax.persistence</groupId>
 				<artifactId>hibernate-jpa-2.1-api</artifactId>
-				<version>1.0.0.Final</version>
+				<version>1.0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate.validator</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>6.0.4.Final</version>
+				<version>6.0.15.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
-				<version>2.0.0.Final</version>
+				<version>2.0.1.Final</version>
 			</dependency>
 			<!-- END HIBERNATE + JPA -->
 
@@ -883,12 +941,12 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>2.7.2</version>
+				<version>3.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>23.3-jre</version>
+				<version>27.1-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
@@ -918,7 +976,7 @@
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.43</version>
+				<version>5.1.47</version>
 			</dependency>
 			<dependency>
 				<groupId>org.im4java</groupId>
@@ -978,12 +1036,12 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.8</version>
+				<version>4.4.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.3</version>
+				<version>4.5.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
@@ -992,14 +1050,14 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>net.sf.jmimemagic</groupId>
-				<artifactId>jmimemagic</artifactId>
-				<version>0.1.5</version>
+				<groupId>com.j256.simplemagic</groupId>
+				<artifactId>simplemagic</artifactId>
+				<version>1.16</version>
 			</dependency>
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
-				<version>2.9.9</version>
+				<version>2.10.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>
@@ -1038,7 +1096,7 @@
 			<dependency>
 				<groupId>org.hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
-				<version>2.4.0</version>
+				<version>2.4.1</version>
 			</dependency>
 			<dependency>
 				<groupId>xmlunit</groupId>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.rabbitmq.client.Address;
-import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -67,9 +66,8 @@ public abstract class RabbitMQBase implements Closeable {
 		try {
 			connection = factory.newConnection(addrs);
 			channel = connection.createChannel();
-			channel.exchangeDeclare(threadNameFormat, BuiltinExchangeType.FANOUT, false);
 		} catch (IOException | TimeoutException e) {
-			log().error("error while creating connectipon/channel", e);
+			log().error("error while creating connection/channel", e);
 		}
 	}
 

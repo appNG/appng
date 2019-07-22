@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.appng.api.model.Application;
 import org.appng.search.SearchProvider;
 import org.appng.taglib.ParameterOwner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link SearchPart} offers the search results produced by a {@link SearchProvider} of an {@link Application}.
@@ -55,9 +55,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Müller
  */
-public class SearchPart extends BodyTagSupport implements ParameterOwner, Cloneable {
 
-	private static final Logger log = LoggerFactory.getLogger(SearchPart.class);
+@Slf4j
+public class SearchPart extends BodyTagSupport implements ParameterOwner, Cloneable {
 
 	private String application;
 	private String method;
@@ -65,7 +65,7 @@ public class SearchPart extends BodyTagSupport implements ParameterOwner, Clonea
 	private String fields;
 	private String title;
 	private String language;
-	private Map<String, String> parameters = new HashMap<String, String>();
+	private Map<String, String> parameters = new HashMap<>();
 
 	@Override
 	public int doEndTag() throws JspException {
@@ -75,7 +75,7 @@ public class SearchPart extends BodyTagSupport implements ParameterOwner, Clonea
 		}
 		SearchPart cloned = this.clone();
 		search.addPart(cloned);
-		log.debug("added part {} to {}", cloned, search);
+		LOGGER.debug("added part {} to {}", cloned, search);
 		clear();
 		return super.doEndTag();
 	}

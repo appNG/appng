@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,13 +82,15 @@ public class SiteApplicationPK implements Serializable {
 		if (applicationId == null) {
 			if (other.applicationId != null)
 				return false;
-		} else if (!applicationId.equals(other.applicationId))
+		} else if (!applicationId.equals(other.applicationId)) {
 			return false;
+		}
 		if (siteId == null) {
 			if (other.siteId != null)
 				return false;
-		} else if (!siteId.equals(other.siteId))
+		} else if (!siteId.equals(other.siteId)) {
 			return false;
+		}
 		return true;
 	}
 

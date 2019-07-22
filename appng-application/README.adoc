@@ -1,6 +1,6 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
-:snapshot: 1.17.1-SNAPSHOT
-:stable: 1.17.0
+:snapshot: 1.18.1-SNAPSHOT
+:stable: 1.18.1-SNAPSHOT
 :current: {snapshot}
 
 Welcome to appNG, the **N**ext **G**eneration **app**lication platform!
@@ -10,12 +10,11 @@ Welcome to appNG, the **N**ext **G**eneration **app**lication platform!
 = Requirements
 
 * JRE >= 1.8.x +
- http://www.oracle.com/technetwork/java/javase/downloads/index.html
-* Apache Tomcat 8.5.x +
+http://www.oracle.com/technetwork/java/javase/downloads/index.html
+* Apache Tomcat 8.5.x and 9.x +
 http://tomcat.apache.org/
-** Tomcat 7 is also supported, but only with versions >= 7.0.55
-* for persistence, MySql >= 5.6.x is used by default
-		http://www.mysql.com/
+* for persistence, MySql >= 5.6.x is used by default +
+https://dev.mysql.com/downloads/mysql/
 
 = Configuration & Installation
 
@@ -26,7 +25,7 @@ http://tomcat.apache.org/
 * Expand `appng-application-{stable}.war` to `$CATALINA_HOME/webapps/ROOT`
 * Create a new database with the DB management tool of your choice and set your database connection properties in the file
 		`WEB-INF/conf/appNG.properties`
-* Download Connector/J from here http://dev.mysql.com/downloads/connector/j/ and save `mysql-connector-java-5.1.45.jar` to `$CATALINA_HOME/lib`
+* Download Connector/J from here http://dev.mysql.com/downloads/connector/j/ and save `mysql-connector-java-5.1.47.jar` to `$CATALINA_HOME/lib`
 * Verify that `CATALINA_HOME` and `APPNG_HOME` in `WEB-INF/bin/appng` (for unix/linux based systems) or `WEB-INF/bin/appng.bat` (for windows based systems) match your local machine settings (change/uncomment the respective lines if necessary)
 * in `WEB-INF/conf/install.list`
 	** set the variable `ADMIN_SUBJECT` (#15) to your desired username

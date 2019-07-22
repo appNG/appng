@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 		if ("create".equals(action)) {
 			dataContainer.setItem(new TestEntity());
 		} else if (null == id) {
-			List<TestEntity> entities = new ArrayList<TestEntity>();
+			List<TestEntity> entities = new ArrayList<>();
 			entities.add(t1);
 			entities.add(new TestEntity(2, "entity2", 7, 7.8d, true));
 			dataContainer.setPage(entities, fp.getPageable());

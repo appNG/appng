@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import org.appng.api.model.SimpleProperty;
  */
 public class PropertyHolder implements Properties {
 
-	private Map<String, Property> propMap = new HashMap<String, Property>();
+	private Map<String, Property> propMap = new HashMap<>();
 	private String prefix;
 	private boolean isFinal;
 
@@ -230,7 +230,7 @@ public class PropertyHolder implements Properties {
 	}
 
 	public List<String> getList(String name, String defaultValue, String delimiter) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		String string = getString(name, defaultValue);
 		if (null != string && string.length() > 0) {
 			String[] splitted = string.split(delimiter);

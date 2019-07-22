@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,14 @@
  */
 package org.appng.core.service;
 
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
@@ -35,8 +39,8 @@ import org.appng.core.controller.messaging.MulticastReceiver;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.security.DefaultPasswordPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A service offering methods for initializing and retrieving the configuration {@link Properties} of the platform, a
@@ -47,9 +51,9 @@ import org.slf4j.LoggerFactory;
  * @see Properties
  * @see PropertyHolder
  */
+@Slf4j
 public class PropertySupport {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PropertySupport.class);
 	private static final String PREFIX_EMPTY = "";
 	public static final String PREFIX_PLATFORM = "platform.";
 	static final String PREFIX_SITE = "site.";
@@ -157,17 +161,17 @@ public class PropertySupport {
 		}
 	}
 
-	private void addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue) {
-		addPlatformProperty(defaultOverrides, name, defaultValue, false);
+	private String addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue) {
+		return addPlatformProperty(defaultOverrides, name, defaultValue, false);
 	}
 
-	private void addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue,
+	private String addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue,
 			boolean multilined) {
 		if (defaultOverrides.containsKey(PREFIX_PLATFORM + name)) {
 			defaultValue = defaultOverrides.get(PREFIX_PLATFORM + name);
 			defaultOverrides.remove(PREFIX_PLATFORM + name);
 		}
-		addProperty(name, defaultValue, PREFIX_PLATFORM, multilined);
+		return addProperty(name, defaultValue, PREFIX_PLATFORM, multilined);
 	}
 
 	private String addSiteProperty(String name, Object defaultValue) {
@@ -182,8 +186,8 @@ public class PropertySupport {
 		String description = bundle.getString(prefix + name);
 		Property added = propertyHolder.addProperty(name, defaultValue, description, multilined);
 		String value = multilined ? added.getClob() : added.getDefaultString();
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("added property {}{} = {}", prefix, name, value);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("added property {}{} = {}", prefix, name, value);
 		}
 		return value;
 	}
@@ -202,10 +206,9 @@ public class PropertySupport {
 	public void initSiteProperties(SiteImpl site, Properties platformConfig) {
 		bundle = ResourceBundle.getBundle("org/appng/core/site-config");
 		if (null != platformConfig) {
-			String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
+			String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
 			String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-			String siteRootDir = rootPath + "/" + repositoryPath + "/" + site.getName();
-			addSiteProperty(SiteProperties.SITE_ROOT_DIR, siteRootDir);
+			addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
 			String regEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
 			String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
 			site.setPasswordPolicy(new DefaultPasswordPolicy(regEx, errorMessageKey));
@@ -239,6 +242,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DEFAULT_PAGE, "index");
 		addSiteProperty(SiteProperties.DEFAULT_PAGE_SIZE, "25");
 		addSiteProperty(SiteProperties.APPEND_TAB_ID, "false");
+		addSiteProperty(SiteProperties.ALLOW_SKIP_RENDER, "false");
 		addSiteProperty(Platform.Property.ENCODING, HttpHeaders.CHARSET_UTF8);
 		addSiteProperty(SiteProperties.ASSETS_DIR, "/assets");
 		addSiteProperty(SiteProperties.DOCUMENT_DIR, "/de");
@@ -250,7 +254,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
 		addSiteProperty(SiteProperties.TAG_PREFIX, "appNG");
 		addSiteProperty(SiteProperties.REWRITE_CONFIG, "/meta/conf/urlrewrite.xml");
-		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE, false);
+		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE, !platformConfig.getBoolean(Platform.Property.MESSAGING_ENABLED));
 
 		addSiteProperty(SiteProperties.AUTH_APPLICATION, "appng-authentication");
 		addSiteProperty(SiteProperties.AUTH_LOGIN_PAGE, "webform");
@@ -308,10 +312,19 @@ public class PropertySupport {
 		defaultOverrides.putAll(immutableOverrides);
 		bundle = ResourceBundle.getBundle("org/appng/core/platform-config");
 		if (null != rootPath) {
-			addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_ROOT_PATH, rootPath);
+			String realRootPath = addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_ROOT_PATH,
+					normalizePath(rootPath));
+			String appngDataDir = System.getProperty(Platform.Property.APPNG_DATA);
+			if (StringUtils.isBlank(appngDataDir)) {
+				appngDataDir = realRootPath;
+			} else {
+				appngDataDir = normalizePath(appngDataDir);
+			}
+			addPlatformProperty(defaultOverrides, Platform.Property.APPNG_DATA, appngDataDir);
 		}
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_CACHE_FOLDER, "application");
 		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_FOLDER, "cache");
+		addPlatformProperty(defaultOverrides, Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, "false");
 		addPlatformProperty(defaultOverrides, Platform.Property.CSRF_FILTER_ENABLED, "false");
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_PREFIX, StringUtils.EMPTY);
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_VALIDATION_PERIOD, 15);
@@ -374,8 +387,8 @@ public class PropertySupport {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
 					propertyHolder.addProperty(name, value, null, value.indexOf(StringUtils.LF) > 0);
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
 					}
 				}
 			}
@@ -384,5 +397,20 @@ public class PropertySupport {
 		if (finalize) {
 			propertyHolder.setFinal();
 		}
+	}
+
+	private String normalizePath(String segment, String... pathelements) {
+		if(StringUtils.isNotBlank(segment) &&  StringUtils.isNoneBlank(pathelements)){
+			return Paths.get(segment, pathelements).normalize().toString();
+		}
+		return StringUtils.EMPTY;
+	}
+
+	static List<String> getSiteRelevantPlatformProps() {
+		return Arrays
+				.asList(Platform.Property.APPNG_DATA, Platform.Property.REPOSITORY_PATH,
+						Platform.Property.PASSWORD_POLICY_REGEX, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
+						Platform.Property.TEMPLATE_PREFIX, Platform.Property.MESSAGING_ENABLED)
+				.stream().map(p -> PREFIX_PLATFORM + p).collect(Collectors.toList());
 	}
 }

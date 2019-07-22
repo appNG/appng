@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,8 +70,8 @@ import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
-import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.GroupImpl;
+import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.RepositoryImpl;
@@ -118,7 +118,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = BusinessException.class)
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TestInitializer.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TestInitializer.class)
 @DirtiesContext
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoreServiceTest {
@@ -152,10 +152,10 @@ public class CoreServiceTest {
 			context.getBean(TestDataProvider.class).writeTestData(entityManager);
 			init = false;
 		}
-		platformConfig = coreService.initPlatformConfig(new java.util.Properties(), rootPath, false, true, true);
+		platformConfig = coreService.initPlatformConfig(new java.util.Properties(), rootPath, false, true);
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformConfig);
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		for (Integer siteId : coreService.getSiteIds()) {
 			SiteImpl site = coreService.getSite(siteId);
 			site.setSiteClassLoader(new SiteClassLoader(new URL[0], getClass().getClassLoader(), site.getName()));
@@ -166,7 +166,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testAddGroupsToSubject() throws BusinessException {
-		List<String> groupNames = new ArrayList<String>(Arrays.asList("group-1", "group-2", "group-3"));
+		List<String> groupNames = new ArrayList<>(Arrays.asList("group-1", "group-2", "group-3"));
 		coreService.addGroupsToSubject("subject-1", groupNames, true);
 		SubjectImpl subject = coreService.getSubjectByName("subject-1", true);
 		for (Group group : subject.getGroups()) {
@@ -186,7 +186,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testAssignGroupsToSubject() {
-		List<Integer> groupIds = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
+		List<Integer> groupIds = new ArrayList<>(Arrays.asList(1, 2, 3));
 		coreService.assignGroupsToSubject(1, groupIds, true);
 		Subject subject = coreService.getSubjectById(1, true);
 		for (Group group : subject.getGroups()) {
@@ -853,7 +853,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testSaveProperties() {
-		List<Property> props = new ArrayList<Property>();
+		List<Property> props = new ArrayList<>();
 		PropertyImpl a = new PropertyImpl("foobaz.a", "a");
 		PropertyImpl b = new PropertyImpl("foobaz.b", "b");
 		props.add(a);

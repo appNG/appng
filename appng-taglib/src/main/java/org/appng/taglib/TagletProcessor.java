@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,11 @@ import org.appng.api.DataContainer;
 import org.appng.api.GlobalTaglet;
 import org.appng.api.GlobalXMLTaglet;
 import org.appng.api.PageProcessor;
-import org.appng.api.Scope;
-import org.appng.api.Taglet;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
+import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
+import org.appng.api.Taglet;
 import org.appng.api.XMLTaglet;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
@@ -62,8 +63,8 @@ import org.appng.xml.platform.Section;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.Structure;
 import org.appng.xml.transformation.StyleSheetProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link TagletProcessor} is responsible for handling taglet-calls from a JSP
@@ -76,6 +77,7 @@ import org.slf4j.LoggerFactory;
  * @see XMLTaglet
  * @see GlobalXMLTaglet
  */
+@Slf4j
 public class TagletProcessor {
 
 	private static final String XSL = "xsl";
@@ -85,7 +87,6 @@ public class TagletProcessor {
 	private static final String DEFAULT_NO_XSL_SUFFIX = "-->";
 	private static final String XML = "xml";
 
-	private static Logger log = LoggerFactory.getLogger(TagletProcessor.class);
 	private MarshallService marshallService;
 	private StyleSheetProvider styleSheetProvider;
 
@@ -116,8 +117,8 @@ public class TagletProcessor {
 	 */
 	public boolean perform(Site callingSite, Site executingSite, Application application,
 			Map<String, String> tagletAttributes, org.appng.api.Request applicationRequest, String methodName,
-			String type, Writer out) throws JAXBException, TransformerConfigurationException, FileNotFoundException,
-			BusinessException {
+			String type, Writer out)
+			throws JAXBException, TransformerConfigurationException, FileNotFoundException, BusinessException {
 		boolean processPage;
 
 		if (XML.equalsIgnoreCase(type)) {
@@ -126,8 +127,8 @@ public class TagletProcessor {
 		} else {
 			String result;
 			Taglet taglet = application.getBean(methodName, Taglet.class);
-			log.debug("calling taglet '{}' of type '{}' with attributes: {}", methodName, taglet.getClass().getName(),
-					tagletAttributes);
+			LOGGER.debug("calling taglet '{}' of type '{}' with attributes: {}", methodName,
+					taglet.getClass().getName(), tagletAttributes);
 			if (taglet instanceof GlobalTaglet) {
 				result = ((GlobalTaglet) taglet).processTaglet(callingSite, executingSite, application,
 						applicationRequest, tagletAttributes);
@@ -148,7 +149,9 @@ public class TagletProcessor {
 		try {
 			out.write(result);
 		} catch (IOException ex) {
-			log.error("Error writing result of Taglet '" + methodName + "' in application '" + application + "' ", ex);
+			LOGGER.error(
+					String.format("Error writing result of Taglet '{}' in application '{}'.", methodName, application),
+					ex);
 		}
 	}
 
@@ -161,11 +164,11 @@ public class TagletProcessor {
 
 	private boolean processXmlTaglet(Site callingSite, Site executingSite, Application application,
 			Map<String, String> tagletAttributes, org.appng.api.Request applicationRequest, String methodName,
-			Writer out) throws BusinessException, JAXBException, FileNotFoundException,
-			TransformerConfigurationException {
+			Writer out)
+			throws BusinessException, JAXBException, FileNotFoundException, TransformerConfigurationException {
 		XMLTaglet xmltaglet = application.getBean(methodName, XMLTaglet.class);
-		log.debug("calling taglet '{}' of type '{}' width attributes: {}", methodName, xmltaglet.getClass().getName(),
-				tagletAttributes);
+		LOGGER.debug("calling taglet '{}' of type '{}' width attributes: {}", methodName,
+				xmltaglet.getClass().getName(), tagletAttributes);
 		DataContainer container = null;
 		if (xmltaglet instanceof GlobalXMLTaglet) {
 			container = ((GlobalXMLTaglet) xmltaglet).processTaglet(callingSite, executingSite, application,
@@ -183,7 +186,7 @@ public class TagletProcessor {
 			ElementHelper elementHelper = new ElementHelper(executingSite, application, expressionEvaluator);
 			elementHelper.processDataContainer(applicationRequest, container, xmltaglet.getClass().getName());
 		} catch (ClassNotFoundException | ProcessingException e) {
-			log.error("error while processing " + methodName, e);
+			LOGGER.error(String.format("error while processing %s", methodName), e);
 			throw new BusinessException(e);
 		}
 
@@ -191,8 +194,8 @@ public class TagletProcessor {
 		StringWriter writer = new StringWriter();
 		marshallService.marshalNoValidation(platform, writer);
 		String xmlResult = writer.toString();
-		Boolean doXsl = applicationRequest.getEnvironment().getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL);
-		if (doXsl) {
+		Boolean render = applicationRequest.getEnvironment().getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
+		if (render || !callingSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 			String xsl = tagletAttributes.get(XSL);
 			if (StringUtils.isNotBlank(xsl)) {
 				File xslFile = callingSite.readFile(xsl);
@@ -203,11 +206,11 @@ public class TagletProcessor {
 					styleSheetProvider.setInsertBefore("xsl:variables");
 					transform(xmlResult, out);
 				} else {
-					log.error("The xsl file " + xslFile.getAbsolutePath() + " does not exist or is invalid! xsl name: "
-							+ xsl);
+					LOGGER.error("The xsl file {} does not exist or is invalid! xsl name: {}",
+							xslFile.getAbsolutePath(), xsl);
 				}
 			} else {
-				log.error("parameter 'xsl' not set, can not transform data");
+				LOGGER.error("parameter 'xsl' not set, can not transform data");
 			}
 		} else {
 			String prefix = null;
@@ -216,11 +219,11 @@ public class TagletProcessor {
 				prefix = tagletAttributes.get(NO_XSL_PREFIX);
 				suffix = tagletAttributes.get(NO_XSL_SUFFIX);
 			} else {
-				log.debug("No prefix and suffix defined for not transformed output. Using default values");
+				LOGGER.debug("No prefix and suffix defined for not transformed output. Using default values");
 				prefix = DEFAULT_NO_XSL_PREFIX;
 				suffix = DEFAULT_NO_XSL_SUFFIX;
 			}
-			log.debug("Using prefix {} and suffix {} for not transformed output.", prefix, suffix);
+			LOGGER.debug("Using prefix {} and suffix {} for not transformed output.", prefix, suffix);
 			doWrite(out, prefix + "\n" + xmlResult + "\n" + suffix, application, methodName);
 		}
 		return processPage;
@@ -228,7 +231,7 @@ public class TagletProcessor {
 
 	private void logNotGlobalWarning(Site callingSite, Site executingSite, String tagletClass, String globalName) {
 		String message = "the taglet {} does not implement {}, and the calling site {} is not the same as the executing site {}. This may result in unexpected behavior!";
-		log.warn(message, tagletClass, globalName, callingSite.getName(), executingSite.getName());
+		LOGGER.warn(message, tagletClass, globalName, callingSite.getName(), executingSite.getName());
 	}
 
 	private Platform getPlatform(Data data, String baseUrl) {
@@ -267,7 +270,7 @@ public class TagletProcessor {
 
 			templates.newTransformer().transform(xmlSource, new StreamResult(out));
 		} catch (TransformerException te) {
-			log.error("Error during XSL Transformation: ", te);
+			LOGGER.error("Error during XSL Transformation: ", te);
 		}
 	}
 

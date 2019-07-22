@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.appng.cli.commands.heartbeat.HeartBeat;
 import org.appng.cli.commands.permission.AddPermission;
 import org.appng.cli.commands.permission.ListPermissions;
 import org.appng.cli.commands.permission.RemovePermission;
+import org.appng.cli.commands.platform.ExtractData;
 import org.appng.cli.commands.property.CreateProperty;
 import org.appng.cli.commands.property.DeleteProperty;
 import org.appng.cli.commands.property.ListProperties;
@@ -53,18 +54,19 @@ import org.appng.cli.commands.site.ReloadSite;
 import org.appng.cli.commands.site.SetSiteActive;
 import org.appng.cli.commands.subject.CreateSubject;
 import org.appng.cli.commands.subject.DeleteSubject;
+import org.appng.cli.commands.subject.HashPassword;
 import org.appng.cli.commands.subject.ListSubjects;
 import org.appng.cli.commands.template.DeleteTemplate;
 import org.appng.cli.commands.template.InstallTemplate;
 import org.appng.core.service.DatabaseService;
 import org.flywaydb.core.api.MigrationInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.ParameterException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The core of the command line interface, aggregating the available {@link ExecutableCliCommand}s to a
@@ -73,9 +75,9 @@ import com.beust.jcommander.ParameterException;
  * @author Matthias Herlitzius
  * 
  */
+@Slf4j
 public class CliCore {
 
-	private static Logger log = LoggerFactory.getLogger(CliCore.class);
 	private static final String PROGRAM_NAME = "appng";
 	private static final String COMMAND_BATCH = "batch";
 	private ApplicationContext platformContext;
@@ -128,12 +130,14 @@ public class CliCore {
 
 		commands.add("list-subjects", new ListSubjects());
 		commands.add("create-subject", new CreateSubject());
+		commands.add("hash-pw", new HashPassword());
 		commands.add("delete-subject", new DeleteSubject());
 
 		commands.add("install-template", new InstallTemplate());
 		commands.add("delete-template", new DeleteTemplate());
 
 		commands.add("heartbeat", new HeartBeat());
+		commands.add("extract-data", new ExtractData());
 
 		commands.add(COMMAND_BATCH, new CommandBatch());
 
@@ -175,7 +179,7 @@ public class CliCore {
 			Date installedOn = migrationInfo.getInstalledOn();
 			String logMessage = "Database is at version " + migrationInfo.getVersion() + ", state: " + stateName
 					+ ", installed on " + installedOn;
-			log.info(logMessage);
+			LOGGER.info(logMessage);
 			cle.initPlatform(cliConfig);
 		}
 
@@ -183,7 +187,7 @@ public class CliCore {
 			try {
 				commands.getCommand(parsedCommand).execute(cle);
 			} catch (Exception e) {
-				log.error("An error occured.", e);
+				LOGGER.error("An error occured.", e);
 				String message = e.getMessage();
 				if (null != message) {
 					logError(message);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ public class SearchTest extends Search {
 		Mockito.when(pageContext.getServletContext()).thenReturn(servletContext);
 		Mockito.when(pageContext.getSession()).thenReturn(session);
 		Mockito.when(pageContext.getOut()).thenReturn(jspWriter);
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		Answer<Void> mockWriter = new Answer<Void>() {
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				result.add((String) invocation.getArguments()[0]);
@@ -109,10 +109,10 @@ public class SearchTest extends Search {
 		Mockito.doAnswer(mockWriter).when(jspWriter).print(Mockito.anyString());
 		Mockito.doAnswer(mockWriter).when(jspWriter).write(Mockito.anyString());
 		Mockito.when(servletRequest.getServerName()).thenReturn(LOCALHOST);
-		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<String, Object>();
+		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		Mockito.when(servletContext.getAttribute(Scope.PLATFORM.name())).thenReturn(platformEnv);
 		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
-		Map<String, Site> siteMap = new HashMap<String, Site>();
+		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(LOCALHOST, site);
 		platformEnv.put("sites", siteMap);
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);

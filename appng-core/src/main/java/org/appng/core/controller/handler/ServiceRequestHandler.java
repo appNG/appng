@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import org.appng.api.Webservice;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
@@ -68,8 +69,6 @@ import org.appng.xml.platform.PagesReference;
 import org.appng.xml.platform.Section;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.Structure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -78,6 +77,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link RequestHandler} which handles {@link HttpServletRequest}s for different types of services.<br/>
@@ -139,18 +140,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class ServiceRequestHandler implements RequestHandler {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceRequestHandler.class);
 	protected static final String FORMAT_JSON = "json";
 	protected static final String FORMAT_HTML = "html";
 	protected static final String FORMAT_XML = "xml";
 	private MarshallService marshallService;
 	private PlatformTransformer transformer;
+	private final File debugFolder;
 
-	public ServiceRequestHandler(MarshallService marshallService, PlatformTransformer transformer) {
+	public ServiceRequestHandler(MarshallService marshallService, PlatformTransformer transformer, File debugFolder) {
 		this.marshallService = marshallService;
 		this.transformer = transformer;
+		this.debugFolder = debugFolder;
 	}
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
@@ -164,16 +167,27 @@ public class ServiceRequestHandler implements RequestHandler {
 				String applicationName = path.getApplicationName();
 				String serviceType = path.getElementAt(path.getApplicationIndex() + 1);
 
-				Site siteToUse = RequestUtil.getSiteByName(environment, siteName);
+				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
-					throw new IOException("no such site: " + siteName);
+					LOGGER.warn("No such site: '{}', returning {} (path: {})", siteName, HttpStatus.NOT_FOUND.value(),
+							path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
+				} else if (!siteToUse.hasState(SiteState.STARTED)) {
+					LOGGER.warn("Site '{}' is in state {}, returning {} (path: {})", siteName, siteToUse.getState(),
+							HttpStatus.SERVICE_UNAVAILABLE.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+					return;
 				}
 				URLClassLoader siteClassLoader = siteToUse.getSiteClassLoader();
 				Thread.currentThread().setContextClassLoader(siteClassLoader);
 				ApplicationProvider application = (ApplicationProvider) ((SiteImpl) siteToUse)
 						.getSiteApplication(applicationName);
 				if (null == application) {
-					throw new IOException("no such application: " + applicationName);
+					LOGGER.warn("No such application '{}' for site '{}' returning {} (path: {})", applicationName,
+							siteName, HttpStatus.NOT_FOUND.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
 				}
 				ApplicationRequest applicationRequest = application.getApplicationRequest(servletRequest,
 						servletResponse);
@@ -257,7 +271,7 @@ public class ServiceRequestHandler implements RequestHandler {
 		} catch (Exception e) {
 			String queryString = servletRequest.getQueryString();
 			String pathWithQuery = servletRequest.getServletPath() + (null == queryString ? "" : "?" + queryString);
-			LOGGER.error("error while processing service-request " + pathWithQuery, e);
+			LOGGER.error(String.format("error while processing service-request %s", pathWithQuery), e);
 			servletResponse.getWriter().write("an error occured");
 			servletResponse.getWriter().close();
 			servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -273,7 +287,7 @@ public class ServiceRequestHandler implements RequestHandler {
 		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
 		String platformXml = retrievePlatform(environment, path, siteToUse, element, platformProperties);
-		return transformer.transform(application, platformProperties, platformXml, charsetName);
+		return transformer.transform(application, platformProperties, platformXml, charsetName, debugFolder);
 	}
 
 	protected String retrievePlatform(Environment environment, Path path, Site siteToUse, Object element,

@@ -16,7 +16,11 @@
         http://www.springframework.org/schema/data/jpa
         http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
-	<context:component-scan base-package="org.appng.core" />
+	<context:component-scan base-package="org.appng.core">
+		<context:exclude-filter type="regex" expression="org.appng.core.controller.rest.*"/>
+		<context:exclude-filter type="regex" expression="org.appng.core.controller.PlatformConfig"/>
+	</context:component-scan>
+
 	<jpa:repositories base-package="org.appng.core.repository" entity-manager-factory-ref="entityManagerFactory"
 		factory-class="org.appng.persistence.repository.SearchRepositoryFactoryBean" transaction-manager-ref="coreTxManager" />
 

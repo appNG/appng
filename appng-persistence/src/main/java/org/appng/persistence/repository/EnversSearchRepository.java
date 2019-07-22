@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package org.appng.persistence.repository;
 
 import java.io.Serializable;
 
-import org.springframework.data.envers.repository.support.EnversRevisionRepository;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.history.RevisionRepository;
 
 /**
  * 
@@ -34,11 +34,11 @@ import org.springframework.data.repository.NoRepositoryBean;
  *            the type of the revision
  * 
  * @see SearchRepository
- * @see EnversRevisionRepository
+ * @see RevisionRepository
  */
 
 @NoRepositoryBean
-public interface EnversSearchRepository<T, ID extends Serializable, N extends Number & Comparable<N>> extends
-		EnversRevisionRepository<T, ID, N>, SearchRepository<T, ID> {
+public interface EnversSearchRepository<T, ID extends Serializable, N extends Number & Comparable<N>>
+		extends RevisionRepository<T, ID, N>, SearchRepository<T, ID> {
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class DataContainerTest {
 
 	private DataContainer dataContainer;
 	private FieldProcessor fieldProcessor;
-	private List<Person> persons = new ArrayList<Person>();
+	private List<Person> persons = new ArrayList<>();
 	private Pageable pageable = new PageRequest(0, 10);
 	private Page<Person> page = new PageImpl<Person>(persons, pageable, 2);
 	private Person luke = new Person(1, "Luke", "Skywalker");
@@ -96,7 +96,7 @@ public class DataContainerTest {
 	public void testSetPageSort() {
 		PageRequest newPageable = new PageRequest(5, 10, new Sort(new Order(Direction.ASC, "name"), new Order(
 				Direction.DESC, "firstName")));
-		List<Person> personList = new ArrayList<Person>(persons);
+		List<Person> personList = new ArrayList<>(persons);
 		Person anakin = new Person(3, "Anakin", "Skywalker");
 		Person unknown = new Person(4, null, "Skywalker");
 		Person c3p0 = new Person(5, "C3P0", null);

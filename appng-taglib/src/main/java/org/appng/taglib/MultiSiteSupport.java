@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,14 @@ import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.core.service.CoreService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to retrieve the calling and the executing {@link Site} and the right {@link ApplicationProvider} that
@@ -41,9 +42,10 @@ import org.springframework.context.ApplicationContext;
  * 
  * @see SiteApplication#getGrantedSites()
  */
+
+@Slf4j
 public class MultiSiteSupport {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MultiSiteSupport.class);
 	private SiteImpl callingSite;
 	private SiteImpl executingSite;
 	private ApplicationProvider applicationProvider;
@@ -66,10 +68,9 @@ public class MultiSiteSupport {
 			if (null != site) {
 				LOGGER.debug("site '{}' is granting site '{}' access to application '{}'", site.getName(),
 						callingSite.getName(), application);
-				executingSite = (SiteImpl) RequestUtil.getSiteByName(env, site.getName());
-				if (null != executingSite) {
-					applicationProvider = (ApplicationProvider) ((SiteImpl) executingSite)
-							.getSiteApplication(application);
+				executingSite = (SiteImpl) RequestUtil.waitForSite(env, site.getName());
+				if (null != executingSite && executingSite.hasState(SiteState.STARTED)) {
+					applicationProvider = (ApplicationProvider) executingSite.getSiteApplication(application);
 					if (null == applicationProvider) {
 						throw new JspException(
 								String.format(

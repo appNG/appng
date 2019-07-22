@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,24 @@
 package org.appng.cli;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.appng.core.domain.PlatformEventListener.EventProvider;
 
 public class CliEventProvider extends EventProvider {
 
 	@Override
-	public String getUser(HttpServletRequest request) {
+	protected String getUser(HttpSession session) {
 		return System.getProperty("user.name");
 	}
 
 	@Override
-	public String getContext(HttpServletRequest request) {
+	protected String getContext(HttpServletRequest request) {
 		return CliBootstrap.CURRENT_COMMAND;
 	}
 
 	@Override
-	public String getApplication(HttpServletRequest servletRequest) {
+	protected String getApplication() {
 		return "appNG CLI";
 	}
 

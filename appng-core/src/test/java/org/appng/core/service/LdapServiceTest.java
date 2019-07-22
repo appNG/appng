@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class LdapServiceTest {
 		ldapService = new LdapService();
 		ldapService.setLdapCtxFactory("org.appng.core.service.LdapContextFactoryMock");
 
-		sitePropertyMocks = new HashMap<String, Object>();
+		sitePropertyMocks = new HashMap<>();
 		sitePropertyMocks.put(LdapService.LDAP_HOST, "ldap://localhost:389");
 		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "ou=users,dc=example,dc=com");
 		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "ou=groups,dc=example,dc=com");

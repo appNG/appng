@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,15 +34,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@code StyleSheetProvider} assembles a XSL-stylesheet from one master XSL-file and a various number of other
@@ -51,9 +50,9 @@ import org.xml.sax.SAXException;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class StyleSheetProvider {
 
-	private static final Logger log = LoggerFactory.getLogger(StyleSheetProvider.class);
 	private static final String XSL_INCLUDE = "xsl:include";
 	private InputStream masterSource;
 	private DocumentBuilderFactory documentBuilderFactory;
@@ -61,7 +60,7 @@ public class StyleSheetProvider {
 	private DocumentBuilder documentBuilder;
 	private Transformer transformer;
 	private String insertBefore;
-	private Map<String, InputStream> styleReferences = new TreeMap<String, InputStream>();
+	private Map<String, InputStream> styleReferences = new TreeMap<>();
 	private String name;
 	private String templateRoot;
 
@@ -69,7 +68,7 @@ public class StyleSheetProvider {
 	}
 
 	/**
-	 * Initialitzes this {@code StyleSheetProvider} by setting the {@link DocumentBuilder} and {@link Transformer} to
+	 * Initializes this {@code StyleSheetProvider} by setting the {@link DocumentBuilder} and {@link Transformer} to
 	 * use.
 	 */
 	public void init() {
@@ -77,7 +76,7 @@ public class StyleSheetProvider {
 			documentBuilder = getDocumentBuilderFactory().newDocumentBuilder();
 			transformer = getTransformerFactory().newTransformer();
 		} catch (Exception e) {
-			log.error("[" + name + "] error setting up StyleSheetProvider, instance will not work!", e);
+			LOGGER.error(String.format("[%s] error setting up StyleSheetProvider, instance will not work!", name), e);
 		}
 	}
 
@@ -94,7 +93,7 @@ public class StyleSheetProvider {
 			this.masterSource = masterXsl;
 			this.templateRoot = templateRoot;
 		} catch (Exception e) {
-			log.error("[" + name + "] error setting up StyleSheetProvider, instance will not work!", e);
+			LOGGER.error(String.format("[%s] error setting up StyleSheetProvider, instance will not work!", name), e);
 		}
 	}
 
@@ -109,13 +108,12 @@ public class StyleSheetProvider {
 	public void addStyleSheet(InputStream styleSheet, String reference) {
 		try {
 			if (styleReferences.containsKey(reference)) {
-				log.warn("[" + name + "] stylesheet '" + reference
-						+ "' is already defined, contents will be overridden!");
+				LOGGER.warn("[{}] stylesheet '{}' is already defined, contents will be overridden!", name, reference);
 			}
 			styleReferences.put(reference, styleSheet);
-			log.trace("[" + name + "] adding stylesheet with reference '" + reference + "'");
+			LOGGER.trace("[{}] adding stylesheet with reference '{}'", name, reference);
 		} catch (Exception e) {
-			log.error("[" + name + "] error parsing stylesheet '" + reference + "'", e);
+			LOGGER.error(String.format("[%s] error parsing stylesheet '%s'", name, reference), e);
 		}
 	}
 
@@ -145,7 +143,7 @@ public class StyleSheetProvider {
 			Node rootNode = masterDoc.getFirstChild();
 			Node insertionPoint = null;
 			NodeList nodes = rootNode.getChildNodes();
-			List<Node> includes = new ArrayList<Node>();
+			List<Node> includes = new ArrayList<>();
 			int hits = nodes.getLength();
 			for (int i = 0; i < hits; i++) {
 				Node node = nodes.item(i);
@@ -162,7 +160,7 @@ public class StyleSheetProvider {
 				String reference = href.getTextContent();
 				rootNode.removeChild(node);
 				if (deleteIncludes) {
-					log.trace("[" + name + "] removing reference to '" + reference + "'");
+					LOGGER.trace("[{}] removing reference to '{}'", name, reference);
 				} else {
 					File file = new File(templateRoot, reference);
 					styleReferences.put(reference, new FileInputStream(file));
@@ -173,28 +171,41 @@ public class StyleSheetProvider {
 				includeStyleSheet(rootNode, insertionPoint, reference);
 			}
 
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			DOMSource domSource = new DOMSource(masterDoc);
-			if (additionalOut != null) {
-				transformer.transform(domSource, new StreamResult(additionalOut));
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				DOMSource domSource = new DOMSource(masterDoc);
+				if (additionalOut != null) {
+					transformer.transform(domSource, new StreamResult(additionalOut));
+				}
+				transformer.transform(domSource, new StreamResult(outputStream));
+				LOGGER.debug("stylesheet complete");
+				return outputStream.toByteArray();
 			}
-			transformer.transform(domSource, new StreamResult(outputStream));
-			log.debug("stylesheet complete");
-			return outputStream.toByteArray();
 		} catch (Exception e) {
-			log.error("[" + name + "] error writing stylesheet", e);
+			LOGGER.error(String.format("[%s] error writing stylesheet", name), e);
+		} finally {
+			close(masterSource);
 		}
 		return null;
 	}
 
-	private void includeStyleSheet(Node rootNode, Node insertionPoint, String reference) throws SAXException,
-			IOException {
+	protected void close(InputStream is) {
+		try {
+			is.close();
+		} catch (IOException e) {
+			LOGGER.error("error closing stream", e);
+		} finally {
+			is = null;
+		}
+	}
+
+	private void includeStyleSheet(Node rootNode, Node insertionPoint, String reference)
+			throws SAXException, IOException {
 		InputStream inputStream = styleReferences.get(reference);
 		Document styleSheetDoc = getDocumentBuilder().parse(inputStream);
 		if (null == styleSheetDoc) {
-			log.warn("[" + name + "] referenced stylesheet '" + reference + "' could not be found, inclusion skipped!");
+			LOGGER.warn("[{}] referenced stylesheet '{}' could not be found, inclusion skipped!", name, reference);
 		} else {
-			log.trace("[" + name + "] including referenced stylesheet '" + reference + "'");
+			LOGGER.trace("[{}] including referenced stylesheet '{}'", name, reference);
 			NodeList childNodes = styleSheetDoc.getFirstChild().getChildNodes();
 			Document ownerDocument = rootNode.getOwnerDocument();
 			Comment beginComment = ownerDocument.createComment("[BEGIN] embed '" + reference + "'");
@@ -276,7 +287,7 @@ public class StyleSheetProvider {
 	 * @see #addStyleSheet(InputStream, String)
 	 */
 	public String getId() {
-		return StringUtils.join(new TreeSet<String>(styleReferences.keySet()), ",");
+		return StringUtils.join(new TreeSet<>(styleReferences.keySet()), ",");
 	}
 
 	/**
@@ -286,14 +297,7 @@ public class StyleSheetProvider {
 	 * @see #addStyleSheet(InputStream, String)
 	 */
 	public void cleanup() {
-		IOUtils.closeQuietly(masterSource);
-		masterSource = null;
-		List<String> keySet = new ArrayList<String>(styleReferences.keySet());
-		for (String reference : keySet) {
-			InputStream stream = styleReferences.remove(reference);
-			IOUtils.closeQuietly(stream);
-			stream = null;
-		}
+		new ArrayList<>(styleReferences.keySet()).forEach(k -> close(styleReferences.remove(k)));
 	}
 
 	/**

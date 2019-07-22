@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,9 +83,9 @@ public class FileFieldConverterTest extends AbstractFieldConverterTest {
 	@Test
 	public void testSetObjectEmptyValue() throws Exception {
 		setFiles();
-		Mockito.when(request.getFormUploads(OBJECT)).thenReturn(new ArrayList<FormUpload>());
+		Mockito.when(request.getFormUploads(OBJECT)).thenReturn(new ArrayList<>());
 		fieldConverter.setObject(fieldWrapper, request);
-		Assert.assertEquals(new ArrayList<FormUpload>(), fieldWrapper.getObject());
+		Assert.assertEquals(new ArrayList<>(), fieldWrapper.getObject());
 	}
 
 	@Test

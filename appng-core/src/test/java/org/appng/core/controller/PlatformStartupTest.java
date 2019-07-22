@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.core.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -54,12 +55,22 @@ public class PlatformStartupTest extends PlatformStartup {
 	@Test
 	public void testPlatformStartup() throws InvalidConfigurationException, SQLException {
 		MockitoAnnotations.initMocks(this);
+		Mockito.when(servContext.getRealPath("/")).thenReturn("");
 		Mockito.when(servContext.getRealPath("WEB-INF/lib")).thenReturn("");
-		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<String, Object>();
+		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		Mockito.when(servContext.getAttribute(Mockito.eq(Scope.PLATFORM.name()))).thenReturn(platformEnv);
-		InputStream configResource = getClass().getClassLoader().getResourceAsStream(CONFIG_LOCATION.substring(1));
-		Mockito.when(servContext.getResourceAsStream(CONFIG_LOCATION)).thenReturn(configResource);
+		InputStream configResource = getClass().getClassLoader()
+				.getResourceAsStream(WEB_INF.substring(1) + CONFIG_LOCATION);
+		Mockito.when(servContext.getResourceAsStream(WEB_INF + CONFIG_LOCATION)).thenReturn(configResource);
+
+		URL log4jResource = getClass().getClassLoader().getResource(Log4jConfigurer.LOG4J_PROPERTIES.substring(6));
+		Mockito.when(servContext.getRealPath(WEB_INF + Log4jConfigurer.LOG4J_PROPERTIES))
+				.thenReturn(log4jResource.getPath());
 		Mockito.when(servContext.getRealPath("")).thenReturn("target");
+		Mockito.when(servContext.getRealPath(WEB_INF + Log4jConfigurer.LOG4J_PROPERTIES))
+				.thenReturn("classpath:log4j.properties");
+		new Log4jConfigurer().contextInitialized(new ServletContextEvent(servContext));
+
 		contextInitialized(new ServletContextEvent(servContext));
 		Assert.assertTrue(platformEnv.get(Platform.Environment.CORE_PLATFORM_CONTEXT).equals(platformCtx));
 		Mockito.verify(initializerService).initPlatform(Mockito.isA(Properties.class), Mockito.isA(Environment.class),
@@ -77,7 +88,7 @@ public class PlatformStartupTest extends PlatformStartup {
 	}
 
 	@Override
-	protected void initPlatformContext(ServletContext ctx, Environment env, Properties properties,
+	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
 			DatabaseConnection platformConnection) throws IOException {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT, platformCtx);
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import com.beust.jcommander.ParameterException;
  */
 public class CliCommands {
 
-	private Map<String, ExecutableCliCommand> commands = new HashMap<String, ExecutableCliCommand>();
+	private Map<String, ExecutableCliCommand> commands = new HashMap<>();
 	private JCommander jc;
 
 	public CliCommands(JCommander jc) {

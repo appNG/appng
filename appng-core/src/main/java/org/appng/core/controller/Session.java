@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,19 @@
  */
 package org.appng.core.controller;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * A simple value object representing a users's http-session.
  * 
  * @author Matthias Müller
+ * 
+ * @see SessionListener
  */
-public class Session implements Cloneable {
+public class Session implements Cloneable, Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String domain;
 	private String site;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ import org.appng.xml.application.PackageInfo;
 public class PackageWrapper implements Comparable<PackageWrapper> {
 
 	private static final String MINUS = "-";
-	private Map<String, PackageInfo> versions = new HashMap<String, PackageInfo>();
-	private Map<String, PackageInfo> latestSnapshotForVersion = new HashMap<String, PackageInfo>();
+	private Map<String, PackageInfo> versions = new HashMap<>();
+	private Map<String, PackageInfo> latestSnapshotForVersion = new HashMap<>();
 	private Package publishedPackage;
 	private PackageInfo latestRelease;
 	private PackageInfo latestSnapshot;
@@ -86,7 +86,7 @@ public class PackageWrapper implements Comparable<PackageWrapper> {
 	}
 
 	Map<String, PackageInfo> getVersions() {
-		return new HashMap<String, PackageInfo>(versions);
+		return new HashMap<>(versions);
 	}
 
 	PackageInfo getVersion(String version, String timestamp) {

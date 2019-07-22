@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,13 @@ public class CheckSiteRunning implements ExecutableCliCommand {
 		} catch (IOException e) {
 			// ignore
 		} finally {
-			IOUtils.closeQuietly(is);
+			if (null != is) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
 			if (null != connection) {
 				connection.disconnect();
 			}
@@ -118,8 +124,8 @@ public class CheckSiteRunning implements ExecutableCliCommand {
 				Platform platform = MarshallService.getMarshallService().unmarshall(content, Platform.class);
 				this.version = platform.getVersion();
 				this.running = true;
-				CliEnvironment.out.println("site '" + name + "' is running at " + siteUri + " with appNG version "
-						+ version);
+				CliEnvironment.out
+						.println("site '" + name + "' is running at " + siteUri + " with appNG version " + version);
 			} else {
 				String message = "site '" + name + "' is NOT running at " + siteUri;
 				if (responseCode > 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.appng.persistence.repository;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -98,6 +99,13 @@ public class SearchRepositoryTest {
 			}
 		}), pageable);
 		validate(page);
+	}
+	
+
+	@Test
+	public void testQueryStringUnpaged() {
+		List<TestEntity> items = repo.search("from TestEntity e where e.name like ?1", "%name%");
+		Assert.assertEquals(3, items.size());
 	}
 
 	@Test

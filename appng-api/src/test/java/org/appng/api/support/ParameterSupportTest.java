@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class ParameterSupportTest {
 
 	@Test
 	public void testMap() {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put("foo", "jin");
 		parameters.put("foobar", "fizz");
 		ParameterSupport dollarSupport = new DollarParameterSupport(parameters);
@@ -63,7 +63,7 @@ public class ParameterSupportTest {
 
 	@Test
 	public void testEscapeDollar() {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put("foo", "$jin");
 		parameters.put("foobar", "jin$fizz$");
 		ParameterSupport dollarSupport = new DollarParameterSupport(parameters);
@@ -73,7 +73,7 @@ public class ParameterSupportTest {
 
 	@Test
 	public void test() {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put("foo", "jin");
 		parameters.put("foobar", "fizz");
 
@@ -96,7 +96,7 @@ public class ParameterSupportTest {
 
 	@Test
 	public void testCustom() {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put("foo", "jin");
 		parameters.put("foobar", "fizz");
 		ParameterSupport parameterSupport = new ParameterSupportBase("\\[\\[", "\\]\\]", parameters);
@@ -106,12 +106,12 @@ public class ParameterSupportTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidPrefix() {
-		new ParameterSupportBase("", "\\}", new HashMap<String, String>());
+		new ParameterSupportBase("", "\\}", new HashMap<>());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidSuffix() {
-		new ParameterSupportBase("\\$", "", new HashMap<String, String>());
+		new ParameterSupportBase("\\$", "", new HashMap<>());
 	}
 
 }

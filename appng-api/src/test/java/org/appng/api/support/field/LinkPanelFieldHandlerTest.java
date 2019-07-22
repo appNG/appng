@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class LinkPanelFieldHandlerTest extends AbstractFieldConverterTest {
 
 	@Before
 	public void setup() throws Exception {
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 		params.put("param1", 5);
 		super.setup(FieldType.LINKPANEL, params);
 		fieldWrapper.setLinkpanel(getLinkPanel());

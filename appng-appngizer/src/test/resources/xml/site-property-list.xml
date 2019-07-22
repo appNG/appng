@@ -7,6 +7,11 @@
 			which is responsible for JDBC connection-pooling. Supported are 'org.appng.core.repository.config.HikariCPConfigurer'
 			and 'org.appng.core.repository.config.TomcatJdbcConfigurer'</description>
 	</property>
+	<property name="allowSkipRender" self="http://localhost/site/localhost/property/allowSkipRender">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Allow skipping of the render phase using render=false for the manager GUI or the XSLT based rendering of taglets.</description>
+	</property>
 	<property name="appendTabId" self="http://localhost/site/localhost/property/appendTabId">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
@@ -289,8 +294,8 @@
 		<description>The absolute path to the sites root-directory</description>
 	</property>
 	<property name="supportReloadFile" self="http://localhost/site/localhost/property/supportReloadFile">
-		<value>false</value>
-		<defaultValue>false</defaultValue>
+		<value>true</value>
+		<defaultValue>true</defaultValue>
 		<description>If true, a site reload is performed when a file named .reload is created in the site's root directory.</description>
 	</property>
 	<property name="supportedLanguages" self="http://localhost/site/localhost/property/supportedLanguages">

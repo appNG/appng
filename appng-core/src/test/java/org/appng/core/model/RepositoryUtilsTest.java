@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class RepositoryUtilsTest {
-	
+
 	@Test
-	public void testIsSnapshot(){
+	public void testIsSnapshot() {
 		Assert.assertFalse(RepositoryUtils.isSnapshot("snapshot"));
 		Assert.assertFalse(RepositoryUtils.isSnapshot("SNAPSHOT"));
 		Assert.assertFalse(RepositoryUtils.isSnapshot("sNaPsHoT"));
@@ -32,7 +32,7 @@ public class RepositoryUtilsTest {
 	}
 
 	@Test
-	public void testGetDate(){
+	public void testGetDate() {
 		ApplicationInfo app = new ApplicationInfo();
 		app.setTimestamp("19700101-0100");
 		Date date = RepositoryUtils.getDate(app);
@@ -69,6 +69,36 @@ public class RepositoryUtilsTest {
 		Assert.assertTrue(RepositoryUtils.isNewer(v2_0_0, v1_0_0_a));
 		Assert.assertTrue(RepositoryUtils.isNewer(v2_0_0, v1_0_0_b));
 		Assert.assertTrue(RepositoryUtils.isNewer(v2_0_0, v1_1_0));
+
+		ApplicationInfo v0_9_0 = new ApplicationInfo();
+		v0_9_0.setVersion("0.9.0");
+		ApplicationInfo v0_40_0 = new ApplicationInfo();
+		v0_40_0.setVersion("0.40.0");
+
+		Assert.assertTrue(RepositoryUtils.isNewer(v0_40_0, v0_9_0));
+		Assert.assertTrue(RepositoryUtils.isNewer(v0_40_0, v0_9_0));
+		Assert.assertTrue(RepositoryUtils.isNewer(v0_40_0, v0_9_0));
+	}
+
+	@Test
+	public void testIsNewerNotSemVer() {
+		ApplicationInfo v1_0 = new ApplicationInfo();
+		v1_0.setVersion("1.0-SNAPSHOT");
+		v1_0.setTimestamp("20180111-0416");
+
+		ApplicationInfo v1_0_ = new ApplicationInfo();
+		v1_0_.setVersion("1.0-SNAPSHOT");
+		v1_0_.setTimestamp("20180111-0816");
+
+		ApplicationInfo v1_1 = new ApplicationInfo();
+		v1_1.setVersion("1.1-SNAPSHOT");
+		v1_1.setTimestamp("20180111-1016");
+
+		Assert.assertTrue(RepositoryUtils.isNewer(v1_0_, v1_0));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0, v1_0_));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0_, v1_1));
+		Assert.assertTrue(RepositoryUtils.isNewer(v1_1, v1_0));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0, v1_1));
 	}
 
 }

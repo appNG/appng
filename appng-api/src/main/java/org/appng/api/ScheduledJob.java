@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.api;
 
 import java.util.Map;
 
+import org.appng.api.ScheduledJobResult.ExecutionResult;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 
@@ -88,4 +89,16 @@ public interface ScheduledJob {
 	 *             if any error occurs during job execution
 	 */
 	void execute(Site site, Application application) throws Exception;
+
+	/**
+	 * This method is called after execution of the job. It has to provide the result and optionally some custom
+	 * information to be stored in the appNG database.
+	 * 
+	 * @return the {@code ScheduledJobResult}
+	 */
+	default ScheduledJobResult getResult() {
+		ScheduledJobResult scheduledJobResult = new ScheduledJobResult();
+		scheduledJobResult.setResult(ExecutionResult.SUCCESS);
+		return scheduledJobResult;
+	}
 }

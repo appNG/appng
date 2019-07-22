@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.appng.api.GlobalXMLTaglet;
 import org.appng.api.PageProcessor;
 import org.appng.api.Request;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.Taglet;
 import org.appng.api.XMLTaglet;
 import org.appng.api.model.Application;
@@ -72,7 +73,7 @@ public class TagletProcessorTest {
 
 	private TagletProcessor tagletProcessor = new TagletProcessor();
 
-	private Map<String, String> tagletAttributes = new HashMap<String, String>();
+	private Map<String, String> tagletAttributes = new HashMap<>();
 
 	private StringWriter writer = new StringWriter();
 
@@ -81,6 +82,9 @@ public class TagletProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(request.getEnvironment()).thenReturn(environment);
 		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
+		org.appng.api.model.Properties siteProps = Mockito.mock(org.appng.api.model.Properties.class);
+		Mockito.when(site.getProperties()).thenReturn(siteProps);
+		Mockito.when(siteProps.getBoolean(SiteProperties.ALLOW_SKIP_RENDER)).thenReturn(true);
 		Mockito.when(environment.getLocale()).thenReturn(Locale.ENGLISH);
 	}
 
@@ -98,8 +102,8 @@ public class TagletProcessorTest {
 
 	@Test
 	public void testGlobalTaglet() throws Exception {
-		Mockito.when(globalTaglet.processTaglet(site, site, application, request, tagletAttributes)).thenReturn(
-				"a global taglet");
+		Mockito.when(globalTaglet.processTaglet(site, site, application, request, tagletAttributes))
+				.thenReturn("a global taglet");
 		Mockito.when(application.getBean("taglet", Taglet.class)).thenReturn(globalTaglet);
 		boolean processPage = tagletProcessor.perform(site, site, application, tagletAttributes, request, "taglet", "",
 				writer);
@@ -111,9 +115,9 @@ public class TagletProcessorTest {
 
 	@Test
 	public void testXmlTaglet() throws Exception {
-		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes)).thenReturn(
-				getDataContainer());
-		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL)).thenReturn(false);
+		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes))
+				.thenReturn(getDataContainer());
+		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER)).thenReturn(false);
 		Mockito.when(application.getBean("taglet", XMLTaglet.class)).thenReturn(xmlTaglet);
 		tagletProcessor.setMarshallService(MarshallService.getMarshallService());
 		boolean processPage = tagletProcessor.perform(site, site, application, tagletAttributes, request, "taglet",
@@ -133,9 +137,9 @@ public class TagletProcessorTest {
 		String suffixKey = "noXslSuffix";
 		tagletAttributes.put(prefixKey, prefix);
 		tagletAttributes.put(suffixKey, suffix);
-		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes)).thenReturn(
-				getDataContainer());
-		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL)).thenReturn(false);
+		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes))
+				.thenReturn(getDataContainer());
+		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER)).thenReturn(false);
 		Mockito.when(application.getBean("taglet", XMLTaglet.class)).thenReturn(xmlTaglet);
 		tagletProcessor.setMarshallService(MarshallService.getMarshallService());
 		boolean processPage = tagletProcessor.perform(site, site, application, tagletAttributes, request, "taglet",
@@ -155,9 +159,9 @@ public class TagletProcessorTest {
 		String prefix = "test prefix";
 		String prefixKey = "noXslPrefix";
 		tagletAttributes.put(prefixKey, prefix);
-		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes)).thenReturn(
-				getDataContainer());
-		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL)).thenReturn(false);
+		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes))
+				.thenReturn(getDataContainer());
+		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER)).thenReturn(false);
 		Mockito.when(application.getBean("taglet", XMLTaglet.class)).thenReturn(xmlTaglet);
 		tagletProcessor.setMarshallService(MarshallService.getMarshallService());
 		boolean processPage = tagletProcessor.perform(site, site, application, tagletAttributes, request, "taglet",
@@ -176,9 +180,9 @@ public class TagletProcessorTest {
 		String suffix = "test suffix";
 		String suffixKey = "noXslSuffix";
 		tagletAttributes.put(suffixKey, suffix);
-		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes)).thenReturn(
-				getDataContainer());
-		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL)).thenReturn(false);
+		Mockito.when(xmlTaglet.processTaglet(site, application, request, tagletAttributes))
+				.thenReturn(getDataContainer());
+		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER)).thenReturn(false);
 		Mockito.when(application.getBean("taglet", XMLTaglet.class)).thenReturn(xmlTaglet);
 		tagletProcessor.setMarshallService(MarshallService.getMarshallService());
 		boolean processPage = tagletProcessor.perform(site, site, application, tagletAttributes, request, "taglet",
@@ -194,9 +198,9 @@ public class TagletProcessorTest {
 
 	@Test
 	public void testGlobalXmlTaglet() throws Exception {
-		Mockito.when(globalXMLTaglet.processTaglet(site, site, application, request, tagletAttributes)).thenReturn(
-				getDataContainer());
-		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL)).thenReturn(false);
+		Mockito.when(globalXMLTaglet.processTaglet(site, site, application, request, tagletAttributes))
+				.thenReturn(getDataContainer());
+		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER)).thenReturn(false);
 		Mockito.when(application.getBean("taglet", XMLTaglet.class)).thenReturn(globalXMLTaglet);
 		tagletProcessor.setMarshallService(MarshallService.getMarshallService());
 		boolean processPage = tagletProcessor.perform(site, site, application, tagletAttributes, request, "taglet",

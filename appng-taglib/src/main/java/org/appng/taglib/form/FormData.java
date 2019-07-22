@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
 import org.appng.formtags.FormData.FormDataMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class represents a web Form.
@@ -40,10 +40,10 @@ import org.slf4j.LoggerFactory;
  * @see FormElement
  * @see FormGroup
  */
+@Slf4j
 public class FormData extends BodyTagSupport {
 
 	private static final String FORM_CLOSE = "</form>";
-	private static final Logger log = LoggerFactory.getLogger(FormData.class);
 
 	public FormData() {
 
@@ -76,7 +76,7 @@ public class FormData extends BodyTagSupport {
 				}
 				out.print(content.toString());
 			} catch (IOException ioe) {
-				log.error("error while writing body", ioe);
+				LOGGER.error("error while writing body", ioe);
 			}
 		}
 		return SKIP_BODY;

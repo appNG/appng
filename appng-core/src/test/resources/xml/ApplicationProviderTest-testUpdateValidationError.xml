@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<applicationReference xmlns="http://www.appng.org/schema/platform" version="1.5.2" id="demo-application">
+<applicationReference xmlns="http://www.appng.org/schema/platform" id="demo-application" version="1.5.2">
 	<config>
 		<title id="plugintitle">A Test-Plugin</title>
 		<permissions>
-			<permission mode="set" ref="debug"></permission>
+			<permission ref="debug" mode="set"></permission>
 		</permissions>
 		<session>
 			<session-params>
@@ -13,12 +13,12 @@
 		</session>
 	</config>
 	<pages>
-		<page type="index" id="entity">
+		<page id="entity" type="index">
 			<config>
 				<title id="entity">Entity</title>
 				<description></description>
 				<permissions>
-					<permission mode="set" ref="page.entity"></permission>
+					<permission ref="page.entity" mode="set"></permission>
 				</permissions>
 				<url-schema>
 					<url-params>
@@ -34,17 +34,17 @@
 						<post-param name="form_action">update</post-param>
 					</post-params>
 				</url-schema>
-				<linkpanel location="top" id="page-nav">
-					<link target="/page0" mode="intern" id="page-nav[1]">
+				<linkpanel id="page-nav" location="top">
+					<link id="page-nav[1]" mode="intern" target="/page0">
 						<label id="page0">Page 0</label>
 					</link>
-					<link target="/page1" mode="intern" id="page-nav[2]">
+					<link id="page-nav[2]" mode="intern" target="/page1">
 						<condition expression="${1==1}" />
 						<label id="page1">Page 1</label>
 					</link>
-					<link target="/page3" mode="intern" id="page-nav[4]">
+					<link id="page-nav[4]" mode="intern" target="/page3">
 						<permissions>
-							<permission mode="set" ref="page3"></permission>
+							<permission ref="page3" mode="set"></permission>
 						</permissions>
 						<label id="page3">Page 3</label>
 					</link>
@@ -53,11 +53,11 @@
 			<structure>
 				<section>
 					<element passive="true">
-						<action eventId="events" id="update">
+						<action id="update" eventId="events">
 							<config>
-								<title params="#{name},${entityId}" id="update.entity">Update entity new name (ID: 1)</title>
+								<title id="update.entity" params="#{name},${entityId}">Update entity new name (ID: 1)</title>
 								<permissions>
-									<permission mode="set" ref="update.entity"></permission>
+									<permission ref="update.entity" mode="set"></permission>
 								</permissions>
 								<params>
 									<param name="entityId">1</param>
@@ -65,28 +65,28 @@
 									<param name="action">update</param>
 								</params>
 								<meta-data bindClass="org.appng.testapplication.TestEntity">
-									<field binding="id" hidden="true" readonly="true" format="#" type="int" name="id">
+									<field name="id" type="int" format="#" readonly="true" hidden="true" binding="id">
 										<label id="id">ID</label>
 										<condition expression="true" />
 									</field>
-									<field binding="name" type="text" name="name">
+									<field name="name" type="text" binding="name">
 										<label id="name">Name</label>
 										<validation>
 											<notNull>
-												<message class="ERROR" ref="name">must not be null</message>
+												<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 											</notNull>
 										</validation>
 										<messages ref="name">
-											<message class="ERROR" ref="name">must not be null</message>
+											<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 										</messages>
 									</field>
-									<field binding="integerValue" type="list:checkbox" name="integerValue">
+									<field name="integerValue" type="list:checkbox" binding="integerValue">
 										<label id="integerValue">integer value</label>
 									</field>
-									<field binding="doubleValue" format="#.##" type="decimal" name="doubleValue">
+									<field name="doubleValue" type="decimal" format="#.##" binding="doubleValue">
 										<label id="doubleValue">double value</label>
 									</field>
-									<field binding="booleanValue" type="checkbox" name="booleanValue">
+									<field name="booleanValue" type="checkbox" binding="booleanValue">
 										<label id="booleanValue">boolean value</label>
 									</field>
 								</meta-data>
@@ -103,28 +103,28 @@
 								<input name="booleanValue">true</input>
 							</userdata>
 							<data>
-								<selection type="checkbox" id="integerValue">
+								<selection id="integerValue" type="checkbox">
 									<title id="integerValue">integer value</title>
-									<option selected="false" name="1" value="1" />
-									<option selected="false" name="2" value="2" />
-									<option selected="false" name="3" value="3" />
-									<option selected="true" name="4" value="4" />
-									<option selected="false" name="5" value="5" />
+									<option value="1" name="1" selected="false" />
+									<option value="2" name="2" selected="false" />
+									<option value="3" name="3" selected="false" />
+									<option value="4" name="4" selected="true" />
+									<option value="5" name="5" selected="false" />
 								</selection>
 								<result>
-									<field type="int" name="id">
+									<field name="id" type="int">
 										<value>1</value>
 									</field>
-									<field type="text" name="name">
+									<field name="name" type="text">
 										<value>new name</value>
 									</field>
-									<field type="list:checkbox" name="integerValue">
+									<field name="integerValue" type="list:checkbox">
 										<value>5</value>
 									</field>
-									<field type="decimal" name="doubleValue">
+									<field name="doubleValue" type="decimal">
 										<value>5.5</value>
 									</field>
-									<field type="checkbox" name="booleanValue">
+									<field name="booleanValue" type="checkbox">
 										<value>false</value>
 									</field>
 								</result>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,14 +59,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
-public class ControllerTest extends Controller implements Controller.Support {
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger LOG = LoggerFactory.getLogger(ControllerTest.class);
+@Slf4j
+public class ControllerTest extends Controller {
+
 	private static final String host = "foo.example.com";
 	TestSupport base;
 	DefaultEnvironment env;
@@ -85,7 +85,6 @@ public class ControllerTest extends Controller implements Controller.Support {
 		base.provider.registerBean("request", applicationRequest);
 		env = Mockito.spy(new DefaultEnvironment(base.ctx, host));
 		base.provider.registerBean("environment", env);
-		setSupport(this);
 	}
 
 	@Test
@@ -106,7 +105,7 @@ public class ControllerTest extends Controller implements Controller.Support {
 	}
 
 	protected void fail(Exception e) {
-		LOG.error("error during test", e);
+		LOGGER.error("error during test", e);
 		Assert.fail(e.getMessage());
 	}
 
@@ -298,10 +297,8 @@ public class ControllerTest extends Controller implements Controller.Support {
 					return null;
 				}
 			};
-			Mockito.doAnswer(jspAnswer)
-					.when(jspHandler)
-					.handle(isA(HttpServletRequest.class), isA(HttpServletResponse.class), isA(Environment.class),
-							isA(Site.class), isA(PathInfo.class));
+			Mockito.doAnswer(jspAnswer).when(jspHandler).handle(isA(HttpServletRequest.class),
+					isA(HttpServletResponse.class), isA(Environment.class), isA(Site.class), isA(PathInfo.class));
 
 			doGet(base.request, base.response);
 			Assert.assertEquals(jspCalled, new String(base.out.toByteArray()));
@@ -433,7 +430,7 @@ public class ControllerTest extends Controller implements Controller.Support {
 	}
 
 	public void testApplication(String path) throws InvalidConfigurationException {
-		when(base.requestProcessor.processWithTemplate(isA(Site.class))).thenReturn("ok");
+		when(base.requestProcessor.processWithTemplate(isA(Site.class), isA(File.class))).thenReturn("ok");
 		when(base.request.getServletPath()).thenReturn(path);
 		try {
 			doGet(base.request, base.response);
@@ -441,7 +438,7 @@ public class ControllerTest extends Controller implements Controller.Support {
 			Mockito.verify(env).setAttribute(Scope.REQUEST, EnvironmentKeys.BASE_URL, "/manager");
 			String result = new String(base.out.toByteArray());
 			Assert.assertEquals("ok" + System.getProperty("line.separator"), result);
-			verify(base.requestProcessor).processWithTemplate(isA(Site.class));
+			verify(base.requestProcessor).processWithTemplate(isA(Site.class), isA(File.class));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
@@ -489,8 +486,8 @@ public class ControllerTest extends Controller implements Controller.Support {
 	}
 
 	@Override
-	public void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content, String encoding)
-			throws IOException, ServletException {
+	public void serveResource(HttpServletRequest request, HttpServletResponse response, boolean content,
+			String encoding) throws IOException, ServletException {
 		response.getOutputStream().write(request.getServletPath().getBytes());
 	}
 

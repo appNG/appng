@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,8 @@ import com.beust.jcommander.Parameters;
  *        The repository description.
  *     -e
  *        Enable repository.
- *        Default: true
+ *     -g
+ *        The digest for the repository.
  *     -m
  *        The repository mode (ALL, STABLE, SNAPSHOT).
  *        Default: ALL
@@ -88,6 +89,9 @@ public class CreateRepository implements ExecutableCliCommand {
 	@Parameter(names = "-r", required = false, description = "The name of the remote repository (required for repository type REMOTE).")
 	private String remoteRepositoryName;
 
+	@Parameter(names = "-g", required = false, description = "The digest for the repository.")
+	private String digest;
+
 	@Parameter(names = "-e", description = "Enable repository.", arity = 1)
 	private boolean isActive = true;
 
@@ -103,7 +107,8 @@ public class CreateRepository implements ExecutableCliCommand {
 
 	public void execute(CliEnvironment cle) throws BusinessException {
 		try {
-			if (type.equals(RepositoryType.REMOTE) && StringUtils.isBlank(remoteRepositoryName)) {
+			boolean isRemote = RepositoryType.REMOTE.equals(type);
+			if (isRemote && StringUtils.isBlank(remoteRepositoryName)) {
 				throw new BusinessException("The missing parameter -r must contain the name of the remote repository.");
 			}
 			URI uri = new URI(uriString);
@@ -127,9 +132,13 @@ public class CreateRepository implements ExecutableCliCommand {
 			repository.setDescription(description);
 			repository.setRepositoryType(type);
 			repository.setRepositoryMode(mode);
-			repository.setRemoteRepositoryName(remoteRepositoryName);
+			if (isRemote) {
+				repository.setRemoteRepositoryName(remoteRepositoryName);
+			} else {
+				repository.setPublished(isPublished);
+			}
+			repository.setDigest(digest);
 			repository.setActive(isActive);
-			repository.setPublished(isPublished);
 			repository.setStrict(isStrict);
 			repository.setUri(uri);
 

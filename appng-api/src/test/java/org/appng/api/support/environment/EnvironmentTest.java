@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.AbstractTest;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
-import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +39,7 @@ import org.springframework.mock.web.MockServletContext;
 /**
  * Test for {@link DefaultEnvironment}.
  * 
- * @author Matthias Müller 
+ * @author Matthias Müller
  */
 public class EnvironmentTest extends AbstractTest {
 
@@ -75,7 +75,7 @@ public class EnvironmentTest extends AbstractTest {
 		MockServletContext mockCtx = new MockServletContext();
 		Environment initialEnv = DefaultEnvironment.get(mockCtx);
 		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformProps);
-		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<String, Site>());
+		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(mockCtx);
 		String oldId = mockRequest.getSession().getId();
@@ -157,14 +157,18 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testSiteEnv() {
-		SiteEnvironment siteEnv = new SiteEnvironment(ctx, "localhost");
-		Assert.assertEquals("localhost", siteEnv.getAttribute("host"));
+		Mockito.when(site.getHost()).thenReturn("localhost");
+		MockServletContext mockedCtx = new MockServletContext();
+		SiteEnvironment siteEnv = new SiteEnvironment(mockedCtx, site.getHost());
+		Assert.assertEquals(site.getHost(), siteEnv.getAttribute("host"));
 		Assert.assertEquals(Scope.SITE, siteEnv.getScope());
+		DefaultEnvironment.get(mockedCtx).clearSiteScope(site);
+		Assert.assertNull(siteEnv.getAttribute("host"));
 	}
 
 	@Test
 	public void testSessionEnvironment() {
-		SessionEnvironment sessionEnv = new SessionEnvironment(httpSession);
+		SessionEnvironment sessionEnv = new SessionEnvironment(httpSession, StringUtils.EMPTY);
 		String attributeName = "localhost";
 		Object attribute = sessionEnv.getAttribute(attributeName);
 		Assert.assertEquals(null, attribute);

@@ -1,5 +1,5 @@
-:snapshot: 1.17.1-SNAPSHOT
-:stable: 1.17.0
+:snapshot: 1.18.1-SNAPSHOT
+:stable: 1.19.1
 :current: {snapshot}
 
 == upNGizr
@@ -10,7 +10,7 @@ Therefore, it *must* be deployed in the same Tomcat installation as appNG itself
 
 WARNING: Currently, *upNGizr* is considered [big red]*experimental*, so it's not recommended to be used in production environments.
 
-WARNING: *upNGizr* does not (yet?) support clustered environments!
+WARNING: *upNGizr* does not support clustered environments!
 
 
 === Installation
@@ -63,11 +63,6 @@ You can also use the *local filesystem*:
 ----
 
 
-==== replacePlatformContext
-Default: `true`
-
-Whether or not `WEB-INF/conf/platformContext.xml` should be replaced during the update.
-
 ==== replaceBin
 Default: `false`
 
@@ -82,3 +77,8 @@ For security reasons, by default, upNGizr only allows requests originating from 
 ====
 In this case, further actions to secure upNGizr are required, e.g. using basic authentication (enable the  `<security-contraint>` in `web.xml`) or due to some firewall rules.
 ====
+
+==== useFQDN
+Default: `false`
+
+Whether to use the fully-qualified domain name (FQDN) of the host in the responses (instead of https://docs.oracle.com/javaee/7/api/javax/servlet/ServletRequest.html#getServerName--[ServletRequest.getServerName()^]). 

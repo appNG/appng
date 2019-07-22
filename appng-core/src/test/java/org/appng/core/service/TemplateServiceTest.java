@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = TestInitializer.PLATFORM_CONTEXT, initializers = TemplateServiceTest.class)
+@ContextConfiguration(classes = PlatformTestConfig.class, initializers = TemplateServiceTest.class)
 @DirtiesContext
 public class TemplateServiceTest extends TestSupport
 		implements ApplicationContextInitializer<GenericApplicationContext> {

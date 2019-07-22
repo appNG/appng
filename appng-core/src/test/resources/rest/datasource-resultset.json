@@ -1,0 +1,270 @@
+{
+  "id" : "datasource-resultset",
+  "user" : {
+    "locale" : "en",
+    "timezone" : "Europe/Berlin",
+    "decimalSeparator" : ".",
+    "groupingSeparator" : ","
+  },
+  "links" : [ {
+    "default" : false,
+    "id" : "other[1]",
+    "label" : "Create site",
+    "target" : "/manager/site/application/sites/create",
+    "icon" : "new",
+    "type" : "intern",
+    "confirmation" : "Are you sure?"
+  }, {
+    "default" : false,
+    "id" : "other[2]",
+    "label" : "Create site",
+    "target" : "/service/site/application/rest/action/siteEvent/create",
+    "icon" : "new",
+    "type" : "rest"
+  }, {
+    "default" : false,
+    "id" : "other[3]",
+    "label" : "Dummy",
+    "target" : "/service/site/application/webservice/dummyService",
+    "icon" : "new",
+    "type" : "webservice"
+  } ],
+  "fields" : [ {
+    "name" : "id",
+    "label" : "ID",
+    "fieldType" : "int",
+    "format" : "#"
+  }, {
+    "name" : "name",
+    "label" : "Name",
+    "fieldType" : "text",
+    "sort" : { },
+    "rules" : [ {
+      "type" : "javax.validation.constraints.NotNull",
+      "message" : "Field must not be empty",
+      "messageKey" : "{validation.notNull}"
+    }, {
+      "type" : "javax.validation.constraints.Pattern",
+      "message" : "{validation.nameStrict}",
+      "messageKey" : "{validation.nameStrict}",
+      "options" : [ {
+        "name" : "regexp",
+        "value" : "[a-zA-Z0-9\\-]{3,}"
+      } ]
+    }, {
+      "type" : "javax.validation.constraints.Size",
+      "message" : "Enter at most 64 characters",
+      "messageKey" : "{validation.string.max}",
+      "options" : [ {
+        "name" : "max",
+        "value" : "64"
+      }, {
+        "name" : "min",
+        "value" : "0"
+      } ]
+    } ]
+  }, {
+    "name" : "host",
+    "label" : "Host",
+    "fieldType" : "text",
+    "sort" : { },
+    "rules" : [ {
+      "type" : "javax.validation.constraints.NotNull",
+      "message" : "Field must not be empty",
+      "messageKey" : "{validation.notNull}"
+    }, {
+      "type" : "javax.validation.constraints.Pattern",
+      "message" : "{validation.host}",
+      "messageKey" : "{validation.host}",
+      "options" : [ {
+        "name" : "regexp",
+        "value" : "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])"
+      } ]
+    } ]
+  }, {
+    "name" : "domain",
+    "label" : "Domain",
+    "fieldType" : "text",
+    "sort" : { },
+    "rules" : [ {
+      "type" : "javax.validation.constraints.NotNull",
+      "message" : "Field must not be empty",
+      "messageKey" : "{validation.notNull}"
+    }, {
+      "type" : "javax.validation.constraints.Pattern",
+      "message" : "{validation.domain}",
+      "messageKey" : "{validation.domain}",
+      "options" : [ {
+        "name" : "regexp",
+        "value" : "(http(s?)(\\://))?((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]))(\\:[0-9]+)?"
+      } ]
+    } ]
+  }, {
+    "name" : "description",
+    "label" : "Description",
+    "fieldType" : "text",
+    "rules" : [ {
+      "type" : "javax.validation.constraints.Size",
+      "message" : "Enter at most 8192 characters",
+      "messageKey" : "{validation.string.max}",
+      "options" : [ {
+        "name" : "max",
+        "value" : "8192"
+      }, {
+        "name" : "min",
+        "value" : "0"
+      } ]
+    } ]
+  }, {
+    "name" : "active",
+    "label" : "Active",
+    "fieldType" : "image",
+    "sort" : { }
+  }, {
+    "name" : "running",
+    "label" : "Running",
+    "fieldType" : "image"
+  }, {
+    "name" : "startupTime",
+    "label" : "Startup time",
+    "fieldType" : "date",
+    "format" : "yyyy-MM-dd HH:mm:ss"
+  } ],
+  "filters" : [ {
+    "name" : "multiple",
+    "label" : "Dummy",
+    "type" : "select_multiple",
+    "options" : {
+      "multiple" : true,
+      "entries" : [ {
+        "value" : "a",
+        "label" : "a",
+        "selected" : true
+      }, {
+        "value" : "b",
+        "label" : "b",
+        "selected" : false
+      }, {
+        "value" : "c",
+        "label" : "c",
+        "selected" : true
+      } ]
+    }
+  } ],
+  "page" : {
+    "number" : 0,
+    "size" : 25,
+    "totalPages" : 1,
+    "totalElements" : 2,
+    "isFirst" : true,
+    "isLast" : true,
+    "elements" : [ {
+      "fields" : [ {
+        "name" : "id",
+        "value" : 1,
+        "formattedValue" : "1"
+      }, {
+        "name" : "name",
+        "value" : "appng"
+      }, {
+        "name" : "host",
+        "value" : "dev.appng.io"
+      }, {
+        "name" : "domain",
+        "value" : "https://dev.appng.io"
+      }, {
+        "name" : "description",
+        "value" : "appng Manager Instance"
+      }, {
+        "name" : "active",
+        "value" : true
+      }, {
+        "name" : "running",
+        "value" : true
+      }, {
+        "name" : "startupTime",
+        "value" : "2018-04-26 12:15:14"
+      } ],
+      "selected" : false,
+      "links" : [ {
+        "default" : true,
+        "id" : "actions[1]",
+        "label" : "Edit",
+        "target" : "/manager/site/application/sites/update/1",
+        "icon" : "edit",
+        "type" : "intern"
+      }, {
+        "default" : false,
+        "id" : "actions[2]",
+        "label" : "Delete",
+        "target" : "/manager/site/application/sites?form_action=delete&siteid=1",
+        "icon" : "delete",
+        "type" : "intern",
+        "confirmation" : "Do you really want to delete the site \"appng\"?\n\t\t\t\t\t\t"
+      }, {
+        "default" : false,
+        "id" : "actions[3]",
+        "label" : "Reload",
+        "target" : "/manager/site/application/sites?form_action=reload&siteid=1",
+        "icon" : "reload",
+        "type" : "intern"
+      } ]
+    }, {
+      "fields" : [ {
+        "name" : "id",
+        "value" : 2,
+        "formattedValue" : "2"
+      }, {
+        "name" : "name",
+        "value" : "template"
+      }, {
+        "name" : "host",
+        "value" : "template.dev.appng.io"
+      }, {
+        "name" : "domain",
+        "value" : "https://template.dev.appng.io"
+      }, {
+        "name" : "description",
+        "value" : "appng Manager Instance with appng-bootstrap-gentelella"
+      }, {
+        "name" : "active",
+        "value" : true
+      }, {
+        "name" : "running",
+        "value" : true
+      }, {
+        "name" : "startupTime",
+        "value" : "2018-05-07 13:18:51"
+      } ],
+      "selected" : false,
+      "links" : [ {
+        "default" : true,
+        "id" : "actions[1]",
+        "label" : "Edit",
+        "target" : "/manager/site/application/sites/update/2",
+        "icon" : "edit",
+        "type" : "intern"
+      }, {
+        "default" : false,
+        "id" : "actions[2]",
+        "label" : "Delete",
+        "target" : "/manager/site/application/sites?form_action=delete&siteid=2",
+        "icon" : "delete",
+        "type" : "intern",
+        "confirmation" : "Do you really want to delete the site \"template\"?\n\t\t\t\t\t\t"
+      }, {
+        "default" : false,
+        "id" : "actions[3]",
+        "label" : "Reload",
+        "target" : "/manager/site/application/sites?form_action=reload&siteid=2",
+        "icon" : "reload",
+        "type" : "intern"
+      } ]
+    } ]
+  },
+  "permissions" : [ {
+    "mode" : "SET",
+    "ref" : "site.list",
+    "value" : true
+  } ]
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,8 +49,8 @@ public class SaltedDigestTest {
 	}
 
 	private void testGetRandomDigest(String secret, SaltedDigest saltedDigest) {
-		Collection<String> randomDigests = new HashSet<String>(ITERATIONS);
-		Collection<String> randomSalts = new HashSet<String>(ITERATIONS);
+		Collection<String> randomDigests = new HashSet<>(ITERATIONS);
+		Collection<String> randomSalts = new HashSet<>(ITERATIONS);
 		for (int i = 0; i < ITERATIONS; i++) {
 			String salt = saltedDigest.getSalt();
 			String digest = saltedDigest.getDigest(secret, salt);

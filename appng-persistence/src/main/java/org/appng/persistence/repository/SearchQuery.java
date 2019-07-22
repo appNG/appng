@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,13 +67,13 @@ import org.springframework.data.domain.Sort.Order;
  */
 public class SearchQuery<T> {
 
-	protected List<SearchCriteria> criteria = new ArrayList<SearchCriteria>();
+	protected List<SearchCriteria> criteria = new ArrayList<>();
 	protected Class<T> domainClass;
 	protected boolean distinct;
 	protected String joinQuery;
 	protected boolean appendEntityAlias = true;
 	protected String entityAlias = "e";
-	protected List<Clause> andClauses = new ArrayList<SearchQuery<T>.Clause>();
+	protected List<Clause> andClauses = new ArrayList<>();
 
 	/**
 	 * Creates a new {@link SearchQuery} for the given type.
@@ -134,7 +134,7 @@ public class SearchQuery<T> {
 	 * @see #setAppendEntityAlias(boolean)
 	 */
 	public void and(String clause) {
-		and(clause, new HashMap<String, Object>());
+		and(clause, new HashMap<>());
 	}
 
 	/**
@@ -605,16 +605,18 @@ public class SearchQuery<T> {
 		if (StringUtils.isNotBlank(joinQuery)) {
 			sb.append(StringUtils.SPACE + joinQuery.trim() + StringUtils.SPACE);
 		}
-		for (int i = 0; i < criteria.size(); i++) {
-			SearchCriteria criterion = criteria.get(i);
-			sb.append(i == 0 ? " where " : " and ");
+		int i = 0;
+		boolean isFirst = true;
+		for (SearchCriteria criterion : criteria) {
+			sb.append(isFirst ? " where " : " and ");
 			if (appendEntityAlias) {
 				sb.append(entityAlias + ".");
 			}
 			sb.append(criterion.getName() + StringUtils.SPACE + criterion.getOperand().getPresentation());
 			if (null != criterion.getValue()) {
-				sb.append(" ?" + i);
+				sb.append(" ?" + i++);
 			}
+			isFirst = false;
 		}
 		boolean addWhere = criteria.size() == 0;
 		for (Clause clause : andClauses) {

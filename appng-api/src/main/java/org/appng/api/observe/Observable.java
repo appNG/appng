@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,8 +72,9 @@ public interface Observable<T> {
 			if (name == null) {
 				if (other.name != null)
 					return false;
-			} else if (!name.equals(other.name))
+			} else if (!name.equals(other.name)) {
 				return false;
+			}
 			return true;
 		}
 

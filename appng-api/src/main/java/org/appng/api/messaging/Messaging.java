@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
 package org.appng.api.messaging;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.commons.io.IOUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A utility class offering static helper methods to create and retrieve a {@link Sender} and to shutdown
@@ -37,9 +37,8 @@ import org.slf4j.LoggerFactory;
  * @see Sender
  * @see Receiver
  */
+@Slf4j
 public class Messaging {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(Messaging.class);
 
 	/**
 	 * Name of a system property used to identify the node
@@ -97,7 +96,7 @@ public class Messaging {
 						nodeId);
 				System.setProperty(APPNG_NODE_ID, nodeId);
 			} catch (UnknownHostException e) {
-				LOGGER.warn("error setting system property " + APPNG_NODE_ID, e);
+				LOGGER.warn(String.format("error setting system property %s", APPNG_NODE_ID), e);
 			}
 		}
 		return nodeId;
@@ -186,8 +185,12 @@ public class Messaging {
 	}
 
 	private static void close(Object o) {
-		if (o instanceof Closeable) {
-			IOUtils.closeQuietly((Closeable) o);
+		if (null != o && o instanceof Closeable) {
+			try {
+				((Closeable) o).close();
+			} catch (IOException e) {
+				LOGGER.error("error while closing", o);
+			}
 		}
 	}
 

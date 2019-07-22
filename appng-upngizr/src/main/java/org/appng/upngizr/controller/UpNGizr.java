@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UpNGizr extends DispatcherServlet implements ContainerServlet, ServletContextListener {
 
+	static final String APPNGIZER = "appNGizer";
 	static final String HOST = "host";
 	static String appNGHome;
 	static String appNGizerHome;
@@ -48,7 +49,7 @@ public class UpNGizr extends DispatcherServlet implements ContainerServlet, Serv
 		String contextPath = servletContext.getRealPath("");
 		String webappsDir = new File(contextPath).getParent();
 		appNGHome = new File(webappsDir, "ROOT").getAbsolutePath();
-		appNGizerHome = new File(webappsDir, "appNGizer").getAbsolutePath();
+		appNGizerHome = new File(webappsDir, APPNGIZER).getAbsolutePath();
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
@@ -63,7 +64,7 @@ public class UpNGizr extends DispatcherServlet implements ContainerServlet, Serv
 			this.wrapper = wrapper;
 			Context context = (Context) wrapper.getParent();
 			Host host = (Host) context.getParent();
-			log.info("Host: {}", host);
+			LOGGER.info("Host: {}", host);
 			context.getServletContext().setAttribute(HOST, host);
 		}
 	}

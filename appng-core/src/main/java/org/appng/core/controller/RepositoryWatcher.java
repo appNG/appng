@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.appng.core.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -34,12 +35,11 @@ import org.appng.api.XPathProcessor;
 import org.appng.api.model.Site;
 import org.appng.core.controller.filter.RedirectFilter;
 import org.appng.core.service.CacheService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.Ehcache;
 
 /**
@@ -54,9 +54,9 @@ import net.sf.ehcache.Ehcache;
  * @author Matthias Müller
  *
  */
+@Slf4j
 public class RepositoryWatcher implements Runnable {
 
-	private static final Logger LOG = LoggerFactory.getLogger(RepositoryWatcher.class);
 	private static final String XPATH_FORWARD_RULE = "//rule[not(/to/@type) or /to/@type = 'forward']";
 	public static final String DEFAULT_RULE_SUFFIX = "((\\?\\S+)?)";
 	private String jspExtension = ".jsp";
@@ -64,6 +64,7 @@ public class RepositoryWatcher implements Runnable {
 	private WatchService watcher;
 	private boolean needsToBeWatched = false;
 	private Map<String, List<String>> forwardMap;
+	protected Long forwardsUpdatedAt = null;
 
 	private String wwwDir;
 
@@ -83,7 +84,7 @@ public class RepositoryWatcher implements Runnable {
 			List<String> documentsDirs = site.getProperties().getList(SiteProperties.DOCUMENT_DIR, ";");
 			init(cache, rootDir + wwwdir, site.readFile(rewriteConfig), ruleSourceSuffix, documentsDirs);
 		} catch (Exception e) {
-			LOG.error(String.format("error starting RepositoryWatcher for site %s", site.getName()), e);
+			LOGGER.error(String.format("error starting RepositoryWatcher for site %s", site.getName()), e);
 		}
 	}
 
@@ -99,17 +100,23 @@ public class RepositoryWatcher implements Runnable {
 		this.configFile = configFile;
 		this.ruleSourceSuffix = ruleSourceSuffix;
 		readUrlRewrites(configFile);
+		watch(configFile.getParentFile());
 
 		for (String docDir : documentDirs) {
-			Path path = new File(wwwDir, docDir).toPath();
-			LOG.info("watching {}", path.toString());
-			path.register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+			watch(new File(wwwDir, docDir));
 		}
 
 	}
 
+	private void watch(File file) throws IOException {
+		if (file.exists() && file.isDirectory()) {
+			LOGGER.info("watching {}", file.toString());
+			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+		}
+	}
+
 	public void run() {
-		LOG.info("start watching...");
+		LOGGER.info("start watching...");
 		for (;;) {
 			WatchKey key;
 			try {
@@ -124,21 +131,23 @@ public class RepositoryWatcher implements Runnable {
 				}
 				Path eventPath = (Path) key.watchable();
 				File absoluteFile = new File(eventPath.toFile(), ((Path) event.context()).toString());
+				LOGGER.debug("received event {} for {}", event.kind(), absoluteFile);
 				if (absoluteFile.equals(configFile)) {
 					readUrlRewrites(absoluteFile);
+				} else {
+					String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
+					String relativePathName = absolutePath.substring(wwwDir.length());
+					if (relativePathName.endsWith(jspExtension)) {
+						relativePathName = relativePathName.substring(0,
+								relativePathName.length() - jspExtension.length());
+					}
+					removeFromCache(relativePathName);
+					if (forwardMap.containsKey(relativePathName)) {
+						forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
+					}
+					LOGGER.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
+							System.currentTimeMillis() - start);
 				}
-				LOG.debug("received event {} for {}", event.kind(), absoluteFile);
-				String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
-				String relativePathName = absolutePath.substring(wwwDir.length());
-				if (relativePathName.endsWith(jspExtension)) {
-					relativePathName = relativePathName.substring(0, relativePathName.length() - jspExtension.length());
-				}
-				removeFromCache(relativePathName);
-				if (forwardMap.containsKey(relativePathName)) {
-					forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
-				}
-				LOG.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
-						System.currentTimeMillis() - start);
 			}
 			boolean valid = key.reset();
 			if (!valid) {
@@ -155,12 +164,12 @@ public class RepositoryWatcher implements Runnable {
 		for (String cacheKey : keys) {
 			if (cacheKey.startsWith(HttpMethod.GET.name() + relativePathName)) {
 				if (cache.remove(cacheKey)) {
-					LOG.debug("removed from cache: {}", cacheKey);
+					LOGGER.debug("removed from cache: {}", cacheKey);
 					count++;
 				}
 			}
 		}
-		LOG.info("removed {} cache elements for {} (cache size: {})", count, relativePathName, keys.size());
+		LOGGER.info("removed {} cache elements for {} (cache size: {})", count, relativePathName, keys.size());
 		return count;
 	}
 
@@ -189,13 +198,14 @@ public class RepositoryWatcher implements Runnable {
 					}
 					forwardMap.get(to).add(from);
 				}
-				LOG.info("{} has been read, {} forward rules have been processed", configFile.getAbsolutePath(),
+				LOGGER.info("{} has been read, {} forward rules have been processed", configFile.getAbsolutePath(),
 						forwardRules.getLength());
+				forwardsUpdatedAt = System.currentTimeMillis();
 			} catch (Exception e) {
-				LOG.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
+				LOGGER.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
 			}
 		} else {
-			LOG.info("config file for reading rewrite rules does not exist: {}", configFile.getAbsolutePath());
+			LOGGER.info("config file for reading rewrite rules does not exist: {}", configFile.getAbsolutePath());
 		}
 	}
 

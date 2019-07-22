@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.InvalidConfigurationException;
@@ -58,8 +57,8 @@ import org.appng.xml.platform.PageDefinition;
 import org.appng.xml.platform.Pages;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Platform;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -67,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class ApplicationConfigProviderImpl implements ApplicationConfigProvider {
 
 	private static final String RESOURCE_MAP_KEY_EVENT = "event:";
@@ -74,15 +74,13 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	private static final String RESOURCE_MAP_KEY_DATASOURCE = "datasource:";
 	private static final String RESOURCE_MAP_KEY_APPLICATION_ROOT_CONFIG = "applicationRootConfig";
 
-	private static final Logger log = LoggerFactory.getLogger(ApplicationConfigProviderImpl.class);
-
 	protected ActionMap actionMap;
 	protected DataSourceMap datasourceMap;
 	protected PageMap pageMap;
 	protected EventMap eventMap;
 	protected Map<String, String> resourceMap;
 
-	protected List<Object[]> descendantDatasources = new ArrayList<Object[]>();
+	protected List<Object[]> descendantDatasources = new ArrayList<>();
 
 	protected ConfigValidator validator;
 
@@ -108,7 +106,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationInfo;
 		this.validator = new ConfigValidator(this);
-		this.resourceMap = new HashMap<String, String>();
+		this.resourceMap = new HashMap<>();
 		this.resources = resources;
 		setDevMode(devMode);
 		loadConfig(marshallService);
@@ -130,7 +128,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		this.applicationName = applicationName;
 		this.applicationInfo = applicationResources.getApplicationInfo();
 		this.validator = new ConfigValidator(this);
-		this.resourceMap = new HashMap<String, String>();
+		this.resourceMap = new HashMap<>();
 		setDevMode(devMode);
 		loadConfig(marshallService);
 	}
@@ -153,10 +151,10 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 				readData();
 			}
 		} catch (Exception e) {
-			log.error("error while reading configuration", e);
+			LOGGER.error("error while reading configuration", e);
 		}
-		long end = System.currentTimeMillis() - start;
-		log.debug("loading config for application " + applicationName + " took " + end + "ms");
+		long duration = System.currentTimeMillis() - start;
+		LOGGER.debug("loading config for application {} took {}ms", applicationName, duration);
 	}
 
 	private void readResources(MarshallService marshallService) throws IOException, InvalidConfigurationException {
@@ -171,11 +169,12 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 				}
 				Object object = marshallService.unmarshall(inputStream);
 				readConfig(name, object);
-				inputStream.close();
 			} catch (JAXBException e) {
-				log.error("error while unmarshalling " + name, e);
+				LOGGER.error(String.format("error while unmarshalling %s", name), e);
 			} finally {
-				IOUtils.closeQuietly(inputStream);
+				if (null != inputStream) {
+					inputStream.close();
+				}
 			}
 		}
 		processInheritance(marshallService);
@@ -211,7 +210,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		// descendants until all have been processed
 		while (!descendantDatasources.isEmpty()) {
 			int actualSize = descendantDatasources.size();
-			List<Object[]> descendantsWithoutAncestor = new ArrayList<Object[]>();
+			List<Object[]> descendantsWithoutAncestor = new ArrayList<>();
 			for (Object[] descendantDef : descendantDatasources) {
 				Datasource ds = (Datasource) descendantDef[0];
 				Datasource ancestor = getDatasource(DatasourceInheritanceHelper.getAncestorId(ds.getId()));
@@ -220,7 +219,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 					if (null != descendant) {
 						addDataSource(descendant, (String) descendantDef[1]);
 					} else {
-						log.error("inheritance did not create an new datasource instance");
+						LOGGER.error("inheritance did not create an new datasource instance");
 					}
 				} else {
 					// This can happen if the ancestor also inherits from another datasource. As long as this
@@ -239,8 +238,8 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 			// log-file
 			if (actualSize <= descendantDatasources.size()) {
 				for (Object[] ds : descendantDatasources) {
-					log.error("Cannot process inheritance for " + ((Datasource) ds[0]).getId()
-							+ " maybe the ancestor is not defined.");
+					LOGGER.error("Cannot process inheritance for {} maybe the ancestor is not defined.",
+							((Datasource) ds[0]).getId());
 				}
 				descendantDatasources.clear();
 				return;
@@ -251,12 +250,10 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void readData() throws IOException, ClassNotFoundException {
-		ObjectInputStream is = null;
-		ByteArrayInputStream bais = null;
 		Object o = null;
-		try {
-			bais = new ByteArrayInputStream(data);
-			is = new ObjectInputStream(bais);
+		try (
+				ByteArrayInputStream bais = new ByteArrayInputStream(data);
+				ObjectInputStream is = new ObjectInputStream(bais)) {
 			while ((o = is.readObject()) != null) {
 				if (o instanceof PageMap) {
 					this.pageMap = (PageMap) o;
@@ -276,25 +273,18 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 					this.resourceMap = (Map) o;
 				}
 			}
-			is.close();
-			bais.close();
 		} catch (EOFException e) {
 			// ObjectInputStream seems to work like this...
 		} catch (IOException e) {
 			throw e;
-		} finally {
-			IOUtils.closeQuietly(is);
-			IOUtils.closeQuietly(bais);
 		}
 	}
 
 	private void writeData() throws IOException {
-		ByteArrayOutputStream out = null;
-		ObjectOutputStream outputStream = null;
-		try {
+		try (
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream outputStream = new ObjectOutputStream(out)) {
 			data = null;
-			out = new ByteArrayOutputStream();
-			outputStream = new ObjectOutputStream(out);
 			outputStream.writeObject(pageMap);
 			outputStream.writeObject(actionMap);
 			outputStream.writeObject(datasourceMap);
@@ -309,12 +299,9 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 			out.close();
 			outputStream.close();
 			data = out.toByteArray();
-			log.debug("wrote " + data.length + " bytes of data for application " + applicationName);
+			LOGGER.debug("wrote {} bytes of data for application {}", data.length, applicationName);
 		} catch (IOException e) {
 			throw e;
-		} finally {
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(outputStream);
 		}
 	}
 
@@ -322,9 +309,9 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		Datasource oldVal = datasourceMap.put(ds.getId(), ds);
 		resourceMap.put(RESOURCE_MAP_KEY_DATASOURCE + ds.getId(), resourceName);
 		if (null != oldVal) {
-			log.warn("overriding previously defined datasource '" + ds.getId() + "'");
+			LOGGER.warn("overriding previously defined datasource '{}'", ds.getId());
 		}
-		log.trace("added datasource '" + ds.getId() + "'");
+		LOGGER.trace("added datasource '{}'", ds.getId());
 	}
 
 	// there should be only one application root config. Therefore no ID is needed.
@@ -335,33 +322,33 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	private void addEvent(Event e, String resourceName) {
 		Event oldVal = eventMap.put(e.getId(), e);
 		resourceMap.put(RESOURCE_MAP_KEY_EVENT + e.getId(), resourceName);
-		Map<String, Action> actions = new HashMap<String, Action>();
+		Map<String, Action> actions = new HashMap<>();
 		for (Action action : e.getActions()) {
 			actions.put(action.getId(), action);
 		}
 		actionMap.put(e.getId(), actions);
 		if (null != oldVal) {
-			log.warn("overriding previously defined event '" + e.getId() + "'");
+			LOGGER.warn("overriding previously defined event '{}'", e.getId());
 		}
-		log.trace("added event '" + e.getId() + "'");
+		LOGGER.trace("added event '{}'", e.getId());
 	}
 
 	private void addPage(PageDefinition p, String resourceName) {
 		PageDefinition oldVal = pageMap.put(p.getId(), p);
 		resourceMap.put(RESOURCE_MAP_KEY_PAGE + p.getId(), resourceName);
 		if (null != oldVal) {
-			log.warn("overriding previously defined page '" + p.getId() + "'");
+			LOGGER.warn("overriding previously defined page '{}'", p.getId());
 		}
 		if ("index".equals(p.getType())) {
 			this.defaultPage = p.getId();
-			log.trace("added default page '" + p.getId() + "'");
+			LOGGER.trace("added default page '{}'", p.getId());
 		} else {
-			log.trace("added page '" + p.getId() + "'");
+			LOGGER.trace("added page '{}'", p.getId());
 		}
 	}
 
 	protected synchronized void clear() {
-		this.sessionParams = new HashSet<String>();
+		this.sessionParams = new HashSet<>();
 		this.pageMap = new PageMap();
 		this.datasourceMap = new DataSourceMap();
 		this.eventMap = new EventMap();
@@ -443,7 +430,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	}
 
 	private boolean readConfig(String resourceName, Object object) throws InvalidConfigurationException {
-		log.trace("reading " + resourceName + ", found " + object.getClass().getSimpleName());
+		LOGGER.trace("reading {}, found {}", resourceName, object.getClass().getSimpleName());
 		if (object instanceof ApplicationRootConfig) {
 			if (null != rootConfig) {
 				throw new InvalidConfigurationException(applicationName,
@@ -493,7 +480,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 		} else if (object instanceof Platform) {
 			return true;
 		} else {
-			log.error("ignoring unsupported type: " + object.getClass());
+			LOGGER.error("ignoring unsupported type: {}", object.getClass());
 		}
 		return false;
 	}

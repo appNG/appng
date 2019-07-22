@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,12 @@ import org.appng.core.domain.PermissionImpl;
 import org.appng.core.model.AccessibleApplication;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +40,13 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class PermissionController extends ControllerBase {
 
-	@RequestMapping(value = "/application/{app}/permission", method = RequestMethod.GET)
+	@GetMapping(value = "/application/{app}/permission")
 	public ResponseEntity<Permissions> listPermissions(@PathVariable("app") String app) {
 		AccessibleApplication appByName = getApplicationByName(app);
 		if (null == appByName) {
 			return notFound();
 		}
-		List<Permission> permissionList = new ArrayList<Permission>();
+		List<Permission> permissionList = new ArrayList<>();
 		List<? extends org.appng.api.model.Permission> permissionsForApplication = getCoreService()
 				.getPermissionsForApplication(appByName.getId());
 		for (org.appng.api.model.Permission p : permissionsForApplication) {
@@ -55,7 +57,7 @@ public class PermissionController extends ControllerBase {
 		return ok(permissions);
 	}
 
-	@RequestMapping(value = "/application/{app}/permission/{name}", method = RequestMethod.GET)
+	@GetMapping(value = "/application/{app}/permission/{name}")
 	public ResponseEntity<Permission> getPermission(@PathVariable("app") String app,
 			@PathVariable("name") String name) {
 		AccessibleApplication appByName = getApplicationByName(app);
@@ -72,7 +74,7 @@ public class PermissionController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/application/{app}/permission", method = RequestMethod.POST)
+	@PostMapping(value = "/application/{app}/permission")
 	public ResponseEntity<Permission> createPermission(@PathVariable("app") String app,
 			@RequestBody org.appng.appngizer.model.xml.Permission permission) {
 		ApplicationImpl appByName = getApplicationByName(app);
@@ -90,7 +92,7 @@ public class PermissionController extends ControllerBase {
 		return ok(Permission.fromDomain(newPermission));
 	}
 
-	@RequestMapping(value = "/application/{app}/permission/{name}", method = RequestMethod.PUT)
+	@PutMapping(value = "/application/{app}/permission/{name}")
 	public ResponseEntity<Permission> updatePermission(@PathVariable("app") String app,
 			@PathVariable("name") String name, @RequestBody org.appng.appngizer.model.xml.Permission permission) {
 		boolean nameChanged = nameChanged(permission, name);
@@ -116,7 +118,7 @@ public class PermissionController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	@RequestMapping(value = "/application/{app}/permission/{name}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/application/{app}/permission/{name}")
 	public ResponseEntity<Void> deletePermission(@PathVariable("app") String app, @PathVariable("name") String name) {
 		org.appng.api.model.Permission existingPermission = getCoreService().getPermission(app, name);
 		if (null == existingPermission) {
@@ -127,6 +129,6 @@ public class PermissionController extends ControllerBase {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 }

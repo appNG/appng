@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.appng.core.controller.HttpHeaders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -55,9 +55,8 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class MSOfficeUserAgentFilter implements Filter {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(MSOfficeUserAgentFilter.class);
 
 	private static final String USER_AGENT_MS_OFFICE = "ms-office";
 	private static final String HTML_META_REFRESH = "<html><head><meta http-equiv='refresh' content='0'/></head><body></body></html>";
@@ -70,7 +69,7 @@ public class MSOfficeUserAgentFilter implements Filter {
 			ServletException {
 		String userAgent = ((HttpServletRequest) request).getHeader(HttpHeaders.USER_AGENT);
 		if (userAgent.indexOf(USER_AGENT_MS_OFFICE) > 0) {
-			LOGGER.info(HttpHeaders.USER_AGENT + " was " + userAgent + ", sending meta-refresh");
+			LOGGER.info("{} was {}, sending meta-refresh", HttpHeaders.USER_AGENT, userAgent);
 			response.getWriter().write(HTML_META_REFRESH);
 			response.setContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML);
 			return;

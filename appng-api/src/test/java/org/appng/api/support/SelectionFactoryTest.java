@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,11 @@ public class SelectionFactoryTest {
 				o.setSelected(true);
 			}
 		}
+
+		@Override
+		public Integer count(String optionValue) {
+			return 5;
+		}
 	};
 
 	enum Force {
@@ -76,12 +81,12 @@ public class SelectionFactoryTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		allElements = new ArrayList<Person>();
+		allElements = new ArrayList<>();
 		allElements.add(darklord);
 		allElements.add(luke);
 		allElements.add(han);
 
-		selectedElements = new ArrayList<Person>();
+		selectedElements = new ArrayList<>();
 		selectedElements.add(luke);
 	}
 
@@ -123,6 +128,18 @@ public class SelectionFactoryTest {
 		assertSelectionEquals(s4, s5, false);
 		assertSelectionEquals(s5, s6, false);
 		assertSelectionEquals(s4, s6);
+	}
+
+	@Test
+	public void testHitCounter() {
+		org.appng.api.support.SelectionFactory.Selection s1 = selectionFactory.fromNamed(id, title, allElements,
+				selectedElements);
+		org.appng.api.support.SelectionFactory.Selection s2 = selectionFactory.fromNamed(id, title, allElements,
+				selector);
+
+		selectionFactory.countHits(s1, o -> 1);
+		s1.getOptions().forEach(o -> Assert.assertEquals(Integer.valueOf(1), o.getHits()));
+		s2.getOptions().forEach(o -> Assert.assertEquals(Integer.valueOf(5), o.getHits()));
 	}
 
 	@Test

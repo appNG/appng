@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,16 @@ import org.apache.catalina.tribes.ByteMessage;
 import org.apache.catalina.tribes.Channel;
 import org.apache.catalina.tribes.ChannelException;
 import org.apache.catalina.tribes.Member;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.messaging.Event;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TribesSender implements Sender {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TribesSender.class);
 	private Channel channel;
 	private Serializer eventSerializer;
 
@@ -46,17 +45,14 @@ public class TribesSender implements Sender {
 	}
 
 	public boolean send(Event event) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 			eventSerializer.serialize(out, event);
 			Member[] members = channel.getMembers();
 			channel.send(members, new ByteMessage(out.toByteArray()), Channel.SEND_OPTIONS_BYTE_MESSAGE);
 			LOGGER.info("sending {} to {} via {}", event, StringUtils.join(members), channel);
 			return true;
 		} catch (ChannelException | IOException e) {
-			LOGGER.error("error sending " + event, e);
-		} finally {
-			IOUtils.closeQuietly(out);
+			LOGGER.error(String.format("error sending %s", event), e);
 		}
 		return false;
 	}

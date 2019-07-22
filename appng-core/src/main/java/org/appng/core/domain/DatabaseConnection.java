@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.ValidationMessages;
 import org.appng.api.model.Site;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -67,12 +67,11 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
  * @see SiteApplication#getDatabaseConnection()
  * 
  */
+@Slf4j
 @Entity
 @Table(name = "database_connection")
 @EntityListeners(PlatformEventListener.class)
 public class DatabaseConnection implements Auditable<Integer> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnection.class);
 
 	private static final String DATABASE_NAME = "databaseName=";
 	public static final String DB_PLACEHOLDER = "<name>";
@@ -333,30 +332,41 @@ public class DatabaseConnection implements Auditable<Integer> {
 		this.validationPeriod = validationPeriod;
 	}
 
+	public void registerDriver(boolean throwException) {
+		try {
+			@SuppressWarnings("unchecked")
+			Class<? extends Driver> driverClazz = (Class<? extends Driver>) Class.forName(driverClass);
+			DriverManager.registerDriver(driverClazz.newInstance());
+			LOGGER.info("Registered JDBC driver {}", driverClass);
+		} catch (Exception e) {
+			if (throwException) {
+				throw new RuntimeException("Error while registering driver " + driverClass, e);
+			} else {
+				LOGGER.warn("Driver {} could not be loaded.", driverClass);
+			}
+		}
+	}
+
 	public boolean testConnection(StringBuilder dbInfo) {
 		return testConnection(dbInfo, false);
 	}
 
-	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver) {
-		return testConnection(dbInfo, registerDriver, false);
-	}
-
-	public boolean testConnection(StringBuilder dbInfo, boolean registerDriver, boolean determineSize) {
+	public boolean testConnection(StringBuilder dbInfo, boolean determineSize) {
 		ConnectionCallback<Void> infoCallback = new ConnectionCallback<Void>() {
 			public Void doInConnection(Connection con) throws SQLException, DataAccessException {
 				if (null != dbInfo) {
 					DatabaseMetaData metaData = con.getMetaData();
-					dbInfo.append(metaData.getDatabaseProductName() + " " + metaData.getDatabaseProductVersion());
+					dbInfo.append(metaData.getDatabaseProductName() + StringUtils.SPACE
+							+ metaData.getDatabaseProductVersion());
 				}
 				return null;
 			}
 		};
-		return testConnection(registerDriver, determineSize, infoCallback);
+		return testConnection(determineSize, infoCallback);
 	}
 
-	public boolean testConnection(boolean registerDriver, boolean determineSize, ConnectionCallback<?>... callbacks) {
+	public boolean testConnection(boolean determineSize, ConnectionCallback<?>... callbacks) {
 		try {
-			registerDriver(registerDriver);
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(getDataSource());
 			for (ConnectionCallback<?> connectionCallback : callbacks) {
 				jdbcTemplate.execute(connectionCallback);
@@ -384,22 +394,8 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	@Transient
-	public Connection getConnection() throws SQLException, ReflectiveOperationException {
-		return getConnection(false);
-	}
-
-	@Transient
-	public Connection getConnection(boolean registerDriver) throws SQLException, ReflectiveOperationException {
-		registerDriver(registerDriver);
+	public Connection getConnection() throws SQLException {
 		return DriverManager.getConnection(jdbcUrl, userName, new String(password));
-	}
-
-	@SuppressWarnings("unchecked")
-	private void registerDriver(boolean registerDriver) throws SQLException, ReflectiveOperationException {
-		Class<? extends Driver> realClass = (Class<? extends Driver>) Class.forName(driverClass);
-		if (registerDriver) {
-			DriverManager.registerDriver(realClass.newInstance());
-		}
 	}
 
 	public void closeConnection(Connection connection) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,7 +237,7 @@ abstract class AppNGizerMojo extends AbstractMojo {
 			throw new MojoExecutionException(String.format("No archive file(s) starting with %s found in %s",
 					targetFile, targetFolder.getAbsolutePath()));
 		}
-		List<String> sortedFiles = new ArrayList<String>(Arrays.asList(files));
+		List<String> sortedFiles = new ArrayList<>(Arrays.asList(files));
 		Collections.sort(sortedFiles);
 		file = new File(targetFolder, sortedFiles.get(sortedFiles.size() - 1));
 

@@ -21,7 +21,7 @@ This document describes how to develop applications based on the appNG platform.
 
 
 == Core concepts
-An appNG application relies on three core concepts: XML, Java and XSLT. The basic idea is that you define the *structure* of your user interface in XML and implement the *business logic* in Java. Finally, XSLT is the part that bridges the gap between the internal XML based structure and the HTML based user interface.
+An appNG application relies on three core concepts: XML, Java and templating. The basic idea is that you define the *structure* of your user interface in XML and implement the *business logic* in Java. Finally, the templating engine transforms the internal XML-based structure into an HTML-based user interface.
 
 The following diagram illustrates these core concepts:
 
@@ -36,8 +36,8 @@ The following XML schema is used for the source-XML: +
 * *Business Logic* +
 The implementation of the business logic in Java.
 * *Template* +
-An appNG Template is a set of resources, used to transform the target-XML into HTML. +
-A Template consists of several XSL-stylesheet and all the assets (like JavaScript, CSS, icons) needed to render the HTML. It also contains a `platform.xml` file which is the blue-print for the generated target-XML.
+An appNG template is a set of resources, used to transform the target-XML into HTML. The supported template technologies are https://en.wikipedia.org/wiki/XSLT[XSLT^] and https://www.thymeleaf.org/[Thymeleaf^]. +
+A template consists of several template files consumed by the template engine and all the assets (like JavaScript, CSS, icons) needed to render the HTML. It also contains a `platform.xml` file which is the blue-print for the generated target-XML.
 * *Target-XML* +
 The target-XML is one single XML document using the template's `platform.xml` as a blue print. This XML document is being enriched with XML fragments that result from combining the static source-XML with the dynamic business logic.
 * *HTML* +

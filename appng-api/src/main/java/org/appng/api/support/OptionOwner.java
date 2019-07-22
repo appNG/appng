@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,12 @@ public interface OptionOwner {
 	org.appng.xml.platform.Option addOption(String name, String value, boolean selected);
 
 	/**
-	 * A selector decides whether or not a given {@link Option} should be selected
+	 * A selector decides whether or not a given {@link Option} should be selected. Also implements {@link HitCounter},
+	 * using the options's value and returning {@code null} by default.
+	 * 
+	 * @see Option#isSelected()
 	 */
-	public interface Selector {
+	public interface Selector extends HitCounter<String> {
 		/**
 		 * Selects or de-selects an option by calling {@link Option#setSelected(Boolean)}.
 		 * 
@@ -38,6 +41,28 @@ public interface OptionOwner {
 		 *            the {@link Option} which might be selected
 		 */
 		void select(Option o);
+
+		default Integer count(String optionValue) {
+			return null;
+		}
+	}
+
+	/**
+	 * Counts the hits for {@link Option}s.
+	 * 
+	 * @param <T>
+	 *            the type of the elements to count
+	 * @see Option#getHits()
+	 */
+	public interface HitCounter<T> {
+		/**
+		 * Counts the hits for the option created from the given element.
+		 * 
+		 * @param element
+		 *            the element to count the hits for
+		 * @return the number of hits for this option
+		 */
+		Integer count(T element);
 	}
 
 	class OptionOwnerBase implements OptionOwner {

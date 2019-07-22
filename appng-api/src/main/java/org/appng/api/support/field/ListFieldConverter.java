@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,11 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.appng.xml.platform.Label;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -50,9 +51,8 @@ import org.springframework.core.convert.TypeDescriptor;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 class ListFieldConverter extends ConverterBase {
-
-	protected static final Logger LOG = LoggerFactory.getLogger(ListFieldConverter.class);
 
 	ListFieldConverter(ConversionService conversionService) {
 		this.conversionService = conversionService;
@@ -75,7 +75,7 @@ class ListFieldConverter extends ConverterBase {
 		if (null != values) {
 			if (wrapper.isReadableProperty(name))
 				if (FieldType.LIST_OBJECT.equals(field.getType())) {
-					List<FieldDef> innerFields = new ArrayList<FieldDef>(field.getFields());
+					List<FieldDef> innerFields = new ArrayList<>(field.getFields());
 					field.getFields().clear();
 					int maxIndex = 0;
 					Pattern pattern = Pattern.compile("^" + Pattern.quote(field.getBinding()) + "\\[(\\d+)\\]\\..+$");
@@ -104,14 +104,14 @@ class ListFieldConverter extends ConverterBase {
 						field.setObject(result);
 					}
 				} else {
-					LOG.debug("can not convert from {} to {}", String.class, propertyType);
+					LOGGER.debug("can not convert from {} to {}", String.class, propertyType);
 				}
 		}
 	}
 
 	@Override
 	protected Logger getLog() {
-		return LOG;
+		return LOGGER;
 	}
 
 	@Override
@@ -128,7 +128,7 @@ class ListFieldConverter extends ConverterBase {
 			if (propertyTypeDescriptor.isCollection()) {
 				Collection<?> collection = (Collection<?>) object;
 				Datafield child = null;
-				List<FieldDef> indexedFields = new ArrayList<FieldDef>(fieldWrapper.getFields());
+				List<FieldDef> indexedFields = new ArrayList<>(fieldWrapper.getFields());
 				if (isObjectList) {
 					fieldWrapper.getFields().clear();
 				}
@@ -171,11 +171,9 @@ class ListFieldConverter extends ConverterBase {
 			} else {
 				indexedField.setBinding(parentField.getBinding() + "." + fieldDef.getName());
 			}
-			if (FieldType.OBJECT.equals(indexedField.getType())) {
-				addNestedFields(indexedField, fieldDef.getFields(), -1);
-			}
+			addNestedFields(indexedField, fieldDef.getFields(), -1);
 			parentField.getFields().add(indexedField);
-			LOG.debug("adding nested field {} to {}", FieldWrapper.toString(indexedField),
+			LOGGER.debug("adding nested field {} to {}", FieldWrapper.toString(indexedField),
 					FieldWrapper.toString(parentField));
 		}
 	}

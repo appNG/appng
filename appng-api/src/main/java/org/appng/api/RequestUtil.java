@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import javax.servlet.ServletRequest;
 
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.appng.api.model.Site.SiteState;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -35,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Müller
  * 
  */
+@Slf4j
 public class RequestUtil {
 
-	private static Logger logger = LoggerFactory.getLogger(RequestUtil.class);
 	private static final String SERVER_LOCAL_NAME = "SERVER_LOCAL_NAME";
 
 	/**
@@ -103,6 +104,51 @@ public class RequestUtil {
 		return site;
 	}
 
+	/**
+	 * Retrieves a {@link Site} by its name, waiting up to
+	 * {@code Platform.Property#MAX_WAIT_TIME} milliseconds until it's state is {@code SiteState#STARTED}.
+	 * 
+	 * @param env  the current {@link Environment}
+	 * @param name the name of the {@link Site}
+	 * @return the {@link Site}, if any
+	 * 
+	 * @see #getSiteByName(Environment, String)
+	 * @see Site#hasState(SiteState...)
+	 */
+	public static Site waitForSite(Environment env, String name) {
+		Site site = getSiteByName(env, name);
+		if (null == site || site.hasState(SiteState.STARTED)) {
+			return site;
+		}
+
+		long waited = 0;
+		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
+		int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
+
+		while (waited < maxWaitTime
+				&& (site = getSiteByName(env, name)).hasState(SiteState.STOPPING, SiteState.STOPPED)) {
+			try {
+				Thread.sleep(waitTime);
+				waited += waitTime;
+			} catch (InterruptedException e) {
+				LOGGER.error("error while waiting for site to be started", e);
+			}
+			LOGGER.info("site '{}' is currently in state {}, waited {}ms", site, site.getState(), waited);
+		}
+
+		while (waited < maxWaitTime && (site = getSiteByName(env, name)).hasState(SiteState.STARTING)) {
+			try {
+				Thread.sleep(waitTime);
+				waited += waitTime;
+			} catch (InterruptedException e) {
+				LOGGER.error("error while waiting for site to be started", e);
+			}
+			LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
+		}
+		return getSiteByName(env, name);
+	}
+
 	private static Map<String, Site> getSiteMap(Environment env) {
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 		return Collections.unmodifiableMap(siteMap);
@@ -138,7 +184,7 @@ public class RequestUtil {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Properties activeSiteProperties = site.getProperties();
 
-		logger.trace("found site '" + site.getName() + "' for request '" + servletPath + "'");
+		LOGGER.trace("found site '{}' for request '{}'", site.getName(), servletPath);
 
 		String repoPath = platformProperties.getString(Platform.Property.REPOSITORY_PATH);
 		String extension = platformProperties.getString(Platform.Property.JSP_FILE_TYPE);
@@ -168,7 +214,8 @@ public class RequestUtil {
 	 *            the {@link ServletRequest}
 	 * @param env
 	 *            an {@link Environment}
-	 * @return <ul>
+	 * @return
+	 *         <ul>
 	 *         <li>the IP-address, if {@link VHostMode#IP_BASED} is used (see {@link ServletRequest#getLocalAddr()})
 	 *         <li>the value of the request-header {@code SERVER_LOCAL_NAME}, if present. This header has to be added by
 	 *         the webserver of choice (usually <a href="http://httpd.apache.org/">Apache httpd</a>), in case a
@@ -181,7 +228,7 @@ public class RequestUtil {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		VHostMode vHostMode = VHostMode.valueOf(platformProperties.getString(Platform.Property.VHOST_MODE));
 		String hostIdentifier;
-		logger.trace("hostmode: " + vHostMode);
+		LOGGER.trace("hostmode: {}", vHostMode);
 		if (vHostMode.equals(VHostMode.IP_BASED)) {
 			hostIdentifier = request.getLocalAddr();
 		} else {
@@ -193,7 +240,7 @@ public class RequestUtil {
 				hostIdentifier = request.getServerName().toLowerCase();
 			}
 		}
-		logger.trace("hostIdentifier: " + hostIdentifier);
+		LOGGER.trace("hostIdentifier: {}", hostIdentifier);
 		return hostIdentifier;
 	}
 

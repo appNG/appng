@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import org.appng.appngizer.model.Properties;
 import org.slf4j.Logger;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,10 +38,10 @@ public class PlatformController extends ControllerBase {
 
 	@Override
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
-	@RequestMapping(value = "/platform", method = RequestMethod.GET)
+	@GetMapping(value = "/platform")
 	public ResponseEntity<Platform> showPlatform() {
 		boolean dbInitialized = getDatabaseStatus() != null;
 		boolean platformReloadAvailable = getAppNGContext() != null;
@@ -50,21 +50,21 @@ public class PlatformController extends ControllerBase {
 		return ok(platform);
 	}
 
-	@RequestMapping(value = "/platform/system", method = RequestMethod.GET)
+	@GetMapping(value = "/platform/system")
 	public ResponseEntity<Properties> listSystemProperties() {
 		Properties response = mapProps(System.getProperties());
 		response.setSelf("/platform/system");
 		return ok(response);
 	}
 
-	@RequestMapping(value = "/platform/environment", method = RequestMethod.GET)
+	@GetMapping(value = "/platform/environment")
 	public ResponseEntity<Properties> listEnvironment() {
 		Properties response = mapProps(System.getenv());
 		response.setSelf("/platform/environment");
 		return ok(response);
 	}
 
-	@RequestMapping(value = "/platform/reload", method = RequestMethod.POST)
+	@PostMapping(value = "/platform/reload")
 	public ResponseEntity<Platform> reloadPlatform() {
 		Context appNGContext = getAppNGContext();
 		if (null == appNGContext) {

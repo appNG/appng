@@ -1,6 +1,6 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
-:snapshot: 1.17.1-SNAPSHOT
-:stable: 1.17.0
+:snapshot: 1.18.1-SNAPSHOT
+:stable: 1.18.1-SNAPSHOT
 :current: {snapshot}
 
 Welcome to appNG, the **N**ext **G**eneration **app**lication platform!

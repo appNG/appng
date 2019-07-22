@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -54,7 +56,6 @@ import org.appng.api.ApplicationController;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
-import org.appng.api.Path;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
@@ -64,7 +65,6 @@ import org.appng.api.messaging.Sender;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
 import org.appng.api.model.Group;
-import org.appng.api.model.Named;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Resource;
 import org.appng.api.model.ResourceType;
@@ -74,12 +74,12 @@ import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationConfigProviderImpl;
 import org.appng.api.support.ConfigValidator;
 import org.appng.api.support.FieldProcessorImpl;
-import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
+import org.appng.core.controller.rest.RestPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
@@ -98,8 +98,6 @@ import org.appng.core.repository.config.ApplicationPostProcessor;
 import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -112,6 +110,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 
@@ -120,9 +119,9 @@ import net.sf.ehcache.constructs.blocking.BlockingCache;
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class InitializerService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(InitializerService.class);
 	private static final int THREAD_PRIORITY_LOW = 3;
 
 	private static final String LIB_LOCATION = "/WEB-INF/lib";
@@ -170,6 +169,7 @@ public class InitializerService {
 		loadPlatform(defaultOverrides, env, null, null, executor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
+		coreService.createEvent(Type.INFO, "Started platform", null);
 	}
 
 	/**
@@ -192,7 +192,7 @@ public class InitializerService {
 	}
 
 	public InitializerService() {
-		this.siteThreads = new ConcurrentHashMap<String, List<ExecutorService>>();
+		this.siteThreads = new ConcurrentHashMap<>();
 	}
 
 	private void startIndexThread(Site site, DocumentIndexer documentIndexer) {
@@ -211,7 +211,7 @@ public class InitializerService {
 
 	private void startSiteThread(Site site, String threadName, int priority, Runnable runnable) {
 		if (!siteThreads.containsKey(site.getName())) {
-			siteThreads.put(site.getName(), new ArrayList<ExecutorService>());
+			siteThreads.put(site.getName(), new ArrayList<>());
 		}
 		ThreadFactory threadFactory = new ThreadFactoryBuilder().setDaemon(true).setPriority(priority)
 				.setNameFormat(threadName).build();
@@ -237,40 +237,45 @@ public class InitializerService {
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		PropertyHolder platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
-				false);
-		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_USER);
-		addPropertyIfExists(platformConfig, defaultOverrides, APPNG_GROUP);
-		platformConfig.setFinal();
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
+				true);
+
+		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
+			File tempDir = new File(System.getProperty("java.io.tmpdir"));
+			if (tempDir.exists()) {
+				LOGGER.info("Cleaning temp folder {}", tempDir);
+				try {
+					FileUtils.cleanDirectory(tempDir);
+				} catch (IOException e) {
+					LOGGER.error(String.format("error while cleaning %s", tempDir), e);
+				}
+			}
+		}
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		String ehcacheConfig = platformConfig.getString(Platform.Property.EHCACHE_CONFIG);
-		CacheManager cacheManager = CacheManager.create(rootPath + "/" + ehcacheConfig);
+		File ehcacheConfig = platformConfig.getCacheConfig();
+		CacheManager cacheManager = CacheManager.create(ehcacheConfig.getPath());
 
-		String uploadDir = platformConfig.getString(Platform.Property.UPLOAD_DIR);
-		String realPath = ((DefaultEnvironment) env).getServletContext().getRealPath(appendSlash(uploadDir));
-		File tempDir = new File(realPath);
-		if (!tempDir.exists()) {
+		File uploadDir = platformConfig.getUploadDir();
+		if (!uploadDir.exists()) {
 			try {
-				FileUtils.forceMkdir(tempDir);
+				FileUtils.forceMkdir(uploadDir);
 			} catch (IOException e) {
-				LOGGER.error("unable to create upload dir " + tempDir, e);
+				LOGGER.error(String.format("unable to create upload dir %s", uploadDir), e);
 			}
 		}
 
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		Messaging.createMessageSender(env, executor);
 
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		String applicationRealDir = servletContext.getRealPath(appendSlash(applicationDir));
-		File applicationRootFolder = new File(applicationRealDir).getAbsoluteFile();
+		File applicationRootFolder = platformConfig.getApplicationDir();
 		if (!applicationRootFolder.exists()) {
-			LOGGER.error("could not find applicationfolder " + applicationRootFolder.getAbsolutePath(),
-					" platform will exit");
+			LOGGER.error("could not find applicationfolder {} platform will exit!",
+					applicationRootFolder.getAbsolutePath());
 			return;
 		}
-		LOGGER.info("applications are located at " + applicationRootFolder + " or in the database");
+		LOGGER.info("applications are located at {} or in the database", applicationRootFolder);
 		List<Integer> sites = getCoreService().getSiteIds();
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -300,9 +305,9 @@ public class InitializerService {
 		}
 
 		if (0 == activeSites) {
-			LOGGER.error("none of " + sites.size() + " sites is active, instance will not work!");
+			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
 		}
-		LOGGER.info("Current Ehcache configuration:\n" + cacheManager.getActiveConfigurationText());
+		LOGGER.info("Current Ehcache configuration:\n{}", cacheManager.getActiveConfigurationText());
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
@@ -322,60 +327,49 @@ public class InitializerService {
 
 		public void run() {
 			try {
-				WatchService watcher = FileSystems.getDefault().newWatchService();
+				try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
 
-				File rootDir = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
-				rootDir.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
-						StandardWatchEventKinds.ENTRY_MODIFY);
-				LOGGER.debug("watching for {}", new File(rootDir, RELOAD_FILE).getAbsolutePath());
+					File rootDir = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
+					rootDir.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
+							StandardWatchEventKinds.ENTRY_MODIFY);
+					LOGGER.debug("watching for {}", new File(rootDir, RELOAD_FILE).getAbsolutePath());
 
-				File absoluteFile = null;
-				do {
-					WatchKey key;
+					File absoluteFile = null;
+					do {
+						WatchKey key;
+						try {
+							key = watcher.take();
+						} catch (InterruptedException x) {
+							return;
+						}
+						for (WatchEvent<?> event : key.pollEvents()) {
+							if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+								continue;
+							}
+							java.nio.file.Path eventPath = (java.nio.file.Path) key.watchable();
+							String fileName = ((java.nio.file.Path) event.context()).toString();
+							if (RELOAD_FILE.equals(fileName)) {
+								absoluteFile = new File(eventPath.toFile(), fileName);
+								LOGGER.info("found {}", absoluteFile.getAbsolutePath());
+							}
+						}
+					} while (null == absoluteFile);
+
+					FileUtils.deleteQuietly(absoluteFile);
+					LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
+					LOGGER.info("restarting site {}", site.getName());
 					try {
-						key = watcher.take();
-					} catch (InterruptedException x) {
-						return;
+						loadSite(env, getCoreService().getSiteByName(site.getName()), false,
+								new FieldProcessorImpl("auto-reload"));
+					} catch (InvalidConfigurationException e) {
+						LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 					}
-					for (WatchEvent<?> event : key.pollEvents()) {
-						if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-							continue;
-						}
-						java.nio.file.Path eventPath = (java.nio.file.Path) key.watchable();
-						String fileName = ((java.nio.file.Path) event.context()).toString();
-						if (RELOAD_FILE.equals(fileName)) {
-							absoluteFile = new File(eventPath.toFile(), fileName);
-							LOGGER.info("found {}", absoluteFile.getAbsolutePath());
-						}
-					}
-				} while (null == absoluteFile);
-
-				FileUtils.deleteQuietly(absoluteFile);
-				LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
-				LOGGER.info("restarting site {}", site.getName());
-				try {
-					loadSite(env, getCoreService().getSiteByName(site.getName()), false,
-							new FieldProcessorImpl("auto-reload"));
-				} catch (InvalidConfigurationException e) {
-					LOGGER.error("error while reloading site " + site.getName(), e);
 				}
-
 			} catch (Exception e) {
 				LOGGER.error("error in site reload watcher", e);
 			}
 			LOGGER.info("done watching for reload file.");
 		}
-	}
-
-	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
-			String name) {
-		if (defaultOverrides.containsKey(name)) {
-			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
-		}
-	}
-
-	private String appendSlash(String value) {
-		return value.startsWith(Path.SEPARATOR) ? value : Path.SEPARATOR + value;
 	}
 
 	private void logHeaderMessage(String message) {
@@ -404,19 +398,6 @@ public class InitializerService {
 					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm) : value;
 			LOGGER.info("{}: {}", StringNormalizer.replaceNonPrintableCharacters(key, qm), logValue);
 		}
-	}
-
-	/**
-	 * Initialized and returns the platform configuration represented by a {@link Properties} object.
-	 * 
-	 * @param rootPath
-	 *            the root path of the platform (see {@link org.appng.api.Platform.Property#PLATFORM_ROOT_PATH})
-	 * @param devMode
-	 *            value for the {@link org.appng.api.Platform.Property#DEV_MODE} property to set
-	 * @return the platform configuration
-	 */
-	public Properties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath, Boolean devMode) {
-		return getCoreService().initPlatformConfig(defaultOverrides, rootPath, devMode, false, true);
 	}
 
 	/**
@@ -495,15 +476,12 @@ public class InitializerService {
 		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
 		site.setSender(sender);
 		List<? extends Group> groups = getCoreService().getGroups();
-		site.setGroups(new HashSet<Named<Integer>>(groups));
+		site.setGroups(new HashSet<>(groups));
 
 		site.setState(SiteState.STARTING);
 		siteMap.put(site.getName(), site);
 
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String repositoryDir = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-		String repositoryRealDir = servletContext.getRealPath(repositoryDir);
-		File siteRootDirectory = new File(repositoryRealDir, site.getName());
+		File siteRootDirectory = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
 		site.setRootDirectory(siteRootDirectory);
 
 		String host = site.getHost();
@@ -512,12 +490,13 @@ public class InitializerService {
 
 		debugPlatformContext(platformContext);
 
-		LOGGER.info("loading site " + site.getName() + " (" + host + ")");
-		LOGGER.info("loading applications for site " + site.getName());
-		List<URL> classPath = new ArrayList<URL>();
+		LOGGER.info("loading site {} ({})", site.getName(), host);
+		LOGGER.info("loading applications for site {}", site.getName());
 
-		Set<ApplicationProvider> applications = new HashSet<ApplicationProvider>();
+		SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
+		Set<ApplicationProvider> applications = new HashSet<>();
 
+		PlatformProperties platformConfig = PlatformProperties.get(env);
 		// platform and application cache
 		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 		cacheProvider.clearCache(site);
@@ -540,10 +519,8 @@ public class InitializerService {
 
 		Boolean devMode = platformConfig.getBoolean(Platform.Property.DEV_MODE);
 		Boolean monitorPerformance = platformConfig.getBoolean(Platform.Property.MONITOR_PERFORMANCE);
-		String applicationDir = platformConfig.getString(Platform.Property.APPLICATION_DIR);
-		String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
 
-		File applicationRootFolder = new File(rootPath, applicationDir).getAbsoluteFile();
+		File applicationRootFolder = platformConfig.getApplicationDir();
 		File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
 
 		String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);
@@ -603,15 +580,14 @@ public class InitializerService {
 					applicationProvider.setResources(applicationResources);
 					applicationProvider.setDatabaseConnection(siteApplication.getDatabaseConnection());
 
-					applicationResources.dumpToCache(ResourceType.BEANS_XML);
-					applicationResources.dumpToCache(ResourceType.JAR);
-					applicationResources.dumpToCache(ResourceType.SQL);
-					applicationResources.dumpToCache(ResourceType.DICTIONARY);
-					applicationResources.dumpToCache(ResourceType.RESOURCE);
-					applicationResources.dumpToCache(ResourceType.TPL);
+					List<ResourceType> resourceTypes = Arrays.asList(ResourceType.BEANS_XML, ResourceType.JAR,
+							ResourceType.SQL, ResourceType.DICTIONARY, ResourceType.RESOURCE, ResourceType.TPL);
 					if (devMode) {
-						applicationResources.dumpToCache(ResourceType.XSL, ResourceType.XML);
+						resourceTypes = new ArrayList<>(resourceTypes);
+						resourceTypes.add(ResourceType.XSL);
+						resourceTypes.add(ResourceType.XML);
 					}
+					applicationResources.dumpToCache(resourceTypes.toArray(new ResourceType[0]));
 
 					ApplicationConfigProvider applicationConfig = new ApplicationConfigProviderImpl(marshallService,
 							application.getName(), applicationResources, devMode);
@@ -620,13 +596,18 @@ public class InitializerService {
 					Collection<Resource> messageSources = applicationResources.getResources(ResourceType.DICTIONARY);
 					if (messageSources.size() > 0) {
 						File cachedFile = messageSources.iterator().next().getCachedFile();
-						URL messagesFolder = cachedFile.getParentFile().toURI().toURL();
-						classPath.add(messagesFolder);
+						siteClassPath.addFolder(cachedFile.getParentFile().toPath(), application.getName());
 					}
 
 					Collection<Resource> jars = applicationResources.getResources(ResourceType.JAR);
 					for (Resource applicationResource : jars) {
-						classPath.add(applicationResource.getCachedFile().toURI().toURL());
+						File cachedFile = applicationResource.getCachedFile();
+						String origin = siteClassPath.addJar(cachedFile.toPath(), application.getName());
+						if (!application.getName().equals(origin)) {
+							LOGGER.warn(
+									"{} from application {} has not been added to the site's classpath, since this jar has already been added by application {}",
+									cachedFile.getName(), application.getName(), origin);
+						}
 					}
 
 					FeatureProviderImpl featureProvider = new FeatureProviderImpl(applicationProvider.getProperties());
@@ -639,26 +620,27 @@ public class InitializerService {
 					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
 					databaseService.migrateApplication(sqlFolder, siteApplication.getDatabaseConnection());
 
-				} catch (MalformedURLException mfu) {
-					fp.addErrorMessage(errorMessage);
-					LOGGER.error(errorMessage, mfu);
 				} catch (InvalidConfigurationException ice) {
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
+					auditableListener.createEvent(Type.ERROR, errorMessage);
 				}
 			}
 		}
 
 		site.getSiteApplications().clear();
 
-		URL[] urls = classPath.toArray(new URL[classPath.size()]);
-		ClassLoader classLoader = getClass().getClassLoader();
-		SiteClassLoader siteClassLoader = new SiteClassLoader(urls, classLoader, site.getName());
-
+		SiteClassLoader siteClassLoader = siteClassPath.build(getClass().getClassLoader(), site.getName());
 		Thread.currentThread().setContextClassLoader(siteClassLoader);
 
 		LOGGER.info(siteClassLoader.toString());
 		site.setSiteClassLoader(siteClassLoader);
+		if (LOGGER.isDebugEnabled()) {
+			List<URL> urlList = Arrays.asList(siteClassLoader.getURLs());
+			urlList.sort((a, b) -> StringUtils.compare(a.toString(), b.toString()));
+			LOGGER.debug("Classloader for site {} contains the following URLs: {}", site.getName(),
+					StringUtils.join(urlList, ','));
+		}
 
 		startIndexThread(site, documentIndexer);
 		startRepositoryWatcher(site, ehcacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
@@ -672,13 +654,13 @@ public class InitializerService {
 		}
 
 		// Step 2: Build application context
-		Set<ApplicationProvider> validApplications = new HashSet<ApplicationProvider>();
+		Set<ApplicationProvider> validApplications = new HashSet<>();
 		for (ApplicationProvider application : applications) {
 			try {
 				String beansXmlLocation = cacheProvider.getRelativePlatformCache(site, application) + File.separator
 						+ ResourceType.BEANS_XML_NAME;
 				// this is required to support testing of InitialiterService
-				List<String> configLocations = new ArrayList<String>(
+				List<String> configLocations = new ArrayList<>(
 						siteProps.getList(CONFIG_LOCATIONS, ApplicationContext.CONTEXT_CLASSPATH, ","));
 				configLocations.add(beansXmlLocation);
 				ApplicationContext applicationContext = new ApplicationContext(application, platformContext,
@@ -686,7 +668,7 @@ public class InitializerService {
 						configLocations.toArray(new String[configLocations.size()]));
 
 				Set<Resource> resources = application.getResources().getResources(ResourceType.DICTIONARY);
-				List<String> dictionaryNames = new ArrayList<String>();
+				List<String> dictionaryNames = new ArrayList<>();
 				for (Resource applicationResource : resources) {
 					String name = FilenameUtils.getBaseName(applicationResource.getName()).replaceAll("_(.)*", "");
 					if (!dictionaryNames.contains(name)) {
@@ -707,9 +689,14 @@ public class InitializerService {
 				}
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
-				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(
+				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
 						application.getDatabaseConnection(), dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
+
+				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
+				if (enableRest) {
+					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
+				}
 
 				applicationContext.refresh();
 
@@ -723,23 +710,24 @@ public class InitializerService {
 						.getApplicationSubjects(application.getId(), site);
 				application.getApplicationSubjects().addAll(applicationSubjects);
 				validApplications.add(application);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				String message = String.format("Error while loading application %s.", application.getName());
 				fp.addErrorMessage(message);
 				LOGGER.error(message, e);
+				auditableListener.createEvent(Type.ERROR, message);
 			}
 		}
 		site.getSiteApplications().clear();
 		site.getSiteApplications().addAll(validApplications);
 
-		List<JarInfo> jarInfos = new ArrayList<JarInfo>();
+		List<JarInfo> jarInfos = new ArrayList<>();
 
 		// Step 3: Execute application-specific initialization,
 		// read JAR info, cleanup on errors
 		for (ApplicationProvider application : validApplications) {
 			if (startApplication(env, site, application)) {
 				jarInfos.addAll(application.getJarInfos());
-				LOGGER.info("Initialized application: " + application.getName());
+				LOGGER.info("Initialized application: {}", application.getName());
 				for (JarInfo jarInfo : application.getJarInfos()) {
 					LOGGER.info(jarInfo.toString());
 				}
@@ -754,12 +742,12 @@ public class InitializerService {
 			site.sendEvent(new ReloadSiteEvent(site.getName()));
 		}
 
-		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE, false)) {
+		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
 			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
 					new SiteReloadWatcher(env, site));
 		}
 
-		LOGGER.info("loading site " + site.getName() + " completed");
+		LOGGER.info("loading site {} completed", site.getName());
 		site.setState(SiteState.STARTED);
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
@@ -773,7 +761,7 @@ public class InitializerService {
 			try {
 				started = controller.start(site, application, env);
 			} catch (RuntimeException e) {
-				LOGGER.error("error during " + controller.getClass().getName() + ".start()", e);
+				LOGGER.error(String.format("error during %s.start()", controller.getClass().getName()), e);
 				started = false;
 			}
 			if (!started) {
@@ -830,7 +818,7 @@ public class InitializerService {
 			LOGGER.info("no sites found, must be boot sequence");
 		} else {
 			LOGGER.debug("destroying platform");
-			Set<String> siteNames = new HashSet<String>(siteMap.keySet());
+			Set<String> siteNames = new HashSet<>(siteMap.keySet());
 			for (String siteName : siteNames) {
 				Site site = siteMap.get(siteName);
 				shutDownSite(env, site);
@@ -838,6 +826,7 @@ public class InitializerService {
 		}
 		CacheService.shutdown();
 		env.removeAttribute(Scope.PLATFORM, Platform.Environment.SITES);
+		coreService.createEvent(Type.INFO, "Stopped platform", null);
 	}
 
 	/**
@@ -879,7 +868,7 @@ public class InitializerService {
 			List<File> jarFiles = Arrays.asList(listFiles);
 			Collections.sort(jarFiles);
 
-			List<JarInfo> jarInfos = new ArrayList<JarInfo>();
+			List<JarInfo> jarInfos = new ArrayList<>();
 			logHeaderMessage("JAR Libraries");
 			for (File jarFile : jarFiles) {
 				final JarInfo jarInfo = JarInfoBuilder.getJarInfo(jarFile);
@@ -894,4 +883,33 @@ public class InitializerService {
 		}
 	}
 
+	static class SiteClassLoaderBuilder {
+		private Map<java.nio.file.Path, String> paths = new HashMap<>();
+
+		String addJar(java.nio.file.Path jarfile, String origin) {
+			Optional<java.nio.file.Path> exisiting = paths.keySet().parallelStream()
+					.filter(p -> p.getFileName().equals(jarfile.getFileName())).findFirst();
+			if (exisiting.isPresent()) {
+				return paths.get(exisiting.get());
+			}
+			paths.put(jarfile, origin);
+			return origin;
+		}
+
+		void addFolder(java.nio.file.Path folder, String origin) {
+			paths.put(folder, origin);
+		}
+
+		SiteClassLoader build(ClassLoader parent, String site) {
+			List<URL> urls = paths.keySet().parallelStream().map(p -> {
+				try {
+					return p.toUri().toURL();
+				} catch (MalformedURLException e) {
+					LOGGER.warn(String.format("Error building SiteClassLoader for site %s", site), e);
+				}
+				return null;
+			}).filter(u -> u != null).collect(Collectors.toList());
+			return new SiteClassLoader(urls.toArray(new URL[0]), parent, site);
+		}
+	}
 }

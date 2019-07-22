@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,15 @@ import javax.validation.groups.Default;
 import org.appng.api.AbstractTest;
 import org.appng.api.FieldProcessor;
 import org.appng.api.MetaDataProvider;
+import org.appng.api.Person;
 import org.appng.api.Person.GroupA;
 import org.appng.api.ValidationProvider;
 import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
+import org.appng.xml.platform.Message;
+import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.junit.Assert;
@@ -43,7 +46,7 @@ import org.springframework.context.MessageSource;
 /**
  * Test for {@link DefaultValidationProvider}.
  * 
- * @author Gajanan Nilwarn
+ * @author Matthias Müller
  * 
  */
 public class ValidationProviderTest extends AbstractTest {
@@ -94,13 +97,49 @@ public class ValidationProviderTest extends AbstractTest {
 		FieldDef name = MetaDataProvider.getField("offsprings[0].name", FieldType.TEXT);
 		FieldDef firstname = MetaDataProvider.getField("offsprings[0].firstname", FieldType.TEXT);
 		FieldDef nameFromMap = MetaDataProvider.getField("offspringNames['Han'].name", FieldType.TEXT);
+		FieldDef fatherFirstName = MetaDataProvider.getField("father.father.name", FieldType.TEXT);
 		metaData.getFields().add(name);
 		metaData.getFields().add(firstname);
 		metaData.getFields().add(nameFromMap);
+		metaData.getFields().add(fatherFirstName);
 		URLClassLoader classLoader = new URLClassLoader(new URL[0]);
 		Mockito.when(site.getSiteClassLoader()).thenReturn(classLoader);
 		XmlValidator.validate(metaData, "-before");
 		validationProvider.addValidationMetaData(metaData, classLoader, Default.class, GroupA.class);
+		XmlValidator.validate(metaData);
+	}
+
+	@Test
+	public void testValidateWithChildFields() throws Exception {
+		MetaData metaData = MetaDataProvider.getMetaData();
+		FieldDef offspringsList = MetaDataProvider.getField("offsprings", FieldType.LIST_OBJECT);
+		FieldDef offspringsObject = MetaDataProvider.getField("offsprings[]", FieldType.OBJECT);
+		FieldDef offspringName = MetaDataProvider.getField("name", FieldType.TEXT);
+		offspringName.setBinding(offspringsObject.getName() + "." + offspringName.getName());
+		offspringsList.getFields().add(offspringsObject);
+		offspringsObject.getFields().add(offspringName);
+		metaData.getFields().clear();
+		FieldDef nameField = MetaDataProvider.getField("name", FieldType.TEXT);
+		metaData.getFields().add(nameField);
+		metaData.getFields().add(offspringsList);
+
+		FieldDef fatherName = MetaDataProvider.getField("father.name", FieldType.TEXT);
+		metaData.getFields().add(fatherName);
+
+		FieldDef nestedPath = MetaDataProvider.getField("offsprings[0].name", FieldType.TEXT);
+		metaData.getFields().add(nestedPath);
+
+		URLClassLoader classLoader = new URLClassLoader(new URL[0]);
+		Mockito.when(site.getSiteClassLoader()).thenReturn(classLoader);
+		validationProvider.addValidationMetaData(metaData, classLoader);
+		XmlValidator.validate(metaData, "-before");
+		Person person = new Person();
+		person.setFather(new Person());
+		person.getOffsprings().add(new Person());
+		Person offspring = new Person();
+		offspring.setName("");
+		person.getOffsprings().add(offspring);
+		validationProvider.validateBean(person, new FieldProcessorImpl("validate", metaData));
 		XmlValidator.validate(metaData);
 	}
 
@@ -161,7 +200,10 @@ public class ValidationProviderTest extends AbstractTest {
 		FieldProcessor fp = new FieldProcessorImpl("bla", metaData);
 		validationProvider.validateField(new Foobar(), fp, "name");
 		Assert.assertTrue("should have 1 error", fp.hasErrors());
-		Assert.assertEquals(MUST_NOT_BE_NULL, fieldDef.getMessages().getMessageList().get(0).getContent());
+		Message errorMessage = fieldDef.getMessages().getMessageList().get(0);
+		Assert.assertEquals(MUST_NOT_BE_NULL, errorMessage.getContent());
+		Assert.assertEquals(MessageType.ERROR, errorMessage.getClazz());
+		Assert.assertEquals("{javax.validation.constraints.NotNull.message}", errorMessage.getCode());
 	}
 
 	@Test

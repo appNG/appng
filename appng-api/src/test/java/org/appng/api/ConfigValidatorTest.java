@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class ConfigValidatorTest {
 		configValidator.validate("application");
 		configValidator.validateMetaData(new URLClassLoader(new URL[0]));
 		Collection<String> errors = configValidator.getErrors();
-		List<String> sorted = new ArrayList<String>(errors);
+		List<String> sorted = new ArrayList<>(errors);
 		Collections.sort(sorted);
 //		System.out.println("");
 //		for (String e : sorted) {
@@ -76,7 +76,7 @@ public class ConfigValidatorTest {
 		}
 
 		List<ConfigValidationError> detaildErrors = configValidator.getDetaildErrors();
-		sorted = new ArrayList<String>();
+		sorted = new ArrayList<>();
 		for (ConfigValidationError error : detaildErrors) {
 			Assert.assertNotNull(error.getLine());
 			sorted.add(error.toString());

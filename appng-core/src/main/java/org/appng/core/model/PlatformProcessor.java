@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,17 @@ package org.appng.core.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
@@ -38,10 +39,13 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.model.PlatformTransformer.PlatformTransformerException;
+import org.appng.core.model.PlatformTransformer.SourceAwareTemplate;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Template;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default {@link RequestProcessor}-implementation, using an XSLT based template.
@@ -49,9 +53,9 @@ import org.slf4j.LoggerFactory;
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */
+@Slf4j
 public class PlatformProcessor extends AbstractRequestProcessor {
 
-	private static Logger log = LoggerFactory.getLogger(PlatformProcessor.class);
 	private PlatformTransformer platformTransformer;
 
 	public PlatformProcessor() {
@@ -64,7 +68,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		super.init(servletRequest, servletResponse, pathInfo, templateDir);
 		this.platformTransformer.setTemplatePath(templateDir);
 	}
-	
+
 	@Override
 	public org.appng.xml.platform.Platform getPlatform(MarshallService marshallService, Path path)
 			throws InvalidConfigurationException {
@@ -74,7 +78,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		return platform;
 	}
 
-	public String processWithTemplate(Site applicationSite) throws InvalidConfigurationException {
+	public String processWithTemplate(Site applicationSite, File debugRootFolder) throws InvalidConfigurationException {
 		String result = "";
 		String platformXML = null;
 		org.appng.xml.platform.Platform platform = null;
@@ -82,11 +86,12 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
 		Charset charset = Charset.forName(charsetName);
 		this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML, charsetName);
+		File debugFolder = new File(debugRootFolder, getDebugFilePrefix(new Date()));
 
 		try {
 			platform = processPlatform(applicationSite);
 			if (isRedirect()) {
-				log.debug("request is beeing redirected");
+				LOGGER.debug("request is beeing redirected");
 				return "redirect";
 			}
 			platform.setVersion(env.getAttributeAsString(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
@@ -94,12 +99,12 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 
 			if (platformXML != null) {
 				result = platformXML;
-				Boolean doXsl = env.getAttribute(Scope.REQUEST, EnvironmentKeys.DO_XSL);
-				if (doXsl) {
+				Boolean render = env.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
+				if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 					platformTransformer.setEnvironment(env);
 					ApplicationProvider transformerProvider = getApplicationProvider(applicationSite);
 					result = platformTransformer.transform(transformerProvider, platformProperties, platformXML,
-							charsetName);
+							charsetName, debugFolder);
 					this.contentType = platformTransformer.getContentType();
 				}
 			}
@@ -107,7 +112,7 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 			throw ice;
 		} catch (Exception e) {
 			String templateName = applicationSite.getProperties().getString(SiteProperties.TEMPLATE);
-			result = handleError(platformProperties, platform, templateName, e);
+			result = writeErrorPage(platformProperties, debugFolder, platformXML, templateName, e, platformTransformer);
 		} finally {
 			platform = null;
 		}
@@ -116,61 +121,32 @@ public class PlatformProcessor extends AbstractRequestProcessor {
 	}
 
 	Logger logger() {
-		return log;
+		return LOGGER;
 	}
 
-	protected String handleError(Properties platformProperties, org.appng.xml.platform.Platform platform,
-			String templateName, Exception e) {
-		log.error("error while processing", e);
-		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		contentType = HttpHeaders.CONTENT_TYPE_TEXT_HTML;
-		StringWriter stringWriter = new StringWriter();
-		stringWriter.append("<!DOCTYPE html><html><body>");
-		stringWriter.append("<h2>500 - Internal Server Error</h2>");
-		if (platformProperties.getBoolean(Platform.Property.DEV_MODE)) {
-			stringWriter.append("Site: " + pathInfo.getSiteName());
-			stringWriter.append("<br/>");
-			stringWriter.append("Application: " + pathInfo.getApplicationName());
-			stringWriter.append("<br/>");
-			stringWriter.append("Template: " + templateName);
-			stringWriter.append("<br/>");
-			stringWriter.append("Thread: " + Thread.currentThread().getName());
-			stringWriter.append("<br/>");
-			String header = "<h3>%s</h3>";
-			String openDiv = "<div style=\"width:100%;height:300px;overflow:auto;border:1px solid grey\"><pre>";
-			String closeDiv = "</pre></div>";
-
-			stringWriter.append(String.format(header, "XML"));
-			stringWriter.append(openDiv);
-			if (platform != null) {
-				try {
-					stringWriter.append(StringEscapeUtils.escapeHtml4(marshallService.marshallNonRoot(platform)));
-				} catch (JAXBException e1) {
-					stringWriter.append("error while adding xml: " + e1.getClass().getName() + "-" + e1.getMessage());
-				}
-			}
-			stringWriter.append(closeDiv);
-			if (platformProperties.getBoolean(Platform.Property.WRITE_DEBUG_FILES)) {
+	protected void writeTemplateToErrorPage(Properties platformProperties, File debugFolder,
+			Exception templateException, Object executionContext, StringWriter errorPage) {
+		errorPage.append("<h3>XSLT</h3>");
+		errorPage.append("<button onclick=\"copy('xslt')\">Copy to clipboard</button>");
+		errorPage.append("<div><pre id=\"xslt\">");
+		try {
+			if (templateException instanceof PlatformTransformerException) {
+				SourceAwareTemplate template = PlatformTransformerException.class.cast(templateException).getTemplate();
+				template.source.reset();
+				String xsl = IOUtils.toString(template.source, StandardCharsets.UTF_8);
+				errorPage.append(StringEscapeUtils.escapeHtml4(xsl));
+			} else {
 				String prefix = getPlatformTransformer().getPrefix();
-				String rootPath = platformProperties.getString(org.appng.api.Platform.Property.PLATFORM_ROOT_PATH);
-				stringWriter.append(String.format(header, "XSLT"));
-				stringWriter.append(openDiv);
-				try {
-					String xslt = FileUtils.readFileToString(new File(rootPath, "debug/" + prefix + "template.xsl"),
-							Charset.defaultCharset());
-					stringWriter.append(StringEscapeUtils.escapeHtml4(xslt));
-				} catch (IOException e1) {
-					stringWriter.append("error while adding xsl: " + e1.getClass().getName() + "-" + e1.getMessage());
+				File templateFile = new File(debugFolder, prefix + PlatformTransformer.TEMPLATE_XSL);
+				if (templateFile.exists()) {
+					String xslt = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
+					errorPage.append(StringEscapeUtils.escapeHtml4(xslt));
 				}
-				stringWriter.append(closeDiv);
 			}
-			stringWriter.append(String.format(header, "Stacktrace"));
-			stringWriter.append(openDiv);
-			e.printStackTrace(new PrintWriter(stringWriter));
-			stringWriter.append(closeDiv);
-			stringWriter.append("</body></html>");
+		} catch (IOException e) {
+			errorPage.append("error while adding xsl: " + e.getClass().getName() + " - " + e.getMessage());
 		}
-		return stringWriter.toString();
+		errorPage.append("</pre></div>");
 	}
 
 	public PlatformTransformer getPlatformTransformer() {

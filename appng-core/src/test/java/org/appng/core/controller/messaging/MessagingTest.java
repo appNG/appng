@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,17 +54,18 @@ public class MessagingTest extends Event {
 		Mockito.when(site.getProperties()).thenReturn(Mockito.mock(Properties.class));
 
 		Assert.assertFalse(processed);
-		MulticastReceiver receiver = new MulticastReceiver("224.2.2.4", 4000);
-		Serializer serializer = Mockito.mock(Serializer.class);
-		Mockito.when(serializer.getEnvironment()).thenReturn(Mockito.mock(Environment.class));
-		Mockito.when(serializer.getPlatformConfig()).thenReturn(Mockito.mock(Properties.class));
-		receiver.configure(serializer);
-		receiver.onEvent(site, new MessagingTest("example.com"), Arrays.asList(LOCALHOST), LOCALHOST);
-		Assert.assertFalse(processed);
-		receiver.onEvent(site, this, Arrays.asList("somehost"), LOCALHOST);
-		Assert.assertFalse(processed);
-		receiver.onEvent(site, this, Arrays.asList(LOCALHOST), LOCALHOST);
-		Assert.assertTrue(processed);
+		try (MulticastReceiver receiver = new MulticastReceiver("224.2.2.4", 4000)) {
+			Serializer serializer = Mockito.mock(Serializer.class);
+			Mockito.when(serializer.getEnvironment()).thenReturn(Mockito.mock(Environment.class));
+			Mockito.when(serializer.getPlatformConfig()).thenReturn(Mockito.mock(Properties.class));
+			receiver.configure(serializer);
+			receiver.onEvent(site, new MessagingTest("example.com"), Arrays.asList(LOCALHOST), LOCALHOST);
+			Assert.assertFalse(processed);
+			receiver.onEvent(site, this, Arrays.asList("somehost"), LOCALHOST);
+			Assert.assertFalse(processed);
+			receiver.onEvent(site, this, Arrays.asList(LOCALHOST), LOCALHOST);
+			Assert.assertTrue(processed);
+		}
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException, BusinessException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.appng.api.support.SiteAwareObjectInputStream;
  * @author Matthias Müller
  *
  */
-public class AttributeWrapper implements Serializable {
+class AttributeWrapper implements Serializable {
 
 	private Object value;
 	private String siteName;
@@ -65,18 +65,14 @@ public class AttributeWrapper implements Serializable {
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
 			siteName = (String) in.readObject();
 			if (in instanceof SiteAwareObjectInputStream) {
-				ClassLoader siteClassLoader = ((SiteAwareObjectInputStream) in).getSiteClassloader(siteName);
-				Thread.currentThread().setContextClassLoader(siteClassLoader);
+				((SiteAwareObjectInputStream) in).setSite(siteName);
 			}
 			value = in.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			throw e;
-		} finally {
-			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
 	}
 

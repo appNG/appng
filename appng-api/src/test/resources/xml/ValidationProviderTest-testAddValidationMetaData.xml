@@ -4,10 +4,10 @@
 		<sort order="desc" prio="1" />
 		<validation>
 			<notNull>
-				<message ref="name" class="ERROR">must not be null</message>
+				<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			</notNull>
 			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-				<message ref="name" class="ERROR">must not be blank</message>
+				<message ref="name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 			</rule>
 		</validation>
 	</field>
@@ -15,20 +15,20 @@
 		<sort order="asc" prio="0" />
 		<validation>
 			<notNull>
-				<message ref="firstname" class="ERROR">must not be null</message>
+				<message ref="firstname" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			</notNull>
 			<size min="1" max="5">
-				<message ref="firstname" class="ERROR">Value must be between 1 and 5</message>
+				<message ref="firstname" class="ERROR" code="{custom.message}">Value must be between 1 and 5</message>
 			</size>
 			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-				<message ref="firstname" class="ERROR">must not be blank</message>
+				<message ref="firstname" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 			</rule>
 		</validation>
 	</field>
 	<field name="birthDate" type="date" format="yyyy.MM.dd" binding="birthDate">
 		<validation>
 			<past>
-				<message ref="birthDate" class="ERROR">must be a past date</message>
+				<message ref="birthDate" class="ERROR" code="{javax.validation.constraints.Past.message}">must be a past date</message>
 			</past>
 		</validation>
 	</field>
@@ -38,13 +38,13 @@
 		<condition expression="${1 eq 2}" />
 		<validation>
 			<type>
-				<message ref="age" class="ERROR">invalid.integer</message>
+				<message ref="age" class="ERROR" code="invalid.integer">invalid.integer</message>
 			</type>
 			<min value="0">
-				<message ref="age" class="ERROR">Value must be greater than or equal to 0</message>
+				<message ref="age" class="ERROR" code="{validation.min}">Value must be greater than or equal to 0</message>
 			</min>
 			<max value="100">
-				<message ref="age" class="ERROR">Value must be less than or equal to 100</message>
+				<message ref="age" class="ERROR" code="{validation.max}">Value must be less than or equal to 100</message>
 			</max>
 		</validation>
 	</field>
@@ -55,14 +55,14 @@
 	<field name="picture" type="file" binding="picture">
 		<validation>
 			<fileUpload minCount="1" maxCount="1" minSize="0" maxSize="10" unit="MB" fileTypes="jpg,bmp">
-				<message ref="picture" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+				<message ref="picture" class="ERROR" code="{validation.file.invalid}">Please upload a file of the following types: jpg,bmp</message>
 			</fileUpload>
 		</validation>
 	</field>
 	<field name="morePictures" type="file-multiple" binding="morePictures">
 		<validation>
 			<fileUpload minCount="0" maxCount="5" minSize="0" maxSize="10" unit="MB" fileTypes="jpg,bmp">
-				<message ref="morePictures" class="ERROR">Please upload a file of the following types: jpg,bmp</message>
+				<message ref="morePictures" class="ERROR" code="{validation.file.invalid}">Please upload a file of the following types: jpg,bmp</message>
 			</fileUpload>
 		</validation>
 	</field>
@@ -78,31 +78,71 @@
 		<icon condition="${1 eq 2}">/foo/bar3.jpg</icon>
 	</field>
 	<field name="father" binding="father">
-		<field name="name" type="text" binding="father.name" />
-		<field name="firstname" type="text" binding="father.firstname" />
+		<field name="name" type="text" binding="father.name">
+			<validation>
+				<notNull>
+					<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+				</notNull>
+				<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+					<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+				</rule>
+			</validation>
+		</field>
+		<field name="firstname" type="text" binding="father.firstname">
+			<validation>
+				<notNull>
+					<message ref="father.firstname" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+				</notNull>
+				<size min="1" max="5">
+					<message ref="father.firstname" class="ERROR" code="{custom.message}">Value must be between 1 and 5</message>
+				</size>
+				<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+					<message ref="father.firstname" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+				</rule>
+			</validation>
+		</field>
 	</field>
 	<field name="offsprings[0].name" type="text" binding="offsprings[0].name">
 		<validation>
 			<notNull>
-				<message ref="offsprings[0].name" class="ERROR">must not be null</message>
+				<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			</notNull>
 			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-				<message ref="offsprings[0].name" class="ERROR">must not be blank</message>
+				<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 			</rule>
 		</validation>
 	</field>
 	<field name="offsprings[0].firstname" type="text" binding="offsprings[0].firstname">
 		<validation>
 			<notNull>
-				<message ref="offsprings[0].firstname" class="ERROR">must not be null</message>
+				<message ref="offsprings[0].firstname" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			</notNull>
 			<size min="1" max="5">
-				<message ref="offsprings[0].firstname" class="ERROR">Value must be between 1 and 5</message>
+				<message ref="offsprings[0].firstname" class="ERROR" code="{custom.message}">Value must be between 1 and 5</message>
 			</size>
 			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
-				<message ref="offsprings[0].firstname" class="ERROR">must not be blank</message>
+				<message ref="offsprings[0].firstname" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 			</rule>
 		</validation>
 	</field>
-	<field name="offspringNames['Han'].name" type="text" binding="offspringNames['Han'].name" />
+	<field name="offspringNames['Han'].name" type="text" binding="offspringNames['Han'].name">
+		<validation>
+			<notNull>
+				<message ref="offspringNames['Han'].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+			</notNull>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="offspringNames['Han'].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+			</rule>
+		</validation>
+	</field>
+	<field name="father.father.name" type="text" binding="father.father.name">
+		<validation>
+			<notNull>
+				<message ref="father.father.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+			</notNull>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="father.father.name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+			</rule>
+		</validation>
+	</field>
 </metaData>

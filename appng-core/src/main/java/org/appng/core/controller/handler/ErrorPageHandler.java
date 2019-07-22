@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.core.controller.handler;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 import javax.servlet.RequestDispatcher;
@@ -25,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Path;
@@ -38,17 +38,17 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.service.TemplateService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link RequestHandler} responsible for providing 404 error-pages.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class ErrorPageHandler implements RequestHandler {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ErrorPageHandler.class);
 	private static final String SLASH = "/";
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment env,
@@ -80,28 +80,26 @@ public class ErrorPageHandler implements RequestHandler {
 			File wwwFile = new File(wwwRootPath, forwardPath);
 
 			if (!wwwFile.canRead()) {
-				HttpHeaders.setNoCache((HttpServletResponse) servletResponse);
+				try (Writer writer = servletResponse.getWriter()) {
+					HttpHeaders.setNoCache((HttpServletResponse) servletResponse);
 
-				org.appng.api.model.Properties platformConfig = env.getAttribute(Scope.PLATFORM,
-						Platform.Environment.PLATFORM_CONFIG);
+					org.appng.api.model.Properties platformConfig = env.getAttribute(Scope.PLATFORM,
+							Platform.Environment.PLATFORM_CONFIG);
 
-				File error404 = new File(TemplateService.getTemplateRepoFolder(platformConfig, siteProperties),
-						"/resources/error404.html");
-				String errorPage;
-				if (error404.canRead()) {
-					errorPage = FileUtils.readFileToString(error404, Charset.defaultCharset());
-					servletResponse.setContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML);
-				} else {
-					String template = siteProperties.getString(SiteProperties.TEMPLATE);
-					errorPage = "404 Page Not Found.";
-					servletResponse.setContentType(HttpHeaders.CONTENT_TYPE_TEXT_PLAIN);
-					LOGGER.error("The template \"{}\" contains no 404 error page. Expected path: {}", template,
-							error404);
-				}
-				try {
-					servletResponse.getWriter().write(errorPage);
-				} finally {
-					IOUtils.closeQuietly(servletResponse.getWriter());
+					File error404 = new File(TemplateService.getTemplateRepoFolder(platformConfig, siteProperties),
+							"/resources/error404.html");
+					String errorPage;
+					if (error404.canRead()) {
+						errorPage = FileUtils.readFileToString(error404, Charset.defaultCharset());
+						servletResponse.setContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML);
+					} else {
+						String template = siteProperties.getString(SiteProperties.TEMPLATE);
+						errorPage = "404 Page Not Found.";
+						servletResponse.setContentType(HttpHeaders.CONTENT_TYPE_TEXT_PLAIN);
+						LOGGER.error("The template \"{}\" contains no 404 error page. Expected path: {}", template,
+								error404);
+					}
+					writer.write(errorPage);
 				}
 			} else {
 				RequestDispatcher dispatcher = servletRequest.getRequestDispatcher(forwardPath);
@@ -109,8 +107,8 @@ public class ErrorPageHandler implements RequestHandler {
 				dispatcher.forward(servletRequest, servletResponse);
 			}
 		} else {
-			LOGGER.warn(SiteProperties.DOCUMENT_DIR + " is empty for site " + site.getName()
-					+ ", can not process request!");
+			LOGGER.warn("{} is empty for site {}, can not process request!", SiteProperties.DOCUMENT_DIR,
+					site.getName());
 		}
 
 	}
