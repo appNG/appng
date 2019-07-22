@@ -633,18 +633,16 @@ public class SearchQuery<T> {
 	 * @param queries
 	 */
 	protected void setQueryParameters(Query... queries) {
-		for (int i = 0; i < criteria.size(); i++) {
-			SearchCriteria criterion = criteria.get(i);
-			Object value = criterion.getValue();
-			if (null != value) {
-				for (Query query : queries) {
-					query.setParameter(i, value);
+		for (Query query : queries) {
+			int i = 0;
+			for (SearchCriteria criterion : criteria) {
+				Object value = criterion.getValue();
+				if (null != value) {
+					query.setParameter(i++, value);
 				}
 			}
-		}
-		for (Clause clause : andClauses) {
-			for (Entry<String, Object> entry : clause.params.entrySet()) {
-				for (Query query : queries) {
+			for (Clause clause : andClauses) {
+				for (Entry<String, Object> entry : clause.params.entrySet()) {
 					query.setParameter(entry.getKey(), entry.getValue());
 				}
 			}
