@@ -54,14 +54,14 @@ import org.springframework.data.domain.Sort.Order;
  * 
  * The query can then be executed by calling {@link #execute(javax.persistence.EntityManager)} or
  * {@link #execute(org.springframework.data.domain.Pageable, javax.persistence.EntityManager)} .
- * <p/>
+ * <p>
+ * This class can be sub-classed to implement custom behavior.
+ * </p>
  * <b> Note that the methods which are used to add a criteria are null-safe, which means the criteria is ignored if the
  * given value is {@code null}.</b>
- * </p>
  * 
  * @author Matthias Müller
- * @param T
- *            the JPA {@link Entity}-type
+ * @param T the JPA {@link Entity}-type
  * 
  * @see SearchRepository#search(SearchQuery, Pageable)
  */
@@ -592,7 +592,7 @@ public class SearchQuery<T> {
 	}
 
 	/**
-	 * Builds and return the JPQL query string based on
+	 * Builds and returns the JPQL query string based on
 	 * <ul>
 	 * <li>the {@link #domainClass}
 	 * <li>the {@link #entityAlias} and {@link #appendEntityAlias}
@@ -600,6 +600,12 @@ public class SearchQuery<T> {
 	 * <li>the {@link #criteria}
 	 * <li>the {@link #andClauses}
 	 * </ul>
+	 * 
+	 * @see #join(String)
+	 * @see #and(String)
+	 * @see #and(String, Map)
+	 * @see #setEntityAlias(String)
+	 * @see #setAppendEntityAlias(boolean)
 	 * 
 	 * @return a {@link StringBuilder} containing the query string.
 	 */
