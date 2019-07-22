@@ -22,7 +22,6 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-
 @ContextConfiguration(initializers = JobExecutionRecordRepositoryTest.class)
 public class JobExecutionRecordRepositoryTest extends AbstractRepositoryTest {
 
@@ -34,14 +33,14 @@ public class JobExecutionRecordRepositoryTest extends AbstractRepositoryTest {
 		r1.setApplication("a1");
 		r1.setJobName("j1");
 		repository.save(r1);
-		
+
 		JobExecutionRecord r2 = new JobExecutionRecord();
 		r2.setApplication("a1");
 		r2.setJobName("j2");
 		repository.save(r2);
-		
+
 		Assert.assertEquals(Arrays.asList("a1"), repository.getDistinctApplications());
-		Assert.assertEquals(Arrays.asList("j1","j2"), repository.getDistinctJobNames());
-		
+		Assert.assertEquals(Arrays.asList("j1", "j2"), repository.getDistinctJobNames());
+
 	}
 }
