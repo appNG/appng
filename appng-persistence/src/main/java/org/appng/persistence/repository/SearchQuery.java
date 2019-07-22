@@ -67,6 +67,10 @@ import org.springframework.data.domain.Sort.Order;
  */
 public class SearchQuery<T> {
 
+	private static final String WHERE = " where ";
+	private static final String AND = " and ";
+	private static final String PERCENT = "%";
+	private static final String DOT = ".";
 	protected List<SearchCriteria> criteria = new ArrayList<>();
 	protected Class<T> domainClass;
 	protected boolean distinct;
@@ -337,7 +341,7 @@ public class SearchQuery<T> {
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> contains(String name, Object value) {
-		add(name, value == null ? null : ("%" + value + "%"), Operand.LIKE, true);
+		add(name, value == null ? null : (PERCENT + value + PERCENT), Operand.LIKE, true);
 		return this;
 	}
 
@@ -405,7 +409,7 @@ public class SearchQuery<T> {
 	 * @see #like(String, Object)
 	 */
 	public final SearchQuery<T> startsWith(String name, Object value) {
-		add(name, value == null ? null : (value + "%"), Operand.LIKE, true);
+		add(name, value == null ? null : (value + PERCENT), Operand.LIKE, true);
 		return this;
 	}
 
@@ -427,7 +431,7 @@ public class SearchQuery<T> {
 	 * @see #like(String, Object)
 	 */
 	public final SearchQuery<T> endsWith(String name, Object value) {
-		add(name, value == null ? null : ("%" + value), Operand.LIKE, true);
+		add(name, value == null ? null : (PERCENT + value), Operand.LIKE, true);
 		return this;
 	}
 
@@ -505,7 +509,7 @@ public class SearchQuery<T> {
 			boolean firstOrder = true;
 			for (Order order : sort) {
 				queryBuilder.append(firstOrder ? " order by " : ", ");
-				queryBuilder.append(StringUtils.isBlank(entityName) ? entityName : entityName + ".");
+				queryBuilder.append(StringUtils.isBlank(entityName) ? entityName : entityName + DOT);
 				queryBuilder.append(order.getProperty() + StringUtils.SPACE + order.getDirection().name());
 				firstOrder = false;
 			}
@@ -608,9 +612,9 @@ public class SearchQuery<T> {
 		int i = 0;
 		boolean isFirst = true;
 		for (SearchCriteria criterion : criteria) {
-			sb.append(isFirst ? " where " : " and ");
+			sb.append(isFirst ? WHERE : AND);
 			if (appendEntityAlias) {
-				sb.append(entityAlias + ".");
+				sb.append(entityAlias + DOT);
 			}
 			sb.append(criterion.getName() + StringUtils.SPACE + criterion.getOperand().getPresentation());
 			if (null != criterion.getValue()) {
@@ -620,7 +624,7 @@ public class SearchQuery<T> {
 		}
 		boolean addWhere = criteria.size() == 0;
 		for (Clause clause : andClauses) {
-			sb.append(addWhere ? " where " : " and ");
+			sb.append(addWhere ? WHERE : AND);
 			sb.append(StringUtils.SPACE + clause.clause + StringUtils.SPACE);
 			addWhere = false;
 		}
@@ -746,7 +750,7 @@ public class SearchQuery<T> {
 
 		@Override
 		public String toString() {
-			return entityAlias + "." + getName() + StringUtils.SPACE + getOperand().getPresentation()
+			return entityAlias + DOT + getName() + StringUtils.SPACE + getOperand().getPresentation()
 					+ StringUtils.SPACE + (isValueMandatory() ? getValue() : StringUtils.EMPTY);
 		}
 
