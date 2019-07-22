@@ -18,6 +18,7 @@ package org.appng.persistence.repository;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -73,6 +74,19 @@ public class SearchQueryTest {
 		Collection<TestEntity> page = searchQuery.execute(em);
 		Assert.assertEquals(testEntity, page.iterator().next());
 		Assert.assertEquals(1, page.size());
+	}
+
+	@Test
+	public void testTestEntitySearchQuery() {
+		TestEntitySearchQuery searchQuery = new TestEntitySearchQuery();
+		searchQuery.isNull(BOOLEAN_VALUE);
+		Collection<TestEntity> page = searchQuery.execute(em);
+		Assert.assertEquals(testEntity, page.iterator().next());
+		Assert.assertEquals(1, page.size());
+
+		List<TestEntity> list = searchQuery.execute(em, new Sort(new Sort.Order(Direction.DESC, "name")));
+		Assert.assertEquals(testEntity, list.iterator().next());
+		Assert.assertEquals(1, list.size());
 	}
 
 	@Test
