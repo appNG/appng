@@ -25,10 +25,10 @@ public interface JobExecutionRecordRepository extends SearchRepository<JobExecut
 
 	List<JobExecutionRecord> findBySiteAndJobName(String site, String jobName);
 
-	@Query("select distinct(j.application) from JobExecutionRecord j order by j.application")
-	List<String> getDistinctApplications();
+	@Query("select distinct(j.application) from JobExecutionRecord j where j.site=?1 order by j.application")
+	List<String> getDistinctApplications(String site);
 
-	@Query("select distinct(j.jobName) from JobExecutionRecord j order by j.jobName")
-	List<String> getDistinctJobNames();
+	@Query("select distinct(j.jobName) from JobExecutionRecord j where j.site=?1 order by j.jobName")
+	List<String> getDistinctJobNames(String site);
 
 }

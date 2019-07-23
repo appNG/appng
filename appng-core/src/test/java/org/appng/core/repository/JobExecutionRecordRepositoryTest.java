@@ -29,18 +29,22 @@ public class JobExecutionRecordRepositoryTest extends AbstractRepositoryTest {
 	JobExecutionRecordRepository repository;
 
 	public void test() {
+		String site = "site";
+
 		JobExecutionRecord r1 = new JobExecutionRecord();
+		r1.setSite(site);
 		r1.setApplication("a1");
 		r1.setJobName("j1");
 		repository.save(r1);
 
 		JobExecutionRecord r2 = new JobExecutionRecord();
+		r2.setSite(site);
 		r2.setApplication("a1");
 		r2.setJobName("j2");
 		repository.save(r2);
 
-		Assert.assertEquals(Arrays.asList("a1"), repository.getDistinctApplications());
-		Assert.assertEquals(Arrays.asList("j1", "j2"), repository.getDistinctJobNames());
+		Assert.assertEquals(Arrays.asList("a1"), repository.getDistinctApplications(site));
+		Assert.assertEquals(Arrays.asList("j1", "j2"), repository.getDistinctJobNames(site));
 
 	}
 }
