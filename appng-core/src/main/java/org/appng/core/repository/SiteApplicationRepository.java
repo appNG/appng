@@ -26,9 +26,7 @@ import org.appng.core.domain.SiteApplicationPK;
 import org.appng.core.domain.SiteImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface SiteApplicationRepository extends SearchRepository<SiteApplication, SiteApplicationPK> {
 
 	SiteApplication findByDatabaseConnectionId(Integer connectionId);

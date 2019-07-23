@@ -18,9 +18,7 @@ package org.appng.core.repository;
 import org.appng.core.domain.ResourceImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface ResourceRepository extends SearchRepository<ResourceImpl, Integer> {
 
 	@Query("select r from ResourceImpl r where r.name = ?1 and r.application.id = ?2")

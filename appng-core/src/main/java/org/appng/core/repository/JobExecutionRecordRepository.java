@@ -22,12 +22,12 @@ import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface JobExecutionRecordRepository extends SearchRepository<JobExecutionRecord, Integer> {
-	
+
 	List<JobExecutionRecord> findBySiteAndJobName(String site, String jobName);
-	
+
 	@Query("select distinct(j.application) from JobExecutionRecord j order by j.application")
 	List<String> getDistinctApplications();
-	
+
 	@Query("select distinct(j.jobName) from JobExecutionRecord j order by j.jobName")
 	List<String> getDistinctJobNames();
 

@@ -20,17 +20,13 @@ import java.util.List;
 import org.appng.core.domain.RoleImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface RoleRepository extends SearchRepository<RoleImpl, Integer> {
 
-	//@Query("select r from RoleImpl r where r.application.id = ?1")
 	List<RoleImpl> findByApplicationId(Integer applicationId);
 
-	//@Query("select r from RoleImpl r where r.application.id = ?1 and r.name = ?2")
 	RoleImpl findByApplicationIdAndName(Integer applicationId, String name);
-	
+
 	RoleImpl findByApplicationNameAndName(String applicationName, String name);
 
 	@Query("select r from SiteApplication s inner join s.application p inner join p.roles r where s.id.siteId = ?1 order by p.name, r.name")
