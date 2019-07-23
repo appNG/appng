@@ -51,23 +51,23 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.23.RELEASE</springVersion>
-		<springWSVersion>2.4.3.RELEASE</springWSVersion>
-		<springSecurityVersion>4.2.10.RELEASE</springSecurityVersion>
-		<springDataVersion>1.13.18.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.18.RELEASE</springDataJpaVersion>
-		<springDataEnversVersion>1.1.18.RELEASE</springDataEnversVersion>
+		<springVersion>4.3.24.RELEASE</springVersion>
+		<springWSVersion>2.4.5.RELEASE</springWSVersion>
+		<springSecurityVersion>4.2.12.RELEASE</springSecurityVersion>
+		<springDataVersion>1.13.22.RELEASE</springDataVersion>
+		<springDataJpaVersion>1.11.22.RELEASE</springDataJpaVersion>
+		<springDataEnversVersion>1.1.22.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.2.1</queryDslVersion>
-		<luceneVersion>6.6.5</luceneVersion>
+		<luceneVersion>6.6.6</luceneVersion>
 		<tikaVersion>1.16</tikaVersion>
-		<hibernateVersion>5.4.2.Final</hibernateVersion>
+		<hibernateVersion>5.4.3.Final</hibernateVersion>
 		<slf4jVersion>1.7.26</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
-		<jacksonVersion>2.9.8</jacksonVersion>
+		<jacksonVersion>2.9.9</jacksonVersion>
 		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>9.0.17</tomcat.version>
+		<tomcat.version>9.0.22</tomcat.version>
 		<servlet.version>3.1.0</servlet.version>
-		<esapi.version>2.1.0.1</esapi.version>
+		<esapi.version>2.2.0.0</esapi.version>
 		<docDir>./target/generated-docs</docDir>
 		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
@@ -473,7 +473,7 @@
 						<dependency>
 							<groupId>org.asciidoctor</groupId>
 							<artifactId>asciidoctorj-pdf</artifactId>
-							<version>1.5.0-alpha.15</version>
+							<version>1.5.0-alpha.18</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -824,7 +824,7 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.11.1</version>
+				<version>1.12.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -851,12 +851,12 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.8.1</version>
+				<version>3.9</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.12</version>
+				<version>1.13</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -871,12 +871,12 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.6</version>
+				<version>1.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>
-				<version>2.3.0</version>
+				<version>2.3.1</version>
 			</dependency>
 
 			<!-- BEGIN HIBERNATE + JPA -->
@@ -946,7 +946,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>27.1-jre</version>
+				<version>28.0-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
@@ -1041,7 +1041,7 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.7</version>
+				<version>4.5.9</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
@@ -1057,7 +1057,7 @@
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
-				<version>2.10.1</version>
+				<version>2.10.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>
@@ -1096,7 +1096,7 @@
 			<dependency>
 				<groupId>org.hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
-				<version>2.4.1</version>
+				<version>2.5.0</version>
 			</dependency>
 			<dependency>
 				<groupId>xmlunit</groupId>
@@ -1113,7 +1113,7 @@
 			<dependency>
 				<groupId>org.dbunit</groupId>
 				<artifactId>dbunit</artifactId>
-				<version>2.5.2</version>
+				<version>2.6.0</version>
 				<scope>test</scope>
 			</dependency>
 
