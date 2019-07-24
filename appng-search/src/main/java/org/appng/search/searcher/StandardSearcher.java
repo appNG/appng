@@ -70,7 +70,7 @@ public class StandardSearcher implements SearchProvider {
 			String transformedTerm = getSearchTerm(term, searchTermTransform);
 			Query query = getQuery(parseFields, transformedTerm, analyzer, language, excludeTypes);
 
-			TopScoreDocCollector collector = TopScoreDocCollector.create(100);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(100, Integer.MAX_VALUE);
 			searcher.search(query, collector);
 			ScoreDoc[] hits = collector.topDocs().scoreDocs;
 			for (ScoreDoc scoreDoc : hits) {

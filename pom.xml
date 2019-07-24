@@ -59,7 +59,7 @@
 		<springDataEnversVersion>1.1.22.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.2.1</queryDslVersion>
 		<luceneVersion>8.1.1</luceneVersion>
-		<tikaVersion>1.21</tikaVersion>
+		<tikaVersion>1.18</tikaVersion>
 		<hibernateVersion>5.4.3.Final</hibernateVersion>
 		<slf4jVersion>1.7.26</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
@@ -1011,7 +1011,7 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>${jacksonVersion}</version>
+				<version>2.9.9.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
