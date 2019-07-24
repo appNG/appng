@@ -6,7 +6,7 @@
 	<type>HSQL</type>
 	<user>sa</user>
 	<password>$2a$13$f354011d3318f4ec634f4uqO7sVRychmL8GCFfI.65NIODYQMcPmq</password>
-	<dbVersion>HSQL Database Engine 2.4.1</dbVersion>
+	<dbVersion>HSQL Database Engine 2.5.0</dbVersion>
 	<driver>org.hsqldb.jdbc.JDBCDriver</driver>
 	<url>jdbc:hsqldb:mem:testdb</url>
 	<ok>true</ok>
