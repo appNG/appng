@@ -58,6 +58,10 @@
 			<artifactId>pdfbox</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.github.junrar</groupId>
+			<artifactId>junrar</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 		</dependency>

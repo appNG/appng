@@ -172,7 +172,7 @@
 			<dependency>
 				<groupId>com.github.junrar</groupId>
 				<artifactId>junrar</artifactId>
-				<version>0.7</version>
+				<version>1.0.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1174,13 +1174,13 @@
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-core</artifactId>
-				<version>4.2.12.RELEASE</version>
+				<version>4.2.13.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-web</artifactId>
-				<version>4.2.12.RELEASE</version>
+				<version>4.2.13.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

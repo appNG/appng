@@ -53,7 +53,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<springVersion>4.3.24.RELEASE</springVersion>
 		<springWSVersion>2.4.5.RELEASE</springWSVersion>
-		<springSecurityVersion>4.2.12.RELEASE</springSecurityVersion>
+		<springSecurityVersion>4.2.13.RELEASE</springSecurityVersion>
 		<springDataVersion>1.13.22.RELEASE</springDataVersion>
 		<springDataJpaVersion>1.11.22.RELEASE</springDataJpaVersion>
 		<springDataEnversVersion>1.1.22.RELEASE</springDataEnversVersion>
@@ -61,6 +61,7 @@
 		<luceneVersion>8.1.1</luceneVersion>
 		<tikaVersion>1.18</tikaVersion>
 		<pdfBoxVersion>2.0.16</pdfBoxVersion>
+		<junrarVersion>1.0.1</junrarVersion>
 		<hibernateVersion>5.4.3.Final</hibernateVersion>
 		<slf4jVersion>1.7.26</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
@@ -796,6 +797,11 @@
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>pdfbox</artifactId>
 				<version>${pdfBoxVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.junrar</groupId>
+				<artifactId>junrar</artifactId>
+				<version>${junrarVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tika</groupId>
