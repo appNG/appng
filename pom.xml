@@ -60,6 +60,7 @@
 		<queryDslVersion>4.2.1</queryDslVersion>
 		<luceneVersion>8.1.1</luceneVersion>
 		<tikaVersion>1.18</tikaVersion>
+		<pdfBoxVersion>2.0.16</pdfBoxVersion>
 		<hibernateVersion>5.4.3.Final</hibernateVersion>
 		<slf4jVersion>1.7.26</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
@@ -790,6 +791,11 @@
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-core</artifactId>
 				<version>${tikaVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.pdfbox</groupId>
+				<artifactId>pdfbox</artifactId>
+				<version>${pdfBoxVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tika</groupId>
