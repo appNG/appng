@@ -58,8 +58,8 @@
 		<springDataJpaVersion>1.11.22.RELEASE</springDataJpaVersion>
 		<springDataEnversVersion>1.1.22.RELEASE</springDataEnversVersion>
 		<queryDslVersion>4.2.1</queryDslVersion>
-		<luceneVersion>6.6.6</luceneVersion>
-		<tikaVersion>1.16</tikaVersion>
+		<luceneVersion>8.1.1</luceneVersion>
+		<tikaVersion>1.21</tikaVersion>
 		<hibernateVersion>5.4.3.Final</hibernateVersion>
 		<slf4jVersion>1.7.26</slf4jVersion>
 		<poiVersion>3.17</poiVersion>
@@ -468,7 +468,7 @@
 				<plugin>
 					<groupId>org.asciidoctor</groupId>
 					<artifactId>asciidoctor-maven-plugin</artifactId>
-					<version>1.5.5</version>
+					<version>1.5.6</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.asciidoctor</groupId>
