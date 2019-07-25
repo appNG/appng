@@ -11,14 +11,14 @@
 	</parent>
 
 	<properties>
-		<perfLoggerVersion>0.9.0</perfLoggerVersion>
+		<perfLogger.version>0.9.0</perfLogger.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.github.sylvainlaurent.jdbcperflogger</groupId>
 			<artifactId>jdbc-perf-logger-driver</artifactId>
-			<version>${perfLoggerVersion}</version>
+			<version>${perfLogger.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>

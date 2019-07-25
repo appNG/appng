@@ -54,7 +54,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<appNGVersion>1.20.0-SNAPSHOT</appNGVersion>
+		<appNG.version>1.20.0-SNAPSHOT</appNG.version>
 	</properties>
 
 	<distributionManagement>
@@ -79,7 +79,7 @@
 						<dependency>
 							<groupId>org.appng</groupId>
 							<artifactId>appng-template-assembly</artifactId>
-							<version>${appNGVersion}</version>
+							<version>${appNG.version}</version>
 						</dependency>
 					</dependencies>
 					<configuration>
@@ -181,7 +181,7 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-xmlapi</artifactId>
-			<version>${appNGVersion}</version>
+			<version>${appNG.version}</version>
 		</dependency>
 	</dependencies>
 </project>

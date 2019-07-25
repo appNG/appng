@@ -47,37 +47,37 @@
 	</developers>
 
 	<properties>
-		<appNGVersion>${project.version}</appNGVersion>
-		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-		<timestamp>${maven.build.timestamp}</timestamp>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springVersion>4.3.24.RELEASE</springVersion>
-		<springWSVersion>2.4.3.RELEASE</springWSVersion>
-		<springSecurityVersion>4.2.13.RELEASE</springSecurityVersion>
-		<springDataVersion>1.13.22.RELEASE</springDataVersion>
-		<springDataJpaVersion>1.11.22.RELEASE</springDataJpaVersion>
-		<springDataEnversVersion>1.1.22.RELEASE</springDataEnversVersion>
-		<queryDslVersion>4.2.1</queryDslVersion>
-		<luceneVersion>8.1.1</luceneVersion>
-		<tikaVersion>1.18</tikaVersion>
-		<pdfBoxVersion>2.0.16</pdfBoxVersion>
-		<junrarVersion>1.0.1</junrarVersion>
-		<hibernateVersion>5.4.3.Final</hibernateVersion>
-		<slf4jVersion>1.7.26</slf4jVersion>
-		<poiVersion>3.17</poiVersion>
-		<jacksonVersion>2.9.9</jacksonVersion>
-		<jackson1Version>1.9.13</jackson1Version>
-		<tomcat.version>9.0.22</tomcat.version>
-		<servlet.version>3.1.0</servlet.version>
-		<esapi.version>2.2.0.0</esapi.version>
+		<appNG.version>${project.version}</appNG.version>
 		<docDir>./target/generated-docs</docDir>
-		<outFolder>target</outFolder>
 		<license.licenseName>apache_v2</license.licenseName>
-		<manager.version>1.14.0</manager.version>
-		<scheduler.version>1.12.0</scheduler.version>
-		<authentication.version>1.11.2</authentication.version>
+		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+		<outFolder>target</outFolder>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<template.name>appng-template</template.name>
-		<template.version>1.14.3</template.version>
+		<timestamp>${maven.build.timestamp}</timestamp>
+		<!-- dependency versions -->
+		<appNG.manager.version>1.14.0</appNG.manager.version>
+		<appNG.scheduler.version>1.12.0</appNG.scheduler.version>
+		<appNG.authentication.version>1.11.2</appNG.authentication.version>
+		<appNG.template.version>1.14.3</appNG.template.version>
+		<esapi.version>2.2.0.0</esapi.version>
+		<hibernate.version>5.4.3.Final</hibernate.version>
+		<jackson.version>2.9.9</jackson.version>
+		<junrar.version>1.0.1</junrar.version>
+		<lucene.version>8.1.1</lucene.version>
+		<pdfBox.version>2.0.16</pdfBox.version>
+		<poi.version>3.17</poi.version>
+		<queryDsl.version>4.2.1</queryDsl.version>
+		<servlet.version>3.1.0</servlet.version>
+		<slf4j.version>1.7.26</slf4j.version>
+		<spring.version>4.3.24.RELEASE</spring.version>
+		<springData.version>1.13.22.RELEASE</springData.version>
+		<springDataEnvers.version>1.1.22.RELEASE</springDataEnvers.version>
+		<springDataJpa.version>1.11.22.RELEASE</springDataJpa.version>
+		<springSecurity.version>4.2.13.RELEASE</springSecurity.version>
+		<springWS.version>2.4.3.RELEASE</springWS.version>
+		<tika.version>1.18</tika.version>
+		<tomcat.version>9.0.22</tomcat.version>
 	</properties>
 	<scm>
 		<connection>scm:git:ssh://git@github.com:appNG/appng.git</connection>
@@ -607,82 +607,82 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-webmvc</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.ws</groupId>
 				<artifactId>spring-ws-core</artifactId>
-				<version>${springWSVersion}</version>
+				<version>${springWS.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
-				<version>${springDataJpaVersion}</version>
+				<version>${springDataJpa.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-envers</artifactId>
-				<version>${springDataEnversVersion}</version>
+				<version>${springDataEnvers.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-commons</artifactId>
-				<version>${springDataVersion}</version>
+				<version>${springData.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.querydsl</groupId>
 				<artifactId>querydsl-jpa</artifactId>
-				<version>${queryDslVersion}</version>
+				<version>${queryDsl.version}</version>
 			</dependency>
 			<!-- BEGIN FRAMEWORK DEPENDENCIES -->
 			<dependency>
@@ -761,52 +761,52 @@
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-core</artifactId>
-				<version>${luceneVersion}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-highlighter</artifactId>
-				<version>${luceneVersion}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-analyzers-common</artifactId>
-				<version>${luceneVersion}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queryparser</artifactId>
-				<version>${luceneVersion}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-facet</artifactId>
-				<version>${luceneVersion}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-backward-codecs</artifactId>
-				<version>${luceneVersion}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-core</artifactId>
-				<version>${tikaVersion}</version>
+				<version>${tika.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>pdfbox</artifactId>
-				<version>${pdfBoxVersion}</version>
+				<version>${pdfBox.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.junrar</groupId>
 				<artifactId>junrar</artifactId>
-				<version>${junrarVersion}</version>
+				<version>${junrar.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-parsers</artifactId>
-				<version>${tikaVersion}</version>
+				<version>${tika.version}</version>
 				<exclusions>
 					<exclusion>
 						<groupId>jdom</groupId>
@@ -821,17 +821,17 @@
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi</artifactId>
-				<version>${poiVersion}</version>
+				<version>${poi.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-ooxml</artifactId>
-				<version>${poiVersion}</version>
+				<version>${poi.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-scratchpad</artifactId>
-				<version>${poiVersion}</version>
+				<version>${poi.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jsoup</groupId>
@@ -895,7 +895,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-entitymanager</artifactId>
-				<version>${hibernateVersion}</version>
+				<version>${hibernate.version}</version>
 				<exclusions>
 					<exclusion>
 						<groupId>xml-apis</groupId>
@@ -910,7 +910,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-envers</artifactId>
-				<version>${hibernateVersion}</version>
+				<version>${hibernate.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate.javax.persistence</groupId>
@@ -968,17 +968,17 @@
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
-				<version>${slf4jVersion}</version>
+				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
-				<version>${slf4jVersion}</version>
+				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>jcl-over-slf4j</artifactId>
-				<version>${slf4jVersion}</version>
+				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>log4j</groupId>
@@ -1004,21 +1004,11 @@
 				<groupId>com.beust</groupId>
 				<artifactId>jcommander</artifactId>
 				<version>1.72</version>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-jaxrs</artifactId>
-				<version>${jackson1Version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-xc</artifactId>
-				<version>${jackson1Version}</version>
-			</dependency>
+			</dependency>			
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>${jacksonVersion}</version>
+				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
@@ -1028,7 +1018,7 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>${jacksonVersion}</version>
+				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.flywaydb</groupId>
@@ -1096,7 +1086,7 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
-				<version>${springVersion}</version>
+				<version>${spring.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>

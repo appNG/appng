@@ -94,7 +94,7 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-application-bom</artifactId>
-				<version>${appNGVersion}</version>
+				<version>${appNG.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

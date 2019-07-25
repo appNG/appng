@@ -52,7 +52,9 @@
 
 	<properties>
 		<outFolder>target</outFolder>
-		<appNGVersion>${project.version}</appNGVersion>
+		<appNG.version>${project.version}</appNG.version>
+		<!-- deprecated -->
+		<appNGVersion>${appNG.version}</appNGVersion>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -79,7 +81,7 @@
 						<dependency>
 							<groupId>org.appng</groupId>
 							<artifactId>appng-application-assembly</artifactId>
-							<version>${appNGVersion}</version>
+							<version>${appNG.version}</version>
 						</dependency>
 					</dependencies>
 					<configuration>
@@ -205,7 +207,7 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-application-bom</artifactId>
-				<version>${appNGVersion}</version>
+				<version>${appNG.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
