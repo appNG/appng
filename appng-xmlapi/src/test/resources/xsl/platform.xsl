@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0" 
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ait="http://www.appng.org/plugin" xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-	exclude-result-prefixes="ait xs">
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:appng="http://www.appng.org/schema/platform" xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	exclude-result-prefixes="appng xs">
 	
 	<xsl:output method="xhtml" encoding="UTF-8" indent="no" 
 		doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" omit-xml-declaration="yes"/>
