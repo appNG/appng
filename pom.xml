@@ -52,7 +52,7 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<springVersion>4.3.24.RELEASE</springVersion>
-		<springWSVersion>2.4.5.RELEASE</springWSVersion>
+		<springWSVersion>2.4.3.RELEASE</springWSVersion>
 		<springSecurityVersion>4.2.13.RELEASE</springSecurityVersion>
 		<springDataVersion>1.13.22.RELEASE</springDataVersion>
 		<springDataJpaVersion>1.11.22.RELEASE</springDataJpaVersion>
