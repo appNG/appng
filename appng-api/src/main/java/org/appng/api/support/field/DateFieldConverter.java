@@ -65,12 +65,6 @@ class DateFieldConverter extends ConverterBase {
 			Date date = null;
 			if (object instanceof Date) {
 				date = (Date) object;
-			} else if (object instanceof org.joda.time.DateTime) {
-				date = (org.joda.time.DateTime.class.cast(object)).toDate();
-			} else if (object instanceof org.joda.time.LocalDate) {
-				date = (org.joda.time.LocalDate.class.cast(object)).toDate();
-			} else if (object instanceof org.joda.time.LocalDateTime) {
-				date = (org.joda.time.LocalDateTime.class.cast(object)).toDate(environment.getTimeZone());
 			} else if (object instanceof LocalDate) {
 				date = Date.from(LocalDate.class.cast(object).atStartOfDay().atZone(getZoneId()).toInstant());
 			} else if (object instanceof LocalDateTime) {
@@ -79,12 +73,15 @@ class DateFieldConverter extends ConverterBase {
 				date = Date.from(OffsetDateTime.class.cast(object).toInstant());
 			} else if (object instanceof ZonedDateTime) {
 				date = Date.from(ZonedDateTime.class.cast(object).toInstant());
+			} else if (object instanceof org.joda.time.DateTime) {
+				date = (org.joda.time.DateTime.class.cast(object)).toDate();
+			} else if (object instanceof org.joda.time.LocalDate) {
+				date = (org.joda.time.LocalDate.class.cast(object)).toDate();
+			} else if (object instanceof org.joda.time.LocalDateTime) {
+				date = (org.joda.time.LocalDateTime.class.cast(object)).toDate(environment.getTimeZone());
 			} else {
-				throw new IllegalArgumentException(String.format(
-						"error getting String from field '%s', expected instance of %s,%s or %s but was %s"
-								+ object.getClass().getName(),
-						field.getName(), Date.class.getName(), Temporal.class, org.joda.time.DateTime.class,
-						object.getClass().getName()));
+				throw new IllegalArgumentException(String.format("Unsupported type '%s' for field '%s' of type '%s'!",
+						object.getClass().getName(), field.getBinding(), FieldType.DATE.value()));
 			}
 			if (null != date) {
 				result = getDateFormat(field).format(date);
@@ -125,8 +122,8 @@ class DateFieldConverter extends ConverterBase {
 					} else if (org.joda.time.LocalDateTime.class.equals(targetClass)) {
 						object = org.joda.time.LocalDateTime.fromDateFields(date);
 					} else {
-						LOGGER.warn("Unsupported type '{}' for field {} of type {}!", targetClass, field.getBinding(),
-								FieldType.DATE);
+						LOGGER.warn("Unsupported type '{}' for field '{}' of type '{}'!", targetClass.getName(),
+								field.getBinding(), FieldType.DATE.value());
 					}
 					if (null != object) {
 						field.setObject(object);
