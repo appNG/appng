@@ -45,6 +45,8 @@ import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Link;
 import org.appng.xml.platform.Linkpanel;
+import org.appng.xml.platform.OutputFormat;
+import org.appng.xml.platform.OutputType;
 import org.appng.xml.platform.PageReference;
 import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Section;
@@ -146,6 +148,12 @@ public class ThymeleafProcessorTest {
 			public org.appng.xml.platform.Platform processPlatform(Site applicationSite)
 					throws InvalidConfigurationException {
 				try {
+					outputFormat = new OutputFormat();
+					outputType = new OutputType();
+					Template template = new Template();
+					template.setPath(ThymeleafProcessor.PLATFORM_HTML);
+					outputType.getTemplates().add(template);
+					outputFormat.getOutputType().add(outputType);
 					File file = new ClassPathResource("template/thymeleaf/conf/platform.xml").getFile();
 					return (org.appng.xml.platform.Platform) marshallService.unmarshall(file);
 				} catch (Exception e) {

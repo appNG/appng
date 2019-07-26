@@ -47,6 +47,7 @@ import org.appng.api.Webservice;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
@@ -166,16 +167,27 @@ public class ServiceRequestHandler implements RequestHandler {
 				String applicationName = path.getApplicationName();
 				String serviceType = path.getElementAt(path.getApplicationIndex() + 1);
 
-				Site siteToUse = RequestUtil.getSiteByName(environment, siteName);
+				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
-					throw new IOException("no such site: " + siteName);
+					LOGGER.warn("No such site: '{}', returning {} (path: {})", siteName, HttpStatus.NOT_FOUND.value(),
+							path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
+				} else if (!siteToUse.hasState(SiteState.STARTED)) {
+					LOGGER.warn("Site '{}' is in state {}, returning {} (path: {})", siteName, siteToUse.getState(),
+							HttpStatus.SERVICE_UNAVAILABLE.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+					return;
 				}
 				URLClassLoader siteClassLoader = siteToUse.getSiteClassLoader();
 				Thread.currentThread().setContextClassLoader(siteClassLoader);
 				ApplicationProvider application = (ApplicationProvider) ((SiteImpl) siteToUse)
 						.getSiteApplication(applicationName);
 				if (null == application) {
-					throw new IOException("no such application: " + applicationName);
+					LOGGER.warn("No such application '{}' for site '{}' returning {} (path: {})", applicationName,
+							siteName, HttpStatus.NOT_FOUND.value(), path.getServletPath());
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+					return;
 				}
 				ApplicationRequest applicationRequest = application.getApplicationRequest(servletRequest,
 						servletResponse);

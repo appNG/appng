@@ -5,7 +5,7 @@
 	<artifactId>appng-application-bom</artifactId>
 	<packaging>pom</packaging>
 	<name>appNG application BOM</name>
-	<version>1.19.0-SNAPSHOT</version>
+	<version>1.20.0-SNAPSHOT</version>
 	<description>the bill of materials for an appNG application, defining all provided dependencies</description>
 	<organization>
 		<name>aiticon GmbH</name>
@@ -314,6 +314,18 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.sun.istack</groupId>
+				<artifactId>istack-commons-runtime</artifactId>
+				<version>3.0.7</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.xml.fastinfoset</groupId>
+				<artifactId>FastInfoset</artifactId>
+				<version>1.2.15</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.tdunning</groupId>
 				<artifactId>json</artifactId>
 				<version>1.8</version>
@@ -514,7 +526,7 @@
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.8.17</version>
+				<version>1.9.10</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -862,97 +874,85 @@
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-api</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-rest-api</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-camunda</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-cli</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-core</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-forms</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-formtags</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-mail</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-persistence</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-rest-api</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-search</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-taglib</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.appng</groupId>
-				<artifactId>appng-tomcat7</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.appng</groupId>
-				<artifactId>appng-tomcat8</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-tools</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-xmlapi</artifactId>
-				<version>1.19.0-SNAPSHOT</version>
+				<version>1.20.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1067,11 +1067,18 @@
 				<groupId>org.glassfish.jaxb</groupId>
 				<artifactId>jaxb-runtime</artifactId>
 				<version>2.3.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.jaxb</groupId>
+				<artifactId>txw2</artifactId>
+				<version>2.3.1</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate.common</groupId>
 				<artifactId>hibernate-commons-annotations</artifactId>
-				<version>5.0.4.Final</version>
+				<version>5.1.0.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1119,7 +1126,7 @@
 			<dependency>
 				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
-				<version>3.23.1-GA</version>
+				<version>3.24.0-GA</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1150,6 +1157,12 @@
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
 				<version>1.11.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jvnet.staxex</groupId>
+				<artifactId>stax-ex</artifactId>
+				<version>1.8</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1257,73 +1270,73 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-webmvc</artifactId>
-				<version>4.3.22.RELEASE</version>
+				<version>4.3.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

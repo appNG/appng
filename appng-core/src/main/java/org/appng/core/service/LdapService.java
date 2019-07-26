@@ -270,8 +270,8 @@ public class LdapService {
 				Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
 				for (String member : getMemberNames(memberAttrs)) {
 					Attributes userAttrs = ctx.getAttributes(member);
-					String id = (String) userAttrs.get(idAttribute).get();
-					String realName = (String) userAttrs.get(CN_ATTRIBUTE).get();
+					String id = getAttribute(userAttrs, idAttribute);
+					String realName = getAttribute(userAttrs, CN_ATTRIBUTE);
 					if (username.equalsIgnoreCase(id)) {
 						userGroups.add(group);
 						subject.setName(username);
@@ -314,13 +314,10 @@ public class LdapService {
 			Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
 			for (String member : getMemberNames(memberAttrs)) {
 				Attributes userAttrs = ctx.getAttributes(member);
-				String realName = (String) userAttrs.get(CN_ATTRIBUTE).get();
-				String username = (String) userAttrs.get(idAttribute).get();
-				String email = (String) userAttrs.get(MAIL_ATTRIBUTE).get();
 				SubjectImpl ldapSubject = new SubjectImpl();
-				ldapSubject.setName(username);
-				ldapSubject.setRealname(realName);
-				ldapSubject.setEmail(email.toLowerCase());
+				ldapSubject.setName(getAttribute(userAttrs, idAttribute));
+				ldapSubject.setRealname(getAttribute(userAttrs, CN_ATTRIBUTE));
+				ldapSubject.setEmail(getAttribute(userAttrs, MAIL_ATTRIBUTE).toLowerCase());
 				subjects.add(ldapSubject);
 			}
 		} catch (IOException | NamingException ex) {
@@ -330,6 +327,11 @@ public class LdapService {
 		}
 
 		return subjects;
+	}
+
+	private String getAttribute(Attributes attrs, String attribute) throws NamingException {
+		Attribute attr = attrs.get(attribute);
+		return null == attr ? null : ((String) attr.get());
 	}
 
 	private LdapContext getContext(LdapCredentials ldapCredentials) throws NamingException, IOException {

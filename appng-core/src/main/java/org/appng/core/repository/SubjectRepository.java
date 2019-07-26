@@ -21,9 +21,7 @@ import org.appng.api.model.UserType;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface SubjectRepository extends SearchRepository<SubjectImpl, Integer> {
 
 	SubjectImpl findByName(String name);

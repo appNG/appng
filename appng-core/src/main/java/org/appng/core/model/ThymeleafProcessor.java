@@ -117,7 +117,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 	private static final Pattern BLANK_LINES = Pattern.compile("(\\s*\\r?\\n){1,}");
-	private static final String PLATFORM_HTML = "platform.html";
+	static final String PLATFORM_HTML = "platform.html";
 	private List<Template> templates;
 	private DocumentBuilderFactory dbf;
 
@@ -199,7 +199,12 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				Context ctx = getContext(platform, platformXML, applicationProvider);
 				sw.stop();
 				sw.start("process template");
-				result = templateEngine.process(PLATFORM_HTML, ctx);
+				String templateFile = PLATFORM_HTML;
+				for (Template template : outputType.getTemplates()) {
+					templateFile = template.getPath();
+					break;
+				}
+				result = templateEngine.process(templateFile, ctx);
 				result = BLANK_LINES.matcher(result).replaceAll(System.lineSeparator());
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
 				if (writeDebugFiles) {

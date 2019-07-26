@@ -8,6 +8,6 @@
 	<language>de</language>
 	<type>LOCAL_USER</type>
 	<groups>
-        <group name="Administrator" />
-    </groups>
+		<group name="Administrator" />
+	</groups>
 </subject>

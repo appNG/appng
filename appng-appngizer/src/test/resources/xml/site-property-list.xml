@@ -294,8 +294,8 @@
 		<description>The absolute path to the sites root-directory</description>
 	</property>
 	<property name="supportReloadFile" self="http://localhost/site/localhost/property/supportReloadFile">
-		<value>false</value>
-		<defaultValue>false</defaultValue>
+		<value>true</value>
+		<defaultValue>true</defaultValue>
 		<description>If true, a site reload is performed when a file named .reload is created in the site's root directory.</description>
 	</property>
 	<property name="supportedLanguages" self="http://localhost/site/localhost/property/supportedLanguages">
