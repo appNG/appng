@@ -63,7 +63,7 @@ public class RedirectFilterTest {
 		HttpServletResponse response = new MockHttpServletResponse();
 		HttpServletRequest request = new MockHttpServletRequest(servletContext);
 		FilterChain chain = new MockFilterChain();
-		FiterConfig filterConfig = getFilterConfig(servletContext);
+		FilterConfig filterConfig = getFilterConfig(servletContext);
 
 		RedirectFilter redirectFilter = new RedirectFilter();
 		redirectFilter.init(filterConfig);
