@@ -19,9 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -221,24 +220,26 @@ public class RedirectFilter extends UrlRewriteFilter {
 			}
 
 			if (reload) {
-				URL resource = getConfPath(env, site);
-				if (null != resource) {
+				Path confpath = getConfPath(env, site);
+				if (confpath.toFile().exists()) {
 					UrlRewriteConfig conf;
 					try {
-						conf = new UrlRewriteConfig(new File(resource.toURI()));
+						conf = new UrlRewriteConfig(confpath.toFile());
 						checkConf(conf);
 						if (conf.isOk()) {
 							CachedUrlRewriter cachedUrlRewriter = new CachedUrlRewriter(conf, site.getDomain(),
 									jspType);
 							REWRITERS.put(siteName, cachedUrlRewriter);
-							LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, resource,
+							LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, confpath,
 									conf.getRules().size());
 						} else {
-							LOGGER.warn("invalid config-file for site '{}': {}", siteName, resource);
+							LOGGER.warn("invalid config-file for site '{}': {}", siteName, confpath);
 						}
-					} catch (IOException | SAXException | ParserConfigurationException | URISyntaxException e) {
-						LOGGER.error("error processing {}", resource);
+					} catch (IOException | SAXException | ParserConfigurationException e) {
+						LOGGER.error("error processing {}", confpath);
 					}
+				} else {
+					LOGGER.debug("Configuration file does not exist: {}", confpath);
 				}
 			}
 			return REWRITERS.get(siteName);
@@ -255,14 +256,9 @@ public class RedirectFilter extends UrlRewriteFilter {
 		return platformProperties.getString(Platform.Property.JSP_FILE_TYPE);
 	}
 
-	private static URL getConfPath(Environment env, Site site) {
+	private static Path getConfPath(Environment env, Site site) {
 		String rootPath = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 		String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
-		try {
-			return Paths.get(rootPath, rewriteConfig).toUri().toURL();
-		} catch (MalformedURLException e) {
-			LOGGER.warn(String.format("unable to read redirects for site '%s'", site.getName()), e);
-		}
-		return null;
+		return Paths.get(rootPath, rewriteConfig).toAbsolutePath();
 	}
 }
