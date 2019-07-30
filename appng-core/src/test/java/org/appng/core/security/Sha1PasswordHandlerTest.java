@@ -65,7 +65,7 @@ public class Sha1PasswordHandlerTest extends PasswordHandlerTest {
 		testIsValidPasswordResetDigest(new Sha1PasswordHandler(subject));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testIsInvalidPasswordResetDigest() {
 		testIsInvalidPasswordResetDigest(new Sha1PasswordHandler(subject));
 	}

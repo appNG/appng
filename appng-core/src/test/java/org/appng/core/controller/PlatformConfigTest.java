@@ -44,7 +44,7 @@ public class PlatformConfigTest {
 		DatabaseConnection platformConnection = ctx.getBean(DatabaseService.class).getPlatformConnection(props);
 		StringBuilder dbInfo = new StringBuilder();
 		platformConnection.testConnection(dbInfo);
-		Assert.assertTrue(dbInfo.toString().contains("HSQL Database Engine 2.4"));
+		Assert.assertTrue(dbInfo.toString().contains("HSQL Database Engine 2.5"));
 
 		ctx.close();
 	}

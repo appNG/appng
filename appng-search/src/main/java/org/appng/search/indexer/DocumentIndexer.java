@@ -109,7 +109,7 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 				LOGGER.debug("opened IndexWriter#{} with Analyzer {}", indexWriter.hashCode(), analyzer.getClass());
 				reader = DirectoryReader.open(indexWriter);
 				searcher = new IndexSearcher(reader);
-				int before = indexWriter.numDocs();
+				int before = indexWriter.getDocStats().numDocs;
 				DocumentEvent documentEvent = null;
 				int created = 0;
 				int updated = 0;
@@ -135,7 +135,7 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 						BooleanQuery query = queryBuilder.build();
 						String queryString = query.toString();
 						TopDocs search = searcher.search(query, 10);
-						int found = search.totalHits;
+						long found = search.totalHits.value;
 						if (found > 0) {
 							indexWriter.deleteDocuments(query);
 							LOGGER.debug("deleting {} existing document(s) for query {}", found, queryString);
@@ -160,7 +160,7 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 				indexWriter.commit();
 				needsRollback = false;
 				LOGGER.info("comitted IndexWriter#{}", indexWriter.hashCode());
-				int after = indexWriter.numDocs();
+				int after = indexWriter.getDocStats().numDocs;
 				int overall = created + updated + deleted;
 				String mssg = "done with DocumentProducer '{}' which offered {} events (CREATE: {}, UPDATE: {}, DELETE: {}). The index now contains {} documents (was {} before)";
 				LOGGER.info(mssg, producer.getName(), overall, created, updated, deleted, after, before);
