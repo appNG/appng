@@ -31,12 +31,12 @@ import org.springframework.beans.BeanWrapperImpl;
 
 public class DateFieldConverterTest extends AbstractFieldConverterTest {
 
-	private static final String DATE_STRING = "2012-12-05 12:50:00";
-	private static final String DATE_STRING_SHORT = "2012-12-05";
-	private static final String SHORT_FORMAT = "yyyy-MM-dd";
+	protected static final String DATE_STRING = "2012-12-05 12:50:00";
+	protected static final String DATE_STRING_SHORT = "2012-12-05";
+	protected static final String SHORT_FORMAT = "yyyy-MM-dd";
 
-	private SimpleDateFormat sdf;
-	private SimpleDateFormat sdfShort;
+	protected SimpleDateFormat sdf;
+	protected SimpleDateFormat sdfShort;
 
 	@Before
 	public void setup() throws Exception {
@@ -150,11 +150,11 @@ public class DateFieldConverterTest extends AbstractFieldConverterTest {
 	}
 
 	protected Object getDate() throws ParseException {
-		return sdf.parseObject(DATE_STRING);
+		return sdf.parse(DATE_STRING);
 	}
 
 	protected Object getShortDate() throws ParseException {
-		return sdfShort.parseObject(DATE_STRING_SHORT);
+		return sdfShort.parse(DATE_STRING_SHORT);
 	}
 
 }

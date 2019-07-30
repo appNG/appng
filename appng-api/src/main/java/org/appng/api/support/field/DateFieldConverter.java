@@ -15,19 +15,24 @@
  */
 package org.appng.api.support.field;
 
-import java.text.DateFormatSymbols;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.Temporal;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Environment;
 import org.appng.api.FieldConverter;
 import org.appng.api.FieldWrapper;
 import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.context.MessageSource;
 
@@ -55,22 +60,33 @@ class DateFieldConverter extends ConverterBase {
 	public void setString(FieldWrapper field) {
 		Object object = field.getObject();
 		setFormat(field);
+		String result;
 		if (null != object) {
 			Date date = null;
 			if (object instanceof Date) {
 				date = (Date) object;
-			} else if (object instanceof DateTime) {
-				date = ((DateTime) object).toDate();
+			} else if (object instanceof LocalDate) {
+				date = Date.from(LocalDate.class.cast(object).atStartOfDay().atZone(getZoneId()).toInstant());
+			} else if (object instanceof LocalDateTime) {
+				date = Date.from(LocalDateTime.class.cast(object).atZone(getZoneId()).toInstant());
+			} else if (object instanceof OffsetDateTime) {
+				date = Date.from(OffsetDateTime.class.cast(object).toInstant());
+			} else if (object instanceof ZonedDateTime) {
+				date = Date.from(ZonedDateTime.class.cast(object).toInstant());
+			} else if (object instanceof org.joda.time.DateTime) {
+				date = (org.joda.time.DateTime.class.cast(object)).toDate();
+			} else if (object instanceof org.joda.time.LocalDate) {
+				date = (org.joda.time.LocalDate.class.cast(object)).toDate();
+			} else if (object instanceof org.joda.time.LocalDateTime) {
+				date = (org.joda.time.LocalDateTime.class.cast(object)).toDate(environment.getTimeZone());
+			} else {
+				throw new IllegalArgumentException(String.format("Unsupported type '%s' for field '%s' of type '%s'!",
+						object.getClass().getName(), field.getBinding(), FieldType.DATE.value()));
 			}
 			if (null != date) {
-				String result = getDateFormat(field).format(date);
+				result = getDateFormat(field).format(date);
 				field.setStringValue(result);
 				logSetString(field);
-			} else {
-				throw new IllegalArgumentException("error getting String from field '" + field.getName()
-						+ "', expected instance of " + Date.class.getName() + " or " + DateTime.class + " but was "
-						+ object.getClass().getName());
-
 			}
 		}
 	}
@@ -78,30 +94,55 @@ class DateFieldConverter extends ConverterBase {
 	@Override
 	public void setObject(FieldWrapper field, RequestContainer request) {
 		String value = request.getParameter(field.getBinding());
-		Date date = null;
 		if (StringUtils.isNotBlank(value)) {
-			try {
-				setFormat(field);
-				date = getDateFormat(field).parse(value);
-			} catch (ParseException e) {
-				handleException(field, ERROR_KEY);
-			}
-			logSetObject(field, date);
-			if (null != date && DateTime.class.equals(field.getTargetClass())) {
-				field.setObject(new DateTime(date));
-			} else {
-				field.setObject(date);
-			}
+			setFormat(field);
+			Class<?> targetClass = field.getTargetClass();
 
+			if (null != targetClass) {
+				Object object = null;
+				try {
+					Date date = getDateFormat(field).parse(value);
+					if (Date.class.equals(targetClass)) {
+						object = date;
+					} else if (Temporal.class.isAssignableFrom(targetClass)) {
+						ZonedDateTime zonedDateTime = date.toInstant().atZone(getZoneId());
+						if (LocalDate.class.equals(targetClass)) {
+							object = zonedDateTime.toLocalDate();
+						} else if (LocalDateTime.class.equals(targetClass)) {
+							object = zonedDateTime.toLocalDateTime();
+						} else if (OffsetDateTime.class.equals(targetClass)) {
+							object = zonedDateTime.toOffsetDateTime();
+						} else if (ZonedDateTime.class.equals(targetClass)) {
+							object = zonedDateTime;
+						}
+					} else if (org.joda.time.DateTime.class.equals(targetClass)) {
+						object = new org.joda.time.DateTime(date);
+					} else if (org.joda.time.LocalDate.class.equals(targetClass)) {
+						object = org.joda.time.LocalDate.fromDateFields(date);
+					} else if (org.joda.time.LocalDateTime.class.equals(targetClass)) {
+						object = org.joda.time.LocalDateTime.fromDateFields(date);
+					} else {
+						LOGGER.warn("Unsupported type '{}' for field '{}' of type '{}'!", targetClass.getName(),
+								field.getBinding(), FieldType.DATE.value());
+					}
+					if (null != object) {
+						field.setObject(object);
+						logSetObject(field, object);
+					}
+				} catch (ParseException | DateTimeParseException e) {
+					handleException(field, ERROR_KEY);
+				}
+
+			}
 		}
 	}
 
-	protected SimpleDateFormat getDateFormat(FieldDef field) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat();
-		dateFormat.applyPattern(field.getFormat());
-		dateFormat.setDateFormatSymbols(DateFormatSymbols.getInstance(environment.getLocale()));
-		dateFormat.setTimeZone(environment.getTimeZone());
-		return dateFormat;
+	private ZoneId getZoneId() {
+		return ZoneId.of(environment.getTimeZone().getID());
+	}
+
+	protected FastDateFormat getDateFormat(FieldDef field) {
+		return FastDateFormat.getInstance(field.getFormat(), environment.getTimeZone(), environment.getLocale());
 	}
 
 	protected void setFormat(FieldDef field) {
