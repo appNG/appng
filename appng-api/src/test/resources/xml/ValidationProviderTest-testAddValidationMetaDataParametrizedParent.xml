@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform" binding="item"
+	bindClass="org.appng.api.support.ValidationProviderTest$PersonForm">
+	<field name="name" type="text" binding="item.name">
+		<validation>
+			<notNull>
+				<message ref="item.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+			</notNull>
+			<rule type="javax.validation.constraints.NotBlank" name="notBlank">
+				<message ref="item.name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+			</rule>
+		</validation>
+	</field>
+</metaData>
