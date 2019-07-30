@@ -20,9 +20,7 @@ import java.util.List;
 import org.appng.core.domain.GroupImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface GroupRepository extends SearchRepository<GroupImpl, Integer> {
 
 	GroupImpl findByName(String name);

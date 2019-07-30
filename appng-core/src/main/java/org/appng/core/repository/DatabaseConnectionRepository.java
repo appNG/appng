@@ -21,9 +21,7 @@ import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface DatabaseConnectionRepository extends SearchRepository<DatabaseConnection, Integer> {
 
 	DatabaseConnection findBySiteIsNullAndType(DatabaseType databaseType);

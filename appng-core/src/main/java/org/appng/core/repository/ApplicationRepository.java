@@ -17,9 +17,7 @@ package org.appng.core.repository;
 
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.persistence.repository.SearchRepository;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface ApplicationRepository extends SearchRepository<ApplicationImpl, Integer> {
 
 	ApplicationImpl findByName(String name);

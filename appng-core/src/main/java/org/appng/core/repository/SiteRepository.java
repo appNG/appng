@@ -20,9 +20,7 @@ import java.util.List;
 import org.appng.core.domain.SiteImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface SiteRepository extends SearchRepository<SiteImpl, Integer> {
 
 	SiteImpl findByName(String name);

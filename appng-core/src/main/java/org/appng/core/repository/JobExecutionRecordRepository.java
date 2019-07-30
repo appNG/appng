@@ -15,13 +15,20 @@
  */
 package org.appng.core.repository;
 
-import org.appng.core.domain.ResourceImpl;
+import java.util.List;
+
+import org.appng.core.domain.JobExecutionRecord;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface ResourceRepository extends SearchRepository<ResourceImpl, Integer> {
+public interface JobExecutionRecordRepository extends SearchRepository<JobExecutionRecord, Integer> {
 
-	@Query("select r from ResourceImpl r where r.name = ?1 and r.application.id = ?2")
-	ResourceImpl findByNameAndApplicationId(String name, Integer applicationId);
+	List<JobExecutionRecord> findBySiteAndJobName(String site, String jobName);
+
+	@Query("select distinct(j.application) from JobExecutionRecord j where j.site=?1 order by j.application")
+	List<String> getDistinctApplications(String site);
+
+	@Query("select distinct(j.jobName) from JobExecutionRecord j where j.site=?1 order by j.jobName")
+	List<String> getDistinctJobNames(String site);
 
 }
