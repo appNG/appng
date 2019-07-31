@@ -61,17 +61,17 @@ import org.springframework.data.domain.Sort.Order;
  * given value is {@code null}.</b>
  * 
  * @author Matthias Müller
- * @param T the JPA {@link Entity}-type
- * 
+ * @param T
+ *        the JPA {@link Entity}-type
  * @see SearchRepository#search(SearchQuery, Pageable)
  */
 public class SearchQuery<T> {
 
-	private static final String WHERE = " where ";
-	private static final String AND = " and ";
-	private static final String PERCENT = "%";
-	private static final String DOT = ".";
-	protected List<SearchCriteria> criteria = new ArrayList<>();
+	protected static final String WHERE = " where ";
+	protected static final String AND = " and ";
+	protected static final String PERCENT = "%";
+	protected static final String DOT = ".";
+	protected List<Criterion> criteria = new ArrayList<>();
 	protected Class<T> domainClass;
 	protected boolean distinct;
 	protected String joinQuery;
@@ -470,7 +470,7 @@ public class SearchQuery<T> {
 	}
 
 	private void add(String name, Object value, Operand operand, boolean valueMandatory) {
-		SearchCriteria sc = new SearchCriteria(name, value, operand, valueMandatory);
+		Criterion sc = new Criterion(name, value, operand, valueMandatory);
 		if (sc.isValid()) {
 			criteria.add(sc);
 		}
@@ -612,29 +612,41 @@ public class SearchQuery<T> {
 	protected StringBuilder buildQueryString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("from " + domainClass.getSimpleName() + StringUtils.SPACE + entityAlias);
+		return appendJoinAndWhereClause(sb);
+	}
+
+	/**
+	 * Appends a JOIN-clause (if present) and the WHERE-clause to the given {@code queryBuilder}
+	 * 
+	 * @param queryBuilder
+	 *        the {@link StringBuilder} used to build the query
+	 * @return the {@code queryBuilder}
+	 * @see #join(String)
+	 */
+	protected StringBuilder appendJoinAndWhereClause(StringBuilder queryBuilder) {
 		if (StringUtils.isNotBlank(joinQuery)) {
-			sb.append(StringUtils.SPACE + joinQuery.trim() + StringUtils.SPACE);
+			queryBuilder.append(StringUtils.SPACE + joinQuery.trim() + StringUtils.SPACE);
 		}
 		int i = 0;
 		boolean isFirst = true;
-		for (SearchCriteria criterion : criteria) {
-			sb.append(isFirst ? WHERE : AND);
+		for (Criterion criterion : criteria) {
+			queryBuilder.append(isFirst ? WHERE : AND);
 			if (appendEntityAlias) {
-				sb.append(entityAlias + DOT);
+				queryBuilder.append(entityAlias + DOT);
 			}
-			sb.append(criterion.getName() + StringUtils.SPACE + criterion.getOperand().getPresentation());
+			queryBuilder.append(criterion.getName() + StringUtils.SPACE + criterion.getOperand().getPresentation());
 			if (null != criterion.getValue()) {
-				sb.append(" ?" + i++);
+				queryBuilder.append(" ?" + i++);
 			}
 			isFirst = false;
 		}
 		boolean addWhere = criteria.size() == 0;
 		for (Clause clause : andClauses) {
-			sb.append(addWhere ? WHERE : AND);
-			sb.append(StringUtils.SPACE + clause.clause + StringUtils.SPACE);
+			queryBuilder.append(addWhere ? WHERE : AND);
+			queryBuilder.append(StringUtils.SPACE + clause.clause + StringUtils.SPACE);
 			addWhere = false;
 		}
-		return sb;
+		return queryBuilder;
 	}
 
 	/**
@@ -645,7 +657,7 @@ public class SearchQuery<T> {
 	protected void setQueryParameters(Query... queries) {
 		for (Query query : queries) {
 			int i = 0;
-			for (SearchCriteria criterion : criteria) {
+			for (Criterion criterion : criteria) {
 				Object value = criterion.getValue();
 				if (null != value) {
 					query.setParameter(i++, value);
@@ -671,7 +683,7 @@ public class SearchQuery<T> {
 	 *            the {@link Pageable}
 	 * @return a (possibly new) {@link Pageable}
 	 */
-	protected Pageable applyPagination(TypedQuery<T> query, Long total, Pageable pageable) {
+	protected Pageable applyPagination(Query query, Long total, Pageable pageable) {
 		if (pageable.getOffset() >= total) {
 			pageable = new PageRequest(0, pageable.getPageSize(), pageable.getSort());
 		}
@@ -681,11 +693,11 @@ public class SearchQuery<T> {
 	}
 
 	/**
-	 * An operand that is applied to a {@link SearchCriteria}.
+	 * An operand that is applied to a {@link Criterion}.
 	 */
-	enum Operand {
-		EQ("="), NE("!="), LE("<="), GE(">="), LT("<"), GT(">"), IN("in"), NOT_IN("not in"), LIKE("like"), NOT_LIKE(
-				"not like"), NOT_NULL("is not null"), NULL("is null");
+	protected enum Operand {
+		EQ("="), NE("!="), LE("<="), GE(">="), LT("<"), GT(">"), IN("in"), NOT_IN("not in"), LIKE("like"),
+		NOT_LIKE("not like"), NOT_NULL("is not null"), NULL("is null");
 
 		private final String presentation;
 
@@ -693,7 +705,7 @@ public class SearchQuery<T> {
 			this.presentation = presentation;
 		}
 
-		String getPresentation() {
+		public String getPresentation() {
 			return presentation;
 		}
 	}
@@ -701,13 +713,21 @@ public class SearchQuery<T> {
 	/**
 	 * A part of a JPQL query that provides it's own parameters.
 	 */
-	class Clause {
-		String clause;
-		Map<String, Object> params;
+	protected class Clause {
+		private final String clause;
+		private final Map<String, Object> params;
 
 		Clause(String clause, Map<String, Object> params) {
 			this.clause = clause.trim();
 			this.params = params;
+		}
+
+		public String getClause() {
+			return clause;
+		}
+
+		public Map<String, Object> getParams() {
+			return params;
 		}
 
 		@Override
@@ -717,40 +737,40 @@ public class SearchQuery<T> {
 	}
 
 	/**
-	 * A search criterion consisting of the property's name and and {@link Operand}, optionally providing a value (it
-	 * depends on the operand if a value is needed).
+	 * A criterion consisting of the property's name and and {@link Operand}, optionally providing a value (it depends
+	 * on the operand if a value is needed).
 	 */
-	class SearchCriteria {
+	protected class Criterion {
 
 		private final String name;
 		private final Object value;
 		private final Operand operand;
 		private final boolean valueMandatory;
 
-		SearchCriteria(String name, Object value, Operand operand, boolean valueMandatory) {
+		Criterion(String name, Object value, Operand operand, boolean valueMandatory) {
 			this.name = name;
 			this.value = value;
 			this.operand = operand;
 			this.valueMandatory = valueMandatory;
 		}
 
-		String getName() {
+		public String getName() {
 			return name;
 		}
 
-		Object getValue() {
+		public Object getValue() {
 			return value;
 		}
 
-		Operand getOperand() {
+		public Operand getOperand() {
 			return operand;
 		}
 
-		boolean isValueMandatory() {
+		public boolean isValueMandatory() {
 			return valueMandatory;
 		}
 
-		boolean isValid() {
+		public boolean isValid() {
 			return null != value || !isValueMandatory();
 		}
 
