@@ -693,7 +693,7 @@ public class SearchQuery<T> {
 	}
 
 	/**
-	 * An operand that is applied to a {@link Criterion}.
+	 * An operand that is applied to a {@link SearchQuery.Criterion}.
 	 */
 	protected enum Operand {
 		EQ("="), NE("!="), LE("<="), GE(">="), LT("<"), GT(">"), IN("in"), NOT_IN("not in"), LIKE("like"),
