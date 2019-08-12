@@ -38,10 +38,10 @@
 						<numbered>true</numbered>
 						<project-version>${project.version}</project-version>
 						<project-name>${project.name}</project-name>
-						<spring-version>${springVersion}</spring-version>
-						<spring-data-version>${springDataVersion}</spring-data-version>
-						<spring-data-jpa-version>${springDataJpaVersion}</spring-data-jpa-version>
-						<lucene-version>${luceneVersion}</lucene-version>
+						<spring-version>${spring.version}</spring-version>
+						<spring-data-version>${springData.version}</spring-data-version>
+						<spring-data-jpa-version>${springDataJpa.version}</spring-data-jpa-version>
+						<lucene-version>${lucene.version}</lucene-version>
 					</attributes>
 				</configuration>
 				<executions>

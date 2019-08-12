@@ -64,7 +64,7 @@
 		<hibernate.version>5.4.3.Final</hibernate.version>
 		<jackson.version>2.9.9</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
-		<lucene.version>8.1.1</lucene.version>
+		<lucene.version>8.2.0</lucene.version>
 		<pdfBox.version>2.0.16</pdfBox.version>
 		<poi.version>3.17</poi.version>
 		<queryDsl.version>4.2.1</queryDsl.version>
@@ -536,11 +536,11 @@
 					<detectOfflineLinks>true</detectOfflineLinks>
 					<aggregate>true</aggregate>
 					<links>
-						<link>http://docs.spring.io/spring/docs/${springVersion}/javadoc-api/</link>
-						<link>http://docs.spring.io/spring-data/data-jpa/docs/${springDataJpaVersion}/api/</link>
-						<link>http://docs.spring.io/spring-data/data-commons/docs/${springDataVersion}/api/</link>
-						<link>http://docs.spring.io/spring-ws/docs/${springWSVersion}/api/</link>
-						<link>http://lucene.apache.org/core/6_6_0/core/</link>
+						<link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
+						<link>http://docs.spring.io/spring-data/data-jpa/docs/${springDataJpa.version}/api/</link>
+						<link>http://docs.spring.io/spring-data/data-commons/docs/${springData.version}/api/</link>
+						<link>http://docs.spring.io/spring-ws/docs/${springWS.version}/api/</link>
+						<link>http://lucene.apache.org/core/8_2_0/core/</link>
 						<link>http://docs.oracle.com/javaee/7/api/</link>
 						<link>http://xmlunit.sourceforge.net/api/</link>
 					</links>
