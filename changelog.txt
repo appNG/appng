@@ -1,3 +1,13 @@
+Release Notes - appNG - Version 1.20.0 (2019-08-21)
+---------------------------------------------------
+* [APPNG-2276] - Release of 1.20.0
+* [APPNG-2275] - Improve supported Types for a <field> of type="date" for Joda and Java time API
+* [APPNG-2274] - Avoid logging an error in RedirectFilter when no urlrewrite.xml is found
+* [APPNG-2273] - Dependency Upgrade
+* [APPNG-2272] - DefaultValidationProvider.addValidationMetaData does not correctly handle parameterized super classes
+* [APPNG-2167] - Make SearchQuery open for extension
+* [APPNG-2255] - Create an @Entity for JobExecutionRecord
+
 Release Notes - appNG - Version 1.19.1 (2019-06-27)
 ---------------------------------------------------
 * [APPNG-2271] - Build Release 1.19.1
