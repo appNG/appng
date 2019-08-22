@@ -21,6 +21,7 @@ import java.util.List;
 import org.appng.api.Person;
 import org.appng.api.support.OptionOwner.HitCounter;
 import org.appng.api.support.OptionOwner.Selector;
+import org.appng.xml.platform.FieldType;
 import org.appng.xml.platform.Option;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.SelectionType;
@@ -50,14 +51,13 @@ public class SelectionBuilderTest {
 		Selection selection = builder.title("label").options(Arrays.asList(a, b, c)).select(b).selector(selector)
 				.disable(c).hitCounter(counter).type(SelectionType.SELECT_MULTIPLE).defaultOption("-please select-", "")
 				.build();
-		
 
 		Assert.assertEquals("persons", selection.getId());
 		Assert.assertEquals(SelectionType.SELECT_MULTIPLE, selection.getType());
 		Assert.assertEquals("label", selection.getTitle().getValue());
 		List<Option> options = selection.getOptions();
 		Assert.assertEquals(4, options.size());
-		
+
 		Assert.assertEquals("-please select-", options.get(0).getName());
 		Assert.assertEquals("", options.get(0).getValue());
 
@@ -82,4 +82,15 @@ public class SelectionBuilderTest {
 		Assert.assertEquals(Integer.valueOf(3), options.get(3).getHits());
 
 	}
+
+	@Test
+	public void testBuilderWithEnum() {
+		Selection selection = new SelectionBuilder<FieldType>("type").options(Arrays.asList(FieldType.values()))
+				.select(FieldType.TEXT).disable(FieldType.TEXT).name(t -> t.name().toLowerCase()).build();
+		Assert.assertEquals(FieldType.TEXT.name().toLowerCase(), selection.getOptions().get(0).getName());
+		Assert.assertEquals(FieldType.TEXT.name(), selection.getOptions().get(0).getValue());
+		Assert.assertTrue(selection.getOptions().get(0).isSelected());
+		Assert.assertTrue(selection.getOptions().get(0).isDisabled());
+	}
+
 }
