@@ -1,5 +1,7 @@
 Release Notes - appNG - Version 1.20.0 (2019-08-21)
 ---------------------------------------------------
+* [APPNG-2278] - AttributeWrapper might use wrong classloader in readObject(ObjectInputStream in)
+* [APPNG-2277] - OptionsBuilder should use Enum.name() when retrieving the ID of an Enum option
 * [APPNG-2276] - Release of 1.20.0
 * [APPNG-2275] - Improve supported Types for a <field> of type="date" for Joda and Java time API
 * [APPNG-2274] - Avoid logging an error in RedirectFilter when no urlrewrite.xml is found
