@@ -1,2 +1,2 @@
 Usage:
-mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion=1.20.0-SNAPSHOT -DinteractiveMode=false
+mvn archetype:generate -DgroupId=mygroupid -DartifactId=myartifactid -DarchetypeGroupId=org.appng -DarchetypeArtifactId=appng-archetype-application -DarchetypeVersion=1.20.0 -DinteractiveMode=false
