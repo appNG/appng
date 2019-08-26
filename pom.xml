@@ -56,7 +56,7 @@
 		<template.name>appng-template</template.name>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!-- dependency versions -->
-		<appNG.manager.version>1.14.0</appNG.manager.version>
+		<appNG.manager.version>1.15.0</appNG.manager.version>
 		<appNG.scheduler.version>1.12.0</appNG.scheduler.version>
 		<appNG.authentication.version>1.11.2</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>

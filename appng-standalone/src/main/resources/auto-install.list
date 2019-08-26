@@ -1,9 +1,9 @@
 # Some variable declarations
 def DEPLOY=-f
-def MANAGER_VERSION=${manager.version}
-def AUTH_VERSION=${authentication.version}
-def SCHEDULER_VERSION=${scheduler.version}
-def TEMPLATE_VERSION=${template.version}
+def MANAGER_VERSION=${appNG.manager.version}
+def AUTH_VERSION=${appNG.authentication.version}
+def SCHEDULER_VERSION=${appNG.scheduler.version}
+def TEMPLATE_VERSION=${appNG.template.version}
 
 def ADMIN_SUBJECT=admin
 def ADMIN_GROUP=Administrators
