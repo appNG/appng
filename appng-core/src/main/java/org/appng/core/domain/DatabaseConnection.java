@@ -77,10 +77,10 @@ public class DatabaseConnection implements Auditable<Integer> {
 	private static final String DATABASE_NAME = "databaseName=";
 	public static final String DB_PLACEHOLDER = "<name>";
 	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
-	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MySqlDataSource";
+	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
 
 	static {
-		if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, DatabaseConnection.class.getClassLoader())) {
+		if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
 			MYSQL_DATASOURCE = MYSQL_LEGACY_DATASOURCE;
 		}
 	}
