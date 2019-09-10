@@ -60,8 +60,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * Represents a connection to a database which is being used either by the
- * platform itself ("root-connection") or by a {@link SiteApplication}.
+ * Represents a connection to a database which is being used either by the platform itself ("root-connection") or by a
+ * {@link SiteApplication}.
  * 
  * @author Matthias Müller
  * 
