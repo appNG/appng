@@ -83,7 +83,9 @@ public class GuiHandlerTest {
 		DefaultEnvironment env = DefaultEnvironment.get(servletContext, servletRequest);
 		Mockito.when(siteProperties.getString(SiteProperties.TEMPLATE, null)).thenReturn("appng");
 		Mockito.when(siteProperties.getString(SiteProperties.DEFAULT_APPLICATION)).thenReturn("manager");
+		Mockito.when(siteProperties.getString(SiteProperties.MANAGER_PATH)).thenReturn("/manager");
 
+		Mockito.when(site.getName()).thenReturn("localhost");
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);
 		Set<Application> applications = new HashSet<>();
 		applications.add(applicationB);
@@ -99,6 +101,6 @@ public class GuiHandlerTest {
 		PathInfo pathInfo = new PathInfo("localhost", "http://localhost", "manager", "/gui", "/gui", "/service",
 				Arrays.asList("/assets"), Arrays.asList("/de"), "/repository", "jsp");
 		new GuiHandler(null).handle(servletRequest, servletResponse, env, site, pathInfo);
-		Mockito.verify(site).sendRedirect(env, application.getName());
+		Mockito.verify(site).sendRedirect(env, "/manager/localhost/someapp");
 	}
 }

@@ -1,3 +1,14 @@
+Release Notes - appNG - Version 1.20.1 (2019-09-10)
+---------------------------------------------------
+* [APPNG-2287] - Release 1.20.1
+* [APPNG-2285] - Unable to use latest Connector/J
+* [APPNG-2284] - Revert Hibernate version from 5.4.4 to 5.4.3
+* [APPNG-2283] - Upgrade Spring WS to 2.4.6
+* [APPNG-2282] - GuiHandler should always try to forward to a site and application the logged in users has access to
+* [APPNG-2281] - NPE in ThymeleafProcessor when user accesses an invalid application url
+* [APPNG-2280] - Use manager 1.15.0
+* [APPNG-2279] - Wrong variables used in auto-install.list
+
 Release Notes - appNG - Version 1.20.0 (2019-08-21)
 ---------------------------------------------------
 * [APPNG-2278] - AttributeWrapper might use wrong classloader in readObject(ObjectInputStream in)
