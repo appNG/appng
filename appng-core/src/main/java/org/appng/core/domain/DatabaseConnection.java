@@ -54,6 +54,7 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.util.ClassUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,18 +76,28 @@ public class DatabaseConnection implements Auditable<Integer> {
 
 	private static final String DATABASE_NAME = "databaseName=";
 	public static final String DB_PLACEHOLDER = "<name>";
+	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
+	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
+
+	static {
+		if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
+			MYSQL_DATASOURCE = MYSQL_LEGACY_DATASOURCE;
+		}
+	}
 
 	/** enum-type for the supported databases */
 	public enum DatabaseType {
 
 		/** MySQL */
-		MYSQL("com.mysql.jdbc.Driver", "com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
+		MYSQL("com.mysql.jdbc.Driver", MYSQL_DATASOURCE, "jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
 
 		/** Microsoft SQL Server */
-		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource", "jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
+		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
+				"jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
 
 		/** HSQL DB */
-		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
+		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource",
+				"jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
 
 		private final String defaultDriver;
 		private final String templateUrl;
@@ -123,6 +134,19 @@ public class DatabaseConnection implements Auditable<Integer> {
 		 */
 		public String getDataSourceClassName() {
 			return dataSourceClassName;
+		}
+
+		String getDatabaseName(String jdbcUrl) {
+			int paramStart = jdbcUrl.indexOf('?') < 0 ? jdbcUrl.length() : jdbcUrl.indexOf('?');
+			switch (this) {
+
+			case MSSQL:
+				return jdbcUrl.substring(jdbcUrl.lastIndexOf(DATABASE_NAME) + DATABASE_NAME.length(), paramStart);
+
+			default:
+				int beginIndex = jdbcUrl.indexOf('/', jdbcUrl.indexOf("//") + 2) + 1;
+				return jdbcUrl.substring(beginIndex, paramStart);
+			}
 		}
 
 	}
@@ -426,16 +450,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 
 	@Transient
 	public String getDatabaseName() {
-		int paramStart = jdbcUrl.indexOf('?') < 0 ? jdbcUrl.length() : jdbcUrl.indexOf('?');
-		switch (type) {
-
-		case MSSQL:
-			String databaseName = "databaseName=";
-			return jdbcUrl.substring(getJdbcUrl().lastIndexOf(databaseName) + databaseName.length(), paramStart);
-
-		default:
-			return jdbcUrl.substring(getJdbcUrl().lastIndexOf('/') + 1, paramStart);
-		}
+		return type.getDatabaseName(jdbcUrl);
 	}
 
 	@Transient
