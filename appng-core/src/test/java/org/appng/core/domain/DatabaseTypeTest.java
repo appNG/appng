@@ -33,6 +33,7 @@ public class DatabaseTypeTest {
 	@Test
 	public void testMySql() {
 		runTest(MYSQL, "jdbc:mysql://localhost:3306/appng");
+		Assert.assertEquals("com.mysql.jdbc.Driver", MYSQL.getDefaultDriver());
 		Assert.assertEquals("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", MYSQL.getDataSourceClassName());
 	}
 
