@@ -39,11 +39,14 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
+import org.appng.api.support.ElementHelper;
 import org.appng.core.Redirect;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.domain.GroupImpl;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
 import org.appng.xml.application.Template;
+import org.appng.xml.platform.Messages;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StopWatch;
@@ -51,8 +54,8 @@ import org.springframework.util.StopWatch;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link RequestHandler} responsible for handling requests to the appNG GUI
- * provided by the several {@link Application}s of a {@link Site}.
+ * A {@link RequestHandler} responsible for handling requests to the appNG GUI provided by the several
+ * {@link Application}s of a {@link Site}.
  * 
  * @author Matthias Müller
  * 
@@ -61,6 +64,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GuiHandler implements RequestHandler {
 
+	public static final String PLATFORM_MESSAGES = "platformMessages";
 	private final File debugFolder;
 
 	public GuiHandler(File debugFolder) {
@@ -96,14 +100,23 @@ public class GuiHandler implements RequestHandler {
 			Site site, Properties platformProperties, PathInfo pathInfo, String templateDir)
 			throws IOException, InvalidConfigurationException {
 		Subject subject = env.getSubject();
-		if (env.isSubjectAuthenticated() && !(pathInfo.hasSite() || pathInfo.hasApplication())) {
-			// no site and/or application has been set
-			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
-			String target = getForwardTargetForSite(managerPath, site, subject);
-			site.sendRedirect(env, target);
-			return;
-		}
+		if (env.isSubjectAuthenticated()) {
 
+			if (!(pathInfo.hasSite() || pathInfo.hasApplication())) {
+				// no site and/or application has been set
+				String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
+				String target = getForwardTargetForSite(managerPath, site, subject);
+				site.sendRedirect(env, target);
+				return;
+			}
+			boolean isAdmin = env.getSubject().getGroups().stream().filter(g -> ((GroupImpl) g).isDefaultAdmin())
+					.findAny().isPresent();
+
+			Messages platformMessages = env.removeAttribute(PLATFORM, PLATFORM_MESSAGES);
+			if (isAdmin && null != platformMessages) {
+				ElementHelper.addMessages(env, platformMessages);
+			}
+		}
 		StopWatch sw = new StopWatch("process GUI");
 		sw.start();
 

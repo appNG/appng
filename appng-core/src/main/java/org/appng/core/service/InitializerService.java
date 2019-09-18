@@ -78,6 +78,7 @@ import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
+import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
 import org.appng.core.controller.rest.RestPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
@@ -95,6 +96,7 @@ import org.appng.core.model.JarInfo.JarInfoBuilder;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.repository.config.ApplicationPostProcessor;
+import org.appng.core.service.MigrationService.MigrationStatus;
 import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
@@ -151,15 +153,15 @@ public class InitializerService {
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                       the current {@link Environment}
 	 * @param rootConnection
-	 *            the root {@link DatabaseConnection}
+	 *                       the root {@link DatabaseConnection}
 	 * @param ctx
-	 *            the current {@link ServletContext}
+	 *                       the current {@link ServletContext}
 	 * @param executor
-	 *            an {@link ExecutorService} used by the cluster messaging
+	 *                       an {@link ExecutorService} used by the cluster messaging
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 * @see #loadPlatform(java.util.Properties, Environment, String, String, ExecutorService)
 	 */
 	@Transactional
@@ -176,13 +178,13 @@ public class InitializerService {
 	 * Reloads the platform with all of it's {@link Site}s.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                 the current {@link Environment}
 	 * @param siteName
-	 *            the (optional) name of the {@link Site} that caused the platform reload
+	 *                 the (optional) name of the {@link Site} that caused the platform reload
 	 * @param target
-	 *            an (optional) target to redirect to after platform reload
+	 *                 an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
@@ -225,13 +227,13 @@ public class InitializerService {
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                 the current {@link Environment}
 	 * @param siteName
-	 *            the (optional) name of the {@link Site} that caused the platform reload
+	 *                 the (optional) name of the {@link Site} that caused the platform reload
 	 * @param target
-	 *            an (optional) target to redirect to after platform reload
+	 *                 an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public void loadPlatform(java.util.Properties defaultOverrides, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
@@ -284,11 +286,12 @@ public class InitializerService {
 			env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 		}
 		int activeSites = 0;
+		FieldProcessor platformMessages = new FieldProcessorImpl("load-platform");
 		for (Integer id : sites) {
 			SiteImpl site = getCoreService().getSite(id);
 			if (site.isActive()) {
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
-				loadSite(site, env, false, new FieldProcessorImpl("load-platform"));
+				loadSite(site, env, false, platformMessages);
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
@@ -303,6 +306,7 @@ public class InitializerService {
 			}
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
+		env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages.getMessages());
 
 		if (0 == activeSites) {
 			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
@@ -395,7 +399,8 @@ public class InitializerService {
 		for (String key : keyList) {
 			Object value = map.get(key);
 			Object logValue = (value instanceof String)
-					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm) : value;
+					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm)
+					: value;
 			LOGGER.info("{}: {}", StringNormalizer.replaceNonPrintableCharacters(key, qm), logValue);
 		}
 	}
@@ -404,11 +409,11 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                   the current {@link Environment}
 	 * @param siteToLoad
-	 *            the {@link Site} to load
+	 *                   the {@link Site} to load
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -419,11 +424,11 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                   the current {@link Environment}
 	 * @param siteToLoad
-	 *            the {@link Site} to load
+	 *                   the {@link Site} to load
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
@@ -435,11 +440,11 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param siteToLoad
-	 *            the {@link Site} to load
+	 *                       the {@link Site} to load
 	 * @param servletContext
-	 *            the current {@link ServletContext}
+	 *                       the current {@link ServletContext}
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -450,16 +455,16 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param siteToLoad
-	 *            the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
-	 *            {@link CoreService#getSiteByName(String)}
+	 *                        the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
+	 *                        {@link CoreService#getSiteByName(String)}
 	 * @param env
-	 *            the current {@link Environment}
+	 *                        the current {@link Environment}
 	 * @param sendReloadEvent
-	 *            whether or not a {@link ReloadSiteEvent} should be sent
+	 *                        whether or not a {@link ReloadSiteEvent} should be sent
 	 * @param fp
-	 *            a {@link FieldProcessor} to attach messages to
+	 *                        a {@link FieldProcessor} to attach messages to
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -538,7 +543,7 @@ public class InitializerService {
 			if (siteApplication.isMarkedForDeletion()) {
 				coreService.unlinkApplicationFromSite(site.getId(), siteApplication.getApplication().getId());
 			} else if (!siteApplication.isActive()) {
-				String message = String.format("%s:  %s is inactive.", site.getName(),
+				String message = String.format("[%s] Application '%s' is inactive.", site.getName(),
 						siteApplication.getApplication().getName());
 				LOGGER.info(message);
 				fp.addNoticeMessage(message);
@@ -547,7 +552,7 @@ public class InitializerService {
 					coreService.unsetReloadRequired(siteApplication);
 				}
 				Application application = siteApplication.getApplication();
-				String errorMessage = String.format("Error while loading application %s.", application.getName());
+
 				try {
 					DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
 					if (null != databaseConnection) {
@@ -618,9 +623,17 @@ public class InitializerService {
 					applications.add(applicationProvider);
 
 					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
-					databaseService.migrateApplication(sqlFolder, siteApplication.getDatabaseConnection());
+					MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, databaseConnection);
+					if (migrationStatus.isErroneous()) {
+						String errorMessage = String.format(
+								"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
+								site.getName(), databaseConnection.getDatabaseName(), application.getName());
+						fp.addErrorMessage(errorMessage);
+					}
 
 				} catch (InvalidConfigurationException ice) {
+					String errorMessage = String.format("[%s] Error while loading application '%s'.", site.getName(),
+							application.getName());
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
 					auditableListener.createEvent(Type.ERROR, errorMessage);
@@ -711,7 +724,8 @@ public class InitializerService {
 				application.getApplicationSubjects().addAll(applicationSubjects);
 				validApplications.add(application);
 			} catch (Throwable e) {
-				String message = String.format("Error while loading application %s.", application.getName());
+				String message = String.format("[%s] Error while loading application '%s'.", site.getName(),
+						application.getName());
 				fp.addErrorMessage(message);
 				LOGGER.error(message, e);
 				auditableListener.createEvent(Type.ERROR, message);
@@ -833,9 +847,9 @@ public class InitializerService {
 	 * Shuts down the given {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}.
+	 *             the current {@link Environment}.
 	 * @param site
-	 *            the {@link Site} to shut down
+	 *             the {@link Site} to shut down
 	 */
 	public void shutDownSite(Environment env, Site site) {
 		List<ExecutorService> executors = siteThreads.get(site.getName());
