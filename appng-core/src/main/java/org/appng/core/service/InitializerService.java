@@ -100,6 +100,7 @@ import org.appng.core.service.MigrationService.MigrationStatus;
 import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Messages;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -363,8 +364,10 @@ public class InitializerService {
 					LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
 					LOGGER.info("restarting site {}", site.getName());
 					try {
-						loadSite(env, getCoreService().getSiteByName(site.getName()), false,
-								new FieldProcessorImpl("auto-reload"));
+						FieldProcessor reloadMessages = new FieldProcessorImpl("auto-reload");
+						loadSite(env, getCoreService().getSiteByName(site.getName()), false, reloadMessages);
+						Messages platformMessages = reloadMessages.getMessages();
+						env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages);
 					} catch (InvalidConfigurationException e) {
 						LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 					}
