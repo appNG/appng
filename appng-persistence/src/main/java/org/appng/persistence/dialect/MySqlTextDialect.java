@@ -18,15 +18,15 @@ package org.appng.persistence.dialect;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
-import org.hibernate.dialect.MySQL5Dialect;
+import org.hibernate.dialect.MySQL55Dialect;
 
 /**
- * A {@link MySQL5Dialect} which converts varchar-fields with a length of >=1024 to mysql-type 'text'
+ * A {@link MySQL55Dialect} which converts varchar-fields with a length of >=1024 to mysql-type 'text'
  * 
  * @author Matthias Müller
  * 
  */
-public class MySqlTextDialect extends MySQL5Dialect {
+public class MySqlTextDialect extends MySQL55Dialect {
 
 	private static final String TEXT_TYPE = "text";
 
