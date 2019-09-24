@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <action xmlns="http://www.appng.org/schema/platform" id="createPerson" eventId="personEvent" async="false">
-    <config>
-        <title id="person.create">New Person</title>
-        <params>
-            <param name="form_action">createPerson</param>
-        </params>
-        <meta-data bindClass="${package}.Person">
-            <field name="lastname" type="text" binding="lastname">
-                <label id="lastname">Lastname</label>
-                <validation>
-                    <notNull>
-                        <message ref="lastname" class="ERROR">Field must not be empty</message>
-                    </notNull>
-                </validation>
-            </field>
-            <field name="name" type="text" binding="name">
-                <label id="name">Name</label>
-                <validation>
-                    <notNull>
-                        <message ref="name" class="ERROR">Field must not be empty</message>
-                    </notNull>
-                </validation>
-            </field>
-        </meta-data>
-    </config>
-    <condition expression="${dollar}{'createPerson' eq form_action}"/>
-    <messages>
-        <message ref="createPerson" class="OK">Person has been created!</message>
-    </messages>
-    <datasource id="newPerson"/>
-    <data>
-        <result>
-            <field name="lastname" type="text">
-                <value></value>
-            </field>
-            <field name="name" type="text">
-                <value></value>
-            </field>
-        </result>
-    </data>
-    <bean id="personAction">
-        <option name="action" id="create"/>
-    </bean>
+	<config>
+		<title id="person.create">New Person</title>
+		<params>
+			<param name="form_action">createPerson</param>
+		</params>
+		<meta-data bindClass="${package}.Person">
+			<field name="lastname" type="text" binding="lastname">
+				<label id="lastname">Lastname</label>
+				<validation>
+					<notNull>
+						<message ref="lastname" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+					</notNull>
+				</validation>
+			</field>
+			<field name="name" type="text" binding="name">
+				<label id="name">Name</label>
+				<validation>
+					<notNull>
+						<message ref="name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+					</notNull>
+				</validation>
+			</field>
+		</meta-data>
+	</config>
+	<condition expression="${dollar}{'createPerson' eq form_action}" />
+	<messages>
+		<message ref="createPerson" class="OK">Person has been created!</message>
+	</messages>
+	<datasource id="newPerson" />
+	<data>
+		<result>
+			<field name="lastname" type="text">
+				<value></value>
+			</field>
+			<field name="name" type="text">
+				<value></value>
+			</field>
+		</result>
+	</data>
+	<bean id="personAction">
+		<option name="action" id="create" />
+	</bean>
 </action>

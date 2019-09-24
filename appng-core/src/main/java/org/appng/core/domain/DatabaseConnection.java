@@ -78,10 +78,13 @@ public class DatabaseConnection implements Auditable<Integer> {
 	public static final String DB_PLACEHOLDER = "<name>";
 	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
 	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
+	private static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
+	private static final String MYSQL_LEGACY_DRIVER = "com.mysql.jdbc.Driver";
 
 	static {
 		if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
 			MYSQL_DATASOURCE = MYSQL_LEGACY_DATASOURCE;
+			MYSQL_DRIVER = MYSQL_LEGACY_DRIVER;
 		}
 	}
 
@@ -89,7 +92,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 	public enum DatabaseType {
 
 		/** MySQL */
-		MYSQL("com.mysql.jdbc.Driver", MYSQL_DATASOURCE, "jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
+		MYSQL(MYSQL_DRIVER, MYSQL_DATASOURCE, "jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
 
 		/** Microsoft SQL Server */
 		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource",

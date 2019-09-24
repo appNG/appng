@@ -105,13 +105,15 @@ public class PlatformConfig {
 	}
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource,
+			@Value("${hibernate.dialect}") String dialect) {
 		LocalContainerEntityManagerFactoryBean lcemfb = new LocalContainerEntityManagerFactoryBean();
 		lcemfb.setPersistenceProviderClass(HibernatePersistenceProvider.class);
 		lcemfb.setPersistenceUnitName("appNG");
 		lcemfb.setDataSource(dataSource);
 		Properties jpaProperties = new Properties();
 		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
+		jpaProperties.put(AvailableSettings.DIALECT, dialect);
 		lcemfb.setJpaProperties(jpaProperties);
 		lcemfb.setPackagesToScan("org.appng.core.domain");
 		return lcemfb;

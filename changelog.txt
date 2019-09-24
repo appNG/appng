@@ -1,3 +1,13 @@
+Release Notes - appNG - Version 1.20.2 (2019-09-24)
+---------------------------------------------------
+* [APPNG-2294] - Release of 1.20.2
+* [APPNG-2293] - MySqlTextDialect should inherit from MySQL55Dialect
+* [APPNG-2292] - PlatformConfig should set Hibernate Dialect when creating EntityManagerFactory
+* [APPNG-2291] - TransactionRequiredException when writing a platform event after a site reload triggered by SiteReloadWatcher
+* [APPNG-2290] - Messages occurring during platform startup get lost
+* [APPNG-2289] - Unit tests fail for application generated with appNG Maven archetype
+* [APPNG-2288] - Warning on startup: Loading class `com.mysql.jdbc.Driver'. This is deprecated.
+
 Release Notes - appNG - Version 1.20.1 (2019-09-10)
 ---------------------------------------------------
 * [APPNG-2287] - Release 1.20.1
