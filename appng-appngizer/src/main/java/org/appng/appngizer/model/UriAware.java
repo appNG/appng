@@ -15,7 +15,6 @@
  */
 package org.appng.appngizer.model;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.appng.appngizer.model.xml.Links;
@@ -47,8 +46,8 @@ public interface UriAware {
 
 	default String encode(String name) {
 		try {
-			return UriUtils.encode(name, StandardCharsets.UTF_8.name());
-		} catch (UnsupportedEncodingException e) {
+			return UriUtils.encode(name, StandardCharsets.UTF_8);
+		} catch (IllegalArgumentException e) {
 			// never ever
 		}
 		return name;

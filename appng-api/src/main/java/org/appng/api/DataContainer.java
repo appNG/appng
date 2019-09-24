@@ -176,13 +176,13 @@ public final class DataContainer {
 			doSort(sortedItems, pageable.getSort());
 		}
 		int size = sortedItems.size();
-		int fromIndex = pageable.getOffset() < size ? pageable.getOffset() : 0;
+		int fromIndex = pageable.getOffset() < size ? (int)pageable.getOffset() : 0;
 		int pageSize = pageable.getPageSize();
 		int toIndex = fromIndex + pageSize;
 		toIndex = toIndex > size ? size : toIndex;
 		List subList = new ArrayList(sortedItems).subList(fromIndex, toIndex);
 		int currentPage = fromIndex == 0 ? 0 : pageable.getPageNumber();
-		Pageable extractedPageable = new PageRequest(currentPage, pageSize, pageable.getSort());
+		Pageable extractedPageable = PageRequest.of(currentPage, pageSize, pageable.getSort());
 		Page extractedPage = new PageImpl(subList, extractedPageable, size);
 		setPage(extractedPage);
 		setPageable(extractedPageable);

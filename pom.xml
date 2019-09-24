@@ -70,10 +70,10 @@
 		<queryDsl.version>4.2.1</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<spring.version>4.3.24.RELEASE</spring.version>
-		<springData.version>1.13.22.RELEASE</springData.version>
-		<springDataEnvers.version>1.1.22.RELEASE</springDataEnvers.version>
-		<springDataJpa.version>1.11.22.RELEASE</springDataJpa.version>
+		<spring.version>5.1.9.RELEASE</spring.version>
+		<springData.version>2.1.10.RELEASE</springData.version>
+		<springDataEnvers.version>2.1.10.RELEASE</springDataEnvers.version>
+		<springDataJpa.version>2.1.10.RELEASE</springDataJpa.version>
 		<springSecurity.version>4.2.13.RELEASE</springSecurity.version>
 		<springWS.version>2.4.6.RELEASE</springWS.version>
 		<tika.version>1.18</tika.version>

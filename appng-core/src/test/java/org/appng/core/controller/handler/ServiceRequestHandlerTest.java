@@ -41,7 +41,6 @@ import org.appng.api.SoapService;
 import org.appng.api.VHostMode;
 import org.appng.api.Webservice;
 import org.appng.api.model.Application;
-import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.model.Site;

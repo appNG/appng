@@ -207,7 +207,7 @@ public class CallableDataSource {
 				if (null != page) {
 					if (page.getTotalPages() > 0 && page.getNumber() >= page.getTotalPages()) {
 						String requestKey = sortParamSupport.getRequestKey();
-						PageRequest pageable = new PageRequest(0, page.getSize(), page.getSort());
+						PageRequest pageable = PageRequest.of(0, page.getSize(), page.getSort());
 						String sortString = sortParamSupport.getSortString(pageable);
 						String servletPath = applicationRequest.getHttpServletRequest().getServletPath();
 						String target = servletPath + "?" + requestKey + "=" + sortString;

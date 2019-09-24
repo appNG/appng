@@ -85,7 +85,7 @@ public class ResultServiceImpl extends AdapterBase implements ResultService {
 	public Resultset getResultset(FieldProcessor fp, Collection<?> items) {
 		int pageSize = (0 == items.size() ? 10 : items.size());
 		return getResultset(fp,
-				new PageImpl<Object>(new ArrayList<>(items), new PageRequest(0, pageSize), items.size()));
+				new PageImpl<Object>(new ArrayList<>(items), PageRequest.of(0, pageSize), items.size()));
 	}
 
 	public final Resultset getResultset(FieldProcessor fp, Page<?> page) {
