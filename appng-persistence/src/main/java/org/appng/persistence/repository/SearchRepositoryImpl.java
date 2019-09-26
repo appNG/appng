@@ -80,6 +80,10 @@ public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaR
 		this.entityManager = entityManager;
 	}
 
+	public T findOne(ID id) {
+		return findById(id).orElse(null);
+	}
+
 	@Override
 	public Page<T> findAll(Pageable pageable) {
 		return search(pageable);

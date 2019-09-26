@@ -190,7 +190,7 @@ public final class DataContainer {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void doSort(List items, Sort sort) {
-		if (null != sort && !items.isEmpty()) {
+		if (!Sort.unsorted().equals(sort) && !items.isEmpty()) {
 			ComparatorChain comparatorChain = new ComparatorChain();
 			Iterator<Order> iterator = sort.iterator();
 			while (iterator.hasNext()) {

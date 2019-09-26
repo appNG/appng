@@ -119,9 +119,7 @@ import lombok.extern.slf4j.Slf4j;
  * @see #process(ApplicationRequest, MarshallService, Path, PlatformConfig)
  * @see CallableAction#perform()
  * @see CallableDataSource#perform(String, boolean, boolean)
- * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ApplicationProvider extends SiteApplication implements AccessibleApplication {
@@ -137,6 +135,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	private ApplicationRequest applicationRequest;
 
 	private boolean monitorPerformance;
+	private Class<?> applicationConfiguration;
 
 	public ApplicationProvider(Site site, Application application, boolean monitorPerformance) {
 		this.application = (AccessibleApplication) application;
@@ -158,13 +157,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	 * {@link CallableDataSource}s.
 	 * 
 	 * @param applicationRequest
-	 *            the {@link ApplicationRequest} to process
+	 *                           the {@link ApplicationRequest} to process
 	 * @param marshallService
-	 *            a {@link MarshallService}
+	 *                           a {@link MarshallService}
 	 * @param pathInfo
-	 *            the current {@link Path}
+	 *                           the current {@link Path}
 	 * @param platformConfig
-	 *            the current {@link PlatformConfig}
+	 *                           the current {@link PlatformConfig}
 	 * @return the {@link ApplicationReference} to be used for the {@link Content} of the {@link Platform}
 	 */
 	public ApplicationReference process(ApplicationRequest applicationRequest, MarshallService marshallService,
@@ -843,8 +842,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Action action = applicationConfigProvider.getAction(eventId, actionId);
 		if (null == action) {
-			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
-					site.getName());
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
+					application.getName(), site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return null;
 		}
@@ -925,13 +924,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
 					parameterSupport, datasourceRef);
 			if (callableDataSource.doInclude()) {
-				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId, application.getName(),
-						site.getName());
+				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
+						application.getName(), site.getName());
 				callableDataSource.perform("service");
 				return callableDataSource.getDatasource();
 			}
-			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.", dataSourceId,
-					application.getName(), site.getName());
+			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
+					dataSourceId, application.getName(), site.getName());
 		}
 		Subject subject = environment.getSubject();
 		LOGGER.debug(
@@ -993,6 +992,14 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		} else {
 			defaultEnvironment.disable(PLATFORM);
 		}
+	}
+
+	public Class<?> getApplicationConfiguration() {
+		return applicationConfiguration;
+	}
+
+	public void setApplicationConfiguration(Class<?> applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
 }

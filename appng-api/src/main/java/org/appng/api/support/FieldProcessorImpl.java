@@ -289,7 +289,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	}
 
 	private Sort getSort() {
-		Sort sort = null;
+		Sort sort = Sort.unsorted();
 		if (!Sort.unsorted().equals(pageable.getSort())) {
 			List<Order> orders = new ArrayList<>();
 			List<FieldDef> activeSortFields = new ArrayList<>();
@@ -345,7 +345,7 @@ public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 	}
 
 	private Sort getDefaultSort() {
-		Sort sort = null;
+		Sort sort = Sort.unsorted();
 		if (null != getMetaData()) {
 			List<FieldDef> sortFields = new ArrayList<>();
 			for (FieldDef field : getMetaData().getFields()) {

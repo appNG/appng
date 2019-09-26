@@ -24,7 +24,6 @@ import org.appng.api.support.MessageSourceChain;
 import org.appng.core.domain.DatabaseConnection;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.MessageSource;
@@ -39,12 +38,10 @@ import lombok.extern.slf4j.Slf4j;
  * Additionally, the {@link Site} and the {@link Application} are also registered as beans.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Ordered {
 
-	private static final String DATASOURCE_BEAN_NAME = "datasource";
 	private static final String MESSAGES_CORE = "messages-core";
 	private final DatabaseConnection connection;
 	private Collection<String> dictionaryNames;
@@ -55,14 +52,14 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	 * Creates a new {@code ApplicationPostProcessor} using the given {@link DatabaseConnection}.
 	 * 
 	 * @param site
-	 *            the {@link Site}
+	 *                           the {@link Site}
 	 * @param application
-	 *            the {@link Application}
+	 *                           the {@link Application}
 	 * @param databaseConnection
-	 *            a {@link DatabaseConnection}, may be {@code null}.
+	 *                           a {@link DatabaseConnection}, may be {@code null}.
 	 * @param dictionaryNames
-	 *            the name of the dictionary files that the {@link Application} uses (see
-	 *            {@link ResourceBundleMessageSource#setBasenames(String...)})
+	 *                           the name of the dictionary files that the {@link Application} uses (see
+	 *                           {@link ResourceBundleMessageSource#setBasenames(String...)})
 	 */
 	public ApplicationPostProcessor(Site site, Application application, DatabaseConnection databaseConnection,
 			Collection<String> dictionaryNames) {
@@ -82,21 +79,15 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		beanFactory.registerSingleton("site", site);
 		beanFactory.registerSingleton("application", application);
-		try {
-			DatasourceConfigurer datasourceConfigurer = beanFactory.getBean(DatasourceConfigurer.class);
-			if (null != connection) {
-				try {
-					LOGGER.debug("configuring {}", connection);
-					datasourceConfigurer.configure(connection);
-				} catch (Exception e) {
-					throw new BeanCreationException("error while creating DatasourceConfigurer", e);
-				}
-			} else {
-				LOGGER.debug("no connection given, destroying bean '{}'", DATASOURCE_BEAN_NAME);
-				beanFactory.destroyBean(DATASOURCE_BEAN_NAME, datasourceConfigurer);
+
+		if (null != connection) {
+			try {
+				LOGGER.debug("configuring {}", connection);
+				DatasourceConfigurer datasourceConfigurer = beanFactory.getBean(DatasourceConfigurer.class);
+				datasourceConfigurer.configure(connection);
+			} catch (Exception e) {
+				throw new BeanCreationException("error while creating DatasourceConfigurer", e);
 			}
-		} catch (NoSuchBeanDefinitionException e) {
-			LOGGER.debug("no DatasourceConfigurer found in bean-factory");
 		}
 
 		dictionaryNames.add(MESSAGES_CORE);

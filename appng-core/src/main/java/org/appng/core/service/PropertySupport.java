@@ -56,7 +56,7 @@ public class PropertySupport {
 
 	private static final String PREFIX_EMPTY = "";
 	public static final String PREFIX_PLATFORM = "platform.";
-	static final String PREFIX_SITE = "site.";
+	public static final String PREFIX_SITE = "site.";
 	private static final String PREFIX_APPLICATION = "application.";
 	private static final String DOT = ".";
 
