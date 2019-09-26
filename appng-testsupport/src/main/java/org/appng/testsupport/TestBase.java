@@ -138,8 +138,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
  * Base class for integration-testing an {@link Application}.<br />
- * 
- * 
  * Example Usage (w/o JPA):
  * 
  * <pre>
@@ -192,20 +190,13 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
-@ContextConfiguration(locations = { TestBase.BEANS_PATH, TestBase.TESTCONTEXT })
+//@ContextConfiguration(classes = ApplicationTestConfig.class, initializers = TestBase.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
 public class TestBase implements ApplicationContextInitializer<GenericApplicationContext> {
 
 	private static final String SITE_PROP_PREFIX = "platform.site.localhost.";
-
-	public static final String TESTCONTEXT = "classpath:org/appng/testsupport/application-testcontext.xml";
-
-	public static final String TESTCONTEXT_CORE = "classpath:org/appng/testsupport/application-testcontext-core.xml";
-
-	public static final String TESTCONTEXT_JPA = "classpath:org/appng/testsupport/application-testcontext-jpa.xml";
 
 	public static final String BEANS_PATH = "file:application-home/beans.xml";
 
@@ -400,6 +391,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	protected Properties getProperties() {
 		Properties properties = new Properties();
 		properties.put("entityPackage", entityPackage);
+		properties.put("createDatabase", "true");
+		properties.put("persistenceUnitName", "hsql-testdb");
 		properties.put("hsqlPort", ConnectionHelper.getHsqlPort());
 		properties.put("repositoryBase", repositoryBase);
 		return properties;
@@ -413,9 +406,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * {@link ActionCall#withParam(String, String)}!</strong>
 	 * 
 	 * @param name
-	 *            the name of the parameter
+	 *              the name of the parameter
 	 * @param value
-	 *            the value of the parameter
+	 *              the value of the parameter
 	 */
 	protected void addParameter(String name, String value) {
 		parameters.put(name, value);
@@ -640,7 +633,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * Returns a {@link DataSourceCall} that wraps a {@link DatasourceRef}, using the given id for a {@link Datasource}
 	 * 
 	 * @param id
-	 *            the id of the {@link Datasource}
+	 *           the id of the {@link Datasource}
 	 * @return the {@link DataSourceCall}
 	 */
 	protected DataSourceCall getDataSource(String id) {
@@ -651,9 +644,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * Returns an {@link ActionCall} that wraps an {@link ActionRef}, using the given id for an {@link Action}.
 	 * 
 	 * @param eventId
-	 *            the id of the {@link Event}
+	 *                the id of the {@link Event}
 	 * @param id
-	 *            the id of the {@link Action}
+	 *                the id of the {@link Action}
 	 * @return the {@link ActionCall}
 	 */
 	protected ActionCall getAction(String eventId, String id) {
@@ -757,9 +750,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * Adds a {@link Param} to the wrapped {@link DatasourceRef}.
 		 * 
 		 * @param name
-		 *            the name of the {@link Param}
+		 *              the name of the {@link Param}
 		 * @param value
-		 *            the value
+		 *              the value
 		 * @return
 		 */
 		public DataSourceCall withParam(String name, String value) {
@@ -772,7 +765,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * 
 		 * @return the {@link CallableDataSource}
 		 * @throws ProcessingException
-		 *             if an error occurs while assembling the CallableDataSource
+		 *                             if an error occurs while assembling the CallableDataSource
 		 */
 		public CallableDataSource getCallableDataSource() throws ProcessingException {
 			return new CallableDataSource(site, application, request, getParameterSupport(), this);
@@ -812,9 +805,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * Adds a {@link Param} to the wrapped {@link ActionRef}.
 		 * 
 		 * @param name
-		 *            the name of the {@link Param}
+		 *              the name of the {@link Param}
 		 * @param value
-		 *            the value
+		 *              the value
 		 * @return
 		 */
 		public ActionCall withParam(String name, String value) {
@@ -826,11 +819,11 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * Returns the {@link CallableAction}.
 		 * 
 		 * @param form
-		 *            an instance of the bind-object used by the {@link Action}. The type must be compatible with
-		 *            {@link MetaData#getBindClass()} of the {@link Datasource} that is used by the {@link Action}.
+		 *             an instance of the bind-object used by the {@link Action}. The type must be compatible with
+		 *             {@link MetaData#getBindClass()} of the {@link Datasource} that is used by the {@link Action}.
 		 * @return the {@link CallableAction}
 		 * @throws ProcessingException
-		 *             if an error occurs while assembling the CallableAction
+		 *                             if an error occurs while assembling the CallableAction
 		 */
 		public CallableAction getCallableAction(Object form) throws ProcessingException {
 			return new CallableTestAction(site, application, request, this, form);
@@ -842,7 +835,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * 
 		 * @return the {@link Action}
 		 * @throws ProcessingException
-		 *             if an error occurs while assembling the Action
+		 *                             if an error occurs while assembling the Action
 		 */
 		public Action initialize() throws ProcessingException {
 			return new CallableTestAction(site, application, request, this, null).initialize();
@@ -856,7 +849,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * 
 		 * @return the initial form, may be {@code null}
 		 * @throws ProcessingException
-		 *             if an error occurs while retrieving the data
+		 *                             if an error occurs while retrieving the data
 		 */
 		@SuppressWarnings("unchecked")
 		public <T> T getForm() throws ProcessingException {

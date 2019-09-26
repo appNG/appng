@@ -31,7 +31,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 
-@ContextConfiguration(locations = { TestBase.TESTCONTEXT }, inheritLocations = false)
+@ContextConfiguration(classes = { ApplicationTestConfig.class }, inheritLocations = false)
 public class TestBaseTest extends TestBase {
 
 	@Override

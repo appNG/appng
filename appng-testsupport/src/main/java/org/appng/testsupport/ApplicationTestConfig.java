@@ -41,7 +41,7 @@ import org.springframework.mock.web.MockServletContext;
 public class ApplicationTestConfig extends ApplicationConfig {
 
 	@Bean
-	public CustomScopeConfigurer scopeConfigurer() {
+	public static CustomScopeConfigurer scopeConfigurer() {
 		CustomScopeConfigurer customScopeConfigurer = new CustomScopeConfigurer();
 		customScopeConfigurer.addScope("request", new SimpleThreadScope());
 		customScopeConfigurer.addScope("session", new SimpleThreadScope());

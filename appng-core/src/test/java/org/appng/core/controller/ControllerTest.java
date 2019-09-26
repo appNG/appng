@@ -53,6 +53,7 @@ import org.appng.core.controller.handler.JspHandler;
 import org.appng.core.controller.handler.RequestHandler;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
+import org.appng.testapplication.TestApplicationConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,10 +62,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@ContextConfiguration(classes = TestApplicationConfig.class, inheritLocations = false)
 public class ControllerTest extends Controller {
 
 	private static final String host = "foo.example.com";

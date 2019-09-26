@@ -86,6 +86,7 @@ public class ApplicationConfigJPA extends ApplicationConfig {
 			jpaProperties.put(AvailableSettings.HBM2DDL_AUTO, Action.CREATE.name().toLowerCase());
 		}
 		jpaProperties.put(AvailableSettings.FORMAT_SQL, formatSql);
+		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
 		emfb.setJpaPropertyMap(jpaProperties);
 		return emfb;
 	}
