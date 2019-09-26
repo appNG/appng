@@ -15,38 +15,58 @@
  */
 package org.appng.core.controller;
 
+import java.io.IOException;
 import java.util.Properties;
+
+import javax.servlet.ServletContext;
 
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.DatabaseService;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockServletContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@Configuration
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { PlatformConfig.class, PlatformConfigTest.class })
 public class PlatformConfigTest {
+
+	@Autowired
+	DatabaseService databaseService;
 
 	@Test
 	public void testStartAndStop() throws Exception {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(PlatformConfig.class);
-
-		PreferencesPlaceholderConfigurer ppc = new PreferencesPlaceholderConfigurer();
-		Properties props = new Properties();
-		ppc.setProperties(props);
-		ClassPathResource configResource = new ClassPathResource("appNG-hsql.properties");
-		props.load(configResource.getInputStream());
-		ppc.afterPropertiesSet();
-
-		ctx.addBeanFactoryPostProcessor(ppc);
-		ctx.refresh();
-		DatabaseConnection platformConnection = ctx.getBean(DatabaseService.class).getPlatformConnection(props);
+		DatabaseConnection platformConnection = databaseService.getPlatformConnection(properties());
 		StringBuilder dbInfo = new StringBuilder();
 		platformConnection.testConnection(dbInfo);
 		Assert.assertTrue(dbInfo.toString().contains("HSQL Database Engine 2.5"));
+	}
 
-		ctx.close();
+	@Bean
+	public ServletContext servletContext() {
+		return new MockServletContext();
+	}
+
+	@Bean
+	public static PlaceholderConfigurerSupport platformProperties() throws IOException {
+		PreferencesPlaceholderConfigurer ppc = new PreferencesPlaceholderConfigurer();
+		ppc.setProperties(properties());
+		return ppc;
+	}
+
+	private static Properties properties() throws IOException {
+		Properties props = new Properties();
+		props.load(new ClassPathResource("appNG-hsql.properties").getInputStream());
+		return props;
 	}
 
 }
