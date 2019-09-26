@@ -74,8 +74,8 @@
 		<springData.version>2.1.10.RELEASE</springData.version>
 		<springDataEnvers.version>2.1.10.RELEASE</springDataEnvers.version>
 		<springDataJpa.version>2.1.10.RELEASE</springDataJpa.version>
-		<springSecurity.version>4.2.13.RELEASE</springSecurity.version>
-		<springWS.version>2.4.6.RELEASE</springWS.version>
+		<springSecurity.version>5.1.6.RELEASE</springSecurity.version>
+		<springWS.version>3.0.7.RELEASE</springWS.version>
 		<tika.version>1.18</tika.version>
 		<tomcat.version>9.0.22</tomcat.version>
 	</properties>

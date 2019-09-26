@@ -88,7 +88,7 @@ public class PlatformConfig {
 	}
 
 	@Bean(destroyMethod = "destroy")
-	public FactoryBean<DataSource> platformDataSource(
+	public FactoryBean<DataSource> dataSource(
 	// @formatter:off
 			@Value("${hibernate.connection.url}") String jdbcUrl,
 			@Value("${hibernate.connection.username}") String userName,
