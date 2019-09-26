@@ -21,50 +21,62 @@ import org.appng.api.FieldProcessor;
 import org.appng.api.ProcessingException;
 import org.appng.api.support.CallableAction;
 import org.appng.api.support.CallableDataSource;
+import org.appng.persistence.ApplicationConfigJPA;
+import org.appng.persistence.repository.SearchRepositoryImpl;
+import org.appng.testsupport.ApplicationTestConfig;
 import org.appng.testsupport.TestBase;
+import org.appng.testsupport.persistence.ApplicationConfigDataSource;
 import org.appng.testsupport.validation.WritingXmlValidator;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ContextConfiguration;
 
 // tag::all[]
-@org.springframework.test.context.ContextConfiguration(locations = {
-        TestBase.TESTCONTEXT_JPA }, initializers = EmployeesTest.class)
+@ContextConfiguration(classes = EmployeesTest.class, initializers = EmployeesTest.class) // <!--1-->
+@Configuration // <!--2-->
+@ImportResource(TestBase.BEANS_PATH) // <!--3-->
+@Import({ ApplicationTestConfig.class, ApplicationConfigDataSource.class, ApplicationConfigJPA.class }) // <!--4-->
+@EnableJpaRepositories(basePackages = "com.myapp.repository", repositoryBaseClass = SearchRepositoryImpl.class) // <!--5-->
 public class EmployeesTest extends TestBase {
 
-    static {
-        WritingXmlValidator.writeXml = false;
-    }
+	static {
+		WritingXmlValidator.writeXml = false;
+	}
 
-    // tag::contructor[]
-    public EmployeesTest() {
-        super("myapp", "application-home");
-        setEntityPackage("com.myapp.domain");
-        setRepositoryBase("com.myapp.repository");
-    }
-    // end::contructor[]
+	// tag::contructor[]
+	public EmployeesTest() {
+		super("myapp", "application-home");
+		setEntityPackage("com.myapp.domain");
+		setRepositoryBase("com.myapp.repository");
+	}
+	// end::contructor[]
 
-    // tag::datasource[]
-    @org.junit.Test
-    public void testShowEmployees() throws ProcessingException, IOException {
-        addParameter("selectedId", "1"); // <!--1-->
-        initParameters(); // <!--2-->
-        DataSourceCall dataSourceCall = getDataSource("employees");// <!--3-->
-        CallableDataSource callableDataSource = dataSourceCall.getCallableDataSource(); // <!--4-->
-        callableDataSource.perform("aPage"); // <!--5-->
-        validate(callableDataSource.getDatasource());// <!--6-->
-    }
-    // end::datasource[]
+	// tag::datasource[]
+	@org.junit.Test
+	public void testShowEmployees() throws ProcessingException, IOException {
+		addParameter("selectedId", "1"); // <!--1-->
+		initParameters(); // <!--2-->
+		DataSourceCall dataSourceCall = getDataSource("employees");// <!--3-->
+		CallableDataSource callableDataSource = dataSourceCall.getCallableDataSource(); // <!--4-->
+		callableDataSource.perform("aPage"); // <!--5-->
+		validate(callableDataSource.getDatasource());// <!--6-->
+	}
+	// end::datasource[]
 
-    // tag::action[]
-    @org.junit.Test
-    public void testCreateEmployee() throws ProcessingException, IOException {
-        ActionCall action = getAction("employeeEvent", "create");// <!--1-->
-        action.withParam(FORM_ACTION, "create");// <!--2-->
-        Employee formBean = new Employee("John", "Doe");// <!--3-->
-        CallableAction callableAction = action.getCallableAction(formBean);// <!--4-->
-        FieldProcessor fieldProcessor = callableAction.perform();// <!--5-->
-        validate(fieldProcessor.getMessages(), "-messages");// <!--6-->
-        validate(callableAction.getAction(), "-action");// <!--7-->
-    }
-    // end::action[]
+	// tag::action[]
+	@org.junit.Test
+	public void testCreateEmployee() throws ProcessingException, IOException {
+		ActionCall action = getAction("employeeEvent", "create");// <!--1-->
+		action.withParam(FORM_ACTION, "create");// <!--2-->
+		Employee formBean = new Employee("John", "Doe");// <!--3-->
+		CallableAction callableAction = action.getCallableAction(formBean);// <!--4-->
+		FieldProcessor fieldProcessor = callableAction.perform();// <!--5-->
+		validate(fieldProcessor.getMessages(), "-messages");// <!--6-->
+		validate(callableAction.getAction(), "-action");// <!--7-->
+	}
+	// end::action[]
 
 }
 // end::all[]
