@@ -41,6 +41,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -55,7 +56,9 @@ import org.appng.core.templating.ThymeleafReplaceInterceptor;
 import org.appng.core.templating.ThymeleafTemplateEngine;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.platform.Action;
+import org.appng.xml.platform.ApplicationReference;
 import org.appng.xml.platform.Config;
+import org.appng.xml.platform.Content;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
@@ -75,6 +78,7 @@ import org.appng.xml.platform.PageReference;
 import org.appng.xml.platform.PagesReference;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
+import org.appng.xml.platform.PlatformConfig;
 import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Resultset;
 import org.appng.xml.platform.Rule;
@@ -118,6 +122,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 	private static final Pattern BLANK_LINES = Pattern.compile("(\\s*\\r?\\n){1,}");
 	static final String PLATFORM_HTML = "platform.html";
+	static final String SINGLE_DATASOURCE_HTML = "single_datasource.html";
 	private List<Template> templates;
 	private DocumentBuilderFactory dbf;
 
@@ -156,47 +161,20 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			sw.stop();
 
 			sw.start("build engine");
-			String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
-			Boolean devMode = platformProperties.getBoolean(Platform.Property.DEV_MODE);
-
-			if (!templates.isEmpty()) {
-				CacheProvider cacheProvider = new CacheProvider(platformProperties);
-				File platformCache = cacheProvider.getPlatformCache(applicationSite, applicationProvider);
-				File tplFolder = new File(platformCache, ResourceType.TPL.getFolder()).getAbsoluteFile();
-
-				Set<String> patterns = templates.parallelStream().map(t -> new File(tplFolder, t.getPath()))
-						.filter(f -> f.exists()).map(f -> f.getName()).collect(Collectors.toSet());
-
-				ITemplateResolver applicationTemplateResolver = getApplicationTemplateResolver(
-						applicationProvider.getName(), charset, devMode, tplFolder, patterns);
-				templateEngine.addTemplateResolver(applicationTemplateResolver);
-
-				ILinkBuilder appLinkBuilder = getLinkBuilder(applicationProvider, templatePrefix, tplFolder);
-				templateEngine.addLinkBuilder(appLinkBuilder);
-			}
-
-			ILinkBuilder globalLinkBuilder = getGlobalLinkBuilder(templatePrefix);
-			templateEngine.addLinkBuilder(globalLinkBuilder);
-
-			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(templateName, charset, devMode);
-			templateEngine.addTemplateResolver(globalTemplateResolver);
-
-			if (null != context) {
-				MessageSource ms = context.getBean(MessageSource.class);
-				templateEngine.setTemplateEngineMessageSource(ms);
-			}
+			String templatePrefix = buildTemplateEngine(applicationSite, platformProperties, charset, templateName,
+					applicationProvider, context, templateEngine);
+			sw.stop();
 
 			if (writeDebugFiles) {
-				sw.stop();
 				sw.start("write debug files");
 				writeDebugFile(debugFolder, PLATFORM_XML, platformXML);
 				writeTemplateFiles(debugFolder, templatePrefix, templateEngine);
+				sw.stop();
 			}
 
 			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
-				sw.stop();
 				sw.start("build context");
-				Context ctx = getContext(platform, platformXML, applicationProvider);
+				Context ctx = getContext(platform, applicationProvider);
 				sw.stop();
 				sw.start("process template");
 				String templateFile = PLATFORM_HTML;
@@ -207,10 +185,11 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				result = templateEngine.process(templateFile, ctx);
 				result = BLANK_LINES.matcher(result).replaceAll(System.lineSeparator());
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
+				sw.stop();
 				if (writeDebugFiles) {
-					sw.stop();
 					sw.start("write index.html");
 					writeDebugFile(debugFolder, INDEX_HTML, result);
+					sw.stop();
 				}
 			} else {
 				result = platformXML;
@@ -222,7 +201,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				writeStackTrace(debugFolder, e);
 			}
 		}
-		sw.stop();
+		if (sw.isRunning()) {
+			sw.stop();
+		}
 		if (logger().isTraceEnabled()) {
 			logger().trace(sw.prettyPrint());
 		} else if (logger().isDebugEnabled()) {
@@ -230,6 +211,94 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 		this.contentLength = result.getBytes(charset).length;
 		return result;
+	}
+
+	private String buildTemplateEngine(Site applicationSite, Properties platformProperties, Charset charset,
+			String templateName, ApplicationProvider applicationProvider, ConfigurableApplicationContext context,
+			ThymeleafTemplateEngine templateEngine) {
+
+		String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
+		Boolean devMode = platformProperties.getBoolean(Platform.Property.DEV_MODE);
+
+		if (!templates.isEmpty()) {
+			CacheProvider cacheProvider = new CacheProvider(platformProperties);
+			File platformCache = cacheProvider.getPlatformCache(applicationSite, applicationProvider);
+			File tplFolder = new File(platformCache, ResourceType.TPL.getFolder()).getAbsoluteFile();
+
+			Set<String> patterns = templates.parallelStream().map(t -> new File(tplFolder, t.getPath()))
+					.filter(f -> f.exists()).map(f -> f.getName()).collect(Collectors.toSet());
+
+			ITemplateResolver applicationTemplateResolver = getApplicationTemplateResolver(
+					applicationProvider.getName(), charset, devMode, tplFolder, patterns);
+			templateEngine.addTemplateResolver(applicationTemplateResolver);
+
+			ILinkBuilder appLinkBuilder = getLinkBuilder(applicationProvider, templatePrefix, tplFolder);
+			templateEngine.addLinkBuilder(appLinkBuilder);
+		}
+
+		ILinkBuilder globalLinkBuilder = getGlobalLinkBuilder(templatePrefix);
+		templateEngine.addLinkBuilder(globalLinkBuilder);
+
+		ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(templateName, charset, devMode);
+		templateEngine.addTemplateResolver(globalTemplateResolver);
+
+		if (null != context) {
+			MessageSource ms = context.getBean(MessageSource.class);
+			templateEngine.setTemplateEngineMessageSource(ms);
+		}
+		return templatePrefix;
+	}
+
+	public String renderSingleDatasource(Datasource datasource, Site applicationSite, File debugRootFolder,
+			Environment env, ApplicationProvider applicationProvider) throws InvalidConfigurationException {
+
+		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
+		Charset charset = Charset.forName(charsetName);
+		Boolean render = env.getAttribute(Scope.REQUEST, EnvironmentKeys.RENDER);
+		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
+		ConfigurableApplicationContext context = applicationProvider.getContext();
+		ThymeleafTemplateEngine templateEngine = prepareEngine(context);
+		File debugFolder = null;
+		if (null != debugRootFolder) {
+			debugFolder = new File(debugRootFolder, getDebugFilePrefix(new Date()));
+		}
+		String templateName = applicationSite.getProperties().getString(SiteProperties.TEMPLATE);
+		StopWatch sw = new StopWatch("render datasource modal for datasource " + datasource.getId());
+		sw.start("build engine");
+		buildTemplateEngine(applicationSite, platformProperties, charset, templateName, applicationProvider, context,
+				templateEngine);
+		sw.stop();
+		String result;
+		try {
+			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
+				sw.start("build context");
+				Context ctx = getContext(datasource, applicationProvider, applicationSite.getName());
+				sw.stop();
+				sw.start("process template");
+				String templateFile = SINGLE_DATASOURCE_HTML;
+				result = templateEngine.process(templateFile, ctx);
+				result = BLANK_LINES.matcher(result).replaceAll(System.lineSeparator());
+				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charsetName);
+				sw.stop();
+				if (writeDebugFiles && null != debugFolder) {
+					sw.start("write index.html");
+					writeDebugFile(debugFolder, INDEX_HTML, result);
+					sw.stop();
+				}
+			} else {
+				sw.start("build platform.xml");
+				String debugXML = marshallService.marshal(datasource);
+				sw.stop();
+				result = debugXML;
+				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML, charsetName);
+			}
+			return result;
+		} catch (Exception e) {
+			LOGGER.error("Cannot render single datasource", e);
+		}
+
+		return null;
 	}
 
 	protected void writeStackTrace(File outfolder, Exception e) {
@@ -285,8 +354,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return appTplResolver;
 	}
 
-	protected Context getContext(org.appng.xml.platform.Platform platform, String platformXml,
-			ApplicationProvider applicationProvider) throws InvalidConfigurationException {
+	protected Context getContext(org.appng.xml.platform.Platform platform, ApplicationProvider applicationProvider)
+			throws InvalidConfigurationException {
 		Context ctx = new Context(Locale.ENGLISH);
 		ctx.setVariable("platform", platform);
 		try {
@@ -298,6 +367,26 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		} catch (Exception e) {
 			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
 		}
+		return ctx;
+	}
+
+	protected Context getContext(Datasource datasource, ApplicationProvider applicationProvider, String siteName)
+			throws InvalidConfigurationException {
+
+		org.appng.xml.platform.Platform platform = new org.appng.xml.platform.Platform();
+		platform.setSubject(new Subject());
+		platform.setConfig(new PlatformConfig());
+		platform.getConfig().setBaseUrl("/manager");
+		platform.setContent(new Content());
+		platform.getContent().setApplication(new ApplicationReference());
+		platform.getContent().getApplication().setId(applicationProvider.getName());
+		AppNG appNG = new AppNG(siteName, applicationProvider.getName());
+		appNG.platform = platform;
+
+		Context ctx = new Context(Locale.ENGLISH);
+		ctx.setVariable("datasource", datasource);
+		ctx.setVariable("platform", platform);
+		ctx.setVariable("appNG", appNG);
 		return ctx;
 	}
 
@@ -445,6 +534,11 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			this.platform = platform;
 			this.xpath = xpath;
 			parse();
+		}
+
+		public AppNG(String siteName, String applicationName) {
+			this.siteName = siteName;
+			this.applicationName = applicationName;
 		}
 
 		private void parse() {

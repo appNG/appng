@@ -15,6 +15,9 @@
  */
 package org.appng.core.controller.rest;
 
+import static org.appng.api.Scope.PLATFORM;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +35,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
+import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
 import org.appng.api.Scope;
@@ -39,6 +43,7 @@ import org.appng.api.Session;
 import org.appng.api.SiteProperties;
 import org.appng.api.ValidationProvider;
 import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.rest.model.Datasource;
 import org.appng.api.rest.model.Element;
@@ -56,6 +61,9 @@ import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.model.ApplicationProvider;
+import org.appng.core.model.ThymeleafProcessor;
+import org.appng.core.service.TemplateService;
+import org.appng.xml.application.Template;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Linkmode;
@@ -74,8 +82,10 @@ import org.appng.xml.platform.ValidationGroups.Group;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -92,16 +102,10 @@ abstract class RestDataSourceBase extends RestOperation {
 	}
 
 	// @formatter:off
-	@GetMapping(
-		path = {
-			"/datasource/{id}",
-			"/datasource/{id}/{pathVar1}",
-			"/datasource/{id}/{pathVar1}/{pathVar2}",
+	@GetMapping(path = { "/datasource/{id}", "/datasource/{id}/{pathVar1}", "/datasource/{id}/{pathVar1}/{pathVar2}",
 			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
 			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
-			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}"
-		}
-	)
+			"/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" })
 	// @formatter:on
 	public ResponseEntity<Datasource> getDataSource(@PathVariable(name = "id") String dataSourceId,
 			@PathVariable(required = false) Map<String, String> pathVariables, Environment environment,
@@ -181,6 +185,73 @@ abstract class RestDataSourceBase extends RestOperation {
 
 		postProcessDataSource(datasource, site, applicationProvider, environment);
 		return new ResponseEntity<Datasource>(datasource, HttpStatus.OK);
+	}
+
+	@GetMapping(path = { //
+			"/single-datasource/{id}", //
+			"/single-datasource/{id}/{pathVar1}", //
+			"/single-datasource/{id}/{pathVar1}/{pathVar2}", //
+			"/single-datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}", //
+			"/single-datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}", //
+			"/single-datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}" }, produces = {
+					MediaType.TEXT_HTML_VALUE })
+	public ResponseEntity<String> getDataSourceModal(@PathVariable(name = "id") String dataSourceId,
+			@PathVariable(required = false) Map<String, String> pathVariables, Environment environment,
+			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ProcessingException,
+			JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
+		org.appng.xml.platform.Datasource processedDataSource = processDatasource(dataSourceId, pathVariables,
+				httpServletResponse);
+		// FIXME what about the messages in Environment.
+		// Messages messages = environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
+		String siteRoot = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
+		String siteWwwDir = site.getProperties().getString(SiteProperties.WWW_DIR);
+		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
+		String templateDir = siteRoot + siteWwwDir + templatePrefix;
+		ApplicationContext ctx = environment.getAttribute(PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
+		TemplateService templateService = ctx.getBean(TemplateService.class);
+		Template template;
+		try {
+			template = templateService.getTemplate(templateDir);
+			switch (template.getType()) {
+			case THYMELEAF:
+				ThymeleafProcessor processor = ctx.getBean("thymeleafProcessor", ThymeleafProcessor.class);
+				processor.init(httpServletRequest, httpServletResponse, null, templateDir);
+				String result = processor.renderSingleDatasource(processedDataSource, site, null, environment,
+						(ApplicationProvider) application);
+				return new ResponseEntity<String>(result, HttpStatus.OK);
+			default:
+				LOGGER.error("datasource-modal not supported for other rendering engines");
+			}
+		} catch (IOException e) {
+			LOGGER.error("Cannot render datasource ", e);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+	private org.appng.xml.platform.Datasource processDatasource(String dataSourceId, Map<String, String> pathVariables,
+			HttpServletResponse httpServletResponse) throws InvalidConfigurationException, ProcessingException {
+		ApplicationProvider applicationProvider = (ApplicationProvider) application;
+
+		if (supportPathParameters) {
+			org.appng.xml.platform.Datasource originalDatasource = applicationProvider.getApplicationConfig()
+					.getDatasource(dataSourceId);
+			applyPathParameters(pathVariables, originalDatasource.getConfig(), request);
+		}
+
+		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
+				httpServletResponse, false, (ApplicationRequest) request, dataSourceId, marshallService);
+
+		if (null == processedDataSource) {
+			LOGGER.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
+					site.getName());
+			return null;
+		}
+
+		MetaData metaData = processedDataSource.getConfig().getMetaData();
+		addValidationRules(metaData);
+		return processedDataSource;
 	}
 
 	private void addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource) {
