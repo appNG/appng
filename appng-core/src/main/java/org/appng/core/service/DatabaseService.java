@@ -45,6 +45,7 @@ import org.flywaydb.core.internal.util.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -135,7 +136,7 @@ public class DatabaseService extends MigrationService {
 	 * the default values.
 	 * 
 	 * @param siteApplication
-	 *            a {@link SiteApplication}
+	 *                        a {@link SiteApplication}
 	 */
 	public void resetApplicationConnection(SiteApplication siteApplication, String databasePrefix) {
 		DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
@@ -276,11 +277,11 @@ public class DatabaseService extends MigrationService {
 	 * {@link java.util.Properties}.
 	 * 
 	 * @param config
-	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 *                  the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
 	 * @param setActive
-	 *            if the connection should be set as he active root connection, creating a new
-	 *            {@link DatabaseConnection} if necessary. Only applied if {@link #status(DatabaseConnection)} returns a
-	 *            non-null value.
+	 *                  if the connection should be set as he active root connection, creating a new
+	 *                  {@link DatabaseConnection} if necessary. Only applied if {@link #status(DatabaseConnection)}
+	 *                  returns a non-null value.
 	 * @return the appNG root {@link DatabaseConnection}
 	 */
 	public DatabaseConnection initDatabase(java.util.Properties config, boolean managed, boolean setActive) {
@@ -300,10 +301,10 @@ public class DatabaseService extends MigrationService {
 	 * {@code DatabaseConnection#setActive(false)} if this is not the case.
 	 * 
 	 * @param rootConnection
-	 *            the current root connection
+	 *                           the current root connection
 	 * @param changeManagedState
-	 *            if set to {@code true}, the managed state for an existing connection is set to
-	 *            {@code rootConnection#isManaged()}
+	 *                           if set to {@code true}, the managed state for an existing connection is set to
+	 *                           {@code rootConnection#isManaged()}
 	 */
 	@Transactional
 	public DatabaseConnection setActiveConnection(DatabaseConnection rootConnection, boolean changeManagedState) {
@@ -371,12 +372,12 @@ public class DatabaseService extends MigrationService {
 	 * Migrates the database for the given {@link SiteApplication}.
 	 * 
 	 * @param siteApplication
-	 *            the {@link SiteApplication} to migrate the database for
+	 *                        the {@link SiteApplication} to migrate the database for
 	 * @param applicationInfo
-	 *            the {@link Application}'s {@link ApplicationInfo} as read from
-	 *            {@value org.appng.api.model.ResourceType#APPLICATION_XML_NAME}.
+	 *                        the {@link Application}'s {@link ApplicationInfo} as read from
+	 *                        {@value org.appng.api.model.ResourceType#APPLICATION_XML_NAME}.
 	 * @param sqlFolder
-	 *            the root folder for the migration-scripts provided by the {@link SiteApplication}
+	 *                        the root folder for the migration-scripts provided by the {@link SiteApplication}
 	 * @return the {@link MigrationService.MigrationStatus}
 	 */
 	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication, ApplicationInfo applicationInfo,
@@ -422,11 +423,16 @@ public class DatabaseService extends MigrationService {
 	 * Persists the given {@link DatabaseConnection}.
 	 * 
 	 * @param databaseConnection
-	 *            the connection to persist.
+	 *                           the connection to persist.
 	 */
 	@Transactional
 	public void save(DatabaseConnection databaseConnection) {
 		databaseConnectionRepository.save(databaseConnection);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public DatabaseConnection saveAndFlush(DatabaseConnection databaseConnection) {
+		return databaseConnectionRepository.saveAndFlush(databaseConnection);
 	}
 
 }
