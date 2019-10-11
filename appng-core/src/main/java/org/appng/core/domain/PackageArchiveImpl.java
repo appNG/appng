@@ -155,6 +155,10 @@ public class PackageArchiveImpl implements PackageArchive {
 		return FileUtils.readFileToByteArray(file);
 	}
 
+	public File getFile() {
+		return file;
+	}
+
 	public static String getFilePrefix(String applicationName, String applicationVersion) {
 		return applicationName + SEPARATOR + applicationVersion;
 	}

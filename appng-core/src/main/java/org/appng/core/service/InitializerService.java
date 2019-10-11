@@ -562,7 +562,7 @@ public class InitializerService {
 						databaseConnection.setActive(databaseConnection.testConnection(null));
 						databaseConnection.setValidationPeriod(
 								platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD));
-						databaseService.save(databaseConnection);
+						databaseConnection = databaseService.saveAndFlush(databaseConnection);
 						if (!databaseConnection.isActive()) {
 							throw new InvalidConfigurationException(site, application.getName(),
 									String.format("Connection %s for application %s of site %s is not working!",
