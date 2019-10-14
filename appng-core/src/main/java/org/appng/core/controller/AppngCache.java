@@ -32,8 +32,7 @@ import org.springframework.http.HttpStatus;
 import lombok.Data;
 
 /**
- * A simple value object representing an element of the site cache. Instances of
- * this class will be put into the cache.
+ * A simple value object representing an element of the site cache. Instances of this class will be put into the cache.
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
@@ -98,7 +97,6 @@ public class AppngCache implements Serializable {
 		final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		final GZIPOutputStream gzipped = new GZIPOutputStream(bytes);
 		gzipped.write(data);
-		gzipped.flush();
 		gzipped.close();
 		return bytes.toByteArray();
 	}

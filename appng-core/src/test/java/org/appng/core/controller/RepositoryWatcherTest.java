@@ -55,7 +55,6 @@ public class RepositoryWatcherTest {
 		PropertyHolder siteProps = new PropertyHolder();
 		siteProps.addProperty(SiteProperties.CACHE_TIME_TO_LIVE, "1800", null);
 		siteProps.addProperty(SiteProperties.CACHE_STATISTICS, "true", null);
-		siteProps.addProperty(SiteProperties.CACHE_EXPIRE_BY_CREATION, "true", null);
 		site.setProperties(siteProps);
 
 		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));

@@ -29,7 +29,6 @@ import javax.cache.Caching;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
-import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 
@@ -42,7 +41,6 @@ import org.springframework.http.HttpMethod;
 import com.hazelcast.cache.CacheStatistics;
 import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
-import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -114,14 +112,8 @@ public class CacheService {
 			Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 			Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
 			MutableConfiguration<String, AppngCache> configuration = new MutableConfiguration<>();
-			Duration duration = new Duration(TimeUnit.SECONDS, ttl);
-			Factory<ExpiryPolicy> expiryPolicy;
-			if (site.getProperties().getBoolean(SiteProperties.CACHE_EXPIRE_BY_CREATION, true)) {
-				expiryPolicy = CreatedExpiryPolicy.factoryOf(duration);
-			} else {
-				expiryPolicy = AccessedExpiryPolicy.factoryOf(duration);
-			}
-			configuration.setExpiryPolicyFactory(expiryPolicy);
+			Factory<ExpiryPolicy> epf = AccessedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl));
+			configuration.setExpiryPolicyFactory(epf);
 			configuration.setStatisticsEnabled(statisticsEnabled);
 			cache = cacheManager.createCache(cacheKey, configuration);
 		}

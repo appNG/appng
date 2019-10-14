@@ -23,10 +23,15 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -39,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
+import org.appng.api.Path;
 import org.appng.api.RequestUtil;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
@@ -52,6 +58,8 @@ import org.springframework.http.HttpStatus;
 import org.tuckey.web.filters.urlrewrite.gzip.GenericResponseWrapper;
 import org.tuckey.web.filters.urlrewrite.gzip.ResponseUtil;
 
+import com.hazelcast.cache.ICache;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -59,14 +67,13 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class PageCacheFilter implements javax.servlet.Filter {
 
 	private static final String GZIP = "gzip";
 	private FilterConfig filterConfig;
-	private Set<String> cacheableHttpMethods = new HashSet<>(
+	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
 
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -85,30 +92,44 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		if (response.isCommitted()) {
 			throw new IOException("The response has already been committed for servletPath: " + servletPath);
 		}
-
-		Environment env = DefaultEnvironment.get(filterConfig.getServletContext());
-		String hostIdentifier = RequestUtil.getHostIdentifier(request, env);
-		Site site = RequestUtil.getSiteByHost(env, hostIdentifier);
-		boolean ehcacheEnabled = false;
-		boolean isException = false;
-		if (null != site) {
-			ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
-			isException = isException(servletPath, site);
-		} else {
-			LOGGER.info("no site found for path {} and host {}", servletPath, hostIdentifier);
-		}
 		boolean isCacheableRequest = isCacheableRequest(httpServletRequest);
-		if (ehcacheEnabled && isCacheableRequest && !isException) {
-			handleCaching(httpServletRequest, httpServletResponse, site, chain, CacheService.getCache(site));
+		boolean cacheEnabled = false;
+		boolean isException = false;
+		Site site = null;
+		ExpiryPolicy expiryPolicy = null;
+
+		if (isCacheableRequest) {
+			Environment env = DefaultEnvironment.get(filterConfig.getServletContext());
+			String hostIdentifier = RequestUtil.getHostIdentifier(request, env);
+			site = RequestUtil.getSiteByHost(env, hostIdentifier);
+			if (null != site) {
+				org.appng.api.model.Properties siteProps = site.getProperties();
+				cacheEnabled = siteProps.getBoolean(SiteProperties.CACHE_ENABLED);
+				if (cacheEnabled) {
+					String exceptions = siteProps.getClob(SiteProperties.CACHE_EXCEPTIONS);
+					isException = isException(exceptions, servletPath);
+					Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
+					Integer expireAfterSeconds = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+					expireAfterSeconds = getExpireAfterSeconds(cacheTimeouts, servletPath, expireAfterSeconds);
+					expiryPolicy = new AccessedExpiryPolicy(new Duration(TimeUnit.SECONDS, expireAfterSeconds));
+				}
+			} else {
+				LOGGER.info("no site found for path {} and host {}", servletPath, hostIdentifier);
+			}
+		}
+		if (cacheEnabled && isCacheableRequest && !isException) {
+			handleCaching(httpServletRequest, httpServletResponse, site, chain, CacheService.getCache(site),
+					expiryPolicy);
 		} else {
 			chain.doFilter(request, response);
 		}
 	}
 
 	protected void handleCaching(final HttpServletRequest request, final HttpServletResponse response, Site site,
-			final FilterChain chain, Cache<String, AppngCache> cache) throws ServletException, IOException {
+			final FilterChain chain, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
+			throws ServletException, IOException {
 		try {
-			AppngCache pageInfo = getCacheElement(request, response, chain, site, cache);
+			AppngCache pageInfo = getCacheElement(request, response, chain, site, cache, expiryPolicy);
 			if (null != pageInfo) {
 				if (pageInfo.isOk() && response.isCommitted()) {
 					throw new ServletException("Response already committed after doing buildPage"
@@ -148,6 +169,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				body = new byte[0];
 			} else {
 				body = pageInfo.getGzippedBody();
+				response.setHeader(HttpHeaders.CONTENT_ENCODING, GZIP);
 			}
 		} else {
 			body = pageInfo.getData();
@@ -156,18 +178,15 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		response.setContentLength(body.length);
 		response.setContentType(pageInfo.getContentType());
 		if (pageInfo.getHitCount() > 0) {
-			writeCachedHeaders(response, acceptGzip, pageInfo);
+			writeCachedHeaders(response, pageInfo);
 		}
 		OutputStream out = new BufferedOutputStream(response.getOutputStream());
 		out.write(body);
 		out.flush();
 	}
 
-	private void writeCachedHeaders(HttpServletResponse response, boolean acceptsGzip, AppngCache pageInfo) {
+	private void writeCachedHeaders(HttpServletResponse response, AppngCache pageInfo) {
 		pageInfo.getHeaders().forEach((n, vs) -> vs.forEach(v -> response.setHeader(n, v)));
-		if (acceptsGzip) {
-			response.setHeader(HttpHeaders.CONTENT_ENCODING, GZIP);
-		}
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
@@ -190,7 +209,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				return pageInfo.getContentType();
 			}
 		}, true);
-		writeCachedHeaders(response, acceptsGzipEncoding(request), pageInfo);
+		writeCachedHeaders(response, pageInfo);
 	}
 
 	static class CacheHeaderUtils extends HttpHeaderUtils {
@@ -203,18 +222,21 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected AppngCache getCacheElement(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, Cache<String, AppngCache> cache) throws ServletException, IOException {
+			final FilterChain chain, Site site, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
+			throws ServletException, IOException {
 		final String key = calculateKey(request);
 		AppngCache pageInfo = cache.get(key);
 		if (pageInfo == null) {
 			pageInfo = performRequest(request, response, chain, site, cache);
 			int size = pageInfo.getContentLength();
 			if (pageInfo.isOk()) {
-				cache.put(key, pageInfo);
+				cache.unwrap(ICache.class).put(key, pageInfo, expiryPolicy);
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {})", cache.getName(), key,
-							pageInfo.getContentType(), size);
+					Duration duration = expiryPolicy == null ? null : expiryPolicy.getExpiryForAccess();
+					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, policy: {})", cache.getName(), key,
+							pageInfo.getContentType(), size, duration == null ? null : duration.getDurationAmount());
 				}
 			} else {
 				if (LOGGER.isDebugEnabled()) {
@@ -251,13 +273,12 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	private boolean isCacheableRequest(HttpServletRequest httpServletRequest) {
-		return cacheableHttpMethods.contains(httpServletRequest.getMethod().toUpperCase());
+		return CACHEABLE_HTTP_METHODS.contains(httpServletRequest.getMethod().toUpperCase());
 	}
 
-	private boolean isException(String servletPath, Site site) {
-		String clob = site.getProperties().getClob(SiteProperties.CACHE_EXCEPTIONS);
-		if (null != clob) {
-			Set<String> exceptions = new HashSet<>(Arrays.asList(clob.split(StringUtils.LF)));
+	static boolean isException(String exceptionsProp, String servletPath) {
+		if (null != exceptionsProp) {
+			Set<String> exceptions = new HashSet<>(Arrays.asList(exceptionsProp.split(StringUtils.LF)));
 			for (String e : exceptions) {
 				if (servletPath.startsWith(e.trim())) {
 					return true;
@@ -265,6 +286,21 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			}
 		}
 		return false;
+	}
+
+	static Integer getExpireAfterSeconds(Properties cachingTimes, String servletPath, Integer defaultValue) {
+		if (null != cachingTimes && !cachingTimes.isEmpty()) {
+			String[] pathSegements = servletPath.split(Path.SEPARATOR);
+			int len = pathSegements.length;
+			while (len > 0) {
+				String segment = StringUtils.join(Arrays.copyOfRange(pathSegements, 0, len--), Path.SEPARATOR);
+				Object entry = cachingTimes.get(segment);
+				if (null != entry) {
+					return Integer.valueOf(entry.toString().trim());
+				}
+			}
+		}
+		return defaultValue;
 	}
 
 	protected String calculateKey(final HttpServletRequest request) {

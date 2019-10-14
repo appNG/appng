@@ -232,6 +232,7 @@ public class InitializerService {
 		String rootPath = servletContext.getRealPath("/");
 		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
 				true);
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -260,7 +261,6 @@ public class InitializerService {
 			}
 		}
 
-		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		Messaging.createMessageSender(env, executor);
 
 		File applicationRootFolder = platformConfig.getApplicationDir();

@@ -100,10 +100,10 @@ public class SiteProperties {
 	 * value).
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
-	/** Should cache elements be expired by creation time? */
-	public static final String CACHE_EXPIRE_BY_CREATION = "cacheExpireByCreation";
 	/** @deprecated no more used */
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
+	/** The cache timeouts as a multi-lined property, key=value */
+	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
 	/** The time a cache entry lives, in seconds */
 	public static final String CACHE_TIME_TO_LIVE = "cacheTimeToLive";
 	/** Set to true to enable caching statistics */
