@@ -59,7 +59,7 @@ public class PageCacheFilterTest {
 		PageCacheFilter pageCacheFilter = new PageCacheFilter() {
 			@Override
 			protected AppngCache performRequest(final HttpServletRequest request, final HttpServletResponse response,
-					final FilterChain chain, Site site, Cache<String, AppngCache> cache)
+					final FilterChain chain, Site site, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
 				HttpHeaders headers = new HttpHeaders();
