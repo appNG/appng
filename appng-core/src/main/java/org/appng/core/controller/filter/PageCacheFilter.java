@@ -229,7 +229,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		final String key = calculateKey(request);
 		AppngCache pageInfo = cache.get(key);
 		if (pageInfo == null) {
-			pageInfo = performRequest(request, response, chain, site, cache);
+			pageInfo = performRequest(request, response, chain, site, cache, expiryPolicy);
 			int size = pageInfo.getContentLength();
 			if (pageInfo.isOk()) {
 				cache.unwrap(ICache.class).put(key, pageInfo, expiryPolicy);
@@ -257,7 +257,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected AppngCache performRequest(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, Cache<String, AppngCache> cache) throws IOException, ServletException {
+			final FilterChain chain, Site site, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
+			throws IOException, ServletException {
 		final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
 		final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, outstr);
 		chain.doFilter(request, wrapper);
@@ -266,7 +267,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		HttpHeaders headers = new HttpHeaders();
 		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
 				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
-		Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+		Integer siteTtl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+		Integer ttl = expiryPolicy == null ? siteTtl : (int) expiryPolicy.getExpiryForAccess().getDurationAmount();
 
 		return new AppngCache(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
 				outstr.toByteArray(), headers, ttl);
