@@ -66,8 +66,8 @@ import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The controller {@link Servlet} of appNG, delegating
- * {@link HttpServletRequest}s to an appropriate {@link RequestHandler}.
+ * The controller {@link Servlet} of appNG, delegating {@link HttpServletRequest}s to an appropriate
+ * {@link RequestHandler}.
  * 
  * @author Matthias Müller
  */
@@ -172,8 +172,6 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, true);
 
-		expireSessions(env, site);
-
 		if (site != null) {
 			try {
 				int requests = ((SiteImpl) site).addRequest();
@@ -239,9 +237,12 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					if (null != requestHandler) {
 						if (site.hasState(SiteState.STARTED)) {
 							requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
-							if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
-								getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
-										EnvironmentKeys.PREVIOUS_PATH, servletPath);
+							if (pathInfo.isGui()) {
+								expireSessions(env, site);
+								if (servletRequest.isRequestedSessionIdValid()) {
+									getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
+											EnvironmentKeys.PREVIOUS_PATH, servletPath);
+								}
 							}
 						} else {
 							LOGGER.error("site {} should be STARTED.", site);
