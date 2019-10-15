@@ -19,6 +19,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<!-- this works because hibernate replaces system-properties -->
 			<property name="hibernate.connection.url" value="jdbc:hsqldb:hsql://localhost:${hsqlPort}/hsql-testdb" />
@@ -27,7 +28,7 @@
 			<property name="hibernate.connection.username" value="sa" />
 			<property name="hibernate.connection.password" value="" />
 			<property name="hibernate.hbm2ddl.auto" value="" />
-			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.show_sql" value="false" />
 			<property name="hibernate.format_sql" value="true" />
 		</properties>
 	</persistence-unit>
@@ -48,6 +49,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/appng" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57InnoDBDialect" />
@@ -77,6 +79,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:sqlserver://localhost:1433;databaseName=appng_migration" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2012Dialect" />
@@ -106,6 +109,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/appng" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL82Dialect" />

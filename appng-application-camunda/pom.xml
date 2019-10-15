@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.19.1-SNAPSHOT</version>
+		<version>1.21.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-application</artifactId>
-			<version>${appNGVersion}</version>
+			<version>${appNG.version}</version>
 			<type>war</type>
 			<scope>runtime</scope>
 		</dependency>
@@ -77,7 +77,7 @@
 				<artifactId>appng-application-bom</artifactId>
 				<type>pom</type>
 				<scope>import</scope>
-				<version>${appNGVersion}</version>
+				<version>${appNG.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

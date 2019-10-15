@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.19.1-SNAPSHOT</version>
+		<version>1.21.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -85,19 +85,19 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-application</artifactId>
-			<version>${appNGVersion}</version>
+			<version>${appNG.version}</version>
 			<type>war</type>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-appngizer</artifactId>
-			<version>${appNGVersion}</version>
+			<version>${appNG.version}</version>
 			<type>war</type>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-manager</artifactId>
-			<version>${manager.version}</version>
+			<version>${appNG.manager.version}</version>
 			<type>zip</type>
 			<exclusions>
 				<exclusion>
@@ -109,19 +109,19 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-authentication</artifactId>
-			<version>${authentication.version}</version>
+			<version>${appNG.authentication.version}</version>
 			<type>zip</type>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-scheduler</artifactId>
-			<version>${scheduler.version}</version>
+			<version>${appNG.scheduler.version}</version>
 			<type>zip</type>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>${template.name}</artifactId>
-			<version>${template.version}</version>
+			<version>${appNG.template.version}</version>
 			<type>zip</type>
 			<exclusions>
 				<exclusion>

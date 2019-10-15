@@ -79,6 +79,7 @@ import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
+import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
 import org.appng.core.controller.rest.RestPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
@@ -96,9 +97,11 @@ import org.appng.core.model.JarInfo.JarInfoBuilder;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.repository.config.ApplicationPostProcessor;
+import org.appng.core.service.MigrationService.MigrationStatus;
 import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Messages;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -285,11 +288,12 @@ public class InitializerService {
 			env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 		}
 		int activeSites = 0;
+		FieldProcessor platformMessages = new FieldProcessorImpl("load-platform");
 		for (Integer id : sites) {
 			SiteImpl site = getCoreService().getSite(id);
 			if (site.isActive()) {
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
-				loadSite(site, env, false, new FieldProcessorImpl("load-platform"));
+				loadSite(site, env, false, platformMessages);
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
@@ -304,6 +308,7 @@ public class InitializerService {
 			}
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
+		env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages.getMessages());
 
 		if (0 == activeSites) {
 			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
@@ -360,8 +365,10 @@ public class InitializerService {
 					LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
 					LOGGER.info("restarting site {}", site.getName());
 					try {
-						loadSite(env, getCoreService().getSiteByName(site.getName()), false,
-								new FieldProcessorImpl("auto-reload"));
+						FieldProcessor reloadMessages = new FieldProcessorImpl("auto-reload");
+						loadSite(env, getCoreService().getSiteByName(site.getName()), false, reloadMessages);
+						Messages platformMessages = reloadMessages.getMessages();
+						env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages);
 					} catch (InvalidConfigurationException e) {
 						LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 					}
@@ -539,7 +546,7 @@ public class InitializerService {
 			if (siteApplication.isMarkedForDeletion()) {
 				coreService.unlinkApplicationFromSite(site.getId(), siteApplication.getApplication().getId());
 			} else if (!siteApplication.isActive()) {
-				String message = String.format("%s:  %s is inactive.", site.getName(),
+				String message = String.format("[%s] Application '%s' is inactive.", site.getName(),
 						siteApplication.getApplication().getName());
 				LOGGER.info(message);
 				fp.addNoticeMessage(message);
@@ -548,14 +555,14 @@ public class InitializerService {
 					coreService.unsetReloadRequired(siteApplication);
 				}
 				Application application = siteApplication.getApplication();
-				String errorMessage = String.format("Error while loading application %s.", application.getName());
+
 				try {
 					DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
 					if (null != databaseConnection) {
 						databaseConnection.setActive(databaseConnection.testConnection(null));
 						databaseConnection.setValidationPeriod(
 								platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD));
-						databaseService.save(databaseConnection);
+						databaseConnection = databaseService.saveAndFlush(databaseConnection);
 						if (!databaseConnection.isActive()) {
 							throw new InvalidConfigurationException(site, application.getName(),
 									String.format("Connection %s for application %s of site %s is not working!",
@@ -619,9 +626,17 @@ public class InitializerService {
 					applications.add(applicationProvider);
 
 					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
-					databaseService.migrateApplication(sqlFolder, siteApplication.getDatabaseConnection());
+					MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, databaseConnection);
+					if (migrationStatus.isErroneous()) {
+						String errorMessage = String.format(
+								"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
+								site.getName(), databaseConnection.getDatabaseName(), application.getName());
+						fp.addErrorMessage(errorMessage);
+					}
 
 				} catch (InvalidConfigurationException ice) {
+					String errorMessage = String.format("[%s] Error while loading application '%s'.", site.getName(),
+							application.getName());
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
 					auditableListener.createEvent(Type.ERROR, errorMessage);
@@ -712,7 +727,8 @@ public class InitializerService {
 				application.getApplicationSubjects().addAll(applicationSubjects);
 				validApplications.add(application);
 			} catch (Throwable e) {
-				String message = String.format("Error while loading application %s.", application.getName());
+				String message = String.format("[%s] Error while loading application '%s'.", site.getName(),
+						application.getName());
 				fp.addErrorMessage(message);
 				LOGGER.error(message, e);
 				auditableListener.createEvent(Type.ERROR, message);

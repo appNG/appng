@@ -176,7 +176,7 @@ public class SearchTest extends Search {
 		platformEnv.put(Platform.Environment.CORE_PLATFORM_CONTEXT, ctx);
 
 		doEndTag();
-		Assert.assertEquals("[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.6992079,\"fields\":[]}]}]",
+		Assert.assertEquals("[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.31782177,\"fields\":[]}]}]",
 				result.get(0));
 		Assert.assertNull(getFormat());
 		Assert.assertNull(getHighlight());

@@ -1,5 +1,5 @@
 1. On appng-application, run
-	mvn dependency:list -Dsort -Dmdep.outputScope=false -DincludeScope=compile -DoutputFile=dependencies.xml
+	mvn dependency:list -Dsort -Dmdep.outputScope=false -DincludeScope=compile -DoutputFile=dependencies.xml -DexcludeGroupIds=org.appng
 2. remove the first two lines from dependencies.xml
 3. remove the leading spaces on each line
 4. in an editor, search for

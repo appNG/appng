@@ -39,6 +39,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -54,7 +59,6 @@ import lombok.extern.slf4j.Slf4j;
  * retrieve an instance of the {@link EntityManager} in use.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class PlatformEventListener implements ApplicationContextAware {
@@ -121,7 +125,15 @@ public class PlatformEventListener implements ApplicationContextAware {
 			if (null == entityManager) {
 				context.getAutowireCapableBeanFactory().autowireBean(this);
 			}
-			entityManager.persist(event);
+			PlatformTransactionManager ptam = context.getBean(PlatformTransactionManager.class);
+			TransactionTemplate transactionTemplate = new TransactionTemplate(ptam);
+			transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+			transactionTemplate.execute(new TransactionCallback<Void>() {
+				public Void doInTransaction(TransactionStatus status) {
+					entityManager.persist(event);
+					return null;
+				}
+			});
 		}
 		LOGGER.info("Created entry {}", event);
 	}

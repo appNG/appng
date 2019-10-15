@@ -210,16 +210,18 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 				String name = t.toString();
 				if (null != nameProvider) {
 					name = nameProvider.getName(t);
-				} else if (t instanceof Nameable) {
+				} else if (Nameable.class.isAssignableFrom(t.getClass())) {
 					name = Nameable.class.cast(t).getName();
 				}
 
 				String value = name;
-				if (t instanceof Identifiable<?>) {
+				if (Identifiable.class.isAssignableFrom(t.getClass())) {
 					Serializable id = Identifiable.class.cast(t).getId();
 					if (null != id) {
 						value = id.toString();
 					}
+				} else if (t.getClass().isEnum()) {
+					value = Enum.class.cast(t).name();
 				}
 
 				boolean isSelected = null != selected && selected.contains(t);

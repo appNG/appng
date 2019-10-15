@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.19.1-SNAPSHOT</version>
+		<version>1.21.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>
-			<version>${jacksonVersion}</version>
+			<version>${jackson.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

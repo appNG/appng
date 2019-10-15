@@ -17,28 +17,24 @@ package org.appng.api.support.field;
 
 import java.text.ParseException;
 
-import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 
-/**
- * TODO insert description
- * 
- * @author Claus Stümke, aiticon GmbH, 2016
- *
- */
-public class DateFieldConverterDateTimeTest extends DateFieldConverterTest {
+public class DateFieldConverterJodaLocalDateTimeTest extends DateFieldConverterZonedDateTimeTest {
 
 	@Override
 	public Container<?> getContainer() {
-		return new Container<DateTime>() {
+		return new Container<LocalDateTime>() {
 		};
 	}
 
+	@Override
 	protected Object getDate() throws ParseException {
-		return new DateTime(super.getDate());
+		return new LocalDateTime(sdf.parseObject(DATE_STRING));
 	}
 
+	@Override
 	protected Object getShortDate() throws ParseException {
-		return new DateTime(super.getShortDate());
+		return new LocalDateTime(sdfShort.parseObject(DATE_STRING_SHORT));
 	}
 
 }

@@ -9,7 +9,7 @@
 
 	<properties>
 		<outFolder>target</outFolder>
-		<appNGVersion>1.19.1-SNAPSHOT</appNGVersion>
+		<appNG.version>1.21.0-SNAPSHOT</appNG.version>
 		<displayName>myapplication</displayName>
 		<longDescription>enter long description here</longDescription>
 		<timestamp>${maven.build.timestamp}</timestamp>
@@ -36,7 +36,7 @@
 					<dependency>
 						<groupId>org.appng</groupId>
 						<artifactId>appng-application-assembly</artifactId>
-						<version>${appNGVersion}</version>
+						<version>${appNG.version}</version>
 					</dependency>
 				</dependencies>
 				<configuration>
@@ -104,7 +104,7 @@
 				<artifactId>appng-application-bom</artifactId>
 				<type>pom</type>
 				<scope>import</scope>
-				<version>${appNGVersion}</version>
+				<version>${appNG.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -1,6 +1,52 @@
-Release Notes - appNG - Version 1.18.0 (2019-05-02)
+Release Notes - appNG - Version 1.20.2 (2019-09-24)
 ---------------------------------------------------
-Release Notes - appNG - Version 1.19.0
+* [APPNG-2294] - Release of 1.20.2
+* [APPNG-2293] - MySqlTextDialect should inherit from MySQL55Dialect
+* [APPNG-2292] - PlatformConfig should set Hibernate Dialect when creating EntityManagerFactory
+* [APPNG-2291] - TransactionRequiredException when writing a platform event after a site reload triggered by SiteReloadWatcher
+* [APPNG-2290] - Messages occurring during platform startup get lost
+* [APPNG-2289] - Unit tests fail for application generated with appNG Maven archetype
+* [APPNG-2288] - Warning on startup: Loading class `com.mysql.jdbc.Driver'. This is deprecated.
+
+Release Notes - appNG - Version 1.20.1 (2019-09-10)
+---------------------------------------------------
+* [APPNG-2287] - Release 1.20.1
+* [APPNG-2285] - Unable to use latest Connector/J
+* [APPNG-2284] - Revert Hibernate version from 5.4.4 to 5.4.3
+* [APPNG-2283] - Upgrade Spring WS to 2.4.6
+* [APPNG-2282] - GuiHandler should always try to forward to a site and application the logged in users has access to
+* [APPNG-2281] - NPE in ThymeleafProcessor when user accesses an invalid application url
+* [APPNG-2280] - Use manager 1.15.0
+* [APPNG-2279] - Wrong variables used in auto-install.list
+
+Release Notes - appNG - Version 1.20.0 (2019-08-21)
+---------------------------------------------------
+* [APPNG-2278] - AttributeWrapper might use wrong classloader in readObject(ObjectInputStream in)
+* [APPNG-2277] - OptionsBuilder should use Enum.name() when retrieving the ID of an Enum option
+* [APPNG-2276] - Release of 1.20.0
+* [APPNG-2275] - Improve supported Types for a <field> of type="date" for Joda and Java time API
+* [APPNG-2274] - Avoid logging an error in RedirectFilter when no urlrewrite.xml is found
+* [APPNG-2273] - Dependency Upgrade
+* [APPNG-2272] - DefaultValidationProvider.addValidationMetaData does not correctly handle parameterized super classes
+* [APPNG-2167] - Make SearchQuery open for extension
+* [APPNG-2255] - Create an @Entity for JobExecutionRecord
+
+Release Notes - appNG - Version 1.19.1 (2019-06-27)
+---------------------------------------------------
+* [APPNG-2271] - Build Release 1.19.1
+* [APPNG-2270] - Avoid IllegalStateException when user logs out
+* [APPNG-2268] - No event is being written when starting an application fails
+* [APPNG-2266] - Site property 'supportReloadFile' should be true when clustering is disabled
+* [APPNG-2265] - ServiceRequestHandler should return a more speaking state when site is not available/not started
+* [APPNG-2263] - UI: Improve logging for the case that the user does not have access to any visible application
+* [APPNG-2262] - Provide a REST client for appNGizer
+* [APPNG-2261] - Fix typos and formatting in documentation
+* [APPNG-2260] - PageCacheFilter should generously ignore Tomcat's ClientAbortException
+* [APPNG-2259] - Possible NPE in LdapService.getMembersOfGroup
+* [APPNG-2258] - Enforce waiting for a site's STARTED state before processing service requests and taglets
+
+Release Notes - appNG - Version 1.19.0 (2019-05-02)
+---------------------------------------------------
 * [APPNG-2257] - SignerTest#testverify fails due to outdated certificate
 * [APPNG-2256] - Release appNG 1.19.0
 * [APPNG-2254] - Lack of support for different output-types in ThymeleafProcessor

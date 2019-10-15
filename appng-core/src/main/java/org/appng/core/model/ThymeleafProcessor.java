@@ -55,6 +55,7 @@ import org.appng.core.templating.ThymeleafReplaceInterceptor;
 import org.appng.core.templating.ThymeleafTemplateEngine;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.platform.Action;
+import org.appng.xml.platform.ApplicationReference;
 import org.appng.xml.platform.Config;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.DataConfig;
@@ -460,24 +461,27 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				}
 			}
 
-			PagesReference pages = platform.getContent().getApplication().getPages();
-			if (null != pages) {
-				for (PageReference page : pages.getPage()) {
-					pages_.put(page.getId(), page);
-					for (Section section : page.getStructure().getSection()) {
-						for (Sectionelement element : section.getElement()) {
-							setSectionTitle(section, element);
-							Action action = element.getAction();
-							if (null != action) {
-								if (!actions.containsKey(action.getEventId())) {
-									actions.put(action.getEventId(), new HashMap<>());
+			ApplicationReference application = platform.getContent().getApplication();
+			if (null != application) {
+				PagesReference pages = application.getPages();
+				if (null != pages) {
+					for (PageReference page : pages.getPage()) {
+						pages_.put(page.getId(), page);
+						for (Section section : page.getStructure().getSection()) {
+							for (Sectionelement element : section.getElement()) {
+								setSectionTitle(section, element);
+								Action action = element.getAction();
+								if (null != action) {
+									if (!actions.containsKey(action.getEventId())) {
+										actions.put(action.getEventId(), new HashMap<>());
+									}
+									actions.get(action.getEventId()).put(action.getId(), action);
 								}
-								actions.get(action.getEventId()).put(action.getId(), action);
-							}
-							Datasource datasource = element.getDatasource();
-							if (null != datasource) {
-								if (!datasources.containsKey(datasource.getId())) {
-									datasources.put(datasource.getId(), datasource);
+								Datasource datasource = element.getDatasource();
+								if (null != datasource) {
+									if (!datasources.containsKey(datasource.getId())) {
+										datasources.put(datasource.getId(), datasource);
+									}
 								}
 							}
 						}

@@ -20,9 +20,7 @@ import java.util.List;
 import org.appng.core.domain.PermissionImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface PermissionRepository extends SearchRepository<PermissionImpl, Integer> {
 
 	PermissionImpl findByNameAndApplicationId(String name, Integer applicationId);
