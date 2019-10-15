@@ -44,7 +44,7 @@ class ExpireSessionEvent extends Event {
 	public void perform(Environment env, Site site) throws InvalidConfigurationException, BusinessException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		Manager manager = (Manager) servletContext.getAttribute(Controller.SESSION_MANAGER);
-		SessionListener.expire(manager, env, sessionId, site);
+		SessionListener.expire(manager, env, sessionId, site, true);
 	}
 
 }

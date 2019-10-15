@@ -35,6 +35,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.catalina.Contained;
 import org.apache.catalina.Manager;
 import org.apache.catalina.session.StandardManager;
 import org.apache.commons.lang3.ObjectUtils;
@@ -55,9 +56,8 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
- * creation/destruction and usage of {@link HttpSession}s by creating a
- * {@link Session} that is a lightweight copy.
+ * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of creation/destruction and usage of
+ * {@link HttpSession}s by creating a {@link Session} that is a lightweight copy.
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
@@ -67,14 +67,14 @@ import lombok.extern.slf4j.Slf4j;
 public class SessionListener implements ServletContextListener, HttpSessionListener, ServletRequestListener {
 
 	/**
-	 * Value to be set for the session-scoped parameter {@link Environment}
-	 * attribute #EXPIRE_SESSIONS} to indicate that all sessions should be expired.
+	 * Value to be set for the session-scoped parameter {@link Environment} attribute #EXPIRE_SESSIONS} to indicate that
+	 * all sessions should be expired.
 	 */
 	public static final String ALL = "ALL";
 	/**
-	 * A string flag to be set in the {@link Environment} with
-	 * {@link Scope#SESSION}, indicating that
-	 * {@link #expire(Manager, Environment, Site)} should be called.
+	 * A string flag to be set in the {@link Environment} with {@link Scope#SESSION}, indicating that
+	 * {@link #expire(Manager, Environment, Site)} should be called. Must either contain {@value #ALL} or a single
+	 * session ID.
 	 */
 	public static final String EXPIRE_SESSIONS = "expireSessions";
 
@@ -250,18 +250,20 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	static void expire(Manager manager, Environment env, Site site) {
-		expire(manager, env, env.removeAttribute(Scope.SESSION, EXPIRE_SESSIONS), site);
+		expire(manager, env, env.removeAttribute(Scope.SESSION, EXPIRE_SESSIONS), site, false);
 	}
 
-	static void expire(Manager manager, Environment env, String sessionId, Site site) {
+	static void expire(Manager manager, Environment env, String sessionId, Site site, boolean triggeredByEvent) {
 		if (ALL.equals(sessionId)) {
-			getSessions().parallelStream().forEach(session -> expireSession(manager, env, session, site));
+			getSessions().parallelStream()
+					.forEach(session -> expireSession(manager, env, session, site, triggeredByEvent));
 		} else if (null != sessionId) {
-			expireSession(manager, env, getSession(sessionId), site);
+			expireSession(manager, env, getSession(sessionId), site, triggeredByEvent);
 		}
 	}
 
-	private static void expireSession(Manager manager, Environment env, Session session, Site site) {
+	private static void expireSession(Manager manager, Environment env, Session session, Site site,
+			boolean triggeredByEvent) {
 		if (null != session) {
 			org.apache.catalina.Session containerSession = getContainerSession(manager, session.getId());
 			if (null != containerSession) {
@@ -269,7 +271,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 					LOGGER.info("expiring session {}", session.getId());
 					containerSession.expire();
 				}
-			} else if (manager instanceof StandardManager) {
+			} else if (!triggeredByEvent && manager instanceof StandardManager) {
 				site.sendEvent(new ExpireSessionEvent(site.getName(), session.getId()));
 			} else {
 				LOGGER.debug("session to expire not found in {}: {} (created: {}, last access: {})",
