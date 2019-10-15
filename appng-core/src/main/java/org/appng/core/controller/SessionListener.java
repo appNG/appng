@@ -280,7 +280,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		}
 	}
 
-	private static org.apache.catalina.Session getContainerSession(Manager manager, String sessionId) {
+	static org.apache.catalina.Session getContainerSession(Manager manager, String sessionId) {
 		try {
 			return manager.findSession(sessionId);
 		} catch (IOException e) {
