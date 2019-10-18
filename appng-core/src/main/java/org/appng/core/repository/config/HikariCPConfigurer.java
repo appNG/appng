@@ -39,8 +39,8 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	private HikariDataSource hikariDataSource;
 	private boolean logPerformance = false;
-	private int connectionTimeout;
-	private int validationTimeout;
+	private int connectionTimeout = 5000;
+	private int validationTimeout = 5000;
 
 	public HikariCPConfigurer() {
 
