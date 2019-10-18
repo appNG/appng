@@ -61,6 +61,7 @@
 		<appNG.authentication.version>1.11.2</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<esapi.version>2.2.0.0</esapi.version>
+		<hazelcast.version>3.12.3</hazelcast.version>
 		<hibernate.version>5.4.3.Final</hibernate.version>
 		<jackson.version>2.10.0.pr1</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
@@ -1028,12 +1029,17 @@
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
-				<version>3.12</version>
+				<version>${hazelcast.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast-spring</artifactId>
+				<version>${hazelcast.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast-client</artifactId>
-				<version>3.12</version>
+				<version>${hazelcast.version}</version>
 				<optional>true</optional>
 			</dependency>
 			<dependency>

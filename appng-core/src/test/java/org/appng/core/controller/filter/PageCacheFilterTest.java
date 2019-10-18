@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.appng.api.model.Site;
-import org.appng.core.controller.AppngCache;
+import org.appng.core.controller.CachedResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -50,7 +50,7 @@ public class PageCacheFilterTest {
 		req.setServletPath("/foo/bar");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		@SuppressWarnings("unchecked")
-		ICache<String, AppngCache> cache = Mockito.mock(ICache.class);
+		ICache<String, CachedResponse> cache = Mockito.mock(ICache.class);
 		Mockito.when(cache.getName()).thenReturn("testcache");
 		Mockito.when(cache.unwrap(ICache.class)).thenReturn(cache);
 		FilterChain chain = Mockito.mock(FilterChain.class);
@@ -58,18 +58,18 @@ public class PageCacheFilterTest {
 		String content = "foobar";
 		PageCacheFilter pageCacheFilter = new PageCacheFilter() {
 			@Override
-			protected AppngCache performRequest(final HttpServletRequest request, final HttpServletResponse response,
-					final FilterChain chain, Site site, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
+			protected CachedResponse performRequest(final HttpServletRequest request, final HttpServletResponse response,
+					final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
 				HttpHeaders headers = new HttpHeaders();
 				headers.add(HttpHeaders.LAST_MODIFIED, modifiedDate);
-				return new AppngCache("GET/" + req.getServletPath(), site, request, 200, "text/plain",
+				return new CachedResponse("GET/" + req.getServletPath(), site, request, 200, "text/plain",
 						content.getBytes(), headers, 1800);
 			};
 
 			@Override
-			protected void writeResponse(HttpServletRequest request, HttpServletResponse response, AppngCache pageInfo)
+			protected void writeResponse(HttpServletRequest request, HttpServletResponse response, CachedResponse pageInfo)
 					throws IOException {
 				if ("/aborted".equals(request.getServletPath())) {
 					throw new ClientAbortException("aborted!");
@@ -77,18 +77,18 @@ public class PageCacheFilterTest {
 				super.writeResponse(request, response, pageInfo);
 			}
 		};
-		AtomicReference<AppngCache> actual = new AtomicReference<>();
+		AtomicReference<CachedResponse> actual = new AtomicReference<>();
 		Mockito.doAnswer(new Answer<Void>() {
 			public Void answer(InvocationOnMock invocation) throws Throwable {
-				AppngCache element = invocation.getArgumentAt(1, AppngCache.class);
+				CachedResponse element = invocation.getArgumentAt(1, CachedResponse.class);
 				actual.set(element);
 				return null;
 			}
-		}).when(cache).put(Mockito.any(String.class), Mockito.any(AppngCache.class), Mockito.any(ExpiryPolicy.class));
+		}).when(cache).put(Mockito.any(String.class), Mockito.any(CachedResponse.class), Mockito.any(ExpiryPolicy.class));
 		
 		Site site = Mockito.mock(Site.class);
 
-		AppngCache pageInfo = pageCacheFilter.getCacheElement(req, resp, chain, site, cache, null);
+		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(pageInfo, actual.get());
 		long dateAsMillis = 1522227852000L;

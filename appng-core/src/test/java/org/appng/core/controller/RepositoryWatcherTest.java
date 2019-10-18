@@ -58,7 +58,7 @@ public class RepositoryWatcherTest {
 		site.setProperties(siteProps);
 
 		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
-		Cache<String, AppngCache> cache = CacheService.createCache(site);
+		Cache<String, CachedResponse> cache = CacheService.createCache(site);
 
 		String fehlerJsp = "/de/fehler.jsp";
 		String testJsp = "/de/test.jsp";
@@ -69,13 +69,13 @@ public class RepositoryWatcherTest {
 		String contentType = "text/plain";
 		byte[] bytes = "a value".getBytes();
 		cache.put(keyFehlerJsp,
-				new AppngCache(keyFehlerJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+				new CachedResponse(keyFehlerJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
 		cache.put(keyTestJsp,
-				new AppngCache(keyTestJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+				new CachedResponse(keyTestJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
 		cache.put("GET/de/error",
-				new AppngCache("GET/de/error", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+				new CachedResponse("GET/de/error", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
 		cache.put("GET/de/fault",
-				new AppngCache("GET/de/fault", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+				new CachedResponse("GET/de/fault", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
 
 		int size = getCacheSize(cache);
 		Assert.assertEquals(4, size);
@@ -100,7 +100,7 @@ public class RepositoryWatcherTest {
 		Assert.assertTrue(repositoryWatcher.forwardsUpdatedAt > forwardsUpdatedAt);
 	}
 
-	private int getCacheSize(Cache<String, AppngCache> cache) {
+	private int getCacheSize(Cache<String, CachedResponse> cache) {
 		AtomicInteger size = new AtomicInteger(0);
 		cache.iterator().forEachRemaining(e -> size.getAndIncrement());
 		return size.get();

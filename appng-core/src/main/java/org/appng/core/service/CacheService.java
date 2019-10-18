@@ -35,7 +35,7 @@ import javax.cache.expiry.ExpiryPolicy;
 import org.appng.api.BusinessException;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
-import org.appng.core.controller.AppngCache;
+import org.appng.core.controller.CachedResponse;
 import org.springframework.http.HttpMethod;
 
 import com.hazelcast.cache.CacheStatistics;
@@ -83,12 +83,12 @@ public class CacheService {
 	 * @param site The {@link Site} to get the cache for
 	 * @return The {@link Cache} instance for the specified site.
 	 */
-	public static Cache<String, AppngCache> getCache(Site site) {
+	public static Cache<String, CachedResponse> getCache(Site site) {
 		return cacheManager.getCache(getCacheKey(site));
 	}
 
 	public static void clearCache(Site site) {
-		Cache<String, AppngCache> cache = getCache(site);
+		Cache<String, CachedResponse> cache = getCache(site);
 		if (null != cache) {
 			cache.removeAll();
 		}
@@ -105,13 +105,13 @@ public class CacheService {
 	 * @param site              The site.
 	 * @return The {@link Cache} instance for the specified site.
 	 */
-	public synchronized static Cache<String, AppngCache> createCache(Site site) {
+	public synchronized static Cache<String, CachedResponse> createCache(Site site) {
 		String cacheKey = getCacheKey(site);
-		Cache<String, AppngCache> cache = cacheManager.getCache(cacheKey);
+		Cache<String, CachedResponse> cache = cacheManager.getCache(cacheKey);
 		if (null == cache) {
 			Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 			Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
-			MutableConfiguration<String, AppngCache> configuration = new MutableConfiguration<>();
+			MutableConfiguration<String, CachedResponse> configuration = new MutableConfiguration<>();
 			Factory<ExpiryPolicy> epf = AccessedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl));
 			configuration.setExpiryPolicyFactory(epf);
 			configuration.setStatisticsEnabled(statisticsEnabled);
@@ -136,10 +136,10 @@ public class CacheService {
 		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
 		if (cacheEnabled) {
 			try {
-				Cache<String, AppngCache> cache = CacheService.getCache(site);
+				Cache<String, CachedResponse> cache = CacheService.getCache(site);
 				if (null != cache) {
 					@SuppressWarnings("unchecked")
-					ICache<String, AppngCache> cacheInternal = cache.unwrap(ICache.class);
+					ICache<String, CachedResponse> cacheInternal = cache.unwrap(ICache.class);
 					CacheStatistics cacheStatistics = cacheInternal.getLocalCacheStatistics();
 
 					stats.put("Average get time", String.valueOf(cacheStatistics.getAverageGetTime()));
@@ -180,12 +180,12 @@ public class CacheService {
 		}
 	}
 
-	public static List<AppngCache> getCacheEntries(Site site) {
-		List<AppngCache> appngCacheEntries = new ArrayList<>();
+	public static List<CachedResponse> getCacheEntries(Site site) {
+		List<CachedResponse> appngCacheEntries = new ArrayList<>();
 		try {
-			Cache<String, AppngCache> cache = CacheService.getCache(site);
+			Cache<String, CachedResponse> cache = CacheService.getCache(site);
 			if (null != cache) {
-				for (Entry<String, AppngCache> entry : cache) {
+				for (Entry<String, CachedResponse> entry : cache) {
 					appngCacheEntries.add(entry.getValue());
 				}
 			}
@@ -199,10 +199,10 @@ public class CacheService {
 		return expireCacheElementsStartingWith(CacheService.getCache(site), cacheElementPrefix);
 	}
 
-	public static int expireCacheElementsStartingWith(Cache<String, AppngCache> cache, String cacheElementPrefix) {
+	public static int expireCacheElementsStartingWith(Cache<String, CachedResponse> cache, String cacheElementPrefix) {
 		int count = 0;
 		int removed = 0;
-		for (Entry<String, AppngCache> entry : cache) {
+		for (Entry<String, CachedResponse> entry : cache) {
 			count++;
 			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)) {
 				if (cache.remove(entry.getKey())) {

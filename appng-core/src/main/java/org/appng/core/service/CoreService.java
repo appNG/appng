@@ -69,7 +69,7 @@ import org.appng.api.support.ApplicationResourceHolder;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
-import org.appng.core.controller.AppngCache;
+import org.appng.core.controller.CachedResponse;
 import org.appng.core.controller.handler.SoapService;
 import org.appng.core.controller.messaging.SiteDeletedEvent;
 import org.appng.core.domain.ApplicationImpl;
@@ -1980,7 +1980,7 @@ public class CoreService {
 		return CacheService.getCacheStatistics(site);
 	}
 
-	public List<AppngCache> getCacheEntries(Integer siteId) {
+	public List<CachedResponse> getCacheEntries(Integer siteId) {
 		SiteImpl site = siteRepository.findOne(siteId);
 		return CacheService.getCacheEntries(site);
 	}

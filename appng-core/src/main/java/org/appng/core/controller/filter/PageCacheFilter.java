@@ -50,7 +50,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.api.support.environment.DefaultEnvironment;
-import org.appng.core.controller.AppngCache;
+import org.appng.core.controller.CachedResponse;
 import org.appng.core.service.CacheService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -126,10 +126,10 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected void handleCaching(final HttpServletRequest request, final HttpServletResponse response, Site site,
-			final FilterChain chain, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
+			final FilterChain chain, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 			throws ServletException, IOException {
 		try {
-			AppngCache pageInfo = getCacheElement(request, response, chain, site, cache, expiryPolicy);
+			CachedResponse pageInfo = getCachedResponse(request, response, chain, site, cache, expiryPolicy);
 			if (null != pageInfo) {
 				if (pageInfo.isOk() && response.isCommitted()) {
 					throw new ServletException("Response already committed after doing buildPage"
@@ -155,7 +155,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		}
 	}
 
-	protected void writeResponse(HttpServletRequest request, HttpServletResponse response, AppngCache pageInfo)
+	protected void writeResponse(HttpServletRequest request, HttpServletResponse response, CachedResponse pageInfo)
 			throws IOException {
 		byte[] body = new byte[0];
 
@@ -185,12 +185,12 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		out.flush();
 	}
 
-	private void writeCachedHeaders(HttpServletResponse response, AppngCache pageInfo) {
+	private void writeCachedHeaders(HttpServletResponse response, CachedResponse pageInfo) {
 		pageInfo.getHeaders().forEach((n, vs) -> vs.forEach(v -> response.setHeader(n, v)));
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
-			AppngCache pageInfo, long lastModified) throws IOException {
+			CachedResponse pageInfo, long lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
 			public long update() throws IOException {
@@ -223,41 +223,41 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected AppngCache getCacheElement(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
+	protected CachedResponse getCachedResponse(final HttpServletRequest request, final HttpServletResponse response,
+			final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 			throws ServletException, IOException {
 		final String key = calculateKey(request);
-		AppngCache pageInfo = cache.get(key);
-		if (pageInfo == null) {
-			pageInfo = performRequest(request, response, chain, site, cache, expiryPolicy);
-			int size = pageInfo.getContentLength();
-			if (pageInfo.isOk()) {
-				cache.unwrap(ICache.class).put(key, pageInfo, expiryPolicy);
+		CachedResponse cachedResponse = cache.get(key);
+		if (cachedResponse == null) {
+			cachedResponse = performRequest(request, response, chain, site, cache, expiryPolicy);
+			int size = cachedResponse.getContentLength();
+			if (cachedResponse.isOk()) {
+				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
 				if (LOGGER.isDebugEnabled()) {
 					Duration duration = expiryPolicy == null ? null : expiryPolicy.getExpiryForAccess();
 					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, policy: {})", cache.getName(), key,
-							pageInfo.getContentType(), size, duration == null ? null : duration.getDurationAmount());
+							cachedResponse.getContentType(), size, duration == null ? null : duration.getDurationAmount());
 				}
 			} else {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("PageInfo was not ok (status: {}, size: {}) for key {}", pageInfo.getStatus(), size,
+					LOGGER.debug("PageInfo was not ok (status: {}, size: {}) for key {}", cachedResponse.getStatus(), size,
 							key);
 				}
 			}
 		} else {
 			// update hit statistic
-			long hits = pageInfo.incrementHit();
-			cache.replace(key, pageInfo);
+			long hits = cachedResponse.incrementHit();
+			cache.replace(key, cachedResponse);
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Hit in cache {}: {} (type: {}, size: {}, hits: {})", cache.getName(), key,
-						pageInfo.getContentType(), pageInfo.getContentLength(), hits);
+						cachedResponse.getContentType(), cachedResponse.getContentLength(), hits);
 			}
 		}
-		return pageInfo;
+		return cachedResponse;
 	}
 
-	protected AppngCache performRequest(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, Cache<String, AppngCache> cache, ExpiryPolicy expiryPolicy)
+	protected CachedResponse performRequest(final HttpServletRequest request, final HttpServletResponse response,
+			final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 			throws IOException, ServletException {
 		final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
 		final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, outstr);
@@ -270,7 +270,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		Integer siteTtl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 		Integer ttl = expiryPolicy == null ? siteTtl : (int) expiryPolicy.getExpiryForAccess().getDurationAmount();
 
-		return new AppngCache(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
+		return new CachedResponse(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
 				outstr.toByteArray(), headers, ttl);
 	}
 

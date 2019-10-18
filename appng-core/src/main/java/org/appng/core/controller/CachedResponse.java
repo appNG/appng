@@ -38,7 +38,7 @@ import lombok.Data;
  * @author Matthias Müller
  */
 @Data
-public class AppngCache implements Serializable {
+public class CachedResponse implements Serializable {
 
 	private String id;
 	private String site;
@@ -61,7 +61,7 @@ public class AppngCache implements Serializable {
 		return hits.incrementAndGet();
 	}
 
-	public AppngCache(String id, Site site, HttpServletRequest request, int status, String contentType, byte[] data,
+	public CachedResponse(String id, Site site, HttpServletRequest request, int status, String contentType, byte[] data,
 			HttpHeaders headers, int timeToLive) {
 		this.id = id;
 		this.status = HttpStatus.valueOf(status);

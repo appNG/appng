@@ -669,6 +669,9 @@ public class InitializerService {
 					"error while loading class " + datasourceConfigurerName);
 		}
 
+		org.springframework.cache.CacheManager platformCacheManager = platformContext
+				.getBean(org.springframework.cache.CacheManager.class);
+
 		// Step 2: Build application context
 		Set<ApplicationProvider> validApplications = new HashSet<>();
 		for (ApplicationProvider application : applications) {
@@ -706,7 +709,7 @@ public class InitializerService {
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
 				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
-						application.getDatabaseConnection(), dictionaryNames);
+						application.getDatabaseConnection(), platformCacheManager, dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
 				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
