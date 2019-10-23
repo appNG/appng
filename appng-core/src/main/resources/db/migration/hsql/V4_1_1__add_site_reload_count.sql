@@ -1,1 +1,1 @@
-alter table site add reload_count integer not null default 0;
+alter table site add reload_count integer default 0 not null;

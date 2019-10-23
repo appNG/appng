@@ -12,6 +12,8 @@
 	<ok>true</ok>
 	<managed>false</managed>
 	<versions>
+		<version version="4.1.1" state="Success" description="add site reload count" checksum="1311349447"
+			installed="2019-10-23T16:52:28.896+02:00"/>
 		<version version="4.1.0" state="Success" description="change caching properties" checksum="1292263725"
 			installed="2019-06-18T16:15:30.268+02:00" />
 		<version version="4.0.0" state="Success" description="add job execution record" checksum="1364852815"

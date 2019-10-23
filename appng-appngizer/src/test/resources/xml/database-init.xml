@@ -6,12 +6,14 @@
 	<type>HSQL</type>
 	<user>sa</user>
 	<password>$2a$13$a4edbb78ea53e1048b432uKsrPcVWvPpZX8ch3wu5R3ODf6HkdIYS</password>
-	<dbVersion>HSQL Database Engine 2.4.1</dbVersion>
+	<dbVersion>HSQL Database Engine 2.5.0</dbVersion>
 	<driver>org.hsqldb.jdbc.JDBCDriver</driver>
 	<url>jdbc:hsqldb:mem:testdb</url>
 	<ok>true</ok>
 	<managed>false</managed>
 	<versions>
+		<version version="4.1.1" state="Success" description="add site reload count" checksum="1311349447"
+			installed="2019-10-23T16:52:28.896+02:00"/>
 		<version version="4.1.0" state="Success" description="change caching properties" checksum="1292263725"
 			installed="2019-06-18T16:36:05.135+02:00" />
 		<version version="4.0.0" state="Success" description="add job execution record" checksum="1364852815"
