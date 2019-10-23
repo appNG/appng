@@ -478,9 +478,11 @@ public class InitializerService {
 
 		SiteImpl site = siteToLoad;
 		Site currentSite = siteMap.get(site.getName());
-		if (null != currentSite) {
+		boolean isReload = null != currentSite;
+		if (isReload) {
 			LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
 			shutDownSite(env, currentSite);
+			site.setReloadCount(site.getReloadCount() + 1);
 		}
 
 		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
@@ -758,9 +760,6 @@ public class InitializerService {
 
 		PlatformTransformer.clearCache();
 		coreService.setSiteStartUpTime(site, new Date());
-		if (sendReloadEvent) {
-			site.sendEvent(new ReloadSiteEvent(site.getName()));
-		}
 
 		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
 			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
@@ -772,6 +771,13 @@ public class InitializerService {
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
 		auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
+
+		if (sendReloadEvent) {
+			site.sendEvent(new ReloadSiteEvent(site.getName()));
+			if (isReload) {
+				getCoreService().setSiteReloadCount(site);
+			}
+		}
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {

@@ -246,6 +246,7 @@ public class PlatformConfig {
 	}
 
 	@Bean
+	@Lazy
 	public CacheManager platformCacheManager() {
 		return new HazelcastCacheManager(HazelcastConfigurer.getInstance(null));
 	}

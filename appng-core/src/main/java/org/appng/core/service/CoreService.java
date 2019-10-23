@@ -129,8 +129,7 @@ import org.springframework.util.StopWatch;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A service implementing the core business logic for creation/retrieval/removal
- * of business-objects.
+ * A service implementing the core business logic for creation/retrieval/removal of business-objects.
  * 
  * @author Matthias Müller
  * @author Matthias Herlitzius
@@ -459,16 +458,14 @@ public class CoreService {
 	}
 
 	/**
-	 * Returns a {@link PasswordHandler} which is able to handle the password of a
-	 * given {@link AuthSubject}. This is only relevant if {@link Subject}s exist
-	 * which still use passwords hashed with an older {@link PasswordHandler}. This
-	 * method may be removed in the future.
+	 * Returns a {@link PasswordHandler} which is able to handle the password of a given {@link AuthSubject}. This is
+	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
+	 * This method may be removed in the future.
 	 * 
-	 * @param authSubject The {@link AuthSubject} which is used to initialize the
-	 *                    {@link PasswordHandler} and to determine which
-	 *                    implementation of the {@link PasswordHandler} interface
-	 *                    will be returned.
-	 * @return the {@link PasswordHandler} for the {@link AuthSubject}
+	 * @param  authSubject
+	 *                     The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
+	 *                     determine which implementation of the {@link PasswordHandler} interface will be returned.
+	 * @return             the {@link PasswordHandler} for the {@link AuthSubject}
 	 */
 	public PasswordHandler getPasswordHandler(AuthSubject authSubject) {
 		if (!authSubject.getDigest().startsWith(BCryptPasswordHandler.getPrefix())) {
@@ -479,12 +476,11 @@ public class CoreService {
 	}
 
 	/**
-	 * Returns the default password manager which should be used to handle all
-	 * passwords.
+	 * Returns the default password manager which should be used to handle all passwords.
 	 * 
-	 * @param authSubject The {@link AuthSubject} which is used for initializing the
-	 *                    {@link PasswordHandler}.
-	 * @return the default {@link PasswordHandler} for the {@link AuthSubject}
+	 * @param  authSubject
+	 *                     The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
+	 * @return             the default {@link PasswordHandler} for the {@link AuthSubject}
 	 */
 	public PasswordHandler getDefaultPasswordHandler(AuthSubject authSubject) {
 		return new BCryptPasswordHandler(authSubject);
@@ -910,13 +906,14 @@ public class CoreService {
 	/**
 	 * Deletes a {@link Template}
 	 * 
-	 * @param name the name of the template to delete
+	 * @param  name
+	 *              the name of the template to delete
 	 * @return
-	 *         <ul>
-	 *         <li>0 - if everything went OK
-	 *         <li>-1 - if no such template exists
-	 *         <li>-2 - if the template is still in use
-	 *         </ul>
+	 *              <ul>
+	 *              <li>0 - if everything went OK
+	 *              <li>-1 - if no such template exists
+	 *              <li>-2 - if the template is still in use
+	 *              </ul>
 	 */
 	public Integer deleteTemplate(String name) {
 		Template template = templateService.getTemplateByName(name);
@@ -2037,6 +2034,10 @@ public class CoreService {
 
 	public void createEvent(Type type, String message, HttpSession session) {
 		auditableListener.createEvent(type, message, session);
+	}
+
+	public void setSiteReloadCount(SiteImpl site) {
+		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
 	}
 
 }
