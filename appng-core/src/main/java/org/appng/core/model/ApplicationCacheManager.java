@@ -64,10 +64,9 @@ public class ApplicationCacheManager implements CacheManager, DisposableBean {
 		HazelcastInstance hazelcastInstance = ((HazelcastCacheManager) delegate).getHazelcastInstance();
 		String nameInternal = prefix + name;
 		Object ttl = null == cacheConfig ? null : cacheConfig.get(name + SUFFIX_TTL);
-		boolean cacheExists = delegate.getCacheNames().contains(nameInternal);
-		MapConfig mapConfig = hazelcastInstance.getConfig().getMapConfig(nameInternal);
-		mapConfig.setName(nameInternal);
-		if (!cacheExists && null != ttl) {
+		MapConfig mapConfig = hazelcastInstance.getConfig().getMapConfigOrNull(nameInternal);
+		if (null == mapConfig && null != ttl) {
+			mapConfig = hazelcastInstance.getConfig().getMapConfig(nameInternal);
 			mapConfig.setTimeToLiveSeconds(Integer.valueOf(String.valueOf(ttl)));
 			Object maxIdle = cacheConfig.get(name + SUFFIX_MAX_IDLE);
 			if (null != maxIdle) {
