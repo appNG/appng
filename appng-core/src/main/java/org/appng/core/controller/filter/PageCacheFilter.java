@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
-import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.Filter;
@@ -111,7 +111,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
 					Integer expireAfterSeconds = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 					expireAfterSeconds = getExpireAfterSeconds(cacheTimeouts, servletPath, expireAfterSeconds);
-					expiryPolicy = new AccessedExpiryPolicy(new Duration(TimeUnit.SECONDS, expireAfterSeconds));
+					expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, expireAfterSeconds));
 				}
 			} else {
 				LOGGER.info("no site found for path {} and host {}", servletPath, hostIdentifier);
@@ -268,7 +268,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
 				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
 		Integer siteTtl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-		Integer ttl = expiryPolicy == null ? siteTtl : (int) expiryPolicy.getExpiryForAccess().getDurationAmount();
+		Integer ttl = expiryPolicy == null ? siteTtl : (int) expiryPolicy.getExpiryForCreation().getDurationAmount();
 
 		return new CachedResponse(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
 				outstr.toByteArray(), headers, ttl);

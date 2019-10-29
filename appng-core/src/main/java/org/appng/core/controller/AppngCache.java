@@ -59,7 +59,6 @@ public class AppngCache implements Serializable {
 	protected byte[] data;
 
 	public long incrementHit() {
-		calculateExpire(this.lastAccessedTime = new Date());
 		return hits.incrementAndGet();
 	}
 
