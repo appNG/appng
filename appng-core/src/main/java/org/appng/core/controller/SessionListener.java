@@ -78,7 +78,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	public static final String EXPIRE_SESSIONS = "expireSessions";
 
 	/** name for the cache containing the {@link Session}s */
-	static final String SESSIONS = "sessions";
+	static final String SESSIONS = "appNG_sessions";
 	private static final String MDC_SESSION_ID = "sessionID";
 	private static final Class<org.apache.catalina.connector.Request> CATALINA_REQUEST = org.apache.catalina.connector.Request.class;
 	private static final String HTTPS = "https";
@@ -86,6 +86,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void contextInitialized(ServletContextEvent sce) {
 		MutableConfiguration<String, Session> mutableConfiguration = new MutableConfiguration<>();
+		mutableConfiguration.setStatisticsEnabled(true);
+		mutableConfiguration.setTypes(String.class, Session.class);
 		mutableConfiguration.setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf());
 		CacheService.getCacheManager().createCache(SESSIONS, mutableConfiguration);
 		LOGGER.info("Created eternal cache '{}'.", SESSIONS);
