@@ -35,7 +35,6 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.apache.catalina.Contained;
 import org.apache.catalina.Manager;
 import org.apache.catalina.session.StandardManager;
 import org.apache.commons.lang3.ObjectUtils;
