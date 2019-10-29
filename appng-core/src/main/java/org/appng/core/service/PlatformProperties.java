@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -115,9 +116,8 @@ public class PlatformProperties implements Properties {
 	}
 
 	public InputStream getCacheConfig() throws IOException {
-
 		String cacheConfig = getClob(Platform.Property.CACHE_CONFIG);
-		if (null != cacheConfig) {
+		if (StringUtils.isNotBlank(cacheConfig)) {
 			LOGGER.info("Reading cache config from property {}", Platform.Property.CACHE_CONFIG);
 			return new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8));
 		} else {
