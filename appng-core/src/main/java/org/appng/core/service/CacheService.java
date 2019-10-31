@@ -50,13 +50,26 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class CacheService {
 
 	public static final String PAGE_CACHE = "pageCache";
 	public static final String DASH = "-";
+
+	public static final String STATS_NAME = "name";
+	public static final String STATS_SIZE = "size";
+	public static final String STATS_PUTS = "puts";
+	public static final String STATS_GETS = "gets";
+	public static final String STATS_REMOVALS = "removals";
+	public static final String STATS_HITS = "hits";
+	public static final String STATS_HITS_PERCENT = "hitsPercent";
+	public static final String STATS_MISSES = "misses";
+	public static final String STATS_MISSES_PERCENT = "missesPercent";
+	public static final String STATS_AVG_PUT_TIME = "avgPutTime";
+	public static final String STATS_AVG_GET_TIME = "avgGetTime";
+	public static final String STATS_AVG_REMOVAL_TIME = "avgRemovalTime";
+
 	private static CacheManager cacheManager;
 
 	public static CacheManager createCacheManager(HazelcastInstance instance) {
@@ -77,11 +90,12 @@ public class CacheService {
 	}
 
 	/**
-	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this
-	 * method to retrieve a cache instance which already must exists.
+	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a cache instance
+	 * which already must exists.
 	 * 
-	 * @param site The {@link Site} to get the cache for
-	 * @return The {@link Cache} instance for the specified site.
+	 * @param  site
+	 *              The {@link Site} to get the cache for
+	 * @return      The {@link Cache} instance for the specified site.
 	 */
 	public static Cache<String, CachedResponse> getCache(Site site) {
 		return cacheManager.getCache(getCacheKey(site));
@@ -98,12 +112,12 @@ public class CacheService {
 	}
 
 	/**
-	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this
-	 * method to retrieve a new cache instance. Should be only used in
-	 * {@link InitializerService}
+	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a new cache
+	 * instance. Should be only used in {@link InitializerService}
 	 * 
-	 * @param site              The site.
-	 * @return The {@link Cache} instance for the specified site.
+	 * @param  site
+	 *              The site.
+	 * @return      The {@link Cache} instance for the specified site.
 	 */
 	public synchronized static Cache<String, CachedResponse> createCache(Site site) {
 		String cacheKey = getCacheKey(site);
@@ -142,17 +156,18 @@ public class CacheService {
 					ICache<String, CachedResponse> cacheInternal = cache.unwrap(ICache.class);
 					CacheStatistics cacheStatistics = cacheInternal.getLocalCacheStatistics();
 
-					stats.put("Average get time", String.valueOf(cacheStatistics.getAverageGetTime()));
-					stats.put("Average put time", String.valueOf(cacheStatistics.getAveragePutTime()));
-					stats.put("Average removal time", String.valueOf(cacheStatistics.getAverageRemoveTime()));
-					stats.put("Hits", String.valueOf(cacheStatistics.getCacheHits()));
-					stats.put("Misses", String.valueOf(cacheStatistics.getCacheMisses()));
-					stats.put("Name", cache.getName());
-					stats.put("Hits (%)", String.valueOf(cacheStatistics.getCacheHitPercentage()));
-					stats.put("Misses (%)", String.valueOf(cacheStatistics.getCacheMissPercentage()));
-					stats.put("Gets", String.valueOf(cacheStatistics.getCacheGets()));
-					stats.put("Puts", String.valueOf(cacheStatistics.getCachePuts()));
-					stats.put("Removals", String.valueOf(cacheStatistics.getCacheRemovals()));
+					stats.put(STATS_NAME, cache.getName());
+					stats.put(STATS_SIZE, String.valueOf(cacheInternal.size()));
+					stats.put(STATS_HITS, String.valueOf(cacheStatistics.getCacheHits()));
+					stats.put(STATS_HITS_PERCENT, String.valueOf(cacheStatistics.getCacheHitPercentage()));
+					stats.put(STATS_MISSES, String.valueOf(cacheStatistics.getCacheMisses()));
+					stats.put(STATS_MISSES_PERCENT, String.valueOf(cacheStatistics.getCacheMissPercentage()));
+					stats.put(STATS_PUTS, String.valueOf(cacheStatistics.getCachePuts()));
+					stats.put(STATS_AVG_PUT_TIME, String.valueOf(cacheStatistics.getAveragePutTime()));
+					stats.put(STATS_GETS, String.valueOf(cacheStatistics.getCacheGets()));
+					stats.put(STATS_AVG_GET_TIME, String.valueOf(cacheStatistics.getAverageGetTime()));
+					stats.put(STATS_REMOVALS, String.valueOf(cacheStatistics.getCacheRemovals()));
+					stats.put(STATS_AVG_REMOVAL_TIME, String.valueOf(cacheStatistics.getAverageRemoveTime()));
 				} else {
 					stats.put("Status",
 							String.format("Failed to retrieve caching statistics for site %s", site.getName()));
@@ -161,9 +176,8 @@ public class CacheService {
 				LOGGER.error("Error while getting cache statistics.", e);
 			}
 		} else {
-			stats.put("Status",
-					"Ehcache is disabled for this site. To enable the cache set the site property 'platform.site."
-							+ site.getName() + ".cacheEnabled' to 'true'.");
+			stats.put("Status", "Caching is disabled for this site. To enable the cache set the site property '"
+					+ SiteProperties.CACHE_ENABLED + "' to 'true'.");
 		}
 		return stats;
 	}

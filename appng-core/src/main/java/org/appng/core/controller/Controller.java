@@ -236,13 +236,13 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					}
 					if (null != requestHandler) {
 						if (site.hasState(SiteState.STARTED)) {
-							requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
 							if (pathInfo.isGui()) {
 								expireSessions(env, site);
-								if (servletRequest.isRequestedSessionIdValid()) {
-									getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
-											EnvironmentKeys.PREVIOUS_PATH, servletPath);
-								}
+							}
+							requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
+							if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
+								getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
+										EnvironmentKeys.PREVIOUS_PATH, servletPath);
 							}
 						} else {
 							LOGGER.error("site {} should be STARTED.", site);
@@ -261,14 +261,17 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 				}
 			}
 
-		} else if (allowPlainRequests) {
-			LOGGER.debug("no site found for request '{}'", servletPath);
-			super.doGet(servletRequest, servletResponse);
-			int status = servletResponse.getStatus();
-			LOGGER.debug("returned {} for request '{}'", status, servletPath);
-		} else {
-			LOGGER.debug("access to '{}' not allowed", servletPath);
-		}
+		}else if(allowPlainRequests)
+
+	{
+		LOGGER.debug("no site found for request '{}'", servletPath);
+		super.doGet(servletRequest, servletResponse);
+		int status = servletResponse.getStatus();
+		LOGGER.debug("returned {} for request '{}'", status, servletPath);
+	}else
+	{
+		LOGGER.debug("access to '{}' not allowed", servletPath);
+	}
 
 	}
 

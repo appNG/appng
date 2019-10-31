@@ -124,8 +124,8 @@ public final class Platform {
 		/**
 		 * The global configuration for configuring caching. This property either
 		 * contains the platform-relative path to a config file (e.g.
-		 * {@code WEB-INF/conf/config.xml}) or the XML configuration itself in XML
-		 * format (stored as clob).
+		 * {@code WEB-INF/conf/hazelcast.xml}) or the XML configuration itself in XML
+		 * format (stored as multilined value).
 		 */
 		public static final String CACHE_CONFIG = "cacheConfig";
 		/**
@@ -152,6 +152,7 @@ public final class Platform {
 		/** The charset/encoding used for http-responses. */
 		public static final String ENCODING = "encoding";
 		/** @deprecated use {@link #CACHE_CONFIG} */
+		@Deprecated
 		public static final String EHCACHE_CONFIG = CACHE_CONFIG;
 		/** Set to 'true' if applications should be deployed to the local filesystem, 'false' otherwise. */
 		public static final String FILEBASED_DEPLOYMENT = "filebasedDeployment";

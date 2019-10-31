@@ -173,16 +173,16 @@ public class ExtractData implements ExecutableCliCommand {
 	}
 
 	protected void setCacheConfig(CliEnvironment cle) {
-		PropertyImpl ehcacheConfig = cle.getCoreService()
-				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.EHCACHE_CONFIG);
-		String defaultValue = "conf/ehcache.xml";
+		PropertyImpl cacheConfig = cle.getCoreService()
+				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.CACHE_CONFIG);
+		String defaultValue = "conf/hazelcast.xml";
 		if (revert) {
 			defaultValue = WEB_INF + "/" + defaultValue;
 		}
-		ehcacheConfig.setString(defaultValue);
+		cacheConfig.setString(defaultValue);
 		CliEnvironment.out
-				.println(String.format("Setting default value for %s: %s", ehcacheConfig.getName(), defaultValue));
-		cle.getCoreService().saveProperty(ehcacheConfig);
+				.println(String.format("Setting default value for %s: %s", cacheConfig.getName(), defaultValue));
+		cle.getCoreService().saveProperty(cacheConfig);
 	}
 
 	private File move(Path source, Path target) throws IOException {

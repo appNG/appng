@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
  * {@link WatchService}.
  * </p>
  * If caching for the site is active (see
- * {@link SiteProperties#EHCACHE_ENABLED}), cache entries for the
+ * {@link SiteProperties#CACHE_ENABLED}), cache entries for the
  * modified/deleted files are removed from the cache. Since there could be some
  * forwarding rules defined in the site's {@code urlrewrite.xml}, it is also
  * necessary to parse these rules and remove the 'aliases' from the cache.
