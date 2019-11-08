@@ -82,8 +82,6 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTPS = "https://";
 	private static final String SCHEME_HTTP = "http://";
 
-	protected static final String SESSION_MANAGER = "sessionManager";
-
 	protected JspHandler jspHandler;
 
 	private Manager manager;
@@ -236,9 +234,6 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 					}
 					if (null != requestHandler) {
 						if (site.hasState(SiteState.STARTED)) {
-							if (pathInfo.isGui()) {
-								expireSessions(env, site);
-							}
 							requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
 							if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
 								getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
@@ -261,17 +256,16 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 				}
 			}
 
-		}else if(allowPlainRequests)
+		} else if (allowPlainRequests)
 
-	{
-		LOGGER.debug("no site found for request '{}'", servletPath);
-		super.doGet(servletRequest, servletResponse);
-		int status = servletResponse.getStatus();
-		LOGGER.debug("returned {} for request '{}'", status, servletPath);
-	}else
-	{
-		LOGGER.debug("access to '{}' not allowed", servletPath);
-	}
+		{
+			LOGGER.debug("no site found for request '{}'", servletPath);
+			super.doGet(servletRequest, servletResponse);
+			int status = servletResponse.getStatus();
+			LOGGER.debug("returned {} for request '{}'", status, servletPath);
+		} else {
+			LOGGER.debug("access to '{}' not allowed", servletPath);
+		}
 
 	}
 
@@ -304,15 +298,11 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	public void setWrapper(Wrapper wrapper) {
 		Context context = ((Context) wrapper.getParent());
 		this.manager = context.getManager();
-		context.getServletContext().setAttribute(SESSION_MANAGER, manager);
+		context.getServletContext().setAttribute(SessionListener.SESSION_MANAGER, manager);
 		Environment env = DefaultEnvironment.get(context.getServletContext());
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
 		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));
-	}
-
-	protected void expireSessions(Environment env, Site site) {
-		SessionListener.expire(manager, env, site);
 	}
 
 	public JspHandler getJspHandler() {
