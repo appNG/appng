@@ -16,12 +16,10 @@
 package org.appng.core.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -31,9 +29,6 @@ import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.appng.core.service.CacheService;
-import org.appng.core.service.HazelcastConfigurer;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,10 +48,7 @@ public class SessionListenerTest {
 
 	@BeforeClass
 	public static void setup() {
-		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
 		sessionListener = new SessionListener();
-		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
-		Assert.assertEquals(SessionListener.SESSIONS, SessionListener.getSessionCache().getName());
 
 		platformMap = new ConcurrentHashMap<>();
 		Properties props = Mockito.mock(Properties.class);
@@ -72,17 +64,12 @@ public class SessionListenerTest {
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformMap);
 	}
 
-	@AfterClass
-	public static void tearDown() {
-		Assert.assertNotNull(SessionListener.getSessions());
-		sessionListener.contextDestroyed(new ServletContextEvent(servletContext));
-	}
-
 	@Test
 	public void testSessionCreated() {
 		sessionListener.sessionCreated(new HttpSessionEvent(session1));
 		addRequest(session1);
-		Assert.assertTrue(getSessions().contains(new Session(session1.getId())));
+		addRequest(session1);
+		Assert.assertEquals(2, ((Session) session1.getAttribute(SessionListener.META_DATA)).getRequests());
 	}
 
 	@Test
@@ -92,9 +79,9 @@ public class SessionListenerTest {
 		sessionListener.sessionCreated(new HttpSessionEvent(session2));
 		addRequest(session2);
 		sessionListener.sessionDestroyed(new HttpSessionEvent(session1));
-		List<Session> sessionList = getSessions();
-		Assert.assertFalse(sessionList.contains(new Session(session1.getId())));
-		Assert.assertTrue(sessionList.contains(new Session(session2.getId())));
+
+		Assert.assertNull(session1.getAttribute(SessionListener.META_DATA));
+		Assert.assertNotNull(session2.getAttribute(SessionListener.META_DATA));
 	}
 
 	private void addRequest(HttpSession session) {
@@ -104,7 +91,4 @@ public class SessionListenerTest {
 		sessionListener.requestInitialized(requestEvent);
 	}
 
-	private List<Session> getSessions() {
-		return SessionListener.getSessions();
-	}
 }

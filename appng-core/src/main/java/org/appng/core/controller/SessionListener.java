@@ -112,6 +112,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 					session.getId(), DATE_PATTERN.format(session.getCreationTime()),
 					DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
 					session.getUserAgent());
+			httpSession.removeAttribute(META_DATA);
 		} else {
 			LOGGER.info("Session destroyed: {} (created: {}, accessed: {})", httpSession.getId(),
 					DATE_PATTERN.format(httpSession.getCreationTime()),
