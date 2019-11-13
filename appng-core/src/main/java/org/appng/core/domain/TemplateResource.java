@@ -60,7 +60,7 @@ public class TemplateResource implements Resource {
 	private String checkSum;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}

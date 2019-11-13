@@ -61,7 +61,7 @@ public class RoleImpl implements Role, Auditable<Integer> {
 	private Set<Permission> permissions = new HashSet<>();
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
