@@ -142,19 +142,19 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>2.10.0.pr1</version>
+				<version>2.10.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.10.0.pr1</version>
+				<version>2.10.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.10.0.pr1</version>
+				<version>2.10.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -220,7 +220,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>28.0-jre</version>
+				<version>28.1-jre</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -316,7 +316,7 @@
 			<dependency>
 				<groupId>com.rabbitmq</groupId>
 				<artifactId>amqp-client</artifactId>
-				<version>5.7.2</version>
+				<version>5.7.3</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -346,7 +346,7 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>3.3.1</version>
+				<version>3.4.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -568,7 +568,7 @@
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
 				<artifactId>Saxon-HE</artifactId>
-				<version>9.9.1-4</version>
+				<version>9.9.1-5</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -592,7 +592,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.18</version>
+				<version>1.19</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -622,7 +622,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.7</version>
+				<version>1.8</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -652,13 +652,13 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.9</version>
+				<version>4.5.10</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.11</version>
+				<version>4.4.12</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -736,7 +736,7 @@
 			<dependency>
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>fontbox</artifactId>
-				<version>2.0.16</version>
+				<version>2.0.17</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -760,7 +760,7 @@
 			<dependency>
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>pdfbox</artifactId>
-				<version>2.0.16</version>
+				<version>2.0.17</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -976,7 +976,7 @@
 			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
-				<version>2.3.28</version>
+				<version>2.3.29</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1156,19 +1156,19 @@
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-commons</artifactId>
-				<version>1.13.22.RELEASE</version>
+				<version>1.13.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-envers</artifactId>
-				<version>1.1.22.RELEASE</version>
+				<version>1.1.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
-				<version>1.11.22.RELEASE</version>
+				<version>1.11.23.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1198,73 +1198,73 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-webmvc</artifactId>
-				<version>4.3.24.RELEASE</version>
+				<version>4.3.25.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
