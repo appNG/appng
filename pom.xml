@@ -61,7 +61,6 @@
 		<appNG.authentication.version>1.11.2</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<esapi.version>2.2.0.0</esapi.version>
-		<!-- APPNG-2301 lets see if this works -->
 		<hibernate.version>5.4.8.Final</hibernate.version>
 		<jackson.version>2.10.1</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
@@ -1060,7 +1059,7 @@
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
-				<version>2.10.3</version>
+				<version>2.10.5</version>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>
