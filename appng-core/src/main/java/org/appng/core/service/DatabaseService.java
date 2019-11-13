@@ -77,8 +77,6 @@ public class DatabaseService extends MigrationService {
 			SiteApplication siteApplication, Datasource datasource, File sqlFolder, String databasePrefix) {
 		Site site = siteApplication.getSite();
 		Application application = siteApplication.getApplication();
-		DatasourceType type = datasource.getType();
-		DatabaseType databaseType = DatabaseType.valueOf(type.name());
 		LOGGER.info("connected to {} ({})", rootConnection.getJdbcUrl(), dbInfo);
 		try {
 			DatabaseConnection applicationConnection = createApplicationConnection(site, application, rootConnection,
@@ -87,18 +85,7 @@ public class DatabaseService extends MigrationService {
 			if (dataBaseExists(rootConnection, databaseName)) {
 				LOGGER.info("database '{}' already exists!", databaseName);
 			} else {
-				DataSource dataSource = getDataSource(rootConnection);
-				JdbcOperations operation = new JdbcTemplate(dataSource);
-				List<String> sqlScriptLines = getScript(databaseType, SCRIPT_INIT);
-				for (String statement : sqlScriptLines) {
-					String password = new String(applicationConnection.getPassword());
-					String sqlScript = StringUtils.replaceEach(statement,
-							new String[] { PARAM_DATABASE, PARAM_USER, PARAM_PASSWORD },
-							new String[] { databaseName, applicationConnection.getUserName(), password });
-					operation.execute(sqlScript);
-				}
-				LOGGER.info("created database at {}", applicationConnection.getJdbcUrl());
-				LOGGER.info("created user {}", applicationConnection.getUserName());
+				initApplicationConnection(applicationConnection, getDataSource(rootConnection));
 			}
 
 			siteApplication.setDatabaseConnection(applicationConnection);
@@ -107,6 +94,26 @@ public class DatabaseService extends MigrationService {
 			LOGGER.error("an error ocured while migrating the schema", e);
 		}
 		return MigrationStatus.ERROR;
+	}
+
+	protected void initApplicationConnection(DatabaseConnection applicationConnection, DataSource dataSource)
+			throws IOException, URISyntaxException {
+		executeSqlScript(applicationConnection, dataSource, SCRIPT_INIT);
+		LOGGER.info("created database at {}", applicationConnection.getJdbcUrl());
+		LOGGER.info("created user {}", applicationConnection.getUserName());
+	}
+
+	private void executeSqlScript(DatabaseConnection applicationConnection, DataSource dataSource, String scriptName)
+			throws IOException, URISyntaxException {
+		JdbcOperations operation = new JdbcTemplate(dataSource);
+		List<String> sqlScriptLines = getScript(applicationConnection.getType(), scriptName);
+		for (String statement : sqlScriptLines) {
+			String password = new String(applicationConnection.getPassword());
+			String sqlScript = StringUtils.replaceEach(statement,
+					new String[] { PARAM_DATABASE, PARAM_USER, PARAM_PASSWORD },
+					new String[] { applicationConnection.getName(), applicationConnection.getUserName(), password });
+			operation.execute(sqlScript);
+		}
 	}
 
 	private boolean dataBaseExists(DatabaseConnection databaseConnection, String databaseName) {
@@ -240,24 +247,13 @@ public class DatabaseService extends MigrationService {
 	}
 
 	MigrationStatus dropDataBaseAndUser(DatabaseConnection databaseConnection) {
-		DatabaseType type = databaseConnection.getType();
 		DatabaseConnection rootConnection = getRootConnectionOfType(databaseConnection.getType());
 		if (rootConnection.isManaged()) {
 			if (rootConnection.testConnection(null)) {
 				try {
 					DataSource dataSource = getDataSource(rootConnection.getJdbcUrl(), rootConnection.getUserName(),
 							new String(rootConnection.getPassword()));
-					JdbcOperations operation = new JdbcTemplate(dataSource);
-					String databaseName = databaseConnection.getName();
-					String user = databaseConnection.getUserName();
-					List<String> sqlScriptLines = getScript(type, SCRIPT_DROP);
-					for (String statement : sqlScriptLines) {
-						String sqlScript = StringUtils.replaceEach(statement,
-								new String[] { PARAM_DATABASE, PARAM_USER }, new String[] { databaseName, user });
-						operation.execute(sqlScript);
-					}
-					LOGGER.info("dropped database at {}", databaseConnection.getJdbcUrl());
-					LOGGER.info("dropped user  {}", user);
+					dropApplicationConnection(databaseConnection, dataSource);
 					return MigrationStatus.DB_MIGRATED;
 				} catch (Exception e) {
 					LOGGER.error(String.format("error while dropping database %s", databaseConnection.getName()), e);
@@ -270,6 +266,13 @@ public class DatabaseService extends MigrationService {
 			LOGGER.info("{} is not managed by appNG", databaseConnection);
 		}
 		return MigrationStatus.DB_SUPPORTED;
+	}
+
+	protected void dropApplicationConnection(DatabaseConnection databaseConnection, DataSource dataSource)
+			throws IOException, URISyntaxException {
+		executeSqlScript(databaseConnection, dataSource, SCRIPT_DROP);
+		LOGGER.info("dropped database at {}", databaseConnection.getJdbcUrl());
+		LOGGER.info("dropped user {}", databaseConnection.getUserName());
 	}
 
 	/**
