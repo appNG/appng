@@ -17,7 +17,6 @@ package org.appng.core.controller.filter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
@@ -55,7 +54,6 @@ import net.sf.ehcache.constructs.blocking.LockTimeoutException;
 import net.sf.ehcache.constructs.web.AlreadyCommittedException;
 import net.sf.ehcache.constructs.web.AlreadyGzippedException;
 import net.sf.ehcache.constructs.web.GenericResponseWrapper;
-import net.sf.ehcache.constructs.web.Header;
 import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.filter.CachingFilter;
 import net.sf.ehcache.constructs.web.filter.FilterNonReentrantException;
@@ -65,7 +63,6 @@ import net.sf.ehcache.constructs.web.filter.FilterNonReentrantException;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class PageCacheFilter extends CachingFilter {
@@ -113,8 +110,7 @@ public class PageCacheFilter extends CachingFilter {
 					throw new AlreadyCommittedException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
-				Optional<Header<? extends Serializable>> lastModified = pageInfo.getHeaders().stream()
-						.filter(h -> h.getName().equalsIgnoreCase(HttpHeaders.LAST_MODIFIED)).findFirst();
+				Optional<String> lastModified = Optional.ofNullable(response.getHeader(HttpHeaders.LAST_MODIFIED));
 				boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
 
 				if (hasModifiedSince && lastModified.isPresent()) {
@@ -127,18 +123,19 @@ public class PageCacheFilter extends CachingFilter {
 		} catch (CacheException e) {
 			LOGGER.warn(String.format("error while adding/retrieving from/to cache: %s", calculateKey(request)), e);
 		} catch (ClientAbortException e) {
-			if(LOGGER.isDebugEnabled()) {
+			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug(String.format("client aborted request: %s", calculateKey(request)), e);
 			}
 		}
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
-			PageInfo pageInfo, Optional<Header<? extends Serializable>> lastModified) throws IOException {
+			PageInfo pageInfo, Optional<String> lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
 			public long update() throws IOException {
-				return CacheHeaderUtils.getDate((String) lastModified.get().getValue()).getTime();
+				Date date = CacheHeaderUtils.getDate(lastModified.get());
+				return null == date ? System.currentTimeMillis() : date.getTime();
 			}
 
 			public boolean needsUpdate() {
