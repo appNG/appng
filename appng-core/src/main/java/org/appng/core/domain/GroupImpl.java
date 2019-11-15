@@ -60,7 +60,7 @@ public class GroupImpl implements Group, Auditable<Integer> {
 	private Set<Role> applicationRoles = new HashSet<>();
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
