@@ -114,7 +114,7 @@ public class PageCacheFilter extends CachingFilter {
 				boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
 
 				if (hasModifiedSince && lastModified.isPresent()) {
-					handleLastModified(request, response, pageInfo, lastModified);
+					handleLastModified(request, response, pageInfo, lastModified.get());
 				} else {
 					writeResponse(request, response, pageInfo);
 				}
@@ -130,11 +130,11 @@ public class PageCacheFilter extends CachingFilter {
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
-			PageInfo pageInfo, Optional<String> lastModified) throws IOException {
+			PageInfo pageInfo, String lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
 			public long update() throws IOException {
-				Date date = CacheHeaderUtils.getDate(lastModified.get());
+				Date date = CacheHeaderUtils.getDate(lastModified);
 				return null == date ? System.currentTimeMillis() : date.getTime();
 			}
 
