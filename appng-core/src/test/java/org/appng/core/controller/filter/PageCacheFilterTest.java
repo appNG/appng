@@ -16,9 +16,7 @@
 package org.appng.core.controller.filter;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.DataFormatException;
 
@@ -41,7 +39,6 @@ import org.springframework.mock.web.MockServletContext;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
-import net.sf.ehcache.constructs.web.Header;
 import net.sf.ehcache.constructs.web.PageInfo;
 import net.sf.ehcache.constructs.web.ResponseHeadersNotModifiableException;
 
@@ -62,9 +59,8 @@ public class PageCacheFilterTest {
 			protected PageInfo buildPage(HttpServletRequest request,
 					HttpServletResponse response, FilterChain chain, BlockingCache blockingCache)
 					throws net.sf.ehcache.constructs.web.AlreadyGzippedException, Exception {
-				List<Header<? extends Serializable>> headers = new ArrayList<>();
-				headers.add(new Header<String>(HttpHeaders.LAST_MODIFIED, modifiedDate));
-				return new PageInfo(200, "text/plain", new ArrayList<>(), content.getBytes(), false, 1800, headers);
+				response.addHeader(HttpHeaders.LAST_MODIFIED, modifiedDate);
+				return new PageInfo(200, "text/plain", new ArrayList<>(), content.getBytes(), false, 1800, null);
 			};
 
 			@Override
@@ -87,8 +83,7 @@ public class PageCacheFilterTest {
 		PageInfo pageInfo = pageCacheFilter.buildPageInfo(req, resp, chain, cache);
 
 		Assert.assertEquals(pageInfo, actual.get());
-		Assert.assertEquals(modifiedDate, actual.get().getHeaders().stream()
-				.filter(h -> h.getName().equals(HttpHeaders.LAST_MODIFIED)).findFirst().get().getValue());
+		Assert.assertEquals(modifiedDate, resp.getHeader(HttpHeaders.LAST_MODIFIED));
 		pageCacheFilter.handleCaching(req, resp, Mockito.mock(Site.class), chain, cache);
 		Assert.assertEquals(HttpStatus.OK.value(), resp.getStatus());
 		Assert.assertEquals(content.length(), resp.getContentLength());
