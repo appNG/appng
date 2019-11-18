@@ -1,0 +1,16 @@
+== Caching
+
+Caching is provided by http://www.ehcache.org[Ehcache^].
+
+A central configuration file is used to configure Ehcache. The location of this file is specified by the platform property `ehcacheConfig` 
+(see {manager-guide}#platform-properties[Platform properties^]).
+
+Also check out the section about caching in the {manager-guide}#caching[Manager User Manual^].
+
+The site-scoped properties to configure caching are (see {manager-guide}#configuring-site-properties[Configuring site properties^] for details):
+
+* `ehcacheEnabled`
+* `ehcacheExceptions`
+* `ehcacheBlockingTimeout`
+* `ehcacheStatistics`
+* `ehcacheClearOnShutdown`

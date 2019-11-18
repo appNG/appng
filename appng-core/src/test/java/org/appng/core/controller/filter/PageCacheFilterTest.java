@@ -62,8 +62,7 @@ public class PageCacheFilterTest {
 					final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
-				HttpHeaders headers = new HttpHeaders();
-				headers.add(HttpHeaders.LAST_MODIFIED, modifiedDate);
+				response.addHeader(HttpHeaders.LAST_MODIFIED, modifiedDate);
 				return new CachedResponse("GET/" + req.getServletPath(), site, request, 200, "text/plain",
 						content.getBytes(), headers, 1800);
 			};
@@ -97,6 +96,7 @@ public class PageCacheFilterTest {
 		// test gzip
 		req.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
 		pageCacheFilter.handleCaching(req, resp, site, chain, cache, null);
+
 		Assert.assertEquals(HttpStatus.OK.value(), resp.getStatus());
 		Assert.assertEquals(26, resp.getContentLength());
 		Mockito.verify(chain, Mockito.times(2)).doFilter(Mockito.any(), Mockito.eq(resp));

@@ -106,7 +106,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private AtomicInteger requests = new AtomicInteger(0);
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}

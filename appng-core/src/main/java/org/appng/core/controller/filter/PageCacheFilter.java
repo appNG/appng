@@ -135,12 +135,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					throw new ServletException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
-				long lastModified = pageInfo.getHeaders().getLastModified();
-
+				Optional<String> lastModified = Optional.ofNullable(response.getHeader(HttpHeaders.LAST_MODIFIED));
 				boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
 
-				if (hasModifiedSince && lastModified > 0) {
-					handleLastModified(request, response, pageInfo, lastModified);
+				if (hasModifiedSince && lastModified.isPresent()) {
+					handleLastModified(request, response, pageInfo, lastModified.get());
 				} else {
 					writeResponse(request, response, pageInfo);
 				}
@@ -193,8 +192,9 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			CachedResponse pageInfo, long lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
-			public long update() throws IOException {
-				return new Date(lastModified).getTime();
+      public long update() throws IOException {
+				Date date = CacheHeaderUtils.getDate(lastModified);
+				return null == date ? System.currentTimeMillis() : date.getTime();
 			}
 
 			public boolean needsUpdate() {

@@ -96,7 +96,7 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 	private List<ApplicationSubject> applicationSubjects;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}

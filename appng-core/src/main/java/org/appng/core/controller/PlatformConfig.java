@@ -116,7 +116,6 @@ public class PlatformConfig {
 		lcemfb.setPersistenceUnitName("appNG");
 		lcemfb.setDataSource(dataSource);
 		Properties jpaProperties = new Properties();
-		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
 		jpaProperties.put(AvailableSettings.DIALECT, dialect);
 		lcemfb.setJpaProperties(jpaProperties);
 		lcemfb.setPackagesToScan("org.appng.core.domain");
