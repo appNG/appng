@@ -123,29 +123,6 @@ public class SiteProperties {
 	/** Whether or not the cache is cleared on a site shutdown/reload */
 	public static final String CACHE_CLEAR_ON_SHUTDOWN = "cacheClearOnShutdown";
 
-	/** @deprecated use {@link #CACHE_ENABLED} */
-	@Deprecated
-	public static final String EHCACHE_ENABLED = CACHE_ENABLED;
-	
-	/** @deprecated use {@link #CACHE_EXCEPTIONS} */
-	@Deprecated
-	public static final String EHCACHE_EXCEPTIONS = CACHE_EXCEPTIONS;
-	
-	/** @deprecated use {@link #CACHE_STATISTICS} */
-	@Deprecated
-	public static final String EHCACHE_STATISTICS = CACHE_STATISTICS;
-	
-	/** @deprecated use {@link #CACHE_CLEAR_ON_SHUTDOWN} */
-	@Deprecated
-	public static final String EHCACHE_CLEAR_ON_SHUTDOWN = CACHE_CLEAR_ON_SHUTDOWN;
-	
-	/** @deprecated use {@link #CACHE_WATCH_REPOSITORY} */
-	@Deprecated
-	public static final String EHCACHE_WATCH_REPOSITORY = CACHE_WATCH_REPOSITORY;
-	
-	/** @deprecated use {@link #CACHE_WATCHER_RULE_SOURCE_SUFFIX} */
-	@Deprecated
-	public static final String EHCACHE_WATCHER_RULE_SOURCE_SUFFIX = CACHE_WATCHER_RULE_SOURCE_SUFFIX;
 	/** Set to true to enforce the protocol used by the site (http or https) */
 	public static final String ENFORCE_PRIMARY_DOMAIN = "enforcePrimaryDomain";
 	/** The name of the default error-page (without extension) relative to {@link #WWW_DIR} */

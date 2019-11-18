@@ -151,9 +151,6 @@ public final class Platform {
 		public static final String DEV_MODE = "devMode";
 		/** The charset/encoding used for http-responses. */
 		public static final String ENCODING = "encoding";
-		/** @deprecated use {@link #CACHE_CONFIG} */
-		@Deprecated
-		public static final String EHCACHE_CONFIG = CACHE_CONFIG;
 		/** Set to 'true' if applications should be deployed to the local filesystem, 'false' otherwise. */
 		public static final String FILEBASED_DEPLOYMENT = "filebasedDeployment";
 		/** Disable for production use. If enabled, debugging is easier, but Textarea values are formatted wrong. */
