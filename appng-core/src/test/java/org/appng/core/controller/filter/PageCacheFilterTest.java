@@ -65,7 +65,7 @@ public class PageCacheFilterTest {
 				chain.doFilter(request, response);
 				response.addHeader(HttpHeaders.LAST_MODIFIED, modifiedDate);
 				return new CachedResponse("GET/" + req.getServletPath(), site, request, 200, "text/plain",
-						content.getBytes(), null, 1800);
+						content.getBytes(), new HttpHeaders(), 1800);
 			};
 
 			@Override
@@ -92,8 +92,8 @@ public class PageCacheFilterTest {
 		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(pageInfo, actual.get());
-		long dateAsMillis = 1522227852000L;
-		Assert.assertEquals(dateAsMillis, actual.get().getHeaders().getLastModified());
+		Assert.assertEquals(modifiedDate, resp.getHeader(HttpHeaders.LAST_MODIFIED));
+		Assert.assertEquals(1522227852000L, resp.getDateHeader(HttpHeaders.LAST_MODIFIED));
 
 		// test gzip
 		req.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
