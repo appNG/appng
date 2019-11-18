@@ -104,6 +104,8 @@ public class SiteProperties {
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
 	/** The cache timeouts as a multi-lined property, key=value */
 	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
+	/** Use Ant-style path matching for {@link #CACHE_TIMEOUTS}? */
+	public static final String CACHE_TIMEOUTS_ANT_STYLE = "cacheTimeoutsAntStyle";
 	/** The time a cache entry lives, in seconds */
 	public static final String CACHE_TIME_TO_LIVE = "cacheTimeToLive";
 	/** Set to true to enable caching statistics */

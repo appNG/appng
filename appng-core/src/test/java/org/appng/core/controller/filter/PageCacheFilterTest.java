@@ -58,18 +58,19 @@ public class PageCacheFilterTest {
 		String content = "foobar";
 		PageCacheFilter pageCacheFilter = new PageCacheFilter() {
 			@Override
-			protected CachedResponse performRequest(final HttpServletRequest request, final HttpServletResponse response,
-					final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
+			protected CachedResponse performRequest(final HttpServletRequest request,
+					final HttpServletResponse response, final FilterChain chain, Site site,
+					Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
 				response.addHeader(HttpHeaders.LAST_MODIFIED, modifiedDate);
 				return new CachedResponse("GET/" + req.getServletPath(), site, request, 200, "text/plain",
-						content.getBytes(), headers, 1800);
+						content.getBytes(), null, 1800);
 			};
 
 			@Override
-			protected void writeResponse(HttpServletRequest request, HttpServletResponse response, CachedResponse pageInfo)
-					throws IOException {
+			protected void writeResponse(HttpServletRequest request, HttpServletResponse response,
+					CachedResponse pageInfo) throws IOException {
 				if ("/aborted".equals(request.getServletPath())) {
 					throw new ClientAbortException("aborted!");
 				}
@@ -83,8 +84,9 @@ public class PageCacheFilterTest {
 				actual.set(element);
 				return null;
 			}
-		}).when(cache).put(Mockito.any(String.class), Mockito.any(CachedResponse.class), Mockito.any(ExpiryPolicy.class));
-		
+		}).when(cache).put(Mockito.any(String.class), Mockito.any(CachedResponse.class),
+				Mockito.any(ExpiryPolicy.class));
+
 		Site site = Mockito.mock(Site.class);
 
 		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
@@ -96,7 +98,6 @@ public class PageCacheFilterTest {
 		// test gzip
 		req.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
 		pageCacheFilter.handleCaching(req, resp, site, chain, cache, null);
-
 		Assert.assertEquals(HttpStatus.OK.value(), resp.getStatus());
 		Assert.assertEquals(26, resp.getContentLength());
 		Mockito.verify(chain, Mockito.times(2)).doFilter(Mockito.any(), Mockito.eq(resp));
@@ -138,26 +139,58 @@ public class PageCacheFilterTest {
 		Integer oneHour = Integer.valueOf(3600);
 		Properties cachingTimes = new Properties();
 		String servletPath = "/foo/bar/lore/ipsum";
-		
-		Integer expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, servletPath, defaultCacheTime);
+
+		Integer expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath,
+				defaultCacheTime);
 		Assert.assertEquals(defaultCacheTime, expireAfterSeconds);
-		
+
 		cachingTimes.put("", oneMin);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, servletPath, defaultCacheTime);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
 		Assert.assertEquals(oneMin, expireAfterSeconds);
 
 		cachingTimes.put(servletPath, oneMin);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, servletPath, defaultCacheTime);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
 		Assert.assertEquals(oneMin, expireAfterSeconds);
 
 		cachingTimes.clear();
 		cachingTimes.put("/foo/bar/lore", tenMins);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, servletPath, defaultCacheTime);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
 		Assert.assertEquals(tenMins, expireAfterSeconds);
 
 		cachingTimes.clear();
 		cachingTimes.put("/foo", oneHour);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, servletPath, defaultCacheTime);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
+		Assert.assertEquals(oneHour, expireAfterSeconds);
+	}
+
+	@Test
+	public void testGetExpireAfterSecondsAntStyle() {
+		Integer defaultCacheTime = Integer.valueOf(1800);
+		Integer oneMin = Integer.valueOf(60);
+		Integer tenMins = Integer.valueOf(600);
+		Integer oneHour = Integer.valueOf(3600);
+		Properties cachingTimes = new Properties();
+		String servletPath = "/foo/bar/lore/ipsum";
+
+		Integer expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath,
+				defaultCacheTime);
+		Assert.assertEquals(defaultCacheTime, expireAfterSeconds);
+
+		cachingTimes.put("/**", oneMin);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
+		Assert.assertEquals(oneMin, expireAfterSeconds);
+
+		cachingTimes.put(servletPath, oneMin);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
+		Assert.assertEquals(oneMin, expireAfterSeconds);
+
+		cachingTimes.clear();
+		cachingTimes.put("/foo/bar/lore/**", tenMins);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
+		Assert.assertEquals(tenMins, expireAfterSeconds);
+		cachingTimes.clear();
+		cachingTimes.put("/foo/**", oneHour);
+		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
 		Assert.assertEquals(oneHour, expireAfterSeconds);
 	}
 

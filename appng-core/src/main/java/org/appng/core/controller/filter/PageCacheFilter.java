@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +56,7 @@ import org.appng.core.service.CacheService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.AntPathMatcher;
 import org.tuckey.web.filters.urlrewrite.gzip.GenericResponseWrapper;
 import org.tuckey.web.filters.urlrewrite.gzip.ResponseUtil;
 
@@ -63,7 +65,7 @@ import com.hazelcast.cache.ICache;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link Filter} which caches responses in form of an AppngCacheElement
+ * A {@link Filter} which caches responses in form of an {@link CachedResponse}
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
@@ -109,8 +111,10 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					String exceptions = siteProps.getClob(SiteProperties.CACHE_EXCEPTIONS);
 					isException = isException(exceptions, servletPath);
 					Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
+					boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE, true);
 					Integer expireAfterSeconds = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-					expireAfterSeconds = getExpireAfterSeconds(cacheTimeouts, servletPath, expireAfterSeconds);
+					expireAfterSeconds = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath,
+							expireAfterSeconds);
 					expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, expireAfterSeconds));
 				}
 			} else {
@@ -189,10 +193,10 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
-			CachedResponse pageInfo, long lastModified) throws IOException {
+			CachedResponse pageInfo, String lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
-      public long update() throws IOException {
+			public long update() throws IOException {
 				Date date = CacheHeaderUtils.getDate(lastModified);
 				return null == date ? System.currentTimeMillis() : date.getTime();
 			}
@@ -234,14 +238,15 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			if (cachedResponse.isOk()) {
 				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
 				if (LOGGER.isDebugEnabled()) {
-					Duration duration = expiryPolicy == null ? null : expiryPolicy.getExpiryForAccess();
+					Duration duration = expiryPolicy == null ? null : expiryPolicy.getExpiryForCreation();
 					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, policy: {})", cache.getName(), key,
-							cachedResponse.getContentType(), size, duration == null ? null : duration.getDurationAmount());
+							cachedResponse.getContentType(), size,
+							duration == null ? null : duration.getDurationAmount());
 				}
 			} else {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("PageInfo was not ok (status: {}, size: {}) for key {}", cachedResponse.getStatus(), size,
-							key);
+					LOGGER.debug("PageInfo was not ok (status: {}, size: {}) for key {}", cachedResponse.getStatus(),
+							size, key);
 				}
 			}
 		} else {
@@ -290,19 +295,33 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		return false;
 	}
 
-	static Integer getExpireAfterSeconds(Properties cachingTimes, String servletPath, Integer defaultValue) {
+	static Integer getExpireAfterSeconds(Properties cachingTimes, boolean antStylePathMatching, String servletPath,
+			Integer defaultValue) {
 		if (null != cachingTimes && !cachingTimes.isEmpty()) {
-			String[] pathSegements = servletPath.split(Path.SEPARATOR);
-			int len = pathSegements.length;
-			while (len > 0) {
-				String segment = StringUtils.join(Arrays.copyOfRange(pathSegements, 0, len--), Path.SEPARATOR);
-				Object entry = cachingTimes.get(segment);
-				if (null != entry) {
-					return Integer.valueOf(entry.toString().trim());
+			if (antStylePathMatching) {
+				for (Object path : cachingTimes.keySet()) {
+					AntPathMatcher matcher = new AntPathMatcher();
+					if (matcher.match(path.toString(), servletPath)) {
+						Object entry = cachingTimes.get(path);
+						return Integer.valueOf(entry.toString().trim());
+					}
+
+				}
+			} else {
+				String[] pathSegements = servletPath.split(Path.SEPARATOR);
+				int len = pathSegements.length;
+				while (len > 0) {
+					String segment = StringUtils.join(Arrays.copyOfRange(pathSegements, 0, len--), Path.SEPARATOR);
+					Object entry = cachingTimes.get(segment);
+					if (null != entry) {
+						return Integer.valueOf(entry.toString().trim());
+					}
 				}
 			}
 		}
+
 		return defaultValue;
+
 	}
 
 	protected String calculateKey(final HttpServletRequest request) {
