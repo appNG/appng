@@ -46,6 +46,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
+import javax.cache.CacheManager;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FileUtils;
@@ -112,10 +113,9 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.constructs.blocking.BlockingCache;
 
 /**
  * A service responsible for initializing the appNG platform with all active {@link Site}s.
@@ -202,10 +202,10 @@ public class InitializerService {
 		startSiteThread(site, "appng-indexthread-" + site.getName(), THREAD_PRIORITY_LOW, documentIndexer);
 	}
 
-	private void startRepositoryWatcher(Site site, boolean ehcacheEnabled, String jspType) {
-		if (ehcacheEnabled && site.getProperties().getBoolean(SiteProperties.EHCACHE_WATCH_REPOSITORY, false)) {
-			String watcherRuleSourceSuffix = site.getProperties().getString(
-					SiteProperties.EHCACHE_WATCHER_RULE_SOURCE_SUFFIX, RepositoryWatcher.DEFAULT_RULE_SUFFIX);
+	private void startRepositoryWatcher(Site site, boolean cacheEnabled, String jspType) {
+		if (cacheEnabled && site.getProperties().getBoolean(SiteProperties.CACHE_WATCH_REPOSITORY, false)) {
+			String watcherRuleSourceSuffix = site.getProperties()
+					.getString(SiteProperties.CACHE_WATCHER_RULE_SOURCE_SUFFIX, RepositoryWatcher.DEFAULT_RULE_SUFFIX);
 			String threadName = String.format("appng-repositoryWatcher-%s", site.getName());
 			RepositoryWatcher repositoryWatcher = new RepositoryWatcher(site, jspType, watcherRuleSourceSuffix);
 			startSiteThread(site, threadName, THREAD_PRIORITY_LOW, repositoryWatcher);
@@ -241,7 +241,8 @@ public class InitializerService {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
 		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
-				true);
+				true, false);
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -256,9 +257,10 @@ public class InitializerService {
 		}
 
 		RepositoryCacheFactory.init(platformConfig);
+		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
+		CacheService.createCacheManager(hazelcast);
 
-		File ehcacheConfig = platformConfig.getCacheConfig();
-		CacheManager cacheManager = CacheManager.create(ehcacheConfig.getPath());
+		CacheManager cacheManager = CacheService.getCacheManager();
 
 		File uploadDir = platformConfig.getUploadDir();
 		if (!uploadDir.exists()) {
@@ -269,7 +271,6 @@ public class InitializerService {
 			}
 		}
 
-		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		Messaging.createMessageSender(env, executor);
 
 		File applicationRootFolder = platformConfig.getApplicationDir();
@@ -312,7 +313,7 @@ public class InitializerService {
 		if (0 == activeSites) {
 			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
 		}
-		LOGGER.info("Current Ehcache configuration:\n{}", cacheManager.getActiveConfigurationText());
+		LOGGER.info("Current cache configuration:\n{}", cacheManager.getProperties());
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
@@ -377,6 +378,7 @@ public class InitializerService {
 			}
 			LOGGER.info("done watching for reload file.");
 		}
+
 	}
 
 	private void logHeaderMessage(String message) {
@@ -476,9 +478,11 @@ public class InitializerService {
 
 		SiteImpl site = siteToLoad;
 		Site currentSite = siteMap.get(site.getName());
-		if (null != currentSite) {
+		boolean isReload = null != currentSite;
+		if (isReload) {
 			LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
 			shutDownSite(env, currentSite);
+			site.setReloadCount(site.getReloadCount() + 1);
 		}
 
 		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
@@ -509,13 +513,11 @@ public class InitializerService {
 		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 		cacheProvider.clearCache(site);
 
-		// ehcache
-		Integer ehcacheBlockingTimeout = site.getProperties().getInteger(SiteProperties.EHCACHE_BLOCKING_TIMEOUT);
-		BlockingCache cache = CacheService.getBlockingCache(site, ehcacheBlockingTimeout);
-		Boolean ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
-		cache.setDisabled(!ehcacheEnabled);
-		Boolean ehcacheStatistics = site.getProperties().getBoolean(SiteProperties.EHCACHE_STATISTICS);
-		cache.setStatisticsEnabled(ehcacheStatistics);
+		// cache
+		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
+		if (cacheEnabled) {
+			CacheService.createCache(site);
+		}
 
 		Properties siteProps = site.getProperties();
 		String siteRoot = siteProps.getString(SiteProperties.SITE_ROOT_DIR);
@@ -659,7 +661,7 @@ public class InitializerService {
 		}
 
 		startIndexThread(site, documentIndexer);
-		startRepositoryWatcher(site, ehcacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
+		startRepositoryWatcher(site, cacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
 
 		String datasourceConfigurerName = siteProps.getString(SiteProperties.DATASOURCE_CONFIGURER);
 		try {
@@ -668,6 +670,9 @@ public class InitializerService {
 			throw new InvalidConfigurationException(site, null,
 					"error while loading class " + datasourceConfigurerName);
 		}
+
+		org.springframework.cache.CacheManager platformCacheManager = platformContext
+				.getBean(org.springframework.cache.CacheManager.class);
 
 		// Step 2: Build application context
 		Set<ApplicationProvider> validApplications = new HashSet<>();
@@ -706,7 +711,7 @@ public class InitializerService {
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
 				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
-						application.getDatabaseConnection(), dictionaryNames);
+						application.getDatabaseConnection(), platformCacheManager, dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
 				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
@@ -755,9 +760,6 @@ public class InitializerService {
 
 		PlatformTransformer.clearCache();
 		coreService.setSiteStartUpTime(site, new Date());
-		if (sendReloadEvent) {
-			site.sendEvent(new ReloadSiteEvent(site.getName()));
-		}
 
 		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
 			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
@@ -769,6 +771,13 @@ public class InitializerService {
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
 		auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
+
+		if (sendReloadEvent) {
+			site.sendEvent(new ReloadSiteEvent(site.getName()));
+			if (isReload) {
+				getCoreService().setSiteReloadCount(site);
+			}
+		}
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {

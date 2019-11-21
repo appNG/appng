@@ -93,26 +93,36 @@ public class SiteProperties {
 	 * resources like CSS or JavaScript files
 	 */
 	public static final String DOCUMENT_DIR = "documentDir";
-	/** Set to true to enable Ehcache for this site */
-	public static final String EHCACHE_ENABLED = "ehcacheEnabled";
-	/** URL path prefixes which are never cached. Contains one prefix per line (CLOB value). */
-	public static final String EHCACHE_EXCEPTIONS = "ehcacheExceptions";
+	/** Set to true to enable caching for this site */
+	public static final String CACHE_ENABLED = "cacheEnabled";
 	/**
-	 * The time, in milliseconds, to wait for the filter before a
-	 * {@code net.sf.ehcache.constructs.blocking.LockTimeoutException} is thrown
+	 * URL path prefixes which are never cached. Contains one prefix per line (CLOB
+	 * value).
 	 */
-	public static final String EHCACHE_BLOCKING_TIMEOUT = "ehcacheBlockingTimeout";
-	/** Set to true to enable Ehcache statistics */
-	public static final String EHCACHE_STATISTICS = "ehcacheStatistics";
+	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
+	/** @deprecated no more used */
+	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
+	/** The cache timeouts as a multi-lined property, key=value */
+	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
+	/** Use Ant-style path matching for {@link #CACHE_TIMEOUTS}? */
+	public static final String CACHE_TIMEOUTS_ANT_STYLE = "cacheTimeoutsAntStyle";
+	/** The time a cache entry lives, in seconds */
+	public static final String CACHE_TIME_TO_LIVE = "cacheTimeToLive";
+	/** Set to true to enable caching statistics */
+	public static final String CACHE_STATISTICS = "cacheStatistics";
 	/**
-	 * The suffix to be removed from a <rule><from> element when parsing the rules from urlrewrite.xml for the
-	 * repository watchers
+	 * The suffix to be removed from a <rule><from> element when parsing the rules
+	 * from urlrewrite.xml for the repository watchers
 	 */
-	public static final String EHCACHE_WATCHER_RULE_SOURCE_SUFFIX = "ehcacheWatcherRuleSourceSuffix";
-	/** Whether or not to watch the repository folder for changes and invalidate cache elements, if necessary */
-	public static final String EHCACHE_WATCH_REPOSITORY = "ehcacheWatchRepository";
-	/** Whether or not the Ehcache is cleared on a site shutdown/reload */
-	public static final String EHCACHE_CLEAR_ON_SHUTDOWN = "ehcacheClearOnShutdown";
+	public static final String CACHE_WATCHER_RULE_SOURCE_SUFFIX = "cacheWatcherRuleSourceSuffix";
+	/**
+	 * Whether or not to watch the repository folder for changes and invalidate
+	 * cache elements, if necessary
+	 */
+	public static final String CACHE_WATCH_REPOSITORY = "cacheWatchRepository";
+	/** Whether or not the cache is cleared on a site shutdown/reload */
+	public static final String CACHE_CLEAR_ON_SHUTDOWN = "cacheClearOnShutdown";
+
 	/** Set to true to enforce the protocol used by the site (http or https) */
 	public static final String ENFORCE_PRIMARY_DOMAIN = "enforcePrimaryDomain";
 	/** The name of the default error-page (without extension) relative to {@link #WWW_DIR} */
@@ -191,6 +201,7 @@ public class SiteProperties {
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";
+
 
 	private SiteProperties() {
 

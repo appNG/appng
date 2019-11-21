@@ -16,29 +16,22 @@
 package org.appng.appngizer.controller;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.appng.api.BusinessException;
 import org.appng.api.Environment;
-import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
-import org.appng.api.messaging.Event;
-import org.appng.api.messaging.EventHandler;
-import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
-import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.core.controller.messaging.HazelcastReceiver;
+import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.SiteImpl;
+import org.appng.core.model.CacheProvider;
 import org.appng.core.model.RepositoryCacheFactory;
+import org.appng.core.service.PropertySupport;
+import org.flywaydb.core.api.MigrationInfo;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,17 +41,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-public class Home extends ControllerBase implements InitializingBean, DisposableBean {
+public class Home extends ControllerBase implements InitializingBean {
 
+	private static final String HAZELCAST_CONFIG = "../appNGizer/WEB-INF/conf/hazelcast-client.xml";
 	static final String AUTHORIZED = "authorized";
 	static final String ROOT = "/";
-	ExecutorService executor;
 
 	@PostMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> login(@RequestBody String sharedSecret,
@@ -76,6 +67,7 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 
 	@GetMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> welcome() {
+		initMessaging();
 		String appngVersion = (String) context.getAttribute(AppNGizer.APPNG_VERSION);
 		boolean dbInitialized = getDatabaseStatus() != null;
 		org.appng.appngizer.model.Home entity = new org.appng.appngizer.model.Home(appngVersion, dbInitialized,
@@ -88,64 +80,40 @@ public class Home extends ControllerBase implements InitializingBean, Disposable
 		return LOGGER;
 	}
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		java.util.Properties props = configurer.getProps();
-		if (null == getDatabaseStatus()) {
+		PropertyImpl receiverClass = coreService
+				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_RECEIVER);
+		if (null != receiverClass && HazelcastReceiver.class.getName().equals(receiverClass.getString())) {
+			String cacheConfig = PropertySupport.PREFIX_PLATFORM + Platform.Property.CACHE_CONFIG;
+			props.put(cacheConfig, HAZELCAST_CONFIG);
+			logger().info("Detected {}, using configuration {} for {}", receiverClass.getString(), HAZELCAST_CONFIG,
+					cacheConfig);
+		}
+		MigrationInfo databaseStatus = getDatabaseStatus();
+		if (null == databaseStatus) {
 			logger().info("database is not initialized, must initialize first");
 			databaseService.initDatabase(props);
+		} else {
+			logger().info("Database is at version {} ({}).", databaseStatus.getVersion().getVersion(),
+					databaseStatus.getDescription());
 		}
 		Environment env = DefaultEnvironment.get(context);
 		Properties platformConfig = initPlatform(props, env);
-		initMessaging(env);
 		RepositoryCacheFactory.init(platformConfig);
-	}
-
-	protected void initMessaging(Environment env) {
-		ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
-		ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
-		executor = Executors.newSingleThreadExecutor(threadFactory);
-
-		// TODO decide which events can be handled by appNGizer and create an EventHandler for them
-
-		EventHandler<Event> defaultHandler = new EventHandler<Event>() {
-
-			public void onEvent(Event event, Environment environment, org.appng.api.model.Site site)
-					throws InvalidConfigurationException, BusinessException {
-				logger().info("received: {}", event);
-			}
-
-			public Class<Event> getEventClass() {
-				return Event.class;
-			}
-		};
-
-		String nodeId = Messaging.getNodeId(env) + "_appNGizer";
-		Messaging.createMessageSender(env, executor, nodeId, defaultHandler, null);
 	}
 
 	protected Properties initPlatform(java.util.Properties defaultOverrides, Environment env) {
 		String rootPath = (String) context.getAttribute(AppNGizer.APPNG_HOME);
-		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, false);
+		Properties platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, false, true);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
-
-		Map<String, org.appng.api.model.Site> siteMap = new HashMap<>();
-		for (SiteImpl site : getCoreService().getSites()) {
-			if (site.isActive()) {
-				SiteImpl s = getCoreService().getSite(site.getId());
-				SiteClassLoader siteClassLoader = new SiteClassLoader(site.getName());
-				s.setSiteClassLoader(siteClassLoader);
-				siteMap.put(site.getName(), s);
-			}
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
+		CacheProvider cacheProvider = new CacheProvider(platformConfig);
+		for (SiteImpl s : getCoreService().getSites()) {
+			updateSiteMap(env, cacheProvider, s.getName(), s.isActive());
 		}
-		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 		return platformConfig;
-	}
-
-	public void destroy() throws Exception {
-		List<Runnable> shutdownNow = executor.shutdownNow();
-		for (Runnable runnable : shutdownNow) {
-			logger().info(runnable.toString());
-		}
 	}
 
 }

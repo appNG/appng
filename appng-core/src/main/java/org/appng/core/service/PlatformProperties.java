@@ -1,15 +1,24 @@
 package org.appng.core.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PlatformProperties implements Properties {
 
 	public static PlatformProperties get(Environment env) {
@@ -106,8 +115,17 @@ public class PlatformProperties implements Properties {
 		return properties.getDescriptionFor(name);
 	}
 
-	public File getCacheConfig() {
-		return getAbsoluteFile(Platform.Property.EHCACHE_CONFIG);
+	public InputStream getCacheConfig() throws IOException {
+		String cacheConfig = getClob(Platform.Property.CACHE_CONFIG);
+		if (StringUtils.isNotBlank(cacheConfig)) {
+			LOGGER.info("Reading cache config from property {}", Platform.Property.CACHE_CONFIG);
+			return new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8));
+		} else {
+			File cacheConfigFile = getAbsoluteFile(Platform.Property.CACHE_CONFIG);
+			LOGGER.info("Reading caching config from {}", cacheConfigFile);
+			return new FileInputStream(cacheConfigFile);
+		}
+
 	}
 
 	public File getUploadDir() {

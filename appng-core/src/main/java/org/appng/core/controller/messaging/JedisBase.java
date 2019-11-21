@@ -34,7 +34,7 @@ public class JedisBase {
 	protected static final String REDIS_MESSAGING_TIMEOUT = "redisMessagingTimeout";
 	protected static final String REDIS_MESSAGING_HOST = "redisMessagingHost";
 	protected static final String REDIS_MESSAGING_PORT = "redisMessagingPort";
-	
+
 	protected Serializer eventSerializer;
 	protected String host;
 	protected String channel;

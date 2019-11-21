@@ -25,5 +25,7 @@
 	<bean id="request" class="org.appng.api.support.RequestFactoryBean" scope="request" />
 	
 	<bean id="selectionFactory" class="org.appng.api.support.SelectionFactory" />
+	
+	<bean id="cacheManager" class="org.appng.core.model.ApplicationCacheManager" />
 
 </beans>
