@@ -10,7 +10,7 @@ Caching is provided by https://hazelcast.org/[Hazelcast^].
 A central configuration file is used to configure Hazelcast. The location of this file is specified by the platform property `cacheConfig` 
 (see {manager-guide}#platform-properties[Platform properties^]).
 
-Usually, `cacheConfig` points to `conf/hazelcast.xml`, which might look as follows for multicast replication:
+Usually, `cacheConfig` points to `WEB-INF/conf/hazelcast.xml`, which might look as follows for multicast replication:
 [source, xml]
 ----
 include::listing/hazelcast.xml[]
