@@ -188,11 +188,14 @@ public class CoreService {
 	}
 
 	public PropertyHolder getPlatformProperties() {
-		return getPlatform(true);
+		return getPlatform(true,false);
 	}
 
-	protected PropertyHolder getPlatform(boolean finalize) {
+	protected PropertyHolder getPlatform(boolean finalize, boolean detached) {
 		Iterable<PropertyImpl> properties = getPlatformPropertiesList(null);
+		if (detached) {
+			properties.forEach(p -> propertyRepository.detach(p));
+		}
 		PropertyHolder propertyHolder = new PersistentPropertyHolder(PropertySupport.PREFIX_PLATFORM, properties);
 		if (finalize) {
 			propertyHolder.setFinal();
@@ -201,10 +204,10 @@ public class CoreService {
 	}
 
 	public PlatformProperties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath,
-			Boolean devMode, boolean persist) {
-		PropertyHolder platformConfig = getPlatform(false);
+			Boolean devMode, boolean persist, boolean tempOverrides) {
+		PropertyHolder platformConfig = getPlatform(false, !persist && tempOverrides);
 		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, false);
-		if (persist) {
+		if (persist && !tempOverrides) {
 			saveProperties(platformConfig);
 		}
 		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_USER);
@@ -1103,7 +1106,7 @@ public class CoreService {
 	}
 
 	protected Properties getPlatformConfig(Environment environment) {
-		return null == environment ? getPlatform(false)
+		return null == environment ? getPlatform(false, false)
 				: environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 	}
 
@@ -1668,7 +1671,7 @@ public class CoreService {
 	public void resetConnection(FieldProcessor fp, Integer conId) {
 		SiteApplication siteApplication = siteApplicationRepository.findByDatabaseConnectionId(conId);
 		if (null != siteApplication) {
-			String databasePrefix = getPlatform(true).getString(Platform.Property.DATABASE_PREFIX);
+			String databasePrefix = getPlatform(true, false).getString(Platform.Property.DATABASE_PREFIX);
 			databaseService.resetApplicationConnection(siteApplication, databasePrefix);
 		}
 	}

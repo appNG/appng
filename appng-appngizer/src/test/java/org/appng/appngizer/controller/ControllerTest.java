@@ -114,7 +114,7 @@ public abstract class ControllerTest {
 		this.differenceListener = new XPathDifferenceHandler();
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		if (!platformInitialized) {
-			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true);
+			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true, true);
 			platformInitialized = true;
 		}
 	}

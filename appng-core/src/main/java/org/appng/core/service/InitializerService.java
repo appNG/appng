@@ -241,7 +241,7 @@ public class InitializerService {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
 		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
-				true);
+				true, false);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
