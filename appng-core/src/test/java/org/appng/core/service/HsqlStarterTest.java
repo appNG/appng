@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class HsqlStarterTest {
 
-	@Test(timeout = 10000)
+	@Test(timeout = 20000)
 	public void testStartStop() throws Exception {
 		Properties platformProperties = new Properties();
 		int port = ConnectionHelper.getHsqlPort();
@@ -44,6 +44,7 @@ public class HsqlStarterTest {
 			Assert.fail(e.getMessage());
 		}
 
+		List<String> hsqlThreads = getHsqlThreads();
 		HsqlStarter.shutdown(server);
 
 		try {
@@ -52,18 +53,17 @@ public class HsqlStarterTest {
 		} catch (SQLException e) {
 		}
 
-		List<Thread> timerThreads = getTimerThreads();
-		while (timerThreads.size() > 0) {
+		while (hsqlThreads.size() > 0) {
 			Thread.sleep(1000);
-			timerThreads = getTimerThreads();
+			hsqlThreads = getHsqlThreads();
 		}
-		Assert.assertTrue("Timer Threads should be empty, but there are " + timerThreads.size(),
-				timerThreads.isEmpty());
+
+		Assert.assertTrue("HSQL Threads should be empty, but there are " + hsqlThreads.size(), hsqlThreads.isEmpty());
 	}
 
-	private List<Thread> getTimerThreads() {
-		return Thread.getAllStackTraces().keySet().parallelStream().filter(t -> t.getName().startsWith("HSQLDB Timer"))
-				.collect(Collectors.toList());
+	private List<String> getHsqlThreads() {
+		return Thread.getAllStackTraces().keySet().stream().filter(t -> t.getName().startsWith("HSQLDB"))
+				.map(Thread::getName).collect(Collectors.toList());
 	}
 
 }
