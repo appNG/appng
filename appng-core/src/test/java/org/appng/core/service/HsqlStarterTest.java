@@ -15,7 +15,6 @@
  */
 package org.appng.core.service;
 
-import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
@@ -30,8 +29,8 @@ import org.junit.Test;
 
 public class HsqlStarterTest {
 
-	@Test
-	public void testStartStop() throws IOException {
+	@Test(timeout = 10000)
+	public void testStartStop() throws Exception {
 		Properties platformProperties = new Properties();
 		int port = ConnectionHelper.getHsqlPort();
 		platformProperties.put("database.port", String.valueOf(port));
@@ -53,10 +52,18 @@ public class HsqlStarterTest {
 		} catch (SQLException e) {
 		}
 
-		List<Thread> timerThreads = Thread.getAllStackTraces().keySet().parallelStream()
-				.filter(t -> t.getName().startsWith("HSQLDB Timer")).collect(Collectors.toList());
+		List<Thread> timerThreads = getTimerThreads();
+		while (timerThreads.size() > 0) {
+			Thread.sleep(1000);
+			timerThreads = getTimerThreads();
+		}
 		Assert.assertTrue("Timer Threads should be empty, but there are " + timerThreads.size(),
 				timerThreads.isEmpty());
+	}
+
+	private List<Thread> getTimerThreads() {
+		return Thread.getAllStackTraces().keySet().parallelStream().filter(t -> t.getName().startsWith("HSQLDB Timer"))
+				.collect(Collectors.toList());
 	}
 
 }
