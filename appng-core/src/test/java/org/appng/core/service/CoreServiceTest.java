@@ -152,7 +152,7 @@ public class CoreServiceTest {
 			context.getBean(TestDataProvider.class).writeTestData(entityManager);
 			init = false;
 		}
-		platformConfig = coreService.initPlatformConfig(new java.util.Properties(), rootPath, false, true);
+		platformConfig = coreService.initPlatformConfig(new java.util.Properties(), rootPath, false, true, false);
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformConfig);
 		Map<String, Site> siteMap = new HashMap<>();
