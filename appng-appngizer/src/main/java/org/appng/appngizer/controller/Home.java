@@ -85,7 +85,7 @@ public class Home extends ControllerBase implements InitializingBean {
 		java.util.Properties props = configurer.getProps();
 		PropertyImpl receiverClass = coreService
 				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_RECEIVER);
-		if (HazelcastReceiver.class.getName().equals(receiverClass.getString())) {
+		if (null != receiverClass && HazelcastReceiver.class.getName().equals(receiverClass.getString())) {
 			String cacheConfig = PropertySupport.PREFIX_PLATFORM + Platform.Property.CACHE_CONFIG;
 			props.put(cacheConfig, HAZELCAST_CONFIG);
 			logger().info("Detected {}, using configuration {} for {}", receiverClass.getString(), HAZELCAST_CONFIG,
