@@ -63,6 +63,30 @@
 		<defaultValue>webform/logout</defaultValue>
 		<description>The reference-path for the logout-action</description>
 	</property>
+	<property name="cacheClearOnShutdown" self="http://localhost/site/localhost/property/cacheClearOnShutdown">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>Whether or not the cache is cleared on a site shutdown/reload</description>
+	</property>
+	<property name="cacheEnabled" self="http://localhost/site/localhost/property/cacheEnabled">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to true to enable caching for this site</description>
+	</property>
+	<property clob="true" name="cacheExceptions" self="http://localhost/site/localhost/property/cacheExceptions">
+		<value>/manager</value>
+		<description>URL path prefixes which are never cached. Contains one prefix per line (CLOB value).</description>
+	</property>
+	<property name="cacheStatistics" self="http://localhost/site/localhost/property/cacheStatistics">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to true to enable cache statistics</description>
+	</property>
+	<property name="cacheTimeToLive" self="http://localhost/site/localhost/property/cacheTimeToLive">
+		<value>1800</value>
+		<defaultValue>1800</defaultValue>
+		<description>The time a cache entry lives, in seconds.</description>
+	</property>
 	<property name="csrfProtectedMethods" self="http://localhost/site/localhost/property/csrfProtectedMethods">
 		<value>POST,PUT</value>
 		<defaultValue>POST,PUT</defaultValue>
@@ -99,30 +123,6 @@
 		<defaultValue>/de</defaultValue>
 		<description>A semicolon-separated list of folder-names (relative to 'wwwDir') containing JSP-files and static
 			resources</description>
-	</property>
-	<property name="ehcacheBlockingTimeout" self="http://localhost/site/localhost/property/ehcacheBlockingTimeout">
-		<value>10000</value>
-		<defaultValue>10000</defaultValue>
-		<description>The time, in milliseconds, to wait for the filter before a LockTimeoutException is thrown</description>
-	</property>
-	<property name="ehcacheClearOnShutdown" self="http://localhost/site/localhost/property/ehcacheClearOnShutdown">
-		<value>true</value>
-		<defaultValue>true</defaultValue>
-		<description>Whether or not the Ehcache is cleared on a site shutdown/reload</description>
-	</property>
-	<property name="ehcacheEnabled" self="http://localhost/site/localhost/property/ehcacheEnabled">
-		<value>false</value>
-		<defaultValue>false</defaultValue>
-		<description>Set to true to enable Ehcache for this site</description>
-	</property>
-	<property clob="true" name="ehcacheExceptions" self="http://localhost/site/localhost/property/ehcacheExceptions">
-		<value>/manager</value>
-		<description>URL path prefixes which are never cached. Contains one prefix per line (CLOB value).</description>
-	</property>
-	<property name="ehcacheStatistics" self="http://localhost/site/localhost/property/ehcacheStatistics">
-		<value>false</value>
-		<defaultValue>false</defaultValue>
-		<description>Set to true to enable Ehcache statistics</description>
 	</property>
 	<property name="encoding" self="http://localhost/site/localhost/property/encoding">
 		<value>UTF-8</value>
@@ -206,16 +206,21 @@
 		<defaultValue>secret</defaultValue>
 		<description>Password of the LDAP service-user</description>
 	</property>
-  <property name="ldapPrincipalScheme" self="http://localhost/site/localhost/property/ldapPrincipalScheme">
-    <value>SAM</value>
-    <defaultValue>SAM</defaultValue>
-    <description>How the LDAP principal is built from a given username when logging in. ["DN": results in "${site.ldapIdAttribute}=&gt;username&lt;,${site.ldapUserBaseDn}" - "UPN": results in "&gt;username&lt;@${site.ldapDomain}" - "SAM": results in "${site.ldapDomain}\\\\&gt;username&lt;"]. "UPN" and "SAM" are ActiveDirectory specific and "SAM" is the default to stay backward compatible.</description>
-  </property>
-  <property name="ldapStartTls" self="http://localhost/site/localhost/property/ldapStartTls">
-    <value>false</value>
-    <defaultValue>false</defaultValue>
-    <description>Use STARTTLS for the LDAP connection.</description>
-  </property>
+	<property name="ldapPrincipalScheme" self="http://localhost/site/localhost/property/ldapPrincipalScheme">
+		<value>SAM</value>
+		<defaultValue>SAM</defaultValue>
+		<description>How the LDAP principal is built from a given username when logging in. ["DN": results in
+			"${site.ldapIdAttribute}=&lt;username&gt;,${site.ldapUserBaseDn}" - "UPN": results in
+			"&lt;username&gt;@${site.ldapDomain}" - "SAM": results in "${site.ldapDomain}\\&lt;username&gt;"]. "UPN" and "SAM"
+			are ActiveDirectory specific and "SAM" is the default to stay backward compatible.</description>
+	</property>
+	<property name="ldapStartTls" self="http://localhost/site/localhost/property/ldapStartTls">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Use STARTTLS for the LDAP connection. If you set this to "true" the value of ${site.ldapHost} should
+			begin with "ldap://" (not "ldaps://"), because STARTTLS and LDAP over SSL (which is used when "ldaps://" is in place)
+			are mutually exclusive.</description>
+	</property>
 	<property name="ldapUser" self="http://localhost/site/localhost/property/ldapUser">
 		<value>serviceUser</value>
 		<defaultValue>serviceUser</defaultValue>
