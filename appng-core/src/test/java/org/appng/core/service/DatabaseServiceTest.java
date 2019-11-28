@@ -156,7 +156,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		if (checksize) {
 			Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
 		}
-		validateSchemaVersion(platformConnection, "4.0.0");
+		validateSchemaVersion(platformConnection, "4.1.1");
 
 		testRootConnectionJPA(platformConnection);
 		if (checkConnection) {
