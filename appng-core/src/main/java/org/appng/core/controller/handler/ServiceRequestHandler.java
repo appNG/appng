@@ -62,6 +62,7 @@ import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ApplicationReference;
 import org.appng.xml.platform.Content;
 import org.appng.xml.platform.Datasource;
+import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Output;
 import org.appng.xml.platform.OutputFormat;
@@ -233,7 +234,12 @@ public class ServiceRequestHandler implements RequestHandler {
 					Datasource datasource = application.processDataSource(servletResponse, applyPermissionsOnServiceRef,
 							applicationRequest, dataSourceId, marshallService);
 					if (null != datasource) {
-						addMessagesToDatasource(environment, site, application, datasource);
+						boolean hasErrors = addMessagesToDatasource(environment, site, application, datasource);
+						if (hasErrors) {
+							LOGGER.debug(
+									"Datasource has been processed an error messages found in session. Set return code to 400");
+							servletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+						}
 						LOGGER.debug("calling datasource '{}' of application '{}', format: {}", dataSourceId,
 								applicationName, format);
 						if (FORMAT_XML.equals(format)) {
@@ -284,7 +290,7 @@ public class ServiceRequestHandler implements RequestHandler {
 		}
 	}
 
-	private void addMessagesToDatasource(Environment environment, Site site, ApplicationProvider application,
+	private boolean addMessagesToDatasource(Environment environment, Site site, ApplicationProvider application,
 			Datasource datasource) {
 		// Messages added to the FieldProcessor during processing of the datasource are normally not added
 		// to the Datasource if it is called with the GuiHandler. Those messages are added to the page. When a
@@ -292,6 +298,8 @@ public class ServiceRequestHandler implements RequestHandler {
 		ElementHelper elementHelper = new ElementHelper(site, application);
 		Messages messages = elementHelper.removeMessages(environment);
 		datasource.setMessages(messages);
+		return messages.getMessageList().stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
+				.isPresent();
 	}
 
 	protected String processPlatform(Environment environment, Path path, Site siteToUse,
