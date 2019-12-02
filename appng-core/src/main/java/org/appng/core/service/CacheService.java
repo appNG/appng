@@ -129,6 +129,7 @@ public class CacheService {
 			Factory<ExpiryPolicy> epf = AccessedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl));
 			configuration.setExpiryPolicyFactory(epf);
 			configuration.setStatisticsEnabled(statisticsEnabled);
+			configuration.setManagementEnabled(true);
 			cache = cacheManager.createCache(cacheKey, configuration);
 		}
 		return cache;
