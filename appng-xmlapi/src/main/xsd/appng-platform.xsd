@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.appng.org/schema/platform" xmlns:jxb="http://java.sun.com/xml/ns/jaxb" elementFormDefault="qualified" jxb:version="2.1"
-	targetNamespace="http://www.appng.org/schema/platform" version="${project.version}">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.appng.org/schema/platform" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+	elementFormDefault="qualified" jxb:version="2.1" targetNamespace="http://www.appng.org/schema/platform" version="${project.version}">
 
 	<xs:element name="page" type="pageDefinition" />
 	<xs:element name="pages" type="pages" />
@@ -30,7 +30,7 @@
 			<xs:attribute name="version" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
-
+	
 	<xs:element name="datasources">
 		<xs:annotation>
 			<xs:documentation>A wrapper for multiple &lt;datasource&gt;-elements.</xs:documentation>
@@ -202,7 +202,7 @@ A section-element can either be a {@link DatasourceRef} or a {@link ActionRef}.]
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="title" type="label" minOccurs="0" />
+			<xs:element name="title" type="label" minOccurs="0"/>
 			<xs:choice>
 				<xs:element name="datasource" type="datasourceRef" />
 				<xs:element name="action" type="actionRef" />
@@ -211,8 +211,8 @@ A section-element can either be a {@link DatasourceRef} or a {@link ActionRef}.]
 		<xs:attribute name="folded" type="booleanValue">
 			<xs:annotation>
 				<xs:documentation>
-					If evaluating to 'true', the resulting &lt;sectionelement&gt; will be displayed folded.
-					If evaluating to 'false', the resulting &lt;sectionelement&gt; will be displayed unfolded.
+If evaluating to 'true', the resulting &lt;sectionelement&gt; will be displayed folded.
+If evaluating to 'false', the resulting &lt;sectionelement&gt; will be displayed unfolded.
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
@@ -228,7 +228,7 @@ If empty, the {@link Sectionelement} will not be foldable.]]>
 		<xs:attribute name="passive" type="booleanValue">
 			<xs:annotation>
 				<xs:documentation>
-					If evaluating to 'true', the resulting &lt;sectionelement&gt; will not determine the title of the tab.
+If evaluating to 'true', the resulting &lt;sectionelement&gt; will not determine the title of the tab.
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
@@ -324,7 +324,7 @@ If empty, the {@link Sectionelement} will not be foldable.]]>
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="title" type="label" minOccurs="0" />
+			<xs:element name="title" type="label" minOccurs="0"/>
 			<xs:choice>
 				<xs:element name="datasource" type="datasource" />
 				<xs:element name="action" type="action" />
@@ -333,9 +333,9 @@ If empty, the {@link Sectionelement} will not be foldable.]]>
 		<xs:attribute name="folded" type="booleanValue">
 			<xs:annotation>
 				<xs:documentation>
-					If evaluating to 'true', the &lt;sectionelement&gt; will be displayed folded.
-					If evaluating to 'false', the resulting &lt;sectionelement&gt; will be displayed unfolded.
-					If empty, the {@link Sectionelement} will not be foldable.
+If evaluating to 'true', the &lt;sectionelement&gt; will be displayed folded.
+If evaluating to 'false', the resulting &lt;sectionelement&gt; will be displayed unfolded.
+If empty, the {@link Sectionelement} will not be foldable.
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
@@ -351,7 +351,7 @@ If empty, the {@link Sectionelement} will not be foldable.]]>
 		<xs:attribute name="passive" type="booleanValue">
 			<xs:annotation>
 				<xs:documentation>
-					If evaluating to 'true', the &lt;sectionelement&gt; will not determine the title of the tab.
+If evaluating to 'true', the &lt;sectionelement&gt; will not determine the title of the tab.
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
@@ -387,7 +387,7 @@ If empty, the {@link Sectionelement} will not be foldable.]]>
 		</xs:attribute>
 	</xs:complexType>
 
-
+	
 
 	<xs:complexType name="platformConfig">
 		<xs:annotation>
@@ -417,8 +417,7 @@ If empty, the {@link Sectionelement} will not be foldable.]]>
 	<xs:complexType name="output-format">
 		<xs:annotation>
 			<xs:documentation>The output-format determines the basic format of the output, such as html,pdf or xml. The default output-format is 'html'.
-				A format can provide several output-types, each of them offering a different layout.
-			</xs:documentation>
+A format can provide several output-types, each of them offering a different layout.</xs:documentation>
 			<xs:appinfo>
 				<jxb:class>
 					<jxb:javadoc>
@@ -456,10 +455,9 @@ A format can provide several {@link OutputType}s, each of them offering a differ
 
 	<xs:complexType name="output-type">
 		<xs:annotation>
-			<xs:documentation>An output-type offers a certain layout for a output-format.
-				For example, there could be one output-type optimized for desktop clients and one optmized for mobile clients.
-				Therefore, several templates are used, which contain the necessary XSL transformations.
-			</xs:documentation>
+			<xs:documentation>An output-type offers a certain layout for a output-format. 
+For example, there could be one output-type optimized for desktop clients and one optmized for mobile clients. 
+Therefore, several templates are used, which contain the necessary XSL transformations.</xs:documentation>
 			<xs:appinfo>
 				<jxb:class>
 					<jxb:javadoc>
@@ -538,7 +536,7 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 			<xs:appinfo>
 				<jxb:class>
 					<jxb:javadoc>
-						]>
+	]>
 					</jxb:javadoc>
 				</jxb:class>
 			</xs:appinfo>
@@ -712,7 +710,7 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="authentication" type="authentication" maxOccurs="unbounded" />
+			<xs:element name="authentication" type="authentication" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -819,7 +817,7 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 	<xs:complexType name="bean">
 		<xs:annotation>
 			<xs:documentation>
-<![CDATA[References a bean defined in the applications beans.xml file.]]>
+<![CDATA[References a bean defined in the applications beans.xml file.]]>		
 			</xs:documentation>
 			<xs:appinfo>
 				<jxb:class>
@@ -876,7 +874,7 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 			</xs:annotation>
 		</xs:attribute>
 		<xs:anyAttribute processContents="lax">
-
+			
 		</xs:anyAttribute>
 	</xs:complexType>
 
@@ -1733,7 +1731,7 @@ Note that only those POST-parameters which are being used in a {@link Condition}
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="pageSize">
-			<xs:annotation>
+				<xs:annotation>
 				<xs:documentation>
 <![CDATA[The default page size for the datasource]]>
 				</xs:documentation>
@@ -1903,7 +1901,7 @@ Note that only those POST-parameters which are being used in a {@link Condition}
 				<xs:element name="xml">
 					<xs:annotation>
 						<xs:documentation>A text-element containing XML</xs:documentation>
-					</xs:annotation>
+					</xs:annotation>				
 					<xs:complexType mixed="true">
 						<xs:sequence>
 							<xs:any processContents="skip" minOccurs="0" namespace="##other" />
@@ -2077,14 +2075,12 @@ Only if all {@link Permission}s are satisfied, the owning Object (could be a {@l
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="set">
 				<xs:annotation>
-					<xs:documentation>Determines if the current subject has the required permission, and applies it to the defining parent element. This means, if the permission is not present, the parent element
-						will not be displayed.</xs:documentation>
+					<xs:documentation>Determines if the current subject has the required permission, and applies it to the defining parent element. This means, if the permission is not present, the parent element will not be displayed.</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 			<xs:enumeration value="read">
 				<xs:annotation>
-					<xs:documentation>Reads, but does not apply, the required permission from the current subject. This means, even if the permission is missing, the parent element will be visible.
-					</xs:documentation>
+					<xs:documentation>Reads, but does not apply, the required permission from the current subject. This means, even if the permission is missing, the parent element will be visible.</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 		</xs:restriction>
@@ -2163,7 +2159,7 @@ If empty, the template is being applied to any output-type.]]>
 
 	<xs:complexType name="applicationReference">
 		<xs:annotation>
-			<xs:documentation>The application, as part of the platform's content.</xs:documentation>
+			<xs:documentation >The application, as part of the platform's content.</xs:documentation>
 			<xs:appinfo>
 				<jxb:class>
 					<jxb:javadoc>
@@ -2542,7 +2538,7 @@ If empty, the template is being applied to any output-type.]]>
 
 	<xs:simpleType name="selectionType" final="restriction">
 		<xs:annotation>
-			<xs:documentation>Defines the possible types for a {@link Selection}.</xs:documentation>
+			<xs:documentation>Defines the possible types for a {@link Selection}.</xs:documentation>		
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="select">
@@ -2795,15 +2791,13 @@ If empty, the template is being applied to any output-type.]]>
 			<xs:annotation>
 				<xs:documentation>This is the name of the property used with the JavaBeans API. If no value is set, the binding is
 					the
-					combination of the MetaDatas bindClass() (if any, separated with a dot) and the
-					field's name.
+					combination of the MetaDatas bindClass() (if any, separated with a dot) and the field's name.
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>This is the name of the property used with the JavaBeans API. If no value is set, the binding is
 							the
-							combination of {@link MetaData#getBindClass()} (if any, separated with a dot) and
-							the field's name.
+							combination of {@link MetaData#getBindClass()} (if any, separated with a dot) and the field's name.
 						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
@@ -2981,7 +2975,7 @@ If empty, the template is being applied to any output-type.]]>
 			<xs:enumeration value="image">
 				<xs:annotation>
 					<xs:documentation>
-<![CDATA[Displays an icon.]]>
+<![CDATA[Displays an icon.]]>		
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -3088,10 +3082,10 @@ If empty, the template is being applied to any output-type.]]>
 			<xs:element name="digits" type="digits" minOccurs="0" />
 			<xs:element name="pattern" type="pattern" minOccurs="0" />
 			<xs:element name="fileUpload" type="fileUpload" minOccurs="0" />
-			<xs:element name="rule" type="rule" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="rule" type="rule" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
-
+	
 	<xs:complexType name="rule">
 		<xs:annotation>
 			<xs:documentation>
@@ -3105,16 +3099,16 @@ If empty, the template is being applied to any output-type.]]>
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="validationRule">
+			<xs:extension base="validationRule" >
 				<xs:sequence>
 					<xs:element name="option" minOccurs="0" maxOccurs="unbounded">
 						<xs:complexType>
-							<xs:attribute name="name" type="xs:string" use="required" />
-							<xs:attribute name="value" type="xs:string" use="required" />
+							<xs:attribute name="name" type="xs:string" use="required"/>
+							<xs:attribute name="value" type="xs:string" use="required"/>
 						</xs:complexType>
 					</xs:element>
 				</xs:sequence>
-				<xs:attribute name="type" type="xs:string" use="required" />
+				<xs:attribute name="type" type="xs:string" use="required"/>
 				<xs:attribute name="name" type="xs:string" />
 			</xs:extension>
 		</xs:complexContent>
