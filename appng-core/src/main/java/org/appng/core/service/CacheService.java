@@ -28,7 +28,7 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 
@@ -41,6 +41,7 @@ import org.springframework.http.HttpMethod;
 import com.hazelcast.cache.CacheStatistics;
 import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
+import com.hazelcast.config.CacheConfig;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -122,15 +123,28 @@ public class CacheService {
 	public synchronized static Cache<String, CachedResponse> createCache(Site site) {
 		String cacheKey = getCacheKey(site);
 		Cache<String, CachedResponse> cache = cacheManager.getCache(cacheKey);
+		Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
+		Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+		if (null != cache) {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			CacheConfig configuration = cache.getConfiguration(CacheConfig.class);
+			ExpiryPolicy ep = (ExpiryPolicy) configuration.getExpiryPolicyFactory().create();
+			if ((configuration.isStatisticsEnabled() ^ statisticsEnabled)
+					|| (ep.getExpiryForCreation().getDurationAmount() != ttl)) {
+				cacheManager.destroyCache(cacheKey);
+				cache = null;
+				LOGGER.info("TTL and/or statistics setting has changed, destroyed cache '{}'.", cacheKey);
+			}
+		}
+
 		if (null == cache) {
-			Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-			Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
 			MutableConfiguration<String, CachedResponse> configuration = new MutableConfiguration<>();
-			Factory<ExpiryPolicy> epf = AccessedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl));
+			Factory<ExpiryPolicy> epf = CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl));
 			configuration.setExpiryPolicyFactory(epf);
 			configuration.setStatisticsEnabled(statisticsEnabled);
 			configuration.setManagementEnabled(true);
 			cache = cacheManager.createCache(cacheKey, configuration);
+			LOGGER.info("Created cache '{}' with TTL of {} seconds (statistics: {}).", cacheKey, ttl, statisticsEnabled);
 		}
 		return cache;
 	}
