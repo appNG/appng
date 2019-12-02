@@ -297,9 +297,12 @@ public class ServiceRequestHandler implements RequestHandler {
 		// datasource is called as a service, we have to put them into the datasource and remove them from session.
 		ElementHelper elementHelper = new ElementHelper(site, application);
 		Messages messages = elementHelper.removeMessages(environment);
-		datasource.setMessages(messages);
-		return messages.getMessageList().stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
-				.isPresent();
+		if (null != messages) {
+			datasource.setMessages(messages);
+			return messages.getMessageList().stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
+					.isPresent();
+		}
+		return false;
 	}
 
 	protected String processPlatform(Environment environment, Path path, Site siteToUse,
