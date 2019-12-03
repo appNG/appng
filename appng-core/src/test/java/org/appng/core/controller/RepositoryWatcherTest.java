@@ -21,24 +21,28 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.cache.Cache;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.appng.api.SiteProperties;
+import org.appng.api.support.PropertyHolder;
+import org.appng.core.domain.SiteImpl;
+import org.appng.core.service.CacheService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-
 public class RepositoryWatcherTest {
 
-	@Test(timeout = 20000)
+	@Test(timeout = 100000)
 	public void test() throws Exception {
 		ClassLoader classLoader = RepositoryWatcherTest.class.getClassLoader();
 		URL url = classLoader.getResource("repository/manager/www");
@@ -46,22 +50,36 @@ public class RepositoryWatcherTest {
 		String urlrewrite = classLoader.getResource("conf/urlrewrite.xml").getFile();
 
 		RepositoryWatcher repositoryWatcher = new RepositoryWatcher();
-		Cache ehcache = new Cache("testcache", 1000, MemoryStoreEvictionPolicy.LRU, false, null, false, 1000, 1000,
-				false, 60, new RegisteredEventListeners(null));
-		Configuration configuration = new Configuration();
-		configuration.setName(getClass().getSimpleName() + "cache");
-		ehcache.setCacheManager(new CacheManager(configuration));
-		ehcache.initialise();
+		SiteImpl site = new SiteImpl();
+		site.setHost("localhost");
+		PropertyHolder siteProps = new PropertyHolder();
+		siteProps.addProperty(SiteProperties.CACHE_TIME_TO_LIVE, "1800", null);
+		siteProps.addProperty(SiteProperties.CACHE_STATISTICS, "true", null);
+		site.setProperties(siteProps);
+
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
+		Cache<String, CachedResponse> cache = CacheService.createCache(site);
+
 		String fehlerJsp = "/de/fehler.jsp";
 		String testJsp = "/de/test.jsp";
 		String keyFehlerJsp = "GET" + fehlerJsp;
 		String keyTestJsp = "GET" + testJsp;
-		ehcache.put(new Element(keyFehlerJsp, "a value"));
-		ehcache.put(new Element(keyTestJsp, "a value"));
-		ehcache.put(new Element("GET/de/error", "a value"));
-		ehcache.put(new Element("GET/de/fault", "a value"));
-		Assert.assertEquals(4, ehcache.getSize());
-		repositoryWatcher.init(ehcache, rootDir, new File(urlrewrite), RepositoryWatcher.DEFAULT_RULE_SUFFIX,
+		int timeToLive = 1800;
+		HttpServletRequest req = new MockHttpServletRequest();
+		String contentType = "text/plain";
+		byte[] bytes = "a value".getBytes();
+		cache.put(keyFehlerJsp,
+				new CachedResponse(keyFehlerJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+		cache.put(keyTestJsp,
+				new CachedResponse(keyTestJsp, site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+		cache.put("GET/de/error",
+				new CachedResponse("GET/de/error", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+		cache.put("GET/de/fault",
+				new CachedResponse("GET/de/fault", site, req, 200, contentType, bytes, new HttpHeaders(), timeToLive));
+
+		int size = getCacheSize(cache);
+		Assert.assertEquals(4, size);
+		repositoryWatcher.init(cache, rootDir, new File(urlrewrite), RepositoryWatcher.DEFAULT_RULE_SUFFIX,
 				Arrays.asList("de"));
 		Long forwardsUpdatedAt = repositoryWatcher.forwardsUpdatedAt;
 		ThreadFactory tf = new ThreadFactoryBuilder().setNameFormat("repositoryWatcher").setDaemon(true).build();
@@ -71,14 +89,20 @@ public class RepositoryWatcherTest {
 		FileUtils.touch(new File(rootDir, fehlerJsp));
 		FileUtils.touch(new File(rootDir, testJsp));
 		FileUtils.touch(new File(urlrewrite));
-		while (ehcache.getSize() != 0 || forwardsUpdatedAt == repositoryWatcher.forwardsUpdatedAt) {
-			Thread.sleep(100);
+		while (getCacheSize(cache) != 0 || forwardsUpdatedAt == repositoryWatcher.forwardsUpdatedAt) {
+			Thread.sleep(50);
 		}
-		Assert.assertNull(ehcache.get(keyFehlerJsp));
-		Assert.assertNull(ehcache.get(keyTestJsp));
-		Assert.assertNull(ehcache.get("GET/de/error"));
-		Assert.assertNull(ehcache.get("GET/de/fault"));
-		Assert.assertEquals(0, ehcache.getSize());
+		Assert.assertNull(cache.get(keyFehlerJsp));
+		Assert.assertNull(cache.get(keyTestJsp));
+		Assert.assertNull(cache.get("GET/de/error"));
+		Assert.assertNull(cache.get("GET/de/fault"));
+		Assert.assertEquals(0, getCacheSize(cache));
 		Assert.assertTrue(repositoryWatcher.forwardsUpdatedAt > forwardsUpdatedAt);
+	}
+
+	private int getCacheSize(Cache<String, CachedResponse> cache) {
+		AtomicInteger size = new AtomicInteger(0);
+		cache.iterator().forEachRemaining(e -> size.getAndIncrement());
+		return size.get();
 	}
 }

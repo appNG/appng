@@ -1,0 +1,22 @@
+ifndef::appng[]
+:spring: https://docs.spring.io/spring/docs/4.3.25.RELEASE
+endif::appng[]
+
+=== Caching
+An application can make use of {spring}/spring-framework-reference/htmlsingle/#cache[Spring's declarative annotation based caching^]. Therefore, a {spring}/javadoc-api/index.html?org/springframework/cache/CacheManager.html[CacheManager^] is made available automatically in the application's context.
+
+This allows using Spring's caching annotations `@Cacheable`, `@CacheEvict`, `@CachePut`, `@Caching` and `@CacheConfig`.
+
+To enable caching, just put the {spring}/javadoc-api/index.html?org/springframework/cache/annotation/EnableCaching.html[@EnableCaching^]-annotation to your applications {spring}/javadoc-api/index.html?org/springframework/context/annotation/Configuration.html[@Configuration^]. To configure custom _time to live_ (TTL) and _maximum idle time_ for each cache, use the multilined application property `cacheConfig`.
+
+The following example configures the cache `mycache` to use a TTL of 2 hours with a maximum idle time of 1 hour. Values must be definied in seconds.
+[source]
+----
+mycache.ttl = 7200
+mycache.maxIdle = 3600
+----
+
+[IMPORTANT]
+====
+For all elements that should be cached, don't forget to implement `Serializable`!
+====

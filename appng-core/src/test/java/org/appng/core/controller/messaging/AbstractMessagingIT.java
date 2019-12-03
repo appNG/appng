@@ -100,7 +100,7 @@ public abstract class AbstractMessagingIT {
 				Mockito.any(receiverClass));
 		Mockito.verify(env).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.eq(Platform.Environment.MESSAGE_SENDER),
 				Mockito.any(senderClass));
-		Assert.assertTrue(sender.send(new MessagingTest()));
+		Assert.assertTrue(sender.send(new MessagingTest.TestEvent("foobar")));
 
 		while (!processedHandler.processed) {
 			Thread.sleep(1000);

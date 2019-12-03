@@ -1,0 +1,20 @@
+= appNG Platform Administration Guide
+Matthias Müller <matthias.mueller@appng.org>
+Version {project-version} created on {localdate}
+
+:title-logo-image: images/appng.png
+:toc:
+:homepage: https://appng.org
+:manager-guide: {homepage}/appng-manager/docs/{manager-version}/reference/html/appng-manager-userguide.html
+
+== Scope
+
+include::admin/setup.adoc[]
+
+include::admin/clustering.adoc[]
+
+include::admin/caching.adoc[]
+
+include::admin/cli.adoc[]
+
+include::admin/appngizer.adoc[]

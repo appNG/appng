@@ -106,6 +106,7 @@ public class SiteController extends ControllerBase {
 	}
 
 	private Sender getSender(Environment env) {
+		initMessaging();
 		return Messaging.getMessageSender(env);
 	}
 

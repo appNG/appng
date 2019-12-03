@@ -99,7 +99,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}

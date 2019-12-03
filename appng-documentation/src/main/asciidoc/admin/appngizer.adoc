@@ -1,0 +1,9 @@
+== appNGizer
+A REST-style API for configuring the platform is provided by appNGizer.
+
+Check out the following resources:
+
+* {homepage}/appng/docs/current/appngizer/html/appngizer-user-manual.html[appNGizer User Manual^]
+* {homepage}/appng/docs/current/appngizer/html/appngizer-setup-guide.html[appNGizer Setup Guide^]
+* {homepage}/appng/docs/current/appngizer/html/appngizer-platform-installation-guide[appNGizer Platform installation guide^]
+

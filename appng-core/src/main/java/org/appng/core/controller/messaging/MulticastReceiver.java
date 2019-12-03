@@ -25,16 +25,13 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
-import org.appng.api.messaging.Event;
 import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.EventRegistry;
 import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
-import org.appng.api.model.Site;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -93,14 +90,8 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 				byte[] inBuf = new byte[(int) FileUtils.ONE_MB];
 				DatagramPacket inPacket = new DatagramPacket(inBuf, inBuf.length);
 				socket.receive(inPacket);
-				Event event = eventSerializer.deserialize(inBuf);
-				if (null != event) {
-					InetAddress senderAddress = inPacket.getAddress();
-					String senderHost = senderAddress.getHostAddress();
-					onEvent(eventSerializer.getSite(event.getSiteName()), event, nodeIps, senderHost);
-				} else {
-					LOGGER.debug("could not read event");
-				}
+				InetAddress senderAddress = inPacket.getAddress();
+				onEvent(inBuf, nodeIps, senderAddress.getHostAddress());
 			}
 		} catch (Exception e) {
 			LOGGER.error("error in run()", e);
@@ -110,27 +101,10 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 
 	}
 
-	void onEvent(Site site, Event event, List<String> nodeIps, String senderHost)
-			throws IOException, InterruptedException {
+	void onEvent(byte[] data, List<String> nodeIps, String senderHost) throws IOException, InterruptedException {
 		if (nodeIps.isEmpty() || nodeIps.contains(senderHost)) {
-			LOGGER.info("received message from {}: {}", senderHost, event);
-			String currentNode = eventSerializer.getNodeId();
-			String originNode = event.getNodeId();
-			LOGGER.debug("current node: {}, originNode node: {}", currentNode, originNode);
-			boolean sameNode = StringUtils.equals(currentNode, originNode);
 			boolean sameAddress = isSameAddress(senderHost);
-			if (!sameAddress || !sameNode) {
-				try {
-					LOGGER.info("about to execute {} received from  {}", event, senderHost);
-					for (EventHandler<Event> eventHandler : eventRegistry.getHandlers(event)) {
-						eventHandler.onEvent(event, eventSerializer.getEnvironment(), site);
-					}
-				} catch (Exception e) {
-					LOGGER.error(String.format("error while performing event %s", event), e);
-				}
-			} else {
-				LOGGER.debug("message is from myself and can be ignored");
-			}
+			Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, data, !sameAddress);
 		} else {
 			LOGGER.debug("ignoring message from {}", senderHost);
 		}

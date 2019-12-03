@@ -201,14 +201,6 @@
 			<groupId>org.appng</groupId>
 			<artifactId>appng-formtags</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-web</artifactId>
-		</dependency>
 		<!-- provided by Tomcat -->
 		<dependency>
 			<groupId>javax.servlet.jsp</groupId>

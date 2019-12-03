@@ -76,7 +76,7 @@ public class ResourceImpl implements Resource, Auditable<Integer>, Closeable {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}

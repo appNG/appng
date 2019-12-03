@@ -1,0 +1,58 @@
+== Command Line Interface (CLI)
+
+There is a comprehensive set of CLI Commands that can be used to configure the appNG Platform.
+
+* Sites
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/site/ListSites.html[list-sites^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/site/CreateSite.html[create-site^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/site/CheckSiteRunning.html[check-site^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/site/DeleteSite.html[delete-site^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/site/SetSiteActive.html[site-setactive^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/site/ReloadSite.html[reload-site^]
+
+* Applications
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/application/ListApplications.html[list-applications^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/application/InstallApplication.html[install-application^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/application/ActivateApplication.html[activate-application^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/application/DeactivateApplication.html[deactivate-application^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/application/DeleteApplication.html[delete-application^]
+
+* Users
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/subject/ListSubjects.html[list-subjects^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/subject/CreateSubject.html[create-subject^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/subject/DeleteSubject.html[delete-subject^]
+
+* Groups
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/group/ListGroups.html[list-groups^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/group/CreateGroup.html[create-group^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/group/AddGroup.html[add-group^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/group/DeleteGroup.html[delete-group^]
+
+* Roles
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/applicationrole/ListRoles.html[list-roles^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/applicationrole/AddRole.html[add-role^]
+
+* Permissions
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/permission/ListPermissions.html[list-permissions^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/permission/AddPermission.html[add-permission^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/permission/RemovePermission.html[remove-permission^]
+
+* Repositories
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/repository/ListRepositories.html[list-repositories^]	
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/repository/CreateRepository.html[create-repository^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/repository/DeleteRepository.html[delete-repository^]
+
+* Templates
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/template/InstallTemplate.html[install-template^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/template/DeleteTemplate.html[delete-template^]
+
+* Properties
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/property/ListProperties.html[list-properties^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/property/CreateProperty.html[create-property^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/property/UpdateProperty.html[update-property^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/property/DeleteProperty.html[delete-property^]
+
+* Others
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/CommandBatch.html[batch^]
+** {homepage}/appng/docs/current/javadoc/org/appng/cli/commands/heartbeat/HeartBeat.html[heartbeat^]
+

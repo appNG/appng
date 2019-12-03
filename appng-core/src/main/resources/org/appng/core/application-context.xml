@@ -17,13 +17,15 @@
 	<bean id="datasource" class="org.appng.core.repository.config.DataSourceFactory" destroy-method="destroy" >
 		<property name="configurerClass" value="${site.DatasourceConfigurer}" />
 		<property name="logPerformance" value="${site.logJdbcPerformance:false}" />
-		<property name="logPerformance" value="${site.connectionTimeout:5000}" />
-		<property name="logPerformance" value="${site.validationTimeout:5000}" />
+		<property name="connectionTimeout" value="${site.connectionTimeout:5000}" />
+		<property name="validationTimeout" value="${site.validationTimeout:5000}" />
 	</bean>
 
 	<bean id="environment" class="org.appng.api.support.environment.EnvironmentFactoryBean" scope="request" />
 	<bean id="request" class="org.appng.api.support.RequestFactoryBean" scope="request" />
 	
 	<bean id="selectionFactory" class="org.appng.api.support.SelectionFactory" />
+	
+	<bean id="cacheManager" class="org.appng.core.model.ApplicationCacheManager" />
 
 </beans>

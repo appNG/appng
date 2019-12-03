@@ -68,7 +68,7 @@ public interface DatasourceConfigurer {
 	/**
 	 * Sets the validation timeout in milliseconds
 	 * 
-	 * @param connectionTimeout
+	 * @param validationTimeout
 	 *                          the timeout
 	 */
 	void setValidationTimeout(int validationTimeout);

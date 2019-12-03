@@ -56,7 +56,7 @@ public class CliEnvironment {
 	 */
 	public void initPlatform(java.util.Properties defaultOverrides) {
 		String platformRootPath = cliConfig.getProperty(Platform.Property.PLATFORM_ROOT_PATH);
-		this.platformConfig = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode, true);
+		this.platformConfig = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode, true, false);
 	}
 
 	/**
