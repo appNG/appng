@@ -1262,7 +1262,7 @@ public class CoreService {
 
 	public void deleteSite(Environment env, SiteImpl site) throws BusinessException {
 		LOGGER.info("starting deletion of site {}", site.getName());
-		List<SiteApplication> grantedApplications = siteApplicationRepository.findByGrantedSitesIn(site);
+		List<SiteApplication> grantedApplications = siteApplicationRepository.findByGrantedSites(site);
 		for (SiteApplication siteApplication : grantedApplications) {
 			siteApplication.getGrantedSites().remove(site);
 		}

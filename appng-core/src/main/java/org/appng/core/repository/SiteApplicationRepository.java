@@ -33,7 +33,7 @@ public interface SiteApplicationRepository extends SearchRepository<SiteApplicat
 
 	SiteApplication findByApplicationNameAndGrantedSitesName(String grantedApplication, String grantedSite);
 
-	List<SiteApplication> findByGrantedSitesIn(Site site);
+	List<SiteApplication> findByGrantedSites(Site site);
 
 	@Query("select sa.application from SiteApplication sa where sa.databaseConnection=?1")
 	Application findApplicationForConnection(DatabaseConnection dbc);
