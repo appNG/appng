@@ -53,11 +53,12 @@ public class ApplicationCacheManager implements CacheManager, DisposableBean {
 	private String prefix;
 	private Properties cacheConfig;
 
-	public void initialize(Site site, Application application, CacheManager delegate) {
+	public ApplicationCacheManager initialize(Site site, Application application, CacheManager delegate) {
 		this.prefix = String.format("%s#%s_%s_", site.getName(), ((SiteImpl) site).getReloadCount(),
 				application.getName());
 		this.delegate = delegate;
 		this.cacheConfig = application.getProperties().getProperties(ApplicationProperties.PROP_CACHE_CONFIG);
+		return this;
 	}
 
 	public Cache getCache(String name) {

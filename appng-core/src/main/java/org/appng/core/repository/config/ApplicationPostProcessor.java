@@ -85,7 +85,8 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		beanFactory.registerSingleton("site", site);
 		beanFactory.registerSingleton("application", application);
-    beanFactory.getBean(ApplicationCacheManager.class).initialize(site, application, platformCacheManager);
+		beanFactory.registerSingleton("cacheManager",
+				new ApplicationCacheManager().initialize(site, application, platformCacheManager));
 
 		if (null != connection) {
 			try {
