@@ -26,7 +26,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * A {@link Configuration} that adds a {@link DriverManagerDataSource} using a HSQL in memory database. The name of the
- * datbase can be set using the property {@code database} which defaults to {@code hsql-testdb}.
+ * database can be set using the property {@code database} which defaults to {@code hsql-testdb}.
  * 
  * @author Matthias Müller
  */
