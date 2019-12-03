@@ -40,7 +40,6 @@ import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
@@ -130,7 +129,6 @@ public class ValidationProviderTest extends AbstractTest {
 	}
 
 	@Test
-	@Ignore
 	public void testValidateWithChildFields() throws Exception {
 		MetaData metaData = MetaDataProvider.getMetaData();
 		FieldDef offspringsList = MetaDataProvider.getField("offsprings", FieldType.LIST_OBJECT);
