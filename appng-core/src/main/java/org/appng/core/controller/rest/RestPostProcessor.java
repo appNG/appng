@@ -31,7 +31,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
-import org.springframework.core.type.StandardAnnotationMetadata;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
@@ -48,17 +48,17 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	}
 
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		StandardAnnotationMetadata restActionMetaData = new StandardAnnotationMetadata(RestAction.class);
+		AnnotationMetadata restActionMetaData = AnnotationMetadata.introspect(RestAction.class);
 		AnnotatedGenericBeanDefinition restAction = new AnnotatedGenericBeanDefinition(restActionMetaData);
 		restAction.setScope("request");
 		registry.registerBeanDefinition("restAction", restAction);
 
-		StandardAnnotationMetadata restDataSourcesMetaData = new StandardAnnotationMetadata(RestDataSource.class);
+		AnnotationMetadata restDataSourcesMetaData = AnnotationMetadata.introspect(RestDataSource.class);
 		AnnotatedGenericBeanDefinition restDataSource = new AnnotatedGenericBeanDefinition(restDataSourcesMetaData);
 		restDataSource.setScope("request");
 		registry.registerBeanDefinition("restDataSource", restDataSource);
 
-		StandardAnnotationMetadata restErrorHandlerMetaData = new StandardAnnotationMetadata(RestErrorHandler.class);
+		AnnotationMetadata restErrorHandlerMetaData = AnnotationMetadata.introspect(RestErrorHandler.class);
 		AnnotatedGenericBeanDefinition restErrorHandler = new AnnotatedGenericBeanDefinition(restErrorHandlerMetaData);
 		registry.registerBeanDefinition("restErrorHandler", restErrorHandler);
 	}

@@ -1982,8 +1982,8 @@ public class CoreService {
 	}
 
 	public List<CachedResponse> getCacheEntries(Integer siteId) {
-		SiteImpl site = siteRepository.findOne(siteId);
-		return CacheService.getCacheEntries(site);
+		Optional<SiteImpl> site = siteRepository.findById(siteId);
+		return site.isPresent() ? CacheService.getCacheEntries(site.get()) : new ArrayList<>();
 	}
 
 	public void expireCacheElement(Integer siteId, String cacheElement) throws BusinessException {
@@ -2041,7 +2041,10 @@ public class CoreService {
 	}
 
 	public void setSiteReloadCount(SiteImpl site) {
-		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
+		Optional<SiteImpl> s = siteRepository.findById(site.getId());
+		if (s.isPresent()) {
+			s.get().setReloadCount(site.getReloadCount());
+		}
 	}
 
 }

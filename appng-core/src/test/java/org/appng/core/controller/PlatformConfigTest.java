@@ -27,9 +27,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
-import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -58,7 +58,7 @@ public class PlatformConfigTest {
 
 	@Bean
 	public static PlaceholderConfigurerSupport platformProperties() throws IOException {
-		PreferencesPlaceholderConfigurer ppc = new PreferencesPlaceholderConfigurer();
+		PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
 		ppc.setProperties(properties());
 		return ppc;
 	}
