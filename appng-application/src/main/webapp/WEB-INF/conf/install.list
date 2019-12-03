@@ -6,10 +6,10 @@
 
 # Some variable declarations
 def INSTALL_OPTS=${install.opts}
-def MANAGER_VERSION=${manager.version}
-def AUTH_VERSION=${authentication.version}
-def SCHEDULER_VERSION=${scheduler.version}
-def TEMPLATE_VERSION=${template.version}
+def MANAGER_VERSION=${appNG.manager.version}
+def AUTH_VERSION=${appNG.authentication.version}
+def SCHEDULER_VERSION=${appNG.scheduler.version}
+def TEMPLATE_VERSION=${appNG.template.version}
 def TEMPLATE_NAME=${template.name}
 
 def ADMIN_SUBJECT=${admin.name}

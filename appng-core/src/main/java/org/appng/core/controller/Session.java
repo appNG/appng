@@ -72,7 +72,7 @@ public class Session implements Cloneable, Serializable {
 		return maxInactiveInterval;
 	}
 
-	public void expire() {
+	void expire() {
 		this.expire = true;
 	}
 

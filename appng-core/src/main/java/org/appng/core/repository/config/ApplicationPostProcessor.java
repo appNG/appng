@@ -22,10 +22,12 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.MessageSourceChain;
 import org.appng.core.domain.DatabaseConnection;
+import org.appng.core.model.ApplicationCacheManager;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.Ordered;
@@ -47,26 +49,30 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	private Collection<String> dictionaryNames;
 	private Site site;
 	private Application application;
+	private CacheManager platformCacheManager;
 
 	/**
 	 * Creates a new {@code ApplicationPostProcessor} using the given {@link DatabaseConnection}.
 	 * 
 	 * @param site
-	 *                           the {@link Site}
+	 *                             the {@link Site}
 	 * @param application
-	 *                           the {@link Application}
+	 *                             the {@link Application}
 	 * @param databaseConnection
-	 *                           a {@link DatabaseConnection}, may be {@code null}.
+	 *                             a {@link DatabaseConnection}, may be {@code null}.
+	 * @param platformCacheManager
+	 *                             the platform's {@link CacheManager}
 	 * @param dictionaryNames
-	 *                           the name of the dictionary files that the {@link Application} uses (see
-	 *                           {@link ResourceBundleMessageSource#setBasenames(String...)})
+	 *                             the name of the dictionary files that the {@link Application} uses (see
+	 *                             {@link ResourceBundleMessageSource#setBasenames(String...)})
 	 */
 	public ApplicationPostProcessor(Site site, Application application, DatabaseConnection databaseConnection,
-			Collection<String> dictionaryNames) {
+			CacheManager platformCacheManager, Collection<String> dictionaryNames) {
 		this.connection = databaseConnection;
 		this.dictionaryNames = dictionaryNames;
 		this.site = site;
 		this.application = application;
+		this.platformCacheManager = platformCacheManager;
 	}
 
 	/**
@@ -79,6 +85,7 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		beanFactory.registerSingleton("site", site);
 		beanFactory.registerSingleton("application", application);
+    beanFactory.getBean(ApplicationCacheManager.class).initialize(site, application, platformCacheManager);
 
 		if (null != connection) {
 			try {

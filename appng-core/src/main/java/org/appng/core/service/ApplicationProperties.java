@@ -46,6 +46,17 @@ public class ApplicationProperties {
 	public static final String PROP_ACTIVE_PROFILES = "activeProfiles";
 
 	/**
+	 * Name for the application property that contains a multilined value for configuring application caches.<br/>
+	 * Format:
+	 * 
+	 * <pre>
+	 * mycache.ttl = 3600
+	 * mycache.maxIdle = 3600
+	 * </pre>
+	 */
+	public static final String PROP_CACHE_CONFIG = "cacheConfig";
+
+	/**
 	 * An array containing the names of all available {@link Application} features.
 	 * 
 	 * @see FeatureProvider

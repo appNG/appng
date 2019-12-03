@@ -1,0 +1,57 @@
+ifndef::hazelcast[]
+:hazelcast: https://docs.hazelcast.org/docs/3.12.4/manual/html-single/index.html
+endif::hazelcast[]
+
+== Caching
+
+=== Platform configuration
+Caching is provided by https://hazelcast.org/[Hazelcast^].
+
+A central configuration file is used to configure Hazelcast. The location of this file is specified by the platform property `cacheConfig` 
+(see {manager-guide}#platform-properties[Platform properties^]).
+
+Usually, `cacheConfig` points to `WEB-INF/conf/hazelcast.xml`, which might look as follows for multicast replication:
+[source, xml]
+----
+include::listing/hazelcast.xml[]
+----
+
+For further details about configuring Hazelcast, check out it's {hazelcast}[Reference Manual^].
+
+Also check out the section about caching in the {manager-guide}#caching[Manager User Manual^].
+
+=== Site configuration
+There are several site-scoped properties to configure caching.
+
+* `cacheEnabled` +
+Set to `true` to enable caching for the site.
+* `cacheExceptions` +
+URL path prefixes which are never cached, as a multi-lined value. Contains one prefix per line. +
+*Example:*
++
+[source,]
+----
+/service/appng/my-application
+/service/my-site
+----
+* `cacheTimeouts` +
+The path specific cache timeouts, as a multi-lined value. The format is `path-prefix = TTL in seconds`. Contains one path-prefix per line. +
+*Example:*
++
+[source,]
+----
+/service/appng/cached-application = 7200
+/service/thesite = 3600
+----
+* `cacheTimeoutsAntStyle` +
+When set to `true`, the path-prefixes defined in `cacheTimeouts` can use https://ant.apache.org/manual/dirtasks.html#patterns[Ant-style path matching^].
+* `cacheTimeToLive` +
+The default TTL for a cache entry, if there's no matching path defined in `cacheTimeouts`.
+* `cacheStatistics` +
+Set to `true to` enable caching statistics
+* `cacheWatchRepository` +
+Set to `true` to watch the repository folder for changes and invalidate cache elements, if necessary.
+* `cacheWatcherRuleSourceSuffix` +
+The suffix to be removed from a `<from>`-rule element when parsing the rules from `urlrewrite.xml` for the repository watchers. See also the developerguide.html#beautifying-urls[Beautifying URLs^] section from the developer's guide,
+* `cacheClearOnShutdown` +
+Set to `true` to clear the cache on a site shutdown/reload.

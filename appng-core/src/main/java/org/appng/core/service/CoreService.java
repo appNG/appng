@@ -25,7 +25,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ import org.appng.api.support.ApplicationResourceHolder;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
-import org.appng.core.controller.AppngCache;
+import org.appng.core.controller.CachedResponse;
 import org.appng.core.controller.handler.SoapService;
 import org.appng.core.controller.messaging.SiteDeletedEvent;
 import org.appng.core.domain.ApplicationImpl;
@@ -129,10 +128,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Statistics;
-import net.sf.ehcache.constructs.blocking.BlockingCache;
-import net.sf.ehcache.constructs.web.PageInfo;
 
 /**
  * A service implementing the core business logic for creation/retrieval/removal of business-objects.
@@ -194,11 +189,14 @@ public class CoreService {
 	}
 
 	public PropertyHolder getPlatformProperties() {
-		return getPlatform(true);
+		return getPlatform(true,false);
 	}
 
-	protected PropertyHolder getPlatform(boolean finalize) {
+	protected PropertyHolder getPlatform(boolean finalize, boolean detached) {
 		Iterable<PropertyImpl> properties = getPlatformPropertiesList(null);
+		if (detached) {
+			properties.forEach(p -> propertyRepository.detach(p));
+		}
 		PropertyHolder propertyHolder = new PersistentPropertyHolder(PropertySupport.PREFIX_PLATFORM, properties);
 		if (finalize) {
 			propertyHolder.setFinal();
@@ -207,10 +205,10 @@ public class CoreService {
 	}
 
 	public PlatformProperties initPlatformConfig(java.util.Properties defaultOverrides, String rootPath,
-			Boolean devMode, boolean persist) {
-		PropertyHolder platformConfig = getPlatform(false);
+			Boolean devMode, boolean persist, boolean tempOverrides) {
+		PropertyHolder platformConfig = getPlatform(false, !persist && tempOverrides);
 		new PropertySupport(platformConfig).initPlatformConfig(rootPath, devMode, defaultOverrides, false);
-		if (persist) {
+		if (persist && !tempOverrides) {
 			saveProperties(platformConfig);
 		}
 		addPropertyIfExists(platformConfig, defaultOverrides, InitializerService.APPNG_USER);
@@ -468,10 +466,10 @@ public class CoreService {
 	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
 	 * This method may be removed in the future.
 	 * 
-	 * @param authSubject
-	 *            The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to determine which
-	 *            implementation of the {@link PasswordHandler} interface will be returned.
-	 * @return the {@link PasswordHandler} for the {@link AuthSubject}
+	 * @param  authSubject
+	 *                     The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
+	 *                     determine which implementation of the {@link PasswordHandler} interface will be returned.
+	 * @return             the {@link PasswordHandler} for the {@link AuthSubject}
 	 */
 	public PasswordHandler getPasswordHandler(AuthSubject authSubject) {
 		if (!authSubject.getDigest().startsWith(BCryptPasswordHandler.getPrefix())) {
@@ -484,9 +482,9 @@ public class CoreService {
 	/**
 	 * Returns the default password manager which should be used to handle all passwords.
 	 * 
-	 * @param authSubject
-	 *            The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
-	 * @return the default {@link PasswordHandler} for the {@link AuthSubject}
+	 * @param  authSubject
+	 *                     The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
+	 * @return             the default {@link PasswordHandler} for the {@link AuthSubject}
 	 */
 	public PasswordHandler getDefaultPasswordHandler(AuthSubject authSubject) {
 		return new BCryptPasswordHandler(authSubject);
@@ -912,14 +910,14 @@ public class CoreService {
 	/**
 	 * Deletes a {@link Template}
 	 * 
-	 * @param name
-	 *            the name of the template to delete
+	 * @param  name
+	 *              the name of the template to delete
 	 * @return
-	 *         <ul>
-	 *         <li>0 - if everything went OK
-	 *         <li>-1 - if no such template exists
-	 *         <li>-2 - if the template is still in use
-	 *         </ul>
+	 *              <ul>
+	 *              <li>0 - if everything went OK
+	 *              <li>-1 - if no such template exists
+	 *              <li>-2 - if the template is still in use
+	 *              </ul>
 	 */
 	public Integer deleteTemplate(String name) {
 		Template template = templateService.getTemplateByName(name);
@@ -1109,7 +1107,7 @@ public class CoreService {
 	}
 
 	protected Properties getPlatformConfig(Environment environment) {
-		return null == environment ? getPlatform(false)
+		return null == environment ? getPlatform(false, false)
 				: environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 	}
 
@@ -1674,7 +1672,7 @@ public class CoreService {
 	public void resetConnection(FieldProcessor fp, Integer conId) {
 		SiteApplication siteApplication = siteApplicationRepository.findByDatabaseConnectionId(conId);
 		if (null != siteApplication) {
-			String databasePrefix = getPlatform(true).getString(Platform.Property.DATABASE_PREFIX);
+			String databasePrefix = getPlatform(true, false).getString(Platform.Property.DATABASE_PREFIX);
 			databaseService.resetApplicationConnection(siteApplication, databasePrefix);
 		}
 	}
@@ -1743,7 +1741,7 @@ public class CoreService {
 				LOGGER.info("destroying site {} complete", shutdownSite);
 				setSiteStartUpTime(shutdownSite, null);
 				SoapService.clearCache(siteName);
-				if (shutdownSite.getProperties().getBoolean(SiteProperties.EHCACHE_CLEAR_ON_SHUTDOWN)) {
+				if (shutdownSite.getProperties().getBoolean(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN)) {
 					CacheService.clearCache(shutdownSite);
 				}
 				shutdownSite.setState(SiteState.STOPPED);
@@ -1980,109 +1978,22 @@ public class CoreService {
 
 	public Map<String, String> getCacheStatistics(Integer siteId) {
 		SiteImpl site = getSite(siteId);
-		Map<String, String> cacheStatistics = new HashMap<>();
-		Boolean ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
-		if (ehcacheEnabled) {
-			try {
-				BlockingCache cache = CacheService.getBlockingCache(site);
-				if (null == cache) {
-					cacheStatistics.put("Status",
-							"No cache found for site " + site.getName() + ", propably site is not running.");
-				} else if (cache.isStatisticsEnabled()) {
-					Statistics statistics = cache.getStatistics();
-					int statisticsAccuracy = statistics.getStatisticsAccuracy();
-					String accuracy = "";
-
-					switch (statisticsAccuracy) {
-					case Statistics.STATISTICS_ACCURACY_NONE:
-						accuracy = "ACCURACY_NONE";
-						break;
-
-					case Statistics.STATISTICS_ACCURACY_BEST_EFFORT:
-						accuracy = "BEST_EFFORT";
-						break;
-
-					case Statistics.STATISTICS_ACCURACY_GUARANTEED:
-						accuracy = "ACCURACY_GUARANTEED";
-						break;
-					}
-
-					cacheStatistics.put("Average get time", String.valueOf(statistics.getAverageGetTime()));
-					cacheStatistics.put("Hits", String.valueOf(statistics.getCacheHits()));
-					cacheStatistics.put("Misses", String.valueOf(statistics.getCacheMisses()));
-					cacheStatistics.put("Name", cache.getName());
-					cacheStatistics.put("Size", String.valueOf(cache.getSize()));
-					cacheStatistics.put("Statistics accuracy", accuracy);
-					cacheStatistics.put("Status", cache.getStatus().toString());
-				} else {
-					cacheStatistics.put("Status",
-							"Statistics are disabled for this site. To enable statistics set the site property 'platform.site."
-									+ site.getName() + ".ehcacheStatistics' to 'true'.");
-				}
-			} catch (Exception e) {
-				LOGGER.error("Error while getting cache statistics.", e);
-			}
-		} else {
-			cacheStatistics.put("Status",
-					"Ehcache is disabled for this site. To enable the cache set the site property 'platform.site."
-							+ site.getName() + ".ehcacheEnabled' to 'true'.");
-		}
-		return cacheStatistics;
+		return CacheService.getCacheStatistics(site);
 	}
 
-	public List<AppngCache> getCacheEntries(Integer siteId) {
-		SiteImpl site = siteRepository.findById(siteId).orElse(null);
-		List<AppngCache> appngCacheEntries = new ArrayList<>();
-		try {
-			BlockingCache cache = CacheService.getBlockingCache(site);
-			if (null != cache) {
-				for (Object key : cache.getKeys()) {
-					Element element = cache.getQuiet(key);
-					if (null != element && null != element.getObjectValue()) {
-						Object objectValue = element.getObjectValue();
-						PageInfo ehcachePageInfo = (PageInfo) objectValue;
-						AppngCache appngCache = new AppngCache(key, site, ehcachePageInfo, element);
-						appngCacheEntries.add(appngCache);
-					}
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error while getting cache entries.", e);
-		}
-		return appngCacheEntries;
+	public List<CachedResponse> getCacheEntries(Integer siteId) {
+		SiteImpl site = siteRepository.findOne(siteId);
+		return CacheService.getCacheEntries(site);
 	}
 
 	public void expireCacheElement(Integer siteId, String cacheElement) throws BusinessException {
 		Site site = getSite(siteId);
-		boolean hasRemoved;
-		try {
-			hasRemoved = CacheService.getBlockingCache(site).remove(cacheElement);
-			if (!hasRemoved) {
-				throw new BusinessException("No such element: " + cacheElement);
-			}
-		} catch (Exception e) {
-			LOGGER.error(String.format("Error while expiring cache entry: %s", cacheElement), e);
-		}
+		CacheService.expireCacheElement(site, cacheElement);
 	}
 
-	@SuppressWarnings("unchecked")
 	public int expireCacheElementsStartingWith(Integer siteId, String cacheElementPrefix) throws BusinessException {
 		Site site = getSite(siteId);
-		int count = 0;
-		try {
-			BlockingCache cache = CacheService.getBlockingCache(site);
-			List<String> keys = cache.getKeys();
-			for (String key : keys) {
-				if (key.startsWith(cacheElementPrefix)) {
-					if (cache.remove(key)) {
-						count++;
-					}
-				}
-			}
-		} catch (IllegalStateException e) {
-			LOGGER.error(String.format("Error while expiring cache entries starting with '%s'", cacheElementPrefix), e);
-		}
-		return count;
+		return CacheService.expireCacheElementsStartingWith(site, cacheElementPrefix);
 	}
 
 	public void clearCacheStatistics(Integer siteId) {
@@ -2127,6 +2038,10 @@ public class CoreService {
 
 	public void createEvent(Type type, String message, HttpSession session) {
 		auditableListener.createEvent(type, message, session);
+	}
+
+	public void setSiteReloadCount(SiteImpl site) {
+		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
 	}
 
 }

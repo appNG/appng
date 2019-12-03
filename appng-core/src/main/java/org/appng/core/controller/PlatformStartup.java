@@ -44,6 +44,7 @@ import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.DatabaseService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.HsqlStarter;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.MigrationService;
@@ -174,6 +175,7 @@ public class PlatformStartup implements ServletContextListener {
 			LOGGER.warn("error while calling AbandonedConnectionCleanupThread.shutdown()", e);
 		}
 		Messaging.shutdown(env);
+		HazelcastConfigurer.shutdown();
 		if (null != executor) {
 			executor.shutdownNow();
 		}

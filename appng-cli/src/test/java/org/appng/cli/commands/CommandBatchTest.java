@@ -15,22 +15,21 @@
  */
 package org.appng.cli.commands;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.tools.os.OperatingSystem;
 import org.junit.Assert;
 import org.junit.Test;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Test for {@link CommandBatch}.
  * 
  * @author Matthias Herlitzius
- * 
  */
+@Slf4j
 public class CommandBatchTest {
 
 	private CommandBatch batch = new CommandBatch();
@@ -59,12 +58,15 @@ public class CommandBatchTest {
 	@Test
 	public void testSysEnvVariables() {
 		OperatingSystem os = OperatingSystem.detect();
+		String lang = System.getenv("LANG");
+		LOGGER.info("OS is {} ({}) with LANG {}", os, System.getProperty("os.name"), lang);
 
 		switch (os) {
 		case LINUX:
-			Set<String> validResults = new HashSet<>(Arrays.asList("en_US.UTF-8", "de_DE.UTF-8"));
 			Assert.assertArrayEquals(new String[0], batch.parseLine("def LANG = ${systemEnv['LANG']}"));
-			Assert.assertTrue(validResults.contains(variables.get("LANG")));
+			String langVar = variables.get("LANG");
+			Assert.assertEquals(String.format("Expected value %s for variable LANG, but was %s", lang, langVar), lang,
+					langVar);
 			break;
 
 		case WINDOWS:

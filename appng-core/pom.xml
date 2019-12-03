@@ -24,6 +24,7 @@
 						<!-- skip integration tests -->
 						<exclude>**/*IT.java</exclude>
 					</excludes>
+					<argLine>-Dfile.encoding=${project.build.sourceEncoding} -Dhazelcast.jcache.provider.type=server</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -161,6 +162,16 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-search</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>edu.ucar</groupId>
+					<artifactId>cdm</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- END PROJECT DEPENDENCIES -->
 		<!-- BEGIN FRAMEWORK DEPENDENCIES -->
@@ -314,19 +325,27 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-			<scope>provided</scope>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>1.12.3</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-web</artifactId>
-			<scope>provided</scope>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mysql</artifactId>
+			<version>1.12.3</version>			
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mssqlserver</artifactId>
+			<version>1.12.3</version>			
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>5.7.2</version>
+			<version>5.7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -362,6 +381,23 @@
     		<groupId>org.reflections</groupId>
     		<artifactId>reflections</artifactId>
     		<version>0.9.11</version>
+		</dependency>
+    <dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-spring</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-client</artifactId>
 		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->

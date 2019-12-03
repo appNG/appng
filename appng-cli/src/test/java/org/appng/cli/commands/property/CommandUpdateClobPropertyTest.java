@@ -35,7 +35,7 @@ import org.junit.Assert;
 public class CommandUpdateClobPropertyTest extends AbstractCommandTest {
 
 	private static final String FILE = "target/test-classes/clob.properties";
-	private static final String PROP = "platform.site.appng." + SiteProperties.EHCACHE_EXCEPTIONS;
+	private static final String PROP = "platform.site.appng." + SiteProperties.CACHE_EXCEPTIONS;
 	private String expected;
 
 	public ExecutableCliCommand getCommand() {

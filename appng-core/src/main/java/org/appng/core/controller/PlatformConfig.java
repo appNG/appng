@@ -38,6 +38,7 @@ import org.appng.core.repository.config.DataSourceFactory;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.service.CoreService;
 import org.appng.core.service.DatabaseService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.LdapService;
 import org.appng.core.service.TemplateService;
@@ -51,6 +52,7 @@ import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -65,6 +67,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.annotation.RequestScope;
+
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 
 /**
  * Central {@link Configuration} for appNG's platform context.
@@ -120,7 +124,6 @@ public class PlatformConfig {
 		lcemfb.setPersistenceUnitName("appNG");
 		lcemfb.setDataSource(dataSource);
 		Properties jpaProperties = new Properties();
-		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
 		jpaProperties.put(AvailableSettings.DIALECT, dialect);
 		lcemfb.setJpaProperties(jpaProperties);
 		lcemfb.setPackagesToScan("org.appng.core.domain");
@@ -246,6 +249,12 @@ public class PlatformConfig {
 		platformProcessor.setMarshallService(marshallService);
 		platformProcessor.setPlatformTransformer(platformTransformer);
 		return platformProcessor;
+	}
+
+	@Bean
+	@Lazy
+	public CacheManager platformCacheManager() {
+		return new HazelcastCacheManager(HazelcastConfigurer.getInstance(null));
 	}
 
 }

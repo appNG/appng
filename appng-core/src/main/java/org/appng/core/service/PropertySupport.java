@@ -221,11 +221,11 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.SERVICE_OUTPUT_TYPE, "service");
 		addSiteProperty(SiteProperties.SERVICE_PATH, "/service");
 		addSiteProperty(SiteProperties.SUPPORTED_LANGUAGES, "en, de");
-		addSiteProperty(SiteProperties.EHCACHE_ENABLED, false);
-		addSiteProperty(SiteProperties.EHCACHE_EXCEPTIONS, managerPath, true);
-		addSiteProperty(SiteProperties.EHCACHE_BLOCKING_TIMEOUT, 10000);
-		addSiteProperty(SiteProperties.EHCACHE_STATISTICS, false);
-		addSiteProperty(SiteProperties.EHCACHE_CLEAR_ON_SHUTDOWN, true);
+		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
+		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
+		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, true);
+		addSiteProperty(SiteProperties.CACHE_STATISTICS, false);
+		addSiteProperty(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN, true);
 		addSiteProperty(SiteProperties.ERROR_PAGE, "error");
 		addSiteProperty(SiteProperties.ERROR_PAGES, "/de=fehler|/en=error");
 		addSiteProperty(SiteProperties.INDEX_DIR, "/index");
@@ -330,7 +330,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_VALIDATION_PERIOD, 15);
 		addPlatformProperty(defaultOverrides, Platform.Property.DEFAULT_TEMPLATE, "appng");
 		addPlatformProperty(defaultOverrides, Platform.Property.DEV_MODE, devMode);
-		addPlatformProperty(defaultOverrides, Platform.Property.EHCACHE_CONFIG, "WEB-INF/conf/ehcache.xml");
+		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_CONFIG, "WEB-INF/conf/hazelcast.xml");
 		addPlatformProperty(defaultOverrides, Platform.Property.ENCODING, HttpHeaders.CHARSET_UTF8);
 		addPlatformProperty(defaultOverrides, Platform.Property.FILEBASED_DEPLOYMENT, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.FORMAT_OUTPUT, false);

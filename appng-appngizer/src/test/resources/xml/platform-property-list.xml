@@ -16,6 +16,13 @@
 		<description>The folder for the application-cache, relative to platform.cacheFolder. Applications might use this
 			folder to cache temporary data.</description>
 	</property>
+	<property name="cacheConfig" self="http://localhost/platform/property/cacheConfig">
+		<value>WEB-INF/conf/hazelcast.xml</value>
+		<defaultValue>WEB-INF/conf/hazelcast.xml</defaultValue>
+		<description>The global configuration for configuring caching. This property either contains the platform-relative
+			path to a config file (e.g. WEB-INF/conf/config.xml) or the XML configuration itself in XML format (stored as clob).
+		</description>
+	</property>
 	<property name="cacheFolder" self="http://localhost/platform/property/cacheFolder">
 		<value>cache</value>
 		<defaultValue>cache</defaultValue>
@@ -67,12 +74,6 @@
 		<defaultValue>false</defaultValue>
 		<description>Disable for production use. If enabled, XML and XSL resources will be written to the cache directory. If
 			disabled, XML and XSL resources will be cached in memory.</description>
-	</property>
-	<property name="ehcacheConfig" self="http://localhost/platform/property/ehcacheConfig">
-		<value>WEB-INF/conf/ehcache.xml</value>
-		<defaultValue>WEB-INF/conf/ehcache.xml</defaultValue>
-		<description>The global page cache configuration using the Ehcache XML configuration format. This cache is used to
-			cache HTTP responses.</description>
 	</property>
 	<property name="encoding" self="http://localhost/platform/property/encoding">
 		<value>UTF-8</value>

@@ -28,7 +28,6 @@ import ch.sla.jdbcperflogger.driver.WrappingDriver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link DatasourceConfigurer} using <a href="http://brettwooldridge.github.io/HikariCP/">HikariCP</a>. Also supports
  * <a href="https://github.com/sylvainlaurent/JDBC-Performance-Logger">JDBC-Performance-Logger</a> for measuring
  * performance of SQL statements.
@@ -40,6 +39,8 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	private HikariDataSource hikariDataSource;
 	private boolean logPerformance = false;
+	private int connectionTimeout = 5000;
+	private int validationTimeout = 5000;
 
 	public HikariCPConfigurer() {
 
@@ -58,6 +59,8 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 		HikariConfig configuration = new HikariConfig();
 
 		configuration.setMaximumPoolSize(connection.getMaxConnections());
+		configuration.setConnectionTimeout(connectionTimeout);
+		configuration.setValidationTimeout(validationTimeout);
 		if (StringUtils.isNotBlank(connection.getValidationQuery())) {
 			configuration.setConnectionTestQuery(connection.getValidationQuery());
 		}
@@ -104,6 +107,14 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	public void setLogPerformance(boolean logPerformance) {
 		this.logPerformance = logPerformance;
+	}
+
+	public void setConnectionTimeout(int connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
+	}
+	
+	public void setValidationTimeout(int validationTimeout) {
+		this.validationTimeout = validationTimeout;
 	}
 
 }
