@@ -371,7 +371,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends Driver> driverClazz = (Class<? extends Driver>) Class.forName(driverClass);
-			DriverManager.registerDriver(driverClazz.newInstance());
+			//DriverManager.registerDriver(driverClazz.newInstance());
 			LOGGER.info("Registered JDBC driver {}", driverClass);
 		} catch (Exception e) {
 			if (throwException) {
