@@ -771,8 +771,8 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="messages" type="messages" minOccurs="0" />
 			<xs:element name="config" type="dataConfig" />
+			<xs:element name="messages" type="messages" minOccurs="0" />
 			<xs:choice>
 				<xs:element name="bean" type="bean" />
 				<xs:element name="data" type="data" />
