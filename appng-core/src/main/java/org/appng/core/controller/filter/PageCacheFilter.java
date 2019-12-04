@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -139,11 +138,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					throw new ServletException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
-				Optional<String> lastModified = Optional.ofNullable(response.getHeader(HttpHeaders.LAST_MODIFIED));
+				long lastModified = pageInfo.getHeaders().getLastModified();
 				boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
 
-				if (hasModifiedSince && lastModified.isPresent()) {
-					handleLastModified(request, response, pageInfo, lastModified.get());
+				if (hasModifiedSince && lastModified > 0) {
+					handleLastModified(request, response, pageInfo, lastModified);
 				} else {
 					writeResponse(request, response, pageInfo);
 				}
@@ -193,12 +192,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
-			CachedResponse pageInfo, String lastModified) throws IOException {
+			CachedResponse pageInfo, long lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
 			public long update() throws IOException {
-				Date date = CacheHeaderUtils.getDate(lastModified);
-				return null == date ? System.currentTimeMillis() : date.getTime();
+				return lastModified;
 			}
 
 			public boolean needsUpdate() {
