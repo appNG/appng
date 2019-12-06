@@ -276,7 +276,6 @@ public class ServiceRequestHandler implements RequestHandler {
 					servletResponse.setContentType(contenttype);
 					servletResponse.getOutputStream().write(result.getBytes());
 					servletResponse.getOutputStream().close();
-					LOGGER.debug("set content_type to {}", contenttype);
 				}
 			}
 		} catch (Exception e) {
