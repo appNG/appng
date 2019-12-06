@@ -49,6 +49,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.ElementHelper;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.AbstractRequestProcessor;
@@ -61,6 +62,8 @@ import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ApplicationReference;
 import org.appng.xml.platform.Content;
 import org.appng.xml.platform.Datasource;
+import org.appng.xml.platform.MessageType;
+import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Output;
 import org.appng.xml.platform.OutputFormat;
 import org.appng.xml.platform.OutputType;
@@ -231,6 +234,12 @@ public class ServiceRequestHandler implements RequestHandler {
 					Datasource datasource = application.processDataSource(servletResponse, applyPermissionsOnServiceRef,
 							applicationRequest, dataSourceId, marshallService);
 					if (null != datasource) {
+						boolean hasErrors = addMessagesToDatasource(environment, site, application, datasource);
+						if (hasErrors) {
+							LOGGER.debug(
+									"Datasource has been processed an error messages found in session. Set return code to 400");
+							servletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+						}
 						LOGGER.debug("calling datasource '{}' of application '{}', format: {}", dataSourceId,
 								applicationName, format);
 						if (FORMAT_XML.equals(format)) {
@@ -279,6 +288,21 @@ public class ServiceRequestHandler implements RequestHandler {
 		} finally {
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
+	}
+
+	private boolean addMessagesToDatasource(Environment environment, Site site, ApplicationProvider application,
+			Datasource datasource) {
+		// Messages added to the FieldProcessor during processing of the datasource are normally not added
+		// to the Datasource if it is called with the GuiHandler. Those messages are added to the page. When a
+		// datasource is called as a service, we have to put them into the datasource and remove them from session.
+		ElementHelper elementHelper = new ElementHelper(site, application);
+		Messages messages = elementHelper.removeMessages(environment);
+		if (null != messages) {
+			datasource.setMessages(messages);
+			return messages.getMessageList().stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
+					.isPresent();
+		}
+		return false;
 	}
 
 	protected String processPlatform(Environment environment, Path path, Site siteToUse,
