@@ -273,18 +273,19 @@ public class ServiceRequestHandler implements RequestHandler {
 					LOGGER.warn("unknown service type: {}", serviceType);
 				}
 				if (null != result) {
-					servletResponse.getOutputStream().write(result.getBytes());
 					servletResponse.setContentType(contenttype);
+					servletResponse.getOutputStream().write(result.getBytes());
+					servletResponse.getOutputStream().close();
 				}
 			}
 		} catch (Exception e) {
 			String queryString = servletRequest.getQueryString();
 			String pathWithQuery = servletRequest.getServletPath() + (null == queryString ? "" : "?" + queryString);
 			LOGGER.error(String.format("error while processing service-request %s", pathWithQuery), e);
-			servletResponse.getWriter().write("an error occured");
-			servletResponse.getWriter().close();
 			servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			servletResponse.setContentType(MediaType.TEXT_PLAIN_VALUE);
+			servletResponse.getWriter().write("an error occured");
+			servletResponse.getWriter().close();
 		} finally {
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
