@@ -274,6 +274,9 @@ public final class Platform {
 		 * (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
+
+		/** The path to appNG's health monitoring */
+		public static final String MONITORING_PATH = "monitoringPath";
 	}
 
 	/**

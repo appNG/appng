@@ -54,6 +54,7 @@ import org.appng.core.Redirect;
 import org.appng.core.controller.handler.ErrorPageHandler;
 import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.handler.JspHandler;
+import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
 import org.appng.core.controller.handler.ServiceRequestHandler;
 import org.appng.core.controller.handler.StaticContentHandler;
@@ -83,6 +84,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTP = "http://";
 
 	protected JspHandler jspHandler;
+
+	protected MonitoringHandler monitoringHandler = new MonitoringHandler();
 
 	private Manager manager;
 
@@ -220,6 +223,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 						requestHandler = new ServiceRequestHandler(marshallService, platformTransformer, debugFolder);
 					} else if (pathInfo.isJsp()) {
 						requestHandler = jspHandler;
+					} else if (pathInfo.isMonitoring()) {
+						requestHandler = monitoringHandler;
 					} else if (ERRORPAGE.equals(servletPath)) {
 						requestHandler = new ErrorPageHandler();
 					} else {

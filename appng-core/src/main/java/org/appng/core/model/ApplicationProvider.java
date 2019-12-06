@@ -713,7 +713,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	public List<JarInfo> getJarInfos() {
-		if (null == jarInfos) {
+		if (jarInfos.isEmpty()) {
 			for (Resource resource : application.getResources().getResources(ResourceType.JAR)) {
 				JarInfo jarInfo = JarInfoBuilder.getJarInfo(resource.getCachedFile(), application.getName());
 				jarInfos.add(jarInfo);

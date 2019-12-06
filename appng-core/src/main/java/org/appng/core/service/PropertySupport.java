@@ -350,6 +350,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_PORT, 4000);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_RECEIVER, MulticastReceiver.class.getName());
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITOR_PERFORMANCE, false);
+		addPlatformProperty(defaultOverrides, Platform.Property.MONITORING_PATH, "/health");
 		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
 				DefaultPasswordPolicy.ERROR_MSSG_KEY);
 		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_REGEX, DefaultPasswordPolicy.REGEX);
