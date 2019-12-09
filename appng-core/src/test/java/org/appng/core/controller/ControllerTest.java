@@ -53,6 +53,7 @@ import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.handler.JspHandler;
+import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
@@ -185,7 +186,7 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testMonitoring() {
-		prepateMonitoring("/health");
+		prepareMonitoring("/health");
 		try {
 			doGet(base.request, base.response);
 			String actual = new String(base.out.toByteArray());
@@ -200,7 +201,7 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testMonitoringSystem() {
-		prepateMonitoring("/health/system");
+		prepareMonitoring("/health/system");
 		try {
 			doGet(base.request, base.response);
 			String actual = new String(base.out.toByteArray());
@@ -213,7 +214,7 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testMonitoringEnv() {
-		prepateMonitoring("/health/environment");
+		prepareMonitoring("/health/environment");
 		try {
 			doGet(base.request, base.response);
 			String actual = new String(base.out.toByteArray());
@@ -229,7 +230,8 @@ public class ControllerTest extends Controller {
 		}
 	}
 
-	private void prepateMonitoring(String path) {
+	private void prepareMonitoring(String path) {
+		monitoringHandler = new MonitoringHandler();
 		when(base.request.getServletPath()).thenReturn(path);
 		Properties platformCfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String sharedSecret = platformCfg.getString(Platform.Property.SHARED_SECRET);
