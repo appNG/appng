@@ -46,6 +46,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
+import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -62,10 +63,29 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
+ * A {@link RequestHandler} that exposes some health information for the site.
+ * <p>
+ * Supports the following operations:
+ * <ul>
+ * <li>{@code /health}<br/>
+ * Shows the {@link Site}'s status, including its {@link Application}s and {@link Properties}.</li>
+ * <li>{@code /health/system}<br/>
+ * Shows the system's properties as returned by {@link System#getProperties()}.</li>
+ * <li>{@code /health}/environment<br/>
+ * Shows the system's environment as returned by {@link System#getenv()}.</li>
+ * <li>{@code /health/platform}<br/>
+ * Shows a list of all JAR files used by the platform.</li>
+ * <li>{@code /health/jars}<br/>
+ * Shows a list of all JAR files used by {@link Site}s {@link SiteClassLoader}.</li></li>
+ * </ul>
+ * </p>
+ * 
+ * @see    Platform.Property#MONITORING_PATH
  * @author Matthias Müller
  */
 public class MonitoringHandler implements RequestHandler {
 
+	private static final String MONITORING_PASSWORD = "monitoringPassword";
 	private static final String BASIC_REALM = "Basic realm=\"appNG Health Monitoring\"";
 	private static final String MONITORING_USER = "monitoring";
 	private ObjectWriter writer;
@@ -102,31 +122,33 @@ public class MonitoringHandler implements RequestHandler {
 
 	private Object getSiteInfo(Site site) {
 		Map<String, ApplicationInfo> applicationInfos = new HashMap<>();
-		for (Application a : site.getApplications()) {
-			List<Jar> jars = null;
-			if (null != a.getResources()) {
-				jars = a.getResources().getResources(ResourceType.JAR).stream()
-						.map(j -> new Jar(j.getCachedFile().getAbsolutePath(),
-								OffsetDateTime.ofInstant(Instant.ofEpochMilli(j.getCachedFile().lastModified()),
-										TimeZone.getDefault().toZoneId())))
-						.collect(Collectors.toList());
+		if (site.getState().equals(SiteState.STARTED)) {
+			for (Application a : site.getApplications()) {
+				List<Jar> jars = null;
+				if (null != a.getResources()) {
+					jars = a.getResources().getResources(ResourceType.JAR).stream()
+							.map(j -> new Jar(j.getCachedFile().getAbsolutePath(),
+									OffsetDateTime.ofInstant(Instant.ofEpochMilli(j.getCachedFile().lastModified()),
+											TimeZone.getDefault().toZoneId())))
+							.collect(Collectors.toList());
+				}
+				DataSource ds = a.getBean(DataSource.class);
+				Connection connection = null;
+				if (null != ds && ds instanceof HikariDataSource) {
+					HikariDataSource hkds = HikariDataSource.class.cast(ds);
+					connection = new Connection(hkds.getDataSourceProperties().getProperty("url"),
+							hkds.getDataSourceProperties().getProperty("user"), hkds.getMaximumPoolSize());
+				}
+				ApplicationInfo appInfo = new ApplicationInfo(a.getPackageVersion(), a.getDescription(), a.isHidden(),
+						a.isPrivileged(), a.isFileBased(), connection, jars);
+				applicationInfos.put(a.getName(), appInfo);
 			}
-			DataSource ds = a.getBean(DataSource.class);
-			Connection connection = null;
-			if (null != ds && ds instanceof HikariDataSource) {
-				HikariDataSource hkds = HikariDataSource.class.cast(ds);
-				connection = new Connection(hkds.getDataSourceProperties().getProperty("url"),
-						hkds.getDataSourceProperties().getProperty("user"), hkds.getMaximumPoolSize());
-			}
-			ApplicationInfo appInfo = new ApplicationInfo(a.getPackageVersion(), a.getDescription(), a.isHidden(),
-					a.isPrivileged(), a.isFileBased(), connection, jars);
-			applicationInfos.put(a.getName(), appInfo);
 		}
-		Duration uptime = null;
+		Long uptime = null;
 		OffsetDateTime startup = null;
 		if (null != site.getStartupTime()) {
 			startup = OffsetDateTime.ofInstant(site.getStartupTime().toInstant(), ZoneId.systemDefault());
-			uptime = Duration.between(startup.toLocalDateTime(), LocalDateTime.now());
+			uptime = Duration.between(startup.toLocalDateTime(), LocalDateTime.now()).getSeconds();
 		}
 		java.util.Properties plainProperties = site.getProperties().getPlainProperties();
 		Map<Object, Object> typedProperties = new TreeMap<>();
@@ -144,15 +166,16 @@ public class MonitoringHandler implements RequestHandler {
 			}
 		}
 
-		return new SiteInfo(site.getName(), site.getState(), site.getHost(), site.getDomain(), startup,
-				uptime.getSeconds(), applicationInfos, typedProperties);
+		return new SiteInfo(site.getName(), site.getState(), site.getHost(), site.getDomain(), startup, uptime,
+				applicationInfos, typedProperties);
 	}
 
 	private boolean isAuthenticated(Environment env, HttpServletRequest servletRequest) {
 		Properties platformCfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String sharedSecret = platformCfg.getString(Platform.Property.SHARED_SECRET);
+		String password = platformCfg.getString(MONITORING_PASSWORD, sharedSecret);
 		String actualAuth = servletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-		String expectedAuth = Base64.getEncoder().encodeToString((MONITORING_USER + ":" + sharedSecret).getBytes());
+		String expectedAuth = Base64.getEncoder().encodeToString((MONITORING_USER + ":" + password).getBytes());
 		return null != actualAuth && actualAuth.equals("Basic " + expectedAuth);
 	}
 
