@@ -43,6 +43,7 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
+import org.appng.api.model.Resource;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
@@ -127,10 +128,7 @@ public class MonitoringHandler implements RequestHandler {
 			for (Application a : site.getApplications()) {
 				List<Jar> jars = null;
 				if (null != a.getResources()) {
-					jars = a.getResources().getResources(ResourceType.JAR).stream()
-							.map(j -> new Jar(j.getCachedFile().getAbsolutePath(),
-									OffsetDateTime.ofInstant(Instant.ofEpochMilli(j.getCachedFile().lastModified()),
-											TimeZone.getDefault().toZoneId())))
+					jars = a.getResources().getResources(ResourceType.JAR).stream().map(j -> jarFromResoure(j))
 							.collect(Collectors.toList());
 				}
 				DataSource ds = a.getBean(DataSource.class);
@@ -214,6 +212,11 @@ public class MonitoringHandler implements RequestHandler {
 		String url;
 		String user;
 		Integer maxPoolSize;
+	}
+
+	Jar jarFromResoure(Resource j) {
+		return new Jar(j.getCachedFile().getAbsolutePath(), OffsetDateTime
+				.ofInstant(Instant.ofEpochMilli(j.getCachedFile().lastModified()), TimeZone.getDefault().toZoneId()));
 	}
 
 	@Data
