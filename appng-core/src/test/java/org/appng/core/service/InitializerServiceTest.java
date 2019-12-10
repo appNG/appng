@@ -170,7 +170,7 @@ public class InitializerServiceTest extends TestSupport
 		TestEntity entity = new TestEntity(null, "name", 2, 3.4d, true);
 		testservice.createEntity(entity);
 		Assert.assertEquals(Integer.valueOf(1), entity.getId());
-		service.shutDownSite(env, siteToLoad);
+		service.shutDownSite(env, siteToLoad, true);
 	}
 
 	public void initialize(GenericApplicationContext applicationContext) {

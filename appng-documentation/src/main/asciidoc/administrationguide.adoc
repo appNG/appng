@@ -18,3 +18,5 @@ include::admin/caching.adoc[]
 include::admin/cli.adoc[]
 
 include::admin/appngizer.adoc[]
+
+include::admin/monitoring.adoc[]

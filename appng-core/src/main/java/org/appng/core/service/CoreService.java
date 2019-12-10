@@ -188,7 +188,7 @@ public class CoreService {
 	}
 
 	public PropertyHolder getPlatformProperties() {
-		return getPlatform(true,false);
+		return getPlatform(true, false);
 	}
 
 	protected PropertyHolder getPlatform(boolean finalize, boolean detached) {
@@ -1270,7 +1270,7 @@ public class CoreService {
 		Iterable<PropertyImpl> siteProperties = getSiteProperties(site.getId(), null);
 		deleteProperties(siteProperties);
 
-		SiteImpl shutdownSite = shutdownSite(env, site.getName());
+		SiteImpl shutdownSite = shutdownSite(env, site.getName(), false);
 		List<DatabaseConnection> connections = databaseConnectionRepository.findBySiteId(site.getId());
 		LOGGER.info("deleting {} orphaned database connections", connections.size());
 		databaseConnectionRepository.delete(connections);
@@ -1294,6 +1294,10 @@ public class CoreService {
 			CacheProvider cacheProvider = new CacheProvider(platformConfig);
 			cacheProvider.clearCache(site);
 			site.setState(SiteState.DELETED);
+
+			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
+			siteMap.remove(site.getName());
+
 			if (sendDeletedEvent) {
 				site.sendEvent(new SiteDeletedEvent(site.getName()));
 			}
@@ -1703,6 +1707,10 @@ public class CoreService {
 	}
 
 	public SiteImpl shutdownSite(Environment env, String siteName) {
+		return shutdownSite(env, siteName, false);
+	}
+
+	public SiteImpl shutdownSite(Environment env, String siteName, boolean removeFromSiteMap) {
 		Properties platformConfig = getPlatformConfig(env);
 		if (null != env) {
 			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -1732,21 +1740,25 @@ public class CoreService {
 				}
 
 				LOGGER.info("destroying site {}", shutdownSite);
-				for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
-					shutdownApplication(siteApplication, env);
+				if (SiteState.STARTED.equals(shutdownSite.getState())) {
+					for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
+						shutdownApplication(siteApplication, env);
+					}
+					shutdownSite.closeSiteContext();
+					((DefaultEnvironment) env).clearSiteScope(shutdownSite);
+					LOGGER.info("destroying site {} complete", shutdownSite);
+					setSiteStartUpTime(shutdownSite, null);
+					SoapService.clearCache(siteName);
+					if (shutdownSite.getProperties().getBoolean(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN)) {
+						CacheService.clearCache(shutdownSite);
+					}
 				}
-				shutdownSite.closeSiteContext();
-				((DefaultEnvironment) env).clearSiteScope(shutdownSite);
-				LOGGER.info("destroying site {} complete", shutdownSite);
-				setSiteStartUpTime(shutdownSite, null);
-				SoapService.clearCache(siteName);
-				if (shutdownSite.getProperties().getBoolean(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN)) {
-					CacheService.clearCache(shutdownSite);
-				}
-				shutdownSite.setState(SiteState.STOPPED);
+				shutdownSite.setState(shutdownSite.isActive() ? SiteState.STOPPED : SiteState.INACTIVE);
 				auditableListener.createEvent(Type.INFO, "Shut down site " + shutdownSite.getName());
-				shutdownSite = null;
-				return (SiteImpl) siteMap.remove(siteName);
+				if (removeFromSiteMap) {
+					siteMap.remove(siteName);
+				}
+				return shutdownSite;
 			}
 		}
 		return null;
