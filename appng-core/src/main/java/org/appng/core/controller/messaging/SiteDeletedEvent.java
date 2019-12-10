@@ -47,7 +47,7 @@ public class SiteDeletedEvent extends Event {
 		ApplicationContext platformContext = environment.getAttribute(Scope.PLATFORM,
 				Platform.Environment.CORE_PLATFORM_CONTEXT);
 		CoreService coreService = platformContext.getBean(CoreService.class);
-		SiteImpl shutdownSite = coreService.shutdownSite(environment, getSiteName(), true);
+		SiteImpl shutdownSite = coreService.shutdownSite(environment, getSiteName(), false);
 		if (null != shutdownSite) {
 			coreService.cleanupSite(environment, shutdownSite, false);
 		}

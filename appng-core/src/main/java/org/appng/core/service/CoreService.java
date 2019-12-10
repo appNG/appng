@@ -1270,7 +1270,7 @@ public class CoreService {
 		Iterable<PropertyImpl> siteProperties = getSiteProperties(site.getId(), null);
 		deleteProperties(siteProperties);
 
-		SiteImpl shutdownSite = shutdownSite(env, site.getName(), true);
+		SiteImpl shutdownSite = shutdownSite(env, site.getName(), false);
 		List<DatabaseConnection> connections = databaseConnectionRepository.findBySiteId(site.getId());
 		LOGGER.info("deleting {} orphaned database connections", connections.size());
 		databaseConnectionRepository.delete(connections);
@@ -1294,6 +1294,10 @@ public class CoreService {
 			CacheProvider cacheProvider = new CacheProvider(platformConfig);
 			cacheProvider.clearCache(site);
 			site.setState(SiteState.DELETED);
+
+			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
+			siteMap.remove(site.getName());
+
 			if (sendDeletedEvent) {
 				site.sendEvent(new SiteDeletedEvent(site.getName()));
 			}
@@ -1752,7 +1756,6 @@ public class CoreService {
 				shutdownSite.setState(shutdownSite.isActive() ? SiteState.STOPPED : SiteState.INACTIVE);
 				auditableListener.createEvent(Type.INFO, "Shut down site " + shutdownSite.getName());
 				if (removeFromSiteMap) {
-					shutdownSite = null;
 					siteMap.remove(siteName);
 				}
 				return shutdownSite;
@@ -2051,7 +2054,5 @@ public class CoreService {
 	public void setSiteReloadCount(SiteImpl site) {
 		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
 	}
-
-
 
 }
