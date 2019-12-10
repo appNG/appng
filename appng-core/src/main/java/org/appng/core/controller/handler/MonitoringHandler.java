@@ -88,6 +88,7 @@ public class MonitoringHandler implements RequestHandler {
 	private static final String MONITORING_PASSWORD = "monitoringPassword";
 	private static final String BASIC_REALM = "Basic realm=\"appNG Health Monitoring\"";
 	private static final String MONITORING_USER = "monitoring";
+	private static final String PREFIX_PASSWORD = "password";
 	private ObjectWriter writer;
 
 	public MonitoringHandler() {
@@ -153,9 +154,12 @@ public class MonitoringHandler implements RequestHandler {
 		java.util.Properties plainProperties = site.getProperties().getPlainProperties();
 		Map<Object, Object> typedProperties = new TreeMap<>();
 		for (Entry<Object, Object> entry : plainProperties.entrySet()) {
+
 			String value = (String) entry.getValue();
 			String key = (String) entry.getKey();
-			if (value.matches("^\\d+$")) {
+			if (key.toLowerCase().contains(PREFIX_PASSWORD)) {
+				typedProperties.put(key, value.replaceAll(".", "*"));
+			} else if (value.matches("^\\d+$")) {
 				typedProperties.put(key, Integer.valueOf(value));
 			} else if (value.toLowerCase().matches("^\\d+\\.\\d+$")) {
 				typedProperties.put(key, Double.valueOf(value));

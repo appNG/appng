@@ -193,6 +193,7 @@ public class ControllerTest extends Controller {
 			Mockito.verify(base.response).setContentType(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON);
 			Assert.assertTrue(actual.contains("\"name\" : \"manager\""));
 			Assert.assertTrue(actual.contains("\"state\" : \"STARTED\""));
+			Assert.assertTrue(actual.contains("\"ldapPassword\" : \"******\""));
 		} catch (Exception e) {
 			fail(e);
 		}
