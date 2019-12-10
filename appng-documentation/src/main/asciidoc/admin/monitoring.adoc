@@ -20,7 +20,7 @@ Shows the current site, including it's state (one of: `STARTED`, `STARTING`, `ST
 *Example Response*:
 [source,json]
 ----
-include::../listing/health.json[]
+include::listing/health.json[]
 ----
 
 ==== Platform JARs
