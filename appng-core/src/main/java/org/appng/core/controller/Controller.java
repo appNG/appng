@@ -171,7 +171,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		String hostIdentifier = RequestUtil.getHostIdentifier(servletRequest, env);
 		Site site = RequestUtil.getSiteByHost(env, hostIdentifier);
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, true);
+		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, false);
 
 		if (site != null) {
 			try {
@@ -273,6 +273,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			LOGGER.debug("returned {} for request '{}'", status, servletPath);
 		} else {
 			LOGGER.debug("access to '{}' not allowed", servletPath);
+			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 		}
 
 	}

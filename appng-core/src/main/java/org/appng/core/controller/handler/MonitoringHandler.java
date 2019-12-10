@@ -120,7 +120,7 @@ public class MonitoringHandler implements RequestHandler {
 		}
 	}
 
-	private Object getSiteInfo(Site site) {
+	private SiteInfo getSiteInfo(Site site) {
 		Map<String, ApplicationInfo> applicationInfos = new HashMap<>();
 		if (site.getState().equals(SiteState.STARTED)) {
 			for (Application a : site.getApplications()) {
