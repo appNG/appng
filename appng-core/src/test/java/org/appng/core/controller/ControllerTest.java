@@ -190,7 +190,6 @@ public class ControllerTest extends Controller {
 		try {
 			doGet(base.request, base.response);
 			String actual = new String(base.out.toByteArray());
-			System.err.println(actual);
 			Mockito.verify(base.response).setContentType(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON);
 			Assert.assertTrue(actual.contains("\"name\" : \"manager\""));
 			Assert.assertTrue(actual.contains("\"state\" : \"STARTED\""));
