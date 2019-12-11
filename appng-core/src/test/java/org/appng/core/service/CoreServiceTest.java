@@ -809,12 +809,14 @@ public class CoreServiceTest {
 	private void validateProperties(PropertyHolder propertyHolder, String ecpectedClobValue) {
 		assertEquals("foobar", propertyHolder.getString("foo"));
 		Property foo = propertyHolder.getProperty("foo");
-		assertEquals(Property.Type.MULTILINED, foo.getType());
+		assertEquals(Property.Type.TEXT, foo.getType());
 		assertEquals("a foo property [UPDATED]", foo.getDescription());
 
 		assertEquals("foobaz", propertyHolder.getString("bar"));
 		assertEquals("a new property", propertyHolder.getProperty("bar").getDescription());
 		assertEquals(ecpectedClobValue, propertyHolder.getClob("clobValue"));
+		Property clobValue = propertyHolder.getProperty("clobValue");
+		assertEquals(Property.Type.MULTILINED, clobValue.getType());
 	}
 
 	@Test
