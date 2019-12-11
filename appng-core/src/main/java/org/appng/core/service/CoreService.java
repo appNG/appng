@@ -115,6 +115,7 @@ import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.PackageInfo;
 import org.appng.xml.application.PermissionRef;
 import org.appng.xml.application.Permissions;
+import org.appng.xml.application.PropertyType;
 import org.appng.xml.application.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -219,7 +220,8 @@ public class CoreService {
 	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
 			String name) {
 		if (defaultOverrides.containsKey(name)) {
-			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
+			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null,
+					org.appng.api.model.Property.Type.TEXT);
 		}
 	}
 
@@ -1048,12 +1050,17 @@ public class CoreService {
 	private void setPropertyValue(org.appng.xml.application.Property prop, PropertyImpl property,
 			boolean forceClobValue) {
 		property.setDescription(prop.getDescription());
-		if (Boolean.TRUE.equals(prop.isClob())) {
+		PropertyType orignalType = prop.getType();
+		Property.Type type = null != orignalType ? Property.Type.valueOf(orignalType.name())
+				: Property.Type.forString(prop.getValue());
+		property.setType(type);
+		if (Boolean.TRUE.equals(prop.isClob()) || Property.Type.MULTILINED.equals(type)) {
 			if (forceClobValue || null == property.getClob()) {
 				property.setClob(prop.getValue());
 			}
 			property.setDefaultString(null);
 			property.setActualString(null);
+			property.setType(Property.Type.MULTILINED);
 		} else if (StringUtils.isBlank(property.getClob())) {
 			property.setDefaultString(prop.getValue());
 			property.setClob(null);

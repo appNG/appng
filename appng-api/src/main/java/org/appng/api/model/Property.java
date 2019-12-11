@@ -15,6 +15,8 @@
  */
 package org.appng.api.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * A {@code Property} is a single configuration value, used to configure the appNG platform, a {@link Site} or a
  * {@link Application}.
@@ -24,6 +26,93 @@ package org.appng.api.model;
  * @see Properties
  */
 public interface Property {
+
+	/**
+	 * The type of a {@link Property}
+	 */
+	public enum Type {
+		INT, DECIMAL, BOOLEAN, TEXT, PASSWORD, MULTILINED;
+
+		/**
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static Type forObject(Object value) {
+			if (null == value) {
+				return TEXT;
+			}
+			if (value.getClass().isAssignableFrom(boolean.class) || value.getClass().isAssignableFrom(Boolean.class)) {
+				return BOOLEAN;
+			}
+			if (value.getClass().isAssignableFrom(Integer.class) || value.getClass().isAssignableFrom(Long.class)
+					|| value.getClass().isAssignableFrom(short.class)
+					|| value.getClass().isAssignableFrom(Short.class)) {
+				return INT;
+			}
+			if (value.getClass().isAssignableFrom(double.class) || value.getClass().isAssignableFrom(Double.class)
+					|| value.getClass().isAssignableFrom(float.class)
+					|| value.getClass().isAssignableFrom(Float.class)) {
+				return DECIMAL;
+			}
+			return TEXT;
+		}
+
+		/**
+		 * Checks if the given input value is a valid string representation according to the given type.
+		 * 
+		 * @param  type
+		 *               the type
+		 * @param  value
+		 *               the input value
+		 * @return       {@code true} if the value is a valid string representation, {@code false otherwise}
+		 */
+		public static boolean isValidValue(Type type, String value) {
+			boolean notBlank = StringUtils.isNotBlank(value);
+			switch (type) {
+			case BOOLEAN:
+				return notBlank && value.toLowerCase().matches("^(true|false)$");
+			case DECIMAL:
+				return notBlank && value.matches("^(\\+|-)?\\d+\\.\\d+$");
+			case INT:
+				return notBlank && value.matches("^(\\+|-)?\\d+$");
+			default:
+				return true;
+			}
+		}
+
+		/**
+		 * Finds the best matching type for the given input string
+		 * 
+		 * @param  value
+		 *               the input string
+		 * @return       the type
+		 */
+		public static Type forString(String value) {
+			if (isValidValue(BOOLEAN, value)) {
+				return BOOLEAN;
+			}
+			if (isValidValue(DECIMAL, value)) {
+				return DECIMAL;
+			}
+			if (isValidValue(INT, value)) {
+				return INT;
+			}
+			if (StringUtils.isNotBlank(value) && value.contains(StringUtils.LF)) {
+				return MULTILINED;
+			}
+			return TEXT;
+		}
+	}
+
+	/**
+	 * Returns the type of this property
+	 * 
+	 * @return the type
+	 */
+	default Type getType() {
+		return Type.TEXT;
+	}
 
 	/**
 	 * Returns the {@code String}-value of this {@code Property}

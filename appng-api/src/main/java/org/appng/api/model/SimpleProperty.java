@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
  * Default {@link Property}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class SimpleProperty implements Property, Identifiable<String>, Comparable<Property> {
@@ -42,6 +41,7 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 	private Date version;
 	private byte[] blob;
 	private String clob;
+	private Type type;
 
 	public SimpleProperty() {
 		this.mandatory = false;
@@ -195,12 +195,21 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 		return StringUtils.isEmpty(value);
 	}
 
+	@Override
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
 	public String toString() {
 		String value = getString();
 		if (null == value) {
 			value = getClob();
 		}
-		return getName() + ": " + (value == null ? "(blob-content)" : value);
+		return getName() + ": " + (value == null ? "(blob-content)" : value) + " [" + getType() + "]";
 	}
 
 	public int compareTo(Property other) {
@@ -209,4 +218,5 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 		}
 		return getName().compareToIgnoreCase(other.getName());
 	}
+
 }

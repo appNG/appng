@@ -726,8 +726,11 @@ public class CoreServiceTest {
 		validateApplication(appngVersion, applicationName, applicationVersion, applicationTimestamp, application);
 
 		assertEquals("bar", application.getProperties().getString("foo"));
-		String description = ((PropertyHolder) application.getProperties()).getProperty("foo").getDescription();
-		assertEquals("a foo property", description);
+		Property property = ((PropertyHolder) application.getProperties()).getProperty("foo");
+		assertEquals("a foo property", property.getDescription());
+		assertEquals(Property.Type.TEXT, property.getType());
+		Property multilined = ((PropertyHolder) application.getProperties()).getProperty("clobValue");
+		assertEquals(Property.Type.MULTILINED, multilined.getType());
 		assertEquals("a\nb\nc", application.getProperties().getClob("clobValue"));
 	}
 
@@ -805,7 +808,9 @@ public class CoreServiceTest {
 
 	private void validateProperties(PropertyHolder propertyHolder, String ecpectedClobValue) {
 		assertEquals("foobar", propertyHolder.getString("foo"));
-		assertEquals("a foo property [UPDATED]", propertyHolder.getProperty("foo").getDescription());
+		Property foo = propertyHolder.getProperty("foo");
+		assertEquals(Property.Type.MULTILINED, foo.getType());
+		assertEquals("a foo property [UPDATED]", foo.getDescription());
 
 		assertEquals("foobaz", propertyHolder.getString("bar"));
 		assertEquals("a new property", propertyHolder.getProperty("bar").getDescription());
