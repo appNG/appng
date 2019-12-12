@@ -214,7 +214,7 @@
 			<xs:enumeration value="boolean" />
 			<xs:enumeration value="text" />
 			<xs:enumeration value="password" />
-			<xs:enumeration value="multilined" />
+			<xs:enumeration value="multiline" />
 		</xs:restriction>
 	</xs:simpleType>
 

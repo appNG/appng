@@ -7,7 +7,7 @@ An application can make use of {spring}/spring-framework-reference/htmlsingle/#c
 
 This allows using Spring's caching annotations `@Cacheable`, `@CacheEvict`, `@CachePut`, `@Caching` and `@CacheConfig`.
 
-To enable caching, just put the {spring}/javadoc-api/index.html?org/springframework/cache/annotation/EnableCaching.html[@EnableCaching^]-annotation to your applications {spring}/javadoc-api/index.html?org/springframework/context/annotation/Configuration.html[@Configuration^]. To configure custom _time to live_ (TTL) and _maximum idle time_ for each cache, use the multilined application property `cacheConfig`.
+To enable caching, just put the {spring}/javadoc-api/index.html?org/springframework/cache/annotation/EnableCaching.html[@EnableCaching^]-annotation to your applications {spring}/javadoc-api/index.html?org/springframework/context/annotation/Configuration.html[@Configuration^]. To configure custom _time to live_ (TTL) and _maximum idle time_ for each cache, use the multiline application property `cacheConfig`.
 
 The following example configures the cache `mycache` to use a TTL of 2 hours with a maximum idle time of 1 hour. Values must be definied in seconds.
 [source]

@@ -185,9 +185,9 @@ public class PropertySupport {
 
 	private String addProperty(String name, Object defaultValue, String prefix, Type type) {
 		String description = bundle.getString(prefix + name);
-		boolean multilined = Type.MULTILINED.equals(type);
+		boolean multiline = Type.MULTILINE.equals(type);
 		Property added = propertyHolder.addProperty(name, defaultValue, description, type);
-		String value = multilined ? added.getClob() : added.getDefaultString();
+		String value = multiline ? added.getClob() : added.getDefaultString();
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("added property {}{} = {}", prefix, name, value);
 		}
@@ -225,7 +225,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.SUPPORTED_LANGUAGES, "en, de");
 		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
 		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
-		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINED);
+		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINE);
 		addSiteProperty(SiteProperties.CACHE_STATISTICS, false);
 		addSiteProperty(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN, true);
 		addSiteProperty(SiteProperties.ERROR_PAGE, "error");
@@ -275,7 +275,7 @@ public class PropertySupport {
 		xssExceptions.append(platformConfig.getString(Platform.Property.TEMPLATE_PREFIX) + StringUtils.LF);
 		xssExceptions.append("# appng-manager" + StringUtils.LF);
 		xssExceptions.append(managerPath + "/" + site.getName() + "/appng-manager" + StringUtils.LF);
-		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), Type.MULTILINED);
+		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), Type.MULTILINE);
 
 		addSiteProperty(LdapService.LDAP_HOST, "ldap(s):<host>:<port>");
 		addSiteProperty(LdapService.LDAP_USER_BASE_DN, "OU=Users,DC=example,DC=com");
@@ -361,9 +361,9 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_DIR, "/applications");
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_PATH, "repository");
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_DEFAULT_DIGEST, "");
-		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_CERT, StringUtils.EMPTY, Type.MULTILINED);
+		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_CERT, StringUtils.EMPTY, Type.MULTILINE);
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_SIGNATURE, StringUtils.EMPTY,
-				Type.MULTILINED);
+				Type.MULTILINE);
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_TRUSTSTORE, StringUtils.EMPTY);
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_TRUST_STORE_PASSWORD, StringUtils.EMPTY,
 				Type.PASSWORD);
@@ -392,9 +392,9 @@ public class PropertySupport {
 				if (prefixedName.startsWith(PREFIX_PLATFORM)) {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
-					boolean isMultilined = value.indexOf(StringUtils.LF) > 0;
+					boolean isMultiline = value.indexOf(StringUtils.LF) > 0;
 					propertyHolder.addProperty(name, value, null,
-							isMultilined ? Type.MULTILINED : Type.forObject(value));
+							isMultiline ? Type.MULTILINE : Type.forObject(value));
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
 					}

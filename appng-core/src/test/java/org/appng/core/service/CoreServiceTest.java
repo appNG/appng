@@ -729,8 +729,8 @@ public class CoreServiceTest {
 		Property property = ((PropertyHolder) application.getProperties()).getProperty("foo");
 		assertEquals("a foo property", property.getDescription());
 		assertEquals(Property.Type.TEXT, property.getType());
-		Property multilined = ((PropertyHolder) application.getProperties()).getProperty("clobValue");
-		assertEquals(Property.Type.MULTILINED, multilined.getType());
+		Property multiline = ((PropertyHolder) application.getProperties()).getProperty("clobValue");
+		assertEquals(Property.Type.MULTILINE, multiline.getType());
 		assertEquals("a\nb\nc", application.getProperties().getClob("clobValue"));
 	}
 
@@ -816,7 +816,7 @@ public class CoreServiceTest {
 		assertEquals("a new property", propertyHolder.getProperty("bar").getDescription());
 		assertEquals(ecpectedClobValue, propertyHolder.getClob("clobValue"));
 		Property clobValue = propertyHolder.getProperty("clobValue");
-		assertEquals(Property.Type.MULTILINED, clobValue.getType());
+		assertEquals(Property.Type.MULTILINE, clobValue.getType());
 	}
 
 	@Test

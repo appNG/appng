@@ -1048,19 +1048,19 @@ public class CoreService {
 	}
 
 	private void setPropertyValue(org.appng.xml.application.Property prop, PropertyImpl property,
-			boolean forceClobValue) {
+			boolean forceMultiline) {
 		property.setDescription(prop.getDescription());
 		PropertyType orignalType = prop.getType();
 		Property.Type type = null != orignalType ? Property.Type.valueOf(orignalType.name())
 				: Property.Type.forString(prop.getValue());
 		property.setType(type);
-		if (Boolean.TRUE.equals(prop.isClob()) || Property.Type.MULTILINED.equals(type)) {
-			if (forceClobValue || null == property.getClob()) {
+		if (Boolean.TRUE.equals(prop.isClob()) || Property.Type.MULTILINE.equals(type)) {
+			if (forceMultiline || null == property.getClob()) {
 				property.setClob(prop.getValue());
 			}
 			property.setDefaultString(null);
 			property.setActualString(null);
-			property.setType(Property.Type.MULTILINED);
+			property.setType(Property.Type.MULTILINE);
 		} else if (StringUtils.isBlank(property.getClob())) {
 			property.setDefaultString(prop.getValue());
 			property.setClob(null);

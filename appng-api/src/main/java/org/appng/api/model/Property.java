@@ -31,7 +31,7 @@ public interface Property {
 	 * The type of a {@link Property}
 	 */
 	public enum Type {
-		INT, DECIMAL, BOOLEAN, TEXT, PASSWORD, MULTILINED;
+		INT, DECIMAL, BOOLEAN, TEXT, PASSWORD, MULTILINE;
 
 		/**
 		 * 
@@ -99,7 +99,7 @@ public interface Property {
 				return INT;
 			}
 			if (StringUtils.isNotBlank(value) && value.contains(StringUtils.LF)) {
-				return MULTILINED;
+				return MULTILINE;
 			}
 			return TEXT;
 		}

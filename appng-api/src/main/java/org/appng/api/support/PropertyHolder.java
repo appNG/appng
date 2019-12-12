@@ -108,8 +108,8 @@ public class PropertyHolder implements Properties {
 	 * @deprecated use {@link #addProperty(String, Object, String, Type)} instead!
 	 */
 	@Deprecated
-	public final Property addProperty(String name, Object defaultValue, String description, boolean isMultilined) {
-		return addProperty(name, defaultValue, description, isMultilined ? Type.MULTILINED : Type.TEXT);
+	public final Property addProperty(String name, Object defaultValue, String description, boolean isMultiline) {
+		return addProperty(name, defaultValue, description, isMultiline ? Type.MULTILINE : Type.TEXT);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class PropertyHolder implements Properties {
 	public final Property addProperty(String name, Object defaultValue, String description, Property.Type type) {
 		if (!isFinal) {
 			String fullName = prefix + name;
-			boolean isMultilined = Property.Type.MULTILINED.equals(type);
+			boolean isMultiline = Property.Type.MULTILINE.equals(type);
 			if (null != defaultValue) {
 				SimpleProperty prop = null;
 				if (propMap.containsKey(fullName)) {
@@ -138,12 +138,12 @@ public class PropertyHolder implements Properties {
 				} else {
 					prop = getNewProperty(name);
 					prop.setName(fullName);
-					if (isMultilined) {
+					if (isMultiline) {
 						prop.setClob(defaultValue.toString());
 					}
 					propMap.put(fullName, prop);
 				}
-				if (!isMultilined) {
+				if (!isMultiline) {
 					prop.setDefaultString(defaultValue.toString());
 				}
 				prop.setDescription(description);
@@ -251,7 +251,7 @@ public class PropertyHolder implements Properties {
 			return getDouble(property.getName());
 		case BOOLEAN:
 			return getBoolean(property.getName());
-		case MULTILINED:
+		case MULTILINE:
 			return getClob(property.getName());
 		default:
 			return getString(property.getName());
