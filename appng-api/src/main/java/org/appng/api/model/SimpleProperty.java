@@ -204,6 +204,37 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 		this.type = type;
 	}
 
+	public Object getValue() {
+		switch (type) {
+		case INT:
+			return getInteger();
+		case DECIMAL:
+			return getDouble();
+		case BOOLEAN:
+			return getBoolean();
+		case MULTILINE:
+			return getClob();
+		default:
+			return getString();
+		}
+	}
+
+	public void setValue(Object value) {
+		if (null != value) {
+			switch (type) {
+			case MULTILINE:
+				setClob(value.toString());
+				break;
+			default:
+				setActualString(value.toString());
+			}
+		}
+	}
+	
+	public void determineType() {
+		this.type = StringUtils.isNotBlank(getClob()) ? Property.Type.MULTILINE : Type.forString(getActualString());
+	}
+
 	public String toString() {
 		String value = getString();
 		if (null == value) {

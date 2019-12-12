@@ -34,9 +34,11 @@ public interface Property {
 		INT, DECIMAL, BOOLEAN, TEXT, PASSWORD, MULTILINE;
 
 		/**
+		 * Returns the best matching type for the given object
 		 * 
-		 * @param value
-		 * @return
+		 * @param  value
+		 *               the object
+		 * @return       the best matching type for the given object
 		 */
 		public static Type forObject(Object value) {
 			if (null == value) {
@@ -54,6 +56,9 @@ public interface Property {
 					|| value.getClass().isAssignableFrom(float.class)
 					|| value.getClass().isAssignableFrom(Float.class)) {
 				return DECIMAL;
+			}
+			if (String.class.isAssignableFrom(value.getClass()) && ((String) value).contains(StringUtils.LF)) {
+				return MULTILINE;
 			}
 			return TEXT;
 		}
