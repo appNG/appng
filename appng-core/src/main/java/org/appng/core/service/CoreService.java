@@ -315,7 +315,7 @@ public class CoreService {
 		return properties;
 	}
 
-	public void createProperty(Integer siteId, Integer applicationId, PropertyImpl property) {
+	public PropertyImpl createProperty(Integer siteId, Integer applicationId, PropertyImpl property) {
 		Site site = null;
 		Application application = null;
 		if (null != siteId) {
@@ -327,6 +327,7 @@ public class CoreService {
 		String propertyPrefix = PropertySupport.getPropertyPrefix(site, application);
 		String currentName = property.getName();
 		property.setName(propertyPrefix + currentName);
+		property.determineType();
 		saveProperty(property);
 		String logMssg = "created property '" + property.getName();
 		if (null != application) {
@@ -336,6 +337,7 @@ public class CoreService {
 			logMssg += " in site '" + site.getName() + "'";
 		}
 		LOGGER.debug(logMssg);
+		return property;
 	}
 
 	protected boolean checkPropertyExists(Integer siteId, Integer applicationId, PropertyImpl property) {

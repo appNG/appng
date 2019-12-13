@@ -250,8 +250,9 @@ public class CoreServiceTest {
 
 	@Test
 	public void testCreateApplicationProperty() {
-		coreService.createProperty(null, null, new PropertyImpl("foobaz", "foobar"));
+		PropertyImpl property = coreService.createProperty(null, null, new PropertyImpl("foobaz", "foobar"));
 		assertTrue(coreService.checkPropertyExists(null, null, new PropertyImpl("foobaz", "foobar")));
+		assertEquals(Property.Type.TEXT, property.getType());
 	}
 
 	@Test
@@ -299,8 +300,9 @@ public class CoreServiceTest {
 
 	@Test
 	public void testCreatePropertyForSite() {
-		coreService.createProperty(1, null, new PropertyImpl("foo", "bar"));
+		PropertyImpl property = coreService.createProperty(1, null, new PropertyImpl("foo", "bar"));
 		assertTrue(coreService.checkPropertyExists(1, null, new PropertyImpl("foo", "bar")));
+		assertEquals(Property.Type.TEXT, property.getType());
 	}
 
 	@Test
