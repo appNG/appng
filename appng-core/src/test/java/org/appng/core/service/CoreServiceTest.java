@@ -219,11 +219,12 @@ public class CoreServiceTest {
 		MigrationStatus state = coreService.assignApplicationToSite(site, application, true);
 		assertEquals(MigrationStatus.NO_DB_SUPPORTED, state);
 		Iterable<PropertyImpl> properties = coreService.getProperties(1, application.getId());
-
-		PropertyImpl prop = properties.iterator().next();
-		assertEquals("foobaz", prop.getString());
-		assertEquals("platform.site." + site.getName() + ".application." + application.getName() + ".foobar",
-				prop.getName());
+		String prefix = "platform.site." + site.getName() + ".application." + application.getName() + ".";
+		PropertyHolder propertyHolder = new PropertyHolder(prefix, properties);
+		assertEquals("foobaz", propertyHolder.getString("foobar"));
+		Property prop = propertyHolder.getProperty("foobar");
+		assertEquals(Property.Type.TEXT, prop.getType());
+		assertEquals(prefix + "foobar", prop.getName());
 	}
 
 	@Test

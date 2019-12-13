@@ -785,6 +785,7 @@ public class CoreService {
 						String propName = name.substring(name.lastIndexOf(".") + 1);
 						PropertyImpl property = new PropertyImpl(propName, null, value);
 						property.setDescription(platformApplicationProperty.getDescription());
+						property.setType(platformApplicationProperty.getType());
 						if (StringUtils.isNotEmpty(platformApplicationProperty.getClob())) {
 							property.setClob(platformApplicationProperty.getClob());
 						} else {
