@@ -70,7 +70,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "4.1.1");
+		validateSchemaVersion(platformConnection, "4.1.2");
 
 		DatabaseConnection mssql = new DatabaseConnection(DatabaseType.MSSQL, rootName, "", "".getBytes());
 		mssql.setName(rootName);
@@ -156,7 +156,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		if (checksize) {
 			Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
 		}
-		validateSchemaVersion(platformConnection, "4.1.1");
+		validateSchemaVersion(platformConnection, "4.1.2");
 
 		testRootConnectionJPA(platformConnection);
 		if (checkConnection) {

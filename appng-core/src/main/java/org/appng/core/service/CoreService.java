@@ -115,6 +115,7 @@ import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.PackageInfo;
 import org.appng.xml.application.PermissionRef;
 import org.appng.xml.application.Permissions;
+import org.appng.xml.application.PropertyType;
 import org.appng.xml.application.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -219,7 +220,8 @@ public class CoreService {
 	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
 			String name) {
 		if (defaultOverrides.containsKey(name)) {
-			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null);
+			platformConfig.addProperty(name, defaultOverrides.getProperty(name), null,
+					org.appng.api.model.Property.Type.TEXT);
 		}
 	}
 
@@ -313,7 +315,7 @@ public class CoreService {
 		return properties;
 	}
 
-	public void createProperty(Integer siteId, Integer applicationId, PropertyImpl property) {
+	public PropertyImpl createProperty(Integer siteId, Integer applicationId, PropertyImpl property) {
 		Site site = null;
 		Application application = null;
 		if (null != siteId) {
@@ -325,6 +327,7 @@ public class CoreService {
 		String propertyPrefix = PropertySupport.getPropertyPrefix(site, application);
 		String currentName = property.getName();
 		property.setName(propertyPrefix + currentName);
+		property.determineType();
 		saveProperty(property);
 		String logMssg = "created property '" + property.getName();
 		if (null != application) {
@@ -334,6 +337,7 @@ public class CoreService {
 			logMssg += " in site '" + site.getName() + "'";
 		}
 		LOGGER.debug(logMssg);
+		return property;
 	}
 
 	protected boolean checkPropertyExists(Integer siteId, Integer applicationId, PropertyImpl property) {
@@ -783,6 +787,7 @@ public class CoreService {
 						String propName = name.substring(name.lastIndexOf(".") + 1);
 						PropertyImpl property = new PropertyImpl(propName, null, value);
 						property.setDescription(platformApplicationProperty.getDescription());
+						property.setType(platformApplicationProperty.getType());
 						if (StringUtils.isNotEmpty(platformApplicationProperty.getClob())) {
 							property.setClob(platformApplicationProperty.getClob());
 						} else {
@@ -1046,14 +1051,19 @@ public class CoreService {
 	}
 
 	private void setPropertyValue(org.appng.xml.application.Property prop, PropertyImpl property,
-			boolean forceClobValue) {
+			boolean forceMultiline) {
 		property.setDescription(prop.getDescription());
-		if (Boolean.TRUE.equals(prop.isClob())) {
-			if (forceClobValue || null == property.getClob()) {
+		PropertyType orignalType = prop.getType();
+		Property.Type type = null != orignalType ? Property.Type.valueOf(orignalType.name())
+				: Property.Type.forString(prop.getValue());
+		property.setType(type);
+		if (Boolean.TRUE.equals(prop.isClob()) || Property.Type.MULTILINE.equals(type)) {
+			if (forceMultiline || null == property.getClob()) {
 				property.setClob(prop.getValue());
 			}
 			property.setDefaultString(null);
 			property.setActualString(null);
+			property.setType(Property.Type.MULTILINE);
 		} else if (StringUtils.isBlank(property.getClob())) {
 			property.setDefaultString(prop.getValue());
 			property.setClob(null);

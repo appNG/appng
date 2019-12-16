@@ -372,7 +372,7 @@
 												<label id="value"><![CDATA[Value]]></label>
 											</field>
 											<field binding="property.clob" format="auto" name="clob" type="longtext">
-												<label id="clobvalue"><![CDATA[Multilined value]]></label>
+												<label id="clobvalue"><![CDATA[Multiline value]]></label>
 											</field>
 											<field binding="property.description" name="description" readonly="true" type="longtext">
 												<label id="description"><![CDATA[Description]]></label>
