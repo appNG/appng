@@ -47,7 +47,7 @@ public class ApplicationRequestTest {
 		Environment env = Mockito.mock(Environment.class);
 		Mockito.when(rs.getEnvironment()).thenReturn(env);
 		Path path = Mockito.mock(Path.class);
-		Mockito.when(path.getApplicationUrlParameters()).thenReturn(Arrays.asList("entity", "action", "id"));
+		Mockito.when(path.getApplicationUrlParameters()).thenReturn(Arrays.asList("item", "update", "2"));
 		Mockito.when(env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(path);
 		ApplicationRequest ar = new ApplicationRequest(request, Mockito.mock(PermissionProcessor.class), rs);
 
@@ -61,7 +61,7 @@ public class ApplicationRequestTest {
 
 		Assert.assertTrue(ee.evaluate("${ PATH.equals('/item', '/update/', id) }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.starts('/item', '/update/', id) }"));
-		Assert.assertTrue(ee.evaluate("${ PATH.ends('/item', '/update/', id) }"));
+		Assert.assertTrue(ee.evaluate("${ PATH.ends('/item/update/', id) }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.contains('/item', '/update/', id) }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.matches('/item/update/','\\\\d+') }"));
 	}

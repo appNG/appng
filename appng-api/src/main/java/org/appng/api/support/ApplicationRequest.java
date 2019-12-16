@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -371,13 +369,8 @@ public class ApplicationRequest implements Request {
 	 */
 	public ApplicationPath applicationPath() {
 		Path path = getEnvironment().getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
-		Map<String, String> parameters = getParameters();
-		List<String> urlParameterNames = path.getApplicationUrlParameters();
-		Map<String, String> urlParameters = urlParameterNames.stream()
-				.collect(Collectors.toMap(Function.identity(), u -> parameters.get(u)));
-		List<String> urlParameterValues = urlParameterNames.stream().map(u -> urlParameters.get(u))
-				.collect(Collectors.toList());
-		return new ApplicationPath('/' + StringUtils.join(urlParameterValues, '/'), urlParameters);
+		List<String> urlParameters = path.getApplicationUrlParameters();
+		return new ApplicationPath('/' + StringUtils.join(urlParameters, '/'), getParameters());
 	}
 
 	/**
