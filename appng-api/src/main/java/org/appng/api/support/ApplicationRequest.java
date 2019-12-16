@@ -366,7 +366,8 @@ public class ApplicationRequest implements Request {
 	 * Creates a new {@link ApplicationPath} to be used to evaluate include-conditions on a page.
 	 * 
 	 * @return the {@link ApplicationPath}
-	 * @see Path#getApplicationUrlParameters()
+	 * @see    Path#getApplicationUrlParameters()
+	 * @since 1.21
 	 */
 	public ApplicationPath applicationPath() {
 		Path path = getEnvironment().getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
@@ -374,7 +375,9 @@ public class ApplicationRequest implements Request {
 		List<String> urlParameterNames = path.getApplicationUrlParameters();
 		Map<String, String> urlParameters = urlParameterNames.stream()
 				.collect(Collectors.toMap(Function.identity(), u -> parameters.get(u)));
-		return new ApplicationPath('/' + StringUtils.join(urlParameters, '/'), urlParameters);
+		List<String> urlParameterValues = urlParameterNames.stream().map(u -> urlParameters.get(u))
+				.collect(Collectors.toList());
+		return new ApplicationPath('/' + StringUtils.join(urlParameterValues, '/'), urlParameters);
 	}
 
 	/**
@@ -400,6 +403,8 @@ public class ApplicationRequest implements Request {
 	 * <li>{@code equals(String... elements)}
 	 * <li>{@code hasParam(String... params)}
 	 * </ul>
+	 * 
+	 * @since 1.21
 	 */
 	public static class ApplicationPath {
 		public static final String PATH = "PATH";
