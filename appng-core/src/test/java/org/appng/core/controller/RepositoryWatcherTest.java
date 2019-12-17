@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.appng.api.SiteProperties;
+import org.appng.api.model.Property;
 import org.appng.api.support.PropertyHolder;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.CacheService;
@@ -53,8 +54,8 @@ public class RepositoryWatcherTest {
 		SiteImpl site = new SiteImpl();
 		site.setHost("localhost");
 		PropertyHolder siteProps = new PropertyHolder();
-		siteProps.addProperty(SiteProperties.CACHE_TIME_TO_LIVE, "1800", null);
-		siteProps.addProperty(SiteProperties.CACHE_STATISTICS, "true", null);
+		siteProps.addProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800, null, Property.Type.INT);
+		siteProps.addProperty(SiteProperties.CACHE_STATISTICS, true, null, Property.Type.BOOLEAN);
 		site.setProperties(siteProps);
 
 		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
