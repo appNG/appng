@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>2.0.0-SNAPSHOT</version>
+		<version>1.21.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -296,6 +296,10 @@
 			<artifactId>joda-time</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 			<scope>provided</scope>
@@ -333,13 +337,13 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mysql</artifactId>
-			<version>1.12.3</version>			
+			<version>1.12.3</version>		
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mssqlserver</artifactId>
-			<version>1.12.3</version>			
+			<version>1.12.3</version>		
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -393,6 +397,7 @@
 		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast-client</artifactId>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->

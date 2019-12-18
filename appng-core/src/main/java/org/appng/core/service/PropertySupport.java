@@ -32,6 +32,7 @@ import org.appng.api.auth.AuthTools;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
+import org.appng.api.model.Property.Type;
 import org.appng.api.model.Site;
 import org.appng.api.support.PropertyHolder;
 import org.appng.core.controller.HttpHeaders;
@@ -81,16 +82,16 @@ public class PropertySupport {
 	 * prefix for a site-property is {@code site.}, for a platform-property it's {@value #PREFIX_PLATFORM}. For an
 	 * {@link Application} property no prefix is used.
 	 * 
-	 * @param platFormConfig
-	 *            the platform configuration, only needed if {@code addPlatformScope} is {@code true}.
-	 * @param site
-	 *            the {@link Site} to retrieve {@link Properties} from (may be null)
-	 * @param application
-	 *            the {@link Application} to retrieve {@link Properties} from (may be null)
-	 * @param addPlatformScope
-	 *            set to {@code true} to add the platform properties
-	 * @return the aggregated {@link java.util.Properties} with prefixed entries
-	 * @see Properties#getPlainProperties()
+	 * @param  platFormConfig
+	 *                          the platform configuration, only needed if {@code addPlatformScope} is {@code true}.
+	 * @param  site
+	 *                          the {@link Site} to retrieve {@link Properties} from (may be null)
+	 * @param  application
+	 *                          the {@link Application} to retrieve {@link Properties} from (may be null)
+	 * @param  addPlatformScope
+	 *                          set to {@code true} to add the platform properties
+	 * @return                  the aggregated {@link java.util.Properties} with prefixed entries
+	 * @see                     Properties#getPlainProperties()
 	 */
 	public static java.util.Properties getProperties(Properties platFormConfig, Site site, Application application,
 			boolean addPlatformScope) {
@@ -111,13 +112,13 @@ public class PropertySupport {
 	 * Returns the dot-separated full name for a given property, depending on whether a {@link Site} and/or an
 	 * {@link Application} are given.
 	 * 
-	 * @param site
-	 *            the {@link Site}, may be {@code null}
-	 * @param application
-	 *            the {@link Application}, may be {@code null}
-	 * @param name
-	 *            the raw name of the property, without dot-notation
-	 * @return the full name of the property.
+	 * @param  site
+	 *                     the {@link Site}, may be {@code null}
+	 * @param  application
+	 *                     the {@link Application}, may be {@code null}
+	 * @param  name
+	 *                     the raw name of the property, without dot-notation
+	 * @return             the full name of the property.
 	 */
 	public static String getPropertyName(Site site, Application application, String name) {
 		return getPropertyPrefix(site, application) + name;
@@ -128,9 +129,9 @@ public class PropertySupport {
 	 * given.
 	 * 
 	 * @param site
-	 *            the {@link Site}, may be {@code null}
+	 *                    the {@link Site}, may be {@code null}
 	 * @param application
-	 *            the {@link Application}, may be {@code null}
+	 *                    the {@link Application}, may be {@code null}
 	 */
 	public static String getPropertyPrefix(Site site, Application application) {
 		String prefix = PREFIX_PLATFORM;
@@ -146,9 +147,9 @@ public class PropertySupport {
 	/**
 	 * Returns the dot-separated property-prefix for a site-property.
 	 * 
-	 * @param site
-	 *            the {@link Site}
-	 * @return the dot-separated property-prefix
+	 * @param  site
+	 *              the {@link Site}
+	 * @return      the dot-separated property-prefix
 	 */
 	public static String getSitePrefix(Site site) {
 		return getPropertyPrefix(site, null);
@@ -162,30 +163,31 @@ public class PropertySupport {
 	}
 
 	private String addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue) {
-		return addPlatformProperty(defaultOverrides, name, defaultValue, false);
+		return addPlatformProperty(defaultOverrides, name, defaultValue, Type.forObject(defaultValue));
 	}
 
 	private String addPlatformProperty(java.util.Properties defaultOverrides, String name, Object defaultValue,
-			boolean multilined) {
+			Type type) {
 		if (defaultOverrides.containsKey(PREFIX_PLATFORM + name)) {
 			defaultValue = defaultOverrides.get(PREFIX_PLATFORM + name);
 			defaultOverrides.remove(PREFIX_PLATFORM + name);
 		}
-		return addProperty(name, defaultValue, PREFIX_PLATFORM, multilined);
+		return addProperty(name, defaultValue, PREFIX_PLATFORM, type);
 	}
 
 	private String addSiteProperty(String name, Object defaultValue) {
-		return addSiteProperty(name, defaultValue, false);
+		return addSiteProperty(name, defaultValue, Type.forObject(defaultValue));
 	}
 
-	private String addSiteProperty(String name, Object defaultValue, boolean multilined) {
-		return addProperty(name, defaultValue, PREFIX_SITE, multilined);
+	private String addSiteProperty(String name, Object defaultValue, Type type) {
+		return addProperty(name, defaultValue, PREFIX_SITE, type);
 	}
 
-	private String addProperty(String name, Object defaultValue, String prefix, boolean multilined) {
+	private String addProperty(String name, Object defaultValue, String prefix, Type type) {
 		String description = bundle.getString(prefix + name);
-		Property added = propertyHolder.addProperty(name, defaultValue, description, multilined);
-		String value = multilined ? added.getClob() : added.getDefaultString();
+		boolean multiline = Type.MULTILINE.equals(type);
+		Property added = propertyHolder.addProperty(name, defaultValue, description, type);
+		String value = multiline ? added.getClob() : added.getDefaultString();
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("added property {}{} = {}", prefix, name, value);
 		}
@@ -223,7 +225,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.SUPPORTED_LANGUAGES, "en, de");
 		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
 		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
-		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, true);
+		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINE);
 		addSiteProperty(SiteProperties.CACHE_STATISTICS, false);
 		addSiteProperty(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN, true);
 		addSiteProperty(SiteProperties.ERROR_PAGE, "error");
@@ -238,11 +240,11 @@ public class PropertySupport {
 		addSiteProperty(Platform.Property.MAIL_DISABLED, true);
 		addSiteProperty(SiteProperties.INDEX_CONFIG, "/de;de;GermanAnalyzer|/assets;de;GermanAnalyzer");
 		addSiteProperty(SiteProperties.INDEX_FILETYPES, "jsp,pdf,doc");
-		addSiteProperty(SiteProperties.INDEX_FILE_SYSTEM_QUEUE_SIZE, "2500");
+		addSiteProperty(SiteProperties.INDEX_FILE_SYSTEM_QUEUE_SIZE, 2500);
 		addSiteProperty(SiteProperties.DEFAULT_PAGE, "index");
-		addSiteProperty(SiteProperties.DEFAULT_PAGE_SIZE, "25");
-		addSiteProperty(SiteProperties.APPEND_TAB_ID, "false");
-		addSiteProperty(SiteProperties.ALLOW_SKIP_RENDER, "false");
+		addSiteProperty(SiteProperties.DEFAULT_PAGE_SIZE, 25);
+		addSiteProperty(SiteProperties.APPEND_TAB_ID, false);
+		addSiteProperty(SiteProperties.ALLOW_SKIP_RENDER, false);
 		addSiteProperty(Platform.Property.ENCODING, HttpHeaders.CHARSET_UTF8);
 		addSiteProperty(SiteProperties.ASSETS_DIR, "/assets");
 		addSiteProperty(SiteProperties.DOCUMENT_DIR, "/de");
@@ -254,7 +256,8 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
 		addSiteProperty(SiteProperties.TAG_PREFIX, "appNG");
 		addSiteProperty(SiteProperties.REWRITE_CONFIG, "/meta/conf/urlrewrite.xml");
-		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE, !platformConfig.getBoolean(Platform.Property.MESSAGING_ENABLED));
+		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE,
+				!platformConfig.getBoolean(Platform.Property.MESSAGING_ENABLED));
 
 		addSiteProperty(SiteProperties.AUTH_APPLICATION, "appng-authentication");
 		addSiteProperty(SiteProperties.AUTH_LOGIN_PAGE, "webform");
@@ -272,13 +275,13 @@ public class PropertySupport {
 		xssExceptions.append(platformConfig.getString(Platform.Property.TEMPLATE_PREFIX) + StringUtils.LF);
 		xssExceptions.append("# appng-manager" + StringUtils.LF);
 		xssExceptions.append(managerPath + "/" + site.getName() + "/appng-manager" + StringUtils.LF);
-		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), true);
+		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), Type.MULTILINE);
 
 		addSiteProperty(LdapService.LDAP_HOST, "ldap(s):<host>:<port>");
 		addSiteProperty(LdapService.LDAP_USER_BASE_DN, "OU=Users,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_GROUP_BASE_DN, "OU=Groups,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_USER, "serviceUser");
-		addSiteProperty(LdapService.LDAP_PASSWORD, "secret");
+		addSiteProperty(LdapService.LDAP_PASSWORD, "secret", Type.PASSWORD);
 		addSiteProperty(LdapService.LDAP_DOMAIN, "EXAMPLE");
 		addSiteProperty(LdapService.LDAP_ID_ATTRIBUTE, "sAMAccountName");
 		addSiteProperty(LdapService.LDAP_PRINCIPAL_SCHEME, "SAM");
@@ -324,8 +327,8 @@ public class PropertySupport {
 		}
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_CACHE_FOLDER, "application");
 		addPlatformProperty(defaultOverrides, Platform.Property.CACHE_FOLDER, "cache");
-		addPlatformProperty(defaultOverrides, Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, "false");
-		addPlatformProperty(defaultOverrides, Platform.Property.CSRF_FILTER_ENABLED, "false");
+		addPlatformProperty(defaultOverrides, Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, false);
+		addPlatformProperty(defaultOverrides, Platform.Property.CSRF_FILTER_ENABLED, false);
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_PREFIX, StringUtils.EMPTY);
 		addPlatformProperty(defaultOverrides, Platform.Property.DATABASE_VALIDATION_PERIOD, 15);
 		addPlatformProperty(defaultOverrides, Platform.Property.DEFAULT_TEMPLATE, "appng");
@@ -350,6 +353,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_PORT, 4000);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_RECEIVER, MulticastReceiver.class.getName());
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITOR_PERFORMANCE, false);
+		addPlatformProperty(defaultOverrides, Platform.Property.MONITORING_PATH, "/health");
 		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
 				DefaultPasswordPolicy.ERROR_MSSG_KEY);
 		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_REGEX, DefaultPasswordPolicy.REGEX);
@@ -357,18 +361,20 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_DIR, "/applications");
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_PATH, "repository");
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_DEFAULT_DIGEST, "");
-		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_CERT, StringUtils.EMPTY, true);
-		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_SIGNATURE, StringUtils.EMPTY, true);
+		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_CERT, StringUtils.EMPTY, Type.MULTILINE);
+		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_SIGNATURE, StringUtils.EMPTY,
+				Type.MULTILINE);
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_TRUSTSTORE, StringUtils.EMPTY);
-		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_TRUST_STORE_PASSWORD, StringUtils.EMPTY);
-		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_VERIFY_SIGNATURE, "true");
+		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_TRUST_STORE_PASSWORD, StringUtils.EMPTY,
+				Type.PASSWORD);
+		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_VERIFY_SIGNATURE, true);
 		addPlatformProperty(defaultOverrides, Platform.Property.SESSION_TIMEOUT, 1800);
 
 		String sharedSecretFullName = PREFIX_PLATFORM + Platform.Property.SHARED_SECRET;
 		Property sharedSecret = propertyHolder.getProperty(sharedSecretFullName);
 		if (null == sharedSecret || defaultOverrides.containsKey(sharedSecretFullName)) {
 			String defaultSecret = AuthTools.getRandomSalt(32);
-			addPlatformProperty(defaultOverrides, Platform.Property.SHARED_SECRET, defaultSecret);
+			addPlatformProperty(defaultOverrides, Platform.Property.SHARED_SECRET, defaultSecret, Type.PASSWORD);
 		}
 
 		addPlatformProperty(defaultOverrides, Platform.Property.TEMPLATE_FOLDER, "/templates");
@@ -386,7 +392,9 @@ public class PropertySupport {
 				if (prefixedName.startsWith(PREFIX_PLATFORM)) {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
-					propertyHolder.addProperty(name, value, null, value.indexOf(StringUtils.LF) > 0);
+					boolean isMultiline = value.indexOf(StringUtils.LF) > 0;
+					propertyHolder.addProperty(name, value, null,
+							isMultiline ? Type.MULTILINE : Type.forObject(value));
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
 					}
@@ -400,7 +408,7 @@ public class PropertySupport {
 	}
 
 	private String normalizePath(String segment, String... pathelements) {
-		if(StringUtils.isNotBlank(segment) &&  StringUtils.isNoneBlank(pathelements)){
+		if (StringUtils.isNotBlank(segment) && StringUtils.isNoneBlank(pathelements)) {
 			return Paths.get(segment, pathelements).normalize().toString();
 		}
 		return StringUtils.EMPTY;

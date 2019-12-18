@@ -125,7 +125,7 @@ public final class Platform {
 		 * The global configuration for configuring caching. This property either
 		 * contains the platform-relative path to a config file (e.g.
 		 * {@code WEB-INF/conf/hazelcast.xml}) or the XML configuration itself in XML
-		 * format (stored as multilined value).
+		 * format (stored as multiline value).
 		 */
 		public static final String CACHE_CONFIG = "cacheConfig";
 		/**
@@ -274,6 +274,9 @@ public final class Platform {
 		 * (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
+
+		/** The path to appNG's health monitoring */
+		public static final String MONITORING_PATH = "monitoringPath";
 	}
 
 	/**

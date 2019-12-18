@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.AttachmentWebservice;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -66,6 +67,7 @@ import org.appng.core.model.ApplicationProvider;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.service.InitializerServiceTest;
+import org.appng.core.service.LdapService;
 import org.appng.core.service.PropertySupport;
 import org.appng.testsupport.TestBase;
 import org.appng.testsupport.validation.WritingXmlValidator;
@@ -81,6 +83,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
@@ -239,6 +242,7 @@ public class TestSupport {
 		site.setName(manager);
 		site.setSiteClassLoader(new SiteClassLoader(new URL[0], getClass().getClassLoader(), site.getName()));
 		site.setState(SiteState.STARTED);
+		site.setStartupTime(FastDateFormat.getInstance("yyyy-MM-dd").parse("2019-04-30"));
 
 		ApplicationImpl application1 = new ApplicationImpl() {
 			@Override
@@ -311,6 +315,7 @@ public class TestSupport {
 		addSiteProperty(SiteProperties.AUTH_LOGIN_PAGE, "webform");
 		addSiteProperty(SiteProperties.AUTH_LOGIN_REF, "webform");
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
+		addSiteProperty(LdapService.LDAP_PASSWORD, "secret");
 
 		addSiteProperty("configLocations",
 				StringUtils.join(new Object[] { TestBase.TESTCONTEXT, TestBase.TESTCONTEXT_JPA }, ","));
@@ -349,6 +354,7 @@ public class TestSupport {
 		};
 		provider.setActive(true);
 		provider.setFileBased(true);
+		provider.setContext(Mockito.mock(ConfigurableApplicationContext.class));
 		site.getSiteApplications().add(provider);
 
 		Mockito.when(ctx.getAttribute(Scope.PLATFORM.name())).thenReturn(platformMap);

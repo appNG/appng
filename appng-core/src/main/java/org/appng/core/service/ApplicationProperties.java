@@ -46,7 +46,7 @@ public class ApplicationProperties {
 	public static final String PROP_ACTIVE_PROFILES = "activeProfiles";
 
 	/**
-	 * Name for the application property that contains a multilined value for configuring application caches.<br/>
+	 * Name for the application property that contains a multiline value for configuring application caches.<br/>
 	 * Format:
 	 * 
 	 * <pre>

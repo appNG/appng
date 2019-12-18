@@ -20,6 +20,8 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -33,11 +35,9 @@ import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 
 /**
- * 
  * A persistent {@link Property} JPA-{@link Entity}.
  * 
  * @author Matthias Müller
- * 
  */
 @Entity
 @Table(name = "property")
@@ -114,6 +114,13 @@ public class PropertyImpl extends SimpleProperty implements Property, Auditable<
 	@Lob
 	public String getClob() {
 		return super.getClob();
+	}
+
+	@Override
+	@Column(name = "prop_type")
+	@Enumerated(EnumType.STRING)
+	public Type getType() {
+		return super.getType();
 	}
 
 	@Override

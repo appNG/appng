@@ -1,0 +1,44 @@
+== Monitoring
+
+The appNG platform offers some built-in monitoring services to check the state of a site and to give some information about the system appNG is running on.
+
+=== Configuration
+The path to health monitoring can be configured with the platform property `monitoringPath`, using the default value `/health`.
+
+The monitoring path is secured with basic authentication.
+
+The user name is `monitoring`. The password can be defined using the platform property `monitoringPassword`. If not defined, the platform's `sharedSecret` is used.
+
+=== Services
+Monitoring offers different services, as listed here. All of them use `application/json` as a content-type, making it easy for load balancers like https://www.nginx.com/[nginx^] or https://www.haproxy.org/[HAProxy^] to make use of them.
+
+==== Site health
+Shows the current site, including it's state (one of: `STARTED`, `STARTING`, `STOPPING`, `STOPPED`, `INACTIVE`), applications and properties.
+
+*Path*: `/health`
+
+*Example Response*:
+[source,json]
+----
+include::listing/health.json[]
+----
+
+==== Platform JARs
+Shows a list of all Jars offered by the platform.
+
+*Path*: `/health/platform`
+
+==== Site JARs
+Shows a list of all Jars that the site's classloader is built from.
+
+*Path*: `/health/jars`
+
+==== System environment
+Shows the system's environment as returned by `System.getenv()`.
+
+*Path*: `/health/environment`
+
+=== System properties
+Shows the system's properties as returned by `System.getProperties()`.
+
+*Path*: `/health/system`
