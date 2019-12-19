@@ -297,11 +297,12 @@ public class InitializerService {
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
-				String runningSite = site.getName();
+				String inactiveSite = site.getName();
 				site.setState(SiteState.INACTIVE);
-				if (siteMap.containsKey(runningSite)) {
-					getCoreService().shutdownSite(env, runningSite);
+				if (siteMap.containsKey(inactiveSite)) {
+					getCoreService().shutdownSite(env, inactiveSite, false);
 				} else {
+					siteMap.put(inactiveSite, site);
 					getCoreService().setSiteStartUpTime(site, null);
 				}
 				LOGGER.info("site {} is inactive and will not be loaded", site);
@@ -318,6 +319,7 @@ public class InitializerService {
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
 		}
+
 	}
 
 	class SiteReloadWatcher implements Runnable {
@@ -834,7 +836,7 @@ public class InitializerService {
 	 * 
 	 * @param ctx
 	 *            the current {@link ServletContext}
-	 * @see #shutDownSite(Environment, Site)
+	 * @see #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.get(ctx);
