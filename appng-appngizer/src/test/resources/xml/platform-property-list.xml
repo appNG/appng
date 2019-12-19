@@ -168,6 +168,11 @@
 		<defaultValue>false</defaultValue>
 		<description>Set to true to enable performance monitoring for the target XML</description>
 	</property>
+	<property name="monitoringPath" self="http://localhost/platform/property/monitoringPath">
+		<value>/health</value>
+		<defaultValue>/health</defaultValue>
+		<description>The path to appNG's health monitoring</description>
+	</property>
 	<property name="passwordPolicyErrorMessageKey" self="http://localhost/platform/property/passwordPolicyErrorMessageKey">
 		<value>DefaultPasswordPolicy.errorMessage</value>
 		<defaultValue>DefaultPasswordPolicy.errorMessage</defaultValue>

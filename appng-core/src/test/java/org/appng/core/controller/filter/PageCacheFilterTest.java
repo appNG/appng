@@ -56,6 +56,7 @@ public class PageCacheFilterTest {
 		FilterChain chain = Mockito.mock(FilterChain.class);
 		String modifiedDate = "Wed, 28 Mar 2018 09:04:12 GMT";
 		String content = "foobar";
+		long lastModifiedSeconds = 1522227852000L;
 		PageCacheFilter pageCacheFilter = new PageCacheFilter() {
 			@Override
 			protected CachedResponse performRequest(final HttpServletRequest request,
@@ -63,9 +64,11 @@ public class PageCacheFilterTest {
 					Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
-				response.addHeader(HttpHeaders.LAST_MODIFIED, modifiedDate);
+				response.addDateHeader(HttpHeaders.LAST_MODIFIED, lastModifiedSeconds);
+				HttpHeaders headers = new HttpHeaders();
+				headers.setLastModified(lastModifiedSeconds);
 				return new CachedResponse("GET/" + req.getServletPath(), site, request, 200, "text/plain",
-						content.getBytes(), new HttpHeaders(), 1800);
+						content.getBytes(), headers, 1800);
 			};
 
 			@Override
@@ -93,7 +96,7 @@ public class PageCacheFilterTest {
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(pageInfo, actual.get());
 		Assert.assertEquals(modifiedDate, resp.getHeader(HttpHeaders.LAST_MODIFIED));
-		Assert.assertEquals(1522227852000L, resp.getDateHeader(HttpHeaders.LAST_MODIFIED));
+		Assert.assertEquals(lastModifiedSeconds, resp.getDateHeader(HttpHeaders.LAST_MODIFIED));
 
 		// test gzip
 		req.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");

@@ -296,6 +296,10 @@
 			<artifactId>joda-time</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 			<scope>provided</scope>
@@ -393,6 +397,7 @@
 		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast-client</artifactId>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->

@@ -37,11 +37,11 @@ import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
 import org.appng.api.Scope;
+import org.appng.api.Session;
 import org.appng.api.SoapService;
 import org.appng.api.VHostMode;
 import org.appng.api.Webservice;
 import org.appng.api.model.Application;
-import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.model.Site;
@@ -63,6 +63,7 @@ import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.Message;
+import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.junit.Assert;
 import org.junit.Test;
@@ -106,6 +107,8 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	private MockServletContext servletContext = new MockServletContext();
 	private MockHttpServletRequest servletRequest = new MockHttpServletRequest(servletContext);
 	private MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+	private Messages messages = null;
 
 	public ServiceRequestHandlerTest() throws JAXBException {
 		super(MarshallService.getMarshallService(), new PlatformTransformer(), null);
@@ -262,6 +265,23 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	}
 
 	@Test
+	public void testDataSourceWithErrors() throws Exception {
+		Messages messages = new Messages();
+		Message e = new Message();
+		e.setClazz(MessageType.ERROR);
+		e.setContent("Test Error Message");
+		messages.getMessageList().add(e);
+		this.messages = messages;
+		String trimmed = getDatasource(FORMAT_XML);
+		this.messages = null;
+		Assert.assertEquals(XML_PREFIX + "<datasource xmlns=\"" + MarshallService.NS_PLATFORM
+				+ "\" id=\"sites\">    <messages>        <message class=\"ERROR\">Test Error Message</message>    </messages></datasource>",
+				trimmed);
+		Assert.assertEquals(HttpHeaders.CONTENT_TYPE_TEXT_XML, servletResponse.getContentType());
+		Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), servletResponse.getStatus());
+	}
+
+	@Test
 	public void testDataSourceJson() throws Exception {
 		String trimmed = getDatasource(FORMAT_JSON);
 		Assert.assertEquals("{  \"datasource\" : {    \"id\" : \"sites\"  }}", trimmed);
@@ -387,6 +407,10 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 				.thenReturn(properties);
 		Mockito.when(environment.getSubject()).thenReturn(new SubjectImpl());
 		Mockito.when(environment.getLocale()).thenReturn(Locale.getDefault());
+		if (null != this.messages) {
+			Mockito.when(environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES))
+					.thenReturn(this.messages);
+		}
 		Mockito.when(application.getName()).thenReturn("appng-demoapplication");
 		Mockito.when(application.getBean("environment")).thenReturn(environment);
 		Mockito.when(application.getBean(MarshallService.class)).thenReturn(MarshallService.getMarshallService());

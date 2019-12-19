@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Base64;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -39,20 +40,24 @@ import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.PathInfo;
+import org.appng.api.Platform;
 import org.appng.api.Request;
 import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.Webservice;
 import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.handler.JspHandler;
+import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
+import org.appng.tools.os.OperatingSystem;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -177,6 +182,61 @@ public class ControllerTest extends Controller {
 		} catch (Exception e) {
 			fail(e);
 		}
+	}
+
+	@Test
+	public void testMonitoring() {
+		prepareMonitoring("/health");
+		try {
+			doGet(base.request, base.response);
+			String actual = new String(base.out.toByteArray());
+			Mockito.verify(base.response).setContentType(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON);
+			Assert.assertTrue(actual.contains("\"name\" : \"manager\""));
+			Assert.assertTrue(actual.contains("\"state\" : \"STARTED\""));
+			Assert.assertTrue(actual.contains("\"ldapPassword\" : \"******\""));
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testMonitoringSystem() {
+		prepareMonitoring("/health/system");
+		try {
+			doGet(base.request, base.response);
+			String actual = new String(base.out.toByteArray());
+			Assert.assertTrue(actual.contains("java.runtime.name"));
+			Assert.assertTrue(actual.contains("java.runtime.version"));
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testMonitoringEnv() {
+		prepareMonitoring("/health/environment");
+		try {
+			doGet(base.request, base.response);
+			String actual = new String(base.out.toByteArray());
+			if (OperatingSystem.isLinux()) {
+				Assert.assertTrue(actual.contains("LANG"));
+				Assert.assertTrue(actual.contains("USER"));
+			} else if (OperatingSystem.isWindows()) {
+				Assert.assertTrue(actual.contains("USERNAME"));
+				Assert.assertTrue(actual.contains("Path"));
+			}
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	private void prepareMonitoring(String path) {
+		monitoringHandler = new MonitoringHandler();
+		when(base.request.getServletPath()).thenReturn(path);
+		Properties platformCfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		String sharedSecret = platformCfg.getString(Platform.Property.SHARED_SECRET);
+		String baseAuth = "Basic " + Base64.getEncoder().encodeToString(("monitoring:" + sharedSecret).getBytes());
+		when(base.request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(baseAuth);
 	}
 
 	private void prepareWebserice(HttpMethod method) {

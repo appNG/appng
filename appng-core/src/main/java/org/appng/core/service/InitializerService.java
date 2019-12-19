@@ -240,8 +240,8 @@ public class InitializerService {
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
-				true, false);
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
+				false);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
@@ -378,7 +378,6 @@ public class InitializerService {
 			}
 			LOGGER.info("done watching for reload file.");
 		}
-
 	}
 
 	private void logHeaderMessage(String message) {
@@ -481,7 +480,7 @@ public class InitializerService {
 		boolean isReload = null != currentSite;
 		if (isReload) {
 			LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
-			shutDownSite(env, currentSite);
+			shutDownSite(env, currentSite, false);
 			site.setReloadCount(site.getReloadCount() + 1);
 		}
 
@@ -847,7 +846,7 @@ public class InitializerService {
 			Set<String> siteNames = new HashSet<>(siteMap.keySet());
 			for (String siteName : siteNames) {
 				Site site = siteMap.get(siteName);
-				shutDownSite(env, site);
+				shutDownSite(env, site, true);
 			}
 		}
 		CacheService.shutdown();
@@ -863,13 +862,15 @@ public class InitializerService {
 	 * @param site
 	 *             the {@link Site} to shut down
 	 */
-	public void shutDownSite(Environment env, Site site) {
+	public void shutDownSite(Environment env, Site site, boolean removeFromSiteMap) {
 		List<ExecutorService> executors = siteThreads.get(site.getName());
-		LOGGER.info("shutting down site threads for {}", site);
-		for (ExecutorService executorService : executors) {
-			executorService.shutdownNow();
+		if (null != executors) {
+			LOGGER.info("shutting down site threads for {}", site);
+			for (ExecutorService executorService : executors) {
+				executorService.shutdownNow();
+			}
 		}
-		coreService.shutdownSite(env, site.getName());
+		coreService.shutdownSite(env, site.getName(), removeFromSiteMap);
 	}
 
 	public CoreService getCoreService() {

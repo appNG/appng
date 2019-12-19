@@ -34,6 +34,7 @@
 	<jdbc:embedded-database id="datasource" type="HSQL" database-name="${database.name}" />
 
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+		<property name="table" value="schema_version" />
 		<property name="locations" value="classpath:/db/migration/hsql" />
 		<property name="dataSource" ref="datasource" />
 	</bean>

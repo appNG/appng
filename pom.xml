@@ -61,7 +61,7 @@
 		<appNG.authentication.version>1.11.2</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<esapi.version>2.2.0.0</esapi.version>
-		<hazelcast.version>3.12.4</hazelcast.version>
+		<hazelcast.version>3.12.5</hazelcast.version>
 		<hibernate.version>5.4.8.Final</hibernate.version>
 		<jackson.version>2.10.1</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
@@ -1016,6 +1016,11 @@
 				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jsr310</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
 				<version>${jackson.version}</version>
@@ -1023,7 +1028,7 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>4.2.0</version>
+				<version>5.2.4</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>

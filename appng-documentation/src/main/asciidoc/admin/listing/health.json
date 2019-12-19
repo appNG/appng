@@ -1,0 +1,46 @@
+{
+  "name" : "manager",
+  "state" : "STARTED",
+  "host" : "localhost",
+  "domain" : "http://localhost:8080",
+  "startupTime" : "2019-12-10T10:46:52.792+01:00",
+  "uptimeSeconds" : 2132133465,
+  "applications" : {
+    "appng-scheduler" : {
+      "version" : "1.12.0",
+      "description" : "Scheduling using Quartz Scheduler",
+      "hidden" : false,
+      "privileged" : true,
+      "filebased" : true,
+      "jars" : [ {
+        "name" : "/home/appng/webapps/ROOT/WEB-INF/cache/platform/manager/appng-scheduler/lib/appng-scheduler-1.12.0.jar",
+        "lastModified" : "2019-12-10T10:46:36+01:00"
+      } ]
+    },
+    "appng-manager" : {
+      "version" : "1.16.0",
+      "description" : "Global appNG administration",
+      "hidden" : false,
+      "privileged" : true,
+      "filebased" : true,
+      "jars" : [ {
+        "name" : "/home/appng/webapps/ROOT/WEB-INF/cache/platform/manager/appng-manager/lib/appng-manager-1.17.0-SNAPSHOT.jar",
+        "lastModified" : "2019-12-10T10:46:38+01:00"
+      } ]
+    },
+    "appng-authentication" : {
+      "version" : "1.12.0",
+      "description" : "Authentication Application",
+      "hidden" : true,
+      "privileged" : true,
+      "filebased" : true,
+      "jars" : [ {
+        "name" : "/home/appng/webapps/ROOT/WEB-INF/cache/platform/manager/appng-authentication/lib/appng-authentication-1.12.1-SNAPSHOT.jar",
+        "lastModified" : "2019-12-10T10:46:36+01:00"
+      } ]
+    }
+  },
+  "props" : {
+    ...
+  }
+}
