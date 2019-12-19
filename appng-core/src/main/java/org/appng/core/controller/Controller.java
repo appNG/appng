@@ -256,9 +256,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 				}
 			}
 
-		} else if (allowPlainRequests)
-
-		{
+		} else if (allowPlainRequests) {
 			LOGGER.debug("no site found for request '{}'", servletPath);
 			super.doGet(servletRequest, servletResponse);
 			int status = servletResponse.getStatus();
