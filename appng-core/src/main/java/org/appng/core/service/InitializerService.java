@@ -244,8 +244,8 @@ public class InitializerService {
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
-				true, false);
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
+				false);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
@@ -301,11 +301,12 @@ public class InitializerService {
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
-				String runningSite = site.getName();
+				String inactiveSite = site.getName();
 				site.setState(SiteState.INACTIVE);
-				if (siteMap.containsKey(runningSite)) {
-					getCoreService().shutdownSite(env, runningSite);
+				if (siteMap.containsKey(inactiveSite)) {
+					getCoreService().shutdownSite(env, inactiveSite, false);
 				} else {
+					siteMap.put(inactiveSite, site);
 					getCoreService().setSiteStartUpTime(site, null);
 				}
 				LOGGER.info("site {} is inactive and will not be loaded", site);
@@ -485,7 +486,7 @@ public class InitializerService {
 		boolean isReload = null != currentSite;
 		if (isReload) {
 			LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
-			shutDownSite(env, currentSite);
+			shutDownSite(env, currentSite, false);
 			site.setReloadCount(site.getReloadCount() + 1);
 		}
 
@@ -875,7 +876,7 @@ public class InitializerService {
 	 * 
 	 * @param ctx
 	 *            the current {@link ServletContext}
-	 * @see #shutDownSite(Environment, Site)
+	 * @see #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.get(ctx);
@@ -887,7 +888,7 @@ public class InitializerService {
 			Set<String> siteNames = new HashSet<>(siteMap.keySet());
 			for (String siteName : siteNames) {
 				Site site = siteMap.get(siteName);
-				shutDownSite(env, site);
+				shutDownSite(env, site, true);
 			}
 		}
 		CacheService.shutdown();
@@ -903,13 +904,15 @@ public class InitializerService {
 	 * @param site
 	 *             the {@link Site} to shut down
 	 */
-	public void shutDownSite(Environment env, Site site) {
+	public void shutDownSite(Environment env, Site site, boolean removeFromSiteMap) {
 		List<ExecutorService> executors = siteThreads.get(site.getName());
-		LOGGER.info("shutting down site threads for {}", site);
-		for (ExecutorService executorService : executors) {
-			executorService.shutdownNow();
+		if (null != executors) {
+			LOGGER.info("shutting down site threads for {}", site);
+			for (ExecutorService executorService : executors) {
+				executorService.shutdownNow();
+			}
 		}
-		coreService.shutdownSite(env, site.getName());
+		coreService.shutdownSite(env, site.getName(), removeFromSiteMap);
 	}
 
 	public CoreService getCoreService() {

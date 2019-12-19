@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.appng.api.SiteProperties;
+import org.appng.api.model.Property;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.cli.commands.site.CommandCreateSiteTest;
@@ -52,6 +53,7 @@ public class CommandUpdateClobPropertyTest extends AbstractCommandTest {
 	public void validate() {
 		PropertyImpl property = cliEnv.getCoreService().getProperty(PROP);
 		Assert.assertEquals(expected, property.getClob());
+		Assert.assertEquals(Property.Type.MULTILINE, property.getType());
 	}
 
 }

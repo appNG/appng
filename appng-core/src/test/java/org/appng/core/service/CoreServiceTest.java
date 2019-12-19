@@ -219,11 +219,12 @@ public class CoreServiceTest {
 		MigrationStatus state = coreService.assignApplicationToSite(site, application, true);
 		assertEquals(MigrationStatus.NO_DB_SUPPORTED, state);
 		Iterable<PropertyImpl> properties = coreService.getProperties(1, application.getId());
-
-		PropertyImpl prop = properties.iterator().next();
-		assertEquals("foobaz", prop.getString());
-		assertEquals("platform.site." + site.getName() + ".application." + application.getName() + ".foobar",
-				prop.getName());
+		String prefix = "platform.site." + site.getName() + ".application." + application.getName() + ".";
+		PropertyHolder propertyHolder = new PropertyHolder(prefix, properties);
+		assertEquals("foobaz", propertyHolder.getString("foobar"));
+		Property prop = propertyHolder.getProperty("foobar");
+		assertEquals(Property.Type.TEXT, prop.getType());
+		assertEquals(prefix + "foobar", prop.getName());
 	}
 
 	@Test
@@ -249,8 +250,9 @@ public class CoreServiceTest {
 
 	@Test
 	public void testCreateApplicationProperty() {
-		coreService.createProperty(null, null, new PropertyImpl("foobaz", "foobar"));
+		PropertyImpl property = coreService.createProperty(null, null, new PropertyImpl("foobaz", "foobar"));
 		assertTrue(coreService.checkPropertyExists(null, null, new PropertyImpl("foobaz", "foobar")));
+		assertEquals(Property.Type.TEXT, property.getType());
 	}
 
 	@Test
@@ -298,8 +300,9 @@ public class CoreServiceTest {
 
 	@Test
 	public void testCreatePropertyForSite() {
-		coreService.createProperty(1, null, new PropertyImpl("foo", "bar"));
+		PropertyImpl property = coreService.createProperty(1, null, new PropertyImpl("foo", "bar"));
 		assertTrue(coreService.checkPropertyExists(1, null, new PropertyImpl("foo", "bar")));
+		assertEquals(Property.Type.TEXT, property.getType());
 	}
 
 	@Test
@@ -726,8 +729,11 @@ public class CoreServiceTest {
 		validateApplication(appngVersion, applicationName, applicationVersion, applicationTimestamp, application);
 
 		assertEquals("bar", application.getProperties().getString("foo"));
-		String description = ((PropertyHolder) application.getProperties()).getProperty("foo").getDescription();
-		assertEquals("a foo property", description);
+		Property property = ((PropertyHolder) application.getProperties()).getProperty("foo");
+		assertEquals("a foo property", property.getDescription());
+		assertEquals(Property.Type.TEXT, property.getType());
+		Property multiline = ((PropertyHolder) application.getProperties()).getProperty("clobValue");
+		assertEquals(Property.Type.MULTILINE, multiline.getType());
 		assertEquals("a\nb\nc", application.getProperties().getClob("clobValue"));
 	}
 
@@ -805,11 +811,15 @@ public class CoreServiceTest {
 
 	private void validateProperties(PropertyHolder propertyHolder, String ecpectedClobValue) {
 		assertEquals("foobar", propertyHolder.getString("foo"));
-		assertEquals("a foo property [UPDATED]", propertyHolder.getProperty("foo").getDescription());
+		Property foo = propertyHolder.getProperty("foo");
+		assertEquals(Property.Type.TEXT, foo.getType());
+		assertEquals("a foo property [UPDATED]", foo.getDescription());
 
 		assertEquals("foobaz", propertyHolder.getString("bar"));
 		assertEquals("a new property", propertyHolder.getProperty("bar").getDescription());
 		assertEquals(ecpectedClobValue, propertyHolder.getClob("clobValue"));
+		Property clobValue = propertyHolder.getProperty("clobValue");
+		assertEquals(Property.Type.MULTILINE, clobValue.getType());
 	}
 
 	@Test

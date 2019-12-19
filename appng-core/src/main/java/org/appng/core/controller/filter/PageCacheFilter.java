@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +74,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 
 	private static final String GZIP = "gzip";
 	private FilterConfig filterConfig;
+	private static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
 
@@ -122,32 +122,38 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			}
 		}
 		if (cacheEnabled && isCacheableRequest && !isException) {
-			handleCaching(httpServletRequest, httpServletResponse, site, chain, CacheService.getCache(site),
-					expiryPolicy);
+			long start = System.currentTimeMillis();
+			CachedResponse cachedResponse = handleCaching(httpServletRequest, httpServletResponse, site, chain,
+					CacheService.getCache(site), expiryPolicy);
+			if (null != cachedResponse && LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Cache handling took {}ms (hit: {}, status: {}) for {}",
+						System.currentTimeMillis() - start, httpServletRequest.getAttribute(CACHE_HIT),
+						HttpStatus.valueOf(httpServletResponse.getStatus()), cachedResponse.getId());
+			}
 		} else {
 			chain.doFilter(request, response);
 		}
 	}
 
-	protected void handleCaching(final HttpServletRequest request, final HttpServletResponse response, Site site,
-			final FilterChain chain, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
+	protected CachedResponse handleCaching(final HttpServletRequest request, final HttpServletResponse response,
+			Site site, final FilterChain chain, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 			throws ServletException, IOException {
 		try {
-			CachedResponse pageInfo = getCachedResponse(request, response, chain, site, cache, expiryPolicy);
-			if (null != pageInfo) {
-				if (pageInfo.isOk() && response.isCommitted()) {
+			CachedResponse cachedResponse = getCachedResponse(request, response, chain, site, cache, expiryPolicy);
+			if (null != cachedResponse) {
+				if (cachedResponse.isOk() && response.isCommitted()) {
 					throw new ServletException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
-				Optional<String> lastModified = Optional.ofNullable(response.getHeader(HttpHeaders.LAST_MODIFIED));
+				long lastModified = cachedResponse.getHeaders().getLastModified();
 				boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
 
-				if (hasModifiedSince && lastModified.isPresent()) {
-					handleLastModified(request, response, pageInfo, lastModified.get());
+				if (hasModifiedSince && lastModified > 0) {
+					handleLastModified(request, response, cachedResponse, lastModified);
 				} else {
-					writeResponse(request, response, pageInfo);
+					writeResponse(request, response, cachedResponse);
 				}
-
+				return cachedResponse;
 			}
 		} catch (CacheException e) {
 			LOGGER.warn(String.format("error while adding/retrieving from/to cache: %s", calculateKey(request)), e);
@@ -156,6 +162,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				LOGGER.debug(String.format("client aborted request: %s", calculateKey(request)), e);
 			}
 		}
+		return null;
 	}
 
 	protected void writeResponse(HttpServletRequest request, HttpServletResponse response, CachedResponse pageInfo)
@@ -193,12 +200,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
-			CachedResponse pageInfo, String lastModified) throws IOException {
+			CachedResponse pageInfo, long lastModified) throws IOException {
 		HttpHeaderUtils.handleModifiedHeaders(request, response, new HttpHeaderUtils.HttpResource() {
 
 			public long update() throws IOException {
-				Date date = CacheHeaderUtils.getDate(lastModified);
-				return null == date ? System.currentTimeMillis() : date.getTime();
+				return lastModified;
 			}
 
 			public boolean needsUpdate() {
@@ -239,21 +245,20 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
 				if (LOGGER.isDebugEnabled()) {
 					Duration duration = expiryPolicy == null ? null : expiryPolicy.getExpiryForCreation();
-					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, policy: {})", cache.getName(), key,
+					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, ttl: {}s)", cache.getName(), key,
 							cachedResponse.getContentType(), size,
 							duration == null ? null : duration.getDurationAmount());
 				}
-			} else {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("PageInfo was not ok (status: {}, size: {}) for key {}", cachedResponse.getStatus(),
-							size, key);
-				}
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Response has status: {}, size: {} for key {}", cachedResponse.getStatus(), size, key);
 			}
+			request.setAttribute(CACHE_HIT, false);
 		} else {
 			// update hit statistic
 			long hits = cachedResponse.incrementHit();
-			cache.replace(key, cachedResponse);
+			cache.unwrap(ICache.class).replace(key, cachedResponse, expiryPolicy);
 			if (LOGGER.isDebugEnabled()) {
+				request.setAttribute(CACHE_HIT, true);
 				LOGGER.debug("Hit in cache {}: {} (type: {}, size: {}, hits: {})", cache.getName(), key,
 						cachedResponse.getContentType(), cachedResponse.getContentLength(), hits);
 			}

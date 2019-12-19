@@ -18,6 +18,55 @@ include::../listing/pg-employees.xml[]
 <7> Include a hidden section with the 'delete'-action, passing the get-parameters `delId` and `delAction`. 
 <8> After a successful delete action, the user gets redirected to the page `employees`. This is done to cleanup the URL from the GET-parameters used for deletion. 
 
+==== Include conditions and the `PATH` variable
+As shown in the example above, for each `<action>` and `<datasource>` that is used on a page, an include `<condition>` can be defined. 
+This condition is used to decide, based on page parameters, whether or not to display the corresponding `<element>`. 
+So basically an URL path matching is used to decide which actions/datasources should be shown.
+
+To simplify this, a special implicit variable named `PATH` is available when evaluating include conditions. It knows the `<url-schema>` of the page (see next chapter) and offers these useful methods:
+
+* `matches(String... elements)`
+* `starts(String... elements)`
+* `ends(String... elements)`
+* `contains(String... elements)`
+* `equals(String... elements)`
+* `hasParam(String... params)`
+
+So instead of writing `${action eq 'update' and not empty id}` (see example above), you could also write 
+`${ PATH.starts('/update/', id) }`, which is a little more readable. Especially when the URL path contains many parameters, the `PATH` variable becomes handy and produces more readable include conditions.
+
+A more complex example:
+
+An action used to approve a request for vacation of an employee should be included for this path:
+`/organization/edit/ACME/employee/edit/42/vacation/2019/approve/1`
+
+The URL-schema for this example may look as follows:
+[source,xml]
+----
+<url-params>
+	<url-param name="item">organization</url-param>
+	<url-param name="action">edit</url-param>
+	<url-param name="id">ACME</url-param>
+	<url-param name="item1">employee</url-param>
+	<url-param name="action1">edit</url-param>
+	<url-param name="id1">42</url-param>
+	<url-param name="item2">vacation</url-param>
+	<url-param name="id2">2019</url-param>
+	<url-param name="action2">approve</url-param>
+	<url-param name="id3">1</url-param>
+</url-params>
+----
+
+With `PATH`, instead of writing
+
+`${  'organization' eq item and 'edit' eq action and not empty id and 'employee' eq item1 and 'edit' eq action1 and not empty id1 and 'vacation' eq item2 and not empty id2 and 'approve' eq action2 and not empty id3}`
+
+you can also just write
+
+`${ PATH.equals('/organization/edit/',id,'/employee/edit/',id1,'/vacation/',id2,'/approve/',id3) }`
+
+, which is more than 50 percent shorter and way more readable.
+
 === `<url-schema>`
 As shown in the example above, the current URL in conjunction with the URL-schema of the page is responsible for what action and datasources are being shown on that page.
 
