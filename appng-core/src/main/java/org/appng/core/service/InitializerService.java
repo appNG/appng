@@ -319,7 +319,6 @@ public class InitializerService {
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
 		}
-
 	}
 
 	class SiteReloadWatcher implements Runnable {
@@ -380,6 +379,7 @@ public class InitializerService {
 			}
 			LOGGER.info("done watching for reload file.");
 		}
+
 	}
 
 	private void logHeaderMessage(String message) {
