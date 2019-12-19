@@ -121,12 +121,12 @@ public class ResultServiceTest {
 	@Test
 	public void testDefaultSort() {
 		FieldProcessorImpl fp = new FieldProcessorImpl("action", MetaDataProvider.getMetaData());
-		fp.setPageable(new PageRequest(1, 50));
+		fp.setPageable(PageRequest.of(1, 50));
 		fp.getField("firstname").getSort().setIgnoreCase(true);
-		Sort expectedSort = new Sort(new Order(Direction.ASC, "firstname").ignoreCase(),
+		Sort expectedSort = Sort.by(new Order(Direction.ASC, "firstname").ignoreCase(),
 				new Order(Direction.DESC, "name"));
 		Pageable pageable = fp.getPageable();
-		Assert.assertEquals(new PageRequest(1, 50, expectedSort), pageable);
+		Assert.assertEquals(PageRequest.of(1, 50, expectedSort), pageable);
 		org.appng.xml.platform.Sort nameSort = fp.getField("name").getSort();
 		Assert.assertNull(nameSort.getPrio());
 		Assert.assertNull(nameSort.getOrder());
@@ -136,7 +136,7 @@ public class ResultServiceTest {
 	@Test
 	public void testSort() {
 		FieldProcessorImpl fp = new FieldProcessorImpl("action", MetaDataProvider.getMetaData());
-		PageRequest pageable = new PageRequest(1, 50, new Sort(new Order(Direction.ASC, "firstname").ignoreCase()));
+		PageRequest pageable = PageRequest.of(1, 50, Sort.by(new Order(Direction.ASC, "firstname").ignoreCase()));
 		fp.setPageable(pageable);
 		Assert.assertEquals(pageable, fp.getPageable());
 		FieldDef field = fp.getField("firstname");

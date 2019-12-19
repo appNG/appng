@@ -48,7 +48,7 @@ public class EnversSearchRepositoryTest {
 		EnversTestEntity t3 = new EnversTestEntity();
 		t3.setName("name3");
 		t3.setIntegerValue(3);
-		repo.save(Arrays.asList(t1, t2, t3));
+		repo.saveAll(Arrays.asList(t1, t2, t3));
 	}
 
 	@After
@@ -68,10 +68,10 @@ public class EnversSearchRepositoryTest {
 		List<Revision<Integer, EnversTestEntity>> entityRevisions = repo.findRevisions(entityId).getContent();
 		Assert.assertEquals(2, entityRevisions.size());
 		Assert.assertNotNull(entityRevisions.get(0).getMetadata());
-		Assert.assertNotNull(repo.findRevision(entityId, entityRevisions.get(0).getRevisionNumber()));
+		Assert.assertNotNull(repo.findRevision(entityId, entityRevisions.get(0).getRevisionNumber().get()));
 		Assert.assertEquals(1, repo.findRevisions(all.get(1).getId()).getContent().size());
 		Assert.assertEquals(entityRevisions.get(entityRevisions.size() - 1).getRevisionNumber(),
-				repo.findLastChangeRevision(entityId).getRevisionNumber());
+				repo.findLastChangeRevision(entityId).get().getRevisionNumber());
 	}
 
 }

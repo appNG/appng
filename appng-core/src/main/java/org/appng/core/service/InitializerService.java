@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -52,6 +53,7 @@ import javax.servlet.ServletContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.appng.api.AppNgApplication;
 import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.ApplicationController;
 import org.appng.api.Environment;
@@ -102,6 +104,8 @@ import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Messages;
+import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -600,6 +604,31 @@ public class InitializerService {
 					}
 					applicationResources.dumpToCache(resourceTypes.toArray(new ResourceType[0]));
 
+					ConfigurationBuilder configuration = new ConfigurationBuilder();
+					List<URL> applicationJars = new ArrayList<>();
+					applicationResources.getResources(ResourceType.JAR).forEach(jar -> {
+						try {
+							applicationJars.add(jar.getCachedFile().toURI().toURL());
+						} catch (MalformedURLException e) {
+							LOGGER.error("Error adding jar", e);
+						}
+					});
+
+					configuration.addUrls(applicationJars);
+					configuration.setExpandSuperTypes(false);
+					URLClassLoader appClassLoader = new URLClassLoader(applicationJars.toArray(new URL[0]),
+							getClass().getClassLoader());
+					configuration.setClassLoaders(new ClassLoader[] { appClassLoader });
+					Set<Class<?>> appNGApplications = new Reflections(configuration)
+							.getTypesAnnotatedWith(AppNgApplication.class);
+					if (appNGApplications.size() > 1) {
+						throw new InvalidConfigurationException(currentSite, application.getName(), String.format(
+								"Foud more than one @AppNGApplication: %s", StringUtils.join(appNGApplications, ",")));
+					} else if (!appNGApplications.isEmpty()) {
+						Class<?> appNGApplication = appNGApplications.iterator().next();
+						LOGGER.info("Found @AppNGApplication: {}", appNGApplication.getName());
+						applicationProvider.setApplicationConfiguration(appNGApplication);
+					}
 					ApplicationConfigProvider applicationConfig = new ApplicationConfigProviderImpl(marshallService,
 							application.getName(), applicationResources, devMode);
 					applicationProvider.setApplicationConfig(applicationConfig);
@@ -681,13 +710,13 @@ public class InitializerService {
 			try {
 				String beansXmlLocation = cacheProvider.getRelativePlatformCache(site, application) + File.separator
 						+ ResourceType.BEANS_XML_NAME;
-				// this is required to support testing of InitialiterService
-				List<String> configLocations = new ArrayList<>(
-						siteProps.getList(CONFIG_LOCATIONS, ApplicationContext.CONTEXT_CLASSPATH, ","));
-				configLocations.add(beansXmlLocation);
-				ApplicationContext applicationContext = new ApplicationContext(application, platformContext,
-						site.getSiteClassLoader(), servletContext,
-						configLocations.toArray(new String[configLocations.size()]));
+				String beansXmlPath = servletContext.getResource(beansXmlLocation).toURI().toString();
+				// this is required to support testing of InitializerService
+				List<String> configLocations = new ArrayList<>(siteProps.getList(CONFIG_LOCATIONS, "", ","));
+				configLocations.add(beansXmlPath);
+				DatabaseConnection databaseConnection = application.getDatabaseConnection();
+
+				Class<?> appNGApplication = application.getApplicationConfiguration();
 
 				Set<Resource> resources = application.getResources().getResources(ResourceType.DICTIONARY);
 				List<String> dictionaryNames = new ArrayList<>();
@@ -700,6 +729,17 @@ public class InitializerService {
 
 				java.util.Properties props = PropertySupport.getProperties(platformConfig, site, application,
 						application.isPrivileged());
+				if (null != appNGApplication) {
+					AppNgApplication annotation = appNGApplication.getAnnotation(AppNgApplication.class);
+					if (!StringUtils.isBlank(annotation.entityPackage())) {
+						props.put("entityPackage", annotation.entityPackage());
+						props.put("persistenceUnitName", application.getName());
+					}
+				}
+
+				ApplicationContext applicationContext = new ApplicationContext(application, platformContext,
+						site.getSiteClassLoader(), servletContext, null != databaseConnection, appNGApplication, props,
+						configLocations.toArray(new String[0]));
 
 				PropertySourcesPlaceholderConfigurer configurer = getPlaceholderConfigurer(props);
 				applicationContext.addBeanFactoryPostProcessor(configurer);
@@ -707,7 +747,7 @@ public class InitializerService {
 				Properties appProps = application.getProperties();
 				List<String> profiles = appProps.getList(ApplicationProperties.PROP_ACTIVE_PROFILES, ",");
 				if (!profiles.isEmpty()) {
-					environment.setActiveProfiles(profiles.toArray(new String[profiles.size()]));
+					environment.setActiveProfiles(profiles.toArray(new String[0]));
 				}
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 

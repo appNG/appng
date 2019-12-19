@@ -35,7 +35,7 @@ public class DataContainerTest {
 	private DataContainer dataContainer;
 	private FieldProcessor fieldProcessor;
 	private List<Person> persons = new ArrayList<>();
-	private Pageable pageable = new PageRequest(0, 10);
+	private Pageable pageable = PageRequest.of(0, 10);
 	private Page<Person> page = new PageImpl<Person>(persons, pageable, 2);
 	private Person luke = new Person(1, "Luke", "Skywalker");
 	private Person obiWan = new Person(2, "Obi Wan", "Kenobi");
@@ -82,7 +82,7 @@ public class DataContainerTest {
 
 	@Test
 	public void testSetPageFromCollection() {
-		PageRequest newPageable = new PageRequest(1, 1, new Sort(Direction.DESC, "firstName"));
+		PageRequest newPageable = PageRequest.of(1, 1, Sort.by(Direction.DESC, "firstName"));
 		dataContainer.setPage(persons, newPageable);
 		Assert.assertEquals(newPageable, dataContainer.getPageable());
 		Assert.assertNotNull(dataContainer.getPage());
@@ -94,7 +94,7 @@ public class DataContainerTest {
 
 	@Test
 	public void testSetPageSort() {
-		PageRequest newPageable = new PageRequest(5, 10, new Sort(new Order(Direction.ASC, "name"), new Order(
+		PageRequest newPageable = PageRequest.of(5, 10, Sort.by(new Order(Direction.ASC, "name"), new Order(
 				Direction.DESC, "firstName")));
 		List<Person> personList = new ArrayList<>(persons);
 		Person anakin = new Person(3, "Anakin", "Skywalker");

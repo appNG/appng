@@ -65,20 +65,20 @@
 		<hibernate.version>5.4.8.Final</hibernate.version>
 		<jackson.version>2.10.1</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
-		<lucene.version>8.3.0</lucene.version>
+		<lucene.version>8.3.1</lucene.version>
 		<pdfBox.version>2.0.17</pdfBox.version>
-		<poi.version>3.17</poi.version>
-		<queryDsl.version>4.2.1</queryDsl.version>
+		<poi.version>4.1.1</poi.version>
+		<queryDsl.version>4.2.2</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<spring.version>4.3.25.RELEASE</spring.version>
-		<springData.version>1.13.23.RELEASE</springData.version>
-		<springDataEnvers.version>1.1.23.RELEASE</springDataEnvers.version>
-		<springDataJpa.version>1.11.23.RELEASE</springDataJpa.version>
-		<springSecurity.version>4.2.13.RELEASE</springSecurity.version>
-		<springWS.version>2.4.6.RELEASE</springWS.version>
-		<tika.version>1.18</tika.version>
-		<tomcat.version>9.0.27</tomcat.version>
+		<spring.version>5.2.2.RELEASE</spring.version>
+		<springData.version>2.2.2.RELEASE</springData.version>
+		<springDataEnvers.version>2.2.2.RELEASE</springDataEnvers.version>
+		<springDataJpa.version>2.2.2.RELEASE</springDataJpa.version>
+		<springSecurity.version>5.2.1.RELEASE</springSecurity.version>
+		<springWS.version>3.0.8.RELEASE</springWS.version>
+		<tika.version>1.22</tika.version>
+		<tomcat.version>9.0.29</tomcat.version>
 	</properties>
 	<scm>
 		<connection>scm:git:ssh://git@github.com:appNG/appng.git</connection>

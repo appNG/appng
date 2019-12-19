@@ -65,7 +65,6 @@ public class MigrationService {
 	 * Enum type defining the different states of a database migration.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public enum MigrationStatus {
 		/** no database supported */
@@ -94,9 +93,9 @@ public class MigrationService {
 	 * Configures and (optionally) migrates the appNG root {@link DatabaseConnection} from the given
 	 * {@link java.util.Properties}.
 	 * 
-	 * @param config
-	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
-	 * @return the appNG root {@link DatabaseConnection}
+	 * @param  config
+	 *                the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * @return        the appNG root {@link DatabaseConnection}
 	 */
 	public DatabaseConnection initDatabase(java.util.Properties config) {
 		DatabaseConnection platformConnection = getPlatformConnection(config);
@@ -139,10 +138,10 @@ public class MigrationService {
 	/**
 	 * Returns the current {@link MigrationInfo} for the connection
 	 * 
-	 * @param config
-	 *            the configuration read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
-	 * @return the current {@link MigrationInfo} for the given connection
-	 * @see #status(DatabaseConnection)
+	 * @param  config
+	 *                the configuration read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * @return        the current {@link MigrationInfo} for the given connection
+	 * @see           #status(DatabaseConnection)
 	 */
 	public MigrationInfo status(java.util.Properties config) {
 		return status(getPlatformConnection(config));
@@ -151,10 +150,10 @@ public class MigrationService {
 	/**
 	 * Returns the current {@link MigrationInfo} for the given {@link DatabaseConnection}
 	 * 
-	 * @param connection
-	 *            a {@link DatabaseConnection}
-	 * @return the current {@link MigrationInfo} for the given connection (may be {@code null}).
-	 * @see MigrationInfoService#current()
+	 * @param  connection
+	 *                    a {@link DatabaseConnection}
+	 * @return            the current {@link MigrationInfo} for the given connection (may be {@code null}).
+	 * @see               MigrationInfoService#current()
 	 */
 	public MigrationInfo status(DatabaseConnection connection) {
 		MigrationInfoService statusComplete = statusComplete(connection);
@@ -168,10 +167,10 @@ public class MigrationService {
 	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection} (the appNG root
 	 * connection).
 	 * 
-	 * @param connection
-	 *            a {@link DatabaseConnection}
-	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
-	 * @see MigrationInfoService
+	 * @param  connection
+	 *                    a {@link DatabaseConnection}
+	 * @return            the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @see               MigrationInfoService
 	 */
 	public MigrationInfoService statusComplete(DatabaseConnection connection) {
 		return statusComplete(connection, true);
@@ -181,12 +180,12 @@ public class MigrationService {
 	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection} (the appNG root
 	 * connection).
 	 * 
-	 * @param connection
-	 *            a {@link DatabaseConnection}
-	 * @param testConnection
-	 *            if the connection needs to be tested
-	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
-	 * @see MigrationInfoService
+	 * @param  connection
+	 *                        a {@link DatabaseConnection}
+	 * @param  testConnection
+	 *                        if the connection needs to be tested
+	 * @return                the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @see                   MigrationInfoService
 	 */
 	public MigrationInfoService statusComplete(DatabaseConnection connection, boolean testConnection) {
 		StringBuilder dbInfo = new StringBuilder();
@@ -206,12 +205,12 @@ public class MigrationService {
 	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection}, which must be owned by
 	 * a {@link SiteApplication}.
 	 * 
-	 * @param connection
-	 *            a {@link DatabaseConnection} owned by a {@link SiteApplication}
-	 * @param sqlFolder
-	 *            the path to migration scripts
-	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
-	 * @see MigrationInfoService
+	 * @param  connection
+	 *                    a {@link DatabaseConnection} owned by a {@link SiteApplication}
+	 * @param  sqlFolder
+	 *                    the path to migration scripts
+	 * @return            the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @see               MigrationInfoService
 	 */
 	public MigrationInfoService statusComplete(DatabaseConnection connection, File sqlFolder) {
 		if (null != connection && connection.testConnection(null)) {

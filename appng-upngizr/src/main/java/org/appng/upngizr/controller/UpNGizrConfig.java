@@ -21,7 +21,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 /**
@@ -32,7 +32,7 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
  */
 @Configuration
 @EnableWebMvc
-public class UpNGizrConfig extends WebMvcConfigurerAdapter {
+public class UpNGizrConfig implements WebMvcConfigurer {
 
 	@Bean
 	public StringHttpMessageConverter stringHttpMessageConverter() {
@@ -48,6 +48,5 @@ public class UpNGizrConfig extends WebMvcConfigurerAdapter {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/assets/").setCachePeriod(3600)
 				.resourceChain(true).addResolver(new PathResourceResolver());
-		super.addResourceHandlers(registry);
 	}
 }

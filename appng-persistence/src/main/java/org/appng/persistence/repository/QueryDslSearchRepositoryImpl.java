@@ -16,6 +16,7 @@
 package org.appng.persistence.repository;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -24,7 +25,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
-import org.springframework.data.jpa.repository.support.QueryDslJpaRepository;
+import org.springframework.data.jpa.repository.support.QuerydslJpaPredicateExecutor;
+import org.springframework.data.querydsl.SimpleEntityPathResolver;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -38,24 +40,24 @@ import com.querydsl.core.types.Predicate;
  * </pre>
  * 
  * See <a href=
- * "http://docs.spring.io/spring-data/jpa/docs/1.11.0.RELEASE/reference/html/#repositories.custom-behaviour-for-all-repositories">
- * 4.6.2. Adding custom behavior to all repositories</a> from the reference Documentation for further details.
+ * "https://docs.spring.io/spring-data/jpa/docs/2.1.10.RELEASE/reference/html/#repositories.customize-base-repository">
+ * 4.6.2. Customize the Base Repository</a> from the reference Documentation for further details.
  *
  * @author Matthias Müller
- * 
  * @param <T>
- *            the domain class
+ *             the domain class
  * @param <ID>
- *            the type of the Id of the domain class
+ *             the type of the Id of the domain class
  */
 public class QueryDslSearchRepositoryImpl<T, ID extends Serializable> extends SearchRepositoryImpl<T, ID>
 		implements QueryDslSearchRepository<T, ID> {
 
-	private QueryDslJpaRepository<T, ID> queryDslJpaRepository;
+	private QuerydslJpaPredicateExecutor<T> queryDslJpaRepository;
 
 	public QueryDslSearchRepositoryImpl(JpaEntityInformation<T, ID> entityInformation, EntityManager entityManager) {
 		super(entityInformation, entityManager);
-		this.queryDslJpaRepository = new QueryDslJpaRepository<T, ID>(entityInformation, entityManager);
+		this.queryDslJpaRepository = new QuerydslJpaPredicateExecutor<T>(entityInformation, entityManager,
+				SimpleEntityPathResolver.INSTANCE, null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,10 +65,11 @@ public class QueryDslSearchRepositoryImpl<T, ID extends Serializable> extends Se
 		super(domainType, entityManager);
 		JpaEntityInformation<T, ID> entityInformation = (JpaEntityInformation<T, ID>) JpaEntityInformationSupport
 				.getEntityInformation(domainClass, entityManager);
-		this.queryDslJpaRepository = new QueryDslJpaRepository<T, ID>(entityInformation, entityManager);
+		this.queryDslJpaRepository = new QuerydslJpaPredicateExecutor<T>(entityInformation, entityManager,
+				SimpleEntityPathResolver.INSTANCE, null);
 	}
 
-	public T findOne(Predicate predicate) {
+	public Optional<T> findOne(Predicate predicate) {
 		return queryDslJpaRepository.findOne(predicate);
 	}
 

@@ -35,8 +35,8 @@ import org.springframework.data.domain.Sort.Order;
  * The following example illustrates how this works:
  * 
  * <pre>
- * Sort sort = new Sort(new Order(Direction.DESC, &quot;name&quot;), new Order(Direction.ASC, &quot;id&quot;));
- * PageRequest pageable = new PageRequest(1, 20, sort);
+ * Sort sort = Sort.by(new Order(Direction.DESC, &quot;name&quot;), new Order(Direction.ASC, &quot;id&quot;));
+ * PageRequest pageable = PageRequest.of(1, 20, sort);
  * org.junit.Assert.assertEquals(&quot;name:desc;id:asc;page:1;pageSize:20&quot;, sortParamSupport.getSortString(pageable));
  * </pre>
  * 
@@ -122,9 +122,9 @@ public class SortParamSupport {
 			}
 		}
 		if (orders.isEmpty()) {
-			return new PageRequest(page, pageSize);
+			return PageRequest.of(page, pageSize);
 		} else {
-			return new PageRequest(page, pageSize, new Sort(orders));
+			return PageRequest.of(page, pageSize, Sort.by(orders));
 		}
 	}
 
@@ -181,9 +181,9 @@ public class SortParamSupport {
 		int pageNumber = isPageSet ? parseParams.getPageNumber() : currentParams.getPageNumber();
 		int pageSize = isPageSizeSet ? parseParams.getPageSize() : currentParams.getPageSize();
 		if (mergedOrders.isEmpty()) {
-			return new PageRequest(pageNumber, pageSize);
+			return PageRequest.of(pageNumber, pageSize);
 		} else {
-			return new PageRequest(pageNumber, pageSize, new Sort(mergedOrders));
+			return PageRequest.of(pageNumber, pageSize, Sort.by(mergedOrders));
 		}
 
 	}

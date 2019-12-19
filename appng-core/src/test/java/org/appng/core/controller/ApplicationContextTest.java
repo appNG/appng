@@ -31,6 +31,7 @@ import org.appng.api.model.Permission;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Resources;
 import org.appng.api.model.Role;
+import org.appng.testapplication.TestApplicationConfig;
 import org.appng.testapplication.TestEntity;
 import org.appng.testapplication.TestService;
 import org.appng.testsupport.TestBase;
@@ -39,7 +40,7 @@ import org.junit.Test;
 import org.springframework.context.MessageSource;
 import org.springframework.test.context.ContextConfiguration;
 
-@ContextConfiguration(locations = { ApplicationContextTest.BEANS_XML, TestBase.TESTCONTEXT, TestBase.TESTCONTEXT_JPA }, initializers = ApplicationContextTest.class, inheritLocations = false)
+@ContextConfiguration(classes = TestApplicationConfig.class, inheritLocations = false, initializers = ApplicationContextTest.class)
 public class ApplicationContextTest extends TestBase {
 
 	protected static final String BEANS_XML = "classpath:applications/application1/beans.xml";

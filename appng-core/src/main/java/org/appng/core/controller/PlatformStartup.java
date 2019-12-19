@@ -150,7 +150,7 @@ public class PlatformStartup implements ServletContextListener {
 			initializerService.shutdownPlatform(ctx);
 			ConfigurableApplicationContext platformCtx = env.removeAttribute(Scope.PLATFORM,
 					Platform.Environment.CORE_PLATFORM_CONTEXT);
-			org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
+			//org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
 			platformCtx.close();
 		}
 

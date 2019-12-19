@@ -587,6 +587,9 @@ public class SearchQuery<T> {
 		if (null == total) {
 			total = new Integer(content.size()).longValue();
 		}
+		if (null == pageable) {
+			pageable = PageRequest.of(0, total.intValue() <= 0 ? 1 : total.intValue());
+		}
 
 		return new PageImpl<T>(content, pageable, total);
 	}
@@ -685,9 +688,9 @@ public class SearchQuery<T> {
 	 */
 	protected Pageable applyPagination(Query query, Long total, Pageable pageable) {
 		if (pageable.getOffset() >= total) {
-			pageable = new PageRequest(0, pageable.getPageSize(), pageable.getSort());
+			pageable = PageRequest.of(0, pageable.getPageSize(), pageable.getSort());
 		}
-		query.setFirstResult(pageable.getOffset());
+		query.setFirstResult((int) pageable.getOffset());
 		query.setMaxResults(pageable.getPageSize());
 		return pageable;
 	}

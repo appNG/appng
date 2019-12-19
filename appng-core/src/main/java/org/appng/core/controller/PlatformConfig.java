@@ -19,11 +19,14 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
+import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 
-import org.appng.api.support.environment.EnvironmentFactoryBean;
+import org.appng.api.ApplicationConfig;
+import org.appng.api.Environment;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.PlatformEventListener;
@@ -39,12 +42,14 @@ import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.LdapService;
 import org.appng.core.service.TemplateService;
+import org.appng.persistence.ApplicationConfigJPA;
 import org.appng.persistence.repository.SearchRepositoryImpl;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.transformation.StyleSheetProvider;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -71,7 +76,10 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
  * @author Matthias Müller
  */
 @Configuration
-@ComponentScan(basePackages = "org.appng.core", excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
+@ComponentScan(basePackages = "org.appng.core", excludeFilters = {
+		@Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"),
+		@Filter(type = FilterType.ASSIGNABLE_TYPE, classes = { ApplicationConfig.class,
+				ApplicationConfigJPA.class }) })
 @EnableTransactionManagement
 @EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "org.appng.core.repository", entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "coreTxManager")
 public class PlatformConfig {
@@ -84,7 +92,7 @@ public class PlatformConfig {
 	}
 
 	@Bean(destroyMethod = "destroy")
-	public DataSourceFactory dataSource(
+	public FactoryBean<DataSource> dataSource(
 	// @formatter:off
 			@Value("${hibernate.connection.url}") String jdbcUrl,
 			@Value("${hibernate.connection.username}") String userName,
@@ -221,9 +229,8 @@ public class PlatformConfig {
 	}
 
 	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public EnvironmentFactoryBean environment() {
-		return new EnvironmentFactoryBean();
+	public Environment environment(ServletContext context) {
+		return DefaultEnvironment.get(context);
 	}
 
 	@Bean
