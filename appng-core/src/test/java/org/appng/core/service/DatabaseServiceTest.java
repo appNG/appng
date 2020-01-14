@@ -107,6 +107,12 @@ public class DatabaseServiceTest extends TestInitializer {
 		testInitDatabaseMySql("5.7");
 	}
 
+	@Test
+	@Ignore("uses testcontainers, which needs docker")
+	public void testInitDatabaseMySql8() throws Exception {
+		testInitDatabaseMySql("8");
+	}
+
 	void testInitDatabaseMySql(String version) throws Exception {
 		try (MySQLContainer<?> mysql = new MySQLContainer<>("mysql:" + version)) {
 			mysql.withUsername("root").withPassword("").start();
