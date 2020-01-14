@@ -62,13 +62,13 @@
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<esapi.version>2.2.0.0</esapi.version>
 		<hazelcast.version>3.12.5</hazelcast.version>
-		<hibernate.version>5.4.8.Final</hibernate.version>
-		<jackson.version>2.10.1</jackson.version>
+		<hibernate.version>5.4.10.Final</hibernate.version>
+		<jackson.version>2.10.2</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
-		<lucene.version>8.3.0</lucene.version>
-		<pdfBox.version>2.0.17</pdfBox.version>
+		<lucene.version>8.4.1</lucene.version>
+		<pdfBox.version>2.0.18</pdfBox.version>
 		<poi.version>3.17</poi.version>
-		<queryDsl.version>4.2.1</queryDsl.version>
+		<queryDsl.version>4.2.2</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<spring.version>4.3.25.RELEASE</spring.version>
@@ -869,7 +869,7 @@
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.13</version>
+				<version>1.14</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -953,17 +953,17 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>3.4.1</version>
+				<version>3.4.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>28.1-jre</version>
+				<version>28.2-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
 				<artifactId>Saxon-HE</artifactId>
-				<version>9.9.1-5</version>
+				<version>9.9.1-6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -1054,7 +1054,7 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.12</version>
+				<version>4.4.13</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
@@ -1108,7 +1108,7 @@
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.12</version>
+				<version>4.13</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
