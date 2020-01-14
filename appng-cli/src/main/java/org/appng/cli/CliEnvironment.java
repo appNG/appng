@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class CliEnvironment {
 	 */
 	public void initPlatform(java.util.Properties defaultOverrides) {
 		String platformRootPath = cliConfig.getProperty(Platform.Property.PLATFORM_ROOT_PATH);
-		this.platformConfig = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode, true);
+		this.platformConfig = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode, true, false);
 	}
 
 	/**

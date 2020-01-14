@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,18 @@ package org.appng.core.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
  * Implementation of {@link RepositoryCache} that retrieves the packages from the local filesystem.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class RepositoryCacheFilesystem extends RepositoryCacheBase {
@@ -56,8 +58,8 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 	private static final String MINUS = "-";
 	private Long lastScan;
 	private Long scanPeriod = TimeUnit.SECONDS.toMillis(10);
-	private Map<File, PackageInfo> activeFileMap = new HashMap<>();
-	private Set<String> invalidFileMap = new HashSet<>();
+	private Map<File, PackageInfo> activeFileMap;
+	private Set<String> invalidFileMap;
 	private RepositoryMode repositoryMode;
 	private File directory;
 	protected byte[] privateKey;
@@ -130,13 +132,13 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 			stopWatch.start();
 			Map<File, PackageInfo> newfileMap = new HashMap<>();
 			Set<TypedPackage> changedPackages = new HashSet<>();
-			File[] currentFiles = getFiles();
-			for (File file : currentFiles) {
+
+			getArchives().forEach(archive -> {
+				File file = archive.getFile();
 				if (!activeFileMap.containsKey(file)) {
 					// new file
-					PackageArchive archive = new PackageArchiveImpl(file, repository.isStrict());
 					PackageType type = archive.getType();
-					if (archive.isValid()) {
+					if (archive.isValid() && null != archive.getPackageInfo()) {
 						LOGGER.debug("New file found in repository: {}", file.getAbsolutePath());
 						PackageInfo packageInfo = archive.getPackageInfo();
 						newfileMap.put(file, packageInfo);
@@ -153,7 +155,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 					PackageInfo applicationInfo = activeFileMap.get(file);
 					newfileMap.put(file, applicationInfo);
 				}
-			}
+			});
 
 			Set<File> keySet = activeFileMap.keySet();
 			keySet.removeAll(newfileMap.keySet());
@@ -286,22 +288,22 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		}
 	}
 
-	private File[] getFiles() {
-		return directory.listFiles(new FilenameFilter() {
-			public boolean accept(File file, String name) {
-				if (name.endsWith(ZIP)) {
-					switch (repositoryMode) {
-					case ALL:
-						return isValidFile(name);
-					case SNAPSHOT:
-						return RepositoryUtils.isSnapshot(name) && isValidFile(name);
-					case STABLE:
-						return !RepositoryUtils.isSnapshot(name) && isValidFile(name);
-					}
+	private Collection<PackageArchive> getArchives() {
+		List<File> files = Arrays.asList(directory.listFiles((file, name) -> {
+			if (name.endsWith(ZIP)) {
+				switch (repositoryMode) {
+				case ALL:
+					return isValidFile(name);
+				case SNAPSHOT:
+					return RepositoryUtils.isSnapshot(name) && isValidFile(name);
+				case STABLE:
+					return !RepositoryUtils.isSnapshot(name) && isValidFile(name);
 				}
-				return false;
 			}
-		});
+			return false;
+		}));
+		return files.parallelStream().map(file -> new PackageArchiveImpl(file, repository.isStrict()))
+				.collect(Collectors.toList());
 	}
 
 	private boolean isValidFile(String name) {

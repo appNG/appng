@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@ import javax.sql.DataSource;
 import org.appng.core.domain.DatabaseConnection;
 
 /**
- * 
  * A {@link DatasourceConfigurer} is responsible for configuring and providing a {@link javax.sql.DataSource} based upon
  * a {@link DatabaseConnection}. For performance reasons, some kind of connection-pooling should be applied.
  * 
  * @author Matthias Müller
- * 
  */
 public interface DatasourceConfigurer {
 
@@ -38,7 +36,7 @@ public interface DatasourceConfigurer {
 	 * Configures the instance using the settings of the given {@link DatabaseConnection}.
 	 * 
 	 * @param connection
-	 *            a {@link DatabaseConnection}
+	 *                   a {@link DatabaseConnection}
 	 */
 	void configure(DatabaseConnection connection);
 
@@ -58,5 +56,22 @@ public interface DatasourceConfigurer {
 	 * Whether or not JDBC performance logger should be used
 	 */
 	void setLogPerformance(boolean logPerformance);
+
+	/**
+	 * Sets the connection timeout in milliseconds
+	 * 
+	 * @param connectionTimeout
+	 *                          the timeout
+	 */
+	void setConnectionTimeout(int connectionTimeout);
+	
+	/**
+	 * Sets the validation timeout in milliseconds
+	 * 
+	 * @param validationTimeout
+	 *                          the timeout
+	 */
+	void setValidationTimeout(int validationTimeout);
+
 
 }

@@ -13,7 +13,7 @@
 		<property id="propertyA" description="this is property a">foo</property>
 		<property id="propertyB" description="this is property b">bar</property>
 
-		<property id="propertyC" description="this is property c (multilined)" clob="true"><![CDATA[a=foo
+		<property id="propertyC" description="this is property c (multiline)" clob="true"><![CDATA[a=foo
 b=bar]]></property>
 		<property id="some.utf-8-€" description="contains a dot and a UTF-8 character">UTF-8 is cool!</property>
 	</properties>

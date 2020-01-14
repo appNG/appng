@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-template-parent</artifactId>
-	<version>1.20.0-SNAPSHOT</version>
+	<version>1.21.0-SNAPSHOT</version>
 	<name>appNG Template Parent</name>
 	<packaging>pom</packaging>
 	<description>A parent pom for appNG templates</description>
@@ -54,7 +54,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<appNGVersion>1.20.0-SNAPSHOT</appNGVersion>
+		<appNG.version>1.21.0-SNAPSHOT</appNG.version>
 	</properties>
 
 	<distributionManagement>
@@ -79,7 +79,7 @@
 						<dependency>
 							<groupId>org.appng</groupId>
 							<artifactId>appng-template-assembly</artifactId>
-							<version>${appNGVersion}</version>
+							<version>${appNG.version}</version>
 						</dependency>
 					</dependencies>
 					<configuration>
@@ -181,7 +181,7 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-xmlapi</artifactId>
-			<version>${appNGVersion}</version>
+			<version>${appNG.version}</version>
 		</dependency>
 	</dependencies>
 </project>

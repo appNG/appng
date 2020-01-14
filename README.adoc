@@ -1,6 +1,6 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
-:snapshot: 1.20.0-SNAPSHOT
-:stable: 1.19.1
+:snapshot: 1.21.0-SNAPSHOT
+:stable: 1.20.2
 :current: {snapshot}
 ifdef::env-github[]
 :caution-caption: :fire:
@@ -29,14 +29,14 @@ appNG is very well suited to create and operate your own application platform as
 * Writing business logic by implementing a *handful of interfaces*
 * Automatic *parameter-binding* and type conversion
 * Built-in support for *paging, filtering sorting*
-* Out-of-the-box support for *JPA* and http://projects.spring.io/spring-data/[Spring Data^]
+* Out-of-the-box support for *JPA* and http://projects.spring.io/spring-data[Spring Data^]
 * Built-In *connection pooling* using https://github.com/brettwooldridge/HikariCP[HikariCP^]
-* Database *schema migrations* powered by https://flywaydb.org/[Flyway^]
+* Database *schema migrations* powered by https://flywaydb.org[Flyway^]
 * Built-In *role based access control*, which allows using field-based access
 * Easily provide your own *SOAP* or *REST* based webservices
 * Fully supports *internationalization* (i18n)
 * *Easy deployment* by providing a repository mechanism
-* Configurable caching powered by http://www.ehcache.org/[Ehcache^]
+* Configurable caching powered by https://hazelcast.org[Hazelcast^]
 * Cluster support and *horizontal scaling*
 * Powerful *administration tools*, including a graphical user interface (GUI), but also a command line interface (CLI) and a REST-client
 * Supports the *Bean Validation API*
@@ -45,8 +45,8 @@ appNG is very well suited to create and operate your own application platform as
 * Configurable and extendable *authentication mechanism* (local, LDAP etc.)
 * Provides *job scheduling* powered by http://www.quartz-scheduler.org/[Quartz^]
 * Provides *tooling for common tasks* like resizing images, sending emails, geo-locating, report generation etc.
-* Provides a large set of commonly used *libraries* such as https://commons.apache.org/[Apache Commons^] or https://github.com/FasterXML/jackson[Jackson^]
-* *Workflow* and *business process management* support by embedding the https://camunda.org/[Camunda BPMN Process Engine^]
+* Provides a large set of commonly used *libraries* such as https://commons.apache.org[Apache Commons^] or https://github.com/FasterXML/jackson[Jackson^]
+* *Workflow* and *business process management* support by embedding the https://camunda.org[Camunda BPMN Process Engine^]
 * Can serve *JSP*-content that can make use of the appNG *tag library*
 * *Multi-tenancy* allows to separate or group applications
 * *Rapid protoyping* enables you to design your user interface without writing one line of Java code

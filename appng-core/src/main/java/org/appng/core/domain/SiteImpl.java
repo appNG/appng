@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,11 +67,9 @@ import org.appng.core.model.AccessibleApplication;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Default {@link Site}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 @Entity
@@ -87,6 +85,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private static final char AMPERSAND = '&';
 	private static final char ANCHOR = '#';
 	private Integer id;
+	private int reloadCount;
 	private String name;
 	private String description;
 	private Date version;
@@ -107,7 +106,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private AtomicInteger requests = new AtomicInteger(0);
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
@@ -202,6 +201,15 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	public void setCreateRepository(boolean createRepository) {
 		this.createRepository = createRepository;
+	}
+
+	@Column(name = "reload_count")
+	public int getReloadCount() {
+		return reloadCount;
+	}
+
+	public void setReloadCount(int reloadCount) {
+		this.reloadCount = reloadCount;
 	}
 
 	@Transient

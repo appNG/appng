@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
@@ -89,6 +90,24 @@ public class ValidationProviderTest extends AbstractTest {
 		public void setFoo(String foo) {
 			this.foo = foo;
 		}
+	}
+
+	@Test
+	public void testAddValidationMetaDataParametrizedParent() throws Exception {
+		MetaData metaData = new MetaData();
+		metaData.setBindClass(PersonForm.class.getName());
+		metaData.setBinding("item");
+		FieldDef name = new FieldDef();
+		name.setBinding("item.name");
+		name.setType(FieldType.TEXT);
+		name.setName("name");
+		metaData.getFields().add(name);
+
+		URLClassLoader classLoader = new URLClassLoader(new URL[0]);
+		Mockito.when(site.getSiteClassLoader()).thenReturn(classLoader);
+		XmlValidator.validate(metaData, "-before");
+		validationProvider.addValidationMetaData(metaData, classLoader, Default.class, GroupA.class);
+		XmlValidator.validate(metaData);
 	}
 
 	@Test
@@ -230,5 +249,25 @@ public class ValidationProviderTest extends AbstractTest {
 			this.name = name;
 		}
 
+	}
+
+	static class FormBase<T> {
+
+		T item;
+
+		@Valid
+		public T getItem() {
+			return item;
+		}
+
+		public void setItem(T item) {
+			this.item = item;
+		}
+	}
+
+	static class PersonForm extends FormBase<Person> {
+		public PersonForm() {
+
+		}
 	}
 }

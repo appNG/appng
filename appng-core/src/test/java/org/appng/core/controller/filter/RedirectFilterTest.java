@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -33,7 +37,9 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.filter.RedirectFilter.UrlRewriteConfig;
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -47,13 +53,56 @@ import org.tuckey.web.filters.urlrewrite.NormalRule;
 import org.tuckey.web.filters.urlrewrite.Rule;
 import org.tuckey.web.filters.urlrewrite.UrlRewriter;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RedirectFilterTest {
 
 	@Test
-	public void test() throws IOException, ServletException {
+	public void testNoConfig() throws IOException, ServletException {
+		ServletContext servletContext = getServletContext("conf/does-not-exist.xml");
+
+		HttpServletResponse response = new MockHttpServletResponse();
+		HttpServletRequest request = new MockHttpServletRequest(servletContext);
+		FilterChain chain = new MockFilterChain();
+		FilterConfig filterConfig = getFilterConfig(servletContext);
+
+		RedirectFilter redirectFilter = new RedirectFilter();
+		redirectFilter.init(filterConfig);
+		redirectFilter.doFilter(request, response, chain);
+		Assert.assertNull(RedirectFilter.getRedirectRules("localhost"));
+	}
+
+	@Test
+	public void testRewriteRules() throws IOException, ServletException {
+		ServletContext servletContext = getServletContext("conf/urlrewrite.xml");
+
+		HttpServletResponse response = new MockHttpServletResponse();
+		HttpServletRequest request = new MockHttpServletRequest(servletContext);
+		FilterChain chain = new MockFilterChain();
+		FilterConfig filterConfig = getFilterConfig(servletContext);
+
+		RedirectFilter redirectFilter = new RedirectFilter();
+		redirectFilter.init(filterConfig);
+		redirectFilter.doFilter(request, response, chain);
+		Assert.assertNotNull(RedirectFilter.getRedirectRules("localhost"));
+
+		UrlRewriter urlRewriter = redirectFilter.getUrlRewriter(request, response, chain);
+		UrlRewriteConfig conf = (UrlRewriteConfig) urlRewriter.getConf();
+		verifyRule(conf.getRules().get(0), "^/app$", "http://foobar.org");
+		verifyRule(conf.getRules().get(1), "^/en/page.jsp$", "/de/seite");
+		verifyRule(conf.getRules().get(2), "^/en/page.jsp/(.*)$", "/de/seite/${encode:utf8:$1}");
+		verifyRule(conf.getRules().get(3), "^/de/index$", "/en/index.jsp");
+		verifyRule(conf.getRules().get(4), "^/en/index.jsp$", "/de/index");
+		verifyRule(conf.getRules().get(5), "^/de/error$", "/de/fehler.jsp");
+		verifyRule(conf.getRules().get(6), "^/fr/accueil$", "/fr/index.jsp");
+		verifyRule(conf.getRules().get(7), "^/fr/index.jsp$", "/fr/accueil");
+		verifyRule(conf.getRules().get(8), "^/de/fault((\\?\\S+)?)$", "/de/fehler.jsp$1");
+
+	}
+
+	private ServletContext getServletContext(String resourceLocation) {
 		ResourceLoader resourceLoader = new ResourceLoader() {
 			public Resource getResource(String location) {
-				return new ClassPathResource("conf/urlrewrite.xml");
+				return new ClassPathResource(resourceLocation);
 			}
 
 			public ClassLoader getClassLoader() {
@@ -71,38 +120,25 @@ public class RedirectFilterTest {
 		Mockito.when(site.getProperties()).thenReturn(props);
 		sites.put(site.getHost(), site);
 
-		ConcurrentMap<Object, Object> platform = new ConcurrentHashMap<>();
+		Map<Object, Object> platform = new ConcurrentHashMap<>();
 		platform.put(Platform.Environment.PLATFORM_CONFIG, props);
 		platform.put(Platform.Property.TIME_ZONE, TimeZone.getDefault().getDisplayName());
 		platform.put(Platform.Property.LOCALE, Locale.GERMANY.getDisplayName());
 		platform.put(Platform.Environment.SITES, sites);
+
 		Mockito.when(props.getString(Platform.Property.JSP_FILE_TYPE)).thenReturn(".jsp");
 		Mockito.when(props.getString(SiteProperties.SITE_ROOT_DIR)).thenReturn("target/test-classes");
-		Mockito.when(props.getString(SiteProperties.REWRITE_CONFIG)).thenReturn("conf/urlrewrite.xml");
+		Mockito.when(props.getString(SiteProperties.REWRITE_CONFIG)).thenReturn(resourceLocation);
 
 		MockServletContext servletContext = new MockServletContext(resourceLoader);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platform);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-		MockFilterChain chain = new MockFilterChain();
+		return servletContext;
+	}
+
+	private FilterConfig getFilterConfig(ServletContext servletContext) {
 		MockFilterConfig filterConfig = new MockFilterConfig(servletContext);
 		filterConfig.addInitParameter("confReloadCheckInterval", "5000");
-
-		RedirectFilter redirectFilter = new RedirectFilter();
-		redirectFilter.init(filterConfig);
-		redirectFilter.doFilter(request, response, chain);
-		UrlRewriter urlRewriter = redirectFilter.getUrlRewriter(request, response, chain);
-		UrlRewriteConfig conf = (UrlRewriteConfig) urlRewriter.getConf();
-		verifyRule(conf.getRules().get(0), "^/app$", "http://foobar.org");
-		verifyRule(conf.getRules().get(1), "^/en/page.jsp$", "/de/seite");
-		verifyRule(conf.getRules().get(2), "^/en/page.jsp/(.*)$", "/de/seite/${encode:utf8:$1}");
-		verifyRule(conf.getRules().get(3), "^/de/index$", "/en/index.jsp");
-		verifyRule(conf.getRules().get(4), "^/en/index.jsp$", "/de/index");
-		verifyRule(conf.getRules().get(5), "^/de/error$", "/de/fehler.jsp");
-		verifyRule(conf.getRules().get(6), "^/fr/accueil$", "/fr/index.jsp");
-		verifyRule(conf.getRules().get(7), "^/fr/index.jsp$", "/fr/accueil");
-		verifyRule(conf.getRules().get(8), "^/de/fault((\\?\\S+)?)$", "/de/fehler.jsp$1");
-
+		return filterConfig;
 	}
 
 	private void verifyRule(Rule rule, String from, String to) {

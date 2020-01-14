@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,8 +205,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 						Valid fieldAnnotation = field.getAnnotation(Valid.class);
 						Method getter = ReflectionUtils.findMethod(propertyType,
 								"get" + StringUtils.capitalize(segment));
-						Valid methodAnnotarion = null == getter ? null : getter.getAnnotation(Valid.class);
-						if (null == fieldAnnotation && null == methodAnnotarion) {
+						Valid methodAnnotation = null == getter ? null : getter.getAnnotation(Valid.class);
+						if (null == fieldAnnotation && null == methodAnnotation) {
 							LOGGER.debug("Annotation @{} not found on property {}.{} of {}, returning",
 									Valid.class.getName(), ancestor.getName(), field.getName(), validationClass);
 							return null;
@@ -214,7 +214,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 						LOGGER.debug("Annotation @{} found on property {}.{} of {}", Valid.class.getName(),
 								ancestor.getName(), field.getName(), validationClass);
 					}
-					propertyType = field.getType();
+					propertyType = new BeanWrapperImpl(propertyType).getPropertyType(segment);
 					ancestor = field;
 					if (Collection.class.isAssignableFrom(propertyType)) {
 						concreteType = (Class<?>) ((ParameterizedType) field.getGenericType())

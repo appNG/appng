@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -305,7 +305,7 @@ public interface AppNGizerClient {
 		private static PropertyWrapper getWrapper(Properties properties, boolean nonDefaultOnly) {
 			PropertyWrapper wrapper = new PropertyWrapper();
 			Map<String, Property> props = properties.getProperty().stream()
-					.filter(p -> nonDefaultOnly ? (!isDefaultOrMultilined(p)) : true)
+					.filter(p -> nonDefaultOnly ? (!isDefaultOrMultiline(p)) : true)
 					.collect(Collectors.toMap(p -> p.getName(), p -> removeUnusedFields(p)));
 			wrapper.setProperties(new TreeMap<>(props));
 			return wrapper;
@@ -449,7 +449,7 @@ public interface AppNGizerClient {
 					String name = entry.getKey();
 					Property prop = entry.getValue();
 					prop.setName(name);
-					if (isDefaultOrMultilined(prop)) {
+					if (isDefaultOrMultiline(prop)) {
 						prop.setValue(null);
 					}
 				}
@@ -457,7 +457,7 @@ public interface AppNGizerClient {
 			return wrappers.values().iterator().next();
 		}
 
-		private static boolean isDefaultOrMultilined(Property prop) {
+		private static boolean isDefaultOrMultiline(Property prop) {
 			return !Boolean.TRUE.equals(prop.isClob()) && Objects.equals(prop.getDefaultValue(), prop.getValue());
 		}
 

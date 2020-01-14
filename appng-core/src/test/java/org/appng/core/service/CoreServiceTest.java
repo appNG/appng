@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ public class CoreServiceTest {
 			context.getBean(TestDataProvider.class).writeTestData(entityManager);
 			init = false;
 		}
-		platformConfig = coreService.initPlatformConfig(new java.util.Properties(), rootPath, false, true);
+		platformConfig = coreService.initPlatformConfig(new java.util.Properties(), rootPath, false, true, false);
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformConfig);
 		Map<String, Site> siteMap = new HashMap<>();
@@ -219,11 +219,12 @@ public class CoreServiceTest {
 		MigrationStatus state = coreService.assignApplicationToSite(site, application, true);
 		assertEquals(MigrationStatus.NO_DB_SUPPORTED, state);
 		Iterable<PropertyImpl> properties = coreService.getProperties(1, application.getId());
-
-		PropertyImpl prop = properties.iterator().next();
-		assertEquals("foobaz", prop.getString());
-		assertEquals("platform.site." + site.getName() + ".application." + application.getName() + ".foobar",
-				prop.getName());
+		String prefix = "platform.site." + site.getName() + ".application." + application.getName() + ".";
+		PropertyHolder propertyHolder = new PropertyHolder(prefix, properties);
+		assertEquals("foobaz", propertyHolder.getString("foobar"));
+		Property prop = propertyHolder.getProperty("foobar");
+		assertEquals(Property.Type.TEXT, prop.getType());
+		assertEquals(prefix + "foobar", prop.getName());
 	}
 
 	@Test
@@ -249,8 +250,9 @@ public class CoreServiceTest {
 
 	@Test
 	public void testCreateApplicationProperty() {
-		coreService.createProperty(null, null, new PropertyImpl("foobaz", "foobar"));
+		PropertyImpl property = coreService.createProperty(null, null, new PropertyImpl("foobaz", "foobar"));
 		assertTrue(coreService.checkPropertyExists(null, null, new PropertyImpl("foobaz", "foobar")));
+		assertEquals(Property.Type.TEXT, property.getType());
 	}
 
 	@Test
@@ -298,8 +300,9 @@ public class CoreServiceTest {
 
 	@Test
 	public void testCreatePropertyForSite() {
-		coreService.createProperty(1, null, new PropertyImpl("foo", "bar"));
+		PropertyImpl property = coreService.createProperty(1, null, new PropertyImpl("foo", "bar"));
 		assertTrue(coreService.checkPropertyExists(1, null, new PropertyImpl("foo", "bar")));
+		assertEquals(Property.Type.TEXT, property.getType());
 	}
 
 	@Test
@@ -388,7 +391,7 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	@Test(timeout = 2000)
+	@Test(timeout = 20000)
 	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -411,6 +414,7 @@ public class CoreServiceTest {
 		while (null == nodeStates.get(nodeId)) {
 			Thread.sleep(100);
 		}
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
 		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
 		// 5x NodeEvent
@@ -725,8 +729,11 @@ public class CoreServiceTest {
 		validateApplication(appngVersion, applicationName, applicationVersion, applicationTimestamp, application);
 
 		assertEquals("bar", application.getProperties().getString("foo"));
-		String description = ((PropertyHolder) application.getProperties()).getProperty("foo").getDescription();
-		assertEquals("a foo property", description);
+		Property property = ((PropertyHolder) application.getProperties()).getProperty("foo");
+		assertEquals("a foo property", property.getDescription());
+		assertEquals(Property.Type.TEXT, property.getType());
+		Property multiline = ((PropertyHolder) application.getProperties()).getProperty("clobValue");
+		assertEquals(Property.Type.MULTILINE, multiline.getType());
 		assertEquals("a\nb\nc", application.getProperties().getClob("clobValue"));
 	}
 
@@ -787,12 +794,15 @@ public class CoreServiceTest {
 		validatePermissionsPresent(application, new ArrayList(Arrays.asList("testPermission")));
 		validateRolesPresent(application, new ArrayList(Arrays.asList("Tester")));
 
-		// the clob property has been updated in the platform, therefore it is the new clob value
+		// the clob property has been updated in the platform, therefore it is the new
+		// clob value
 		// of the latest package
 		validateProperties((PropertyHolder) application.getProperties(), "d\ne\nf");
 
-		// the clob property, configured in the site was not updated by updating the package. It is still
-		// the old one which has been defined initially when the application has been assigned to the site
+		// the clob property, configured in the site was not updated by updating the
+		// package. It is still
+		// the old one which has been defined initially when the application has been
+		// assigned to the site
 		coreService.initApplicationProperties(site, currentApplication);
 		validateProperties((PropertyHolder) currentApplication.getProperties(), "a\nb\nc");
 
@@ -801,11 +811,15 @@ public class CoreServiceTest {
 
 	private void validateProperties(PropertyHolder propertyHolder, String ecpectedClobValue) {
 		assertEquals("foobar", propertyHolder.getString("foo"));
-		assertEquals("a foo property [UPDATED]", propertyHolder.getProperty("foo").getDescription());
+		Property foo = propertyHolder.getProperty("foo");
+		assertEquals(Property.Type.TEXT, foo.getType());
+		assertEquals("a foo property [UPDATED]", foo.getDescription());
 
 		assertEquals("foobaz", propertyHolder.getString("bar"));
 		assertEquals("a new property", propertyHolder.getProperty("bar").getDescription());
 		assertEquals(ecpectedClobValue, propertyHolder.getClob("clobValue"));
+		Property clobValue = propertyHolder.getProperty("clobValue");
+		assertEquals(Property.Type.MULTILINE, clobValue.getType());
 	}
 
 	@Test

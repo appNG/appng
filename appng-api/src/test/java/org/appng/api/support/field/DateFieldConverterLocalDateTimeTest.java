@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,24 @@
 package org.appng.api.support.field;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 
-import org.joda.time.DateTime;
-
-/**
- * TODO insert description
- * 
- * @author Claus Stümke, aiticon GmbH, 2016
- *
- */
-public class DateFieldConverterDateTimeTest extends DateFieldConverterTest {
+public class DateFieldConverterLocalDateTimeTest extends DateFieldConverterZonedDateTimeTest {
 
 	@Override
 	public Container<?> getContainer() {
-		return new Container<DateTime>() {
+		return new Container<LocalDateTime>() {
 		};
 	}
 
+	@Override
 	protected Object getDate() throws ParseException {
-		return new DateTime(super.getDate());
+		return getZonedDateTime(sdf, DATE_STRING).toLocalDateTime();
 	}
 
+	@Override
 	protected Object getShortDate() throws ParseException {
-		return new DateTime(super.getShortDate());
+		return getZonedDateTime(sdfShort, DATE_STRING_SHORT).toLocalDateTime();
 	}
 
 }

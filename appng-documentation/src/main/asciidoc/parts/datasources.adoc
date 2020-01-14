@@ -323,7 +323,17 @@ See below for a list of all field types.
 
 
 ==== `date`
-*Target Java Type:*  `java.util.Date`
+*Target Java Types:*
+
+* `java.util.Date`
+* `java.time.LocalDate`
+* `java.time.LocalDateTime`
+* `java.time.OffsetDateTime`
+* `java.time.ZonedDateTime`
+* `org.joda.time.DateTime`
+* `org.joda.time.LocalDate`
+* `org.joda.time.LocalDateTime`
+
 
 *Form Mode*: `<input type="text">` with the formatted string representation. The template usually adds a user friendly date picker widget.
 

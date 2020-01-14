@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,13 @@ import java.util.Set;
 
 import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
+import org.appng.api.model.Property.Type;
 import org.appng.api.model.SimpleProperty;
 
 /**
- * 
  * Default {@link Properties} implementation, internally holding a {@link Map} of {@link Property}-objects.
  * 
  * @author Matthias Müller
- * 
  */
 public class PropertyHolder implements Properties {
 
@@ -57,7 +56,7 @@ public class PropertyHolder implements Properties {
 	}
 
 	public PropertyHolder() {
-		this("", Collections.<Property> emptyList());
+		this("", Collections.<Property>emptyList());
 	}
 
 	/**
@@ -98,29 +97,40 @@ public class PropertyHolder implements Properties {
 	}
 
 	/**
-	 * @see PropertyHolder#addProperty(String, Object, String, boolean)
+	 * @deprecated use {@link #addProperty(String, Object, String, Type)} instead!
 	 */
+	@Deprecated
 	public final Property addProperty(String name, Object defaultValue, String description) {
-		return addProperty(name, defaultValue, description, false);
+		return addProperty(name, defaultValue, description, Type.TEXT);
+	}
+
+	/**
+	 * @deprecated use {@link #addProperty(String, Object, String, Type)} instead!
+	 */
+	@Deprecated
+	public final Property addProperty(String name, Object defaultValue, String description, boolean isMultiline) {
+		return addProperty(name, defaultValue, description, isMultiline ? Type.MULTILINE : Type.TEXT);
 	}
 
 	/**
 	 * As long as {@link #setFinal()} has not be called, this method can be used to add new properties
 	 * 
-	 * @param name
-	 *            the name of the property, <b>without prefix</b>
-	 * @param defaultValue
-	 *            the default value for the property to add, must not be {@code null}
-	 * @param description
-	 *            the description for the property
-	 * @param asClob
-	 *            if the property should be created as clob
+	 * @param  name
+	 *                                  the name of the property, <b>without prefix</b>
+	 * @param  defaultValue
+	 *                                  the default value for the property to add, must not be {@code null}
+	 * @param  description
+	 *                                  the description for the property
+	 * @param  type
+	 *                                  the type of the property
 	 * @throws IllegalArgumentException
-	 *             if defaultValue is {@code null} or if {@link #setFinal()} has been called before.
+	 *                                  if defaultValue is {@code null} or if {@link #setFinal()} has been called
+	 *                                  before.
 	 */
-	public final Property addProperty(String name, Object defaultValue, String description, boolean asClob) {
+	public final Property addProperty(String name, Object defaultValue, String description, Property.Type type) {
 		if (!isFinal) {
 			String fullName = prefix + name;
+			boolean isMultiline = Property.Type.MULTILINE.equals(type);
 			if (null != defaultValue) {
 				SimpleProperty prop = null;
 				if (propMap.containsKey(fullName)) {
@@ -128,15 +138,16 @@ public class PropertyHolder implements Properties {
 				} else {
 					prop = getNewProperty(name);
 					prop.setName(fullName);
-					if (asClob) {
+					if (isMultiline) {
 						prop.setClob(defaultValue.toString());
 					}
 					propMap.put(fullName, prop);
 				}
-				if (!asClob) {
+				if (!isMultiline) {
 					prop.setDefaultString(defaultValue.toString());
 				}
 				prop.setDescription(description);
+				prop.setType(type);
 			} else {
 				throw new IllegalArgumentException("defaultValue can not be null!");
 			}
@@ -222,6 +233,38 @@ public class PropertyHolder implements Properties {
 
 	public String getClob(String name) {
 		return getClob(name, null);
+	}
+
+	public Object getObject(String name) {
+		Property property = getProperty(name);
+		if (null != property) {
+			return getObject(property);
+		}
+		return null;
+	}
+
+	private Object getObject(Property property) {
+		switch (property.getType()) {
+		case INT:
+			return getInteger(property.getName());
+		case DECIMAL:
+			return getDouble(property.getName());
+		case BOOLEAN:
+			return getBoolean(property.getName());
+		case MULTILINE:
+			return getClob(property.getName());
+		default:
+			return getString(property.getName());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getObject(String name, T defaultValue) {
+		Property property = getProperty(name);
+		if (null != property) {
+			return (T) getObject(property);
+		}
+		return defaultValue;
 	}
 
 	@Override

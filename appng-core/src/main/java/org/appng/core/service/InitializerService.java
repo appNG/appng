@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
+import javax.cache.CacheManager;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FileUtils;
@@ -78,6 +79,7 @@ import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.RepositoryWatcher;
+import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
 import org.appng.core.controller.rest.RestPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
@@ -95,9 +97,11 @@ import org.appng.core.model.JarInfo.JarInfoBuilder;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.repository.config.ApplicationPostProcessor;
+import org.appng.core.service.MigrationService.MigrationStatus;
 import org.appng.search.indexer.DocumentIndexer;
 import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Messages;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -109,10 +113,9 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.constructs.blocking.BlockingCache;
 
 /**
  * A service responsible for initializing the appNG platform with all active {@link Site}s.
@@ -151,15 +154,15 @@ public class InitializerService {
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                       the current {@link Environment}
 	 * @param rootConnection
-	 *            the root {@link DatabaseConnection}
+	 *                       the root {@link DatabaseConnection}
 	 * @param ctx
-	 *            the current {@link ServletContext}
+	 *                       the current {@link ServletContext}
 	 * @param executor
-	 *            an {@link ExecutorService} used by the cluster messaging
+	 *                       an {@link ExecutorService} used by the cluster messaging
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 * @see #loadPlatform(java.util.Properties, Environment, String, String, ExecutorService)
 	 */
 	@Transactional
@@ -176,13 +179,13 @@ public class InitializerService {
 	 * Reloads the platform with all of it's {@link Site}s.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                 the current {@link Environment}
 	 * @param siteName
-	 *            the (optional) name of the {@link Site} that caused the platform reload
+	 *                 the (optional) name of the {@link Site} that caused the platform reload
 	 * @param target
-	 *            an (optional) target to redirect to after platform reload
+	 *                 an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
@@ -199,10 +202,10 @@ public class InitializerService {
 		startSiteThread(site, "appng-indexthread-" + site.getName(), THREAD_PRIORITY_LOW, documentIndexer);
 	}
 
-	private void startRepositoryWatcher(Site site, boolean ehcacheEnabled, String jspType) {
-		if (ehcacheEnabled && site.getProperties().getBoolean(SiteProperties.EHCACHE_WATCH_REPOSITORY, false)) {
-			String watcherRuleSourceSuffix = site.getProperties().getString(
-					SiteProperties.EHCACHE_WATCHER_RULE_SOURCE_SUFFIX, RepositoryWatcher.DEFAULT_RULE_SUFFIX);
+	private void startRepositoryWatcher(Site site, boolean cacheEnabled, String jspType) {
+		if (cacheEnabled && site.getProperties().getBoolean(SiteProperties.CACHE_WATCH_REPOSITORY, false)) {
+			String watcherRuleSourceSuffix = site.getProperties()
+					.getString(SiteProperties.CACHE_WATCHER_RULE_SOURCE_SUFFIX, RepositoryWatcher.DEFAULT_RULE_SUFFIX);
 			String threadName = String.format("appng-repositoryWatcher-%s", site.getName());
 			RepositoryWatcher repositoryWatcher = new RepositoryWatcher(site, jspType, watcherRuleSourceSuffix);
 			startSiteThread(site, threadName, THREAD_PRIORITY_LOW, repositoryWatcher);
@@ -225,20 +228,21 @@ public class InitializerService {
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                 the current {@link Environment}
 	 * @param siteName
-	 *            the (optional) name of the {@link Site} that caused the platform reload
+	 *                 the (optional) name of the {@link Site} that caused the platform reload
 	 * @param target
-	 *            an (optional) target to redirect to after platform reload
+	 *                 an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public void loadPlatform(java.util.Properties defaultOverrides, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
 		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 		String rootPath = servletContext.getRealPath("/");
-		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false,
-				true);
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
+				false);
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -253,9 +257,10 @@ public class InitializerService {
 		}
 
 		RepositoryCacheFactory.init(platformConfig);
+		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
+		CacheService.createCacheManager(hazelcast);
 
-		File ehcacheConfig = platformConfig.getCacheConfig();
-		CacheManager cacheManager = CacheManager.create(ehcacheConfig.getPath());
+		CacheManager cacheManager = CacheService.getCacheManager();
 
 		File uploadDir = platformConfig.getUploadDir();
 		if (!uploadDir.exists()) {
@@ -266,7 +271,6 @@ public class InitializerService {
 			}
 		}
 
-		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		Messaging.createMessageSender(env, executor);
 
 		File applicationRootFolder = platformConfig.getApplicationDir();
@@ -284,30 +288,33 @@ public class InitializerService {
 			env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 		}
 		int activeSites = 0;
+		FieldProcessor platformMessages = new FieldProcessorImpl("load-platform");
 		for (Integer id : sites) {
 			SiteImpl site = getCoreService().getSite(id);
 			if (site.isActive()) {
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
-				loadSite(site, env, false, new FieldProcessorImpl("load-platform"));
+				loadSite(site, env, false, platformMessages);
 				activeSites++;
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
-				String runningSite = site.getName();
+				String inactiveSite = site.getName();
 				site.setState(SiteState.INACTIVE);
-				if (siteMap.containsKey(runningSite)) {
-					getCoreService().shutdownSite(env, runningSite);
+				if (siteMap.containsKey(inactiveSite)) {
+					getCoreService().shutdownSite(env, inactiveSite, false);
 				} else {
+					siteMap.put(inactiveSite, site);
 					getCoreService().setSiteStartUpTime(site, null);
 				}
 				LOGGER.info("site {} is inactive and will not be loaded", site);
 			}
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
+		env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages.getMessages());
 
 		if (0 == activeSites) {
 			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
 		}
-		LOGGER.info("Current Ehcache configuration:\n{}", cacheManager.getActiveConfigurationText());
+		LOGGER.info("Current cache configuration:\n{}", cacheManager.getProperties());
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
@@ -359,8 +366,10 @@ public class InitializerService {
 					LOGGER.info("deleted {}", absoluteFile.getAbsolutePath());
 					LOGGER.info("restarting site {}", site.getName());
 					try {
-						loadSite(env, getCoreService().getSiteByName(site.getName()), false,
-								new FieldProcessorImpl("auto-reload"));
+						FieldProcessor reloadMessages = new FieldProcessorImpl("auto-reload");
+						loadSite(env, getCoreService().getSiteByName(site.getName()), false, reloadMessages);
+						Messages platformMessages = reloadMessages.getMessages();
+						env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages);
 					} catch (InvalidConfigurationException e) {
 						LOGGER.error(String.format("error while reloading site %s", site.getName()), e);
 					}
@@ -370,6 +379,7 @@ public class InitializerService {
 			}
 			LOGGER.info("done watching for reload file.");
 		}
+
 	}
 
 	private void logHeaderMessage(String message) {
@@ -395,7 +405,8 @@ public class InitializerService {
 		for (String key : keyList) {
 			Object value = map.get(key);
 			Object logValue = (value instanceof String)
-					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm) : value;
+					? StringNormalizer.replaceNonPrintableCharacters((String) value, qm)
+					: value;
 			LOGGER.info("{}: {}", StringNormalizer.replaceNonPrintableCharacters(key, qm), logValue);
 		}
 	}
@@ -404,11 +415,11 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                   the current {@link Environment}
 	 * @param siteToLoad
-	 *            the {@link Site} to load
+	 *                   the {@link Site} to load
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -419,11 +430,11 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                   the current {@link Environment}
 	 * @param siteToLoad
-	 *            the {@link Site} to load
+	 *                   the {@link Site} to load
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
@@ -435,11 +446,11 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param siteToLoad
-	 *            the {@link Site} to load
+	 *                       the {@link Site} to load
 	 * @param servletContext
-	 *            the current {@link ServletContext}
+	 *                       the current {@link ServletContext}
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -450,16 +461,16 @@ public class InitializerService {
 	 * Loads the given {@link Site}.
 	 * 
 	 * @param siteToLoad
-	 *            the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
-	 *            {@link CoreService#getSiteByName(String)}
+	 *                        the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
+	 *                        {@link CoreService#getSiteByName(String)}
 	 * @param env
-	 *            the current {@link Environment}
+	 *                        the current {@link Environment}
 	 * @param sendReloadEvent
-	 *            whether or not a {@link ReloadSiteEvent} should be sent
+	 *                        whether or not a {@link ReloadSiteEvent} should be sent
 	 * @param fp
-	 *            a {@link FieldProcessor} to attach messages to
+	 *                        a {@link FieldProcessor} to attach messages to
 	 * @throws InvalidConfigurationException
-	 *             if an configuration error occurred
+	 *                                       if an configuration error occurred
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
@@ -468,9 +479,11 @@ public class InitializerService {
 
 		SiteImpl site = siteToLoad;
 		Site currentSite = siteMap.get(site.getName());
-		if (null != currentSite) {
+		boolean isReload = null != currentSite;
+		if (isReload) {
 			LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
-			shutDownSite(env, currentSite);
+			shutDownSite(env, currentSite, false);
+			site.setReloadCount(site.getReloadCount() + 1);
 		}
 
 		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
@@ -501,13 +514,11 @@ public class InitializerService {
 		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 		cacheProvider.clearCache(site);
 
-		// ehcache
-		Integer ehcacheBlockingTimeout = site.getProperties().getInteger(SiteProperties.EHCACHE_BLOCKING_TIMEOUT);
-		BlockingCache cache = CacheService.getBlockingCache(site, ehcacheBlockingTimeout);
-		Boolean ehcacheEnabled = site.getProperties().getBoolean(SiteProperties.EHCACHE_ENABLED);
-		cache.setDisabled(!ehcacheEnabled);
-		Boolean ehcacheStatistics = site.getProperties().getBoolean(SiteProperties.EHCACHE_STATISTICS);
-		cache.setStatisticsEnabled(ehcacheStatistics);
+		// cache
+		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
+		if (cacheEnabled) {
+			CacheService.createCache(site);
+		}
 
 		Properties siteProps = site.getProperties();
 		String siteRoot = siteProps.getString(SiteProperties.SITE_ROOT_DIR);
@@ -538,7 +549,7 @@ public class InitializerService {
 			if (siteApplication.isMarkedForDeletion()) {
 				coreService.unlinkApplicationFromSite(site.getId(), siteApplication.getApplication().getId());
 			} else if (!siteApplication.isActive()) {
-				String message = String.format("%s:  %s is inactive.", site.getName(),
+				String message = String.format("[%s] Application '%s' is inactive.", site.getName(),
 						siteApplication.getApplication().getName());
 				LOGGER.info(message);
 				fp.addNoticeMessage(message);
@@ -547,14 +558,14 @@ public class InitializerService {
 					coreService.unsetReloadRequired(siteApplication);
 				}
 				Application application = siteApplication.getApplication();
-				String errorMessage = String.format("Error while loading application %s.", application.getName());
+
 				try {
 					DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
 					if (null != databaseConnection) {
 						databaseConnection.setActive(databaseConnection.testConnection(null));
 						databaseConnection.setValidationPeriod(
 								platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD));
-						databaseService.save(databaseConnection);
+						databaseConnection = databaseService.saveAndFlush(databaseConnection);
 						if (!databaseConnection.isActive()) {
 							throw new InvalidConfigurationException(site, application.getName(),
 									String.format("Connection %s for application %s of site %s is not working!",
@@ -618,9 +629,17 @@ public class InitializerService {
 					applications.add(applicationProvider);
 
 					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
-					databaseService.migrateApplication(sqlFolder, siteApplication.getDatabaseConnection());
+					MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, databaseConnection);
+					if (migrationStatus.isErroneous()) {
+						String errorMessage = String.format(
+								"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
+								site.getName(), databaseConnection.getDatabaseName(), application.getName());
+						fp.addErrorMessage(errorMessage);
+					}
 
 				} catch (InvalidConfigurationException ice) {
+					String errorMessage = String.format("[%s] Error while loading application '%s'.", site.getName(),
+							application.getName());
 					fp.addErrorMessage(errorMessage);
 					LOGGER.error(errorMessage, ice);
 					auditableListener.createEvent(Type.ERROR, errorMessage);
@@ -643,7 +662,7 @@ public class InitializerService {
 		}
 
 		startIndexThread(site, documentIndexer);
-		startRepositoryWatcher(site, ehcacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
+		startRepositoryWatcher(site, cacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
 
 		String datasourceConfigurerName = siteProps.getString(SiteProperties.DATASOURCE_CONFIGURER);
 		try {
@@ -652,6 +671,9 @@ public class InitializerService {
 			throw new InvalidConfigurationException(site, null,
 					"error while loading class " + datasourceConfigurerName);
 		}
+
+		org.springframework.cache.CacheManager platformCacheManager = platformContext
+				.getBean(org.springframework.cache.CacheManager.class);
 
 		// Step 2: Build application context
 		Set<ApplicationProvider> validApplications = new HashSet<>();
@@ -690,7 +712,7 @@ public class InitializerService {
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
 				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
-						application.getDatabaseConnection(), dictionaryNames);
+						application.getDatabaseConnection(), platformCacheManager, dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
 				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
@@ -711,7 +733,8 @@ public class InitializerService {
 				application.getApplicationSubjects().addAll(applicationSubjects);
 				validApplications.add(application);
 			} catch (Throwable e) {
-				String message = String.format("Error while loading application %s.", application.getName());
+				String message = String.format("[%s] Error while loading application '%s'.", site.getName(),
+						application.getName());
 				fp.addErrorMessage(message);
 				LOGGER.error(message, e);
 				auditableListener.createEvent(Type.ERROR, message);
@@ -738,9 +761,6 @@ public class InitializerService {
 
 		PlatformTransformer.clearCache();
 		coreService.setSiteStartUpTime(site, new Date());
-		if (sendReloadEvent) {
-			site.sendEvent(new ReloadSiteEvent(site.getName()));
-		}
 
 		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
 			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
@@ -752,6 +772,13 @@ public class InitializerService {
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
 		auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
+
+		if (sendReloadEvent) {
+			site.sendEvent(new ReloadSiteEvent(site.getName()));
+			if (isReload) {
+				getCoreService().setSiteReloadCount(site);
+			}
+		}
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {
@@ -809,7 +836,7 @@ public class InitializerService {
 	 * 
 	 * @param ctx
 	 *            the current {@link ServletContext}
-	 * @see #shutDownSite(Environment, Site)
+	 * @see #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.get(ctx);
@@ -821,7 +848,7 @@ public class InitializerService {
 			Set<String> siteNames = new HashSet<>(siteMap.keySet());
 			for (String siteName : siteNames) {
 				Site site = siteMap.get(siteName);
-				shutDownSite(env, site);
+				shutDownSite(env, site, true);
 			}
 		}
 		CacheService.shutdown();
@@ -833,17 +860,19 @@ public class InitializerService {
 	 * Shuts down the given {@link Site}.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}.
+	 *             the current {@link Environment}.
 	 * @param site
-	 *            the {@link Site} to shut down
+	 *             the {@link Site} to shut down
 	 */
-	public void shutDownSite(Environment env, Site site) {
+	public void shutDownSite(Environment env, Site site, boolean removeFromSiteMap) {
 		List<ExecutorService> executors = siteThreads.get(site.getName());
-		LOGGER.info("shutting down site threads for {}", site);
-		for (ExecutorService executorService : executors) {
-			executorService.shutdownNow();
+		if (null != executors) {
+			LOGGER.info("shutting down site threads for {}", site);
+			for (ExecutorService executorService : executors) {
+				executorService.shutdownNow();
+			}
 		}
-		coreService.shutdownSite(env, site.getName());
+		coreService.shutdownSite(env, site.getName(), removeFromSiteMap);
 	}
 
 	public CoreService getCoreService() {

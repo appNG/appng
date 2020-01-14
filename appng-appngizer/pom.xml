@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.20.0-SNAPSHOT</version>
+		<version>1.21.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -260,6 +260,15 @@
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-catalina</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class PlatformConfigTest {
 		DatabaseConnection platformConnection = ctx.getBean(DatabaseService.class).getPlatformConnection(props);
 		StringBuilder dbInfo = new StringBuilder();
 		platformConnection.testConnection(dbInfo);
-		Assert.assertTrue(dbInfo.toString().contains("HSQL Database Engine 2.4"));
+		Assert.assertTrue(dbInfo.toString().contains("HSQL Database Engine 2.5"));
 
 		ctx.close();
 	}

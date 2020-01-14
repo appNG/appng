@@ -116,6 +116,8 @@ In order to make it possible to retrieve values from the dictionary through an <
 
 include::jpa.adoc[]
 
+include::caching.adoc[]
+
 === Custom XSL stylesheets
 In every non-trivial application, you will reach the point where the standard rendering of the used template is not sufficient. At that point, you will need to write some custom XSL stylesheets.
 

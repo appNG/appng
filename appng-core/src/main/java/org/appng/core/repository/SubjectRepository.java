@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@ import org.appng.api.model.UserType;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface SubjectRepository extends SearchRepository<SubjectImpl, Integer> {
 
 	SubjectImpl findByName(String name);

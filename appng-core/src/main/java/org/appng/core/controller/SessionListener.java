@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  */
 package org.appng.core.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -32,8 +28,6 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.apache.catalina.Manager;
-import org.apache.commons.collections.list.UnmodifiableList;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
@@ -50,8 +44,9 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
- * creation/destruction and usage of {@link HttpSession}s.
+ * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of creation/destruction and usage of
+ * {@link HttpSession}s by putting a {@link Session} object, which is updated on each request, into the
+ * {@link HttpSession}
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
@@ -60,23 +55,17 @@ import lombok.extern.slf4j.Slf4j;
 @WebListener
 public class SessionListener implements ServletContextListener, HttpSessionListener, ServletRequestListener {
 
+	public static final String SESSION_MANAGER = "sessionManager";
+	public static final String META_DATA = "metaData";
+	private static final String MDC_SESSION_ID = "sessionID";
 	private static final Class<org.apache.catalina.connector.Request> CATALINA_REQUEST = org.apache.catalina.connector.Request.class;
 	private static final String HTTPS = "https";
-	public static final String SESSIONS = "sessions";
-	private static final String MDC_SESSION_ID = "sessionID";
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
-	private static final ConcurrentMap<String, Session> SESSION_MAP = new ConcurrentHashMap<>();
-
 	public void contextInitialized(ServletContextEvent sce) {
-		DefaultEnvironment env = DefaultEnvironment.get(sce.getServletContext());
-		saveSessions(env);
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
-		DefaultEnvironment env = DefaultEnvironment.get(sce.getServletContext());
-		SESSION_MAP.clear();
-		env.removeAttribute(Scope.PLATFORM, SESSIONS);
 	}
 
 	public void sessionCreated(HttpSessionEvent event) {
@@ -84,24 +73,30 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	private Session createSession(HttpSession httpSession) {
-		DefaultEnvironment env = DefaultEnvironment.get(httpSession);
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
-		httpSession.setMaxInactiveInterval(sessionTimeout);
-		Session session = new Session(httpSession.getId());
-		session.update(httpSession.getCreationTime(), httpSession.getLastAccessedTime(),
-				httpSession.getMaxInactiveInterval());
-		SESSION_MAP.put(session.getId(), session);
-		saveSessions(env);
-		env.setAttribute(Scope.SESSION, org.appng.api.Session.Environment.SID, httpSession.getId());
-		env.setAttribute(Scope.SESSION, org.appng.api.Session.Environment.TIMEOUT,
-				httpSession.getMaxInactiveInterval());
-		env.setAttribute(Scope.SESSION, org.appng.api.Session.Environment.STARTTIME,
-				httpSession.getCreationTime() / 1000L);
-		MDC.put(MDC_SESSION_ID, session.getId());
-		LOGGER.info("Session created: {} (created: {})", session.getId(),
-				DATE_PATTERN.format(session.getCreationTime()));
+		Session session = getSession(httpSession);
+		if (null == session) {
+			DefaultEnvironment env = DefaultEnvironment.get(httpSession);
+			Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+			Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
+			httpSession.setMaxInactiveInterval(sessionTimeout);
+			session = new Session(httpSession.getId());
+			session.update(httpSession.getCreationTime(), httpSession.getLastAccessedTime(),
+					httpSession.getMaxInactiveInterval());
+			env.setAttribute(Scope.SESSION, org.appng.api.Session.Environment.SID, httpSession.getId());
+			env.setAttribute(Scope.SESSION, org.appng.api.Session.Environment.TIMEOUT,
+					httpSession.getMaxInactiveInterval());
+			env.setAttribute(Scope.SESSION, org.appng.api.Session.Environment.STARTTIME,
+					httpSession.getCreationTime() / 1000L);
+			MDC.put(MDC_SESSION_ID, session.getId());
+			LOGGER.info("Session created: {} (created: {})", session.getId(),
+					DATE_PATTERN.format(session.getCreationTime()));
+			setSession(httpSession, session);
+		}
 		return session;
+	}
+
+	private void setSession(HttpSession httpSession, Session session) {
+		httpSession.setAttribute(META_DATA, session);
 	}
 
 	public void sessionDestroyed(HttpSessionEvent event) {
@@ -111,24 +106,22 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			ApplicationContext ctx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
 			ctx.getBean(CoreService.class).createEvent(Type.INFO, "session expired", httpSession);
 		}
-		if (!destroySession(httpSession.getId(), env)) {
+		Session session = getSession(httpSession);
+		if (null != session) {
+			LOGGER.info("Session destroyed: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {})",
+					session.getId(), DATE_PATTERN.format(session.getCreationTime()),
+					DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
+					session.getUserAgent());
+			httpSession.removeAttribute(META_DATA);
+		} else {
 			LOGGER.info("Session destroyed: {} (created: {}, accessed: {})", httpSession.getId(),
 					DATE_PATTERN.format(httpSession.getCreationTime()),
 					DATE_PATTERN.format(httpSession.getLastAccessedTime()));
 		}
 	}
 
-	protected static boolean destroySession(String sessionId, Environment env) {
-		Session session = SESSION_MAP.remove(sessionId);
-		if (null != session) {
-			saveSessions(env);
-			LOGGER.info("Session destroyed: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {})",
-					session.getId(), DATE_PATTERN.format(session.getCreationTime()),
-					DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
-					session.getUserAgent());
-			return true;
-		}
-		return false;
+	private static Session getSession(HttpSession httpSession) {
+		return (Session) httpSession.getAttribute(META_DATA);
 	}
 
 	public void requestInitialized(ServletRequestEvent sre) {
@@ -140,7 +133,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		setSecureFlag(httpServletRequest, site);
 		setDiagnosticContext(env, httpServletRequest, site);
 
-		Session session = SESSION_MAP.get(httpSession.getId());
+		Session session = (Session) httpSession.getAttribute(META_DATA);
 		if (null == session) {
 			session = createSession(httpSession);
 		}
@@ -152,6 +145,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		session.setIp(request.getRemoteAddr());
 		session.setUserAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
 		session.addRequest();
+		setSession(httpSession, session);
 
 		if (LOGGER.isTraceEnabled()) {
 			String referer = httpServletRequest.getHeader(HttpHeaders.REFERER);
@@ -202,21 +196,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		}
 	}
 
-	static org.apache.catalina.Session getContainerSession(Manager manager, String sessionId) {
-		try {
-			return manager.findSession(sessionId);
-		} catch (IOException e) {
-			LOGGER.warn(String.format("error while retrieving session %s", sessionId), e);
-		}
-		return null;
-	}
-
 	public void requestDestroyed(ServletRequestEvent sre) {
 		MDC.clear();
-	}
-
-	private static void saveSessions(Environment env) {
-		env.setAttribute(Scope.PLATFORM, SESSIONS, UnmodifiableList.decorate(new ArrayList<>(SESSION_MAP.values())));
 	}
 
 }

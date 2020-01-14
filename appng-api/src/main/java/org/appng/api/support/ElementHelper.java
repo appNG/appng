@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,12 +75,10 @@ import org.springframework.util.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Utility class offering methods for proper initialization of {@link Linkpanel}s, {@link Link}s, {@link Navigation}/
  * {@link NavigationItem}s, {@link BeanOption}s, {@link Param}s etc.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ElementHelper {
@@ -214,7 +212,7 @@ public class ElementHelper {
 	 * Builds {@link Options} from the given list of {@link BeanOption}s, without evaluation of parameter placeholders.
 	 * 
 	 * @param beanOptions
-	 *            some {@link BeanOption}s
+	 *                    some {@link BeanOption}s
 	 * @return the {@link Options}
 	 * @see #initOptions(List)
 	 */
@@ -238,7 +236,7 @@ public class ElementHelper {
 	 * Performs parameter-replacement for the given {@link BeanOption}s
 	 * 
 	 * @param beanOptions
-	 *            some {@link BeanOption}s
+	 *                    some {@link BeanOption}s
 	 */
 	void initOptions(List<BeanOption> beanOptions) {
 		if (null != beanOptions) {
@@ -380,10 +378,10 @@ public class ElementHelper {
 					executionParameters.put(param, postParam);
 				} else {
 					if (!existingValue.equals(postParam)) {
-						String message = "the parameter '" + param
-								+ "' is ambiguous, since it's a execution parameter for " + reference + " (value: '"
-								+ existingValue + "') and also POST-parameter (value: '" + postParam
-								+ "'). Avoid such overlapping parameters!";
+						String message = String.format(
+								"the parameter '%s' is ambiguous, since it's a execution parameter for '%s' (value: '%s') "
+										+ "and also POST-parameter (value: '%s''). Avoid such overlapping parameters!",
+								param, reference, existingValue, postParam);
 						LOGGER.warn(message);
 						// TODO APPNG-442
 						// throwing ProcessingException may be too aggressive here
@@ -397,7 +395,16 @@ public class ElementHelper {
 		return executionParameters;
 	}
 
-	static Messages addMessages(Environment environment, Messages messages) {
+	/**
+	 * Adds some messages to the current session.
+	 * 
+	 * @param environment
+	 *                    the current {@link Environment}
+	 * @param messages
+	 *                    the {@link Messages} to add
+	 * @return the messages for the current session
+	 */
+	public static Messages addMessages(Environment environment, Messages messages) {
 		Messages messagesFromSession = environment.getAttribute(SESSION, Session.Environment.MESSAGES);
 		if (messages.getMessageList().size() > 0) {
 			if (null == messagesFromSession) {
@@ -412,6 +419,13 @@ public class ElementHelper {
 		return messagesFromSession;
 	}
 
+	/**
+	 * Removes the messages from the current session.
+	 * 
+	 * @param environment
+	 *                    the current {@link Environment}
+	 * @return the messages removed from the current session, if any
+	 */
 	public Messages removeMessages(Environment environment) {
 		Messages messages = environment.removeAttribute(SESSION, Session.Environment.MESSAGES);
 		if (LOGGER.isDebugEnabled() && null != messages) {
@@ -420,6 +434,13 @@ public class ElementHelper {
 		return messages;
 	}
 
+	/**
+	 * Returns the messages for the current session.
+	 * 
+	 * @param environment
+	 *                    the current {@link Environment}
+	 * @return the messages for the current session, if any
+	 */
 	public Messages getMessages(Environment environment) {
 		Messages messages = environment.getAttribute(SESSION, Session.Environment.MESSAGES);
 		if (LOGGER.isDebugEnabled() && null != messages) {

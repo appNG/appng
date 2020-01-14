@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,7 +176,7 @@ public class SearchTest extends Search {
 		platformEnv.put(Platform.Environment.CORE_PLATFORM_CONTEXT, ctx);
 
 		doEndTag();
-		Assert.assertEquals("[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.6992079,\"fields\":[]}]}]",
+		Assert.assertEquals("[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.31782177,\"fields\":[]}]}]",
 				result.get(0));
 		Assert.assertNull(getFormat());
 		Assert.assertNull(getHighlight());

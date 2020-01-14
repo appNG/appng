@@ -1,246 +1,267 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.appng.org/schema/application"
-    elementFormDefault="qualified" targetNamespace="http://www.appng.org/schema/application" version="${project.version}">
+	elementFormDefault="qualified" targetNamespace="http://www.appng.org/schema/application" version="${project.version}">
 
-    <xs:element name="application" type="applicationInfo">
-        <xs:annotation>
-            <xs:documentation>The root element for an application</xs:documentation>
-        </xs:annotation>
-    </xs:element>
-    <xs:element name="template" type="template">
-        <xs:annotation>
-            <xs:documentation>The root element for a template</xs:documentation>
-        </xs:annotation>
-    </xs:element>
+	<xs:element name="application" type="applicationInfo">
+		<xs:annotation>
+			<xs:documentation>The root element for an application</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="template" type="template">
+		<xs:annotation>
+			<xs:documentation>The root element for a template</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 
-    <xs:complexType name="applicationInfo">
-        <xs:complexContent>
-            <xs:extension base="packageInfo">
-                <xs:sequence>
-                    <xs:element name="roles" type="roles" minOccurs="0" maxOccurs="1">
-                        <xs:annotation>
-                            <xs:documentation>Defines the available roles for this application</xs:documentation>
-                        </xs:annotation>
-                    </xs:element>
-                    <xs:element name="permissions" type="permissions" minOccurs="0" maxOccurs="1">
-                        <xs:annotation>
-                            <xs:documentation>Defines the available permissions for this application</xs:documentation>
-                        </xs:annotation>
-                    </xs:element>
-                    <xs:element name="properties" type="properties" minOccurs="0" maxOccurs="1">
-                        <xs:annotation>
-                            <xs:documentation>Defines the available properties for this application</xs:documentation>
-                        </xs:annotation>
-                    </xs:element>
-                    <xs:element name="datasources" type="datasources" minOccurs="0" maxOccurs="1">
-                        <xs:annotation>
-                            <xs:documentation>Defines the available datasources for this application</xs:documentation>
-                        </xs:annotation>
-                    </xs:element>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
+	<xs:complexType name="applicationInfo">
+		<xs:complexContent>
+			<xs:extension base="packageInfo">
+				<xs:sequence>
+					<xs:element name="roles" type="roles" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Defines the available roles for this application</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="permissions" type="permissions" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Defines the available permissions for this application</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="properties" type="properties" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Defines the available properties for this application</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="datasources" type="datasources" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Defines the available datasources for this application</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
 
-    <xs:complexType name="template">
-        <xs:complexContent>
-            <xs:extension base="packageInfo">
-                <xs:attribute name="type" type="templateType" default="xsl">
-                    <xs:annotation>
-                        <xs:documentation>The type of the template (default: xsl).</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
+	<xs:complexType name="template">
+		<xs:complexContent>
+			<xs:extension base="packageInfo">
+				<xs:attribute name="type" type="templateType" default="xsl">
+					<xs:annotation>
+						<xs:documentation>The type of the template (default: xsl).</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
 
-    <xs:simpleType name="templateType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="xsl">
-                <xs:annotation>
-                    <xs:documentation>XSLT based template</xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="thymeleaf">
-                <xs:annotation>
-                    <xs:documentation>Thymeleaf based template</xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-        </xs:restriction>
-    </xs:simpleType>
+	<xs:simpleType name="templateType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="xsl">
+				<xs:annotation>
+					<xs:documentation>XSLT based template</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="thymeleaf">
+				<xs:annotation>
+					<xs:documentation>Thymeleaf based template</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
 
-    <xs:complexType name="packageInfo" abstract="true">
+	<xs:complexType name="packageInfo" abstract="true">
 
-        <xs:sequence>
-            <xs:element name="name" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The name of the application/template</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="display-name" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The display-name of the application/template</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="description" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The description of the application/template</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="long-description" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The long description of the application/template</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="version" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The version of the application/template</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="timestamp" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The timestamp of the application/template (format: yyyyMMdd-HHmm)
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="appng-version" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The appNG version this application/template is built for</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
+		<xs:sequence>
+			<xs:element name="name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the application/template</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="display-name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The display-name of the application/template</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="description" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The description of the application/template</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="long-description" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The long description of the application/template</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="version" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The version of the application/template</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="timestamp" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The timestamp of the application/template (format: yyyyMMdd-HHmm)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="appng-version" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The appNG version this application/template is built for</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 
-    <xs:complexType name="roles">
-        <xs:sequence>
-            <xs:element name="role" type="role" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>A single role</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
+	<xs:complexType name="roles">
+		<xs:sequence>
+			<xs:element name="role" type="role" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A single role</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 
-    <xs:complexType name="role">
-        <xs:sequence>
-            <xs:element name="name" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The name of the role</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="description" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>The description of the role</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="permission" type="permissionRef" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>A permission owned by this role</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute name="admin-role" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
+	<xs:complexType name="role">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the role</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="description" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The description of the role</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="permission" type="permissionRef" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A permission owned by this role</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="admin-role" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>
 <![CDATA[Optional attribute. This role will automatically attached to the default admin group (Administrators) in appng on installation]]>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
 
-    <xs:complexType name="permissions">
-        <xs:sequence>
-            <xs:element name="permission" type="permission" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>A single permission</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
+	<xs:complexType name="permissions">
+		<xs:sequence>
+			<xs:element name="permission" type="permission" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A single permission</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 
-    <xs:complexType name="properties">
-        <xs:sequence>
-            <xs:element name="property" type="property" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>A single property</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
+	<xs:complexType name="properties">
+		<xs:sequence>
+			<xs:element name="property" type="property" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A single property</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 
-    <xs:complexType name="permission">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="id" type="xs:string">
-                    <xs:annotation>
-                        <xs:documentation>The id of this permission</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
+	<xs:complexType name="permission">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="id" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The id of this permission</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
 
-    <xs:complexType name="property">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="id" type="xs:string">
-                    <xs:annotation>
-                        <xs:documentation>The id of this property</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="description" type="xs:string">
-                    <xs:annotation>
-                        <xs:documentation>The description of this property</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="clob" type="xs:boolean">
-                    <xs:annotation>
-                        <xs:documentation>Set to 'true' if this property is a CLOB</xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
+	<xs:complexType name="property">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="id" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The id of this property</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="description" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The description of this property</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="clob" type="xs:boolean">
+					<xs:annotation>
+						<xs:documentation>Set to 'true' if this property is a CLOB</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="type" type="propertyType">
+					<xs:annotation>
+						<xs:documentation>The type of this property. Overrides clob-attribute</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
 
-    <xs:complexType name="permissionRef">
-        <xs:attribute name="id" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>The id of the referenced permission</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
+	<xs:simpleType name="propertyType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="int" />
+			<xs:enumeration value="decimal" />
+			<xs:enumeration value="boolean" />
+			<xs:enumeration value="text" />
+			<xs:enumeration value="password" />
+			<xs:enumeration value="multiline" />
+		</xs:restriction>
+	</xs:simpleType>
 
-    <xs:complexType name="datasources">
-        <xs:sequence>
-            <xs:element name="datasource" type="datasource" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>A single datasource</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
+	<xs:complexType name="permissionRef">
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The id of the referenced permission</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
 
-    <xs:complexType name="datasource">
-        <xs:attribute name="type" type="datasourceType" use="required">
-            <xs:annotation>
-                <xs:documentation>The type of this datasource</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
+	<xs:complexType name="datasources">
+		<xs:sequence>
+			<xs:element name="datasource" type="datasource" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A single datasource</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 
-    <xs:simpleType name="datasourceType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="mysql">
-                <xs:annotation>
-                    <xs:documentation>MySql</xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="mssql">
-                <xs:annotation>
-                    <xs:documentation>Microsoft SQL Server</xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-        </xs:restriction>
-    </xs:simpleType>
+	<xs:complexType name="datasource">
+		<xs:attribute name="type" type="datasourceType" use="required">
+			<xs:annotation>
+				<xs:documentation>The type of this datasource</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="datasourceType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="mysql">
+				<xs:annotation>
+					<xs:documentation>MySql</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="mssql">
+				<xs:annotation>
+					<xs:documentation>Microsoft SQL Server</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="postgresql">
+				<xs:annotation>
+					<xs:documentation>PostgreSQL</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
 
 </xs:schema>

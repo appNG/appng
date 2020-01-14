@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.20.0-SNAPSHOT</version>
+		<version>1.21.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -38,10 +38,10 @@
 						<numbered>true</numbered>
 						<project-version>${project.version}</project-version>
 						<project-name>${project.name}</project-name>
-						<spring-version>${springVersion}</spring-version>
-						<spring-data-version>${springDataVersion}</spring-data-version>
-						<spring-data-jpa-version>${springDataJpaVersion}</spring-data-jpa-version>
-						<lucene-version>${luceneVersion}</lucene-version>
+						<spring-version>${spring.version}</spring-version>
+						<spring-data-version>${springData.version}</spring-data-version>
+						<spring-data-jpa-version>${springDataJpa.version}</spring-data-jpa-version>
+						<lucene-version>${lucene.version}</lucene-version>
 					</attributes>
 				</configuration>
 				<executions>
@@ -79,6 +79,40 @@
 							<outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
 						</configuration>
 					</execution>
+					<execution>
+						<id>html-admin</id>
+						<phase>package</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<backend>html5</backend>
+							<sectids>true</sectids>
+							<sourceHighlighter>prettify</sourceHighlighter>
+							<outputDirectory>${project.build.directory}/generated-docs/html</outputDirectory>
+							<sourceDocumentName>administrationguide.adoc</sourceDocumentName>
+							<attributes>
+								<toc>left</toc>
+								<linkcss>true</linkcss>
+								<icons>font</icons>
+								<sectanchors>true</sectanchors>
+								<stylesheet>appng.css</stylesheet>
+							</attributes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>pdf-admin</id>
+						<phase>install</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<backend>pdf</backend>
+							<sourceHighlighter>coderay</sourceHighlighter>
+							<sourceDocumentName>administrationguide.adoc</sourceDocumentName>
+							<outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
@@ -99,6 +133,6 @@
 			<artifactId>appng-testsupport</artifactId>
 			<scope>test</scope>
 		</dependency>
-	
+
 	</dependencies>
 </project>

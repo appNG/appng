@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,10 @@
 package org.appng.core.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -31,9 +29,8 @@ import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -42,16 +39,17 @@ import org.springframework.mock.web.MockServletContext;
 
 public class SessionListenerTest {
 
-	private ServletContext servletContext = new MockServletContext();
+	private static ServletContext servletContext = new MockServletContext();
 	private MockHttpSession session1 = new MockHttpSession(servletContext, "ZUS383883OTOTOLSKKL");
 	private MockHttpSession session2 = new MockHttpSession(servletContext, "ERTERTZGFHFGHGFH234");
-	private Map<String, Object> platformMap;
+	private static Map<String, Object> platformMap;
 
-	private SessionListener sessionListener;
+	private static SessionListener sessionListener;
 
-	@Before
-	public void setup() {
+	@BeforeClass
+	public static void setup() {
 		sessionListener = new SessionListener();
+
 		platformMap = new ConcurrentHashMap<>();
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
@@ -64,21 +62,14 @@ public class SessionListenerTest {
 		sitemap.put(site.getHost(), site);
 		platformMap.put(Platform.Environment.SITES, sitemap);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformMap);
-		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
-	}
-
-	@After
-	public void tearDown() {
-		Assert.assertNotNull(platformMap.get(SessionListener.SESSIONS));
-		sessionListener.contextDestroyed(new ServletContextEvent(servletContext));
-		Assert.assertNull(platformMap.get(SessionListener.SESSIONS));
 	}
 
 	@Test
 	public void testSessionCreated() {
 		sessionListener.sessionCreated(new HttpSessionEvent(session1));
 		addRequest(session1);
-		Assert.assertTrue(getSessions().contains(new Session(session1.getId())));
+		addRequest(session1);
+		Assert.assertEquals(2, ((Session) session1.getAttribute(SessionListener.META_DATA)).getRequests());
 	}
 
 	@Test
@@ -88,9 +79,9 @@ public class SessionListenerTest {
 		sessionListener.sessionCreated(new HttpSessionEvent(session2));
 		addRequest(session2);
 		sessionListener.sessionDestroyed(new HttpSessionEvent(session1));
-		List<Session> sessionList = getSessions();
-		Assert.assertFalse(sessionList.contains(new Session(session1.getId())));
-		Assert.assertTrue(sessionList.contains(new Session(session2.getId())));
+
+		Assert.assertNull(session1.getAttribute(SessionListener.META_DATA));
+		Assert.assertNotNull(session2.getAttribute(SessionListener.META_DATA));
 	}
 
 	private void addRequest(HttpSession session) {
@@ -100,9 +91,4 @@ public class SessionListenerTest {
 		sessionListener.requestInitialized(requestEvent);
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<Session> getSessions() {
-		Map<String, Object> platformMap = (Map<String, Object>) servletContext.getAttribute(Scope.PLATFORM.name());
-		return (List<Session>) platformMap.get(SessionListener.SESSIONS);
-	}
 }

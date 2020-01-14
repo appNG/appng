@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,6 +122,13 @@ public final class Platform {
 		 */
 		public static final String CONSTRAINTS_AS_RULE = "constraintsAsRule";
 		/**
+		 * The global configuration for configuring caching. This property either
+		 * contains the platform-relative path to a config file (e.g.
+		 * {@code WEB-INF/conf/hazelcast.xml}) or the XML configuration itself in XML
+		 * format (stored as multiline value).
+		 */
+		public static final String CACHE_CONFIG = "cacheConfig";
+		/**
 		 * Set to {@code true} to enable a filter preventing CSRF-attacks
 		 */
 		public static final String CSRF_FILTER_ENABLED = "csrfFilterEnabled";
@@ -144,11 +151,6 @@ public final class Platform {
 		public static final String DEV_MODE = "devMode";
 		/** The charset/encoding used for http-responses. */
 		public static final String ENCODING = "encoding";
-		/**
-		 * The global page cache configuration using the Ehcache XML configuration format. This cache is used to cache
-		 * HTTP responses.
-		 */
-		public static final String EHCACHE_CONFIG = "ehcacheConfig";
 		/** Set to 'true' if applications should be deployed to the local filesystem, 'false' otherwise. */
 		public static final String FILEBASED_DEPLOYMENT = "filebasedDeployment";
 		/** Disable for production use. If enabled, debugging is easier, but Textarea values are formatted wrong. */
@@ -272,6 +274,7 @@ public final class Platform {
 		 * (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
+
 		/** The 'Token Claim Name' configured in the 'User Client Role'-mapper of the Keycloak client */
 		public static final String KEYCLOAK_GROUP_CLAIM_NAME = "keycloakGroupClaimName";
 
@@ -280,6 +283,10 @@ public final class Platform {
 
 		/** The role configured in the Keycloak client, used as a security-role in web.xml */
 		public static final String KEYCLOAK_SECURITY_ROLE = "keycloakSecurityRole";
+
+		/** The path to appNG's health monitoring */
+		public static final String MONITORING_PATH = "monitoringPath";
+
 	}
 
 	/**

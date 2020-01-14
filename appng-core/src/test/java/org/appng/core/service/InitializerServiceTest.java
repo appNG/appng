@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Application;
+import org.appng.api.model.Property.Type;
 import org.appng.api.model.Site;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.PropertyHolder;
@@ -126,12 +127,12 @@ public class InitializerServiceTest extends TestSupport
 
 	@Test
 	public void testInitPlatform() throws Exception {
-		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM,
-				Collections.<org.appng.api.model.Property> emptyList());
+		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, Collections.emptyList());
 		for (String prop : platformProperties.getPropertyNames()) {
 			String key = prop.substring(PropertySupport.PREFIX_PLATFORM.length());
 			String value = platformProperties.getString(prop);
-			propertyHolder.addProperty(key, value == null ? StringUtils.EMPTY : value, StringUtils.EMPTY);
+			String defaultValue = value == null ? StringUtils.EMPTY : value;
+			propertyHolder.addProperty(key, defaultValue, StringUtils.EMPTY, Type.forString(defaultValue));
 		}
 		propertyHolder.setFinal();
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, propertyHolder);
@@ -140,8 +141,7 @@ public class InitializerServiceTest extends TestSupport
 		FileUtils.deleteQuietly(templateRoot);
 		Mockito.when(ctx.getRealPath("/uploads")).thenReturn("target/uploads");
 
-		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES))
-				.thenReturn(new HashMap<>());
+		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES)).thenReturn(new HashMap<>());
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);
@@ -170,7 +170,7 @@ public class InitializerServiceTest extends TestSupport
 		TestEntity entity = new TestEntity(null, "name", 2, 3.4d, true);
 		testservice.createEntity(entity);
 		Assert.assertEquals(Integer.valueOf(1), entity.getId());
-		service.shutDownSite(env, siteToLoad);
+		service.shutDownSite(env, siteToLoad, true);
 	}
 
 	public void initialize(GenericApplicationContext applicationContext) {

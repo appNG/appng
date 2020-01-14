@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -298,53 +298,97 @@ public class ImageProcessor {
 	}
 
 	/**
-	 * TODO doc
+	 * Automatically crops the original image to the required size.
 	 * 
-	 * @param positionWidth
-	 * @param positionHeight
-	 * @param sourceWidth
-	 * @param sourceHeight
-	 * @return this {@link ImageProcessor}
+	 * @param  croppingWidth
+	 *                        The target width of the image section.
+	 * @param  croppingHeight
+	 *                        The target height of the image section.
+	 * @param  originalWidth
+	 *                        The original width of the image.
+	 * @param  originalHeight
+	 *                        The original height of the image.
+	 * @return                this {@link ImageProcessor}
+	 * @see                   ImageProcessor#autoCrop(int, int, int, int, int, int)
 	 */
-	public ImageProcessor autoCrop(int positionWidth, int positionHeight, int sourceWidth, int sourceHeight) {
-		return autoCrop(positionWidth, positionHeight, sourceWidth, sourceHeight, 0, 0);
+	public ImageProcessor autoCrop(int croppingWidth, int croppingHeight, int originalWidth, int originalHeight) {
+		return autoCrop(croppingWidth, croppingHeight, originalWidth, originalHeight, 0, 0);
 	}
 
 	/**
-	 * TODO doc
+	 * <p>
+	 * Automatically crops the original image to the required size.
+	 * </p>
+	 * This is done in two steps. First, a section with the desired aspect ratio is being cropped from the original
+	 * image. Second, this image section is resized to the desired size.
+	 * <p>
+	 * Example: {@code autoCrop(50, 50, 100, 200, 0, 0)} will first crop a squared section from 0,50 to 100,150 and the
+	 * resize this section to 50x50.
 	 * 
-	 * @param positionWidth
-	 * @param positionHeight
-	 * @param variantWidth
-	 * @param variantHeight
-	 * @param variantOffsetWidth
-	 * @param variantOffsetHeight
-	 * @return this {@link ImageProcessor}
+	 * <pre>
+	 * 0,0   _________ 100,0
+	 *      |         |
+	 *      |         |
+	 *      |         |
+	 *      |         |
+	 * 0,50 |_________|100,50
+	 *      |         |
+	 *      | cropped |
+	 *      |         |
+	 *      | section |
+	 *      |_________|
+	 * 0,150|         |100,150
+	 *      |         |
+	 *      |         |
+	 *      |         |
+	 *      |_________| 
+	 * 0,200           100,200
+	 * </pre>
+	 * </p>
+	 * <p>
+	 * Note that the original aspect ratio of the original image might get lost.
+	 * </p>
+	 * 
+	 * @param  croppingWidth
+	 *                         The target width of the image section.
+	 * @param  croppingHeight
+	 *                         The target height of the image section.
+	 * @param  originalWidth
+	 *                         The original width of the image.
+	 * @param  originalHeight
+	 *                         The original height of the image.
+	 * @param  croppingOffsetX
+	 *                         The X offset for the image section based on the original image.
+	 * @param  croppingOffsetY
+	 *                         The Y offset for the image section based on the original image.
+	 * @return                 this {@link ImageProcessor}
+	 * @see                    #crop(int, int, int, int)
+	 * @see                    #resize(int, int)
 	 */
-	public ImageProcessor autoCrop(int positionWidth, int positionHeight, int variantWidth, int variantHeight,
-			int variantOffsetWidth, int variantOffsetHeight) {
-		int offsetWidth;
-		int offsetHeight;
-		int uncroppedPositionWidth;
-		int uncroppedPositionHeight;
+	public ImageProcessor autoCrop(int croppingWidth, int croppingHeight, int originalWidth, int originalHeight,
+			int croppingOffsetX, int croppingOffsetY) {
+		int offsetX;
+		int offsetY;
+		int targetWidth;
+		int targetHeight;
 
-		double variantFactor = variantWidth / (double) variantHeight;
-		double positionFactor = positionWidth / (double) positionHeight;
+		double originalRatio = originalWidth / (double) originalHeight;
+		double croppingRatio = croppingWidth / (double) croppingHeight;
 
-		if (variantFactor > positionFactor) {
-			uncroppedPositionWidth = Math.round(variantHeight * positionWidth / (float) positionHeight);
-			uncroppedPositionHeight = variantHeight;
-			offsetWidth = variantOffsetWidth + Math.round((variantWidth - uncroppedPositionWidth) / (float) 2);
-			offsetHeight = variantOffsetHeight;
+		if (originalRatio > croppingRatio) {
+			targetWidth = Math.round(originalHeight * croppingWidth / (float) croppingHeight);
+			targetHeight = originalHeight;
+			offsetX = croppingOffsetX + Math.round((originalWidth - targetWidth) / (float) 2);
+			offsetY = croppingOffsetY;
 		} else {
-			uncroppedPositionWidth = variantWidth;
-			uncroppedPositionHeight = Math.round(positionHeight * variantWidth / (float) positionWidth);
-			offsetWidth = variantOffsetWidth;
-			offsetHeight = variantOffsetHeight + Math.round((variantHeight - uncroppedPositionHeight) / (float) 2);
+			targetWidth = originalWidth;
+			targetHeight = Math.round(croppingHeight * originalWidth / (float) croppingWidth);
+			offsetX = croppingOffsetX;
+			offsetY = croppingOffsetY + Math.round((originalHeight - targetHeight) / (float) 2);
 		}
 
-		crop(uncroppedPositionWidth, uncroppedPositionHeight, offsetWidth, offsetHeight);
-		return resize(positionWidth, positionHeight);
+		crop(targetWidth, targetHeight, offsetX, offsetY);
+		return resize(croppingWidth, croppingHeight);
 	}
 
 	/**

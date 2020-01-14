@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.appng.cli.commands.property;
 
+import org.appng.api.model.Property;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.core.domain.PropertyImpl;
@@ -39,6 +40,7 @@ public class CommandCreatePropertyTest extends AbstractCommandTest {
 		PropertyImpl property = cliEnv.getCoreService().getProperty(PropertySupport.PREFIX_PLATFORM + MY_PROP);
 		Assert.assertEquals("true", property.getString());
 		Assert.assertEquals("platform." + MY_PROP, property.getId());
+		Assert.assertEquals(Property.Type.TEXT, property.getType());
 	}
 
 }

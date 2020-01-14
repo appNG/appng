@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ public abstract class ControllerTest {
 		this.differenceListener = new XPathDifferenceHandler();
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		if (!platformInitialized) {
-			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true);
+			wac.getBean(CoreService.class).initPlatformConfig(new Properties(), "target/webapps/ROOT", false, true, false);
 			platformInitialized = true;
 		}
 	}
@@ -183,6 +183,8 @@ public abstract class ControllerTest {
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.CACHE_FOLDER, "cache"));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.APPLICATION_CACHE_FOLDER, "application"));
 		platformProperties.add(new SimpleProperty(prefix + Platform.Property.PLATFORM_CACHE_FOLDER, "platform"));
+		platformProperties.add(new SimpleProperty(prefix + Platform.Property.MESSAGING_RECEIVER, "dummy"));
+		platformProperties.add(new SimpleProperty(prefix + Platform.Property.PLATFORM_ROOT_PATH, ""));
 		return platformProperties;
 	}
 

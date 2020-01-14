@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.appng.api.PermissionProcessor;
 import org.appng.api.ProcessingException;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
+import org.appng.api.support.ApplicationRequest.ApplicationPath;
 import org.appng.el.ExpressionEvaluator;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ActionRef;
@@ -75,7 +76,6 @@ import org.springframework.beans.BeanWrapperImpl;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@code CallableAction} is responsible for preparing and performing an {@link Action}, based on a given
  * {@link ActionRef} which is part of a {@link PageDefinition}'s {@link SectionelementDef}.
  * 
@@ -164,15 +164,22 @@ public class CallableAction {
 			this.elementHelper = new ElementHelper(site, application);
 			DataConfig config = getAction().getConfig();
 			getAction().setEventId(eventId);
+
 			Map<String, String> actionParameters = elementHelper.initializeParameters(
 					"action '" + actionRef.getId() + "' (" + actionRef.getEventId() + ")", applicationRequest,
 					applicationRequest.getParameterSupportDollar(), actionRef.getParams(), config.getParams());
-
 			LOGGER.trace("parameters for action '{}' of event '{}': {}", actionId, eventId, actionParameters);
-
 			actionParamSupport = new DollarParameterSupport(actionParameters);
+
 			Condition includeCondition = actionRef.getCondition();
-			this.include = elementHelper.conditionMatches(pageExpressionEvaluator, includeCondition);
+			if (null == includeCondition) {
+				this.include = true;
+			} else {
+				Map<String, Object> conditionParams = new HashMap<>(applicationRequest.getParameters());
+				conditionParams.put(ApplicationPath.PATH, applicationRequest.applicationPath());
+				ExpressionEvaluator conditionEvaluator = new ExpressionEvaluator(conditionParams);
+				this.include = elementHelper.conditionMatches(conditionEvaluator, includeCondition);
+			}
 			if (include) {
 				elementHelper.processConfig(applicationRequest.getApplicationConfig(), applicationRequest,
 						action.getConfig(), actionParameters);

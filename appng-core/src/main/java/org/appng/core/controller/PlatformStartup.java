@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.DatabaseService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.HsqlStarter;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.MigrationService;
@@ -174,6 +175,7 @@ public class PlatformStartup implements ServletContextListener {
 			LOGGER.warn("error while calling AbandonedConnectionCleanupThread.shutdown()", e);
 		}
 		Messaging.shutdown(env);
+		HazelcastConfigurer.shutdown();
 		if (null != executor) {
 			executor.shutdownNow();
 		}

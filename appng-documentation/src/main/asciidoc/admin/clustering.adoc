@@ -1,0 +1,46 @@
+== Clustering
+
+To enable clustering you need to have
+
+* at least two appNG Nodes
+* a load balancer that is able to distribute requests between several nodes, for example http://www.haproxy.org/[HAProxy^]
+* set the {manager-guide}#platform-properties[platform property^]  `messagingEnabled` to `true`
+* configure the details for the chosen message exchange
+
+There are currently three techniques for appNG to exchange messages between nodes in a cluster:
+
+* https://en.wikipedia.org/wiki/Multicast[Multicast^]
+* https://redis.io/[Redis^]
+* https://www.rabbitmq.com/[RabbitMQ^]
+
+
+=== Using Multicast
+The following platform-properties need to be configured when using multicast:
+
+* set `messagingReceiver` to `org.appng.core.controller.messaging.MulticastReceiver` (this is the default)
+* set `messagingGroupAddress` to an appropriate value (default: `224.2.2.4`)
+* set `messagingGroupPort` to an appropriate value (default: `4000`)
+
+=== Using RabbitMQ
+The following platform-properties need to be configured when using RabbitMQ:
+
+* set `messagingReceiver` to `org.appng.core.controller.messaging.RabbitMQReceiver`
+* `rabbitMQAdresses`: A comma separated list of <host>:<port> for RabbitMQ server(s) (default: `localhost:5672`): 
+* `rabbitMQUser`: Username (default: `guest`)
+* `rabbitMQPassword`: Password (default: `guest`)
+* `rabbitMQExchange`: Name of the exchange where the receiver binds its messaging queue on. +
+Be aware that this name must be different among different clusters using the same RabbitMQ server (default: `appng-messaging`).
+* `rabbitMQAutoDeleteQueue`: If the queue to create should be marked as auto-delete (default: `true`).
+* `rabbitMQDurableQueue`: If the queue to create should be marked as durable (default: `false`).
+* `rabbitMQExclusiveQueue`: If the queue to create should be marked as exclusive (default: `true`).
+
+=== Using Redis
+The following platform-properties need to be configured when using Redis:
+
+* set `messagingReceiver` to `org.appng.core.controller.messaging.JedisReceiver`
+* `redisMessagingHost`: Host of the Redis server (default: `localhost`).
+* `redisMessagingPort`: Port of the Redis server (default: `6379`).
+* `redisMessagingPassword`: Password of the Redis server (no default).
+* `redisMessagingTimeout`: Timeout is optional. If not defined, Redis default is used (no default).
+* `redisMessagingChannel`: Channel where all cluster nodes should publish and subscribe. +
+Be aware that this name must be different among different clusters using the same Redis server (default: `appng-messaging`).

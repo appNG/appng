@@ -19,6 +19,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobExecutionRecord</class>
 	</persistence-unit>
 
 </persistence>
