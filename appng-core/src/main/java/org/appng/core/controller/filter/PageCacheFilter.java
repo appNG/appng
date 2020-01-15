@@ -111,7 +111,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					String exceptions = siteProps.getClob(SiteProperties.CACHE_EXCEPTIONS);
 					isException = isException(exceptions, servletPath);
 					Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
-					boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE, true);
+					boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE);
 					Integer expireAfterSeconds = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 					expireAfterSeconds = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath,
 							expireAfterSeconds);

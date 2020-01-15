@@ -85,7 +85,16 @@
 	<property name="cacheTimeToLive" self="http://localhost/site/localhost/property/cacheTimeToLive">
 		<value>1800</value>
 		<defaultValue>1800</defaultValue>
-		<description>The time a cache entry lives, in seconds.</description>
+		<description>The default TTL for a cache entry in seconds, if there's no matching path defined in 'cacheTimeouts'.</description>
+	</property>
+	<property clob="true" name="cacheTimeouts" self="http://localhost/site/localhost/property/cacheTimeouts">
+		<value></value>
+		<description>The cache timeouts as a multiline property, key=value</description>
+	</property>
+	<property name="cacheTimeoutsAntStyle" self="http://localhost/site/localhost/property/cacheTimeoutsAntStyle">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>Use Ant-style path matching for `cacheTimeouts`?</description>
 	</property>
 	<property name="csrfProtectedMethods" self="http://localhost/site/localhost/property/csrfProtectedMethods">
 		<value>POST,PUT</value>

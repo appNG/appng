@@ -223,11 +223,13 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.SERVICE_OUTPUT_TYPE, "service");
 		addSiteProperty(SiteProperties.SERVICE_PATH, "/service");
 		addSiteProperty(SiteProperties.SUPPORTED_LANGUAGES, "en, de");
-		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
-		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
-		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINE);
-		addSiteProperty(SiteProperties.CACHE_STATISTICS, false);
 		addSiteProperty(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN, true);
+		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
+		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINE);
+		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
+		addSiteProperty(SiteProperties.CACHE_TIMEOUTS, StringUtils.EMPTY, Type.MULTILINE);
+		addSiteProperty(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE, true);
+		addSiteProperty(SiteProperties.CACHE_STATISTICS, false);
 		addSiteProperty(SiteProperties.ERROR_PAGE, "error");
 		addSiteProperty(SiteProperties.ERROR_PAGES, "/de=fehler|/en=error");
 		addSiteProperty(SiteProperties.INDEX_DIR, "/index");
