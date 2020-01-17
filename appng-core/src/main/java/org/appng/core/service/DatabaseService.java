@@ -277,13 +277,15 @@ public class DatabaseService extends MigrationService {
 	 * Configures and (optionally) migrates the appNG root {@link DatabaseConnection} from the given
 	 * {@link java.util.Properties}.
 	 * 
-	 * @param config
-	 *                  the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
-	 * @param setActive
-	 *                  if the connection should be set as he active root connection, creating a new
-	 *                  {@link DatabaseConnection} if necessary. Only applied if {@link #status(DatabaseConnection)}
-	 *                  returns a non-null value.
-	 * @return the appNG root {@link DatabaseConnection}
+	 * @param  config
+	 *                   the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * @param  managed
+	 *                   whether to make the connection managed
+	 * @param  setActive
+	 *                   if the connection should be set as he active root connection, creating a new
+	 *                   {@link DatabaseConnection} if necessary. Only applied if {@link #status(DatabaseConnection)}
+	 *                   returns a non-null value.
+	 * @return           the appNG root {@link DatabaseConnection}
 	 */
 	@Transactional
 	public DatabaseConnection initDatabase(java.util.Properties config, boolean managed, boolean setActive) {

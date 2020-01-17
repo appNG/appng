@@ -40,7 +40,7 @@ public class DatabaseControllerTest extends ControllerTest {
 	@Test
 	public void testInitialized() throws Exception {
 		ignorePasswordAndInstalledDate();
-		getAndVerify("/platform/database", "xml/database-init.xml", HttpStatus.OK);
+		getAndVerify("/platform/database", "xml/database-init-managed.xml", HttpStatus.OK);
 	}
 
 	@Test
