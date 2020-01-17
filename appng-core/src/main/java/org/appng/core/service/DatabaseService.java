@@ -129,7 +129,6 @@ public class DatabaseService extends MigrationService {
 		return false;
 	}
 
-	@Transactional
 	private DatabaseConnection createApplicationConnection(Site site, Application application,
 			DatabaseConnection rootConnection, String databasePrefix) {
 		DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -286,6 +285,7 @@ public class DatabaseService extends MigrationService {
 	 *                  returns a non-null value.
 	 * @return the appNG root {@link DatabaseConnection}
 	 */
+	@Transactional
 	public DatabaseConnection initDatabase(java.util.Properties config, boolean managed, boolean setActive) {
 		DatabaseConnection platformConnection = initDatabase(config);
 		MigrationInfoService statusComplete = platformConnection.getMigrationInfoService();
@@ -382,6 +382,7 @@ public class DatabaseService extends MigrationService {
 	 *                        the root folder for the migration-scripts provided by the {@link SiteApplication}
 	 * @return the {@link MigrationService.MigrationStatus}
 	 */
+	@Transactional
 	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication, ApplicationInfo applicationInfo,
 			File sqlFolder, String databasePrefix) {
 		Datasources datasources = applicationInfo.getDatasources();

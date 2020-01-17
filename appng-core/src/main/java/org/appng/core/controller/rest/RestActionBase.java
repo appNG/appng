@@ -382,7 +382,9 @@ abstract class RestActionBase extends RestOperation {
 				for (ActionField childField : childFields) {
 					Optional<FieldDef> childDef = originalDef.getFields().stream()
 							.filter(f -> f.getName().equals(childField.getName())).findFirst();
-					applyValidationRules(request, childField, childDef.get());
+					if (childDef.isPresent()) {
+						applyValidationRules(request, childField, childDef.get());
+					}
 				}
 			}
 		}

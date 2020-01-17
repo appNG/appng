@@ -245,15 +245,15 @@ abstract class RestOperation {
 			return null;
 		}
 
-		boolean isDecimal = fieldType.equals(org.appng.xml.platform.FieldType.DECIMAL);
+		boolean isDecimal = org.appng.xml.platform.FieldType.DECIMAL.equals(fieldType);
 		String value = data.getValue();
 		if (userInput.size() > 0) {
 			value = userInput.get(0);
 			getLogger().debug("Value '{}' for field '{}' was provided by user", value, field.getBinding());
 		}
 
-		if (isDecimal || fieldType.equals(org.appng.xml.platform.FieldType.LONG)
-				|| fieldType.equals(org.appng.xml.platform.FieldType.INT)) {
+		if (isDecimal || org.appng.xml.platform.FieldType.LONG.equals(fieldType)
+				|| org.appng.xml.platform.FieldType.INT.equals(fieldType)) {
 			String format = field.getFormat();
 			if (StringUtils.isNotBlank(value)) {
 				try {
@@ -265,8 +265,8 @@ abstract class RestOperation {
 				}
 			}
 			return null;
-		} else if (fieldType.equals(org.appng.xml.platform.FieldType.CHECKBOX)
-				|| (null != type && ("boolean".equals(type.getName()) || Boolean.class.equals(type)))) {
+		} else if (org.appng.xml.platform.FieldType.CHECKBOX.equals(fieldType) || boolean.class.equals(type)
+				|| Boolean.class.equals(type)) {
 			return Boolean.valueOf(value);
 		}
 
