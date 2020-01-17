@@ -201,9 +201,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				sw.stop();
 				sw.start("process template");
 				String templateFile = PLATFORM_HTML;
-				for (Template template : outputType.getTemplates()) {
-					templateFile = template.getPath();
-					break;
+				if (outputType.getTemplates().size() > 0) {
+					templateFile = outputType.getTemplates().get(0).getPath();
 				}
 				result = templateEngine.process(templateFile, ctx);
 				result = BLANK_LINES.matcher(result).replaceAll(System.lineSeparator());
