@@ -47,6 +47,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.xml.BuilderFactory;
 import org.tuckey.web.filters.urlrewrite.Conf;
 import org.tuckey.web.filters.urlrewrite.ConfHandler;
 import org.tuckey.web.filters.urlrewrite.NormalRule;
@@ -166,7 +167,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 		String confSystemId = resource.toString();
 		ConfHandler handler = new ConfHandler(confSystemId);
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory factory = BuilderFactory.documentBuilderFactory();
 		factory.setValidating(true);
 		factory.setNamespaceAware(true);
 		factory.setXIncludeAware(true);

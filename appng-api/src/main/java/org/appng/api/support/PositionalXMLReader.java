@@ -20,11 +20,11 @@ import java.io.InputStream;
 import java.util.Stack;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.appng.xml.BuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -50,8 +50,7 @@ public class PositionalXMLReader {
 		try {
 			final SAXParserFactory factory = SAXParserFactory.newInstance();
 			parser = factory.newSAXParser();
-			final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-			final DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+			final DocumentBuilder docBuilder = BuilderFactory.documentBuilderFactory().newDocumentBuilder();
 			doc = docBuilder.newDocument();
 		} catch (final ParserConfigurationException e) {
 			throw new RuntimeException("Can't create SAX parser / DOM builder.", e);

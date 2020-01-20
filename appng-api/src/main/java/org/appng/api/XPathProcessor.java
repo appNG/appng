@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.appng.xml.BuilderFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -102,12 +103,10 @@ public class XPathProcessor {
 	 */
 	public XPathProcessor(InputStream is) throws IOException {
 		try {
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilder builder = BuilderFactory.documentBuilderFactory().newDocumentBuilder();
 			this.document = builder.parse(is);
 			this.xpath = XPathFactory.newInstance().newXPath();
-			TransformerFactory tf = TransformerFactory.newInstance();
-			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			this.transformer = tf.newTransformer();
+			this.transformer = BuilderFactory.transformerFactory().newTransformer();
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e);
 		} catch (SAXException e) {
