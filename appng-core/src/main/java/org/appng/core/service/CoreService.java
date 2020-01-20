@@ -1742,6 +1742,7 @@ public class CoreService {
 							Thread.sleep(waitTime);
 							waited += waitTime;
 						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
 							LOGGER.error("error while waiting for site to finish its requests", e);
 						}
 						LOGGER.info("waiting for {} requests to finish before shutting down site {}", requests,
