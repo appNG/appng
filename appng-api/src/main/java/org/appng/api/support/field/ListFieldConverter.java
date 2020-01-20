@@ -38,7 +38,6 @@ import org.springframework.core.convert.TypeDescriptor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FieldConverter} for {@link FieldDef}initions of type
  * <ul>
  * <li>{@link FieldType#LIST_CHECKBOX}</li>
@@ -49,7 +48,6 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class ListFieldConverter extends ConverterBase {
@@ -72,41 +70,41 @@ class ListFieldConverter extends ConverterBase {
 		wrapper.setAutoGrowNestedPaths(true);
 		List<String> values = request.getParameterList(name);
 		Class<?> propertyType = getType(wrapper, name);
-		if (null != values) {
-			if (wrapper.isReadableProperty(name))
-				if (FieldType.LIST_OBJECT.equals(field.getType())) {
-					List<FieldDef> innerFields = new ArrayList<>(field.getFields());
-					field.getFields().clear();
-					int maxIndex = 0;
-					Pattern pattern = Pattern.compile("^" + Pattern.quote(field.getBinding()) + "\\[(\\d+)\\]\\..+$");
-					for (String paramName : request.getParameterNames()) {
-						Matcher matcher = pattern.matcher(paramName);
-						if (matcher.matches()) {
-							Integer index = Integer.parseInt(matcher.group(1));
-							maxIndex = Math.max(maxIndex, index);
-						}
+		if (null != values && wrapper.isReadableProperty(name)) {
+			if (FieldType.LIST_OBJECT.equals(field.getType())) {
+				List<FieldDef> innerFields = new ArrayList<>(field.getFields());
+				field.getFields().clear();
+				int maxIndex = 0;
+				Pattern pattern = Pattern.compile("^" + Pattern.quote(field.getBinding()) + "\\[(\\d+)\\]\\..+$");
+				for (String paramName : request.getParameterNames()) {
+					Matcher matcher = pattern.matcher(paramName);
+					if (matcher.matches()) {
+						Integer index = Integer.parseInt(matcher.group(1));
+						maxIndex = Math.max(maxIndex, index);
 					}
-					for (int i = 0; i <= maxIndex; i++) {
-						addNestedFields(field, innerFields, i);
-					}
-				} else if (conversionService.canConvert(String.class, propertyType)) {
-					if (isCollection(wrapper, name)) {
-						values.forEach(value -> {
-							Object result = conversionService.convert(value, propertyType);
-							if (null != result) {
-								addCollectionValue(wrapper, name, result);
-							}
-						});
-						logSetObject(field, wrapper.getPropertyValue(name));
-					} else if (values.size() == 1) {
-						Object result = conversionService.convert(values.get(0), propertyType);
-						logSetObject(field, result);
-						field.setObject(result);
-					}
-				} else {
-					LOGGER.debug("can not convert from {} to {}", String.class, propertyType);
 				}
+				for (int i = 0; i <= maxIndex; i++) {
+					addNestedFields(field, innerFields, i);
+				}
+			} else if (conversionService.canConvert(String.class, propertyType)) {
+				if (isCollection(wrapper, name)) {
+					values.forEach(value -> {
+						Object result = conversionService.convert(value, propertyType);
+						if (null != result) {
+							addCollectionValue(wrapper, name, result);
+						}
+					});
+					logSetObject(field, wrapper.getPropertyValue(name));
+				} else if (values.size() == 1) {
+					Object result = conversionService.convert(values.get(0), propertyType);
+					logSetObject(field, result);
+					field.setObject(result);
+				}
+			} else {
+				LOGGER.debug("can not convert from {} to {}", String.class, propertyType);
+			}
 		}
+
 	}
 
 	@Override

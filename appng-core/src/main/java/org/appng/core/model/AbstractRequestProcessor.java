@@ -379,12 +379,11 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			}
 		}
 		if (null == outputType) {
-			if (outputFormat.getOutputType().isEmpty()) {
-				if (null != defaultFormat && !defaultFormat.equals(outputFormat)) {
-					logger().debug("no types defined for format {}, switching to default format {}",
-							outputFormat.getId(), defaultFormat.getId());
-					outputFormat = defaultFormat;
-				}
+			if (outputFormat.getOutputType().isEmpty() && null != defaultFormat
+					&& !defaultFormat.equals(outputFormat)) {
+				logger().debug("no types defined for format {}, switching to default format {}", outputFormat.getId(),
+						defaultFormat.getId());
+				outputFormat = defaultFormat;
 			}
 			for (OutputType outputType : outputFormat.getOutputType()) {
 				if (Boolean.TRUE.equals(outputType.isDefault())) {

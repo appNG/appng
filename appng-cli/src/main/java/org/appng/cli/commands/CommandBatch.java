@@ -82,10 +82,8 @@ public class CommandBatch implements ExecutableCliCommand {
 				builder = builder.append(chunk + " ");
 			}
 			CliEnvironment.out.println(builder.toString().trim());
-			if (!dryRun) {
-				if (cliCore.processCommand(args)) {
-					cliCore.perform(config);
-				}
+			if (!dryRun && cliCore.processCommand(args)) {
+				cliCore.perform(config);
 			}
 		}
 	}

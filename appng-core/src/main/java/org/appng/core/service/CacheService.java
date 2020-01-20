@@ -233,11 +233,9 @@ public class CacheService {
 		int removed = 0;
 		for (Entry<String, CachedResponse> entry : cache) {
 			count++;
-			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)) {
-				if (cache.remove(entry.getKey())) {
-					LOGGER.debug("removed from cache: {}", entry.getKey());
-					removed++;
-				}
+			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix) && cache.remove(entry.getKey())) {
+				LOGGER.debug("removed from cache: {}", entry.getKey());
+				removed++;
 			}
 		}
 		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);

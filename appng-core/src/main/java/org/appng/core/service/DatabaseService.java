@@ -389,35 +389,33 @@ public class DatabaseService extends MigrationService {
 			File sqlFolder, String databasePrefix) {
 		Datasources datasources = applicationInfo.getDatasources();
 		MigrationStatus status = MigrationStatus.NO_DB_SUPPORTED;
-		if (null != datasources) {
-			if (!datasources.getDatasource().isEmpty()) {
-				for (Datasource datasource : datasources.getDatasource()) {
-					DatasourceType datasourceType = datasource.getType();
-					DatabaseType databaseType = DatabaseType.valueOf(datasourceType.name());
-					DatabaseConnection rootConnection = getRootConnectionOfType(databaseType);
-					if (rootConnection.isActive()) {
-						if (rootConnection.isManaged()) {
-							StringBuilder dbInfo = new StringBuilder();
-							if (rootConnection.testConnection(dbInfo)) {
-								return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, sqlFolder,
-										databasePrefix);
-							} else {
-								status = MigrationStatus.DB_NOT_AVAILABLE;
-								LOGGER.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
-										rootConnection.getDriverClass());
-							}
+		if (null != datasources && !datasources.getDatasource().isEmpty()) {
+			for (Datasource datasource : datasources.getDatasource()) {
+				DatasourceType datasourceType = datasource.getType();
+				DatabaseType databaseType = DatabaseType.valueOf(datasourceType.name());
+				DatabaseConnection rootConnection = getRootConnectionOfType(databaseType);
+				if (rootConnection.isActive()) {
+					if (rootConnection.isManaged()) {
+						StringBuilder dbInfo = new StringBuilder();
+						if (rootConnection.testConnection(dbInfo)) {
+							return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, sqlFolder,
+									databasePrefix);
 						} else {
-							DatabaseConnection databaseConnection = configureApplicationConnection(siteApplication,
-									datasource, databasePrefix);
-							save(databaseConnection);
-							databaseConnection.setSite(siteApplication.getSite());
-							siteApplication.setDatabaseConnection(databaseConnection);
-							return MigrationStatus.DB_SUPPORTED;
+							status = MigrationStatus.DB_NOT_AVAILABLE;
+							LOGGER.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
+									rootConnection.getDriverClass());
 						}
 					} else {
-						status = MigrationStatus.DB_NOT_AVAILABLE;
-						LOGGER.info("connection {} is inactive, skipping", rootConnection.toString());
+						DatabaseConnection databaseConnection = configureApplicationConnection(siteApplication,
+								datasource, databasePrefix);
+						save(databaseConnection);
+						databaseConnection.setSite(siteApplication.getSite());
+						siteApplication.setDatabaseConnection(databaseConnection);
+						return MigrationStatus.DB_SUPPORTED;
 					}
+				} else {
+					status = MigrationStatus.DB_NOT_AVAILABLE;
+					LOGGER.info("connection {} is inactive, skipping", rootConnection.toString());
 				}
 			}
 		}
