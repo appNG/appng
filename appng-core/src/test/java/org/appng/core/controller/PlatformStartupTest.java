@@ -83,7 +83,7 @@ public class PlatformStartupTest extends PlatformStartup {
 	}
 
 	@Override
-	protected InitializerService getService(Environment env, ServletContext ctx) {
+	protected InitializerService getService(Environment env) {
 		return initializerService;
 	}
 

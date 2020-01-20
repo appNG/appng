@@ -49,8 +49,7 @@ class PageParameterProcessor {
 	private Set<String> sessionParamNames;
 	private String sessionParamKey;
 
-	PageParameterProcessor(String sessionParamKey, Set<String> sessionParamNames, Environment env, Request request,
-			String page) {
+	PageParameterProcessor(String sessionParamKey, Set<String> sessionParamNames, Environment env, Request request) {
 		this.env = env;
 		this.sessionParamKey = sessionParamKey;
 		this.request = request;

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.cache.Cache;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -60,8 +59,7 @@ public class PageCacheFilterTest {
 		PageCacheFilter pageCacheFilter = new PageCacheFilter() {
 			@Override
 			protected CachedResponse performRequest(final HttpServletRequest request,
-					final HttpServletResponse response, final FilterChain chain, Site site,
-					Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
+					final HttpServletResponse response, final FilterChain chain, Site site, ExpiryPolicy expiryPolicy)
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
 				response.addDateHeader(HttpHeaders.LAST_MODIFIED, lastModifiedSeconds);

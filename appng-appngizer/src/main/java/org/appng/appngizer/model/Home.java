@@ -15,14 +15,12 @@
  */
 package org.appng.appngizer.model;
 
-import org.springframework.web.util.UriComponentsBuilder;
-
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public class Home extends org.appng.appngizer.model.xml.Home implements UriAware {
 
-	public Home(String version, boolean dbInitialized, UriComponentsBuilder builder) {
+	public Home(String version, boolean dbInitialized) {
 		this.version = version;
 		setSelf("/");
 		addLink(new Link("platform", "/platform"));

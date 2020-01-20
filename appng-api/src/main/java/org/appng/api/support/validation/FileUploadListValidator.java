@@ -34,6 +34,7 @@ public class FileUploadListValidator implements ConstraintValidator<FileUpload, 
 
 	private FileUploadValidator fileValidator;
 
+	@Override
 	public void initialize(FileUpload constraintAnnotation) {
 		this.fileValidator = new FileUploadValidator();
 		fileValidator.initialize(constraintAnnotation);

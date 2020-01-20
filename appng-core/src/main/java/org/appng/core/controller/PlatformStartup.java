@@ -109,7 +109,7 @@ public class PlatformStartup implements ServletContextListener {
 			LOGGER.info("Platform connection: {}", platformConnection);
 
 			initPlatformContext(ctx, env, config, platformConnection);
-			InitializerService service = getService(env, ctx);
+			InitializerService service = getService(env);
 			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
 			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
 			executor = Executors.newSingleThreadExecutor(threadFactory);
@@ -145,7 +145,7 @@ public class PlatformStartup implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent sce) {
 		ServletContext ctx = sce.getServletContext();
 		DefaultEnvironment env = DefaultEnvironment.get(ctx);
-		InitializerService initializerService = getService(env, ctx);
+		InitializerService initializerService = getService(env);
 		if (null != initializerService) {
 			initializerService.shutdownPlatform(ctx);
 			ConfigurableApplicationContext platformCtx = env.removeAttribute(Scope.PLATFORM,
@@ -183,7 +183,7 @@ public class PlatformStartup implements ServletContextListener {
 		LOGGER.info(StringUtils.leftPad("", 100, "="));
 	}
 
-	protected InitializerService getService(Environment env, ServletContext ctx) {
+	protected InitializerService getService(Environment env) {
 		ApplicationContext platformCtx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
 		return platformCtx.getBean(InitializerService.class);
 	}

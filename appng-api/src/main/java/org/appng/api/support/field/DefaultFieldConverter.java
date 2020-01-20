@@ -46,6 +46,7 @@ class DefaultFieldConverter extends ConverterBase {
 		this.expressionEvaluator = expressionEvaluator;
 	}
 
+	@Override
 	public void setObject(FieldWrapper field, RequestContainer request) {
 		String value = stripNonPrintableCharacter(request.getParameter(field.getBinding()));
 		Object object = null;

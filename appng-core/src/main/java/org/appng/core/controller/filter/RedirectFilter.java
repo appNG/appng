@@ -87,7 +87,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 		private final Pattern pattern;
 		private final String target;
 
-		RedirectRule(NormalRule rule, String domain) {
+		RedirectRule(NormalRule rule) {
 			if (rule.getFrom().startsWith("^") && rule.getFrom().endsWith("$")) {
 				this.pattern = Pattern.compile(rule.getFrom().substring(1, rule.getFrom().length() - 1));
 			} else {
@@ -123,7 +123,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 					NormalRule normalRule = (NormalRule) rule;
 					if (normalRule.getToType().contains("redirect") && normalRule.getFrom().contains(jspType)
 							&& !FunctionReplacer.containsFunction(normalRule.getTo())) {
-						redirectRules.add(new RedirectRule(normalRule, domain));
+						redirectRules.add(new RedirectRule(normalRule));
 					}
 				}
 			}
@@ -221,7 +221,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 			}
 
 			if (reload) {
-				Path confpath = getConfPath(env, site);
+				Path confpath = getConfPath(site);
 				if (confpath.toFile().exists()) {
 					UrlRewriteConfig conf;
 					try {
@@ -257,7 +257,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 		return platformProperties.getString(Platform.Property.JSP_FILE_TYPE);
 	}
 
-	private static Path getConfPath(Environment env, Site site) {
+	private static Path getConfPath(Site site) {
 		String rootPath = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 		String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
 		return Paths.get(rootPath, rewriteConfig).toAbsolutePath();

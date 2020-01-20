@@ -74,7 +74,7 @@ public class DatabaseService extends MigrationService {
 	protected DatabaseConnectionRepository databaseConnectionRepository;
 
 	private MigrationStatus migrateSchema(DatabaseConnection rootConnection, String dbInfo,
-			SiteApplication siteApplication, Datasource datasource, File sqlFolder, String databasePrefix) {
+			SiteApplication siteApplication, File sqlFolder, String databasePrefix) {
 		Site site = siteApplication.getSite();
 		Application application = siteApplication.getApplication();
 		LOGGER.info("connected to {} ({})", rootConnection.getJdbcUrl(), dbInfo);
@@ -399,8 +399,8 @@ public class DatabaseService extends MigrationService {
 						if (rootConnection.isManaged()) {
 							StringBuilder dbInfo = new StringBuilder();
 							if (rootConnection.testConnection(dbInfo)) {
-								return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, datasource,
-										sqlFolder, databasePrefix);
+								return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, sqlFolder,
+										databasePrefix);
 							} else {
 								status = MigrationStatus.DB_NOT_AVAILABLE;
 								LOGGER.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
