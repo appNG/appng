@@ -207,14 +207,14 @@ public class PropertySupport {
 	 */
 	public void initSiteProperties(SiteImpl site, Properties platformConfig) {
 		bundle = ResourceBundle.getBundle("org/appng/core/site-config");
-		if (null != platformConfig) {
-			String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
-			String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-			addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
-			String regEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
-			String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
-			site.setPasswordPolicy(new DefaultPasswordPolicy(regEx, errorMessageKey));
-		}
+
+		String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
+		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
+		addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
+		String pwdRegEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
+		String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
+		site.setPasswordPolicy(new DefaultPasswordPolicy(pwdRegEx, errorMessageKey));
+
 		addSiteProperty(SiteProperties.NAME, site.getName());
 		addSiteProperty(SiteProperties.HOST, site.getHost());
 		addSiteProperty(SiteProperties.WWW_DIR, "/www");
