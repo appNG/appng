@@ -54,7 +54,7 @@ public class RequestBean implements Request {
 	private File tempDir;
 	private long maxSize;
 	private String method;
-	private static final long MAX_SIZE = 10 * 1024 * 1024;
+	private static final long MAX_SIZE = 10L * 1024 * 1024;
 	private Map<String, List<String>> uploadFileTypes;
 	private boolean sizeStrict;
 	private boolean isValid;

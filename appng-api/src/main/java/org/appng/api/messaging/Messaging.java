@@ -160,6 +160,8 @@ public class Messaging {
 					return sender;
 				} catch (ReflectiveOperationException e) {
 					LOGGER.error("error while initializing messaging", e);
+				} finally {
+					shutdown(env);
 				}
 			}
 		} else {
