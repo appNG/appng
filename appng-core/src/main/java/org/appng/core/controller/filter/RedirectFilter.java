@@ -142,9 +142,10 @@ public class RedirectFilter extends UrlRewriteFilter {
 
 	public static class UrlRewriteConfig extends Conf {
 
-		public UrlRewriteConfig(File file) throws IOException, SAXException, ParserConfigurationException {
-			super(null, new FileInputStream(file), file.getName(), file.toURI().toURL().toString(), false);
-			processConfDoc(parseConfig(file.toURI().toURL()));
+		public UrlRewriteConfig(InputStream is, String fileName, URL systemId)
+				throws IOException, SAXException, ParserConfigurationException {
+			super(null, is, fileName, systemId.toString(), false);
+			processConfDoc(parseConfig(systemId));
 			initialise();
 			getLoadedDate().setTime(System.currentTimeMillis());
 		}
@@ -221,26 +222,25 @@ public class RedirectFilter extends UrlRewriteFilter {
 			}
 
 			if (reload) {
-				Path confpath = getConfPath(site);
-				if (confpath.toFile().exists()) {
-					UrlRewriteConfig conf;
-					try {
-						conf = new UrlRewriteConfig(confpath.toFile());
+				File confFile = getConfFile(site);
+				if (confFile.exists()) {
+					try (FileInputStream is = new FileInputStream(confFile)) {
+						UrlRewriteConfig conf = new UrlRewriteConfig(is, confFile.getName(), confFile.toURI().toURL());
 						checkConf(conf);
 						if (conf.isOk()) {
 							CachedUrlRewriter cachedUrlRewriter = new CachedUrlRewriter(conf, site.getDomain(),
 									jspType);
 							REWRITERS.put(siteName, cachedUrlRewriter);
-							LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, confpath,
+							LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, confFile,
 									conf.getRules().size());
 						} else {
-							LOGGER.warn("invalid config-file for site '{}': {}", siteName, confpath);
+							LOGGER.warn("invalid config-file for site '{}': {}", siteName, confFile);
 						}
 					} catch (IOException | SAXException | ParserConfigurationException e) {
-						LOGGER.error("error processing {}", confpath);
+						LOGGER.error("error processing {}", confFile);
 					}
 				} else {
-					LOGGER.debug("Configuration file does not exist: {}", confpath);
+					LOGGER.debug("Configuration file does not exist: {}", confFile);
 				}
 			}
 			return REWRITERS.get(siteName);
@@ -257,9 +257,9 @@ public class RedirectFilter extends UrlRewriteFilter {
 		return platformProperties.getString(Platform.Property.JSP_FILE_TYPE);
 	}
 
-	private static Path getConfPath(Site site) {
+	private static File getConfFile(Site site) {
 		String rootPath = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 		String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
-		return Paths.get(rootPath, rewriteConfig).toAbsolutePath();
+		return Paths.get(rootPath, rewriteConfig).toAbsolutePath().toFile();
 	}
 }
