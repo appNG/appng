@@ -17,20 +17,29 @@ package org.appng.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 
 import org.apache.commons.lang3.StringUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Provides factory methods to create secure instances of {@link DocumentBuilderFactory} and {@link TransformerFactory}.
  */
+@Slf4j
 public class BuilderFactory {
 
 	public static DocumentBuilderFactory documentBuilderFactory() {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
 		dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
+		try {
+			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		} catch (ParserConfigurationException e) {
+			LOGGER.warn("Failed to set feature " + XMLConstants.FEATURE_SECURE_PROCESSING, e);
+		}
 		return dbf;
 	}
 
