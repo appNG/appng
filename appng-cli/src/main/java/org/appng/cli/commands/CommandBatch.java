@@ -60,8 +60,6 @@ import com.beust.jcommander.Parameters;
 public class CommandBatch implements ExecutableCliCommand {
 
 	private static final char DOUBLE_QUOTE = '"';
-	private static final String EMPTY = "";
-	private static final String SPACE = " ";
 	private static final String COMMENT_PREFIX = "#";
 	private static final String VAR_PREFIX = "$";
 	private static final String VAR_DECLARATION = "def";
@@ -133,14 +131,14 @@ public class CommandBatch implements ExecutableCliCommand {
 			int eqIdx = line.indexOf(VAR_ASSIGNMENT);
 			String name = line.substring(VAR_DECLARATION.length() + 1, eqIdx).trim();
 			String value = line.substring(eqIdx + 1).trim();
-			if (value.indexOf(SPACE) > 0 && value.charAt(0) != DOUBLE_QUOTE) {
+			if (value.contains(StringUtils.SPACE) && value.charAt(0) != DOUBLE_QUOTE) {
 				value = DOUBLE_QUOTE + value + DOUBLE_QUOTE;
 			}
 			variables.put(name, value);
 		} else {
 			args = parse(line).toArray();
 			if (args.length == 0 && StringUtils.isNotBlank(line)) {
-				args = line.split(SPACE);
+				args = line.split(StringUtils.SPACE);
 			}
 		}
 		return args;
@@ -148,7 +146,7 @@ public class CommandBatch implements ExecutableCliCommand {
 
 	protected Line parse(String command) {
 		Line line = new Line();
-		String current = EMPTY;
+		String current = StringUtils.EMPTY;
 
 		for (char c : command.toCharArray()) {
 
@@ -156,14 +154,14 @@ public class CommandBatch implements ExecutableCliCommand {
 
 			case SPACE:
 				line.addToken(current);
-				current = EMPTY;
+				current = StringUtils.EMPTY;
 				break;
 
 			case QUOTE:
 				current += DOUBLE_QUOTE;
 				if (line.hasOpened()) {
 					line.addToken(current);
-					current = EMPTY;
+					current = StringUtils.EMPTY;
 					line.setOpened(false);
 					line.setSkipAdd(true);
 				} else {
@@ -174,7 +172,7 @@ public class CommandBatch implements ExecutableCliCommand {
 			case VARIABLE:
 				if (current.length() > 0) {
 					line.addToken(current);
-					current = EMPTY;
+					current = StringUtils.EMPTY;
 				}
 				line.setAssumeVariable(true);
 				break;
@@ -232,7 +230,7 @@ public class CommandBatch implements ExecutableCliCommand {
 			if (token.length() > 1) {
 				return token.substring(1);
 			} else {
-				return EMPTY;
+				return StringUtils.EMPTY;
 			}
 		}
 

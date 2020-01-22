@@ -394,7 +394,7 @@ public class PropertySupport {
 				if (prefixedName.startsWith(PREFIX_PLATFORM)) {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
-					boolean isMultiline = value.indexOf(StringUtils.LF) > 0;
+					boolean isMultiline = value.contains(StringUtils.LF);
 					propertyHolder.addProperty(name, value, null,
 							isMultiline ? Type.MULTILINE : Type.forObject(value));
 					if (LOGGER.isDebugEnabled()) {

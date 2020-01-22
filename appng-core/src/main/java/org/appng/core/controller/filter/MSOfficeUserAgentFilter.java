@@ -68,7 +68,7 @@ public class MSOfficeUserAgentFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
 		String userAgent = ((HttpServletRequest) request).getHeader(HttpHeaders.USER_AGENT);
-		if (userAgent.indexOf(USER_AGENT_MS_OFFICE) > 0) {
+		if (userAgent.contains(USER_AGENT_MS_OFFICE)) {
 			LOGGER.info("{} was {}, sending meta-refresh", HttpHeaders.USER_AGENT, userAgent);
 			response.getWriter().write(HTML_META_REFRESH);
 			response.setContentType(HttpHeaders.CONTENT_TYPE_TEXT_XML);

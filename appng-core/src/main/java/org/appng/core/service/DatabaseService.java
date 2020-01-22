@@ -227,7 +227,7 @@ public class DatabaseService extends MigrationService {
 		String newPassword = StringUtils.capitalize(databaseName);
 		newPassword = StringUtils.reverse(newPassword);
 		int i = 1;
-		while (newPassword.indexOf(UNDERSCORE) > 0) {
+		while (newPassword.contains(UNDERSCORE)) {
 			newPassword = StringUtils.replaceOnce(newPassword, UNDERSCORE, String.valueOf(i++));
 			newPassword = StringUtils.capitalize(newPassword);
 		}
