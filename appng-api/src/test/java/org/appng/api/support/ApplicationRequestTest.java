@@ -53,7 +53,7 @@ public class ApplicationRequestTest {
 
 		ApplicationPath applicationPath = ar.applicationPath();
 		Map<String, Object> conditionsParams = new HashMap<>(params);
-		conditionsParams.put(ApplicationPath.PATH, applicationPath);
+		conditionsParams.put(ApplicationPath.PATH_VAR, applicationPath);
 		ExpressionEvaluator ee = new ExpressionEvaluator(conditionsParams);
 
 		params.keySet().forEach(k -> Assert.assertTrue(applicationPath.hasParam(k)));

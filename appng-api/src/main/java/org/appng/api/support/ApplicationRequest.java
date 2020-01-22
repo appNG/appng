@@ -400,7 +400,7 @@ public class ApplicationRequest implements Request {
 	 * @since 1.21
 	 */
 	public static class ApplicationPath {
-		public static final String PATH = "PATH";
+		public static final String PATH_VAR = "PATH";
 		final String path;
 		final Map<String, String> variables;
 
