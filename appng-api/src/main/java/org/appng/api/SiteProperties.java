@@ -100,6 +100,7 @@ public class SiteProperties {
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
 	/** @deprecated no more used */
+	@Deprecated
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
 	/** The cache timeouts as a multiline property, key=value */
 	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
