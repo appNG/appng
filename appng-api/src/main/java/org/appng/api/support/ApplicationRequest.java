@@ -393,7 +393,7 @@ public class ApplicationRequest implements Request {
 	 * <li>{@code starts(String... elements)}
 	 * <li>{@code ends(String... elements)}
 	 * <li>{@code contains(String... elements)}
-	 * <li>{@code equals(String... elements)}
+	 * <li>{@code eq(String... elements)}
 	 * <li>{@code hasParam(String... params)}
 	 * </ul>
 	 * 
@@ -434,7 +434,7 @@ public class ApplicationRequest implements Request {
 			return path.contains(getExpected(elements));
 		}
 
-		public boolean equals(String... elements) {
+		public boolean eq(String... elements) {
 			return path.equals(getExpected(elements));
 		}
 

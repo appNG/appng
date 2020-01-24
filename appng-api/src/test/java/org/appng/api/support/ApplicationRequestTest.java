@@ -59,7 +59,8 @@ public class ApplicationRequestTest {
 		params.keySet().forEach(k -> Assert.assertTrue(applicationPath.hasParam(k)));
 		Assert.assertFalse(applicationPath.hasParam("foo"));
 
-		Assert.assertTrue(ee.evaluate("${ PATH.equals('/item', '/update/', id) }"));
+		Assert.assertTrue(ee.evaluate("${ PATH.eq('/item', '/update/', id) }"));
+		Assert.assertTrue(ee.evaluate("${ PATH.eq('/item/update/2') }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.starts('/item', '/update/', id) }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.ends('/item/update/', id) }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.contains('/item', '/update/', id) }"));
