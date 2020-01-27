@@ -388,8 +388,7 @@ public class CoreService {
 		return propertyRepository.save(property);
 	}
 
-	private Subject loginSubject(Site site, String username,Properties platformConfig,
-			String password) {
+	private Subject loginSubject(Site site, String username, String password, Properties platformConfig) {
 		char[] pwdArr = password.toCharArray();
 		LOGGER.debug("user '{}' tries to login", username);
 		Subject loginSubject = null;
@@ -400,7 +399,6 @@ public class CoreService {
 			case LOCAL_USER:
 				precondition = isValidPassword(subject, password);
 				break;
-
 			case GLOBAL_USER:
 				precondition = ldapService.loginUser(site, username, pwdArr);
 				break;
@@ -408,9 +406,7 @@ public class CoreService {
 				break;
 			}
 
-			boolean isVerified = verifySubject(precondition, username, platformConfig,
-					"User '{}' submitted wrong password.");
-			if (isVerified) {
+			if (verifySubject(precondition, username, platformConfig, "User '{}' submitted wrong password.")) {
 				loginSubject = subject;
 			}
 
@@ -607,7 +603,7 @@ public class CoreService {
 	}
 
 	public boolean login(Site site, Environment env, String username, String password) {
-		Subject s = loginSubject(site, username, getPlatformConfig(env), password);
+		Subject s = loginSubject(site, username, password, getPlatformConfig(env));
 		return login(env, s);
 	}
 
