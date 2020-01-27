@@ -1,5 +1,5 @@
 alter table property add prop_type nvarchar(16);
-
+GO
 update property set prop_type='TEXT';
 update property set prop_type='MULTILINE' where len(clobValue) > 0;
 update property set prop_type='BOOLEAN' where lower(defaultValue) in('true','false');
