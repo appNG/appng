@@ -28,7 +28,7 @@ public class SubjectImplTest {
 		SubjectImpl s = new SubjectImpl();
 		Date now = new Date();
 		Assert.assertFalse(s.isLocked(now));
-		s.setLockedAfterDate(now);
+		s.setLockedSince(now);
 		Assert.assertFalse(s.isLocked(now));
 		Assert.assertFalse(s.isLocked(DateUtils.addMinutes(now, -1)));
 
@@ -44,17 +44,17 @@ public class SubjectImplTest {
 
 		s.setLastLogin(now);
 		int inactiveLockPeriod = 10;
-		Assert.assertFalse(s.isInactive(now,inactiveLockPeriod));
+		Assert.assertFalse(s.isInactive(now, inactiveLockPeriod));
 
-		Assert.assertFalse(s.isInactive(now,inactiveLockPeriod));
+		Assert.assertFalse(s.isInactive(now, inactiveLockPeriod));
 
-		Assert.assertFalse(s.isInactive(now,inactiveLockPeriod));
+		Assert.assertFalse(s.isInactive(now, inactiveLockPeriod));
 
 		Date plusTenDays = DateUtils.addDays(now, inactiveLockPeriod);
-		Assert.assertFalse(s.isInactive(plusTenDays,inactiveLockPeriod));
+		Assert.assertFalse(s.isInactive(plusTenDays, inactiveLockPeriod));
 
-		Assert.assertTrue(s.isInactive(DateUtils.addMilliseconds(plusTenDays, 1),inactiveLockPeriod));
-		Assert.assertTrue(s.isInactive(DateUtils.addDays(now, 11),inactiveLockPeriod));
+		Assert.assertTrue(s.isInactive(DateUtils.addMilliseconds(plusTenDays, 1), inactiveLockPeriod));
+		Assert.assertTrue(s.isInactive(DateUtils.addDays(now, 11), inactiveLockPeriod));
 	}
 
 }
