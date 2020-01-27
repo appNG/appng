@@ -101,5 +101,14 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	default Integer getFailedLoginAttempts() {
 		return 0;
 	}
+	
+	/**
+	 * Is the subject allowed to change it's password?
+	 * 
+	 * @return {@code true} if the subject is allowed to change it's password
+	 */
+	default boolean isChangePasswordAllowed() {
+		return true;
+	}
 
 }

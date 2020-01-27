@@ -1235,7 +1235,7 @@ public class CoreService {
 
 	public byte[] resetPassword(AuthSubject authSubject, PasswordPolicy passwordPolicy, String email, String hash) {
 		SubjectImpl subjectByName = getSubjectByName(authSubject.getAuthName(), false);
-		if (null != subjectByName && !subjectByName.isLocked(new Date())) {
+		if (null != subjectByName && subjectByName.isChangePasswordAllowed() && !subjectByName.isLocked(new Date())) {
 			PasswordHandler passwordHandler = getPasswordHandler(authSubject);
 			if (passwordHandler.isValidPasswordResetDigest(hash)) {
 				LOGGER.debug("setting new password for {}", email);
@@ -1255,7 +1255,7 @@ public class CoreService {
 	public String forgotPassword(AuthSubject subject) throws BusinessException {
 		String digest = "invalid";
 		SubjectImpl subjectByName = getSubjectByName(subject.getAuthName(), false);
-		if (null != subjectByName && !subjectByName.isLocked(new Date())) {
+		if (null != subjectByName && subjectByName.isChangePasswordAllowed() && !subjectByName.isLocked(new Date())) {
 			PasswordHandler passwordHandler = getPasswordHandler(subject);
 			digest = passwordHandler.getPasswordResetDigest();
 			passwordHandler.updateSubject(this);
