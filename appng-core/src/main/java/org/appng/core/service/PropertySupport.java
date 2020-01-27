@@ -341,6 +341,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.FORMAT_OUTPUT, false);
 		addPlatformProperty(defaultOverrides, Platform.Property.IMAGE_CACHE_FOLDER, "image");
 		addPlatformProperty(defaultOverrides, Platform.Property.IMAGEMAGICK_PATH, "/usr/bin");
+		addPlatformProperty(defaultOverrides, Platform.Property.INACTIVE_LOCK_PERIOD, 0);
 		addPlatformProperty(defaultOverrides, Platform.Property.JSP_FILE_TYPE, "jsp");
 		addPlatformProperty(defaultOverrides, Platform.Property.LOCALE, "en");
 		addPlatformProperty(defaultOverrides, Platform.Property.LOGFILE, "appNG.log");
@@ -349,6 +350,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.MAIL_PORT, 25);
 		addPlatformProperty(defaultOverrides, Platform.Property.MANAGE_DATABASES, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MAX_UPLOAD_SIZE, 30 * 1024 * 1024);
+		addPlatformProperty(defaultOverrides, Platform.Property.MAX_LOGIN_ATTEMPTS, 20);
 		addPlatformProperty(defaultOverrides, Platform.Property.MDC_ENABLED, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_ENABLED, Boolean.FALSE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_ADDRESS, "224.2.2.4");

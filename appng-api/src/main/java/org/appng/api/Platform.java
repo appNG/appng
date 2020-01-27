@@ -22,6 +22,7 @@ import java.util.TimeZone;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Subject;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -159,6 +160,8 @@ public final class Platform {
 		public static final String IMAGE_CACHE_FOLDER = "cacheImageFolder";
 		/** The path to the ImageMagick executables */
 		public static final String IMAGEMAGICK_PATH = "imageMagickPath";
+		/** The number of days after a {@link Subject} get's locked if the user did not log in. */
+		public static final String  INACTIVE_LOCK_PERIOD = "inactiveLockPeriod";
 		/** The file-extension for JSP-files. */
 		public static final String JSP_FILE_TYPE = "jspFileType";
 		/** The default {@link Locale}. Use one of {@link java.util.Locale#getAvailableLocales()} */
@@ -274,6 +277,9 @@ public final class Platform {
 		 * (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
+
+		/** The maximum number of failed login attempts before a {@link Subject} gets locked. */
+		public static final String MAX_LOGIN_ATTEMPTS = "maxLoginAttempts";
 
 		/** The path to appNG's health monitoring */
 		public static final String MONITORING_PATH = "monitoringPath";
