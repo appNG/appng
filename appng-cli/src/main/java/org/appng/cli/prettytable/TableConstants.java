@@ -28,6 +28,10 @@ public class TableConstants {
 	public static final String USER_NAME = "User name";
 	public static final String REAL_NAME = "Real name";
 	public static final String EMAIL = "E-Mail";
+	public static final String LAST_LOGIN = "Last Login";
+	public static final String LOCKED_SINCE = "Locked Since";
+	public static final String FAILED_LOGIN_ATTEMPTS = "Failed Login Attempts";
+	public static final String CHANGE_PASSWORD_ALLOWED = "Change Password Allowed";
 	public static final String DESCRIPTION = "Description";
 	public static final String LANGUAGE = "Language";
 	public static final String TYPE = "Type";
