@@ -6,6 +6,8 @@
 	<digest>$2a$13$4r/t9xYlTLbrOYZy67My3eE9/QacQgSqRFCgvhbzi7TQAE5AYptpO</digest>
 	<timeZone>Europe/Madrid</timeZone>
 	<language>es</language>
+	<failedLoginAttempts>0</failedLoginAttempts>
+	<changePasswordAllowed>true</changePasswordAllowed>
 	<type>LOCAL_USER</type>
 	<groups />
 </subject>

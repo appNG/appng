@@ -29,6 +29,11 @@ public class Subject extends org.appng.appngizer.model.xml.Subject implements Ur
 		subjectImpl.setDigest(s.getDigest());
 		subjectImpl.setTimeZone(s.getTimeZone());
 		subjectImpl.setLanguage(s.getLanguage());
+		subjectImpl.setLockedSince(Utils.getDate(s.getLockedSince()));
+		if (null != s.isChangePasswordAllowed()) {
+			subjectImpl.setChangePasswordAllowed(s.isChangePasswordAllowed());
+		}
+		subjectImpl.setFailedLoginAttempts(s.getFailedLoginAttempts());
 		subjectImpl.setUserType(org.appng.api.model.UserType.valueOf(s.getType().name()));
 		return subjectImpl;
 	}
@@ -41,7 +46,11 @@ public class Subject extends org.appng.appngizer.model.xml.Subject implements Ur
 		subject.setLanguage(subjectImpl.getLanguage());
 		subject.setEmail(subjectImpl.getEmail());
 		subject.setRealName(subjectImpl.getRealname());
-		if(setDigest){
+		subject.setLastLogin(Utils.getCal(subjectImpl.getLastLogin()));
+		subject.setLockedSince(Utils.getCal(subjectImpl.getLockedSince()));
+		subject.setChangePasswordAllowed(subjectImpl.isChangePasswordAllowed());
+		subject.setFailedLoginAttempts(subjectImpl.getFailedLoginAttempts());
+		if (setDigest) {
 			subject.setDigest(subjectImpl.getDigest());
 		}
 		subject.setType(UserType.valueOf(subjectImpl.getUserType().name()));
