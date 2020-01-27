@@ -152,7 +152,9 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		Authentication authentication = determineActiveAuthentication(applicationSite, authentications,
 				parameterSupport);
 
+		boolean allowChangePassword = false;
 		if (isLoggedIn) {
+			allowChangePassword = currentSubject.isChangePasswordAllowed();
 			String siteName = applicationSite.getName();
 			String sitePath = config.getBaseUrl() + SLASH + siteName + SLASH;
 			String loginPage = sitePath + authentication.getApplication() + SLASH + authentication.getPage();
@@ -169,7 +171,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			navigationBuilder.selectNavigationItem(authentication);
 		}
 
-		navigationBuilder.processNavigation(platform.getNavigation(), parameterSupport);
+		navigationBuilder.processNavigation(platform.getNavigation(), parameterSupport, allowChangePassword);
 
 		ApplicationReference applicationReference = processApplication(applicationSite, config);
 		Content content = new Content();

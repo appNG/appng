@@ -185,6 +185,7 @@ public class CoreService {
 	protected PlatformEventListener auditableListener;
 
 	public Subject createSubject(SubjectImpl subject) {
+		subject.setChangePasswordAllowed(subject.getUserType().equals(UserType.LOCAL_USER));
 		return subjectRepository.save(subject);
 	}
 
@@ -388,7 +389,7 @@ public class CoreService {
 		return propertyRepository.save(property);
 	}
 
-	private Subject loginSubject(Site site, String username, String password, Properties platformConfig) {
+	private Subject loginSubject(Site site, String username, String password, Environment env) {
 		char[] pwdArr = password.toCharArray();
 		LOGGER.debug("user '{}' tries to login", username);
 		Subject loginSubject = null;
@@ -406,7 +407,7 @@ public class CoreService {
 				break;
 			}
 
-			if (verifySubject(precondition, username, platformConfig, "User '{}' submitted wrong password.")) {
+			if (verifySubject(precondition, username, env, "User '{}' submitted wrong password.")) {
 				loginSubject = subject;
 			}
 
@@ -511,7 +512,7 @@ public class CoreService {
 		Subject subject = getSubjectByName(principal.getName(), true);
 		if (null != subject) {
 			if (verifySubject(UserType.GLOBAL_USER.equals(subject.getUserType()), principal.getName(),
-					getPlatformConfig(env), "{} must be a global user!")) {
+					env, "{} must be a global user!")) {
 				LOGGER.info("user {} found", principal.getName());
 				loginSubject = subject;
 			}
@@ -557,7 +558,7 @@ public class CoreService {
 			if (null != s) {
 				boolean success = validator.validate(sharedSecret);
 				sharedSecret = "";
-				success = verifySubject(success, username, getPlatformConfig(env), "Digest validation failed for {}");
+				success = verifySubject(success, username, env, "Digest validation failed for {}");
 				if (success) {
 					return login(env, s);
 				}
@@ -571,17 +572,19 @@ public class CoreService {
 		return false;
 	}
 
-	private boolean verifySubject(boolean precondition, String username, Properties platformConfig, String message) {
+	private boolean verifySubject(boolean precondition, String username, Environment env, String message) {
+		Properties platformConfig = getPlatformConfig(env);
 		SubjectImpl subject = getSubjectByName(username, false);
 		Date now = new Date();
 		if (precondition) {
 			Integer inactiveLockPeriod = platformConfig.getInteger(Platform.Property.INACTIVE_LOCK_PERIOD);
 			if (subject.isLocked(now)) {
-				LOGGER.info("{} is locked since {}", subject.getAuthName(), subject.getLockedSince());
+				createEvent(Type.INFO, "Rejected login for locked user %s (locked since %s).", username,
+						subject.getLockedSince());
 			} else if (subject.isInactive(now, inactiveLockPeriod)) {
-				LOGGER.info("{} has not logged in for more than {} days (last at {}) and is locked now.", username,
-						inactiveLockPeriod, subject.getLastLogin());
 				subject.setLockedSince(now);
+				createEvent(Type.WARN, "User %s has been locked due to inactivity (last login was at %s).", username,
+						subject.getLastLogin());
 			} else {
 				subject.setLastLogin(now);
 				subject.setFailedLoginAttempts(0);
@@ -592,18 +595,20 @@ public class CoreService {
 			Integer maxAttempts = platformConfig.getInteger(Platform.Property.MAX_LOGIN_ATTEMPTS);
 			if (maxAttempts <= subject.getFailedLoginAttempts()) {
 				subject.setLockedSince(now);
-				LOGGER.info("{} has {} (>= {}) failed login attempts and is is locked now.", username,
-						subject.getFailedLoginAttempts(), maxAttempts);
+				createEvent(Type.WARN, "User %s has been locked after %s failed login attempts.", username,
+						subject.getFailedLoginAttempts());
 			} else {
-				LOGGER.debug("{} now has {} failed login attempts.", username, subject.getFailedLoginAttempts());
+				createEvent(Type.INFO, "User %s has %s failed login attempts.", username,
+						subject.getFailedLoginAttempts());
 			}
 			LOGGER.debug(message, username);
 		}
+		env.setAttribute(Scope.REQUEST, "subject.locked", null != subject.getLockedSince());
 		return false;
 	}
 
 	public boolean login(Site site, Environment env, String username, String password) {
-		Subject s = loginSubject(site, username, password, getPlatformConfig(env));
+		Subject s = loginSubject(site, username, password, env);
 		return login(env, s);
 	}
 
@@ -1243,22 +1248,21 @@ public class CoreService {
 				LOGGER.debug("hash did not match, not setting new password for '{}'", authSubject.getAuthName());
 			}
 		} else {
-			LOGGER.debug("{} is locked or dones not exost!", authSubject.getAuthName());
+			LOGGER.debug("{} does not exist, is locked or may not change password!", authSubject.getAuthName());
 		}
 		return null;
 	}
 
 	public String forgotPassword(AuthSubject subject) throws BusinessException {
-		String digest = "invalid";
 		SubjectImpl subjectByName = getSubjectByName(subject.getAuthName(), false);
 		if (null != subjectByName && subjectByName.isChangePasswordAllowed() && !subjectByName.isLocked(new Date())) {
 			PasswordHandler passwordHandler = getPasswordHandler(subject);
-			digest = passwordHandler.getPasswordResetDigest();
+			String digest = passwordHandler.getPasswordResetDigest();
 			passwordHandler.updateSubject(this);
+			return digest;
 		} else {
-			LOGGER.debug("{} is locked or dones not exost!", subject.getAuthName());
+			throw new BusinessException(String.format("%s does not exist, is locked or may not change password!", subject.getAuthName()));
 		}
-		return digest;
 	}
 
 	public void updateSubject(SubjectImpl subject) {
@@ -2095,6 +2099,10 @@ public class CoreService {
 
 	public void createEvent(Type type, String message, HttpSession session) {
 		auditableListener.createEvent(type, message, session);
+	}
+
+	public void createEvent(Type type, String message, Object... args) {
+		auditableListener.createEvent(type,	String.format(message, args));
 	}
 
 	public void setSiteReloadCount(SiteImpl site) {

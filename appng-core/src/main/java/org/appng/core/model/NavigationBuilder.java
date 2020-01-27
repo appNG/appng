@@ -46,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class NavigationBuilder {
 
+	private static final String CHANGE_PASSWORD = "changePassword";
 	private static final String SLASH = "/";
 
 	private PathInfo pathInfo;
@@ -56,11 +57,12 @@ class NavigationBuilder {
 		this.env = environment;
 	}
 
-	void processNavigation(Navigation navigation, ParameterSupport parameterSupport) {
+	void processNavigation(Navigation navigation, ParameterSupport parameterSupport, boolean allowChangePassword) {
 
 		List<NavigationItem> items = navigation.getItem();
 		List<NavigationItem> sites = new ArrayList<>();
 		NavigationItem siteTemplate = null;
+		NavigationItem changePassword = null;
 
 		for (NavigationItem navItem : items) {
 
@@ -75,6 +77,9 @@ class NavigationBuilder {
 			case ANCHOR:
 				replaceProperties(navItem, parameterSupport);
 				processItem(navItem, false);
+				if(CHANGE_PASSWORD.equals(navItem.getActionValue())) {
+					changePassword = navItem;
+				}
 				break;
 
 			// insert site list. Child elements are the site template
@@ -92,6 +97,9 @@ class NavigationBuilder {
 			int siteTemplateIdx = items.indexOf(siteTemplate);
 			items.addAll(siteTemplateIdx, sites);
 			items.remove(siteTemplate);
+		}
+		if (!allowChangePassword && changePassword != null) {
+			items.remove(changePassword);
 		}
 		sort(items);
 		sort(sites);
