@@ -12,6 +12,8 @@
 	<ok>true</ok>
 	<managed>false</managed>
 	<versions>
+		<version version="4.2" state="Success" description="add subject columns" checksum="-197200827"
+			installed="2019-12-11T16:44:55.953+01:00" />
 		<version version="4.1.2" state="Success" description="add property type" checksum="-1851785451"
 			installed="2019-12-11T16:46:29.933+01:00" />
 		<version version="4.1.1" state="Success" description="add site reload count" checksum="1311349447"
