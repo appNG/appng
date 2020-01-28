@@ -112,7 +112,9 @@ public class RestService {
 			eher.setMessageConverters(messageConverters);
 			Collection<Object> advices = context.getBeansWithAnnotation(ControllerAdvice.class).values();
 			Set<Object> mappedHandlers = new HashSet<>(advices);
-			mappedHandlers.add(handlerMethod.getBean());
+			if(null != handlerMethod) {
+				mappedHandlers.add(handlerMethod.getBean());
+			}
 			eher.setMappedHandlers(mappedHandlers);
 			eher.afterPropertiesSet();
 			eher.resolveException(wrapped, servletResponse, handlerMethod, e);

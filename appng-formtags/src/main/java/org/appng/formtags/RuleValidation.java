@@ -132,7 +132,7 @@ public class RuleValidation {
 		Set<String> keySet = formUploads.keySet();
 		for (String key : keySet) {
 			List<FormUpload> list = formUploads.get(key);
-			if (list != null & !list.isEmpty()) {
+			if (list != null && !list.isEmpty()) {
 				fileParams.put(key, list);
 			}
 		}

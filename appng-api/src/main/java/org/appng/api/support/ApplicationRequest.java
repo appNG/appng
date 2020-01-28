@@ -393,14 +393,14 @@ public class ApplicationRequest implements Request {
 	 * <li>{@code starts(String... elements)}
 	 * <li>{@code ends(String... elements)}
 	 * <li>{@code contains(String... elements)}
-	 * <li>{@code equals(String... elements)}
+	 * <li>{@code isEqual(String... elements)}
 	 * <li>{@code hasParam(String... params)}
 	 * </ul>
 	 * 
 	 * @since 1.21
 	 */
 	public static class ApplicationPath {
-		public static final String PATH = "PATH";
+		public static final String PATH_VAR = "PATH";
 		final String path;
 		final Map<String, String> variables;
 
@@ -434,7 +434,7 @@ public class ApplicationRequest implements Request {
 			return path.contains(getExpected(elements));
 		}
 
-		public boolean equals(String... elements) {
+		public boolean isEqual(String... elements) {
 			return path.equals(getExpected(elements));
 		}
 

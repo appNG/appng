@@ -226,7 +226,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 			org.appng.xml.platform.Platform platform = processor.processPlatform(executingSite);
 
 			String requestURI = servletRequest.getRequestURI();
-			String baseUrl = getBaseUrl(executingSite, defaultBaseUrl, urlParameters, jspExtension, repositoryPath,
+			String baseUrl = getBaseUrl(defaultBaseUrl, urlParameters, jspExtension, repositoryPath,
 					requestURI);
 
 			String location = servletResponse.getHeader(HttpHeaders.LOCATION);
@@ -243,7 +243,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 				}
 
 			} else if (null != location) {
-				String redirectTarget = normalizeUrl(executingSite, jspExtension, location, baseUrl);
+				String redirectTarget = normalizeUrl(executingSite, location, baseUrl);
 				state = doRedirect(servletResponse, location, redirectTarget);
 			} else {
 				String result = "";
@@ -289,7 +289,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 		return SKIP_PAGE;
 	}
 
-	protected String getBaseUrl(SiteImpl executingSite, String defaultBaseUrl, List<String> urlParameters,
+	protected String getBaseUrl(String defaultBaseUrl, List<String> urlParameters,
 			String jspExtension, String repositoryPath, String requestURI) {
 		String urlParams = StringUtils.join(urlParameters, "/");
 		LOGGER.info("requestURI: {}", requestURI);
@@ -331,7 +331,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 				guiPath, servicePath, blobDirectories, documentDirectories, repoPath, extension);
 	}
 
-	protected String normalizeUrl(Site executingSite, String jspExtension, String location, String baseUrl) {
+	protected String normalizeUrl(Site executingSite, String location, String baseUrl) {
 		String managerPath = executingSite.getProperties().getString(SiteProperties.MANAGER_PATH);
 		String siteName = executingSite.getName();
 		String managerUrl = managerPath + "/" + siteName + "/" + application;

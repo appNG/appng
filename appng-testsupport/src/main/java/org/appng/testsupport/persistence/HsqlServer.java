@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.Server;
 
@@ -28,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
  * TODO insert description
  * 
  * @author mueller.matthias, aiticon GmbH, 2011
- * 
  */
 @Slf4j
 public class HsqlServer {
@@ -37,7 +37,7 @@ public class HsqlServer {
 
 	private static final String HSQL_TESTDB = "hsql-testdb";
 
-	private static volatile int startCount = 0;
+	private static final AtomicInteger START_COUNT = new AtomicInteger(0);
 
 	public static void main(String[] args) {
 		HsqlServer.start(DEFAULT_PORT);
@@ -71,15 +71,15 @@ public class HsqlServer {
 	}
 
 	public static void start(String dbName, String folder, int port) {
-		if (startCount == 0) {
-			LOGGER.debug("############# ({}) starting HsqlServer", startCount);
+		if (START_COUNT.get() == 0) {
+			LOGGER.debug("############# ({}) starting HsqlServer", START_COUNT.get());
 			String[] params = new String[] { "-database.0", "file:target/hsql/" + folder + "/", "-dbname.0", dbName,
 					"-no_system_exit", "true", "-port", String.valueOf(port) };
 			Server.main(params);
 		} else {
-			LOGGER.debug("############# ({}) HsqlServer already started", startCount);
+			LOGGER.debug("############# ({}) HsqlServer already started", START_COUNT.get());
 		}
-		startCount++;
+		START_COUNT.incrementAndGet();
 	}
 
 	public static void stop(int port) {
@@ -87,20 +87,18 @@ public class HsqlServer {
 	}
 
 	public static void stop(String dbName, int port) {
-		startCount--;
-		if (0 == startCount) {
-			LOGGER.debug("############# ({}) shutting down HsqlServer", startCount);
+		if (0 == START_COUNT.decrementAndGet()) {
+			LOGGER.debug("############# ({}) shutting down HsqlServer", START_COUNT.get());
 			shutdown(dbName, port);
 		} else {
-			LOGGER.debug("############# ({}) not shutting down HsqlServer", startCount);
+			LOGGER.debug("############# ({}) not shutting down HsqlServer", START_COUNT.get());
 		}
 	}
 
 	private static void shutdown(String dbName, int port) {
 		String jdbcUrl = "jdbc:hsqldb:hsql://localhost:" + port + "/" + dbName;
 		try {
-			try (
-					Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+			try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
 					Statement createStatement = connection.createStatement()) {
 				createStatement.execute("SHUTDOWN");
 			}

@@ -60,7 +60,7 @@ public class MessageSourceChain implements MessageSource {
 				ex = nsme;
 			}
 		}
-		if (null == message) {
+		if (null == message && null != ex) {
 			throw ex;
 		}
 		return message;
@@ -77,7 +77,7 @@ public class MessageSourceChain implements MessageSource {
 				ex = nsme;
 			}
 		}
-		if (null == message) {
+		if (null == message && null != ex) {
 			throw ex;
 		}
 		return message;

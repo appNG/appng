@@ -176,7 +176,7 @@ public class CallableAction {
 				this.include = true;
 			} else {
 				Map<String, Object> conditionParams = new HashMap<>(applicationRequest.getParameters());
-				conditionParams.put(ApplicationPath.PATH, applicationRequest.applicationPath());
+				conditionParams.put(ApplicationPath.PATH_VAR, applicationRequest.applicationPath());
 				ExpressionEvaluator conditionEvaluator = new ExpressionEvaluator(conditionParams);
 				this.include = elementHelper.conditionMatches(conditionEvaluator, includeCondition);
 			}

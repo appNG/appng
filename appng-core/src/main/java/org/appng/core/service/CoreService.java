@@ -380,7 +380,7 @@ public class CoreService {
 				applicationRepository.detach((ApplicationImpl) application);
 			}
 			siteRepository.detach((SiteImpl) site);
-			initSiteProperties((SiteImpl) site, null, true);
+			initSiteProperties((SiteImpl) site, true);
 		}
 	}
 
@@ -638,7 +638,7 @@ public class CoreService {
 			}
 		}
 
-		initSiteProperties(site, env, true);
+		initSiteProperties(site, true);
 		siteRepository.save(site);
 	}
 
@@ -653,14 +653,10 @@ public class CoreService {
 	}
 
 	protected void initSiteProperties(SiteImpl site) {
-		initSiteProperties(site, null);
+		initSiteProperties(site, false);
 	}
 
-	protected void initSiteProperties(SiteImpl site, Environment environment) {
-		initSiteProperties(site, environment, false);
-	}
-
-	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
+	protected void initSiteProperties(SiteImpl site, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
 		List<String> platformProps = PropertySupport.getSiteRelevantPlatformProps();
 		SearchQuery<PropertyImpl> query = propertyRepository.createSearchQuery().in("name", platformProps);
@@ -1742,6 +1738,7 @@ public class CoreService {
 							Thread.sleep(waitTime);
 							waited += waitTime;
 						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
 							LOGGER.error("error while waiting for site to finish its requests", e);
 						}
 						LOGGER.info("waiting for {} requests to finish before shutting down site {}", requests,

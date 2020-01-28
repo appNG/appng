@@ -24,14 +24,13 @@ import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.net.URL;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.appng.xml.BuilderFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,10 +104,8 @@ public class Transformer {
 		}
 		styleSheetProvider.setName("transformer");
 		styleSheetProvider.setInsertBefore("xsl:variables");
-		styleSheetProvider.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-		TransformerFactory tf = TransformerFactory.newInstance();
-		tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		styleSheetProvider.setTransformerFactory(tf);
+		styleSheetProvider.setDocumentBuilderFactory(BuilderFactory.documentBuilderFactory());
+		styleSheetProvider.setTransformerFactory(BuilderFactory.transformerFactory());
 		styleSheetProvider.init();
 
 		outputFile.getParentFile().mkdirs();

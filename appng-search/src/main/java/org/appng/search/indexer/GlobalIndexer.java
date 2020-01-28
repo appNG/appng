@@ -83,8 +83,12 @@ public class GlobalIndexer {
 		try {
 			Iterable<DocumentProducer> documentProducers = documentProvider.getDocumentProducers(site, application);
 			return putWithTimeout(documentProducers, timeout);
-		} catch (InterruptedException | TimeoutException e) {
-			LOGGER.error(String.format("error while processing %s", documentProvider.getClass().getName()), e);
+		} catch (TimeoutException e) {
+			LOGGER.error(String.format("Timeout while processing %s", documentProvider.getClass().getName()), e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			LOGGER.error(String.format("Thread interrupted while processing %s", documentProvider.getClass().getName()),
+					e);
 		}
 		return 0;
 	}
@@ -96,8 +100,12 @@ public class GlobalIndexer {
 				try {
 					indexer.putWithTimeout(producer, timeout);
 					count++;
-				} catch (InterruptedException | TimeoutException e) {
-					LOGGER.error(String.format("error processing %s", producer), e);
+				} catch (TimeoutException e) {
+					LOGGER.error(String.format("Timeout while processing %s", producer.getClass().getName()), e);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					LOGGER.error(String.format("Thread interrupted while processing %s", producer.getClass().getName()),
+							e);
 				}
 			}
 		}

@@ -585,7 +585,7 @@ public class SearchQuery<T> {
 
 		List<T> content = query.getResultList();
 		if (null == total) {
-			total = new Integer(content.size()).longValue();
+			total = (long) content.size();
 		}
 
 		return new PageImpl<T>(content, pageable, total);

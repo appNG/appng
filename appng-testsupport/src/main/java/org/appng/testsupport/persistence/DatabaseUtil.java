@@ -59,7 +59,6 @@ public class DatabaseUtil {
 	private final FlatXmlDataSetBuilder XML_BUILDER = new FlatXmlDataSetBuilder();
 	private IDatabaseConnection connection;
 	private Connection jdbcConnection;
-	private final String SCHEMA = null;
 
 	private static volatile boolean imported = false;
 
@@ -256,7 +255,7 @@ public class DatabaseUtil {
 			for (int i = connectionInfo.getTableNames().size(); i > 0; i--) {
 				String table = connectionInfo.getTableNames().get(i - 1);
 				try (Statement statement = jdbcConnection.createStatement()) {
-					String stmt = "delete from " + ((null != SCHEMA) ? SCHEMA + "." : "") + table;
+					String stmt = "delete from " + table;
 					int rows = statement.executeUpdate(stmt);
 					LOGGER.debug(".....clearing {} ({} rows deleted)", table, rows);
 				}

@@ -29,7 +29,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
@@ -47,6 +46,7 @@ import org.appng.api.rest.model.Permission;
 import org.appng.api.rest.model.Permission.ModeEnum;
 import org.appng.api.rest.model.User;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.xml.BuilderFactory;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
@@ -93,7 +93,7 @@ abstract class RestOperation {
 		this.messageSource = messageSource;
 		this.supportPathParameters = supportPathParameters;
 		this.marshallService = MarshallService.getMarshallService();
-		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
+		marshallService.setDocumentBuilderFactory(BuilderFactory.documentBuilderFactory());
 	}
 
 	protected User getUser(Environment environment) {
@@ -245,15 +245,15 @@ abstract class RestOperation {
 			return null;
 		}
 
-		boolean isDecimal = fieldType.equals(org.appng.xml.platform.FieldType.DECIMAL);
+		boolean isDecimal = org.appng.xml.platform.FieldType.DECIMAL.equals(fieldType);
 		String value = data.getValue();
 		if (userInput.size() > 0) {
 			value = userInput.get(0);
 			getLogger().debug("Value '{}' for field '{}' was provided by user", value, field.getBinding());
 		}
 
-		if (isDecimal || fieldType.equals(org.appng.xml.platform.FieldType.LONG)
-				|| fieldType.equals(org.appng.xml.platform.FieldType.INT)) {
+		if (isDecimal || org.appng.xml.platform.FieldType.LONG.equals(fieldType)
+				|| org.appng.xml.platform.FieldType.INT.equals(fieldType)) {
 			String format = field.getFormat();
 			if (StringUtils.isNotBlank(value)) {
 				try {
@@ -265,8 +265,8 @@ abstract class RestOperation {
 				}
 			}
 			return null;
-		} else if (fieldType.equals(org.appng.xml.platform.FieldType.CHECKBOX)
-				|| (null != type && ("boolean".equals(type.getName()) || Boolean.class.equals(type)))) {
+		} else if (org.appng.xml.platform.FieldType.CHECKBOX.equals(fieldType) || boolean.class.equals(type)
+				|| Boolean.class.equals(type)) {
 			return Boolean.valueOf(value);
 		}
 

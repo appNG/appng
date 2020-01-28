@@ -347,6 +347,7 @@ public class InitializerService {
 						try {
 							key = watcher.take();
 						} catch (InterruptedException x) {
+							Thread.currentThread().interrupt();
 							return;
 						}
 						for (WatchEvent<?> event : key.pollEvents()) {
@@ -421,6 +422,7 @@ public class InitializerService {
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
+	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
 		loadSite(env, siteToLoad, true, fp);

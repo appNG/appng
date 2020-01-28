@@ -43,11 +43,13 @@ public class DummyPermissionProcessor extends DefaultPermissionProcessor {
 				site.getName(), application.getName());
 	}
 
+	@Override
 	public boolean hasPermissions(PermissionOwner permissionOwner) {
 		LOGGER.debug("granting permission for {}", permissionOwner.getName());
 		return true;
 	}
 
+	@Override
 	public boolean hasPermission(String reference) {
 		LOGGER.debug("granting permission {}", reference);
 		return true;

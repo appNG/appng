@@ -81,6 +81,7 @@ public class FormConfirmation extends BodyTagSupport implements ParameterOwner {
 			if (!getForm().getWrappedForm().isSubmitted() || getForm().getWrappedForm().hasErrors()) {
 				return SKIP_BODY;
 			}
+			break;
 		default:
 			break;
 		}

@@ -239,7 +239,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		final String key = calculateKey(request);
 		CachedResponse cachedResponse = cache.get(key);
 		if (cachedResponse == null) {
-			cachedResponse = performRequest(request, response, chain, site, cache, expiryPolicy);
+			cachedResponse = performRequest(request, response, chain, site, expiryPolicy);
 			int size = cachedResponse.getContentLength();
 			if (cachedResponse.isOk()) {
 				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
@@ -267,7 +267,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected CachedResponse performRequest(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
+			final FilterChain chain, Site site, ExpiryPolicy expiryPolicy)
 			throws IOException, ServletException {
 		final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
 		final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, outstr);

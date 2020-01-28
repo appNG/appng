@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.appng.core.domain.SubjectImpl;
 
-public class PasswordHandlerTest {
+abstract class PasswordHandlerTest {
 
 	protected static final String PASSWORD = "myVeryStrongPassword";
 	protected static final String EMAIL = "info@appng.org";

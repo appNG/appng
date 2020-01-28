@@ -21,6 +21,7 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 
 import org.appng.api.support.environment.EnvironmentFactoryBean;
@@ -40,6 +41,7 @@ import org.appng.core.service.InitializerService;
 import org.appng.core.service.LdapService;
 import org.appng.core.service.TemplateService;
 import org.appng.persistence.repository.SearchRepositoryImpl;
+import org.appng.xml.BuilderFactory;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.transformation.StyleSheetProvider;
@@ -137,14 +139,14 @@ public class PlatformConfig {
 
 	@Bean
 	public DocumentBuilderFactory documentBuilderFactory() {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = BuilderFactory.documentBuilderFactory();
 		dbf.setNamespaceAware(true);
 		return dbf;
 	}
 
 	@Bean
-	public TransformerFactory transformerFactory() {
-		return TransformerFactory.newInstance();
+	public TransformerFactory transformerFactory() throws TransformerConfigurationException {
+		return BuilderFactory.transformerFactory();
 	}
 
 	@Bean(initMethod = "init")

@@ -258,7 +258,7 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 	}
 
 	@Transient
-	public ConfigurableApplicationContext getContext() {
+	public synchronized ConfigurableApplicationContext getContext() {
 		return context;
 	}
 

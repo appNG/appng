@@ -83,7 +83,7 @@ public class HashPassword implements ExecutableCliCommand {
 		try (BufferedReader console = new BufferedReader(new InputStreamReader(System.in));) {
 			try {
 				CliEnvironment.out.println("Hashes a password. Type CTRL + C to quit.");
-				while (true) {
+				while (!Thread.currentThread().isInterrupted()) {
 					try {
 						CliEnvironment.out.print("password: ");
 						String commandLine = console.readLine();

@@ -135,7 +135,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	@Override
 	protected void doPut(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws ServletException, IOException {
-		if (isServiceRequest(servletRequest, servletResponse)) {
+		if (isServiceRequest(servletRequest)) {
 			doGet(servletRequest, servletResponse);
 		} else {
 			LOGGER.debug("PUT not allowed for {}", servletRequest.getServletPath());
@@ -146,7 +146,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	@Override
 	protected void doDelete(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws ServletException, IOException {
-		if (isServiceRequest(servletRequest, servletResponse)) {
+		if (isServiceRequest(servletRequest)) {
 			doGet(servletRequest, servletResponse);
 		} else {
 			LOGGER.debug("DELETE not allowed for {}", servletRequest.getServletPath());
@@ -154,7 +154,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		}
 	}
 
-	private boolean isServiceRequest(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+	private boolean isServiceRequest(HttpServletRequest servletRequest) {
 		Environment env = DefaultEnvironment.get(getServletContext());
 		Site site = RequestUtil.getSiteByHost(env, RequestUtil.getHostIdentifier(servletRequest, env));
 		return RequestUtil.getPathInfo(env, site, servletRequest.getServletPath()).isService();

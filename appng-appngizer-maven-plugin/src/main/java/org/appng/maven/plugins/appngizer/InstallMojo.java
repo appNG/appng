@@ -111,8 +111,11 @@ public class InstallMojo extends AppNGizerMojo {
 				getLog().error("error uploading package , return code was " + uploaded.getStatusCode());
 			}
 
-		} catch (URISyntaxException | InterruptedException | ExecutionException e) {
+		} catch (URISyntaxException | ExecutionException e) {
 			throw new MojoExecutionException("error during upload", e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new MojoExecutionException("upload was interrupted", e);
 		}
 
 	}

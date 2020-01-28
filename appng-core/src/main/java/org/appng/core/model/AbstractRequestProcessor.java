@@ -149,8 +149,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		}
 		DollarParameterSupport parameterSupport = new DollarParameterSupport(sitePropertyMap);
 		parameterSupport.allowDotInName();
-		Authentication authentication = determineActiveAuthentication(applicationSite, authentications,
-				parameterSupport);
+		Authentication authentication = determineActiveAuthentication(applicationSite, authentications);
 
 		if (isLoggedIn) {
 			String siteName = applicationSite.getName();
@@ -179,8 +178,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		return platform;
 	}
 
-	protected Authentication determineActiveAuthentication(Site site, Authentications authentications,
-			DollarParameterSupport parameterSupport) {
+	protected Authentication determineActiveAuthentication(Site site, Authentications authentications) {
 		String applicationName = pathInfo.getApplicationName();
 		String page = pathInfo.getPage();
 		Authentication defaultAuthentication = null;
@@ -381,12 +379,11 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			}
 		}
 		if (null == outputType) {
-			if (outputFormat.getOutputType().isEmpty()) {
-				if (null != defaultFormat && !defaultFormat.equals(outputFormat)) {
-					logger().debug("no types defined for format {}, switching to default format {}",
-							outputFormat.getId(), defaultFormat.getId());
-					outputFormat = defaultFormat;
-				}
+			if (outputFormat.getOutputType().isEmpty() && null != defaultFormat
+					&& !defaultFormat.equals(outputFormat)) {
+				logger().debug("no types defined for format {}, switching to default format {}", outputFormat.getId(),
+						defaultFormat.getId());
+				outputFormat = defaultFormat;
 			}
 			for (OutputType outputType : outputFormat.getOutputType()) {
 				if (Boolean.TRUE.equals(outputType.isDefault())) {
