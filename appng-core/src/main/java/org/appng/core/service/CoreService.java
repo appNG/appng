@@ -185,7 +185,11 @@ public class CoreService {
 	protected PlatformEventListener auditableListener;
 
 	public Subject createSubject(SubjectImpl subject) {
-		subject.setChangePasswordAllowed(subject.getUserType().equals(UserType.LOCAL_USER));
+		boolean changePasswordAllowed = UserType.LOCAL_USER.equals(subject.getUserType());
+		subject.setChangePasswordAllowed(changePasswordAllowed);
+		if(changePasswordAllowed) {
+			subject.setPasswordLastChanged(new Date());
+		}
 		return subjectRepository.save(subject);
 	}
 
