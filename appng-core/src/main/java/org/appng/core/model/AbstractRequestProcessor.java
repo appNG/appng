@@ -170,7 +170,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 				editProfile.setActionName(siteProperties.getString(SiteProperties.AUTH_LOGOUT_ACTION_NAME));
 				editProfile.setActionValue(editProfileAction);
 				editProfile.setRef(editProfile.getPage() + "/" + editProfile.getActionValue());
-				editProfile.setLabel("Edit Profile");
+				editProfile.setLabel("user.edit");
 				editProfile.setIcon(new Icon());
 				editProfile.getIcon().setContent("edit");
 				platform.getNavigation().getItem().add(editProfile);
