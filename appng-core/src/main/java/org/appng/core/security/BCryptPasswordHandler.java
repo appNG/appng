@@ -15,6 +15,8 @@
  */
 package org.appng.core.security;
 
+import java.util.Date;
+
 import org.appng.api.BusinessException;
 import org.appng.api.model.AuthSubject;
 import org.appng.core.domain.SubjectImpl;
@@ -53,6 +55,7 @@ public class BCryptPasswordHandler implements PasswordHandler {
 		String hashed = BCrypt.hashpw(password, BCrypt.gensalt(LOG_ROUNDS));
 		authSubject.setDigest(hashed);
 		authSubject.setSalt(null);
+		((SubjectImpl) authSubject).setPasswordLastChanged(new Date());
 	}
 
 	public boolean isValidPassword(String password) {

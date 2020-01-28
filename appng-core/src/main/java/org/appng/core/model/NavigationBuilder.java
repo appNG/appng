@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class NavigationBuilder {
 
-	private static final String CHANGE_PASSWORD = "changePassword";
+	static final String CHANGE_PASSWORD = "changePassword";
 	private static final String SLASH = "/";
 
 	private PathInfo pathInfo;
@@ -62,7 +63,6 @@ class NavigationBuilder {
 		List<NavigationItem> items = navigation.getItem();
 		List<NavigationItem> sites = new ArrayList<>();
 		NavigationItem siteTemplate = null;
-		NavigationItem changePassword = null;
 
 		for (NavigationItem navItem : items) {
 
@@ -77,9 +77,6 @@ class NavigationBuilder {
 			case ANCHOR:
 				replaceProperties(navItem, parameterSupport);
 				processItem(navItem, false);
-				if(CHANGE_PASSWORD.equals(navItem.getActionValue())) {
-					changePassword = navItem;
-				}
 				break;
 
 			// insert site list. Child elements are the site template
@@ -98,8 +95,9 @@ class NavigationBuilder {
 			items.addAll(siteTemplateIdx, sites);
 			items.remove(siteTemplate);
 		}
-		if (!allowChangePassword && changePassword != null) {
-			items.remove(changePassword);
+		Optional<NavigationItem> changePassword = getNavItem(navigation, CHANGE_PASSWORD);
+		if (!allowChangePassword && changePassword.isPresent()) {
+			items.remove(changePassword.get());
 		}
 		sort(items);
 		sort(sites);
@@ -280,6 +278,11 @@ class NavigationBuilder {
 		}
 
 		return newItem;
+	}
+
+	public Optional<NavigationItem> getNavItem(Navigation navigation, String actionValue) {
+		return navigation.getItem().stream()
+				.filter(i -> i.getType().equals(ItemType.ANCHOR) && i.getActionValue().equals(actionValue)).findAny();
 	}
 
 }
