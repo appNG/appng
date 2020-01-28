@@ -15,6 +15,7 @@
  */
 package org.appng.cli.commands.subject;
 
+import org.appng.api.model.UserType;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.cli.prettytable.PrettyTable;
@@ -32,6 +33,7 @@ public class CommandListSubjectTest extends AbstractCommandTest {
 		subject.setEmail("ad@min.com");
 		subject.setLanguage("de");
 		subject.setDescription("an admin");
+		subject.setUserType(UserType.LOCAL_USER);
 		cliEnv.getCoreService().createSubject(subject);
 		command = new ListSubjects();
 		return command;
