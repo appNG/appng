@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
@@ -418,18 +419,11 @@ public class CoreService {
 		} else {
 			List<SubjectImpl> globalGroups = getSubjectsByType(UserType.GLOBAL_GROUP);
 			if (!globalGroups.isEmpty()) {
-				List<String> groupNames = new ArrayList<>();
-				for (SubjectImpl subjectImpl : globalGroups) {
-					groupNames.add(subjectImpl.getName());
-				}
+				List<String> groupNames = globalGroups.stream().map(SubjectImpl::getName).collect(Collectors.toList());
 				SubjectImpl groupSubject = new SubjectImpl();
 				List<String> subjectNames = ldapService.loginGroup(site, username, pwdArr, groupSubject, groupNames);
 				if (!subjectNames.isEmpty()) {
-					for (String subjectName : subjectNames) {
-						Subject s = getSubjectByName(subjectName, true);
-						List<Group> groups = s.getGroups();
-						groupSubject.getGroups().addAll(groups);
-					}
+					subjectNames.forEach(n -> groupSubject.getGroups().addAll(getSubjectByName(n, true).getGroups()));
 					loginSubject = groupSubject;
 				}
 			} else {
