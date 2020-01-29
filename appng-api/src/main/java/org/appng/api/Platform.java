@@ -154,6 +154,8 @@ public final class Platform {
 		public static final String ENCODING = "encoding";
 		/** Set to 'true' if applications should be deployed to the local filesystem, 'false' otherwise. */
 		public static final String FILEBASED_DEPLOYMENT = "filebasedDeployment";
+		/** Should users be forced to change their password if it hasn't changed for more than {@link #PASSWORD_MAX_VALIDITY} days? */
+		public static final String FORCE_CHANGE_PASSWORD = "forceChangePassword";
 		/** Disable for production use. If enabled, debugging is easier, but Textarea values are formatted wrong. */
 		public static final String FORMAT_OUTPUT = "formatOutput";
 		/** The folder used for caching images, within the {@link #APPLICATION_CACHE_FOLDER} */
@@ -193,6 +195,8 @@ public final class Platform {
 		public static final String MAX_UPLOAD_SIZE = "maxUploadSize";
 		/** Set to true to enable performance monitoring for the target XML */
 		public static final String MONITOR_PERFORMANCE = "monitorPerformance";
+		/** The maximum number of days a password is valid, where -1 means forever */
+		public static final String PASSWORD_MAX_VALIDITY ="passwordMaxValidity";
 		/**
 		 * The resource-bundle key (for messages-core) for the message which is being displayed when the password does
 		 * not match the policy.

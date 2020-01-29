@@ -70,6 +70,7 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Returns a date after that the subject is locked, if any.
 	 * 
 	 * @return the date, or {@code null}
+	 * @since  1.21
 	 */
 	default Date getLockedSince() {
 		return null;
@@ -79,6 +80,7 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Returns the date of the last login, if any.
 	 * 
 	 * @return the date.
+	 * @since  1.21
 	 */
 	default Date getLastLogin() {
 		return null;
@@ -88,6 +90,7 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Returns the date when the password was last changed. Default to the creation date of the subject.
 	 * 
 	 * @return the date.
+	 * @since  1.21
 	 */
 	default Date getPasswordLastChanged() {
 		return null;
@@ -97,18 +100,15 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Returns the number of failed login attempts for this subject.
 	 * 
 	 * @return the number of failed login attempts
+	 * @since  1.21
 	 */
 	default Integer getFailedLoginAttempts() {
 		return 0;
 	}
-	
-	/**
-	 * Is the subject allowed to change it's password?
-	 * 
-	 * @return {@code true} if the subject is allowed to change it's password
-	 */
-	default boolean isChangePasswordAllowed() {
-		return true;
+
+	@Override
+	default PasswordChangePolicy getPasswordChangePolicy() {
+		return PasswordChangePolicy.MAY;
 	}
 
 }

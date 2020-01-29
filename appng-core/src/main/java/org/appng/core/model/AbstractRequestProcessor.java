@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.text.StringEscapeUtils;
 import org.appng.api.Environment;
@@ -47,6 +46,7 @@ import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
+import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.ApplicationRequest;
@@ -161,8 +161,9 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 			String editProfileAction = siteProperties.getString("authEditProfileActionName", "editProfile");
 			Optional<NavigationItem> editProfileItem = navigationBuilder.getNavItem(platform.getNavigation(),
 					editProfileAction);
+			NavigationItem editProfile = null;
 			if (!editProfileItem.isPresent() && siteProperties.getBoolean("editProfileEnabled", false)) {
-				NavigationItem editProfile = new NavigationItem();
+				editProfile = new NavigationItem();
 				editProfile.setType(ItemType.ANCHOR);
 				editProfile.setSite(applicationSite.getName());
 				editProfile.setApplication(siteProperties.getString(SiteProperties.AUTH_APPLICATION));
@@ -176,8 +177,11 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 				platform.getNavigation().getItem().add(editProfile);
 			}
 
+			PasswordChangePolicy passwordChangePolicy = subject.getPasswordChangePolicy();
+			boolean mustChangePassword = passwordChangePolicy.equals(PasswordChangePolicy.MUST);
+			boolean mayChangePassword = passwordChangePolicy.equals(PasswordChangePolicy.MAY);
 			navigationBuilder.processNavigation(platform.getNavigation(), parameterSupport,
-					subject.isChangePasswordAllowed());
+					mustChangePassword || mayChangePassword);
 
 			String siteName = applicationSite.getName();
 			String sitePath = config.getBaseUrl() + SLASH + siteName + SLASH;
@@ -190,29 +194,30 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 				return null;
 			}
 
-			if (subject.isChangePasswordAllowed() && siteProperties.getBoolean("forceChangePasswordEnabled", false)) {
-				Properties platformConfig = env.getAttribute(Scope.PLATFORM,
-						org.appng.api.Platform.Environment.PLATFORM_CONFIG);
-				Integer maxPasswordValidity = platformConfig.getInteger("maxPasswordValidity", -1);
-				Date pwExpiredAt = DateUtils.addDays(subject.getPasswordLastChanged(), maxPasswordValidity);
-				boolean isPasswordExpired = pwExpiredAt.before(new Date());
-				if (maxPasswordValidity > 0 && isPasswordExpired) {
-					Optional<NavigationItem> changePassword = navigationBuilder.getNavItem(platform.getNavigation(),
-							NavigationBuilder.CHANGE_PASSWORD);
-					Optional<NavigationItem> logoutItem = navigationBuilder.getNavItem(platform.getNavigation(),
-							siteProperties.getString(SiteProperties.AUTH_LOGOUT_ACTION_VALUE));
-					String logoutUrl = config.getBaseUrl() + SLASH + logoutItem.get().getRef();
-					boolean isLogout = logoutItem.isPresent() && config.getCurrentUrl().startsWith(logoutUrl);
-					if (changePassword.isPresent() && !isLogout) {
-						navigationBuilder.selectNavigationItem(changePassword.get());
-						String changePwUrl = config.getBaseUrl() + SLASH + changePassword.get().getRef();
-						if (!config.getCurrentUrl().startsWith(changePwUrl)) {
-							logger().debug("{} must change password (last changed: {}, expired: {})",
-									subject.getAuthName(), subject.getPasswordLastChanged(), pwExpiredAt);
-							applicationSite.sendRedirect(env, changePwUrl, HttpStatus.FOUND.value());
-							setRedirect(true);
-							return null;
-						}
+			Properties platformConfig = env.getAttribute(Scope.PLATFORM,
+					org.appng.api.Platform.Environment.PLATFORM_CONFIG);
+			Boolean forceChangePassword = platformConfig
+					.getBoolean(org.appng.api.Platform.Property.FORCE_CHANGE_PASSWORD, false);
+
+			if (mustChangePassword && forceChangePassword) {
+				Optional<NavigationItem> changePassword = navigationBuilder.getNavItem(platform.getNavigation(),
+						NavigationBuilder.CHANGE_PASSWORD);
+				Optional<NavigationItem> logoutItem = navigationBuilder.getNavItem(platform.getNavigation(),
+						siteProperties.getString(SiteProperties.AUTH_LOGOUT_ACTION_VALUE));
+				String logoutUrl = config.getBaseUrl() + SLASH + logoutItem.get().getRef();
+				boolean isLogout = logoutItem.isPresent() && config.getCurrentUrl().startsWith(logoutUrl);
+				if (changePassword.isPresent() && !isLogout) {
+					navigationBuilder.selectNavigationItem(changePassword.get());
+					String changePwUrl = config.getBaseUrl() + SLASH + changePassword.get().getRef();
+					if (!config.getCurrentUrl().startsWith(changePwUrl)) {
+						logger().info("{} must change password (last changed: {})", subject.getAuthName(),
+								subject.getPasswordLastChanged());
+						applicationSite.sendRedirect(env, changePwUrl, HttpStatus.FOUND.value());
+						setRedirect(true);
+						return null;
+					} else {
+						navigationBuilder.removeItems(platform.getNavigation(), ItemType.SITE);
+						navigationBuilder.removeItem(platform.getNavigation(), editProfile);
 					}
 				}
 			}

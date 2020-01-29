@@ -74,9 +74,9 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	private UserType userType;
 	private String typeName;
 	private boolean authenticated;
-	private boolean changePasswordAllowed = true;
 	private Date lastLogin;
 	private Date passwordLastChanged;
+	private PasswordChangePolicy passwordChangePolicy = PasswordChangePolicy.MAY;
 	private Integer failedLoginAttempts = 0;
 	private Date lockedSince;
 
@@ -165,14 +165,14 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 		return lastLogin;
 	}
 
-	@Column(name = "allow_change_pw")
-	public boolean isChangePasswordAllowed() {
-		return changePasswordAllowed;
-	}
-
 	@Column(name = "pw_last_changed")
 	public Date getPasswordLastChanged() {
 		return passwordLastChanged;
+	}
+
+	@Column(name = "pw_change_policy")
+	public PasswordChangePolicy getPasswordChangePolicy() {
+		return passwordChangePolicy;
 	}
 
 	@Column(name = "login_attempts")

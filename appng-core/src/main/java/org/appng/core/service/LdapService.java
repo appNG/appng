@@ -36,6 +36,7 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.core.domain.SubjectImpl;
@@ -276,6 +277,7 @@ public class LdapService {
 						userGroups.add(group);
 						subject.setName(username);
 						subject.setRealname(realName);
+						subject.setEmail(StringUtils.lowerCase(getAttribute(userAttrs, MAIL_ATTRIBUTE)));
 					}
 				}
 			}
@@ -317,7 +319,7 @@ public class LdapService {
 				SubjectImpl ldapSubject = new SubjectImpl();
 				ldapSubject.setName(getAttribute(userAttrs, idAttribute));
 				ldapSubject.setRealname(getAttribute(userAttrs, CN_ATTRIBUTE));
-				ldapSubject.setEmail(getAttribute(userAttrs, MAIL_ATTRIBUTE).toLowerCase());
+				ldapSubject.setEmail(StringUtils.lowerCase(getAttribute(userAttrs, MAIL_ATTRIBUTE)));
 				subjects.add(ldapSubject);
 			}
 		} catch (IOException | NamingException ex) {

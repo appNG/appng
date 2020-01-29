@@ -40,6 +40,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.appng.api.ApplicationController;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -64,6 +65,7 @@ import org.appng.api.model.Resources;
 import org.appng.api.model.Role;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
+import org.appng.api.model.Subject.PasswordChangePolicy;
 import org.appng.api.model.Subject;
 import org.appng.api.model.UserType;
 import org.appng.api.support.ApplicationResourceHolder;
@@ -187,8 +189,9 @@ public class CoreService {
 
 	public Subject createSubject(SubjectImpl subject) {
 		boolean changePasswordAllowed = UserType.LOCAL_USER.equals(subject.getUserType());
-		subject.setChangePasswordAllowed(changePasswordAllowed);
-		if(changePasswordAllowed) {
+		subject.setPasswordChangePolicy(
+				changePasswordAllowed ? PasswordChangePolicy.MAY : PasswordChangePolicy.MUST_NOT);
+		if (changePasswordAllowed) {
 			subject.setPasswordLastChanged(new Date());
 		}
 		return subjectRepository.save(subject);
@@ -571,11 +574,11 @@ public class CoreService {
 	}
 
 	private boolean verifySubject(boolean precondition, String username, Environment env, String message) {
-		Properties platformConfig = getPlatformConfig(env);
+		Properties platformCfg = getPlatformConfig(env);
 		SubjectImpl subject = getSubjectByName(username, false);
 		Date now = new Date();
 		if (precondition) {
-			Integer inactiveLockPeriod = platformConfig.getInteger(Platform.Property.INACTIVE_LOCK_PERIOD);
+			Integer inactiveLockPeriod = platformCfg.getInteger(Platform.Property.INACTIVE_LOCK_PERIOD);
 			if (subject.isLocked(now)) {
 				createEvent(Type.INFO, "Rejected login for locked user %s (locked since %s).", username,
 						subject.getLockedSince());
@@ -584,13 +587,27 @@ public class CoreService {
 				createEvent(Type.WARN, "User %s has been locked due to inactivity (last login was at %s).", username,
 						subject.getLastLogin());
 			} else {
+				Boolean forceChangePassword = platformCfg.getBoolean(Platform.Property.FORCE_CHANGE_PASSWORD, false);
+				Integer maxPasswordValidity = platformCfg.getInteger(Platform.Property.PASSWORD_MAX_VALIDITY, -1);
+				if (PasswordChangePolicy.MAY.equals(subject.getPasswordChangePolicy())
+						&& UserType.LOCAL_USER.equals(subject.getUserType()) && null != subject.getPasswordLastChanged()
+						&& forceChangePassword && maxPasswordValidity > 0) {
+					Date pwExpiredAt = DateUtils.addDays(subject.getPasswordLastChanged(), maxPasswordValidity);
+					if (pwExpiredAt.before(now)) {
+						subject.setPasswordChangePolicy(PasswordChangePolicy.MUST);
+						env.setAttribute(Scope.REQUEST, "subject.mustChangePassword", true);
+						createEvent(Type.INFO,
+								"User %s must change password (has not been changed since more than %s days).",
+								username, maxPasswordValidity);
+					}
+				}
 				subject.setLastLogin(now);
 				subject.setFailedLoginAttempts(0);
 				return true;
 			}
 		} else {
 			subject.setFailedLoginAttempts(subject.getFailedLoginAttempts() + 1);
-			Integer maxAttempts = platformConfig.getInteger(Platform.Property.MAX_LOGIN_ATTEMPTS);
+			Integer maxAttempts = platformCfg.getInteger(Platform.Property.MAX_LOGIN_ATTEMPTS);
 			if (maxAttempts <= subject.getFailedLoginAttempts()) {
 				subject.setLockedSince(now);
 				createEvent(Type.WARN, "User %s has been locked after %s failed login attempts.", username,
@@ -1233,8 +1250,9 @@ public class CoreService {
 	}
 
 	public byte[] resetPassword(AuthSubject authSubject, PasswordPolicy passwordPolicy, String email, String hash) {
-		SubjectImpl subjectByName = getSubjectByName(authSubject.getAuthName(), false);
-		if (null != subjectByName && subjectByName.isChangePasswordAllowed() && !subjectByName.isLocked(new Date())) {
+		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
+		if (null != subject && !PasswordChangePolicy.MUST_NOT.equals(subject.getPasswordChangePolicy())
+				&& !subject.isLocked(new Date())) {
 			PasswordHandler passwordHandler = getPasswordHandler(authSubject);
 			if (passwordHandler.isValidPasswordResetDigest(hash)) {
 				LOGGER.debug("setting new password for {}", email);
@@ -1246,20 +1264,22 @@ public class CoreService {
 				LOGGER.debug("hash did not match, not setting new password for '{}'", authSubject.getAuthName());
 			}
 		} else {
-			LOGGER.debug("{} does not exist, is locked or may not change password!", authSubject.getAuthName());
+			LOGGER.debug("{} does not exist, is locked or must not change password!", authSubject.getAuthName());
 		}
 		return null;
 	}
 
-	public String forgotPassword(AuthSubject subject) throws BusinessException {
-		SubjectImpl subjectByName = getSubjectByName(subject.getAuthName(), false);
-		if (null != subjectByName && subjectByName.isChangePasswordAllowed() && !subjectByName.isLocked(new Date())) {
-			PasswordHandler passwordHandler = getPasswordHandler(subject);
+	public String forgotPassword(AuthSubject authSubject) throws BusinessException {
+		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
+		if (null != subject && !PasswordChangePolicy.MUST_NOT.equals(subject.getPasswordChangePolicy())
+				&& !subject.isLocked(new Date())) {
+			PasswordHandler passwordHandler = getPasswordHandler(authSubject);
 			String digest = passwordHandler.getPasswordResetDigest();
 			passwordHandler.updateSubject(this);
 			return digest;
 		} else {
-			throw new BusinessException(String.format("%s does not exist, is locked or may not change password!", subject.getAuthName()));
+			throw new BusinessException(String.format("%s does not exist, is locked or must not change password!",
+					authSubject.getAuthName()));
 		}
 	}
 

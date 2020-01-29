@@ -93,11 +93,11 @@ class NavigationBuilder {
 		if (null != siteTemplate) {
 			int siteTemplateIdx = items.indexOf(siteTemplate);
 			items.addAll(siteTemplateIdx, sites);
-			items.remove(siteTemplate);
+			removeItem(navigation, siteTemplate);
 		}
 		Optional<NavigationItem> changePassword = getNavItem(navigation, CHANGE_PASSWORD);
 		if (!allowChangePassword && changePassword.isPresent()) {
-			items.remove(changePassword.get());
+			removeItem(navigation, changePassword.get());
 		}
 		sort(items);
 		sort(sites);
@@ -283,6 +283,15 @@ class NavigationBuilder {
 	public Optional<NavigationItem> getNavItem(Navigation navigation, String actionValue) {
 		return navigation.getItem().stream()
 				.filter(i -> i.getType().equals(ItemType.ANCHOR) && i.getActionValue().equals(actionValue)).findAny();
+	}
+
+	public void removeItems(Navigation navigation, ItemType type) {
+		new ArrayList<>(navigation.getItem()).stream().filter(i -> i.getType().equals(type))
+				.forEach(i -> removeItem(navigation, i));
+	}
+
+	public boolean removeItem(Navigation navigation, NavigationItem item) {
+		return null == item ? false : navigation.getItem().remove(item);
 	}
 
 }
