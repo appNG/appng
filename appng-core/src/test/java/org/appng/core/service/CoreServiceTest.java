@@ -144,6 +144,8 @@ public class CoreServiceTest {
 	private String rootPath = "target/ROOT";
 	private Properties platformConfig;
 
+	private Subject envSubject;
+
 	static {
 		RepositoryCacheFactory.init(null, null, null, null, false);
 	}
@@ -161,6 +163,11 @@ public class CoreServiceTest {
 		platformConfig = coreService.initPlatformConfig(defaultOverrides, rootPath, false, true, false);
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformConfig);
+		Mockito.doAnswer(i -> {
+			envSubject = i.getArgumentAt(0, Subject.class);
+			return null;
+		}).when(environment).setSubject(Mockito.any());
+		Mockito.when(environment.getSubject()).thenReturn(envSubject);
 		Map<String, Site> siteMap = new HashMap<>();
 		for (Integer siteId : coreService.getSiteIds()) {
 			SiteImpl site = coreService.getSite(siteId);
@@ -695,6 +702,12 @@ public class CoreServiceTest {
 		boolean success = coreService.login(null, environment, "subject-3", "test");
 		assertTrue(success);
 		Mockito.verify(environment).setSubject(Mockito.any(SubjectImpl.class));
+
+		SubjectImpl subject = coreService.getSubjectByName("subject-3", true);
+		assertNotNull(subject.getLastLogin());
+		assertNull(subject.getLockedSince());
+		assertNotNull(envSubject);
+		assertNull(envSubject.getLockedSince());
 		logout();
 	}
 
@@ -702,13 +715,17 @@ public class CoreServiceTest {
 	public void testLoginFailedAttempts() {
 		for (int i = 1; i <= 3; i++) {
 			assertFalse(coreService.login(null, environment, "subject-3", "wrong"));
+			SubjectImpl subject = coreService.getSubjectByName("subject-3", true);
+			if (i < 3) {
+				assertNull(subject.getLockedSince());
+			}
+			assertEquals(Integer.valueOf(i), subject.getFailedLoginAttempts());
 		}
 		Mockito.verify(environment, Mockito.times(2)).setAttribute(Scope.REQUEST, "subject.locked", false);
 		Mockito.verify(environment, Mockito.times(1)).setAttribute(Scope.REQUEST, "subject.locked", true);
 
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
 		assertTrue(subject.isLocked(new Date()));
-		assertTrue(subject.getFailedLoginAttempts() == 3);
 		Mockito.verify(environment, Mockito.never()).setSubject(Mockito.any());
 		resetSubject("subject-3");
 	}
@@ -719,7 +736,7 @@ public class CoreServiceTest {
 		subject.setLockedSince(new Date());
 		coreService.updateSubject(subject);
 		assertFalse(coreService.login(null, environment, "subject-3", "test"));
-		
+
 		Mockito.verify(environment).setAttribute(Scope.REQUEST, "subject.locked", true);
 		Mockito.verify(environment, Mockito.never()).setSubject(Mockito.any());
 		resetSubject("subject-3");
@@ -731,7 +748,7 @@ public class CoreServiceTest {
 		subject.setLastLogin(DateUtils.addDays(new Date(), -91));
 		coreService.updateSubject(subject);
 		assertFalse(coreService.login(null, environment, "subject-3", "test"));
-		
+
 		Mockito.verify(environment).setAttribute(Scope.REQUEST, "subject.locked", true);
 		subject = coreService.getSubjectByName("subject-3", false);
 		assertTrue(subject.isLocked(new Date()));

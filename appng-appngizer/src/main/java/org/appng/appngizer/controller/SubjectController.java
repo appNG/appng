@@ -16,15 +16,18 @@
 package org.appng.appngizer.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
+import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.UserType;
 import org.appng.appngizer.model.Group;
 import org.appng.appngizer.model.Groups;
 import org.appng.appngizer.model.Subject;
 import org.appng.appngizer.model.Subjects;
+import org.appng.appngizer.model.Utils;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.slf4j.Logger;
@@ -87,7 +90,7 @@ public class SubjectController extends ControllerBase {
 			return conflict();
 		}
 		SubjectImpl newSubject = Subject.toDomain(subject);
-		setDigest(subject.getDigest(), newSubject);
+		setOptionalFieldsForDomain(subject, newSubject, subject.getDigest());
 
 		getCoreService().createSubject(newSubject);
 		assignGroups(subject.getName(), subject);
@@ -107,7 +110,7 @@ public class SubjectController extends ControllerBase {
 		subjectByName.setTimeZone(subject.getTimeZone());
 		subjectByName.setLanguage(subject.getLanguage());
 		subjectByName.setUserType(UserType.valueOf(subject.getType().name()));
-		setDigest(subject.getDigest(), subjectByName);
+		setOptionalFieldsForDomain(subject, subjectByName, subject.getDigest());
 		getCoreService().updateSubject(subjectByName);
 		assignGroups(name, subject);
 
@@ -117,12 +120,27 @@ public class SubjectController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	void setDigest(String digest, SubjectImpl domainSubject) {
+	void setOptionalFieldsForDomain(org.appng.appngizer.model.xml.Subject subject, SubjectImpl subjectByName,
+			String digest) {
+		if (null != subject.isLocked()) {
+			Date lockedSince = null;
+			if (subject.isLocked()) {
+				lockedSince = null == subject.getLockedSince() ? new Date() : Utils.getDate(subject.getLockedSince());
+				subjectByName.setLockedSince(new Date());
+			}
+			subjectByName.setLockedSince(lockedSince);
+		}
+
+		if (null != subject.getPasswordChangePolicy()) {
+			PasswordChangePolicy passwordChangePolicy = org.appng.api.model.AuthSubject.PasswordChangePolicy
+					.valueOf(subject.getPasswordChangePolicy().name());
+			subjectByName.setPasswordChangePolicy(passwordChangePolicy);
+		}
 		if (StringUtils.isNotBlank(digest)) {
 			if (digest.startsWith(BCryptPasswordHandler.getPrefix())) {
-				domainSubject.setDigest(digest);
+				subjectByName.setDigest(digest);
 			} else {
-				new BCryptPasswordHandler(domainSubject).savePassword(digest);
+				new BCryptPasswordHandler(subjectByName).savePassword(digest);
 			}
 		}
 	}

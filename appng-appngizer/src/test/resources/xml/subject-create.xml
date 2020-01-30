@@ -6,8 +6,9 @@
 	<digest>$2a$13$4r/t9xYlTLbrOYZy67My3eE9/QacQgSqRFCgvhbzi7TQAE5AYptpO</digest>
 	<timeZone>Europe/London</timeZone>
 	<language>en</language>
+	<locked>false</locked>
 	<failedLoginAttempts>0</failedLoginAttempts>
-	<changePasswordAllowed>true</changePasswordAllowed>
+	<passwordChangePolicy>MAY</passwordChangePolicy>
 	<type>LOCAL_USER</type>
 	<groups>
 		<group name="Admin" self="http://localhost/group/Admin" />

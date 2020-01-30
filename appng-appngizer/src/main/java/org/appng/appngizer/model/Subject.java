@@ -15,6 +15,7 @@
  */
 package org.appng.appngizer.model;
 
+import org.appng.appngizer.model.xml.PasswordChangePolicy;
 import org.appng.appngizer.model.xml.UserType;
 import org.appng.core.domain.SubjectImpl;
 
@@ -29,11 +30,6 @@ public class Subject extends org.appng.appngizer.model.xml.Subject implements Ur
 		subjectImpl.setDigest(s.getDigest());
 		subjectImpl.setTimeZone(s.getTimeZone());
 		subjectImpl.setLanguage(s.getLanguage());
-		subjectImpl.setLockedSince(Utils.getDate(s.getLockedSince()));
-		if (null != s.isChangePasswordAllowed()) {
-			subjectImpl.setChangePasswordAllowed(s.isChangePasswordAllowed());
-		}
-		subjectImpl.setFailedLoginAttempts(s.getFailedLoginAttempts());
 		subjectImpl.setUserType(org.appng.api.model.UserType.valueOf(s.getType().name()));
 		return subjectImpl;
 	}
@@ -47,8 +43,9 @@ public class Subject extends org.appng.appngizer.model.xml.Subject implements Ur
 		subject.setEmail(subjectImpl.getEmail());
 		subject.setRealName(subjectImpl.getRealname());
 		subject.setLastLogin(Utils.getCal(subjectImpl.getLastLogin()));
+		subject.setLocked(null != subjectImpl.getLockedSince());
 		subject.setLockedSince(Utils.getCal(subjectImpl.getLockedSince()));
-		subject.setChangePasswordAllowed(subjectImpl.isChangePasswordAllowed());
+		subject.setPasswordChangePolicy(PasswordChangePolicy.valueOf(subjectImpl.getPasswordChangePolicy().name()));
 		subject.setFailedLoginAttempts(subjectImpl.getFailedLoginAttempts());
 		if (setDigest) {
 			subject.setDigest(subjectImpl.getDigest());
