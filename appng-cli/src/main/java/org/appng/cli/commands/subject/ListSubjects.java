@@ -60,13 +60,13 @@ public class ListSubjects extends CommandList implements ExecutableCliCommand {
 			prettyTable.addColumn(TableConstants.LANGUAGE, true);
 			prettyTable.addColumn(TableConstants.LAST_LOGIN);
 			prettyTable.addColumn(TableConstants.LOCKED_SINCE);
-			prettyTable.addColumn(TableConstants.CHANGE_PASSWORD_ALLOWED);
+			prettyTable.addColumn(TableConstants.PASSWORD_CHANGE_POLICY);
 			prettyTable.addColumn(TableConstants.FAILED_LOGIN_ATTEMPTS);
 
 			for (Subject subject : subjects) {
 				prettyTable.addRow(subject.getId(), subject.getName(), subject.getRealname(), subject.getEmail(),
 						subject.getLanguage(), subject.getLastLogin(), subject.getLockedSince(),
-						subject.isChangePasswordAllowed(), subject.getFailedLoginAttempts());
+						subject.getPasswordChangePolicy().name(), subject.getFailedLoginAttempts());
 			}
 
 			cle.setResult(renderTable());

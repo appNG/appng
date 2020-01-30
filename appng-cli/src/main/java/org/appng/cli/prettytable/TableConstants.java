@@ -31,7 +31,7 @@ public class TableConstants {
 	public static final String LAST_LOGIN = "Last Login";
 	public static final String LOCKED_SINCE = "Locked Since";
 	public static final String FAILED_LOGIN_ATTEMPTS = "Failed Login Attempts";
-	public static final String CHANGE_PASSWORD_ALLOWED = "Change Password Allowed";
+	public static final String PASSWORD_CHANGE_POLICY = "Password Change Policy";
 	public static final String DESCRIPTION = "Description";
 	public static final String LANGUAGE = "Language";
 	public static final String TYPE = "Type";
