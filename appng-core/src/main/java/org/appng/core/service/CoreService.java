@@ -1268,8 +1268,8 @@ public class CoreService {
 			if (passwordHandler.isValidPasswordResetDigest(hash)) {
 				LOGGER.debug("setting new password for {}", email);
 				String password = passwordPolicy.generatePassword();
-				passwordHandler = getDefaultPasswordHandler(subject);
-				passwordHandler.applyPassword(password);
+				getDefaultPasswordHandler(authSubject).applyPassword(password);
+				getDefaultPasswordHandler(subject).applyPassword(password);
 				subject.setPasswordChangePolicy(PasswordChangePolicy.MAY);
 				return password.getBytes();
 			} else {
