@@ -76,9 +76,10 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	private boolean authenticated;
 	private Date lastLogin;
 	private Date passwordLastChanged;
+	private boolean locked = false;
 	private PasswordChangePolicy passwordChangePolicy = PasswordChangePolicy.MAY;
 	private Integer failedLoginAttempts = 0;
-	private Date lockedSince;
+	private Date expiryDate;
 
 	@NotNull(message = ValidationMessages.VALIDATION_NOT_NULL)
 	@Pattern(regexp = ValidationPatterns.USERNAME_PATTERN, message = ValidationPatterns.USERNAME_MSSG)
@@ -151,13 +152,13 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	}
 
 	@Transient
-	public boolean isLocked(Date date) {
-		return null != lockedSince && date.after(lockedSince);
+	public boolean isExpired(Date date) {
+		return !(null == expiryDate || null == date) && date.after(expiryDate);
 	}
 
-	@Column(name = "locked_since")
-	public Date getLockedSince() {
-		return lockedSince;
+	@Column(name = "expiry_date")
+	public Date getExpiryDate() {
+		return expiryDate;
 	}
 
 	@Column(name = "last_login")
@@ -168,6 +169,11 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	@Column(name = "pw_last_changed")
 	public Date getPasswordLastChanged() {
 		return passwordLastChanged;
+	}
+
+	@Column(name = "locked")
+	public boolean isLocked() {
+		return locked;
 	}
 
 	@Column(name = "pw_change_policy")

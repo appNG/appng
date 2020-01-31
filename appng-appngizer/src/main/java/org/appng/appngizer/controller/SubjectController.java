@@ -16,7 +16,6 @@
 package org.appng.appngizer.controller;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -123,13 +122,9 @@ public class SubjectController extends ControllerBase {
 	void setOptionalFieldsForDomain(org.appng.appngizer.model.xml.Subject subject, SubjectImpl subjectByName,
 			String digest) {
 		if (null != subject.isLocked()) {
-			Date lockedSince = null;
-			if (subject.isLocked()) {
-				lockedSince = null == subject.getLockedSince() ? new Date() : Utils.getDate(subject.getLockedSince());
-				subjectByName.setLockedSince(new Date());
-			}
-			subjectByName.setLockedSince(lockedSince);
+			subjectByName.setLocked(subject.isLocked());
 		}
+		subjectByName.setExpiryDate(Utils.getDate(subject.getExpiryDate()));
 
 		if (null != subject.getPasswordChangePolicy()) {
 			PasswordChangePolicy passwordChangePolicy = org.appng.api.model.AuthSubject.PasswordChangePolicy

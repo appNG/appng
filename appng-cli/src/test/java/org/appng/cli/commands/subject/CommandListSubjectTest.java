@@ -47,7 +47,8 @@ public class CommandListSubjectTest extends AbstractCommandTest {
 		validateCell(prettyTable, 1, TableConstants.REAL_NAME, "Admin Istrator");
 		validateCell(prettyTable, 1, TableConstants.EMAIL, "ad@min.com");
 		validateCell(prettyTable, 1, TableConstants.LAST_LOGIN, "null");
-		validateCell(prettyTable, 1, TableConstants.LOCKED_SINCE, "null");
+		validateCell(prettyTable, 1, TableConstants.LOCKED, "false");
+		validateCell(prettyTable, 1, TableConstants.EXPIRY_DATE, "null");
 		validateCell(prettyTable, 1, TableConstants.PASSWORD_CHANGE_POLICY, "MAY");
 		validateCell(prettyTable, 1, TableConstants.FAILED_LOGIN_ATTEMPTS, "0");
 	}

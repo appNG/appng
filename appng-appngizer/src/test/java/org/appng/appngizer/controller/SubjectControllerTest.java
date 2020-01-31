@@ -58,10 +58,11 @@ public class SubjectControllerTest extends ControllerTest {
 		subject.getGroups().getGroup().clear();
 		subject.setPasswordChangePolicy(PasswordChangePolicy.MUST_NOT);
 		subject.setLocked(true);
-		subject.setLockedSince(Utils.getCal(FastDateFormat.getInstance("yy-MM-dd HH:mm").parse("20-01-01 16:15")));
+		subject.setExpiryDate(Utils.getCal(FastDateFormat.getInstance("yy-MM-dd HH:mm").parse("20-01-01 16:15")));
 		putAndVerify("/subject/Admin", "xml/subject-update.xml", subject, HttpStatus.OK);
 
 		subject.setLocked(false);
+		subject.setExpiryDate(null);
 		putAndVerify("/subject/Admin", "xml/subject-update-unlock.xml", subject, HttpStatus.OK);
 	}
 

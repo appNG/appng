@@ -1,7 +1,8 @@
 alter table subject
 add last_login timestamp,
 add pw_last_changed timestamp,
-add locked_since timestamp,
+add expiry_date timestamp,
+add locked boolean not null default false,
 add login_attempts int4 not null default 0,
 add pw_change_policy int4 not null default 0;
 

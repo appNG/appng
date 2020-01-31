@@ -42,7 +42,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Lists all subjects.")
 public class ListSubjects extends CommandList implements ExecutableCliCommand {
@@ -59,13 +58,14 @@ public class ListSubjects extends CommandList implements ExecutableCliCommand {
 			prettyTable.addColumn(TableConstants.EMAIL);
 			prettyTable.addColumn(TableConstants.LANGUAGE, true);
 			prettyTable.addColumn(TableConstants.LAST_LOGIN);
-			prettyTable.addColumn(TableConstants.LOCKED_SINCE);
+			prettyTable.addColumn(TableConstants.LOCKED);
+			prettyTable.addColumn(TableConstants.EXPIRY_DATE);
 			prettyTable.addColumn(TableConstants.PASSWORD_CHANGE_POLICY);
 			prettyTable.addColumn(TableConstants.FAILED_LOGIN_ATTEMPTS);
 
 			for (Subject subject : subjects) {
 				prettyTable.addRow(subject.getId(), subject.getName(), subject.getRealname(), subject.getEmail(),
-						subject.getLanguage(), subject.getLastLogin(), subject.getLockedSince(),
+						subject.getLanguage(), subject.getLastLogin(), subject.isLocked(), subject.getExpiryDate(),
 						subject.getPasswordChangePolicy().name(), subject.getFailedLoginAttempts());
 			}
 

@@ -28,7 +28,7 @@ public interface AuthSubject extends Account {
 	 * @since 1.21
 	 */
 	enum PasswordChangePolicy {
-		MAY, MUST, MUST_NOT;
+		MAY, MUST, MUST_NOT, MUST_RECOVER;
 	}
 
 	/**

@@ -7,7 +7,7 @@
 	<timeZone>Europe/Madrid</timeZone>
 	<language>es</language>
 	<locked>true</locked>
-	<lockedSince>2020-01-01T16:15:00.000+01:00</lockedSince>
+	<expiryDate>2020-01-01T16:15:00.000+01:00</expiryDate>
 	<failedLoginAttempts>0</failedLoginAttempts>
 	<passwordChangePolicy>MUST_NOT</passwordChangePolicy>
 	<type>LOCAL_USER</type>

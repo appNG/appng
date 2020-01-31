@@ -27,14 +27,14 @@ public class SubjectImplTest {
 	public void testIsLocked() {
 		SubjectImpl s = new SubjectImpl();
 		Date now = new Date();
-		Assert.assertFalse(s.isLocked(now));
-		s.setLockedSince(now);
-		Assert.assertFalse(s.isLocked(now));
-		Assert.assertFalse(s.isLocked(DateUtils.addMinutes(now, -1)));
+		Assert.assertFalse(s.isExpired(now));
+		s.setExpiryDate(now);
+		Assert.assertFalse(s.isExpired(now));
+		Assert.assertFalse(s.isExpired(DateUtils.addMinutes(now, -1)));
 
-		Assert.assertTrue(s.isLocked(DateUtils.addMilliseconds(now, 1)));
-		Assert.assertTrue(s.isLocked(DateUtils.addSeconds(now, 1)));
-		Assert.assertTrue(s.isLocked(DateUtils.addMinutes(now, 1)));
+		Assert.assertTrue(s.isExpired(DateUtils.addMilliseconds(now, 1)));
+		Assert.assertTrue(s.isExpired(DateUtils.addSeconds(now, 1)));
+		Assert.assertTrue(s.isExpired(DateUtils.addMinutes(now, 1)));
 	}
 
 	@Test

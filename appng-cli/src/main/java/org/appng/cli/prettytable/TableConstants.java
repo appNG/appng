@@ -29,7 +29,8 @@ public class TableConstants {
 	public static final String REAL_NAME = "Real name";
 	public static final String EMAIL = "E-Mail";
 	public static final String LAST_LOGIN = "Last Login";
-	public static final String LOCKED_SINCE = "Locked Since";
+	public static final String LOCKED = "Locked";
+	public static final String EXPIRY_DATE = "Expiry Date";
 	public static final String FAILED_LOGIN_ATTEMPTS = "Failed Login Attempts";
 	public static final String PASSWORD_CHANGE_POLICY = "Password Change Policy";
 	public static final String DESCRIPTION = "Description";

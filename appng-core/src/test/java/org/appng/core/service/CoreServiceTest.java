@@ -705,9 +705,9 @@ public class CoreServiceTest {
 
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", true);
 		assertNotNull(subject.getLastLogin());
-		assertNull(subject.getLockedSince());
+		assertFalse(subject.isLocked());
 		assertNotNull(envSubject);
-		assertNull(envSubject.getLockedSince());
+		assertFalse(envSubject.isLocked());
 		logout();
 	}
 
@@ -717,7 +717,7 @@ public class CoreServiceTest {
 			assertFalse(coreService.login(null, environment, "subject-3", "wrong"));
 			SubjectImpl subject = coreService.getSubjectByName("subject-3", true);
 			if (i < 3) {
-				assertNull(subject.getLockedSince());
+				assertFalse(subject.isLocked());
 			}
 			assertEquals(Integer.valueOf(i), subject.getFailedLoginAttempts());
 		}
@@ -725,15 +725,33 @@ public class CoreServiceTest {
 		Mockito.verify(environment, Mockito.times(1)).setAttribute(Scope.REQUEST, "subject.locked", true);
 
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
-		assertTrue(subject.isLocked(new Date()));
+		assertFalse(subject.isExpired(new Date()));
+		assertTrue(subject.isLocked());
 		Mockito.verify(environment, Mockito.never()).setSubject(Mockito.any());
 		resetSubject("subject-3");
 	}
 
 	@Test
+	public void testLoginSubjectIsExpired() {
+		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
+		subject.setExpiryDate(new Date());
+		coreService.updateSubject(subject);
+		assertFalse(coreService.login(null, environment, "subject-3", "test"));
+
+		Mockito.verify(environment).setAttribute(Scope.REQUEST, "subject.locked", true);
+		
+		subject = coreService.getSubjectByName("subject-3", false);
+		assertTrue(subject.isExpired(new Date()));
+		assertTrue(subject.isLocked());
+		
+		Mockito.verify(environment, Mockito.never()).setSubject(Mockito.any());
+		resetSubject("subject-3");
+	}
+	
+	@Test
 	public void testLoginSubjectIsLocked() {
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
-		subject.setLockedSince(new Date());
+		subject.setLocked(true);
 		coreService.updateSubject(subject);
 		assertFalse(coreService.login(null, environment, "subject-3", "test"));
 
@@ -751,7 +769,8 @@ public class CoreServiceTest {
 
 		Mockito.verify(environment).setAttribute(Scope.REQUEST, "subject.locked", true);
 		subject = coreService.getSubjectByName("subject-3", false);
-		assertTrue(subject.isLocked(new Date()));
+		assertTrue(subject.isLocked());
+		assertFalse(subject.isExpired(new Date()));
 		assertTrue(subject.getFailedLoginAttempts() == 0);
 		Mockito.verify(environment, Mockito.never()).setSubject(Mockito.any());
 		resetSubject("subject-3");
@@ -759,7 +778,8 @@ public class CoreServiceTest {
 
 	private void resetSubject(String name) {
 		SubjectImpl subject = coreService.getSubjectByName(name, false);
-		subject.setLockedSince(null);
+		subject.setLocked(false);
+		subject.setExpiryDate(null);
 		subject.setFailedLoginAttempts(0);
 		coreService.updateSubject(subject);
 	}

@@ -43,8 +43,8 @@ public class Subject extends org.appng.appngizer.model.xml.Subject implements Ur
 		subject.setEmail(subjectImpl.getEmail());
 		subject.setRealName(subjectImpl.getRealname());
 		subject.setLastLogin(Utils.getCal(subjectImpl.getLastLogin()));
-		subject.setLocked(null != subjectImpl.getLockedSince());
-		subject.setLockedSince(Utils.getCal(subjectImpl.getLockedSince()));
+		subject.setLocked(subjectImpl.isLocked());
+		subject.setExpiryDate(Utils.getCal(subjectImpl.getExpiryDate()));
 		subject.setPasswordChangePolicy(PasswordChangePolicy.valueOf(subjectImpl.getPasswordChangePolicy().name()));
 		subject.setFailedLoginAttempts(subjectImpl.getFailedLoginAttempts());
 		if (setDigest) {

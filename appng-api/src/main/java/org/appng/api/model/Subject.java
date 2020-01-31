@@ -67,12 +67,21 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	boolean hasApplication(Application application);
 
 	/**
-	 * Returns a date after that the subject is locked, if any.
+	 * Whether or not the subject is locked.
 	 * 
-	 * @return the date, or {@code null}
+	 * @return {@code true} if the subject is locked.
 	 * @since  1.21
 	 */
-	default Date getLockedSince() {
+	default boolean isLocked() {
+		return false;
+	}
+
+	/**
+	 * The date on which the subject expires.
+	 * 
+	 * @return the date, if any (may be {@code null})
+	 */
+	default Date getExpiryDate() {
 		return null;
 	}
 
