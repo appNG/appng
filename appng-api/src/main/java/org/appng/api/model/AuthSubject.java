@@ -15,6 +15,8 @@
  */
 package org.appng.api.model;
 
+import java.util.Date;
+
 /**
  * An {@link AuthSubject} provides some user-credentials.
  * 
@@ -62,7 +64,7 @@ public interface AuthSubject extends Account {
 	void setDigest(String digest);
 
 	/**
-	 * Is the subject allowed to change it's password?
+	 * Returns the {@link PasswordChangePolicy} for this subject
 	 * 
 	 * @return the {@link PasswordChangePolicy} for this subject
 	 * @since  1.21
@@ -74,7 +76,17 @@ public interface AuthSubject extends Account {
 	 * 
 	 * @param passwordChangePolicy
 	 *                             the policy to use
+	 * @since                      1.21
 	 */
 	void setPasswordChangePolicy(PasswordChangePolicy passwordChangePolicy);
+
+	/**
+	 * Sets the date when the password was last changed
+	 * 
+	 * @param date
+	 *             the date
+	 * @since      1.21
+	 */
+	void setPasswordLastChanged(Date date);
 
 }

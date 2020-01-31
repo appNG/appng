@@ -116,7 +116,7 @@ public class HashPassword implements ExecutableCliCommand {
 			throw new BusinessException(errorMessage);
 		}
 		PasswordHandler passwordHandler = cle.getCoreService().getDefaultPasswordHandler(subject);
-		passwordHandler.savePassword(password);
+		passwordHandler.applyPassword(password);
 		return subject.getDigest();
 	}
 }

@@ -467,11 +467,13 @@ public class CoreService {
 	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
 	 * This method may be removed in the future.
 	 * 
-	 * @param  authSubject
-	 *                     The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
-	 *                     determine which implementation of the {@link PasswordHandler} interface will be returned.
-	 * @return             the {@link PasswordHandler} for the {@link AuthSubject}
+	 * @param      authSubject
+	 *                         The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
+	 *                         determine which implementation of the {@link PasswordHandler} interface will be returned.
+	 * @return                 the {@link PasswordHandler} for the {@link AuthSubject}
+	 * @deprecated             will be removed in 2.x
 	 */
+	@Deprecated
 	public PasswordHandler getPasswordHandler(AuthSubject authSubject) {
 		if (!authSubject.getDigest().startsWith(BCryptPasswordHandler.getPrefix())) {
 			return new Sha1PasswordHandler(authSubject);
@@ -1266,9 +1268,8 @@ public class CoreService {
 			if (passwordHandler.isValidPasswordResetDigest(hash)) {
 				LOGGER.debug("setting new password for {}", email);
 				String password = passwordPolicy.generatePassword();
-				PasswordHandler defaultPasswordHandler = getDefaultPasswordHandler(authSubject);
-				defaultPasswordHandler.savePassword(password);
-				subject.setPasswordLastChanged(new Date());
+				passwordHandler = getDefaultPasswordHandler(subject);
+				passwordHandler.applyPassword(password);
 				subject.setPasswordChangePolicy(PasswordChangePolicy.MAY);
 				return password.getBytes();
 			} else {
@@ -1284,10 +1285,7 @@ public class CoreService {
 	public String forgotPassword(AuthSubject authSubject) throws BusinessException {
 		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
 		if (canSubjectResetPassword(subject)) {
-			PasswordHandler passwordHandler = getPasswordHandler(authSubject);
-			String digest = passwordHandler.getPasswordResetDigest();
-			passwordHandler.updateSubject(this);
-			return digest;
+			return getPasswordHandler(authSubject).calculatePasswordResetDigest();
 		} else {
 			throw new BusinessException(String.format("%s does not exist, is locked or must not change password!",
 					authSubject.getAuthName()));
@@ -1747,7 +1745,7 @@ public class CoreService {
 		if (StringUtils.isNotEmpty(passwordString) && StringUtils.isNotEmpty(passwordConfirmationString)) {
 			if (passwordString.equals(passwordConfirmationString)) {
 				PasswordHandler passwordHandler = getDefaultPasswordHandler(currentSubject);
-				passwordHandler.savePassword(passwordString);
+				passwordHandler.applyPassword(passwordString);
 				passwordUpdated = true;
 			} else {
 				throw new BusinessException("Passwords are not equal.");

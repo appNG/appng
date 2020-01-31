@@ -135,7 +135,7 @@ public class SubjectController extends ControllerBase {
 			if (digest.startsWith(BCryptPasswordHandler.getPrefix())) {
 				subjectByName.setDigest(digest);
 			} else {
-				new BCryptPasswordHandler(subjectByName).savePassword(digest);
+				new BCryptPasswordHandler(subjectByName).applyPassword(digest);
 			}
 		}
 	}
