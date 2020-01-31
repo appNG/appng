@@ -261,6 +261,7 @@
 			<xs:enumeration value="MAY" />
 			<xs:enumeration value="MUST" />
 			<xs:enumeration value="MUST_NOT" />
+			<xs:enumeration value="MUST_RECOVER" />
 		</xs:restriction>
 	</xs:simpleType>
 

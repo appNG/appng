@@ -80,6 +80,7 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * The date on which the subject expires.
 	 * 
 	 * @return the date, if any (may be {@code null})
+	 * @since  1.21
 	 */
 	default Date getExpiryDate() {
 		return null;
