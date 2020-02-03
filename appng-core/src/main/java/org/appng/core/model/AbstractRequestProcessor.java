@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,6 +46,7 @@ import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
+import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.ApplicationRequest;
@@ -60,7 +62,10 @@ import org.appng.xml.platform.ApplicationReference;
 import org.appng.xml.platform.Authentication;
 import org.appng.xml.platform.Authentications;
 import org.appng.xml.platform.Content;
+import org.appng.xml.platform.Icon;
+import org.appng.xml.platform.ItemType;
 import org.appng.xml.platform.Localization;
+import org.appng.xml.platform.NavigationItem;
 import org.appng.xml.platform.Output;
 import org.appng.xml.platform.OutputFormat;
 import org.appng.xml.platform.OutputType;
@@ -129,11 +134,11 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 		initPlatform(platform, env, pathInfo);
 
-		org.appng.api.model.Subject currentSubject = env.getSubject();
+		org.appng.api.model.Subject subject = env.getSubject();
 		navigationBuilder = new NavigationBuilder(pathInfo, env);
 
-		boolean isLoggedIn = null != currentSubject && currentSubject.isAuthenticated();
-		// APPNG-601
+		boolean isLoggedIn = null != subject && subject.isAuthenticated();
+
 		PlatformConfig config = platform.getConfig();
 		Authentications authentications = config.getAuthentications();
 		if (null == authentications) {
@@ -152,23 +157,74 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		Authentication authentication = determineActiveAuthentication(applicationSite, authentications);
 
 		if (isLoggedIn) {
+			String editProfileAction = siteProperties.getString("authEditProfileActionName", "editProfile");
+			Optional<NavigationItem> editProfileItem = navigationBuilder.getNavItem(platform.getNavigation(),
+					editProfileAction);
+			NavigationItem editProfile = null;
+			if (!editProfileItem.isPresent() && siteProperties.getBoolean("editProfileEnabled", false)) {
+				editProfile = new NavigationItem();
+				editProfile.setType(ItemType.ANCHOR);
+				editProfile.setSite(applicationSite.getName());
+				editProfile.setApplication(siteProperties.getString(SiteProperties.AUTH_APPLICATION));
+				editProfile.setPage(siteProperties.getString(SiteProperties.AUTH_LOGIN_PAGE));
+				editProfile.setActionName(siteProperties.getString(SiteProperties.AUTH_LOGOUT_ACTION_NAME));
+				editProfile.setActionValue(editProfileAction);
+				editProfile.setRef(editProfile.getPage() + "/" + editProfile.getActionValue());
+				editProfile.setLabel("user.edit");
+				editProfile.setIcon(new Icon());
+				editProfile.getIcon().setContent("edit");
+				platform.getNavigation().getItem().add(editProfile);
+			}
+
+			PasswordChangePolicy passwordChangePolicy = subject.getPasswordChangePolicy();
+			boolean mustChangePassword = passwordChangePolicy.equals(PasswordChangePolicy.MUST);
+			boolean mayChangePassword = passwordChangePolicy.equals(PasswordChangePolicy.MAY);
+			navigationBuilder.processNavigation(platform.getNavigation(), parameterSupport,
+					mustChangePassword || mayChangePassword);
+
 			String siteName = applicationSite.getName();
 			String sitePath = config.getBaseUrl() + SLASH + siteName + SLASH;
 			String loginPage = sitePath + authentication.getApplication() + SLASH + authentication.getPage();
-			String currentUrl = config.getCurrentUrl();
-			if (currentUrl.startsWith(loginPage)) {
+			if (config.getCurrentUrl().startsWith(loginPage)) {
 				String defaultApplication = siteProperties.getString(SiteProperties.DEFAULT_APPLICATION);
 				String path = sitePath + defaultApplication;
 				applicationSite.sendRedirect(env, path);
 				setRedirect(true);
 				return null;
 			}
+
+			Properties platformConfig = env.getAttribute(Scope.PLATFORM,
+					org.appng.api.Platform.Environment.PLATFORM_CONFIG);
+			Boolean forceChangePassword = platformConfig
+					.getBoolean(org.appng.api.Platform.Property.FORCE_CHANGE_PASSWORD, false);
+
+			if (mustChangePassword && forceChangePassword) {
+				Optional<NavigationItem> changePassword = navigationBuilder.getNavItem(platform.getNavigation(),
+						NavigationBuilder.CHANGE_PASSWORD);
+				Optional<NavigationItem> logoutItem = navigationBuilder.getNavItem(platform.getNavigation(),
+						siteProperties.getString(SiteProperties.AUTH_LOGOUT_ACTION_VALUE));
+				String logoutUrl = config.getBaseUrl() + SLASH + logoutItem.get().getRef();
+				boolean isLogout = logoutItem.isPresent() && config.getCurrentUrl().startsWith(logoutUrl);
+				if (changePassword.isPresent() && !isLogout) {
+					navigationBuilder.selectNavigationItem(changePassword.get());
+					String changePwUrl = config.getBaseUrl() + SLASH + changePassword.get().getRef();
+					if (!config.getCurrentUrl().startsWith(changePwUrl)) {
+						logger().info("{} must change password (last changed: {})", subject.getAuthName(),
+								subject.getPasswordLastChanged());
+						applicationSite.sendRedirect(env, changePwUrl, HttpStatus.FOUND.value());
+						setRedirect(true);
+						return null;
+					} else {
+						navigationBuilder.removeItems(platform.getNavigation(), ItemType.SITE);
+						navigationBuilder.removeItem(platform.getNavigation(), editProfile);
+					}
+				}
+			}
+
 		} else {
 			processAuthentication(authentication);
 			navigationBuilder.selectNavigationItem(authentication);
 		}
-
-		navigationBuilder.processNavigation(platform.getNavigation(), parameterSupport);
 
 		ApplicationReference applicationReference = processApplication(applicationSite, config);
 		Content content = new Content();

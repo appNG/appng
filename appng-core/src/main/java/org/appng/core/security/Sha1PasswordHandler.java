@@ -15,18 +15,19 @@
  */
 package org.appng.core.security;
 
-import org.appng.api.BusinessException;
+import java.util.Date;
+
 import org.appng.api.model.AuthSubject;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.service.CoreService;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides methods to hash and validate passwords using the SHA-1 algorithm.
  * 
  * @author Matthias Herlitzius
- * 
+ * @deprecated wille be removed in 2.x
  */
+@Deprecated
 public class Sha1PasswordHandler implements PasswordHandler {
 
 	private final AuthSubject authSubject;
@@ -36,11 +37,12 @@ public class Sha1PasswordHandler implements PasswordHandler {
 		this.authSubject = authSubject;
 	}
 
-	public void savePassword(String password) {
+	public void applyPassword(String password) {
 		String salt = saltedDigest.getSalt();
 		String digest = saltedDigest.getDigest(password, salt);
 		authSubject.setSalt(salt);
 		authSubject.setDigest(digest);
+		authSubject.setPasswordLastChanged(new Date());
 	}
 
 	public boolean isValidPassword(String password) {
@@ -48,26 +50,20 @@ public class Sha1PasswordHandler implements PasswordHandler {
 		return digest.equals(authSubject.getDigest());
 	}
 
-	public String getPasswordResetDigest() {
-		String digest = saltedDigest.getDigest(authSubject.getEmail(), authSubject.getSalt());
-		return digest;
+	public String calculatePasswordResetDigest() {
+		return saltedDigest.getDigest(authSubject.getEmail(), authSubject.getSalt());
 	}
 
 	public boolean isValidPasswordResetDigest(String digest) {
-		String expectedDigest = getPasswordResetDigest();
-		return (expectedDigest.equals(digest));
+		return calculatePasswordResetDigest().equals(digest);
 	}
 
-	public void updateSubject(CoreService service) throws BusinessException {
-	}
-
-	@Transactional
 	public void migrate(CoreService service, String password) {
 		// migration is only supported for AuthSubject of instance SubjectImpl because the new encrypted password needs
 		// to be saved persistently in the database.
 		if (authSubject instanceof SubjectImpl) {
 			PasswordHandler passwordHandler = service.getDefaultPasswordHandler(authSubject);
-			passwordHandler.savePassword(password);
+			passwordHandler.applyPassword(password);
 			if (null != ((SubjectImpl) authSubject).getVersion()) {
 				service.updateSubject((SubjectImpl) authSubject);
 			}

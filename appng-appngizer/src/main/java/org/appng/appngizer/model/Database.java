@@ -16,10 +16,6 @@
 package org.appng.appngizer.model;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,16 +28,6 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class Database extends org.appng.appngizer.model.xml.Database implements UriAware {
-
-	private static DatatypeFactory dtf;
-
-	static {
-		try {
-			dtf = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new IllegalStateException("error creating DatatypeFactory", e);
-		}
-	}
 
 	public static Database fromDomain(DatabaseConnection dbc, MigrationInfoService status, String salt) {
 		return fromDomain(dbc, status, salt, false);
@@ -63,11 +49,7 @@ public class Database extends org.appng.appngizer.model.xml.Database implements 
 				schemaVersion.setVersion(migrationInfo.getVersion().getVersion());
 				schemaVersion.setState(migrationInfo.getState().getDisplayName());
 				Date installedOn = migrationInfo.getInstalledOn();
-				if (null != installedOn) {
-					GregorianCalendar cal = new GregorianCalendar();
-					cal.setTime(installedOn);
-					schemaVersion.setInstalled(dtf.newXMLGregorianCalendar(cal));
-				}
+				schemaVersion.setInstalled(Utils.getCal(installedOn));
 				db.getVersions().getVersion().add(schemaVersion);
 			}
 			db.setDbVersion(dbInfo.toString());

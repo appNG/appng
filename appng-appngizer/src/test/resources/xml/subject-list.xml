@@ -6,6 +6,9 @@
 		<description>a subject for administrators</description>
 		<timeZone>Europe/Madrid</timeZone>
 		<language>es</language>
+		<locked>false</locked>
+		<failedLoginAttempts>0</failedLoginAttempts>
+		<passwordChangePolicy>MUST_NOT</passwordChangePolicy>
 		<type>LOCAL_USER</type>
 	</subject>
 </subjects>

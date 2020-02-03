@@ -277,6 +277,7 @@ public class LdapService {
 						userGroups.add(group);
 						subject.setName(username);
 						subject.setRealname(realName);
+						subject.setEmail(StringUtils.lowerCase(getAttribute(userAttrs, MAIL_ATTRIBUTE)));
 					}
 				}
 			}

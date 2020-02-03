@@ -172,7 +172,7 @@ public class InitializerService {
 		loadPlatform(defaultOverrides, env, null, null, executor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
-		coreService.createEvent(Type.INFO, "Started platform", null);
+		coreService.createEvent(Type.INFO, "Started platform");
 	}
 
 	/**
@@ -855,7 +855,7 @@ public class InitializerService {
 		}
 		CacheService.shutdown();
 		env.removeAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		coreService.createEvent(Type.INFO, "Stopped platform", null);
+		coreService.createEvent(Type.INFO, "Stopped platform");
 	}
 
 	/**
