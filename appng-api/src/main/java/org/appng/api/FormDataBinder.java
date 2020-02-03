@@ -94,6 +94,7 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 	 * @see #setBindAdditionalParams(boolean)
 	 * @see #setExternalParams(Map)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public T bind() {
 		MutablePropertyValues mpvs = new MutablePropertyValues();

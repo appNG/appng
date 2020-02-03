@@ -29,7 +29,7 @@ To simplify this, a special implicit variable named `PATH` is available when eva
 * `starts(String... elements)`
 * `ends(String... elements)`
 * `contains(String... elements)`
-* `equals(String... elements)`
+* `isEqual(String... elements)`
 * `hasParam(String... params)`
 
 So instead of writing `${action eq 'update' and not empty id}` (see example above), you could also write 
@@ -63,9 +63,9 @@ With `PATH`, instead of writing
 
 you can also just write
 
-`${ PATH.equals('/organization/edit/',id,'/employee/edit/',id1,'/vacation/',id2,'/approve/',id3) }`
+`${ PATH.isEqual('/organization/edit/',id,'/employee/edit/',id1,'/vacation/',id2,'/approve/',id3) }`
 
-, which is more than 50 percent shorter and way more readable.
+, which is more than half as short and way more readable.
 
 === `<url-schema>`
 As shown in the example above, the current URL in conjunction with the URL-schema of the page is responsible for what action and datasources are being shown on that page.

@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletRequest;
 
@@ -117,31 +118,22 @@ public class RequestUtil {
 			return site;
 		}
 
-		long waited = 0;
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
 		int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 
-		while (waited < maxWaitTime
-				&& (site = getSiteByName(env, name)).hasState(SiteState.STOPPING, SiteState.STOPPED)) {
+		long waited = 0;
+		while ((site = getSiteByName(env, name)) != null && waited < maxWaitTime && !site.hasState(SiteState.STARTED)) {
 			try {
-				Thread.sleep(waitTime);
+				TimeUnit.MILLISECONDS.sleep(waitTime);
 				waited += waitTime;
 			} catch (InterruptedException e) {
-				LOGGER.error("error while waiting for site to be started", e);
+				LOGGER.error("error while waiting for site " + name, e);
+				Thread.currentThread().interrupt();
 			}
-			LOGGER.info("site '{}' is currently in state {}, waited {}ms", site, site.getState(), waited);
+			LOGGER.info("site '{}' is currently in state {}, waited {}ms", name, site.getState(), waited);
 		}
 
-		while (waited < maxWaitTime && (site = getSiteByName(env, name)).hasState(SiteState.STARTING)) {
-			try {
-				Thread.sleep(waitTime);
-				waited += waitTime;
-			} catch (InterruptedException e) {
-				LOGGER.error("error while waiting for site to be started", e);
-			}
-			LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
-		}
 		return getSiteByName(env, name);
 	}
 

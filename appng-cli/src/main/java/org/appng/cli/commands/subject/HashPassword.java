@@ -26,6 +26,7 @@ import org.appng.api.Platform;
 import org.appng.api.model.AuthSubject;
 import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
+import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.DefaultPasswordPolicy;
 import org.appng.core.security.PasswordHandler;
 
@@ -75,7 +76,7 @@ public class HashPassword implements ExecutableCliCommand {
 			runInteractive(cle);
 			return;
 		}
-		String digest = savePasswordForSubject(cle, new PasswordSubject(), password);
+		String digest = savePasswordForSubject(cle, new SubjectImpl(), password);
 		cle.setResult(digest);
 	}
 
@@ -83,12 +84,12 @@ public class HashPassword implements ExecutableCliCommand {
 		try (BufferedReader console = new BufferedReader(new InputStreamReader(System.in));) {
 			try {
 				CliEnvironment.out.println("Hashes a password. Type CTRL + C to quit.");
-				while (true) {
+				while (!Thread.currentThread().isInterrupted()) {
 					try {
 						CliEnvironment.out.print("password: ");
 						String commandLine = console.readLine();
 						if (null != StringUtils.trimToNull(commandLine)) {
-							String digest = savePasswordForSubject(cle, new PasswordSubject(), commandLine);
+							String digest = savePasswordForSubject(cle, new SubjectImpl(), commandLine);
 							CliEnvironment.out.print("hash: ");
 							CliEnvironment.out.println(digest);
 						}
@@ -115,49 +116,7 @@ public class HashPassword implements ExecutableCliCommand {
 			throw new BusinessException(errorMessage);
 		}
 		PasswordHandler passwordHandler = cle.getCoreService().getDefaultPasswordHandler(subject);
-		passwordHandler.savePassword(password);
+		passwordHandler.applyPassword(password);
 		return subject.getDigest();
-	}
-
-	static class PasswordSubject implements AuthSubject {
-
-		private String digest;
-
-		public String getDigest() {
-			return digest;
-		}
-
-		public void setDigest(String digest) {
-			this.digest = digest;
-		}
-
-		// dummy methods
-		public String getAuthName() {
-			return null;
-		}
-
-		public String getRealname() {
-			return null;
-		}
-
-		public String getLanguage() {
-			return null;
-		}
-
-		public String getTimeZone() {
-			return null;
-		}
-
-		public String getEmail() {
-			return null;
-		}
-
-		public String getSalt() {
-			return null;
-		}
-
-		public void setSalt(String salt) {
-		}
-
 	}
 }

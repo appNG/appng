@@ -150,32 +150,31 @@ public class FormElement extends FormElementOwner implements ErrorAware {
 		}
 
 		String tag = XHTML.getTag(content);
-		String type = XHTML.getAttr(content, ATTR_TYPE);
 		if (null != tag) {
 			inputTag = InputTag.valueOf(tag.toUpperCase());
-		}
+			String type = XHTML.getAttr(content, ATTR_TYPE);
 
-		switch (inputTag) {
-		case INPUT:
-			if (null != type) {
-				inputType = InputType.valueOf(type.toUpperCase());
+			switch (inputTag) {
+			case INPUT:
+				if (null != type) {
+					inputType = InputType.valueOf(type.toUpperCase());
+				}
+				handleInput();
+				break;
+
+			case OPTION:
+				setValue(XHTML.getAttr(content, ATTR_VALUE));
+				handleOption();
+				break;
+
+			case TEXTAREA:
+				handleTextArea();
+				break;
+
+			default:
+				break;
 			}
-			handleInput();
-			break;
-
-		case OPTION:
-			setValue(XHTML.getAttr(content, ATTR_VALUE));
-			handleOption();
-			break;
-
-		case TEXTAREA:
-			handleTextArea();
-			break;
-
-		default:
-			break;
 		}
-
 		if (getForm().isSubmitted()) {
 			if (!hasValue()) {
 				setValid(!isMandatory());

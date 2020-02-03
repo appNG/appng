@@ -96,17 +96,17 @@ public class SiteProperties {
 	/** Set to true to enable caching for this site */
 	public static final String CACHE_ENABLED = "cacheEnabled";
 	/**
-	 * URL path prefixes which are never cached. Contains one prefix per line (CLOB
-	 * value).
+	 * URL path prefixes which are never cached. Contains one prefix per line (multiline value).
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
 	/** @deprecated no more used */
+	@Deprecated
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
-	/** The cache timeouts as a multi-lined property, key=value */
+	/** The cache timeouts as a multiline property, key=value */
 	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
 	/** Use Ant-style path matching for {@link #CACHE_TIMEOUTS}? */
 	public static final String CACHE_TIMEOUTS_ANT_STYLE = "cacheTimeoutsAntStyle";
-	/** The time a cache entry lives, in seconds */
+	/** The default TTL for a cache entry in seconds, if there's no matching path defined in {@link #CACHE_TIMEOUTS}. */
 	public static final String CACHE_TIME_TO_LIVE = "cacheTimeToLive";
 	/** Set to true to enable caching statistics */
 	public static final String CACHE_STATISTICS = "cacheStatistics";
@@ -197,7 +197,7 @@ public class SiteProperties {
 	public static final String WWW_DIR = "wwwDir";
 
 	/**
-	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (CLOB value). Supports blank
+	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (multiline value). Supports blank
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";

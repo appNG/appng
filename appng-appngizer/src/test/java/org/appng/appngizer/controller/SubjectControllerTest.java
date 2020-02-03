@@ -15,8 +15,11 @@
  */
 package org.appng.appngizer.controller;
 
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.appng.appngizer.model.Utils;
 import org.appng.appngizer.model.xml.Group;
 import org.appng.appngizer.model.xml.Groups;
+import org.appng.appngizer.model.xml.PasswordChangePolicy;
 import org.appng.appngizer.model.xml.Subject;
 import org.appng.appngizer.model.xml.UserType;
 import org.junit.FixMethodOrder;
@@ -53,8 +56,14 @@ public class SubjectControllerTest extends ControllerTest {
 		subject.setTimeZone("Europe/Madrid");
 		subject.setLanguage("es");
 		subject.getGroups().getGroup().clear();
+		subject.setPasswordChangePolicy(PasswordChangePolicy.MUST_NOT);
+		subject.setLocked(true);
+		subject.setExpiryDate(Utils.getCal(FastDateFormat.getInstance("yy-MM-dd HH:mm").parse("20-01-01 16:15")));
 		putAndVerify("/subject/Admin", "xml/subject-update.xml", subject, HttpStatus.OK);
 
+		subject.setLocked(false);
+		subject.setExpiryDate(null);
+		putAndVerify("/subject/Admin", "xml/subject-update-unlock.xml", subject, HttpStatus.OK);
 	}
 
 	@Test

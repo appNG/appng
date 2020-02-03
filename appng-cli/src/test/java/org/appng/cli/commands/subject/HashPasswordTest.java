@@ -17,7 +17,7 @@ package org.appng.cli.commands.subject;
 
 import org.appng.api.BusinessException;
 import org.appng.cli.commands.AbstractCommandTest;
-import org.appng.cli.commands.subject.HashPassword.PasswordSubject;
+import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -33,7 +33,7 @@ public class HashPasswordTest extends AbstractCommandTest {
 	}
 
 	public void validate() {
-		PasswordSubject authSubject = new PasswordSubject();
+		SubjectImpl authSubject = new SubjectImpl();
 		authSubject.setDigest(cliEnv.getResult());
 		BCryptPasswordHandler passwordHandler = new BCryptPasswordHandler(authSubject);
 		passwordHandler.isValidPassword(SUPERSECRET);

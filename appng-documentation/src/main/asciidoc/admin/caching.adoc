@@ -46,7 +46,7 @@ The path specific cache timeouts, as a multi-lined value. The format is `path-pr
 * `cacheTimeoutsAntStyle` +
 When set to `true`, the path-prefixes defined in `cacheTimeouts` can use https://ant.apache.org/manual/dirtasks.html#patterns[Ant-style path matching^].
 * `cacheTimeToLive` +
-The default TTL for a cache entry, if there's no matching path defined in `cacheTimeouts`.
+The default TTL for a cache entry in seconds, if there's no matching path defined in `cacheTimeouts`.
 * `cacheStatistics` +
 Set to `true to` enable caching statistics
 * `cacheWatchRepository` +

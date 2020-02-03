@@ -133,21 +133,19 @@ public class PathInfo implements Path {
 		}
 		if (isGui()) {
 			int idx = pathElements.indexOf(guiPath.substring(1));
-			if (hasElementAt(idx)) {
-				if (hasElementAt(idx + 1)) {
-					siteIdx = idx + 1;
+			if (hasElementAt(idx) && hasElementAt(idx + 1)) {
+				siteIdx = idx + 1;
+				if (pathElements.get(siteIdx).startsWith(OUTPUT_PREFIX)) {
+					siteIdx += 1;
 					if (pathElements.get(siteIdx).startsWith(OUTPUT_PREFIX)) {
 						siteIdx += 1;
-						if (pathElements.get(siteIdx).startsWith(OUTPUT_PREFIX)) {
-							siteIdx += 1;
-						}
 					}
+				}
 
-					if (hasElementAt(siteIdx + 1)) {
-						applicationIdx = siteIdx + 1;
-						if (hasElementAt(applicationIdx + 1)) {
-							pageIdx = applicationIdx + 1;
-						}
+				if (hasElementAt(siteIdx + 1)) {
+					applicationIdx = siteIdx + 1;
+					if (hasElementAt(applicationIdx + 1)) {
+						pageIdx = applicationIdx + 1;
 					}
 				}
 			}
@@ -266,10 +264,8 @@ public class PathInfo implements Path {
 	}
 
 	public String getPage() {
-		if (null == this.page) {
-			if (hasElementAt(pageIdx)) {
-				return pathElements.get(pageIdx);
-			}
+		if (null == this.page && hasElementAt(pageIdx)) {
+			return pathElements.get(pageIdx);
 		}
 		return page;
 	}
@@ -317,14 +313,10 @@ public class PathInfo implements Path {
 	public List<String> getApplicationUrlParameters() {
 		if (isGui()) {
 			if (hasElementAt(pageIdx) && hasElementAt(pageIdx + 1)) {
-				List<String> params = pathElements.subList(pageIdx + 1, pathElements.size());
-				return params;
+				return pathElements.subList(pageIdx + 1, pathElements.size());
 			}
-		} else if (isService()) {
-			if (hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 3)) {
-				List<String> params = pathElements.subList(applicationIdx + 3, pathElements.size());
-				return params;
-			}
+		} else if (isService() && hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 3)) {
+			return pathElements.subList(applicationIdx + 3, pathElements.size());
 		}
 		return new ArrayList<>(0);
 	}
@@ -379,6 +371,7 @@ public class PathInfo implements Path {
 		return servletPath.startsWith(SEPARATOR + repositoryPath);
 	}
 
+	@Override
 	public boolean isMonitoring() {
 		return servletPath.startsWith(monitoringPath);
 	}
@@ -400,19 +393,15 @@ public class PathInfo implements Path {
 	}
 
 	public String getOutputFormat() {
-		if (isGui()) {
-			if (siteIdx - rootIdx > 1) {
-				return pathElements.get(rootIdx + 1).substring(1);
-			}
+		if (isGui() && siteIdx - rootIdx > 1) {
+			return pathElements.get(rootIdx + 1).substring(1);
 		}
 		return null;
 	}
 
 	public String getOutputType() {
-		if (isGui()) {
-			if (siteIdx - rootIdx > 2) {
-				return pathElements.get(rootIdx + 2).substring(1);
-			}
+		if (isGui() && siteIdx - rootIdx > 2) {
+			return pathElements.get(rootIdx + 2).substring(1);
 		}
 		return null;
 	}
@@ -426,15 +415,13 @@ public class PathInfo implements Path {
 	}
 
 	public String getService() {
-		if (isService()) {
-			if (hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 2)) {
-				String parameters = pathElements.get(applicationIdx + 2);
-				int indexOf = parameters.indexOf("?");
-				if (indexOf > 0) {
-					return parameters.substring(0, indexOf);
-				}
-				return parameters;
+		if (isService() && hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 2)) {
+			String parameters = pathElements.get(applicationIdx + 2);
+			int indexOf = parameters.indexOf('?');
+			if (indexOf > 0) {
+				return parameters.substring(0, indexOf);
 			}
+			return parameters;
 		}
 		return null;
 	}
@@ -514,7 +501,7 @@ public class PathInfo implements Path {
 		}
 
 		public String getSegments(int index) {
-			StringBuffer segmentString = new StringBuffer();
+			StringBuilder segmentString = new StringBuilder();
 			getSegmentsList(1, index).forEach(segment -> segmentString.append(SEPARATOR + segment));
 			return 0 == segmentString.length() ? SEPARATOR : segmentString.toString();
 		}

@@ -15,6 +15,7 @@
  */
 package org.appng.appngizer.model;
 
+import org.appng.appngizer.model.xml.PasswordChangePolicy;
 import org.appng.appngizer.model.xml.UserType;
 import org.appng.core.domain.SubjectImpl;
 
@@ -41,7 +42,12 @@ public class Subject extends org.appng.appngizer.model.xml.Subject implements Ur
 		subject.setLanguage(subjectImpl.getLanguage());
 		subject.setEmail(subjectImpl.getEmail());
 		subject.setRealName(subjectImpl.getRealname());
-		if(setDigest){
+		subject.setLastLogin(Utils.getCal(subjectImpl.getLastLogin()));
+		subject.setLocked(subjectImpl.isLocked());
+		subject.setExpiryDate(Utils.getCal(subjectImpl.getExpiryDate()));
+		subject.setPasswordChangePolicy(PasswordChangePolicy.valueOf(subjectImpl.getPasswordChangePolicy().name()));
+		subject.setFailedLoginAttempts(subjectImpl.getFailedLoginAttempts());
+		if (setDigest) {
 			subject.setDigest(subjectImpl.getDigest());
 		}
 		subject.setType(UserType.valueOf(subjectImpl.getUserType().name()));

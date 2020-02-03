@@ -218,7 +218,7 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		return futureTask.get();
 	}
 
-	protected ResponseEntity<Void> install(Package uploadPackage, String cookie)
+	protected ResponseEntity<Void> install(Package uploadPackage)
 			throws URISyntaxException, MojoExecutionException {
 		getLog().info(String.format("Installing %s %s %s", uploadPackage.getName(), uploadPackage.getVersion(),
 				uploadPackage.getTimestamp()));

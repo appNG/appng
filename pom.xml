@@ -48,6 +48,7 @@
 
 	<properties>
 		<appNG.version>${project.version}</appNG.version>
+		<argLine>-Xms1g -Xmx2g -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 		<docDir>./target/generated-docs</docDir>
 		<license.licenseName>apache_v2</license.licenseName>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
@@ -243,7 +244,6 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<forkCount>0</forkCount>
-							<argLine>${argLine} -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -444,14 +444,11 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M3</version>
-					<configuration>
-						<argLine>-Xms1g -Xmx2g -Dfile.encoding=${project.build.sourceEncoding}</argLine>
-					</configuration>
+					<version>3.0.0-M4</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>3.0.0-M3</version>
+					<version>3.0.0-M4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -483,12 +480,12 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.6.0.1398</version>
+					<version>3.7.0.1746</version>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.0</version>
+					<version>0.8.5</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

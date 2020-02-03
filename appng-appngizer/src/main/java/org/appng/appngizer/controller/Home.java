@@ -70,8 +70,7 @@ public class Home extends ControllerBase implements InitializingBean {
 		initMessaging();
 		String appngVersion = (String) context.getAttribute(AppNGizer.APPNG_VERSION);
 		boolean dbInitialized = getDatabaseStatus() != null;
-		org.appng.appngizer.model.Home entity = new org.appng.appngizer.model.Home(appngVersion, dbInitialized,
-				getUriBuilder());
+		org.appng.appngizer.model.Home entity = new org.appng.appngizer.model.Home(appngVersion, dbInitialized);
 		entity.applyUriComponents(getUriBuilder());
 		return ok(entity);
 	}

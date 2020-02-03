@@ -99,7 +99,7 @@ public class CliShell {
 
 		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
-		while (true) {
+		while (!Thread.currentThread().isInterrupted()) {
 			System.out.print("appng> ");
 			String commandLine = console.readLine();
 			if ("exit".equals(StringUtils.trimToEmpty(commandLine))) {

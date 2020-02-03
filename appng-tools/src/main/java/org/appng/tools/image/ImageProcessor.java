@@ -424,6 +424,7 @@ public class ImageProcessor {
 		try {
 			cmd.run(op, sourceFile.getAbsolutePath(), targetFile.getAbsolutePath());
 		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
 			throw new IOException(ex);
 		} catch (IM4JavaException ex) {
 			throw new IOException(ex);

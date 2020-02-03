@@ -55,7 +55,7 @@ public class MagicByteCheck {
 		sw.start();
 		String magicExtension = getExtensionByMagicBytes(sourceFile);
 		String fileNameExtension = normalizeFileExtension(FilenameUtils.getExtension(sourceFile.getName()));
-		boolean matches = magicExtension.equalsIgnoreCase(fileNameExtension);
+		boolean matches = fileNameExtension.equalsIgnoreCase(magicExtension);
 		if (!matches) {
 			LOGGER.debug("File type detected by magic byte ({}) is not identical with file extension for file {}",
 					magicExtension, fileNameExtension, sourceFile.getAbsolutePath());

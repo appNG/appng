@@ -207,14 +207,14 @@ public class PropertySupport {
 	 */
 	public void initSiteProperties(SiteImpl site, Properties platformConfig) {
 		bundle = ResourceBundle.getBundle("org/appng/core/site-config");
-		if (null != platformConfig) {
-			String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
-			String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
-			addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
-			String regEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
-			String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
-			site.setPasswordPolicy(new DefaultPasswordPolicy(regEx, errorMessageKey));
-		}
+
+		String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
+		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
+		addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
+		String pwdRegEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
+		String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
+		site.setPasswordPolicy(new DefaultPasswordPolicy(pwdRegEx, errorMessageKey));
+
 		addSiteProperty(SiteProperties.NAME, site.getName());
 		addSiteProperty(SiteProperties.HOST, site.getHost());
 		addSiteProperty(SiteProperties.WWW_DIR, "/www");
@@ -223,11 +223,13 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.SERVICE_OUTPUT_TYPE, "service");
 		addSiteProperty(SiteProperties.SERVICE_PATH, "/service");
 		addSiteProperty(SiteProperties.SUPPORTED_LANGUAGES, "en, de");
-		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
-		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
-		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINE);
-		addSiteProperty(SiteProperties.CACHE_STATISTICS, false);
 		addSiteProperty(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN, true);
+		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
+		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINE);
+		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
+		addSiteProperty(SiteProperties.CACHE_TIMEOUTS, StringUtils.EMPTY, Type.MULTILINE);
+		addSiteProperty(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE, true);
+		addSiteProperty(SiteProperties.CACHE_STATISTICS, false);
 		addSiteProperty(SiteProperties.ERROR_PAGE, "error");
 		addSiteProperty(SiteProperties.ERROR_PAGES, "/de=fehler|/en=error");
 		addSiteProperty(SiteProperties.INDEX_DIR, "/index");
@@ -339,6 +341,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.FORMAT_OUTPUT, false);
 		addPlatformProperty(defaultOverrides, Platform.Property.IMAGE_CACHE_FOLDER, "image");
 		addPlatformProperty(defaultOverrides, Platform.Property.IMAGEMAGICK_PATH, "/usr/bin");
+		addPlatformProperty(defaultOverrides, Platform.Property.INACTIVE_LOCK_PERIOD, 0);
 		addPlatformProperty(defaultOverrides, Platform.Property.JSP_FILE_TYPE, "jsp");
 		addPlatformProperty(defaultOverrides, Platform.Property.LOCALE, "en");
 		addPlatformProperty(defaultOverrides, Platform.Property.LOGFILE, "appNG.log");
@@ -347,6 +350,7 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.MAIL_PORT, 25);
 		addPlatformProperty(defaultOverrides, Platform.Property.MANAGE_DATABASES, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MAX_UPLOAD_SIZE, 30 * 1024 * 1024);
+		addPlatformProperty(defaultOverrides, Platform.Property.MAX_LOGIN_ATTEMPTS, 20);
 		addPlatformProperty(defaultOverrides, Platform.Property.MDC_ENABLED, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_ENABLED, Boolean.FALSE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_ADDRESS, "224.2.2.4");
@@ -392,7 +396,7 @@ public class PropertySupport {
 				if (prefixedName.startsWith(PREFIX_PLATFORM)) {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
-					boolean isMultiline = value.indexOf(StringUtils.LF) > 0;
+					boolean isMultiline = value.contains(StringUtils.LF);
 					propertyHolder.addProperty(name, value, null,
 							isMultiline ? Type.MULTILINE : Type.forObject(value));
 					if (LOGGER.isDebugEnabled()) {

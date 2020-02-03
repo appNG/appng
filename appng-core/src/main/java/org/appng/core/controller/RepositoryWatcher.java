@@ -120,11 +120,12 @@ public class RepositoryWatcher implements Runnable {
 
 	public void run() {
 		LOGGER.info("start watching...");
-		for (;;) {
+		while (!Thread.currentThread().isInterrupted()) {
 			WatchKey key;
 			try {
 				key = watcher.take();
 			} catch (InterruptedException x) {
+				Thread.currentThread().interrupt();
 				return;
 			}
 			for (WatchEvent<?> event : key.pollEvents()) {

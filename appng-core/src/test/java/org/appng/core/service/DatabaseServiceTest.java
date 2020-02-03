@@ -70,7 +70,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "4.1.2");
+		validateSchemaVersion(platformConnection, "4.2");
 
 		DatabaseConnection mssql = new DatabaseConnection(DatabaseType.MSSQL, rootName, "", "".getBytes());
 		mssql.setName(rootName);
@@ -132,6 +132,12 @@ public class DatabaseServiceTest extends TestInitializer {
 		testInitDatabasePostgreSQL("11.3");
 	}
 
+	@Test
+	@Ignore("uses testcontainers, which needs docker")
+	public void testInitDatabasePostgreSQL12() throws Exception {
+		testInitDatabasePostgreSQL("12.1");
+	}
+
 	void testInitDatabasePostgreSQL(String version) throws Exception {
 		try (PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:" + version)) {
 			postgres.start();
@@ -162,7 +168,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		if (checksize) {
 			Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
 		}
-		validateSchemaVersion(platformConnection, "4.1.2");
+		validateSchemaVersion(platformConnection, "4.2");
 
 		testRootConnectionJPA(platformConnection);
 		if (checkConnection) {

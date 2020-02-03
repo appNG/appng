@@ -172,7 +172,7 @@ public class InitializerService {
 		loadPlatform(defaultOverrides, env, null, null, executor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
-		coreService.createEvent(Type.INFO, "Started platform", null);
+		coreService.createEvent(Type.INFO, "Started platform");
 	}
 
 	/**
@@ -347,6 +347,7 @@ public class InitializerService {
 						try {
 							key = watcher.take();
 						} catch (InterruptedException x) {
+							Thread.currentThread().interrupt();
 							return;
 						}
 						for (WatchEvent<?> event : key.pollEvents()) {
@@ -421,6 +422,7 @@ public class InitializerService {
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
+	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
 		loadSite(env, siteToLoad, true, fp);
@@ -853,7 +855,7 @@ public class InitializerService {
 		}
 		CacheService.shutdown();
 		env.removeAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		coreService.createEvent(Type.INFO, "Stopped platform", null);
+		coreService.createEvent(Type.INFO, "Stopped platform");
 	}
 
 	/**
