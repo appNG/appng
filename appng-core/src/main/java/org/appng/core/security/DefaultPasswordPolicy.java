@@ -52,6 +52,10 @@ public class DefaultPasswordPolicy implements PasswordPolicy {
 		return errorMessageKey;
 	}
 
+	public Pattern getPattern() {
+		return pattern;
+	}
+
 	public String generatePassword() {
 		return random(6, LOWERCASE + UPPERCASE) + random(1, NUMBER) + random(1, PUNCT);
 	}
