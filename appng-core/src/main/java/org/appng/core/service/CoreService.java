@@ -1269,7 +1269,9 @@ public class CoreService {
 				LOGGER.debug("setting new password for {}", email);
 				String password = passwordPolicy.generatePassword();
 				getDefaultPasswordHandler(authSubject).applyPassword(password);
-				getDefaultPasswordHandler(subject).applyPassword(password);
+				subject.setDigest(authSubject.getDigest());
+				subject.setSalt(null);
+				subject.setPasswordLastChanged(new Date());
 				subject.setPasswordChangePolicy(PasswordChangePolicy.MAY);
 				return password.getBytes();
 			} else {
@@ -1285,7 +1287,7 @@ public class CoreService {
 	public String forgotPassword(AuthSubject authSubject) throws BusinessException {
 		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
 		if (canSubjectResetPassword(subject)) {
-			return getPasswordHandler(authSubject).calculatePasswordResetDigest();
+			return getPasswordHandler(subject).calculatePasswordResetDigest();
 		} else {
 			throw new BusinessException(String.format("%s does not exist, is locked or must not change password!",
 					authSubject.getAuthName()));
