@@ -29,6 +29,7 @@ import org.appng.api.Platform;
 import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.auth.AuthTools;
+import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
@@ -39,6 +40,7 @@ import org.appng.core.controller.HttpHeaders;
 import org.appng.core.controller.messaging.MulticastReceiver;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.config.HikariCPConfigurer;
+import org.appng.core.security.ConfigurablePasswordPolicy;
 import org.appng.core.security.DefaultPasswordPolicy;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +50,8 @@ import lombok.extern.slf4j.Slf4j;
  * {@link Site} or an {@link Application}.
  * 
  * @author Matthias Müller
- * 
- * @see Properties
- * @see PropertyHolder
+ * @see    Properties
+ * @see    PropertyHolder
  */
 @Slf4j
 public class PropertySupport {
@@ -211,9 +212,24 @@ public class PropertySupport {
 		String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
 		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
 		addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
-		String pwdRegEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
-		String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
-		site.setPasswordPolicy(new DefaultPasswordPolicy(pwdRegEx, errorMessageKey));
+
+		String passwordPolicyClass = platformConfig.getString(Platform.Property.PASSWORD_POLICY);
+		PasswordPolicy passwordPolicy = null;
+		if (StringUtils.isNotBlank(passwordPolicyClass)) {
+			try {
+				passwordPolicy = (PasswordPolicy) getClass().getClassLoader().loadClass(passwordPolicyClass)
+						.newInstance();
+			} catch (ReflectiveOperationException e) {
+				LOGGER.error("error while instantiating " + passwordPolicyClass, e);
+			}
+		}
+		if (null == passwordPolicy) {
+			passwordPolicy = new ConfigurablePasswordPolicy();
+		}
+
+		LOGGER.debug("Using {} for site {}", passwordPolicy.getClass().getName(), site.getName());
+		passwordPolicy.configure(platformConfig);
+		site.setPasswordPolicy(passwordPolicy);
 
 		addSiteProperty(SiteProperties.NAME, site.getName());
 		addSiteProperty(SiteProperties.HOST, site.getHost());
@@ -397,8 +413,7 @@ public class PropertySupport {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
 					boolean isMultiline = value.contains(StringUtils.LF);
-					propertyHolder.addProperty(name, value, null,
-							isMultiline ? Type.MULTILINE : Type.forObject(value));
+					propertyHolder.addProperty(name, value, null, isMultiline ? Type.MULTILINE : Type.forObject(value));
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
 					}
