@@ -27,10 +27,12 @@ import org.appng.core.service.PropertySupport;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.passay.AllowedCharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.HistoryRule;
 import org.passay.LengthRule;
 import org.passay.UsernameRule;
+import org.passay.WhitespaceRule;
 
 public class ConfigurablePasswordPolicyTest {
 
@@ -62,6 +64,12 @@ public class ConfigurablePasswordPolicyTest {
 
 		String username = "johndoe";
 		String currentPassword = "test";
+
+		// contains invalid character 'ß'
+		assertFirstError(AllowedCharacterRule.ERROR_CODE, username, currentPassword, "TEst12!!ß");
+
+		// contains space
+		assertFirstError(WhitespaceRule.ERROR_CODE, username, currentPassword, "TEst12!! ");
 
 		// contains username
 		assertFirstError(UsernameRule.ERROR_CODE, username, currentPassword, username + "12!O");

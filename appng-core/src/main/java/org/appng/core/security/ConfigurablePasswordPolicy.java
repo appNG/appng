@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.MessageParam;
 import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Properties;
+import org.passay.AllowedCharacterRule;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -37,6 +38,7 @@ import org.passay.PasswordValidator;
 import org.passay.Rule;
 import org.passay.RuleResult;
 import org.passay.UsernameRule;
+import org.passay.WhitespaceRule;
 
 /**
  * A configurable {@link PasswordPolicy} using a {@link org.passay.PasswordValidator}.<br/>
@@ -53,6 +55,8 @@ import org.passay.UsernameRule;
  * maxLength = 255
  * useHistory = true
  * useUsername = true
+ * allowOtherCharacters = false
+ * allowWhiteSpace = false
  * generateLength = 8
  * generateLowerCase = 3
  * generateUppercase = 3
@@ -88,6 +92,8 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		Integer maxLength = Integer.valueOf(properties.getProperty("maxLength", "255"));
 		Boolean useHistory = Boolean.valueOf(properties.getProperty("useHistory", "true"));
 		Boolean useUsername = Boolean.valueOf(properties.getProperty("useUsername", "true"));
+		Boolean allowWhiteSpace = Boolean.valueOf(properties.getProperty("allowWhiteSpace", "false"));
+		Boolean allowOtherCharacters = Boolean.valueOf(properties.getProperty("allowOtherCharacters", "false"));
 
 		Integer generateLowerCase = Integer.valueOf(properties.getProperty("generateLowerCase", "3"));
 		Integer generateUppercase = Integer.valueOf(properties.getProperty("generateUppercase", "3"));
@@ -96,11 +102,11 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		this.generateLength = Integer.valueOf(properties.getProperty("generateLength", "8"));
 
 		List<Rule> rules = new ArrayList<>();
-
-		addRule(rules, EnglishCharacterData.LowerCase, minLowerCase);
-		addRule(rules, EnglishCharacterData.UpperCase, minUppercase);
-		addRule(rules, EnglishCharacterData.Digit, minDigits);
-		addRule(rules, getSpecialChars(allowedSpecialChars), minSpecialChars);
+		String allowedCharacters = StringUtils.EMPTY;
+		allowedCharacters += addRule(rules, EnglishCharacterData.LowerCase, minLowerCase);
+		allowedCharacters += addRule(rules, EnglishCharacterData.UpperCase, minUppercase);
+		allowedCharacters += addRule(rules, EnglishCharacterData.Digit, minDigits);
+		allowedCharacters += addRule(rules, getSpecialChars(allowedSpecialChars), minSpecialChars);
 
 		generationRules = new ArrayList<>();
 		addCharacterRule(generationRules, EnglishCharacterData.LowerCase, generateLowerCase);
@@ -114,6 +120,15 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		}
 		if (useUsername) {
 			rules.add(new UsernameRule(true, true, MatchBehavior.Contains));
+		}
+		if (allowWhiteSpace) {
+			allowedCharacters += StringUtils.SPACE;
+		} else {
+			rules.add(new WhitespaceRule());
+		}
+
+		if (!allowOtherCharacters) {
+			rules.add(new AllowedCharacterRule(allowedCharacters.toCharArray(), true));
 		}
 
 		this.passwordValidator = new PasswordValidator(rules);
@@ -138,10 +153,12 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		};
 	}
 
-	private void addRule(List<Rule> rules, CharacterData characterData, Integer min) {
+	private String addRule(List<Rule> rules, CharacterData characterData, Integer min) {
 		if (min > 0) {
 			rules.add(new CharacterRule(characterData, min));
+			return characterData.getCharacters();
 		}
+		return null;
 	}
 
 	private void addCharacterRule(List<CharacterRule> rules, CharacterData characterData, Integer min) {
