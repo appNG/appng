@@ -53,8 +53,8 @@ import org.passay.UsernameRule;
  * maxLength = 255
  * useHistory = true
  * useUsername = true
- * generateMinLength = 8
- * generatLowerCase = 3
+ * generateLength = 8
+ * generateLowerCase = 3
  * generateUppercase = 3
  * generateDigits = 1
  * generateSpecialChars = 1
@@ -67,7 +67,7 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 	private PasswordValidator passwordValidator;
 	private PasswordGenerator passwordGenerator;
 	private List<CharacterRule> generationRules;
-	private Integer generateMinLength;
+	private Integer generateLength;
 
 	@Override
 	public void configure(Properties platformProperties) {
@@ -89,11 +89,11 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		Boolean useHistory = Boolean.valueOf(properties.getProperty("useHistory", "true"));
 		Boolean useUsername = Boolean.valueOf(properties.getProperty("useUsername", "true"));
 
-		Integer generatLowerCase = Integer.valueOf(properties.getProperty("generatLowerCase", "3"));
+		Integer generateLowerCase = Integer.valueOf(properties.getProperty("generateLowerCase", "3"));
 		Integer generateUppercase = Integer.valueOf(properties.getProperty("generateUppercase", "3"));
 		Integer generateDigits = Integer.valueOf(properties.getProperty("generateDigits", "1"));
 		Integer generateSpecialChars = Integer.valueOf(properties.getProperty("generateSpecialChars", "1"));
-		this.generateMinLength = Integer.valueOf(properties.getProperty("generateMinLength", "8"));
+		this.generateLength = Integer.valueOf(properties.getProperty("generateLength", "8"));
 
 		List<Rule> rules = new ArrayList<>();
 
@@ -103,10 +103,10 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		addRule(rules, getSpecialChars(allowedSpecialChars), minSpecialChars);
 
 		generationRules = new ArrayList<>();
-		addCharacterRulee(generationRules, EnglishCharacterData.LowerCase, generatLowerCase);
-		addCharacterRulee(generationRules, EnglishCharacterData.UpperCase, generateUppercase);
-		addCharacterRulee(generationRules, EnglishCharacterData.Digit, generateDigits);
-		addCharacterRulee(generationRules, getSpecialChars(allowedSpecialChars), generateSpecialChars);
+		addCharacterRule(generationRules, EnglishCharacterData.LowerCase, generateLowerCase);
+		addCharacterRule(generationRules, EnglishCharacterData.UpperCase, generateUppercase);
+		addCharacterRule(generationRules, EnglishCharacterData.Digit, generateDigits);
+		addCharacterRule(generationRules, getSpecialChars(allowedSpecialChars), generateSpecialChars);
 
 		rules.add(new LengthRule(minLength, maxLength));
 		if (useHistory) {
@@ -144,8 +144,10 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		}
 	}
 
-	private void addCharacterRulee(List<CharacterRule> rules, CharacterData characterData, Integer min) {
-		rules.add(new CharacterRule(characterData, min));
+	private void addCharacterRule(List<CharacterRule> rules, CharacterData characterData, Integer min) {
+		if (min > 0) {
+			rules.add(new CharacterRule(characterData, min));
+		}
 	}
 
 	public boolean isValidPassword(char[] password) {
@@ -184,7 +186,7 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 	}
 
 	public String generatePassword() {
-		return passwordGenerator.generatePassword(generateMinLength, generationRules);
+		return passwordGenerator.generatePassword(generateLength, generationRules);
 	}
 
 	public PasswordValidator getValidator() {
