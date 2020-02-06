@@ -74,7 +74,7 @@ public interface PasswordPolicy {
 	boolean isValidPassword(char[] password);
 
 	/**
-	 * Validates the password an returns a {@link RuleResult}
+	 * Validates the password an returns a {@link ValidationResult}
 	 * 
 	 * @param  username
 	 *                         the username (can be {@code null})
