@@ -17,6 +17,7 @@ package org.appng.core.security;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,7 @@ import org.appng.api.MessageParam;
 import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Properties;
 import org.passay.AllowedCharacterRule;
+import org.passay.CharacterCharacteristicsRule;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -55,6 +57,7 @@ import org.passay.WhitespaceRule;
  * maxLength = 255
  * useHistory = true
  * useUsername = true
+ * numCharacterGroups = 4
  * allowOtherCharacters = false
  * allowWhiteSpace = false
  * generateLength = 8
@@ -90,6 +93,7 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		String allowedSpecialChars = properties.getProperty("allowedSpecialChars", PUNCT);
 		Integer minLength = Integer.valueOf(properties.getProperty("minLength", "8"));
 		Integer maxLength = Integer.valueOf(properties.getProperty("maxLength", "255"));
+		Integer numCharacterGroups = Integer.valueOf(properties.getProperty("numCharacterGroups", "4"));
 		Boolean useHistory = Boolean.valueOf(properties.getProperty("useHistory", "true"));
 		Boolean useUsername = Boolean.valueOf(properties.getProperty("useUsername", "true"));
 		Boolean allowWhiteSpace = Boolean.valueOf(properties.getProperty("allowWhiteSpace", "false"));
@@ -102,17 +106,26 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		this.generateLength = Integer.valueOf(properties.getProperty("generateLength", "8"));
 
 		List<Rule> rules = new ArrayList<>();
+
+		List<CharacterRule> characteristicsRules = new ArrayList<>();
 		String allowedCharacters = StringUtils.EMPTY;
-		allowedCharacters += addRule(rules, EnglishCharacterData.LowerCase, minLowerCase);
-		allowedCharacters += addRule(rules, EnglishCharacterData.UpperCase, minUppercase);
-		allowedCharacters += addRule(rules, EnglishCharacterData.Digit, minDigits);
-		allowedCharacters += addRule(rules, getSpecialChars(allowedSpecialChars), minSpecialChars);
+		allowedCharacters += addRule(characteristicsRules, EnglishCharacterData.LowerCase, minLowerCase);
+		allowedCharacters += addRule(characteristicsRules, EnglishCharacterData.UpperCase, minUppercase);
+		allowedCharacters += addRule(characteristicsRules, EnglishCharacterData.Digit, minDigits);
+		allowedCharacters += addRule(characteristicsRules, getSpecialChars(allowedSpecialChars), minSpecialChars);
+
+		int effectiveNumRules = characteristicsRules.size();
+		int minCharacteristics = numCharacterGroups > effectiveNumRules ? effectiveNumRules : numCharacterGroups;
+		CharacterCharacteristicsRule characteristicsRule = new CharacterCharacteristicsRule(minCharacteristics,
+				characteristicsRules);
+		characteristicsRule.setReportFailure(numCharacterGroups != effectiveNumRules);
+		rules.add(characteristicsRule);
 
 		generationRules = new ArrayList<>();
-		addCharacterRule(generationRules, EnglishCharacterData.LowerCase, generateLowerCase);
-		addCharacterRule(generationRules, EnglishCharacterData.UpperCase, generateUppercase);
-		addCharacterRule(generationRules, EnglishCharacterData.Digit, generateDigits);
-		addCharacterRule(generationRules, getSpecialChars(allowedSpecialChars), generateSpecialChars);
+		addRule(generationRules, EnglishCharacterData.LowerCase, generateLowerCase);
+		addRule(generationRules, EnglishCharacterData.UpperCase, generateUppercase);
+		addRule(generationRules, EnglishCharacterData.Digit, generateDigits);
+		addRule(generationRules, getSpecialChars(allowedSpecialChars), generateSpecialChars);
 
 		rules.add(new LengthRule(minLength, maxLength));
 		if (useHistory) {
@@ -153,18 +166,12 @@ public class ConfigurablePasswordPolicy implements PasswordPolicy {
 		};
 	}
 
-	private String addRule(List<Rule> rules, CharacterData characterData, Integer min) {
+	private String addRule(List<CharacterRule> rules, CharacterData characterData, Integer min) {
 		if (min > 0) {
 			rules.add(new CharacterRule(characterData, min));
 			return characterData.getCharacters();
 		}
-		return null;
-	}
-
-	private void addCharacterRule(List<CharacterRule> rules, CharacterData characterData, Integer min) {
-		if (min > 0) {
-			rules.add(new CharacterRule(characterData, min));
-		}
+		return StringUtils.EMPTY;
 	}
 
 	public boolean isValidPassword(char[] password) {

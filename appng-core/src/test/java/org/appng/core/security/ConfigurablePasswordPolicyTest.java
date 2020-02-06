@@ -18,6 +18,7 @@ package org.appng.core.security;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.appng.api.MessageParam;
 import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.auth.PasswordPolicy.ValidationResult;
 import org.appng.api.model.Property;
@@ -40,23 +41,50 @@ public class ConfigurablePasswordPolicyTest {
 
 	@Before
 	public void setup() {
-		List<Property> properties = new ArrayList<>();
-		SimpleProperty allowedSpecialChars = new SimpleProperty(
-				PropertySupport.PREFIX_PLATFORM + "configurablePasswordPolicy", null);
-		allowedSpecialChars.setClob("allowedSpecialChars = !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
-		properties.add(allowedSpecialChars);
-		PropertyHolder platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties);
-		policy.configure(platformProperties);
+		policy.configure(null);
 	}
 
 	@Test
 	public void testGenerate() {
 		for (int i = 0; i < 1000; i++) {
 			String password = policy.generatePassword();
-			System.err.println(password);
 			Assert.assertTrue(
 					policy.validatePassword("johndoe", "test".toCharArray(), password.toCharArray()).isValid());
 		}
+	}
+
+	@Test
+	public void testGroupsMissing() {
+		PasswordPolicy policy = new ConfigurablePasswordPolicy();
+		List<Property> properties = new ArrayList<>();
+		SimpleProperty configurablePasswordPolicy = new SimpleProperty(
+				PropertySupport.PREFIX_PLATFORM + "configurablePasswordPolicy", null);
+		configurablePasswordPolicy.setClob("numCharacterGroups = 3");
+		properties.add(configurablePasswordPolicy);
+		PropertyHolder platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties);
+		policy.configure(platformProperties);
+
+		ValidationResult validated = policy.validatePassword("john", "test".toCharArray(), "TEST1234".toCharArray());
+		MessageParam[] messages = validated.getMessages();
+		Assert.assertTrue(messages.length == 3);
+		Assert.assertEquals("ConfigurablePasswordPolicy.INSUFFICIENT_LOWERCASE", messages[0].getMessageKey());
+		Assert.assertEquals("ConfigurablePasswordPolicy.INSUFFICIENT_SPECIAL", messages[1].getMessageKey());
+		Assert.assertEquals("ConfigurablePasswordPolicy.INSUFFICIENT_CHARACTERISTICS", messages[2].getMessageKey());
+	}
+
+	@Test
+	public void testLowerOnly() {
+		PasswordPolicy policy = new ConfigurablePasswordPolicy();
+		List<Property> properties = new ArrayList<>();
+		SimpleProperty configurablePasswordPolicy = new SimpleProperty(
+				PropertySupport.PREFIX_PLATFORM + "configurablePasswordPolicy", null);
+		configurablePasswordPolicy.setClob("minUppercase=0\rminDigits=0\rminSpecialChars=0");
+		properties.add(configurablePasswordPolicy);
+		PropertyHolder platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties);
+		policy.configure(platformProperties);
+
+		ValidationResult validated = policy.validatePassword("john", "test".toCharArray(), "testtest".toCharArray());
+		Assert.assertTrue(validated.isValid());
 	}
 
 	@Test
