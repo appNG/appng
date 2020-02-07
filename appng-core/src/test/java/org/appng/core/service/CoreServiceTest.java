@@ -428,7 +428,7 @@ public class CoreServiceTest {
 		while (null == nodeStates.get(nodeId)) {
 			Thread.sleep(100);
 		}
-		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null), false);
 		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
 		// 5x NodeEvent

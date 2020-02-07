@@ -258,7 +258,7 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
-		CacheService.createCacheManager(hazelcast);
+		CacheService.createCacheManager(hazelcast, HazelcastConfigurer.isClient());
 
 		CacheManager cacheManager = CacheService.getCacheManager();
 

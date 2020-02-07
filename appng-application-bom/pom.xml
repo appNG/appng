@@ -262,13 +262,13 @@
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast-spring</artifactId>
-				<version>3.12.5</version>
+				<version>4.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
-				<version>3.12.5</version>
+				<version>4.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

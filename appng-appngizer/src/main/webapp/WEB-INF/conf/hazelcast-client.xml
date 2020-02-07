@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hazelcast-client xmlns="http://www.hazelcast.com/schema/client-config"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/client-config/hazelcast-client-config-3.12.xsd">
+	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/client-config/hazelcast-client-config-4.0.xsd">
 	<properties>
 		<property name="hazelcast.logging.type">slf4j</property>
 	</properties>	
-	<group>
-		<name>dev</name>
-	</group>
 	<instance-name>appNG</instance-name>
 	<network>
 		<cluster-members>
