@@ -49,6 +49,8 @@ import org.appng.api.FieldProcessor;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
+import org.appng.api.auth.PasswordPolicy;
+import org.appng.api.auth.PasswordPolicy.ValidationResult;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.TestReceiver;
 import org.appng.api.messaging.TestReceiver.TestSerializer;
@@ -89,6 +91,7 @@ import org.appng.core.model.RepositoryMode;
 import org.appng.core.model.RepositoryType;
 import org.appng.core.repository.DatabaseConnectionRepository;
 import org.appng.core.security.BCryptPasswordHandler;
+import org.appng.core.security.ConfigurablePasswordPolicy;
 import org.appng.core.security.DefaultPasswordPolicy;
 import org.appng.core.security.DigestUtil;
 import org.appng.core.security.PasswordHandler;
@@ -1008,8 +1011,25 @@ public class CoreServiceTest {
 	@Test
 	public void testUpdatePassword() throws BusinessException {
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
-		char[] password = "foobar".toCharArray();
-		assertTrue(coreService.updatePassword(password, password, subject));
+		PasswordPolicy dummyPolicy = new ConfigurablePasswordPolicy() {
+
+			public ValidationResult validatePassword(String username, char[] currentPassword, char[] password) {
+				return new ValidationResult(true, null);
+			}
+		};
+		ValidationResult updatePassword = coreService.updatePassword(dummyPolicy, "test".toCharArray(),
+				"foobar".toCharArray(), subject);
+		assertTrue(updatePassword.isValid());
+	}
+
+	@Test
+	public void testUpdatePasswordFail() throws BusinessException {
+		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
+		PasswordPolicy policy = new ConfigurablePasswordPolicy();
+		policy.configure(null);
+		ValidationResult updatePassword = coreService.updatePassword(policy, "test".toCharArray(),
+				"foobar".toCharArray(), subject);
+		assertFalse(updatePassword.isValid());
 	}
 
 	@Test

@@ -1735,21 +1735,21 @@ public class CoreService {
 		}
 	}
 
+	public PasswordPolicy.ValidationResult updatePassword(PasswordPolicy policy, char[] currentPassword,
+			char[] password, SubjectImpl currentSubject) {
+		PasswordPolicy.ValidationResult validationResult = policy.validatePassword(currentSubject.getAuthName(),
+				currentPassword, password);
+		if (validationResult.isValid()) {
+			PasswordHandler passwordHandler = getDefaultPasswordHandler(currentSubject);
+			passwordHandler.applyPassword(new String(password));
+		}
+		return validationResult;
+	}
+
+	@Deprecated
 	public Boolean updatePassword(char[] password, char[] passwordConfirmation, SubjectImpl currentSubject)
 			throws BusinessException {
-		boolean passwordUpdated = false;
-		String passwordString = new String(password);
-		String passwordConfirmationString = new String(passwordConfirmation);
-		if (StringUtils.isNotEmpty(passwordString) && StringUtils.isNotEmpty(passwordConfirmationString)) {
-			if (passwordString.equals(passwordConfirmationString)) {
-				PasswordHandler passwordHandler = getDefaultPasswordHandler(currentSubject);
-				passwordHandler.applyPassword(passwordString);
-				passwordUpdated = true;
-			} else {
-				throw new BusinessException("Passwords are not equal.");
-			}
-		}
-		return passwordUpdated;
+		throw new UnsupportedOperationException();
 	}
 
 	public void resetConnection(FieldProcessor fp, Integer conId) {
