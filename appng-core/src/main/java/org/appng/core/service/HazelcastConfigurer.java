@@ -20,7 +20,6 @@ import java.io.InputStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.core.controller.messaging.HazelcastReceiver;
-import org.springframework.util.ClassUtils;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
@@ -33,25 +32,16 @@ import com.hazelcast.core.HazelcastInstance;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
- * Utility class to retrieve the {@link HazelcastInstance} to be used by appNG.
- * This instance is then being used by {@link CacheService} and also by
- * {@link HazelcastReceiver}.
+ * Utility class to retrieve the {@link HazelcastInstance} to be used by appNG. This instance is then being used by
+ * {@link CacheService} and also by {@link HazelcastReceiver}.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class HazelcastConfigurer {
 
-	private static final String HAZELCAST_CLIENT = "com.hazelcast.client.HazelcastClient";
 	private static HazelcastInstance instance;
-	private static boolean clientPresent;
-	private static boolean isClient;
-
-	static {
-		clientPresent = ClassUtils.isPresent(HAZELCAST_CLIENT, HazelcastConfigurer.class.getClassLoader());
-	}
+	private static boolean isClient = false;
 
 	HazelcastConfigurer() {
 
@@ -68,7 +58,7 @@ public class HazelcastConfigurer {
 					InputStream cacheConfig = platformProperties.getCacheConfig();
 					if (null != cacheConfig) {
 						String providerType = System.getProperty("hazelcast.jcache.provider.type");
-						if ("server".equals(providerType) || !clientPresent) {
+						if (!"client".equals(providerType)) {
 							Config config = new XmlConfigBuilder(cacheConfig).build();
 							instance = Hazelcast.getOrCreateHazelcastInstance(config);
 							LOGGER.info("Using {}", instance);
@@ -107,6 +97,10 @@ public class HazelcastConfigurer {
 			instance.shutdown();
 			instance = null;
 		}
+	}
+
+	public static boolean isClient() {
+		return isClient;
 	}
 
 }

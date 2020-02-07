@@ -16,6 +16,7 @@
 package org.appng.core.controller.messaging;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 import org.appng.api.Environment;
@@ -31,9 +32,9 @@ import org.appng.core.service.HazelcastConfigurer;
 import org.slf4j.Logger;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.topic.Message;
+import com.hazelcast.topic.MessageListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HazelcastReceiver extends HazelcastBase implements Receiver, MessageListener<byte[]> {
 
 	private EventRegistry eventRegistry = new EventRegistry();
-	private String listenerId;
+	private UUID listenerId;
 
 	public Receiver configure(Serializer serializer) {
 		this.serializer = serializer;

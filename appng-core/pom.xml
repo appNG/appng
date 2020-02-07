@@ -24,7 +24,7 @@
 						<!-- skip integration tests -->
 						<exclude>**/*IT.java</exclude>
 					</excludes>
-					<argLine>-Dfile.encoding=${project.build.sourceEncoding} -Dhazelcast.jcache.provider.type=server</argLine>
+					<argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -398,11 +398,6 @@
 			<groupId>org.passay</groupId>
 			<artifactId>passay</artifactId>
 			<version>1.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast-client</artifactId>
-			<optional>true</optional>
 		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->
