@@ -538,7 +538,7 @@
 						<link>http://docs.spring.io/spring-data/data-jpa/docs/${springDataJpa.version}/api/</link>
 						<link>http://docs.spring.io/spring-data/data-commons/docs/${springData.version}/api/</link>
 						<link>http://docs.spring.io/spring-ws/docs/${springWS.version}/api/</link>
-						<link>http://lucene.apache.org/core/8_2_0/core/</link>
+						<link>http://lucene.apache.org/core/8_4_1/core/</link>
 						<link>http://docs.oracle.com/javaee/7/api/</link>
 						<link>http://xmlunit.sourceforge.net/api/</link>
 					</links>

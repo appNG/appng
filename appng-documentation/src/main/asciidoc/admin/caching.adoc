@@ -1,5 +1,5 @@
 ifndef::hazelcast[]
-:hazelcast: https://docs.hazelcast.org/docs/3.12.4/manual/html-single/index.html
+:hazelcast: https://docs.hazelcast.org/docs/4.0/manual/html-single/index.html
 endif::hazelcast[]
 
 == Caching
