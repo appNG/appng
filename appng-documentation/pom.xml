@@ -42,6 +42,7 @@
 						<spring-data-version>${springData.version}</spring-data-version>
 						<spring-data-jpa-version>${springDataJpa.version}</spring-data-jpa-version>
 						<lucene-version>${lucene.version}</lucene-version>
+						<manager-version>${appNG.manager.version}</manager-version>
 					</attributes>
 				</configuration>
 				<executions>
