@@ -79,7 +79,7 @@
 		<springSecurity.version>4.2.13.RELEASE</springSecurity.version>
 		<springWS.version>2.4.6.RELEASE</springWS.version>
 		<tika.version>1.18</tika.version>
-		<tomcat.version>9.0.27</tomcat.version>
+		<tomcat.version>9.0.31</tomcat.version>
 	</properties>
 	<scm>
 		<connection>scm:git:ssh://git@github.com:appNG/appng.git</connection>
@@ -473,7 +473,7 @@
 						<dependency>
 							<groupId>org.asciidoctor</groupId>
 							<artifactId>asciidoctorj-pdf</artifactId>
-							<version>1.5.0-alpha.15</version>
+							<version>1.5.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -834,7 +834,7 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.12.1</version>
+				<version>1.12.2</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -871,7 +871,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.19</version>
+				<version>1.20</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-collections</groupId>
@@ -918,7 +918,7 @@
 			<dependency>
 				<groupId>org.hibernate.validator</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>6.1.0.Final</version>
+				<version>6.1.2.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
@@ -985,7 +985,7 @@
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-				<version>8.0.18</version>
+				<version>8.0.19</version>
 			</dependency>
 			<dependency>
 				<groupId>org.im4java</groupId>
@@ -1050,7 +1050,7 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.10</version>
+				<version>4.5.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
