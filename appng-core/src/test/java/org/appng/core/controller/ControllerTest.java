@@ -90,6 +90,7 @@ public class ControllerTest extends Controller {
 		base.provider.registerBean("request", applicationRequest);
 		env = Mockito.spy(new DefaultEnvironment(base.ctx, host));
 		base.provider.registerBean("environment", env);
+		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
 	}
 
 	@Test
@@ -516,6 +517,21 @@ public class ControllerTest extends Controller {
 		String hostIdentifier = RequestUtil.getHostIdentifier(base.request, base.environment);
 		Assert.assertEquals(host, hostIdentifier);
 		Assert.assertEquals(base.host, base.request.getServerName());
+	}
+
+	@Test
+	public void testLoadingPage() {
+		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(false);
+		when(base.request.getServletPath()).thenReturn("/dummy");
+		try {
+			doGet(base.request, base.response);
+			String actual = new String(base.out.toByteArray());
+			Assert.assertEquals(new String(loadingScreen), actual);
+		} catch (Exception e) {
+			fail(e);
+		} finally {
+			Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
+		}
 	}
 
 	@Override

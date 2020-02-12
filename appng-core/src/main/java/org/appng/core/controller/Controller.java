@@ -92,7 +92,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	private Manager manager;
 
-	private final byte[] loadingScreen;
+	protected final byte[] loadingScreen;
 
 	public Controller() {
 		LOGGER.info("Controller created");
