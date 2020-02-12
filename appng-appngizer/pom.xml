@@ -84,7 +84,7 @@
 					<dependency>
 						<groupId>org.asciidoctor</groupId>
 						<artifactId>asciidoctorj-pdf</artifactId>
-						<version>1.5.0</version>
+						<version>1.5.0-rc.3</version>
 					</dependency>
 				</dependencies>
 				<configuration>
