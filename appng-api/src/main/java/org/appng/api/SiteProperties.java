@@ -145,8 +145,12 @@ public class SiteProperties {
 	public static final String INDEX_CONFIG = "indexConfig";
 	/** The folder containing the Lucene-Index, relative to {@link #WWW_DIR} */
 	public static final String INDEX_DIR = "indexDir";
+	/** The maximum number of milliseconds that a client will wait for a connection from the connection pool. */
+	public static final String JDBC_CONNECTION_TIMEOUT = "jdbcConnectionTimeout";
 	/** Set to {@code true} to enable JDBC Performance Logger */
-	public static final String LOG_JDBC_PERFORMANCE = "logJdbcPerformance";
+	public static final String JDBC_LOG_PERFORMANCE = "jdbcLogPerformance";
+	/** The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive. */
+	public static final String JDBC_VALIDATION_TIMEOUT = "jdbcValidationTimeout";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
 	/** the queue size used per directory when indexing the file system **/
