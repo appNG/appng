@@ -1800,7 +1800,6 @@ public class CoreService {
 				int waited = 0;
 				int waitTime = platformConfig.getInteger(Platform.Property.WAIT_TIME, 1000);
 				int maxWaitTime = platformConfig.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
-				shutdownSite.setState(SiteState.STOPPING);
 
 				if (platformConfig.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
 					LOGGER.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
@@ -1822,6 +1821,7 @@ public class CoreService {
 
 				LOGGER.info("destroying site {}", shutdownSite);
 				if (SiteState.STARTED.equals(shutdownSite.getState())) {
+					shutdownSite.setState(SiteState.STOPPING);
 					for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
 						shutdownApplication(siteApplication, env);
 					}
