@@ -165,8 +165,7 @@ public class InitializerService {
 	 *                                       an {@link ExecutorService} used by the cluster messaging
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
-	 * @see                                  #loadPlatform(java.util.Properties, Environment, String, String,
-	 *                                       ExecutorService)
+	 * @see                                  #loadPlatform(PlatformProperties, Environment, String, String, ExecutorService)
 	 */
 	@Transactional
 	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
