@@ -232,7 +232,7 @@ public class SimpleProperty implements Property, Identifiable<String>, Comparabl
 	}
 	
 	public void determineType() {
-		this.type = StringUtils.isNotBlank(getClob()) ? Property.Type.MULTILINE : Type.forString(getActualString());
+		this.type = StringUtils.isNotBlank(getClob()) ? Property.Type.MULTILINE : Type.forString(getString());
 	}
 
 	public String toString() {
