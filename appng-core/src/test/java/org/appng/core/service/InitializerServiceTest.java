@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 
@@ -145,7 +146,8 @@ public class InitializerServiceTest extends TestSupport
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);
-		service.loadPlatform(new java.util.Properties(), env, null, null, null);
+		PlatformProperties platformProperties = service.loadPlatformProperties(new Properties(), env);
+		service.loadPlatform(platformProperties, env, null, null, null);
 		Mockito.verify(ctx, Mockito.atLeastOnce()).getRealPath(Mockito.anyString());
 		Mockito.verify(env, VerificationModeFactory.atLeast(1)).setAttribute(Mockito.eq(Scope.PLATFORM),
 				Mockito.anyString(), Mockito.any());

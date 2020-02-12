@@ -19,21 +19,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
 import org.appng.api.Environment;
-import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.InitializerService;
+import org.appng.core.service.PlatformProperties;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -53,8 +55,13 @@ public class PlatformStartupTest extends PlatformStartup {
 	private InitializerService initializerService;
 
 	@Test
-	public void testPlatformStartup() throws InvalidConfigurationException, SQLException {
+	public void testPlatformStartup() throws Exception {
 		MockitoAnnotations.initMocks(this);
+		AtomicBoolean started = new AtomicBoolean(false);
+		Mockito.doAnswer(i -> {
+			started.set(true);
+			return null;
+		}).when(servContext).setAttribute(APPNG_STARTED, true);
 		Mockito.when(servContext.getRealPath("/")).thenReturn("");
 		Mockito.when(servContext.getRealPath("WEB-INF/lib")).thenReturn("");
 		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
@@ -69,12 +76,22 @@ public class PlatformStartupTest extends PlatformStartup {
 		Mockito.when(servContext.getRealPath("")).thenReturn("target");
 		Mockito.when(servContext.getRealPath(WEB_INF + Log4jConfigurer.LOG4J_PROPERTIES))
 				.thenReturn("classpath:log4j.properties");
+
+		PlatformProperties value = PlatformProperties.get(DefaultEnvironment.get(servContext));
+		Mockito.when(initializerService.loadPlatformProperties(Mockito.any(), Mockito.any())).thenReturn(value);
+
 		new Log4jConfigurer().contextInitialized(new ServletContextEvent(servContext));
 
 		contextInitialized(new ServletContextEvent(servContext));
 		Assert.assertTrue(platformEnv.get(Platform.Environment.CORE_PLATFORM_CONTEXT).equals(platformCtx));
-		Mockito.verify(initializerService).initPlatform(Mockito.isA(Properties.class), Mockito.isA(Environment.class),
-				Mockito.isA(DatabaseConnection.class), Mockito.eq(servContext), Mockito.isA(ExecutorService.class));
+
+		while (!started.get()) {
+			TimeUnit.MILLISECONDS.sleep(100);
+		}
+
+		Mockito.verify(initializerService).initPlatform(Mockito.isA(PlatformProperties.class),
+				Mockito.isA(Environment.class), Mockito.isA(DatabaseConnection.class), Mockito.eq(servContext),
+				Mockito.isA(ExecutorService.class));
 		contextDestroyed(new ServletContextEvent(servContext));
 		Mockito.verify(initializerService).shutdownPlatform(servContext);
 		Mockito.verify(platformCtx).close();

@@ -18,6 +18,7 @@ package org.appng.core.controller;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.sql.Driver;
@@ -48,6 +49,7 @@ import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.HsqlStarter;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.MigrationService;
+import org.appng.core.service.PlatformProperties;
 import org.hsqldb.Server;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -70,14 +72,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PlatformStartup implements ServletContextListener {
 
+	static final String APPNG_STARTED = "APPNG_STARTED";
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
 	public static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
+	private ExecutorService startUpExecutor;
 
 	public void contextInitialized(ServletContextEvent sce) {
-		ServletContext ctx = sce.getServletContext();
-		String appngData = System.getProperty(Platform.Property.APPNG_DATA);
+
 		try {
+			final StopWatch startupWatch = new StopWatch("startup");
+			startupWatch.start();
+			ServletContext ctx = sce.getServletContext();
+			String appngData = System.getProperty(Platform.Property.APPNG_DATA);
+
 			InputStream configIs;
 			if (StringUtils.isBlank(appngData)) {
 				configIs = ctx.getResourceAsStream(WEB_INF + CONFIG_LOCATION);
@@ -85,8 +93,6 @@ public class PlatformStartup implements ServletContextListener {
 				configIs = new FileInputStream(Paths.get(appngData, CONFIG_LOCATION).toFile());
 			}
 
-			StopWatch startupWatch = new StopWatch("startup");
-			startupWatch.start();
 			LOGGER.info("");
 			LOGGER.info("Launching appNG, the Next Generation Application Platform ...");
 			LOGGER.info("");
@@ -113,11 +119,25 @@ public class PlatformStartup implements ServletContextListener {
 			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
 			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
 			executor = Executors.newSingleThreadExecutor(threadFactory);
-			service.initPlatform(config, env, platformConnection, ctx, executor);
-			startupWatch.stop();
-			String appngVersion = env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
-			LOGGER.info("appNG {} started in {} ms.", appngVersion, startupWatch.getTotalTimeMillis());
-			LOGGER.info(StringUtils.leftPad("", 100, "="));
+
+			final PlatformProperties platformProperties = service.loadPlatformProperties(config, env);
+
+			Runnable startUp = () -> {
+				try {
+					service.initPlatform(platformProperties, env, platformConnection, ctx, executor);
+					startupWatch.stop();
+					String appngVersion = env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
+					LOGGER.info("appNG {} started in {} ms.", appngVersion, startupWatch.getTotalTimeMillis());
+					LOGGER.info(StringUtils.leftPad("", 100, "="));
+					ctx.setAttribute(APPNG_STARTED, true);
+				} catch (Exception e) {
+					LOGGER.error("error during platform startup", e);
+					contextDestroyed(sce);
+				}
+			};
+			startUpExecutor = Executors
+					.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("appNG Startup").build());
+			startUpExecutor.execute(startUp);
 		} catch (Exception e) {
 			LOGGER.error("error during platform startup", e);
 			contextDestroyed(sce);
@@ -164,23 +184,38 @@ public class PlatformStartup implements ServletContextListener {
 				LOGGER.error("error while deregistering  driver", e);
 			}
 		}
-		try {
-			Class<?> abandonedConnectionCleanupThread = getClass().getClassLoader()
-					.loadClass("com.mysql.jdbc.AbandonedConnectionCleanupThread");
-			abandonedConnectionCleanupThread.getDeclaredMethod("shutdown").invoke(null);
-			Thread.sleep(5000);
-		} catch (ClassNotFoundException e) {
-			LOGGER.debug("AbandonedConnectionCleanupThread not present");
-		} catch (Exception e) {
-			LOGGER.warn("error while calling AbandonedConnectionCleanupThread.shutdown()", e);
+		if (!shutdownCleanUpThread("com.mysql.cj.jdbc")) {
+			shutdownCleanUpThread("com.mysql.jdbc");
 		}
 		Messaging.shutdown(env);
 		HazelcastConfigurer.shutdown();
+		shutDownExecutor(executor);
+		shutDownExecutor(startUpExecutor);
+		LOGGER.info("appNG stopped.");
+		LOGGER.info(StringUtils.leftPad("", 100, "="));
+	}
+
+	public boolean shutdownCleanUpThread(String packagePrefix) {
+		try {
+			Class<?> abandonedConnectionCleanupThread = getClass().getClassLoader()
+					.loadClass(packagePrefix + ".AbandonedConnectionCleanupThread");
+			Method checkedShutdown = abandonedConnectionCleanupThread.getDeclaredMethod("checkedShutdown");
+			checkedShutdown.invoke(null);
+			LOGGER.info("Called {}.checkedShutdown()", abandonedConnectionCleanupThread.getName());
+			Thread.sleep(5000);
+			return true;
+		} catch (ClassNotFoundException e) {
+			LOGGER.warn("AbandonedConnectionCleanupThread not present");
+		} catch (Exception e) {
+			LOGGER.warn("error while calling AbandonedConnectionCleanupThread.shutdown()", e);
+		}
+		return false;
+	}
+
+	public void shutDownExecutor(ExecutorService executor) {
 		if (null != executor) {
 			executor.shutdownNow();
 		}
-		LOGGER.info("appNG stopped.");
-		LOGGER.info(StringUtils.leftPad("", 100, "="));
 	}
 
 	protected InitializerService getService(Environment env) {

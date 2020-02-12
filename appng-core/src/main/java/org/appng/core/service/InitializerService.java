@@ -153,23 +153,26 @@ public class InitializerService {
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
-	 * @param env
-	 *                       the current {@link Environment}
-	 * @param rootConnection
-	 *                       the root {@link DatabaseConnection}
-	 * @param ctx
-	 *                       the current {@link ServletContext}
-	 * @param executor
-	 *                       an {@link ExecutorService} used by the cluster messaging
+	 * @param  platformConfig
+	 *                                       the current {@link PlatformProperties}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  rootConnection
+	 *                                       the root {@link DatabaseConnection}
+	 * @param  ctx
+	 *                                       the current {@link ServletContext}
+	 * @param  executor
+	 *                                       an {@link ExecutorService} used by the cluster messaging
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
-	 * @see #loadPlatform(java.util.Properties, Environment, String, String, ExecutorService)
+	 * @see                                  #loadPlatform(java.util.Properties, Environment, String, String,
+	 *                                       ExecutorService)
 	 */
 	@Transactional
-	public void initPlatform(java.util.Properties defaultOverrides, Environment env, DatabaseConnection rootConnection,
+	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
 			ServletContext ctx, ExecutorService executor) throws InvalidConfigurationException {
 		logEnvironment();
-		loadPlatform(defaultOverrides, env, null, null, executor);
+		loadPlatform(platformConfig, env, null, null, executor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
 		coreService.createEvent(Type.INFO, "Started platform");
@@ -190,7 +193,8 @@ public class InitializerService {
 	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
 		LOGGER.info(StringUtils.leftPad("Reloading appNG", 100, "="));
-		loadPlatform(config, env, siteName, target, executor);
+		PlatformProperties platformConfig = loadPlatformProperties(config, env);
+		loadPlatform(platformConfig, env, siteName, target, executor);
 		LOGGER.info(StringUtils.leftPad("appNG reloaded", 100, "="));
 	}
 
@@ -227,22 +231,19 @@ public class InitializerService {
 	/**
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
-	 * @param env
-	 *                 the current {@link Environment}
-	 * @param siteName
-	 *                 the (optional) name of the {@link Site} that caused the platform reload
-	 * @param target
-	 *                 an (optional) target to redirect to after platform reload
+	 * @param  platformConfig
+	 *                                       the current {@link PlatformProperties}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteName
+	 *                                       the (optional) name of the {@link Site} that caused the platform reload
+	 * @param  target
+	 *                                       an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
-	public void loadPlatform(java.util.Properties defaultOverrides, Environment env, String siteName, String target,
+	public void loadPlatform(PlatformProperties platformConfig, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
-		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
-		String rootPath = servletContext.getRealPath("/");
-		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
-				false);
-		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -319,6 +320,15 @@ public class InitializerService {
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
 		}
+	}
+
+	public PlatformProperties loadPlatformProperties(java.util.Properties defaultOverrides, Environment env) {
+		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
+		String rootPath = servletContext.getRealPath("/");
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
+				false);
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
+		return platformConfig;
 	}
 
 	class SiteReloadWatcher implements Runnable {
