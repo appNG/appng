@@ -23,6 +23,7 @@ import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.messaging.HazelcastReceiver;
 import org.appng.core.domain.PropertyImpl;
@@ -67,7 +68,6 @@ public class Home extends ControllerBase implements InitializingBean {
 
 	@GetMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> welcome() {
-		initMessaging();
 		String appngVersion = (String) context.getAttribute(AppNGizer.APPNG_VERSION);
 		boolean dbInitialized = getDatabaseStatus() != null;
 		org.appng.appngizer.model.Home entity = new org.appng.appngizer.model.Home(appngVersion, dbInitialized);
@@ -101,6 +101,7 @@ public class Home extends ControllerBase implements InitializingBean {
 		Environment env = DefaultEnvironment.get(context);
 		Properties platformConfig = initPlatform(props, env);
 		RepositoryCacheFactory.init(platformConfig);
+		initMessaging();
 	}
 
 	protected Properties initPlatform(java.util.Properties defaultOverrides, Environment env) {
@@ -110,7 +111,7 @@ public class Home extends ControllerBase implements InitializingBean {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
 		CacheProvider cacheProvider = new CacheProvider(platformConfig);
 		for (SiteImpl s : getCoreService().getSites()) {
-			updateSiteMap(env, cacheProvider, s.getName(), s.isActive());
+			updateSiteMap(env, cacheProvider, s.getName(), s.isActive(), SiteState.STOPPED);
 		}
 		return platformConfig;
 	}

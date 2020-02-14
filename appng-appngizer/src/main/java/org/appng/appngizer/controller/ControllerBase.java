@@ -120,7 +120,7 @@ public abstract class ControllerBase implements DisposableBean {
 					SiteState state = event.getState();
 					Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 					updateSiteMap(env, new CacheProvider(platformConfig), event.getSiteName(),
-							SiteState.STARTED.equals(state));
+							SiteState.STARTED.equals(state), state);
 				}
 
 				public Class<SiteStateEvent> getEventClass() {
@@ -134,19 +134,22 @@ public abstract class ControllerBase implements DisposableBean {
 		}
 	}
 
-	protected void updateSiteMap(Environment env, CacheProvider cacheProvider, String siteName, boolean doAdd) {
+	protected void updateSiteMap(Environment env, CacheProvider cacheProvider, String siteName, boolean isSiteActive,
+			SiteState state) {
 		Map<String, org.appng.api.model.Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		if (doAdd) {
+		if (isSiteActive) {
 			SiteImpl site = getCoreService().getSiteByName(siteName);
 			List<URL> jarUrls = new ArrayList<URL>();
 			site.getSiteApplications().stream().filter(SiteApplication::isActive).forEach(a -> {
 				File platformCache = cacheProvider.getPlatformCache(site, a.getApplication());
 				File jarFolder = new File(platformCache, ResourceType.JAR.getFolder());
-				for (String file : jarFolder.list((d, n) -> n.endsWith(".jar"))) {
-					try {
-						jarUrls.add(new File(jarFolder, file).toPath().toUri().toURL());
-					} catch (MalformedURLException e) {
-						logger().error("error adding jar", e);
+				if (jarFolder.exists()) {
+					for (String file : jarFolder.list((d, n) -> n.endsWith(".jar"))) {
+						try {
+							jarUrls.add(new File(jarFolder, file).toPath().toUri().toURL());
+						} catch (MalformedURLException e) {
+							logger().error("error adding jar", e);
+						}
 					}
 				}
 			});
@@ -154,7 +157,7 @@ public abstract class ControllerBase implements DisposableBean {
 			SiteClassLoader siteClassLoader = new SiteClassLoader(jarUrls.toArray(new URL[0]),
 					getClass().getClassLoader(), site.getName());
 			site.setSiteClassLoader(siteClassLoader);
-			site.setState(SiteState.STARTED);
+			site.setState(state);
 			siteMap.put(site.getName(), site);
 			logger().info("Site {} is {}", site.getName(), site.getState());
 		} else {
