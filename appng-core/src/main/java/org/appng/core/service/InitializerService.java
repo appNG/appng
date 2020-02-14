@@ -553,6 +553,7 @@ public class InitializerService {
 		} else {
 			TemplateService.materializeTemplate(template, platformConfig, siteProps);
 		}
+		Integer validationPeriod = platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD);
 
 		// Step 1: Load applications for the current site,
 		// prepare for further initialization
@@ -573,11 +574,18 @@ public class InitializerService {
 				try {
 					DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
 					if (null != databaseConnection) {
-						databaseConnection.setActive(databaseConnection.testConnection(null));
-						databaseConnection.setValidationPeriod(
-								platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD));
-						databaseConnection = databaseService.saveAndFlush(databaseConnection);
-						if (!databaseConnection.isActive()) {
+						boolean isActive = databaseConnection.isActive();
+						boolean isWorking = databaseConnection.testConnection(null);
+						if (isWorking ^ isActive) {
+							databaseConnection.setActive(isWorking);
+							databaseService.save(databaseConnection);
+							siteApplication = coreService.getSiteApplication(siteApplication.getSite().getName(),
+									siteApplication.getApplication().getName());
+							databaseConnection = siteApplication.getDatabaseConnection();
+						}
+						if (isWorking) {
+							databaseConnection.setValidationPeriod(validationPeriod);
+						} else {
 							throw new InvalidConfigurationException(site, application.getName(),
 									String.format("Connection %s for application %s of site %s is not working!",
 											databaseConnection, application.getName(), site.getName()));
@@ -847,7 +855,7 @@ public class InitializerService {
 	 * 
 	 * @param ctx
 	 *            the current {@link ServletContext}
-	 * @see #shutDownSite(Environment, Site, boolean)
+	 * @see       #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.get(ctx);

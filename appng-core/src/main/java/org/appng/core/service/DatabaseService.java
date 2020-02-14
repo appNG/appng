@@ -45,7 +45,6 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -431,11 +430,6 @@ public class DatabaseService extends MigrationService {
 	@Transactional
 	public void save(DatabaseConnection databaseConnection) {
 		databaseConnectionRepository.save(databaseConnection);
-	}
-
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public DatabaseConnection saveAndFlush(DatabaseConnection databaseConnection) {
-		return databaseConnectionRepository.saveAndFlush(databaseConnection);
 	}
 
 }
