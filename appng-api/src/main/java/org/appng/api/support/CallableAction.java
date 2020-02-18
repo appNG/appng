@@ -243,12 +243,16 @@ public class CallableAction {
 				Collection<Message> addedMessages = CollectionUtils.disjunction(before, after);
 
 				if (!addedMessages.isEmpty()) {
-					for (Message message : addedMessages) {
-						dataOk &= !MessageType.ERROR.equals(message.getClazz());
-					}
-					if (!dataOk) {
+					boolean hasErrors = addedMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz()))
+							.findAny().isPresent();
+
+					if (hasErrors) {
+						dataOk = false;
 						Messages messages = elementHelper.getMessages(environment);
 						messages.getMessageList().removeAll(addedMessages);
+						if (messages.getMessageList().isEmpty()) {
+							elementHelper.removeMessages(environment);
+						}
 						Messages actionMessages = new Messages();
 						actionMessages.getMessageList().addAll(addedMessages);
 						getAction().setMessages(actionMessages);
