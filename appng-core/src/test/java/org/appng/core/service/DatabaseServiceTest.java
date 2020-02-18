@@ -45,6 +45,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -113,6 +114,17 @@ public class DatabaseServiceTest extends TestInitializer {
 		testInitDatabaseMySql("8");
 	}
 
+	@Test
+	@Ignore("run with profile 'mariadb', uses testcontainers, which needs docker")
+	public void testInitDatabaseMariaDB() throws Exception {
+		try (MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:10.4")) {
+			mariadb.withUsername("root").withPassword("").start();
+			System.err.println(mariadb.getJdbcUrl());
+			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", "10.4", "?useMysqlMetadata=true", true,
+					true);
+		}
+	}
+
 	void testInitDatabaseMySql(String version) throws Exception {
 		try (MySQLContainer<?> mysql = new MySQLContainer<>("mysql:" + version)) {
 			mysql.withUsername("root").withPassword("").start();
@@ -157,12 +169,21 @@ public class DatabaseServiceTest extends TestInitializer {
 	private void validateConnectionType(JdbcDatabaseContainer<?> container, DatabaseType databaseType,
 			String productName, String productVersion, boolean checksize, boolean checkConnection)
 			throws SQLException, IOException, URISyntaxException {
-		Properties platformProperties = getProperties(databaseType, container.getJdbcUrl(), container.getUsername(),
+		validateConnectionType(container, databaseType, productName, productVersion, "", checksize, checkConnection);
+	}
+
+	private void validateConnectionType(JdbcDatabaseContainer<?> container, DatabaseType databaseType,
+			String productName, String productVersion, String connectionParams, boolean checksize,
+			boolean checkConnection) throws SQLException, IOException, URISyntaxException {
+		String jdbcUrl = container.getJdbcUrl();
+		jdbcUrl += connectionParams;
+		Properties platformProperties = getProperties(databaseType, jdbcUrl, container.getUsername(),
 				container.getPassword(), databaseType.getDefaultDriver());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
 		StringBuilder dbInfo = new StringBuilder();
 		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
-		Assert.assertTrue(dbInfo.toString(), dbInfo.toString().startsWith(productName + " " + productVersion));
+		Assert.assertTrue(dbInfo.toString(), dbInfo.toString().contains(productName));
+		Assert.assertTrue(dbInfo.toString(), dbInfo.toString().contains(productVersion));
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(databaseType, platformConnection.getType());
 		if (checksize) {
@@ -195,9 +216,15 @@ public class DatabaseServiceTest extends TestInitializer {
 		site.setDomain("http://localhost:8080");
 		em.persist(site);
 		em.getTransaction().commit();
+		em.close();
 		Assert.assertNotNull(site.getId());
 		Assert.assertNotNull(site.getVersion());
-		em.close();
+
+		em = emf.createEntityManager();
+		em.getTransaction().begin();
+		SiteImpl loadedSite = em.find(SiteImpl.class, site.getId());
+		Assert.assertEquals(site.getVersion(), loadedSite.getVersion());
+
 		emf.close();
 		lcemf.destroy();
 	}
