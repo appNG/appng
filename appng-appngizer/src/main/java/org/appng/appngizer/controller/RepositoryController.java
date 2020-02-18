@@ -111,10 +111,10 @@ public class RepositoryController extends ControllerBase {
 		try {
 			PackageVersions packageVersions = r.getPackageVersions(packageName);
 			Identifier installedApp = getApplicationByName(packageName);
-			Identifier installedTemplate = templateService.getTemplateByName(packageName);
+			Identifier installedTemplate = getTemplateByName(packageName);
 			Packages packages = new Packages();
 			for (PackageInfo pkg : packageVersions.getPackage()) {
-				Package p = getPackage(installedApp, installedTemplate, pkg);
+				Package p = getPackage(name, installedApp, installedTemplate, pkg);
 				packages.getPackage().add(p);
 			}
 			Comparator<org.appng.appngizer.model.xml.Package> propertyComparator = new PropertyComparator<org.appng.appngizer.model.xml.Package>(
@@ -128,13 +128,14 @@ public class RepositoryController extends ControllerBase {
 		}
 	}
 
-	protected Package getPackage(Identifier installedApp, Identifier installedTemplate, PackageInfo pkg) {
+	protected Package getPackage(String repository, Identifier installedApp, Identifier installedTemplate,
+			PackageInfo pkg) {
 		Package p = Package.fromDomain(pkg, false);
-		if (PackageType.APPLICATION.equals(p.getType())) {
-			p.setInstalled(isInstalled(installedApp, pkg));
-		} else {
-			p.setInstalled(isInstalled(installedTemplate, pkg));
-		}
+		Identifier identifier = PackageType.APPLICATION.equals(p.getType()) ? installedApp : installedTemplate;
+		p.setInstalled(isInstalled(identifier, pkg));
+		URI uri = getUriBuilder().path("/repository/{name}/{package}/{version}/{timestamp}")
+				.buildAndExpand(repository, pkg.getName(), pkg.getVersion(), pkg.getTimestamp()).toUri();
+		p.setSelf(uri.toString());
 		return p;
 	}
 
@@ -152,11 +153,8 @@ public class RepositoryController extends ControllerBase {
 				return notFound();
 			}
 			Identifier installedApp = getApplicationByName(packageName);
-			Identifier installedTemplate = templateService.getTemplateByName(packageName);
-			Package pkg = getPackage(installedApp, installedTemplate, packageArchive.getPackageInfo());
-			URI uri = getUriBuilder().path("/repository/{name}/{package}/{version}/{timestamp}")
-					.buildAndExpand(name, pkg.getName(), pkg.getVersion(), pkg.getTimestamp()).toUri();
-			pkg.setSelf(uri.toString());
+			Identifier installedTemplate = getTemplateByName(packageName);
+			Package pkg = getPackage(name, installedApp, installedTemplate, packageArchive.getPackageInfo());
 			return ok(pkg);
 		} catch (BusinessException e) {
 			return notFound();
@@ -268,10 +266,10 @@ public class RepositoryController extends ControllerBase {
 			FileUtils.writeByteArrayToFile(outFile, file.getBytes());
 			PackageArchive packageArchive = RepositoryUtils.getPackage(r, outFile, file.getOriginalFilename());
 			if (null != packageArchive) {
-				RepositoryCacheFactory.instance().getCache(r).reload();
-				PackageInfo packageInfo = packageArchive.getPackageInfo();
-				return getRepositoryPackage(name, packageInfo.getName(), packageInfo.getVersion(),
-						packageInfo.getTimestamp());
+				Identifier installedApp = getApplicationByName(packageArchive.getPackageInfo().getName());
+				Identifier installedTemplate = getTemplateByName(packageArchive.getPackageInfo().getName());
+				Package pkg = getPackage(name, installedApp, installedTemplate, packageArchive.getPackageInfo());
+				return ok(pkg);
 			} else {
 				FileUtils.deleteQuietly(outFile);
 				return reply(HttpStatus.BAD_REQUEST);
@@ -279,6 +277,10 @@ public class RepositoryController extends ControllerBase {
 		} catch (Exception e) {
 			throw new BusinessException(e);
 		}
+	}
+
+	private Identifier getTemplateByName(String name) {
+		return templateService.getTemplateByName(name);
 	}
 
 	@DeleteMapping(value = "/repository/{name}")
