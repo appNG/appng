@@ -221,14 +221,6 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		return futureTask.get();
 	}
 
-	protected ResponseEntity<Void> install(Package uploadPackage) throws URISyntaxException, MojoExecutionException {
-		getLog().info(String.format("Installing %s %s %s", uploadPackage.getName(), uploadPackage.getVersion(),
-				uploadPackage.getTimestamp()));
-		HttpHeaders installHeader = getHeader();
-		installHeader.setContentType(MediaType.APPLICATION_XML);
-		return send(uploadPackage, installHeader, HttpMethod.PUT, "repository/" + repository + "/install", Void.class);
-	}
-
 	protected void determineFile() throws MojoExecutionException {
 		String[] files = targetFolder.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {

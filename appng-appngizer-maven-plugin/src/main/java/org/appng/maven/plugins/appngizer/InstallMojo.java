@@ -40,6 +40,12 @@ public class InstallMojo extends AppNGizerMojo {
 	@Parameter(property = "activate")
 	protected boolean activate = false;
 
+	@Parameter(property = "privileged")
+	protected boolean privileged = false;
+
+	@Parameter(property = "hidden")
+	protected boolean hidden = false;
+
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		try {
 			determineFile();
@@ -48,8 +54,6 @@ public class InstallMojo extends AppNGizerMojo {
 			ResponseEntity<Package> uploaded = upload();
 
 			if (uploaded.getStatusCode().equals(HttpStatus.OK)) {
-				getLog().info("Success!");
-
 				Package uploadPackage = uploaded.getBody();
 				boolean isSiteSet = StringUtils.isNotBlank(site);
 				if (uploadPackage.isInstalled()) {
@@ -59,12 +63,16 @@ public class InstallMojo extends AppNGizerMojo {
 						getLog().info(String.format("Skipping site reload for site %s", site));
 					}
 				} else {
-					getLog().info(String.format("Installing %s %s %s", uploadPackage.getName(),
-							uploadPackage.getVersion(), uploadPackage.getTimestamp()));
+					getLog().info(
+							String.format("Installing %s %s %s (privileged: %s, hidden: %s)", uploadPackage.getName(),
+									uploadPackage.getVersion(), uploadPackage.getTimestamp(), privileged, hidden));
+
 					HttpHeaders installHeader = getHeader();
 					installHeader.setContentType(MediaType.APPLICATION_XML);
+					uploadPackage.setPrivileged(privileged);
+					uploadPackage.setHidden(hidden);
 					ResponseEntity<Package> installPackage = send(uploadPackage, installHeader, HttpMethod.PUT,
-							"repository/" + repository + "/install", Package.class);
+							String.format("repository/%s/install", repository), Package.class);
 					Package installedPackage = installPackage.getBody();
 
 					if (HttpStatus.OK.equals(installPackage.getStatusCode())) {
@@ -72,43 +80,41 @@ public class InstallMojo extends AppNGizerMojo {
 							boolean doReload = true;
 							if (activate) {
 
-								getLog().info(
-										"Activating application " + installedPackage.getName() + " for site " + site);
 								ResponseEntity<Void> response = send(null, getHeader(), HttpMethod.POST,
-										"site/" + site + "/application/" + installedPackage.getName(), Void.class,
-										false);
+										String.format("site/%s/application/%s", site, installedPackage.getName()),
+										Void.class, false);
 
 								HttpStatus statusCode = response.getStatusCode();
-
 								if (statusCode.is3xxRedirection()) {
-									getLog().info("Activated application " + installedPackage.getName() + " for site "
-											+ site);
+									getLog().info(String.format("Activated application %s for site %s",
+											installedPackage.getName(), site));
 								} else if (HttpStatus.METHOD_NOT_ALLOWED.equals(statusCode)) {
-									getLog().info("Application " + installedPackage.getName()
-											+ " already active for site " + site);
+									getLog().info(String.format("Application %s already active for site %s",
+											installedPackage.getName(), site));
 								} else {
 									doReload = false;
-									getLog().error("error installing package " + installedPackage.getName()
-											+ ", return code was " + installPackage.getStatusCode());
+									getLog().error(String.format("error installing package %s, return code was %s",
+											installedPackage.getName(), installPackage.getStatusCode()));
 								}
 
 							}
 							if (doReload) {
-								getLog().info("Reloading site " + site);
-								send(null, getHeader(), HttpMethod.PUT, "site/" + site + "/reload", Void.class);
+								getLog().info(String.format("Reloading site %s", site));
+								send(null, getHeader(), HttpMethod.PUT, String.format("site/%s/reload", site),
+										Void.class);
 							} else {
-								getLog().info("NOT reloading site " + site);
+								getLog().info(String.format("NOT reloading site %s", site));
 							}
 						} else {
 							getLog().debug("no site set, skipping activation/reloading");
 						}
 					} else {
-						getLog().error("error installing package " + uploadPackage.getName() + ", return code was "
-								+ installPackage.getStatusCode());
+						getLog().error(String.format("error installing package %s, return code was %s",
+								uploadPackage.getName(), installPackage.getStatusCode()));
 					}
 				}
 			} else {
-				getLog().error("error uploading package , return code was " + uploaded.getStatusCode());
+				getLog().error(String.format("error uploading package , return code was %s", uploaded.getStatusCode()));
 			}
 
 		} catch (URISyntaxException | ExecutionException e) {

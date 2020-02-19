@@ -16,21 +16,25 @@ General (all mandatory)
 - repository	- the name of the local repository
 
 install goal only
-- activate 		- if the installed archive should be activated for the site
-- site  		- the name of the site to reload after installing the archive
+- activate 		- if the installed archive should be activated for the site (default: false)
+- site  		- the name of the site to reload after installing the archive (no default)
+- privileged	- should the application be installed as privileged application? (default: false)
+- hidden		- should the application be installed as hidden application? (default: false)
 
 Usage
 =======
 <plugin>
 	<groupId>org.appng.maven</groupId>
 	<artifactId>appng-appngizer-maven-plugin</artifactId>
-	<version>${appNGVersion}</version>
+	<version>${appNG.version}</version>
 	<configuration>
 		<endpoint>http://localhost:8080/appNGizer/</endpoint>
 		<sharedSecret>TheSecret</sharedSecret>
 		<repository>Local</repository>
 		<site>manager</site>
 		<activate>true</activate>
+		<privileged>false</privileged>
+		<hidden>false</hidden>
 	</configuration>
 	<executions>
 		<execution>

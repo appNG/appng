@@ -854,7 +854,7 @@ public class CoreServiceTest {
 
 		FieldProcessor fp = new FieldProcessorImpl("REF_TEST");
 		coreService.installPackage(repository.getId(), applicationName, applicationVersion, applicationTimestamp, true,
-				false, true, fp);
+				false, true, fp, false);
 
 		Messages messages = fp.getMessages();
 		assertEquals(1, messages.getMessageList().size());

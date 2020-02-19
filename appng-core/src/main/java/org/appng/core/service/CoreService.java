@@ -916,14 +916,14 @@ public class CoreService {
 	public RepositoryImpl createRepository(RepositoryImpl repository) {
 		return repoRepository.save(repository);
 	}
-
+	
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
 			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased,
-			FieldProcessor fp) throws BusinessException {
+			FieldProcessor fp, boolean updateHiddenAndPrivileged) throws BusinessException {
 		PackageArchive applicationArchive = getArchive(repositoryId, name, version, timestamp);
 		switch (applicationArchive.getType()) {
 		case APPLICATION:
-			provideApplication(applicationArchive, isFileBased, isPrivileged, isHidden, fp);
+			provideApplication(applicationArchive, isFileBased, isPrivileged, isHidden, fp, updateHiddenAndPrivileged);
 			break;
 		case TEMPLATE:
 			provideTemplate(applicationArchive);
@@ -934,8 +934,7 @@ public class CoreService {
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
 			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased)
 			throws BusinessException {
-
-		return installPackage(repositoryId, name, version, timestamp, isPrivileged, isHidden, isFileBased, null);
+		return installPackage(repositoryId, name, version, timestamp, isPrivileged, isHidden, isFileBased, null, false);
 	}
 
 	private PackageArchive getArchive(final Integer repositoryId, final String applicationName,
@@ -988,9 +987,9 @@ public class CoreService {
 		}
 		return -2;
 	}
-
+	
 	private ApplicationImpl provideApplication(PackageArchive applicationArchive, boolean isFileBased,
-			boolean isPrivileged, boolean isHidden, FieldProcessor fp) throws BusinessException {
+			boolean isPrivileged, boolean isHidden, FieldProcessor fp, boolean updateHiddenAndPrivileged) throws BusinessException {
 		ApplicationInfo applicationInfo = (ApplicationInfo) applicationArchive.getPackageInfo();
 		String applicationName = applicationInfo.getName();
 		String applicationVersion = applicationInfo.getVersion();
@@ -1005,7 +1004,10 @@ public class CoreService {
 			createApplication(application, applicationInfo, fp);
 		} else {
 			LOGGER.info("updating application {}-{}", applicationName, applicationVersion);
-			// Update application information
+			if (updateHiddenAndPrivileged) {
+				application.setPrivileged(isPrivileged);
+				application.setHidden(isHidden);
+			}
 			RepositoryImpl.getApplication(application, applicationInfo);
 		}
 		updateApplication(application, applicationArchive, outputDir);

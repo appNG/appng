@@ -242,8 +242,10 @@ public class RepositoryController extends ControllerBase {
 		}
 		Properties platformCfg = getCoreService().getPlatformProperties();
 		boolean isFileBased = platformCfg.getBoolean(Platform.Property.FILEBASED_DEPLOYMENT);
+		boolean privileged = Boolean.TRUE.equals(pkg.isPrivileged());
+		boolean hidden = Boolean.TRUE.equals(pkg.isHidden());
 		PackageInfo installedPackage = getCoreService().installPackage(r.getId(), pkg.getName(), pkg.getVersion(),
-				pkg.getTimestamp(), false, false, isFileBased);
+				pkg.getTimestamp(), privileged, hidden, isFileBased, null, true);
 		if (null == installedPackage) {
 			return notFound();
 		}
