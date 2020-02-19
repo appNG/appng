@@ -198,7 +198,9 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 				}
 			}
 		});
-		applicationWrapperMap.get(packageName).init(type.get());
+		if (applicationWrapperMap.containsKey(packageName)) {
+			applicationWrapperMap.get(packageName).init(type.get());
+		}
 		stopWatch.stop();
 		LOGGER.debug(stopWatch.shortSummary());
 	}
