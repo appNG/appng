@@ -72,13 +72,6 @@ abstract class RepositoryCacheBase implements RepositoryCache {
 	 */
 	abstract void update() throws BusinessException;
 
-	/**
-	 * Updates only the mentioned application.
-	 * 
-	 * @throws BusinessException
-	 */
-	abstract void update(String packageName) throws BusinessException;
-
 	public List<PackageWrapper> getApplications() throws BusinessException {
 		return getApplications(null);
 	}

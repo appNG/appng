@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -133,7 +134,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 			Map<File, PackageInfo> newfileMap = new HashMap<>();
 			Set<TypedPackage> changedPackages = new HashSet<>();
 
-			getArchives().forEach(archive -> {
+			getArchives(null).forEach(archive -> {
 				File file = archive.getFile();
 				if (!activeFileMap.containsKey(file)) {
 					// new file
@@ -177,8 +178,29 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		}
 	}
 
-	void update(String packageName) {
-		update();
+	public void update(String packageName) {
+		StopWatch stopWatch = new StopWatch("RepositoryCacheFilesystem: scan repository");
+		stopWatch.start();
+		AtomicReference<PackageType> type = new AtomicReference<>();
+		getArchives(packageName).forEach(archive -> {
+			File file = archive.getFile();
+			type.set(archive.getType());
+			if (!activeFileMap.containsKey(file)) {
+				if (archive.isValid() && null != archive.getPackageInfo()) {
+					LOGGER.debug("New file found in repository: {}", file.getAbsolutePath());
+					PackageInfo packageInfo = archive.getPackageInfo();
+					addApplication(packageInfo);
+					activeFileMap.put(file, packageInfo);
+				} else {
+					LOGGER.trace("Invalid file found in repository: {}", file.getAbsolutePath());
+					invalidFileMap.add(file.getName());
+					activeFileMap.remove(file);
+				}
+			}
+		});
+		applicationWrapperMap.get(packageName).init(type.get());
+		stopWatch.stop();
+		LOGGER.debug(stopWatch.shortSummary());
 	}
 
 	private String addApplication(PackageInfo packageInfo) {
@@ -201,6 +223,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 				String timestamp = packageInfo.getTimestamp();
 				deletePackage(name, version, timestamp, false);
 			} catch (Exception e) {
+				// ignore
 			}
 		}
 		return name;
@@ -288,9 +311,9 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		}
 	}
 
-	private Collection<PackageArchive> getArchives() {
+	private Collection<PackageArchive> getArchives(String archive) {
 		List<File> files = Arrays.asList(directory.listFiles((file, name) -> {
-			if (name.endsWith(ZIP)) {
+			if (name.endsWith(ZIP) && (null == archive || name.startsWith(archive))) {
 				switch (repositoryMode) {
 				case ALL:
 					return isValidFile(name);

@@ -96,7 +96,7 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 		}
 	}
 
-	void update(String packageName) throws BusinessException {
+	public void update(String packageName) throws BusinessException {
 		List<PackageInfo> packages = getPublishedApplicationVersions(packageName);
 		for (PackageInfo packageInfo : packages) {
 			applicationWrapperMap.get(packageName).put(packageInfo);

@@ -269,6 +269,7 @@ public class RepositoryController extends ControllerBase {
 				Identifier installedApp = getApplicationByName(packageArchive.getPackageInfo().getName());
 				Identifier installedTemplate = getTemplateByName(packageArchive.getPackageInfo().getName());
 				Package pkg = getPackage(name, installedApp, installedTemplate, packageArchive.getPackageInfo());
+				RepositoryCacheFactory.instance().getCache(r).update(packageArchive.getPackageInfo().getName());
 				return ok(pkg);
 			} else {
 				FileUtils.deleteQuietly(outFile);

@@ -36,6 +36,13 @@ public interface RepositoryCache {
 	void reload() throws BusinessException;
 
 	/**
+	 * Updates only the mentioned package, i.e. scans for new versions.
+	 * 
+	 * @throws BusinessException
+	 */
+	void update(String packageName) throws BusinessException;
+
+	/**
 	 * Returns all applications found in the repository.
 	 * 
 	 * @return The application list.
