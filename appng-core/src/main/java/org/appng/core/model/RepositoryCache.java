@@ -19,14 +19,12 @@ import java.util.List;
 
 import org.appng.api.BusinessException;
 import org.appng.core.xml.repository.Certification;
-import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.PackageInfo;
 
 /**
  * Provides access to a application repository.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface RepositoryCache {
 
@@ -36,88 +34,89 @@ public interface RepositoryCache {
 	void reload() throws BusinessException;
 
 	/**
-	 * Updates only the mentioned package, i.e. scans for new versions.
+	 * Adds a single {@link PackageArchive}
 	 * 
+	 * @param  packagearchive
+	 *                           the archive to add
 	 * @throws BusinessException
 	 */
-	void update(String packageName) throws BusinessException;
+	boolean add(PackageArchive packagearchive) throws BusinessException;
 
 	/**
-	 * Returns all applications found in the repository.
+	 * Returns all packages found in the repository.
 	 * 
-	 * @return The application list.
+	 * @return                   The package list.
 	 * @throws BusinessException
 	 */
 	List<PackageWrapper> getApplications() throws BusinessException;
 
 	/**
-	 * Returns all applications found in the repository.
+	 * Returns all packages that match the given name in the repository.
 	 * 
-	 * @param packageName
-	 *            an optional search-string for the package's name, supporting {@code *} as a placeholder
-	 * 
-	 * @return The application list.
+	 * @param  packageName
+	 *                           an optional search-string for the package's name, supporting {@code *} as a placeholder
+	 * @return                   The package list.
 	 * @throws BusinessException
 	 */
 	List<PackageWrapper> getApplications(String packageName) throws BusinessException;
 
 	/**
-	 * Returns the {@link PackageWrapper} for the mentioned application.
+	 * Returns the {@link PackageWrapper} for the a package.
 	 * 
-	 * @param name
-	 *            The name of the application.
-	 * @return the {@link PackageWrapper}
+	 * @param  name
+	 *              The name of the package.
+	 * @return      the {@link PackageWrapper}
 	 */
-	PackageWrapper getPublishedApplicationWrapper(String name);
+	PackageWrapper getPackageWrapper(String name);
 
 	/**
-	 * Returns all available versions of a application.
+	 * Returns all available versions of a package.
 	 * 
-	 * @param name
-	 *            The name of the application.
-	 * @return The {@link ApplicationInfo }s.
+	 * @param  name
+	 *                           The name of the application.
+	 * @return                   The {@link PackageInfo}s.
 	 * @throws BusinessException
-	 *             if such a application does not exist
+	 *                           if such a package does not exist
 	 */
 	List<PackageInfo> getVersions(String name) throws BusinessException;
 
 	/**
 	 * Deletes the specified application version from the repository.
 	 * 
-	 * @param packageName
-	 *            The application name.
-	 * @param packageVersion
-	 *            The application version.
-	 * @param packageTimestamp
-	 *            The application timestamp.
+	 * @param  packageName
+	 *                           The package name.
+	 * @param  packageVersion
+	 *                           The package version.
+	 * @param  packageTimestamp
+	 *                           The package timestamp.
 	 * @throws BusinessException
-	 *             if such a application does not exist
+	 *                           if such a package does not exist
 	 */
-	void deleteApplicationVersion(String packageName, String packageVersion, String packageTimestamp)
+	void deletePackageVersion(String packageName, String packageVersion, String packageTimestamp)
 			throws BusinessException;
 
 	/**
-	 * Returns a {@link PackageArchive } for the specified application.
+	 * Returns a {@link PackageArchive } for the specified package.
 	 * 
-	 * @param packageName
-	 *            The application name.
-	 * @param packageVersion
-	 *            The application version.
-	 * @param packageTimestamp
-	 *            The application timestamp.
-	 * @return The {@link PackageArchive }.
+	 * @param  packageName
+	 *                           The package name.
+	 * @param  packageVersion
+	 *                           The package version.
+	 * @param  packageTimestamp
+	 *                           The package timestamp.
+	 * @return                   The {@link PackageArchive }.
 	 * @throws BusinessException
-	 *             if the archive was not found or is invalid
+	 *                           if the archive was not found or is invalid
 	 */
-	PackageArchive getApplicationArchive(String packageName, String packageVersion, String packageTimestamp)
+	PackageArchive getPackageArchive(String packageName, String packageVersion, String packageTimestamp)
 			throws BusinessException;
 
 	/**
 	 * Returns the {@link Certification} for the cached repository, if any
 	 * 
-	 * @return the {@link Certification}
+	 * @return                   the {@link Certification}
 	 * @throws BusinessException
-	 *             if an error occurred while building the certification
+	 *                           if an error occurred while building the certification
 	 */
 	Certification getCertification() throws BusinessException;
 

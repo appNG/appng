@@ -17,10 +17,9 @@ package org.appng.core.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -34,11 +33,10 @@ import org.appng.xml.application.PackageInfo;
  * Base-class for {@link RepositoryCache} implementations
  * 
  * @author Matthias Herlitzius
- * 
  */
 abstract class RepositoryCacheBase implements RepositoryCache {
 
-	protected final Map<String, PackageWrapper> applicationWrapperMap = new HashMap<>();
+	protected final Map<String, PackageWrapper> applicationWrapperMap = new ConcurrentHashMap<>();
 	protected final Repository repository;
 	protected byte[] cert;
 	protected SignatureWrapper signatureWrapper;
@@ -94,21 +92,15 @@ abstract class RepositoryCacheBase implements RepositoryCache {
 	}
 
 	public List<PackageInfo> getVersions(String name) throws BusinessException {
-		update(name);
-		PackageWrapper publishedApplication = getPublishedApplicationWrapper(name);
+		PackageWrapper publishedApplication = getPackageWrapper(name);
 		if (null == publishedApplication) {
 			throw new BusinessException("application not found: " + name);
 		}
-		List<PackageInfo> versions = new ArrayList<>(publishedApplication.getVersions().values());
-		Collections.sort(versions, new Comparator<PackageInfo>() {
-			public int compare(PackageInfo applicationA, PackageInfo applicationB) {
-				return applicationA.getName().compareTo(applicationB.getName());
-			}
-		});
-		return versions;
+
+		return publishedApplication.getVersions().values().stream().collect(Collectors.toList());
 	}
 
-	public PackageWrapper getPublishedApplicationWrapper(String name) {
+	public PackageWrapper getPackageWrapper(String name) {
 		return applicationWrapperMap.get(name);
 	}
 
@@ -129,7 +121,7 @@ abstract class RepositoryCacheBase implements RepositoryCache {
 	}
 
 	PackageInfo getRelease(String name, String version) throws BusinessException {
-		PackageWrapper publishedApplication = getPublishedApplicationWrapper(name);
+		PackageWrapper publishedApplication = getPackageWrapper(name);
 		if (null == publishedApplication) {
 			throw new BusinessException("application not found: " + name + " " + version);
 		}
@@ -137,14 +129,14 @@ abstract class RepositoryCacheBase implements RepositoryCache {
 	}
 
 	private PackageWrapper getPublishedApplication(String name) {
-		PackageWrapper publishedApplication = getPublishedApplicationWrapper(name);
+		PackageWrapper publishedApplication = getPackageWrapper(name);
 		if (null == publishedApplication) {
 			throw new IllegalArgumentException("application not found: " + name);
 		}
 		return publishedApplication;
 	}
 
-	static String getApplicationVersionSignature(String packageName, String packageVersion, String packageTimestamp) {
+	static String getPackageVersionSignature(String packageName, String packageVersion, String packageTimestamp) {
 		return packageName + ", Version: " + packageVersion + ", Timestamp: " + packageTimestamp;
 	}
 

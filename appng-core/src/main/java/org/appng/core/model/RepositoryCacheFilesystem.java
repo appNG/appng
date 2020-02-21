@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -126,136 +126,117 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		}
 	}
 
-	void update() {
+	synchronized void update() {
 		long currentTime = System.currentTimeMillis();
 		if (null == lastScan || currentTime - lastScan >= scanPeriod) {
 			StopWatch stopWatch = new StopWatch("RepositoryCacheFilesystem: scan repository");
 			stopWatch.start();
-			Map<File, PackageInfo> newfileMap = new HashMap<>();
-			Set<TypedPackage> changedPackages = new HashSet<>();
+			Set<String> updatedPackages = new HashSet<>();
+			Map<File, PackageInfo> newFileMap = new ConcurrentHashMap<>();
+			Set<File> oldFiles = new HashSet<>(activeFileMap.keySet());
 
 			getArchives(null).forEach(archive -> {
 				File file = archive.getFile();
 				if (!activeFileMap.containsKey(file)) {
-					// new file
-					PackageType type = archive.getType();
-					if (archive.isValid() && null != archive.getPackageInfo()) {
-						LOGGER.debug("New file found in repository: {}", file.getAbsolutePath());
-						PackageInfo packageInfo = archive.getPackageInfo();
-						newfileMap.put(file, packageInfo);
-						String packageName = addApplication(packageInfo);
-						changedPackages.add(new TypedPackage(packageName, type));
-					} else {
-						// invalid file
-						LOGGER.trace("Invalid file found in repository: {}", file.getAbsolutePath());
-						invalidFileMap.add(file.getName());
+					if (addArchive(newFileMap, archive, false)) {
+						updatedPackages.add(addPackage(archive.getPackageInfo(), archive.getType()));
 					}
 				} else {
-					// existing file --> take archive from activeFileMap.
 					LOGGER.trace("Existing file in repository: {}", file.getAbsolutePath());
 					PackageInfo applicationInfo = activeFileMap.get(file);
-					newfileMap.put(file, applicationInfo);
+					newFileMap.put(file, applicationInfo);
 				}
 			});
 
-			Set<File> keySet = activeFileMap.keySet();
-			keySet.removeAll(newfileMap.keySet());
-			for (File file : keySet) {
-				// deleted file
-				LOGGER.debug("Deleted file from repository: {}", file.getAbsolutePath());
-				PackageInfo applicationInfo = activeFileMap.get(file);
-				removePackage(applicationInfo);
-			}
-			for (TypedPackage typedPackage : changedPackages) {
-				if (applicationWrapperMap.containsKey(typedPackage.getName())) {
-					applicationWrapperMap.get(typedPackage.getName()).init(typedPackage.getType());
+			oldFiles.removeAll(activeFileMap.keySet());
+			for (File file : oldFiles) {
+				try {
+					LOGGER.debug("Removing file from repository: {}", file.getAbsolutePath());
+					PackageInfo applicationInfo = activeFileMap.get(file);
+					removePackage(applicationInfo.getName(), applicationInfo.getVersion(),
+							applicationInfo.getTimestamp(), false);
+				} catch (BusinessException e) {
+					LOGGER.error("Error removing file", e);
 				}
 			}
-			activeFileMap = newfileMap;
+
+			updatedPackages.stream().forEach(pkg -> initializeWrapper(pkg));
+			activeFileMap = newFileMap;
 			lastScan = System.currentTimeMillis();
 			stopWatch.stop();
 			LOGGER.debug(stopWatch.shortSummary());
 		}
 	}
 
-	public void update(String packageName) {
-		StopWatch stopWatch = new StopWatch("RepositoryCacheFilesystem: scan repository");
-		stopWatch.start();
-		AtomicReference<PackageType> type = new AtomicReference<>();
-		getArchives(packageName).forEach(archive -> {
-			File file = archive.getFile();
-			type.set(archive.getType());
-			if (!activeFileMap.containsKey(file)) {
-				if (archive.isValid() && null != archive.getPackageInfo()) {
-					LOGGER.debug("New file found in repository: {}", file.getAbsolutePath());
-					PackageInfo packageInfo = archive.getPackageInfo();
-					addApplication(packageInfo);
-					activeFileMap.put(file, packageInfo);
-				} else {
-					LOGGER.trace("Invalid file found in repository: {}", file.getAbsolutePath());
-					invalidFileMap.add(file.getName());
-					activeFileMap.remove(file);
-				}
-			}
-		});
-		if (applicationWrapperMap.containsKey(packageName)) {
-			applicationWrapperMap.get(packageName).init(type.get());
-		}
-		stopWatch.stop();
-		LOGGER.debug(stopWatch.shortSummary());
+	public boolean add(PackageArchive archive) {
+		return addArchive(activeFileMap, archive, true);
 	}
 
-	private String addApplication(PackageInfo packageInfo) {
-		String name = packageInfo.getName();
-		if (applicationWrapperMap.containsKey(name)) {
-			applicationWrapperMap.get(name).put(packageInfo);
+	private boolean addArchive(Map<File, PackageInfo> fileMap, PackageArchive archive, boolean initializeWrapper) {
+		boolean added = false;
+		File file = archive.getFile();
+		if (archive.isValid() && null != archive.getPackageInfo()) {
+			if (!fileMap.containsKey(file)) {
+				LOGGER.debug("New file found in repository: {}", file.getAbsolutePath());
+				PackageInfo packageInfo = archive.getPackageInfo();
+				addPackage(packageInfo, archive.getType());
+				fileMap.put(file, packageInfo);
+				added = true;
+			}
 		} else {
-			PackageWrapper wrapper = new PackageWrapper();
-			wrapper.put(packageInfo);
-			applicationWrapperMap.put(name, wrapper);
+			LOGGER.trace("Invalid file found in repository: {}", file.getAbsolutePath());
+			invalidFileMap.add(file.getName());
+			fileMap.remove(file);
 		}
-		return name;
+		if (initializeWrapper) {
+			initializeWrapper(archive.getPackageInfo().getName());
+		}
+		return added;
 	}
 
-	private String removePackage(PackageInfo packageInfo) {
+	public void initializeWrapper(String packageName) {
+		if (applicationWrapperMap.containsKey(packageName)) {
+			applicationWrapperMap.get(packageName).init();
+		}
+	}
+
+	private String addPackage(PackageInfo packageInfo, PackageType type) {
 		String name = packageInfo.getName();
 		if (applicationWrapperMap.containsKey(name)) {
-			try {
-				String version = packageInfo.getVersion();
-				String timestamp = packageInfo.getTimestamp();
-				deletePackage(name, version, timestamp, false);
-			} catch (Exception e) {
-				// ignore
-			}
+			applicationWrapperMap.get(name).addPackage(packageInfo);
+		} else {
+			applicationWrapperMap.put(name, new PackageWrapper(packageInfo, type));
 		}
 		return name;
 	}
 
-	public void deleteApplicationVersion(String packageName, String packageVersion, String packageTimestamp)
+	public void deletePackageVersion(String packageName, String packageVersion, String packageTimestamp)
 			throws BusinessException {
-		String packageVersionSignature = getApplicationVersionSignature(packageName, packageVersion, packageTimestamp);
+		String packageVersionSignature = getPackageVersionSignature(packageName, packageVersion, packageTimestamp);
 		try {
-			File applicationFile = getPackageFile(packageName, packageVersion, packageTimestamp);
-			if (applicationFile.delete()) {
-				deletePackage(packageName, packageVersion, packageTimestamp, true);
+			File packageFile = getPackageFile(packageName, packageVersion, packageTimestamp);
+			if (packageFile.delete()) {
+				removePackage(packageName, packageVersion, packageTimestamp, true);
 				LOGGER.info("deleted {} from repository {}", packageVersionSignature, directory.getAbsolutePath());
 			} else {
-				throw new BusinessException("Unable to delete application: " + packageVersionSignature + ", file: "
-						+ applicationFile.getAbsolutePath());
+				throw new BusinessException("Unable to delete package: " + packageVersionSignature + ", file: "
+						+ packageFile.getAbsolutePath());
 			}
 		} catch (FileNotFoundException e) {
 			throw new BusinessException(e);
 		}
 	}
 
-	private void deletePackage(String packageName, String packageVersion, String packageTimestamp, boolean initWrapper)
+	private void removePackage(String packageName, String packageVersion, String packageTimestamp, boolean initWrapper)
 			throws BusinessException {
 		PackageWrapper wrapper = applicationWrapperMap.get(packageName);
-		wrapper.deletePackageVersion(packageVersion, packageTimestamp);
-		if (wrapper.getVersions().isEmpty()) {
-			applicationWrapperMap.remove(packageName);
-		} else if (initWrapper) {
-			wrapper.init();
+		if (null != wrapper) {
+			wrapper.removePackageVersion(packageVersion, packageTimestamp);
+			if (wrapper.getVersions().isEmpty()) {
+				applicationWrapperMap.remove(packageName);
+			} else if (initWrapper) {
+				wrapper.init();
+			}
 		}
 	}
 
@@ -279,7 +260,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		}
 		if (null == packageInfo) {
 			throw new FileNotFoundException("application not found: "
-					+ getApplicationVersionSignature(packageName, packageVersion, packageTimestamp));
+					+ getPackageVersionSignature(packageName, packageVersion, packageTimestamp));
 		}
 		return getFile(packageInfo);
 	}
@@ -298,7 +279,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 		throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
 	}
 
-	public PackageArchive getApplicationArchive(String packageName, String packageVersion, String packageTimestamp)
+	public PackageArchive getPackageArchive(String packageName, String packageVersion, String packageTimestamp)
 			throws BusinessException {
 		try {
 			File applicationFile = getPackageFile(packageName, packageVersion, packageTimestamp);
@@ -309,7 +290,7 @@ public class RepositoryCacheFilesystem extends RepositoryCacheBase {
 			return archive;
 		} catch (FileNotFoundException e) {
 			throw new BusinessException("application archive not found for: "
-					+ getApplicationVersionSignature(packageName, packageVersion, packageTimestamp), e);
+					+ getPackageVersionSignature(packageName, packageVersion, packageTimestamp), e);
 		}
 	}
 
