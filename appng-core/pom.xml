@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<testcontainers.version>1.12.5</testcontainers.version>
+		<testcontainers.version>1.13.0</testcontainers.version>
 	</properties>
 
 	<build>
