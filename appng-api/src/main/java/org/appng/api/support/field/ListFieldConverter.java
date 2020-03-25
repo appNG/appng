@@ -52,6 +52,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class ListFieldConverter extends ConverterBase {
 
+	private static final int NOT_INDEXED = -1;
+
 	ListFieldConverter(ConversionService conversionService) {
 		this.conversionService = conversionService;
 	}
@@ -155,31 +157,32 @@ class ListFieldConverter extends ConverterBase {
 		return null;
 	}
 
-	private String getIndexedField(String s, int i) {
-		String format = String.format("%s[%d]", s, i);
-		return format;
+	private String getIndexedField(String nameOrBinding, int index) {
+		return String.format("%s[%d]", nameOrBinding, index);
 	}
 
-	private void addNestedFields(FieldDef parentField, List<FieldDef> indexedFields, int index) {
-		for (FieldDef fieldDef : indexedFields) {
-			FieldDef indexedField = copyField(fieldDef);
-			if (index > -1) {
-				indexedField.setBinding(getIndexedField(parentField.getBinding(), index));
-				indexedField.setName(getIndexedField(parentField.getName(), index));
-			} else {
-				indexedField.setBinding(parentField.getBinding() + "." + fieldDef.getName());
+	private void addNestedFields(FieldDef parent, List<FieldDef> childDefinitions, int index) {
+		for (FieldDef fieldDef : childDefinitions) {
+			boolean indexed = index > NOT_INDEXED;
+			String binding = indexed ? getIndexedField(parent.getBinding(), index)
+					: String.format("%s.%s", parent.getBinding(), fieldDef.getName());
+			String name = indexed ? getIndexedField(parent.getName(), index) : fieldDef.getName();
+
+			FieldDef child = copyField(fieldDef, name, binding);
+			addNestedFields(child, fieldDef.getFields(), NOT_INDEXED);
+			List<FieldDef> children = parent.getFields();
+			if (!children.stream().filter(b -> b.getBinding().equals(binding)).findAny().isPresent()) {
+				children.add(child);
+				LOGGER.debug("adding nested field {} to {}", FieldWrapper.toString(child),
+						FieldWrapper.toString(parent));
 			}
-			addNestedFields(indexedField, fieldDef.getFields(), -1);
-			parentField.getFields().add(indexedField);
-			LOGGER.debug("adding nested field {} to {}", FieldWrapper.toString(indexedField),
-					FieldWrapper.toString(parentField));
 		}
 	}
 
-	private FieldDef copyField(FieldDef fieldDef) {
+	private FieldDef copyField(FieldDef fieldDef, String name, String binding) {
 		FieldDef copy = new FieldDef();
-		copy.setBinding(fieldDef.getBinding());
-		copy.setName(fieldDef.getName());
+		copy.setBinding(binding);
+		copy.setName(name);
 		copy.setType(fieldDef.getType());
 		copy.setReadonly(fieldDef.getReadonly());
 		copy.setHidden(fieldDef.getHidden());
@@ -221,8 +224,9 @@ class ListFieldConverter extends ConverterBase {
 	private void addCollectionValue(BeanWrapper wrapper, String name, Object result) {
 		Collection collection = (Collection) wrapper.getPropertyValue(name);
 		if (null == collection) {
-			throw new IllegalArgumentException("collection '" + name + "' of object " + wrapper.getWrappedInstance()
-					+ " is null, can not add value '" + result + "'!");
+			throw new IllegalArgumentException(
+					String.format("collection '%s' of object %s is null, can not add value '%s'!", name,
+							wrapper.getWrappedInstance(), result));
 		}
 		collection.add(result);
 	}

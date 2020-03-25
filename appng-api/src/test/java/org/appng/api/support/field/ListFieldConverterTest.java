@@ -165,12 +165,17 @@ public class ListFieldConverterTest extends AbstractFieldConverterTest {
 			}
 		};
 		fieldConverter.addField(dataFieldOwner, fieldWrapper);
-		String marshallNonRoot = marshallService.marshallNonRoot(result);
+		String resultXml = marshallService.marshallNonRoot(result);
 		ClassPathResource controlSource = new ClassPathResource(
 				"xml/ListFieldConverterTest-testAddNestedFields-result.xml");
 		String expected = new String(
 				IOUtils.readFully(controlSource.getInputStream(), (int) controlSource.contentLength()));
-		Assert.assertEquals(expected, marshallNonRoot);
+		Assert.assertEquals(expected, resultXml);
+
+		result.getFields().clear();
+		fieldConverter.addField(dataFieldOwner, fieldWrapper);
+		resultXml = marshallService.marshallNonRoot(result);
+		Assert.assertEquals(expected, resultXml);
 	}
 
 	@Override
