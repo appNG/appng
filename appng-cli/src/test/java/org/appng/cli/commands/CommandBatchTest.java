@@ -18,6 +18,7 @@ package org.appng.cli.commands;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.appng.cli.CliBootstrap;
 import org.appng.tools.os.OperatingSystem;
 import org.junit.Assert;
 import org.junit.Test;
@@ -106,6 +107,8 @@ public class CommandBatchTest {
 
 	@Test
 	public void testCommandVariables() {
+		System.getProperties().put(CliBootstrap.APPNG_HOME, "/path/to/appng");
+
 		checkVariables("def DEPLOY = -f", "DEPLOY", "-f");
 		checkVariables("def MANAGER_APP =appng-manager ", "MANAGER_APP", "appng-manager");
 		checkVariables("def MANAGER_VERSION = 1.1-SNAPSHOT", "MANAGER_VERSION", "1.1-SNAPSHOT");
@@ -113,6 +116,11 @@ public class CommandBatchTest {
 		checkVariables("def ADMIN_GROUP=Administrator", "ADMIN_GROUP", "Administrator");
 		checkVariables("def ADMIN_SUBJECT=admin", "ADMIN_GROUP", "Administrator");
 		checkVariables("def ROLE_NAME=Platform Administrator", "ROLE_NAME", "\"Platform Administrator\"");
+
+		Assert.assertArrayEquals(
+				new String[] { "create-repository", "-n", "local", "-u", "file:///path/to/appng/WEB-INF/repository",
+						"-t", "LOCAL" },
+				batch.parseLine("create-repository -n local -u file://${systemProp['APPNG_HOME']}/WEB-INF/repository -t LOCAL"));
 
 		Assert.assertArrayEquals(new String[] { "test", "-f" }, batch.parseLine("test ${DEPLOY}"));
 		Assert.assertArrayEquals(

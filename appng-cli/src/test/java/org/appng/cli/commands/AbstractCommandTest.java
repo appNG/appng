@@ -20,6 +20,7 @@ import java.util.Properties;
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
 import org.appng.cli.CliBootstrapTest;
+import org.appng.cli.CliCore;
 import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest.CommandTestInitializer;
@@ -99,7 +100,7 @@ public abstract class AbstractCommandTest {
 	}
 
 	protected ExecutableCliCommand parse(ExecutableCliCommand command, String... args) {
-		new JCommander(command).parse(args);
+		new JCommander(command).parse(CliCore.processArgs(args));
 		return command;
 	}
 

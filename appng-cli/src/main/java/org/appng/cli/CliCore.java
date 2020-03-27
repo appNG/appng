@@ -15,9 +15,12 @@
  */
 package org.appng.cli;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +62,7 @@ import org.appng.cli.commands.subject.ListSubjects;
 import org.appng.cli.commands.template.DeleteTemplate;
 import org.appng.cli.commands.template.InstallTemplate;
 import org.appng.core.service.DatabaseService;
+import org.appng.el.ExpressionEvaluator;
 import org.flywaydb.core.api.MigrationInfo;
 import org.springframework.context.ApplicationContext;
 
@@ -73,7 +77,6 @@ import lombok.extern.slf4j.Slf4j;
  * {@link CliCommands}-object.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class CliCore {
@@ -147,7 +150,7 @@ public class CliCore {
 	 * Performs a cli command
 	 * 
 	 * @param cliConfig
-	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 *                  the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
 	 **/
 	public int perform(final Properties cliConfig) {
 
@@ -238,11 +241,11 @@ public class CliCore {
 	 * {@link #perform(Properties)}. Only if this method returns {@code true}, it is reasonable to call
 	 * {@link #perform(Properties)}.
 	 * 
-	 * @param args
-	 *            the command line arguments
-	 * @return {@code true} if the given arguments have been parsed to an {@link ExecutableCliCommand} and
-	 *         {@link #perform(Properties)} should be called, {@code false} otherwise
-	 * @see #getStatus()
+	 * @param  args
+	 *              the command line arguments
+	 * @return      {@code true} if the given arguments have been parsed to an {@link ExecutableCliCommand} and
+	 *              {@link #perform(Properties)} should be called, {@code false} otherwise
+	 * @see         #getStatus()
 	 */
 	public boolean processCommand(String[] args) throws ParameterException {
 		this.status = STATUS_OK;
@@ -256,7 +259,7 @@ public class CliCore {
 			return false;
 		}
 		try {
-			jc.parse(args);
+			jc.parse(processArgs(args));
 			if (cm.isUsage()) {
 				usage(jc);
 				return false;
@@ -287,6 +290,19 @@ public class CliCore {
 		return false;
 	}
 
+	public static String[] processArgs(String[] args) {
+		ExpressionEvaluator systemEnvAndProps = systemEnvAndProps(new HashMap<>());
+		return Arrays.asList(args).stream().map(a -> systemEnvAndProps.evaluate(a, String.class))
+				.collect(Collectors.toList()).toArray(new String[0]);
+	}
+
+	public static ExpressionEvaluator systemEnvAndProps(Map<String, String> variables) {
+		Map<String, Object> params = new HashMap<>(variables);
+		params.put("systemEnv", System.getenv());
+		params.put("systemProp", System.getProperties());
+		return new ExpressionEvaluator(params);
+	}
+
 	public int getStatus() {
 		return status;
 	}
@@ -299,7 +315,6 @@ public class CliCore {
 	 * Enum type for logging events.
 	 * 
 	 * @author Matthias Herlitzius
-	 * 
 	 */
 	private enum LogCategory {
 		INFO, WARN, ERROR;

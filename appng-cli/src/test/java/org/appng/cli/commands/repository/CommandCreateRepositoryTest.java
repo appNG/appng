@@ -16,9 +16,9 @@
 package org.appng.cli.commands.repository;
 
 import java.io.File;
-import java.net.URI;
 
 import org.appng.api.BusinessException;
+import org.appng.cli.CliBootstrap;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.core.model.Repository;
@@ -29,11 +29,12 @@ import org.junit.Test;
 
 public class CommandCreateRepositoryTest extends AbstractCommandTest {
 
-	static final URI REPO_URI = new File("target/test-classes/localrepo").getAbsoluteFile().toURI();
+	static final File REPO = new File("target/test-classes/localrepo").getAbsoluteFile();
 
 	public ExecutableCliCommand getCommand() {
+		System.getProperties().put(CliBootstrap.APPNG_HOME, REPO.getAbsolutePath());
 		String[] args = new String[] { "-n", "localrepo", "-d", "a local repository", "-t", RepositoryType.LOCAL.name(),
-				"-m", RepositoryMode.ALL.name(), "-u", REPO_URI.toString() };
+				"-m", RepositoryMode.ALL.name(), "-u", "file:${systemProp['APPNG_HOME']}/" };
 		return parse(new CreateRepository(), args);
 	}
 
@@ -44,7 +45,7 @@ public class CommandCreateRepositoryTest extends AbstractCommandTest {
 		Assert.assertEquals("a local repository", repo.getDescription());
 		Assert.assertEquals(RepositoryMode.ALL, repo.getRepositoryMode());
 		Assert.assertEquals(RepositoryType.LOCAL, repo.getRepositoryType());
-		Assert.assertEquals(REPO_URI, repo.getUri());
+		Assert.assertEquals(REPO.toURI().toString(), repo.getUri().toString());
 		Assert.assertTrue(repo.isActive());
 		Assert.assertFalse(repo.isPublished());
 		Assert.assertFalse(repo.isStrict());
@@ -55,8 +56,7 @@ public class CommandCreateRepositoryTest extends AbstractCommandTest {
 	public void testCreateRemote() throws BusinessException {
 		String remoteUrl = "https://appng.org/service/manager/appng-manager/soap/repositoryService";
 		String[] args = new String[] { "-n", "remoterepo", "-d", "a remote repository", "-g", "digest", "-t",
-				RepositoryType.REMOTE.name(), "-r", "appNG-Stable", "-m", RepositoryMode.ALL.name(), "-u",
-				remoteUrl };
+				RepositoryType.REMOTE.name(), "-r", "appNG-Stable", "-m", RepositoryMode.ALL.name(), "-u", remoteUrl };
 		parse(new CreateRepository(), args).execute(cliEnv);
 
 		Repository repo = cliEnv.getCoreService().getApplicationRepositoryByName("remoterepo");

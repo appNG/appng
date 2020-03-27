@@ -121,12 +121,8 @@ public class CommandBatch implements ExecutableCliCommand {
 			return args;
 		}
 
-		Map<String, Object> params = new HashMap<>(variables);
-		params.put("systemEnv", System.getenv());
-		params.put("systemProp", System.getProperties());
-		ExpressionEvaluator ee = new ExpressionEvaluator(params);
-
-		String line = ee.evaluate(command, String.class);
+		ExpressionEvaluator systemEnvAndProps = CliCore.systemEnvAndProps(variables);
+		String line = systemEnvAndProps.evaluate(command, String.class);
 		if (line.startsWith(VAR_DECLARATION)) {
 			int eqIdx = line.indexOf(VAR_ASSIGNMENT);
 			String name = line.substring(VAR_DECLARATION.length() + 1, eqIdx).trim();

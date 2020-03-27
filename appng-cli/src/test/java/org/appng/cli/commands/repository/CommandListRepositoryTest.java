@@ -43,7 +43,7 @@ public class CommandListRepositoryTest extends AbstractCommandTest {
 		validateCell(prettyTable, 1, TableConstants.ID, "1");
 		validateCell(prettyTable, 1, TableConstants.NAME, "localrepo");
 		validateCell(prettyTable, 1, TableConstants.TYPE, "LOCAL");
-		validateCell(prettyTable, 1, TableConstants.URI, CommandCreateRepositoryTest.REPO_URI.toString());
+		validateCell(prettyTable, 1, TableConstants.URI, CommandCreateRepositoryTest.REPO.toURI().toString());
 	}
 
 }
