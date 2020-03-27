@@ -1,1 +1,1 @@
-alter table subject change name varchar(255) not null;
+alter table subject alter COLUMN name varchar(255);
