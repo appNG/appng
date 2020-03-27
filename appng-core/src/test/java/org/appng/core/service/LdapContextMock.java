@@ -176,7 +176,7 @@ public class LdapContextMock implements LdapContext {
 
 	@Override
 	public Attributes getAttributes(String name, String[] attrIds) throws NamingException {
-		if (name.endsWith(groupBaseDn)) {
+		if (name.endsWith(groupBaseDn) && null != attrIds) {
 			Answer<NamingEnumeration<?>> attrEnumAnswer;
 			Attributes groupAttrs = Mockito.mock(Attributes.class);
 			Attribute memberAttr = Mockito.mock(Attribute.class);

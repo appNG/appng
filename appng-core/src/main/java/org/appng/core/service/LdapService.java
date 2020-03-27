@@ -267,19 +267,7 @@ public class LdapService {
 		try {
 			ctx = getContext(ldapCredentials);
 			for (String group : groupNames) {
-				String groupDn = CN_ATTRIBUTE + "=" + group + "," + groupBaseDn;
-				Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
-				for (String member : getMemberNames(memberAttrs)) {
-					Attributes userAttrs = ctx.getAttributes(member);
-					String id = getAttribute(userAttrs, idAttribute);
-					String realName = getAttribute(userAttrs, CN_ATTRIBUTE);
-					if (username.equalsIgnoreCase(id)) {
-						userGroups.add(group);
-						subject.setName(username);
-						subject.setRealname(realName);
-						subject.setEmail(StringUtils.lowerCase(getAttribute(userAttrs, MAIL_ATTRIBUTE)));
-					}
-				}
+				checkGroupMembership(username, subject, userGroups, groupBaseDn, idAttribute, group);
 			}
 		} catch (IOException | NamingException ex) {
 			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
@@ -287,6 +275,34 @@ public class LdapService {
 			closeContext();
 		}
 		return userGroups;
+	}
+
+	private void checkGroupMembership(String username, SubjectImpl subject, List<String> userGroups, String groupBaseDn,
+			String idAttribute, String group) throws NamingException {
+		// if the group base dn is defined in site properties, assemble the attribute name. If this porperty is not set,
+		// the group name must contain a complete valid ldap reference incl. base group dn
+		String groupDn = group;
+		if (StringUtils.isNotBlank(groupBaseDn)) {
+			groupDn = CN_ATTRIBUTE + "=" + group + "," + groupBaseDn;
+		}
+		try {
+			Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
+			for (String member : getMemberNames(memberAttrs)) {
+				Attributes userAttrs = ctx.getAttributes(member);
+				String id = getAttribute(userAttrs, idAttribute);
+				String realName = getAttribute(userAttrs, CN_ATTRIBUTE);
+				if (username.equalsIgnoreCase(id)) {
+					userGroups.add(group);
+					subject.setName(username);
+					subject.setRealname(realName);
+					subject.setEmail(StringUtils.lowerCase(getAttribute(userAttrs, MAIL_ATTRIBUTE)));
+				}
+			}
+		} catch (NamingException e) {
+			LOGGER.info("Cannot evaluate group members of group '" + groupDn + "' (" + e.getClass().getName() + ": "
+					+ e.getMessage() + ")");
+			return;
+		}
 	}
 
 	/**

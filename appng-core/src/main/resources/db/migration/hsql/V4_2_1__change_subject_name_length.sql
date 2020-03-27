@@ -1,0 +1,1 @@
+alter table subject change name varchar(255) not null;

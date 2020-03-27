@@ -164,6 +164,24 @@ public class LdapServiceTest {
 	}
 
 	@Test
+	public void testLoginGroupExistentNoGroupBaseDn() throws NamingException, IOException {
+		List<String> searchedGroups;
+		List<String> resultGroups;
+
+		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "UPN");
+		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
+		sitePropertyMocks.put(LdapService.LDAP_USER, "mondoshawan");
+		sitePropertyMocks.put(LdapService.LDAP_PASSWORD, "stones");
+		sitePropertyMocks.put(LdapService.LDAP_USER_BASE_DN, "ou=users,l=egypt");
+		sitePropertyMocks.put(LdapService.LDAP_GROUP_BASE_DN, "");
+
+		setup("aziz@egypt", "light", "mondoshawan@egypt", "stones");
+		searchedGroups = Arrays.asList("cn=logingroup,ou=groups,l=egypt");
+		resultGroups = ldapService.loginGroup(mockedSite, "aZiZ", "light".toCharArray(), mockedSubject, searchedGroups);
+		Assert.assertArrayEquals(searchedGroups.toArray(new String[0]), resultGroups.toArray(new String[0]));
+	}
+
+	@Test
 	// The same as testLoginGroupExistent(), but additionally tests, if service user logins with DN do work.
 	public void testLoginGroupExistentServiceUserDirectDN() throws NamingException, IOException {
 		List<String> searchedGroups;
