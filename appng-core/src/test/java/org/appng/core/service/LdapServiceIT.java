@@ -65,15 +65,54 @@ public class LdapServiceIT {
 	}
 
 	@Test
-	public void testLoginGroup() throws Exception {
-		Site site = mockSite("dc=example,dc=com");
+	public void testLoginGroupLooneyToones() throws Exception {
+		Site site = mockSite("ou=ACME,ou=Groups,dc=example,dc=com");
 		List<String> groups = Arrays.asList("SHIELD", "Heroes", "Looney Tunes");
-		new LdapService().loginGroup(site, "John Wick", "secret".toCharArray(), new SubjectImpl(), groups);
+		List<String> memberOf = new LdapService().loginGroup(site, "John Wick", "secret".toCharArray(),
+				new SubjectImpl(), groups);
+		// group base dn is defined at site. appNG should find only one group for this user because it can evaluate only
+		// one group
+		Assert.assertEquals(1, memberOf.size());
+	}
+
+	@Test
+	public void testLoginGroupDC() throws Exception {
+		Site site = mockSite("ou=DC,ou=Groups,dc=example,dc=com");
+		List<String> groups = Arrays.asList("SHIELD", "Heroes", "Looney Tunes");
+		List<String> memberOf = new LdapService().loginGroup(site, "John Wick", "secret".toCharArray(),
+				new SubjectImpl(), groups);
+		// group base dn is defined at site. appNG should find only one group for this user because it can evaluate only
+		// one group
+		Assert.assertEquals(1, memberOf.size());
+	}
+
+	@Test
+	public void testLoginAllGroups() throws Exception {
+		Site site = mockSite("");
+		List<String> groups = Arrays.asList("cn=SHIELD,ou=Marvel,ou=Groups,dc=example,dc=com",
+				"cn=Heroes,ou=DC,ou=Groups,dc=example,dc=com", "cn=Looney Tunes,ou=ACME,ou=Groups,dc=example,dc=com");
+		List<String> memberOf = new LdapService().loginGroup(site, "John Wick", "secret".toCharArray(),
+				new SubjectImpl(), groups);
+		// all groups are defined by full LDAP Name. groupBaseDn is empty. LdapService should find all groups and Mr.
+		// Wick is member in all groups
+		Assert.assertEquals(3, memberOf.size());
+	}
+
+	@Test
+	public void testLoginNonSenseGroups() throws Exception {
+		Site site = mockSite("");
+		List<String> groups = Arrays.asList("this is nonsense", "insane group definition",
+				"cn=Looney Tunes,ou=ACME,ou=Groups,dc=example,dc=com");
+		List<String> memberOf = new LdapService().loginGroup(site, "John Wick", "secret".toCharArray(),
+				new SubjectImpl(), groups);
+		// even if the previous groups are nonsense, the implementation shall be tolerant and actually find the well
+		// defined groups
+		Assert.assertEquals(1, memberOf.size());
 	}
 
 	@Test
 	public void testGetMembersOfGroup() throws Exception {
-		Site site = mockSite("dc=example,dc=com");
+		Site site = mockSite("ou=ACME,ou=Groups,dc=example,dc=com");
 		List<SubjectImpl> membersOfGroup = new LdapService().getMembersOfGroup(site, "Looney Tunes");
 		Assert.assertEquals(3, membersOfGroup.size());
 		Assert.assertEquals("jane@example.com", membersOfGroup.get(0).getEmail());

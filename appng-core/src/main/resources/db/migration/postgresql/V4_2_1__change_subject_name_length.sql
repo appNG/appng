@@ -1,1 +1,1 @@
-alter table subject ALTER COLUMN name TYPE VARCHAR (255);
+alter table subject alter column name set not null;
