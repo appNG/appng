@@ -5,42 +5,28 @@
 	</links>
 	<type>HSQL</type>
 	<user>sa</user>
-	<password>$2a$13$e9002992593013a8b6174uyOaRuqsbALZRFjgVgP0EFELDk/7A7a6</password>
+	<password>$2a$13$f25f1a95343eb44c5fae5u/2QIVlcYsQ4KXIbAYqgy0VOTrk2LLTC</password>
 	<dbVersion>HSQL Database Engine 2.5.0</dbVersion>
 	<driver>org.hsqldb.jdbc.JDBCDriver</driver>
 	<url>jdbc:hsqldb:mem:testdb</url>
 	<ok>true</ok>
 	<managed>false</managed>
 	<versions>
-		<version version="4.2" state="Success" description="add subject columns" checksum="-1022623583"
-			installed="2019-12-11T16:44:55.953+01:00" />
-		<version version="4.1.2" state="Success" description="add property type" checksum="-1851785451"
-			installed="2019-12-11T16:46:29.933+01:00" />
-		<version version="4.1.1" state="Success" description="add site reload count" checksum="1311349447"
-			installed="2019-12-11T16:46:29.928+01:00" />
-		<version version="4.1.0" state="Success" description="change caching properties" checksum="1292263725"
-			installed="2019-12-11T16:46:29.923+01:00" />
-		<version version="4.0.0" state="Success" description="add job execution record" checksum="1364852815"
-			installed="2019-12-11T16:46:29.914+01:00" />
-		<version version="2.0.0" state="Success" description="add platform event" checksum="1137969222"
-			installed="2019-12-11T16:46:29.910+01:00" />
-		<version version="1.3.2" state="Success" description="add repository accepted certs" checksum="1710103480"
-			installed="2019-12-11T16:46:29.903+01:00" />
-		<version version="1.3.1" state="Success" description="add global admin role" checksum="1230735742"
-			installed="2019-12-11T16:46:29.897+01:00" />
-		<version version="1.3.0" state="Success" description="add type to template" checksum="727633006"
-			installed="2019-12-11T16:46:29.888+01:00" />
-		<version version="1.2.3" state="Success" description="set resource bytes not null" checksum="-652001277"
-			installed="2019-12-11T16:46:29.880+01:00" />
-		<version version="1.2.2" state="Success" description="add repository digest" checksum="-222577107"
-			installed="2019-12-11T16:46:29.871+01:00" />
-		<version version="1.2.1" state="Success" description="add repository strict" checksum="-780205616"
-			installed="2019-12-11T16:46:29.861+01:00" />
-		<version version="1.2" state="Success" description="add template" checksum="1088238598"
-			installed="2019-12-11T16:46:29.848+01:00" />
-		<version version="1.1" state="Success" description="Quartz initial setup" checksum="1129524243"
-			installed="2019-12-11T16:46:29.838+01:00" />
-		<version version="1.0" state="Success" description="appNG initial setup" checksum="1411118267"
-			installed="2019-12-11T16:46:29.819+01:00" />
+		<version version="4.2.1" state="Success" description="change subject name length" checksum="-1403960313" installed="2020-03-27T16:03:24.700+01:00" />
+		<version version="4.2" state="Success" description="add subject columns" checksum="-1022623583" installed="2020-03-27T16:03:24.680+01:00" />
+		<version version="4.1.2" state="Success" description="add property type" checksum="-1851785451" installed="2020-03-27T16:03:24.611+01:00" />
+		<version version="4.1.1" state="Success" description="add site reload count" checksum="1311349447" installed="2020-03-27T16:03:24.600+01:00" />
+		<version version="4.1.0" state="Success" description="change caching properties" checksum="1292263725" installed="2020-03-27T16:03:24.578+01:00" />
+		<version version="4.0.0" state="Success" description="add job execution record" checksum="1364852815" installed="2020-03-27T16:03:24.543+01:00" />
+		<version version="2.0.0" state="Success" description="add platform event" checksum="1137969222" installed="2020-03-27T16:03:24.534+01:00" />
+		<version version="1.3.2" state="Success" description="add repository accepted certs" checksum="1710103480" installed="2020-03-27T16:03:24.510+01:00" />
+		<version version="1.3.1" state="Success" description="add global admin role" checksum="1230735742" installed="2020-03-27T16:03:24.501+01:00" />
+		<version version="1.3.0" state="Success" description="add type to template" checksum="727633006" installed="2020-03-27T16:03:24.477+01:00" />
+		<version version="1.2.3" state="Success" description="set resource bytes not null" checksum="-652001277" installed="2020-03-27T16:03:24.465+01:00" />
+		<version version="1.2.2" state="Success" description="add repository digest" checksum="-222577107" installed="2020-03-27T16:03:24.443+01:00" />
+		<version version="1.2.1" state="Success" description="add repository strict" checksum="-780205616" installed="2020-03-27T16:03:24.433+01:00" />
+		<version version="1.2" state="Success" description="add template" checksum="1088238598" installed="2020-03-27T16:03:24.398+01:00" />
+		<version version="1.1" state="Success" description="Quartz initial setup" checksum="1129524243" installed="2020-03-27T16:03:24.387+01:00" />
+		<version version="1.0" state="Success" description="appNG initial setup" checksum="1411118267" installed="2020-03-27T16:03:24.272+01:00" />
 	</versions>
 </database>
