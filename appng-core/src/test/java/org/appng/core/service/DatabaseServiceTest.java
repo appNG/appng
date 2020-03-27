@@ -30,6 +30,8 @@ import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.DatabaseConnectionRepository;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationState;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -260,7 +262,9 @@ public class DatabaseServiceTest extends TestInitializer {
 	}
 
 	private void validateSchemaVersion(DatabaseConnection connection, String version) throws SQLException {
-		Assert.assertEquals(version, databaseService.status(connection).getVersion().toString());
+		MigrationInfo status = databaseService.status(connection);
+		Assert.assertEquals(version, status.getVersion().toString());
+		Assert.assertEquals(MigrationState.SUCCESS, status.getState());
 	}
 
 	@Test
