@@ -10,9 +10,9 @@ To enable clustering you need to have
 There are currently three techniques for appNG to exchange messages between nodes in a cluster:
 
 * https://en.wikipedia.org/wiki/Multicast[Multicast^]
-* https://redis.io/[Redis^]
-* https://www.rabbitmq.com/[RabbitMQ^]
-
+* https://hazelcast.org[Hazelcast^]
+* https://redis.io[Redis^]
+* https://www.rabbitmq.com[RabbitMQ^]
 
 === Using Multicast
 The following platform-properties need to be configured when using multicast:
@@ -21,8 +21,17 @@ The following platform-properties need to be configured when using multicast:
 * set `messagingGroupAddress` to an appropriate value (default: `224.2.2.4`)
 * set `messagingGroupPort` to an appropriate value (default: `4000`)
 
+=== Using Hazelcast
+With https://hazelcast.org[Hazelcast^], a https://docs.hazelcast.org/docs/4.0/manual/html-single/index.html#reliable-topic[Reliable Topic^] is used to publish and subscribe cluster events.
+
+The following platform-properties need to be configured:
+
+* set `messagingReceiver` to `org.appng.core.controller.messaging.HazelCastReceiver`
+* `hazelcastTopicName`: The name of the topic (default: `appng-messaging`)
+
 === Using RabbitMQ
-The following platform-properties need to be configured when using RabbitMQ:
+With https://www.rabbitmq.com[RabbitMQ^], appNG uses a queue based publish/subscribe mechanism for cluster communication.
+The following platform-properties need to be configured:
 
 * set `messagingReceiver` to `org.appng.core.controller.messaging.RabbitMQReceiver`
 * `rabbitMQAdresses`: A comma separated list of <host>:<port> for RabbitMQ server(s) (default: `localhost:5672`): 
@@ -35,7 +44,8 @@ Be aware that this name must be different among different clusters using the sam
 * `rabbitMQExclusiveQueue`: If the queue to create should be marked as exclusive (default: `true`).
 
 === Using Redis
-The following platform-properties need to be configured when using Redis:
+With https://redis.io[Redis^], cluster communication is based on a publish/subscribe mechanism that works on a messaging channel.
+The following platform-properties need to be configured:
 
 * set `messagingReceiver` to `org.appng.core.controller.messaging.JedisReceiver`
 * `redisMessagingHost`: Host of the Redis server (default: `localhost`).

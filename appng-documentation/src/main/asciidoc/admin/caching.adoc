@@ -26,7 +26,7 @@ There are several site-scoped properties to configure caching.
 * `cacheEnabled` +
 Set to `true` to enable caching for the site.
 * `cacheExceptions` +
-URL path prefixes which are never cached, as a multi-lined value. Contains one prefix per line. +
+URL path prefixes which are never cached, as a multiline value. Contains one prefix per line. +
 *Example:*
 +
 [source,]
@@ -35,7 +35,7 @@ URL path prefixes which are never cached, as a multi-lined value. Contains one p
 /service/my-site
 ----
 * `cacheTimeouts` +
-The path specific cache timeouts, as a multi-lined value. The format is `path-prefix = TTL in seconds`. Contains one path-prefix per line. +
+The path specific cache timeouts, as a multiline value. The format is `path-prefix = TTL in seconds`. Contains one path-prefix per line. +
 *Example:*
 +
 [source,]
@@ -52,6 +52,6 @@ Set to `true to` enable caching statistics
 * `cacheWatchRepository` +
 Set to `true` to watch the repository folder for changes and invalidate cache elements, if necessary.
 * `cacheWatcherRuleSourceSuffix` +
-The suffix to be removed from a `<from>`-rule element when parsing the rules from `urlrewrite.xml` for the repository watchers. See also the developerguide.html#beautifying-urls[Beautifying URLs^] section from the developer's guide,
+The suffix to be removed from a `<from>`-rule element when parsing the rules from `urlrewrite.xml` for the repository watchers. See also the {developerguide}#beautifying-urls[Beautifying URLs^] section from the developer's guide,
 * `cacheClearOnShutdown` +
 Set to `true` to clear the cache on a site shutdown/reload.
