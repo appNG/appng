@@ -65,6 +65,21 @@ public class LdapServiceIT {
 	}
 
 	@Test
+	public void testLoginGroupInvalidCredentials() throws Exception {
+		Site site = mockSite("");
+		List<String> memberOf = new LdapService().loginGroup(site, "John Wick", "wrong".toCharArray(),
+				new SubjectImpl(), Arrays.asList());
+		Assert.assertEquals(0, memberOf.size());
+	}
+
+	@Test
+	public void testLoginUserInvalidCredentials() throws Exception {
+		Site site = mockSite("");
+		boolean success = new LdapService().loginUser(site, "John Wick", "wrong".toCharArray());
+		Assert.assertFalse(success);
+	}
+
+	@Test
 	public void testLoginGroupLooneyToones() throws Exception {
 		Site site = mockSite("ou=ACME,ou=Groups,dc=example,dc=com");
 		List<String> groups = Arrays.asList("SHIELD", "Heroes", "Looney Tunes");
@@ -118,6 +133,16 @@ public class LdapServiceIT {
 		Assert.assertEquals("jane@example.com", membersOfGroup.get(0).getEmail());
 		Assert.assertEquals("joe@example.com", membersOfGroup.get(1).getEmail());
 		Assert.assertEquals("john@example.com", membersOfGroup.get(2).getEmail());
+	}
+
+	@Test
+	public void testGetMembersOfGroupEmptyBaseDn() throws Exception {
+		Site site = mockSite("");
+		List<SubjectImpl> membersOfGroup = new LdapService().getMembersOfGroup(site,
+				"cn=Heroes,ou=DC,ou=Groups,dc=example,dc=com");
+		Assert.assertEquals(2, membersOfGroup.size());
+		Assert.assertEquals("jane@example.com", membersOfGroup.get(0).getEmail());
+		Assert.assertEquals("john@example.com", membersOfGroup.get(1).getEmail());
 	}
 
 	private Site mockSite(String groupBaseDn) {
