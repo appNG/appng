@@ -17,13 +17,13 @@ package org.appng.core.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -337,15 +337,17 @@ public class LdapService {
 		return subject;
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<String> getGroupMembers(LdapContext ctx, String groupDn) throws NamingException {
 		Attributes groupAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
 		Attribute memberAttr = groupAttrs.get(MEMBER_ATTRIBUTE);
-		if (memberAttr == null) {
-			return Collections.emptyList();
-		} else {
-			return (List<String>) EnumerationUtils.toList(memberAttr.getAll());
+		List<String> members = new ArrayList<>();
+		if (memberAttr != null) {
+			NamingEnumeration<?> memberIt = memberAttr.getAll();
+			while (memberIt.hasMoreElements()) {
+				members.add((String) memberIt.nextElement());
+			}
 		}
+		return members;
 	}
 
 	private String getGroupDn(String groupName, String groupBaseDn) {
