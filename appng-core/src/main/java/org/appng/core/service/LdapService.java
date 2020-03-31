@@ -34,7 +34,6 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
-import org.apache.commons.collections4.EnumerationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
