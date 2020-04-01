@@ -30,6 +30,7 @@ import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.CacheProvider;
 import org.appng.core.model.RepositoryCacheFactory;
+import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.PropertySupport;
 import org.flywaydb.core.api.MigrationInfo;
 import org.slf4j.Logger;
@@ -48,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class Home extends ControllerBase implements InitializingBean {
 
-	private static final String HAZELCAST_CONFIG = "../appNGizer/WEB-INF/conf/hazelcast-client.xml";
 	static final String AUTHORIZED = "authorized";
 	static final String ROOT = "/";
 
@@ -85,10 +85,9 @@ public class Home extends ControllerBase implements InitializingBean {
 		PropertyImpl receiverClass = coreService
 				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_RECEIVER);
 		if (null != receiverClass && HazelcastReceiver.class.getName().equals(receiverClass.getString())) {
-			String cacheConfig = PropertySupport.PREFIX_PLATFORM + Platform.Property.CACHE_CONFIG;
-			props.put(cacheConfig, HAZELCAST_CONFIG);
-			logger().info("Detected {}, using configuration {} for {}", receiverClass.getString(), HAZELCAST_CONFIG,
-					cacheConfig);
+			String useClient = PropertySupport.PREFIX_PLATFORM + HazelcastConfigurer.HAZELCAST_USE_CLIENT;
+			props.put(useClient, "true");
+			logger().info("Detected {}, setting {} to true", receiverClass.getString(), useClient);
 		}
 		MigrationInfo databaseStatus = getDatabaseStatus();
 		if (null == databaseStatus) {

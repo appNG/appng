@@ -183,7 +183,7 @@ public class MonitoringHandler implements RequestHandler {
 
 	@Data
 	@AllArgsConstructor
-	class SiteInfo {
+	public static class SiteInfo {
 		String name;
 		SiteState state;
 		String host;
@@ -196,7 +196,7 @@ public class MonitoringHandler implements RequestHandler {
 
 	@Data
 	@AllArgsConstructor
-	class ApplicationInfo {
+	public static class ApplicationInfo {
 		String version;
 		String description;
 		boolean hidden;
@@ -208,7 +208,7 @@ public class MonitoringHandler implements RequestHandler {
 
 	@Data
 	@AllArgsConstructor
-	class Connection {
+	public static class Connection {
 		String url;
 		String user;
 		Integer maxPoolSize;
@@ -221,7 +221,7 @@ public class MonitoringHandler implements RequestHandler {
 
 	@Data
 	@AllArgsConstructor
-	class Jar {
+	public static class Jar {
 		String name;
 		OffsetDateTime lastModified;
 	}

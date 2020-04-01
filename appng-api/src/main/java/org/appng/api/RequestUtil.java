@@ -16,6 +16,7 @@
 package org.appng.api;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -139,7 +140,7 @@ public class RequestUtil {
 
 	private static Map<String, Site> getSiteMap(Environment env) {
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		return Collections.unmodifiableMap(siteMap);
+		return Collections.unmodifiableMap(siteMap == null ? new HashMap<>() : siteMap);
 	}
 
 	/**

@@ -15,10 +15,13 @@
  */
 package org.appng.core.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.appng.api.Platform;
 import org.appng.core.controller.messaging.HazelcastReceiver;
 
 import com.hazelcast.client.HazelcastClient;
@@ -40,6 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HazelcastConfigurer {
 
+	private static final String HAZELCAST_CLIENT_XML = "WEB-INF/conf/hazelcast-client.xml";
+	public static final String HAZELCAST_USE_CLIENT = "hazelcastUseClient";
 	private static HazelcastInstance instance;
 	private static boolean isClient = false;
 
@@ -55,30 +60,34 @@ public class HazelcastConfigurer {
 		if (null == instance) {
 			if (null != platformProperties) {
 				try {
-					InputStream cacheConfig = platformProperties.getCacheConfig();
-					if (null != cacheConfig) {
-						String providerType = System.getProperty("hazelcast.jcache.provider.type");
-						if (!"client".equals(providerType)) {
+					String providerType = System.getProperty("hazelcast.jcache.provider.type");
+					Boolean useClient = platformProperties.getBoolean(HAZELCAST_USE_CLIENT, false);
+					if ("client".equals(providerType) || useClient) {
+						String appNGData = platformProperties.getString(Platform.Property.APPNG_DATA);
+						FileInputStream clientIs = new FileInputStream(new File(appNGData, HAZELCAST_CLIENT_XML));
+
+						ClientConfig clientConfig = new XmlClientConfigBuilder(clientIs).build();
+						if (StringUtils.isNotBlank(clientId)) {
+							clientConfig.setInstanceName(clientConfig.getInstanceName() + "_" + clientId);
+						}
+						instance = HazelcastClient.getHazelcastClientByName(clientConfig.getInstanceName());
+						if (null == instance) {
+							instance = HazelcastClient.newHazelcastClient(clientConfig);
+							LOGGER.info("Created new client '{}' for ID '{}'", instance.getName(), clientId);
+						} else {
+							LOGGER.info("Using existing client '{}' for ID '{}'", instance.getName(), clientId);
+						}
+						isClient = true;
+					} else {
+						InputStream cacheConfig = platformProperties.getCacheConfig();
+						if (null != cacheConfig) {
 							Config config = new XmlConfigBuilder(cacheConfig).build();
 							instance = Hazelcast.getOrCreateHazelcastInstance(config);
 							LOGGER.info("Using {}", instance);
-						} else {
-							ClientConfig clientConfig = new XmlClientConfigBuilder(cacheConfig).build();
-							if (StringUtils.isNotBlank(clientId)) {
-								clientConfig.setInstanceName(clientConfig.getInstanceName() + "_" + clientId);
-							}
-							instance = HazelcastClient.getHazelcastClientByName(clientConfig.getInstanceName());
-							if (null == instance) {
-								instance = HazelcastClient.newHazelcastClient(clientConfig);
-								LOGGER.info("Created new client '{}' for ID '{}'", instance.getName(), clientId);
-							} else {
-								LOGGER.info("Using existing client '{}' for ID '{}'", instance.getName(), clientId);
-							}
-							isClient = true;
 						}
 					}
 				} catch (IOException e) {
-					LOGGER.error("failed to create Hazalcast instance!", e);
+					LOGGER.error("failed to create Hazelcast instance!", e);
 				}
 			}
 		} else if (isClient) {

@@ -5,7 +5,8 @@
 	<properties>
 		<property name="hazelcast.logging.type">slf4j</property>
 	</properties>
-	<instance-name>appNG</instance-name>
+	<cluster-name>appNG</cluster-name>
+	<instance-name>dev</instance-name>
 	<network>
 		<cluster-members>
 			<address>127.0.0.1:5701</address>
