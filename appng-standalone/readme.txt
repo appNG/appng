@@ -29,7 +29,7 @@ Usage:
 	for Windows:             appng.bat
 * go to http://localhost:8080/manager in your browser
   User: admin
-  Password: s3cr3t
+  Password: @ppNG$42
 
 	
 Options:

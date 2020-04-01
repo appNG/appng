@@ -213,17 +213,13 @@ public class PropertySupport {
 		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
 		addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
 
-		String passwordPolicyClass = platformConfig.getString(Platform.Property.PASSWORD_POLICY);
+		String passwordPolicyClass = platformConfig.getString(Platform.Property.PASSWORD_POLICY,
+				ConfigurablePasswordPolicy.class.getName());
 		PasswordPolicy passwordPolicy = null;
-		if (StringUtils.isNotBlank(passwordPolicyClass)) {
-			try {
-				passwordPolicy = (PasswordPolicy) getClass().getClassLoader().loadClass(passwordPolicyClass)
-						.newInstance();
-			} catch (ReflectiveOperationException e) {
-				LOGGER.error("error while instantiating " + passwordPolicyClass, e);
-			}
-		}
-		if (null == passwordPolicy) {
+		try {
+			passwordPolicy = (PasswordPolicy) getClass().getClassLoader().loadClass(passwordPolicyClass).newInstance();
+		} catch (ReflectiveOperationException e) {
+			LOGGER.error("error while instantiating " + passwordPolicyClass, e);
 			passwordPolicy = new ConfigurablePasswordPolicy();
 		}
 

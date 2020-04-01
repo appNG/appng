@@ -21,7 +21,7 @@
 		<admin.name>admin</admin.name>
 		<admin.realName>appNG Administrator</admin.realName>
 		<admin.email>admin@example.com</admin.email>
-		<admin.password>s3cr3t</admin.password>
+		<admin.password>@ppNG$42</admin.password>
 		<install.opts>-f</install.opts>
 	</properties>
 

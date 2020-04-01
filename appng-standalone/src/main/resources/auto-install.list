@@ -24,7 +24,7 @@ def REMOTE_REPO_NAME=${repository.remoteName}
 -initdatabase -m
 
 # create admin user
-create-subject -u ${ADMIN_SUBJECT} -p s3cr3t -n "appNG Administrator" -l en -e appng@example.com
+create-subject -u ${ADMIN_SUBJECT} -p @ppNG$42 -n "appNG Administrator" -l en -e appng@example.com
 list-subjects -v
 
 # add admin user to built-in admin group

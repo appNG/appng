@@ -258,7 +258,7 @@ http://localhost:8080/appNGizer/site/manager/application/appng-manager
     <realName>appNG Administrator</realName>
     <email>admin@appng.org</email>
     <description></description>
-    <digest>s3cr3t</digest>
+    <digest>@ppNG$42</digest>
     <timeZone>Europe/Berlin</timeZone>
     <language>en</language>
     <type>LOCAL_USER</type>
