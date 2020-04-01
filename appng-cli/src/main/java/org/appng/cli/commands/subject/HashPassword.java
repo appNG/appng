@@ -128,6 +128,7 @@ public class HashPassword implements ExecutableCliCommand {
 				ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
 				messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
 				messageSource.setBasenames("messages-core");
+				messageSource.setFallbackToSystemLocale(false);
 				List<String> messages = Arrays.asList(validationResult.getMessages()).stream()
 						.map(p -> messageSource.getMessage(p.getMessageKey(), p.getMessageArgs(), Locale.ENGLISH))
 						.collect(Collectors.toList());
