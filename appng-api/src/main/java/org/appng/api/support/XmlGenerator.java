@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -43,6 +41,7 @@ import org.appng.api.DataProvider;
 import org.appng.api.model.Identifiable;
 import org.appng.api.model.Versionable;
 import org.appng.tools.locator.Coordinate;
+import org.appng.xml.BuilderFactory;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.platform.Action;
@@ -261,10 +260,8 @@ public class XmlGenerator {
 		marshallService.setSchemaLocation("http://www.appng.org/schema/platform/appng-platform.xsd");
 		marshallService.setUseSchema(true);
 		marshallService.setCdataElements(new ArrayList<>());
-		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-		TransformerFactory tf = TransformerFactory.newInstance();
-		tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		marshallService.setTransformerFactory(tf);
+		marshallService.setDocumentBuilderFactory(BuilderFactory.documentBuilderFactory());
+		marshallService.setTransformerFactory(BuilderFactory.transformerFactory());
 		marshallService.init();
 	}
 

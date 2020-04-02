@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class RequestBean implements Request {
 	private File tempDir;
 	private long maxSize;
 	private String method;
-	private static final long MAX_SIZE = 10 * 1024 * 1024;
+	private static final long MAX_SIZE = 10L * 1024 * 1024;
 	private Map<String, List<String>> uploadFileTypes;
 	private boolean sizeStrict;
 	private boolean isValid;

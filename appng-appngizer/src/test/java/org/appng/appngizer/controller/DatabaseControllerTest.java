@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class DatabaseControllerTest extends ControllerTest {
 	@Test
 	public void testInitialized() throws Exception {
 		ignorePasswordAndInstalledDate();
-		getAndVerify("/platform/database", "xml/database-init.xml", HttpStatus.OK);
+		getAndVerify("/platform/database", "xml/database-init-managed.xml", HttpStatus.OK);
 	}
 
 	@Test

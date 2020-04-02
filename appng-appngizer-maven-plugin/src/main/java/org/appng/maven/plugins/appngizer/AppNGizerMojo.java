@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -198,7 +199,8 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		HttpHeaders uploadHeader = getHeader();
 		uploadHeader.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-		getLog().info("Uploading file " + file);
+		float sizeMB = file.length() / 1024 / 1024f;
+		getLog().info(String.format(Locale.ENGLISH, "Uploading %s (%.2fMB)", file, sizeMB));
 
 		FutureTask<ResponseEntity<Package>> futureTask = new FutureTask<ResponseEntity<Package>>(
 				new Callable<ResponseEntity<Package>>() {
@@ -214,17 +216,9 @@ abstract class AppNGizerMojo extends AbstractMojo {
 			Thread.sleep(1000);
 			getLog().info("Uploading since " + (System.currentTimeMillis() - start) / 1000 + "s");
 		}
-		getLog().info("Upload took " + (System.currentTimeMillis() - start) / 1000 + "s");
+		long duration = (System.currentTimeMillis() - start) / 1000;
+		getLog().info(String.format(Locale.ENGLISH, "Upload took %ss (%.2fMB/s)", duration, sizeMB / duration));
 		return futureTask.get();
-	}
-
-	protected ResponseEntity<Void> install(Package uploadPackage, String cookie)
-			throws URISyntaxException, MojoExecutionException {
-		getLog().info(String.format("Installing %s %s %s", uploadPackage.getName(), uploadPackage.getVersion(),
-				uploadPackage.getTimestamp()));
-		HttpHeaders installHeader = getHeader();
-		installHeader.setContentType(MediaType.APPLICATION_XML);
-		return send(uploadPackage, installHeader, HttpMethod.PUT, "repository/" + repository + "/install", Void.class);
 	}
 
 	protected void determineFile() throws MojoExecutionException {

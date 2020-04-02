@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ public class DatabaseUtil {
 	private final FlatXmlDataSetBuilder XML_BUILDER = new FlatXmlDataSetBuilder();
 	private IDatabaseConnection connection;
 	private Connection jdbcConnection;
-	private final String SCHEMA = null;
 
 	private static volatile boolean imported = false;
 
@@ -256,7 +255,7 @@ public class DatabaseUtil {
 			for (int i = connectionInfo.getTableNames().size(); i > 0; i--) {
 				String table = connectionInfo.getTableNames().get(i - 1);
 				try (Statement statement = jdbcConnection.createStatement()) {
-					String stmt = "delete from " + ((null != SCHEMA) ? SCHEMA + "." : "") + table;
+					String stmt = "delete from " + table;
 					int rows = statement.executeUpdate(stmt);
 					LOGGER.debug(".....clearing {} ({} rows deleted)", table, rows);
 				}

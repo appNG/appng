@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public abstract class AbstractMessagingIT {
 				Mockito.any(receiverClass));
 		Mockito.verify(env).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.eq(Platform.Environment.MESSAGE_SENDER),
 				Mockito.any(senderClass));
-		Assert.assertTrue(sender.send(new MessagingTest()));
+		Assert.assertTrue(sender.send(new MessagingTest.TestEvent("foobar")));
 
 		while (!processedHandler.processed) {
 			Thread.sleep(1000);

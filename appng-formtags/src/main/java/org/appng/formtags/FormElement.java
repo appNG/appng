@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,32 +150,31 @@ public class FormElement extends FormElementOwner implements ErrorAware {
 		}
 
 		String tag = XHTML.getTag(content);
-		String type = XHTML.getAttr(content, ATTR_TYPE);
 		if (null != tag) {
 			inputTag = InputTag.valueOf(tag.toUpperCase());
-		}
+			String type = XHTML.getAttr(content, ATTR_TYPE);
 
-		switch (inputTag) {
-		case INPUT:
-			if (null != type) {
-				inputType = InputType.valueOf(type.toUpperCase());
+			switch (inputTag) {
+			case INPUT:
+				if (null != type) {
+					inputType = InputType.valueOf(type.toUpperCase());
+				}
+				handleInput();
+				break;
+
+			case OPTION:
+				setValue(XHTML.getAttr(content, ATTR_VALUE));
+				handleOption();
+				break;
+
+			case TEXTAREA:
+				handleTextArea();
+				break;
+
+			default:
+				break;
 			}
-			handleInput();
-			break;
-
-		case OPTION:
-			setValue(XHTML.getAttr(content, ATTR_VALUE));
-			handleOption();
-			break;
-
-		case TEXTAREA:
-			handleTextArea();
-			break;
-
-		default:
-			break;
 		}
-
 		if (getForm().isSubmitted()) {
 			if (!hasValue()) {
 				setValid(!isMandatory());

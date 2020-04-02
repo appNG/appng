@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@
  */
 package org.appng.core.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.appng.xml.application.ApplicationInfo;
 import org.junit.Assert;
@@ -40,6 +44,27 @@ public class RepositoryUtilsTest {
 	}
 
 	@Test
+	public void testSemverSort() {
+		ApplicationInfo a = new ApplicationInfo();
+		a.setVersion("1.14.1-SNAPSHOT");
+		a.setTimestamp("20190826-1159");
+
+		ApplicationInfo b = new ApplicationInfo();
+		b.setVersion("1.14.0-SNAPSHOT");
+		b.setTimestamp("20190826-1203");
+
+		ApplicationInfo c = new ApplicationInfo();
+		c.setVersion("1.14.0-SNAPSHOT");
+		c.setTimestamp("20190826-1157");
+
+		List<ApplicationInfo> arrayList = new ArrayList<>(Arrays.asList(c, b, a));
+		Collections.sort(arrayList, RepositoryUtils.getVersionComparator());
+		Assert.assertEquals(a.getTimestamp(), arrayList.get(0).getTimestamp());
+		Assert.assertEquals(b.getTimestamp(), arrayList.get(1).getTimestamp());
+		Assert.assertEquals(c.getTimestamp(), arrayList.get(2).getTimestamp());
+	}
+
+	@Test
 	public void testIsNewer() {
 		ApplicationInfo v1_0_0_a = new ApplicationInfo();
 		v1_0_0_a.setVersion("1.0.0");
@@ -47,6 +72,9 @@ public class RepositoryUtilsTest {
 		ApplicationInfo v1_0_0_b = new ApplicationInfo();
 		v1_0_0_b.setVersion("1.0.0");
 		v1_0_0_b.setTimestamp("20180111-1016");
+		ApplicationInfo v1_0_0_snapshot = new ApplicationInfo();
+		v1_0_0_snapshot.setVersion("1.0.0-SNAPSHOT");
+		v1_0_0_snapshot.setTimestamp("20180111-1116");
 		ApplicationInfo v1_1_0 = new ApplicationInfo();
 		v1_1_0.setVersion("1.1.0");
 		v1_1_0.setTimestamp("20180111-1416");
@@ -54,8 +82,9 @@ public class RepositoryUtilsTest {
 		v2_0_0.setVersion("2.0.0");
 		v2_0_0.setTimestamp("20180111-1216");
 
-		Assert.assertFalse(RepositoryUtils.isNewer(v1_0_0_a, v1_0_0_a));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0_0_snapshot, v1_0_0_b));
 		Assert.assertFalse(RepositoryUtils.isNewer(v1_0_0_b, v1_0_0_b));
+		Assert.assertFalse(RepositoryUtils.isNewer(v1_0_0_a, v1_0_0_a));
 
 		Assert.assertFalse(RepositoryUtils.isNewer(v1_0_0_a, v1_0_0_b));
 

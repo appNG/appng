@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 		Analyzer analyzer = null;
 		boolean needsRollback = false;
 		try {
-			while (true) {
+			while (!Thread.currentThread().isInterrupted()) {
 				DocumentProducer producer = get();
 				Constructor<? extends Analyzer> constructor = producer.getAnalyzerClass().getConstructor();
 				analyzer = constructor.newInstance();
@@ -172,6 +172,7 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 			LOGGER.error("an I/O error occured", ioe);
 		} catch (InterruptedException ie) {
 			LOGGER.error("thread was interrupted", ie);
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			LOGGER.error("unexpected error", e);
 		} finally {

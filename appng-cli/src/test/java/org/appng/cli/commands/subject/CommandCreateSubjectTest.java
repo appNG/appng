@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class CommandCreateSubjectTest extends AbstractCommandTest {
 	private String realName = "Admin Istrator";
 	private String language = "de";
 	private String description = "an admin";
-	private String password = "test12";
+	private String password = "Test12!$";
 
 	public CreateSubject getCommand() {
 		return null;
@@ -55,7 +55,7 @@ public class CommandCreateSubjectTest extends AbstractCommandTest {
 	public void testPasswordHashed() throws BusinessException {
 		email = "pass@word.com";
 		authName = "preHashedPassword";
-		new CreateSubject(authName, realName, email, "$2a$13$qCikwbm6MpoQVcNr0Q66sufn1boqx7AErXAucGeuprSmW/gME3qIG",
+		new CreateSubject(authName, realName, email, "$2a$13$DTnwQBpfOrtqbji9wiy2HOsJ/lSz1kUqvajQ3SX/JodePmu6.ClHG",
 				language, description, type, true).execute(cliEnv);
 		validate();
 	}
@@ -67,8 +67,11 @@ public class CommandCreateSubjectTest extends AbstractCommandTest {
 					.execute(cliEnv);
 			fail("Must throw BusinessException!");
 		} catch (BusinessException e) {
-			assertEquals("The password should be built up of 6 to 64 characters and must not contain spaces.",
-					e.getMessage());
+			Assert.assertTrue(e.getMessage().contains("Password must contain 1 or more uppercase letters."));
+			Assert.assertTrue(e.getMessage().contains("Password must contain 1 or more numbers."));
+			Assert.assertTrue(e.getMessage().contains(
+					"Password must contain 1 or more special characters. Allowed are !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"));
+			Assert.assertTrue(e.getMessage().contains("Password must be at least 8 characters long"));
 		}
 	}
 

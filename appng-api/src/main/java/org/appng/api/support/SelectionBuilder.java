@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,51 +104,61 @@ public class SelectionBuilder<T> extends OptionsBuilder<T, SelectionBuilder<T>.S
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> options(Iterable<T> values) {
 		super.options(values);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> name(NameProvider<T> nameProvider) {
 		super.name(nameProvider);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> selector(Selector selector) {
 		super.selector(selector);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> select(Collection<T> selected) {
 		super.select(selected);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> select(T selected) {
 		super.select(selected);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> disable(Collection<T> disabled) {
 		super.disable(disabled);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> disable(T disabled) {
 		super.disable(disabled);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> defaultOption(String name, String value) {
 		super.defaultOption(name, value);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> hitCounter(HitCounter<T> counter) {
 		super.hitCounter(counter);
 		return this;
 	}
 
+	@Override
 	public Selection build() {
 		super.build();
 		return selection;

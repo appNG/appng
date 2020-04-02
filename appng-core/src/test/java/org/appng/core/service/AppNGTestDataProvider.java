@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import javax.persistence.EntityManager;
 
 import org.appng.api.model.Application;
 import org.appng.api.model.Group;
+import org.appng.api.model.Property.Type;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Role;
 import org.appng.api.model.Subject;
@@ -84,10 +85,12 @@ public class AppNGTestDataProvider implements TestDataProvider {
 
 		String propertyName1 = PropertySupport.getPropertyName(site1, application1, "foobar");
 		PropertyImpl p1 = new PropertyImpl(propertyName1, "foobaz");
+		p1.setType(Type.TEXT);
 		em.persist(p1);
 
 		String propertyName2 = PropertySupport.getPropertyName(null, application3, "foobar");
 		PropertyImpl p2 = new PropertyImpl(propertyName2, "foobaz");
+		p2.setType(Type.TEXT);
 		em.persist(p2);
 
 		ResourceImpl applicationResource1 = getApplicationResource(1);

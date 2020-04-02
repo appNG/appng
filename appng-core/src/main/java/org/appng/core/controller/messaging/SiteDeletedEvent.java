@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class SiteDeletedEvent extends Event {
 		ApplicationContext platformContext = environment.getAttribute(Scope.PLATFORM,
 				Platform.Environment.CORE_PLATFORM_CONTEXT);
 		CoreService coreService = platformContext.getBean(CoreService.class);
-		SiteImpl shutdownSite = coreService.shutdownSite(environment, getSiteName());
+		SiteImpl shutdownSite = coreService.shutdownSite(environment, getSiteName(), false);
 		if (null != shutdownSite) {
 			coreService.cleanupSite(environment, shutdownSite, false);
 		}

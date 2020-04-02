@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,11 +41,11 @@ public class SimpleApplicationTest {
 		regular.setValue("foo");
 		appProps.getProperty().add(regular);
 
-		Property multilined = new Property();
-		multilined.setId("multilined");
-		multilined.setValue("foo\nbar");
-		multilined.setClob(true);
-		appProps.getProperty().add(multilined);
+		Property multiline = new Property();
+		multiline.setId("multiline");
+		multiline.setValue("foo\nbar");
+		multiline.setClob(true);
+		appProps.getProperty().add(multiline);
 
 		Property override = new Property();
 		override.setId("override");
@@ -60,8 +60,8 @@ public class SimpleApplicationTest {
 		org.appng.api.model.Properties properties = simpleApplication.getProperties();
 		Assert.assertEquals("foo", properties.getString(regular.getId()));
 		Assert.assertNull(properties.getClob(regular.getId()));
-		Assert.assertEquals("foo\nbar", properties.getClob(multilined.getId()));
-		Assert.assertNull(properties.getString(multilined.getId()));
+		Assert.assertEquals("foo\nbar", properties.getClob(multiline.getId()));
+		Assert.assertNull(properties.getString(multiline.getId()));
 		Assert.assertEquals("theNewValue", properties.getString(override.getId()));
 		Assert.assertNull(properties.getClob(override.getId()));
 	}

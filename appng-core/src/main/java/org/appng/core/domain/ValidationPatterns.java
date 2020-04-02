@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,19 @@ public class ValidationPatterns {
 	public static final String EMAIL_PATTERN = "^([a-zA-Z0-9_\\.-])+@(([a-zA-Z0-9-])+\\.)+([a-zA-Z0-9]){2,}$";
 	// may be either a word or an e-mail address
 	public static final String USERNAME_PATTERN = "^([a-zA-Z0-9_\\.-])+(@(([a-zA-Z0-9-])+\\.)+([a-zA-Z0-9]){2,})?$";
-
+	// may be either a word or an e-mail address or a ldap group definition with base dn
+	public static final String USERNAME_OR_LDAPGROUP_PATTERN = "^((((CN|cn)=[^,]+),?)*(((OU|ou)=[^,]+),?)*(((DC|dc)=[^,]+),?)*)|(([a-zA-Z0-9_\\.-])+(@(([a-zA-Z0-9-])+\\.)+([a-zA-Z0-9]){2,})?)$";
 	public static final String NAME_MSSG = "{validation.name}";
 	public static final String NAME_STRICT_MSSG = "{validation.nameStrict}";
 	public static final String PERMISSON_MSSG = "{validation.permission}";
 	public static final String HOST_MSSG = "{validation.host}";
 	public static final String DOMAIN_MSSG = "{validation.domain}";
 	public static final String USERNAME_MSSG = "{validation.username}";
+	public static final String USERNAME_GROUP_MSSG = "{validation.usernameGroup}";
 
 	public static final int LENGTH_8192 = 8192;
 	public static final int LENGTH_64 = 64;
+	public static final int LENGTH_255 = 255;
 
 	private ValidationPatterns() {
 	}

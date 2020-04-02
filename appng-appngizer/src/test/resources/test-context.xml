@@ -34,6 +34,7 @@
 	<jdbc:embedded-database id="datasource" type="HSQL" database-name="${database.name}" />
 
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+		<property name="table" value="schema_version" />
 		<property name="locations" value="classpath:/db/migration/hsql" />
 		<property name="dataSource" ref="datasource" />
 	</bean>
@@ -74,7 +75,6 @@
 				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
 				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
 				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
-				<prop key="hibernate.id.new_generator_mappings">false</prop>
 			</props>
 		</property>
 		<property name="packagesToScan" value="org.appng.core.domain" />

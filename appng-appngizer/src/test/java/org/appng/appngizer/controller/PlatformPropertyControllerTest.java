@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,14 +35,14 @@ public class PlatformPropertyControllerTest extends ControllerTest {
 
 	@Test
 	public void test() throws Exception {
-		List<Integer> ignoreDescriptionAtIndex = Arrays.asList(3, 4, 6, 9, 11, 12, 23, 31, 49, 50);
+		List<Integer> ignoreDescriptionAtIndex = Arrays.asList(3, 4, 6, 9, 11, 12, 23, 31, 50, 53);
 		this.differenceListener = new XPathDifferenceHandler(false);
 		ignoreDescriptionAtIndex.forEach(idx -> differenceListener
 				.ignoreDifference("/properties[1]/property[" + idx + "]/description[1]/text()[1]"));
 
 		// shared secret is generated
-		differenceListener.ignoreDifference("/properties[1]/property[43]/value[1]/text()[1]");
-		differenceListener.ignoreDifference("/properties[1]/property[43]/defaultValue[1]/text()[1]");
+		differenceListener.ignoreDifference("/properties[1]/property[46]/value[1]/text()[1]");
+		differenceListener.ignoreDifference("/properties[1]/property[46]/defaultValue[1]/text()[1]");
 		getAndVerify("/platform/property", "xml/platform-property-list.xml", HttpStatus.OK);
 
 		Property prop = new Property();

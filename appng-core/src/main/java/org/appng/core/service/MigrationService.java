@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,10 @@ import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteApplication;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -191,10 +192,7 @@ public class MigrationService {
 		StringBuilder dbInfo = new StringBuilder();
 		if (!testConnection || connection.testConnection(dbInfo, true)) {
 			LOGGER.info("connected to {} ({})", connection.getJdbcUrl(), dbInfo.toString());
-			Flyway flyway = new Flyway();
-			flyway.setDataSource(getDataSource(connection));
-			String location = LOCATION_PREFIX + connection.getType().name().toLowerCase();
-			flyway.setLocations(location);
+			Flyway flyway = getFlyway(connection, LOCATION_PREFIX + connection.getType().name().toLowerCase());
 			MigrationInfoService info = flyway.info();
 			connection.setMigrationInfoService(info);
 			return info;
@@ -219,9 +217,7 @@ public class MigrationService {
 		if (null != connection && connection.testConnection(null)) {
 			String typeFolder = connection.getType().name().toLowerCase();
 			File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
-			Flyway flyway = new Flyway();
-			flyway.setDataSource(getDataSource(connection));
-			flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
+			Flyway flyway = getFlyway(connection, Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
 			MigrationInfoService info = flyway.info();
 			connection.setMigrationInfoService(info);
 			return info;
@@ -229,15 +225,19 @@ public class MigrationService {
 		return null;
 	}
 
+	protected Flyway getFlyway(DatabaseConnection connection, String locations) {
+		// Flyway changed the name of the table from "schema_version" to "flyway_schema_history"
+		// https://github.com/flyway/flyway/issues/1965
+		return new FluentConfiguration().table("schema_version").dataSource(connection.getDataSource())
+				.locations(locations).load();
+	}
+
 	protected MigrationStatus initDatabase(DatabaseConnection rootConnection, Boolean doRepair) {
 		StringBuilder dbInfo = new StringBuilder();
 		String jdbcUrl = rootConnection.getJdbcUrl();
 		if (rootConnection.testConnection(dbInfo, true)) {
 			LOGGER.info("connected to {} ({})", jdbcUrl, dbInfo.toString());
-			Flyway flyway = new Flyway();
-			flyway.setDataSource(getDataSource(rootConnection));
-			String location = LOCATION_PREFIX + rootConnection.getType().name().toLowerCase();
-			flyway.setLocations(location);
+			Flyway flyway = getFlyway(rootConnection, LOCATION_PREFIX + rootConnection.getType().name().toLowerCase());
 			if (doRepair) {
 				flyway.repair();
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	private <REQ, RES> RES exchange(String path, REQ body, HttpMethod method, Class<RES> returnType) {
-		return exchange(path, body, method, getHeaders(false), returnType);
+		return exchange(path, body, method, getHeaders(), returnType);
 	}
 
 	private <REQ, RES> RES exchange(String path, REQ body, HttpMethod method, HttpHeaders headers,
@@ -107,7 +107,7 @@ public class AppNGizer implements AppNGizerClient {
 		}
 	}
 
-	protected HttpHeaders getHeaders(boolean acceptAnyType) {
+	protected HttpHeaders getHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		if (!cookies.isEmpty()) {
 			cookies.keySet().forEach(k -> {
@@ -382,7 +382,7 @@ public class AppNGizer implements AppNGizerClient {
 	public Package uploadPackage(String name, File archive) throws IOException {
 		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 		multipartRequest.add("file", new FileSystemResource(archive));
-		HttpHeaders headers = getHeaders(false);
+		HttpHeaders headers = getHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		return exchange("/repository/" + encode(name) + "/upload", multipartRequest, HttpMethod.POST, headers,
 				Package.class);

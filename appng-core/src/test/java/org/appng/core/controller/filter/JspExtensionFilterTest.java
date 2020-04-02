@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.appng.core.controller.filter;
 
-import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
@@ -36,8 +36,10 @@ public class JspExtensionFilterTest {
 
 	@Before
 	public void setup() throws Exception {
-		URL resource = getClass().getClassLoader().getResource("conf/urlrewrite.xml");
-		UrlRewriteConfig conf = new UrlRewriteConfig(new File(resource.toURI()));
+		String confPath = "conf/urlrewrite.xml";
+		InputStream confIs = getClass().getClassLoader().getResourceAsStream(confPath);
+		URL confUrl = getClass().getClassLoader().getResource(confPath);
+		UrlRewriteConfig conf = new UrlRewriteConfig(confIs, "urlrewrite.xml", confUrl);
 		RedirectFilter redirectFilter = new RedirectFilter();
 		cachedUrlRewriter = redirectFilter.new CachedUrlRewriter(conf, domain, ".jsp");
 	}

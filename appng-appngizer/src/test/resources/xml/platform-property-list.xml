@@ -16,6 +16,13 @@
 		<description>The folder for the application-cache, relative to platform.cacheFolder. Applications might use this
 			folder to cache temporary data.</description>
 	</property>
+	<property name="cacheConfig" self="http://localhost/platform/property/cacheConfig">
+		<value>WEB-INF/conf/hazelcast.xml</value>
+		<defaultValue>WEB-INF/conf/hazelcast.xml</defaultValue>
+		<description>The global configuration for configuring caching. This property either contains the platform-relative
+			path to a config file (e.g. WEB-INF/conf/config.xml) or the XML configuration itself in XML format (stored as clob).
+		</description>
+	</property>
 	<property name="cacheFolder" self="http://localhost/platform/property/cacheFolder">
 		<value>cache</value>
 		<defaultValue>cache</defaultValue>
@@ -68,12 +75,6 @@
 		<description>Disable for production use. If enabled, XML and XSL resources will be written to the cache directory. If
 			disabled, XML and XSL resources will be cached in memory.</description>
 	</property>
-	<property name="ehcacheConfig" self="http://localhost/platform/property/ehcacheConfig">
-		<value>WEB-INF/conf/ehcache.xml</value>
-		<defaultValue>WEB-INF/conf/ehcache.xml</defaultValue>
-		<description>The global page cache configuration using the Ehcache XML configuration format. This cache is used to
-			cache HTTP responses.</description>
-	</property>
 	<property name="encoding" self="http://localhost/platform/property/encoding">
 		<value>UTF-8</value>
 		<defaultValue>UTF-8</defaultValue>
@@ -95,6 +96,11 @@
 		<value>/usr/bin</value>
 		<defaultValue>/usr/bin</defaultValue>
 		<description>The path to the ImageMagick executable</description>
+	</property>
+	<property name="inactiveLockPeriod" self="http://localhost/platform/property/inactiveLockPeriod">
+		<value>0</value>
+		<defaultValue>0</defaultValue>
+		<description>The number of days after a subject get's locked if the user did not log in.</description>
 	</property>
 	<property name="jspFileType" self="http://localhost/platform/property/jspFileType">
 		<value>jsp</value>
@@ -132,6 +138,11 @@
 		<description>If set to 'true', appNG will manage the databases (create schemas and users) required by the
 			applications.</description>
 	</property>
+	<property name="maxLoginAttempts" self="http://localhost/platform/property/maxLoginAttempts">
+		<value>20</value>
+		<defaultValue>20</defaultValue>
+		<description>The maximum number of failed login attempts before a subject gets locked.</description>
+	</property>
 	<property name="maxUploadSize" self="http://localhost/platform/property/maxUploadSize">
 		<value>31457280</value>
 		<defaultValue>31457280</defaultValue>
@@ -158,14 +169,19 @@
 		<description>The port used for multicast messaging</description>
 	</property>
 	<property name="messagingReceiver" self="http://localhost/platform/property/messagingReceiver">
-		<value>org.appng.core.controller.messaging.MulticastReceiver</value>
-		<defaultValue>org.appng.core.controller.messaging.MulticastReceiver</defaultValue>
-		<description>Define messaging implementation by referring class name. Default method is multicast </description>
+		<value>org.appng.core.controller.messaging.HazelcastReceiver</value>
+		<defaultValue>org.appng.core.controller.messaging.HazelcastReceiver</defaultValue>
+		<description>Define messaging implementation by referring class name.</description>
 	</property>
 	<property name="monitorPerformance" self="http://localhost/platform/property/monitorPerformance">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
 		<description>Set to true to enable performance monitoring for the target XML</description>
+	</property>
+	<property name="monitoringPath" self="http://localhost/platform/property/monitoringPath">
+		<value>/health</value>
+		<defaultValue>/health</defaultValue>
+		<description>The path to appNG's health monitoring</description>
 	</property>
 	<property name="passwordPolicyErrorMessageKey" self="http://localhost/platform/property/passwordPolicyErrorMessageKey">
 		<value>DefaultPasswordPolicy.errorMessage</value>

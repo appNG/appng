@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,10 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.lang3.StringUtils;
-import org.appng.api.messaging.Event;
 import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.EventRegistry;
 import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Serializer;
-import org.appng.api.model.Site;
 import org.slf4j.Logger;
 
 import com.rabbitmq.client.AMQP;
@@ -128,29 +126,7 @@ public class RabbitMQReceiver extends RabbitMQBase implements Receiver {
 		@Override
 		public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
 				throws IOException {
-			Event event = eventSerializer.deserialize(body);
-			if (null != event) {
-				try {
-					Site site = eventSerializer.getSite(event.getSiteName());
-					String currentNode = eventSerializer.getNodeId();
-					String originNode = event.getNodeId();
-					LOGGER.debug("current node: {}, originNode node: {}", currentNode, originNode);
-					boolean sameNode = StringUtils.equals(currentNode, originNode);
-					if (!sameNode) {
-						LOGGER.info("about to execute {} ", event);
-						for (EventHandler<Event> eventHandler : eventRegistry.getHandlers(event)) {
-							eventHandler.onEvent(event, eventSerializer.getEnvironment(), site);
-						}
-					} else {
-						LOGGER.debug("message is from myself and can be ignored");
-					}
-
-				} catch (Exception e) {
-					LOGGER.error(String.format("Error while executing event %s", event), e);
-				}
-			} else {
-				LOGGER.debug("could not read event");
-			}
+			Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, body);
 		}
 
 		@Override

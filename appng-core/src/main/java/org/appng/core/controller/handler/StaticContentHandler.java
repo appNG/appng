@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,9 +82,8 @@ public class StaticContentHandler implements RequestHandler {
 			serveStatic(servletRequest, servletResponse, resourcePath);
 		} else if (servletPath.startsWith(templatePrefix)) {
 			CacheProvider cacheProvider = new CacheProvider(platformProperties);
-			String applicationDir = platformProperties.getString(Platform.Property.APPLICATION_DIR);
-			serveTemplateResource(servletRequest, servletResponse, site, applicationDir, templatePrefix, templateFolder,
-					activeTemplate, defaultTemplate, repoPath, cacheProvider);
+			serveTemplateResource(servletRequest, servletResponse, site, templatePrefix, templateFolder, activeTemplate,
+					defaultTemplate, repoPath, cacheProvider);
 		} else if (pathInfo.isDocument()) {
 			if (pathInfo.isRootIgnoreTrailingSlash()) {
 				String target = pathInfo.getRootPath() + SLASH + defaultPage;
@@ -132,8 +131,8 @@ public class StaticContentHandler implements RequestHandler {
 	}
 
 	private int serveTemplateResource(HttpServletRequest servletRequest, HttpServletResponse response, Site site,
-			String applicationDir, String templatePrefix, String templateFolder, String templateName,
-			String defaultTemplate, String repoPath, CacheProvider cacheProvider) throws IOException, ServletException {
+			String templatePrefix, String templateFolder, String templateName, String defaultTemplate, String repoPath,
+			CacheProvider cacheProvider) throws IOException, ServletException {
 		String servletPath = servletRequest.getServletPath();
 		String[] splitted = servletPath.split(SLASH);
 		String[] splittedPrefix = splitted[1].split("_");

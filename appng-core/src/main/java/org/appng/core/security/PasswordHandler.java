@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,73 +17,90 @@ package org.appng.core.security;
 
 import org.appng.api.BusinessException;
 import org.appng.api.model.AuthSubject;
-import org.appng.core.domain.SubjectImpl;
 import org.appng.core.service.CoreService;
 
 /**
  * Provides methods to handle passwords. Different implementations of this interface can provide different algorithms to
- * hash, salt and store a password. It can be expected that the constructor of an implementation of this interfaces
- * requires an instance of {@link AuthSubject} or {@link SubjectImpl} as argument.
+ * hash, salt and store a password. It can be expected that the constructor of an implementation of this interface
+ * requires an {@link AuthSubject} as argument.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface PasswordHandler {
 
 	/**
-	 * Hashes and persists the password.
+	 * Hashes and sets the password, clears the salt, sets the last changed date for the password
 	 * 
 	 * @param password
-	 *            The cleartext password.
+	 *                 The cleartext password.
+	 * @see            AuthSubject#setDigest(String)
+	 * @see            AuthSubject#setSalt(String)
+	 * @see            AuthSubject#setPasswordLastChanged(java.util.Date)
 	 */
-	void savePassword(String password);
+	void applyPassword(String password);
 
 	/**
-	 * Checks whether the password is valid.
+	 * Checks whether the password is valid for the current {@link AuthSubject}.
 	 * 
-	 * @param password
-	 *            The cleartext password.
-	 * @return True if the password is valid, false if it is invalid.
+	 * @param  password
+	 *                  The cleartext password.
+	 * @return          {@code true} if the password is valid, false if it is invalid.
+	 * @see             AuthSubject#getDigest()
 	 */
 	boolean isValidPassword(String password);
 
 	/**
-	 * Returns a digest which can be used for the "Forgot password?" function.
+	 * Calculates, sets and returns a salted digest which can be used for the "Forgot password?" function.
 	 * 
 	 * @return A digest.
+	 * @see    AuthSubject#setSalt(String)
+	 * @see    #isValidPasswordResetDigest(String)
 	 */
-	String getPasswordResetDigest();
+	String calculatePasswordResetDigest();
 
 	/**
-	 * Checks whether the digest is valid.
+	 * Checks whether the digest is valid for the current {@link AuthSubject}.
 	 * 
-	 * @param digest
-	 *            The digest.
-	 * @return True if the digest is valid, false if it is invalid.
+	 * @param  digest
+	 *                The digest.
+	 * @return        {@code true} if the digest is valid, false if it is invalid.
+	 * @see           AuthSubject#getSalt()
+	 * @see           #calculatePasswordResetDigest()
 	 */
 	boolean isValidPasswordResetDigest(String digest);
-
-	/**
-	 * Updates the {@link SubjectImpl} instance in the database. Must be called if modifications have been made to the
-	 * instance of {@link AuthSubject} / {@link SubjectImpl} by methods of this interface and the instance is not
-	 * updated later during the same transaction.
-	 * 
-	 * @param service
-	 *            The {@link CoreService} instance.
-	 * @throws BusinessException
-	 *             Throws a {@link BusinessException} if the {@link SubjectImpl} can not be updated.
-	 */
-	void updateSubject(CoreService service) throws BusinessException;
 
 	/**
 	 * Migrates passwords of the current {@link PasswordHandler} instance to passwords handled by
 	 * {@link CoreService#getDefaultPasswordHandler(org.appng.api.model.AuthSubject)}.
 	 * 
 	 * @param service
-	 *            Instance of {@link CoreService}
+	 *                 Instance of {@link CoreService}
 	 * @param password
-	 *            The current password.
+	 *                 The current password.
 	 */
 	void migrate(CoreService service, String password);
+
+	/**
+	 * @deprecated will be removed in 2.x
+	 */
+	@Deprecated
+	default void updateSubject(CoreService service) throws BusinessException {
+	}
+
+	/**
+	 * @deprecated will be removed in 2.x
+	 */
+	@Deprecated
+	default String getPasswordResetDigest() {
+		return calculatePasswordResetDigest();
+	}
+
+	/**
+	 * @deprecated will be removed in 2.x
+	 */
+	@Deprecated
+	default void savePassword(String password) {
+		applyPassword(password);
+	}
 
 }

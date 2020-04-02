@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.appng.core.model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +30,6 @@ import org.appng.xml.application.PackageInfo;
  * A application shown in the {@link Repository} overview list.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class PackageWrapper implements Comparable<PackageWrapper> {
 
@@ -40,39 +40,31 @@ public class PackageWrapper implements Comparable<PackageWrapper> {
 	private PackageInfo latestRelease;
 	private PackageInfo latestSnapshot;
 
-	public PackageWrapper() {
-		this.publishedPackage = new Package();
-	}
-
 	public PackageWrapper(Package publishedPackage) {
 		this.publishedPackage = publishedPackage;
 	}
 
-	void init() {
-		init(getType());
+	public PackageWrapper(PackageInfo packageInfo, PackageType type) {
+		this(new Package());
+		publishedPackage.setType(type);
+		addPackage(packageInfo);
 	}
 
-	void init(PackageType type) {
+	void init() {
 		findLatest();
 		if (null != latestSnapshot) {
-			setLatestSnapshot(latestSnapshot.getVersion());
+			publishedPackage.setLatestSnapshot(latestSnapshot.getVersion());
 		}
 		if (null != latestRelease) {
-			setLatestRelease(latestRelease.getVersion());
+			publishedPackage.setLatestRelease(latestRelease.getVersion());
 		}
-		PackageInfo latest;
-		if (null != latestRelease) {
-			latest = latestRelease;
-		} else {
-			latest = latestSnapshot;
-		}
-		setName(latest.getName());
-		setDisplayName(latest.getDisplayName());
-		setLongDescription(latest.getLongDescription());
-		setType(type);
+		PackageInfo latest = null == latestRelease ? latestSnapshot : latestRelease;
+		publishedPackage.setName(latest.getName());
+		publishedPackage.setDisplayName(latest.getDisplayName());
+		publishedPackage.setLongDescription(latest.getLongDescription());
 	}
 
-	void put(PackageInfo packageInfo) {
+	void addPackage(PackageInfo packageInfo) {
 		String vkey = getVersionKey(packageInfo.getVersion(), packageInfo.getTimestamp());
 		versions.put(vkey, packageInfo);
 	}
@@ -86,7 +78,7 @@ public class PackageWrapper implements Comparable<PackageWrapper> {
 	}
 
 	Map<String, PackageInfo> getVersions() {
-		return new HashMap<>(versions);
+		return Collections.unmodifiableMap(versions);
 	}
 
 	PackageInfo getVersion(String version, String timestamp) {
@@ -106,7 +98,7 @@ public class PackageWrapper implements Comparable<PackageWrapper> {
 		return latestRelease;
 	}
 
-	void deletePackageVersion(String version, String timestamp) throws BusinessException {
+	void removePackageVersion(String version, String timestamp) throws BusinessException {
 		String versionKey = getVersionKey(version, timestamp);
 		if (versions.containsKey(versionKey)) {
 			versions.remove(versionKey);
@@ -150,40 +142,20 @@ public class PackageWrapper implements Comparable<PackageWrapper> {
 		return publishedPackage.getName();
 	}
 
-	private void setName(String value) {
-		publishedPackage.setName(value);
-	}
-
 	public String getDisplayName() {
 		return publishedPackage.getDisplayName();
-	}
-
-	private void setDisplayName(String value) {
-		publishedPackage.setDisplayName(value);
 	}
 
 	public String getLongDescription() {
 		return publishedPackage.getLongDescription();
 	}
 
-	private void setLongDescription(String value) {
-		publishedPackage.setLongDescription(value);
-	}
-
 	public String getLatestRelease() {
 		return publishedPackage.getLatestRelease();
 	}
 
-	private void setLatestRelease(String value) {
-		publishedPackage.setLatestRelease(value);
-	}
-
 	public String getLatestSnapshot() {
 		return publishedPackage.getLatestSnapshot();
-	}
-
-	private void setLatestSnapshot(String value) {
-		publishedPackage.setLatestSnapshot(value);
 	}
 
 	public int compareTo(PackageWrapper o) {
@@ -192,10 +164,6 @@ public class PackageWrapper implements Comparable<PackageWrapper> {
 
 	public PackageType getType() {
 		return publishedPackage.getType();
-	}
-
-	private void setType(PackageType type) {
-		publishedPackage.setType(type);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.MessageSourceChain;
 import org.appng.core.domain.DatabaseConnection;
+import org.appng.core.model.ApplicationCacheManager;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,9 +40,11 @@ public class ApplicationPostProcessorTest {
 		
 		ArrayList<String> dictionaryNames = new ArrayList<>();
 		ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
-				databaseConnection, dictionaryNames);
+				databaseConnection, null, dictionaryNames);
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		beanFactory.registerSingleton("mockConfigurer", datasourceConfigurer);
+		ApplicationCacheManager cacheManager = Mockito.mock(ApplicationCacheManager.class);
+		beanFactory.registerSingleton("cacheManager", cacheManager);
 		ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
 		beanFactory.registerSingleton("messageSource", messageSource);
 		beanFactory.registerSingleton("additionalMessageSource", new StaticMessageSource());
@@ -49,6 +52,7 @@ public class ApplicationPostProcessorTest {
 		applicationPostProcessor.postProcessBeanFactory(beanFactory);
 		
 		Mockito.verify(datasourceConfigurer).configure(databaseConnection);
+		Mockito.verify(cacheManager).initialize(site, application, null);
 		Assert.assertEquals(site, beanFactory.getBean("site"));
 		Assert.assertEquals(application, beanFactory.getBean("application"));
 		Assert.assertEquals(site, beanFactory.getBean(Site.class));

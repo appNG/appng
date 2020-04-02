@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.20.3</version>
+		<version>1.21.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -42,6 +42,7 @@
 						<spring-data-version>${springData.version}</spring-data-version>
 						<spring-data-jpa-version>${springDataJpa.version}</spring-data-jpa-version>
 						<lucene-version>${lucene.version}</lucene-version>
+						<manager-version>${appNG.manager.version}</manager-version>
 					</attributes>
 				</configuration>
 				<executions>
@@ -79,6 +80,40 @@
 							<outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
 						</configuration>
 					</execution>
+					<execution>
+						<id>html-admin</id>
+						<phase>package</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<backend>html5</backend>
+							<sectids>true</sectids>
+							<sourceHighlighter>prettify</sourceHighlighter>
+							<outputDirectory>${project.build.directory}/generated-docs/html</outputDirectory>
+							<sourceDocumentName>administrationguide.adoc</sourceDocumentName>
+							<attributes>
+								<toc>left</toc>
+								<linkcss>true</linkcss>
+								<icons>font</icons>
+								<sectanchors>true</sectanchors>
+								<stylesheet>appng.css</stylesheet>
+							</attributes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>pdf-admin</id>
+						<phase>install</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<backend>pdf</backend>
+							<sourceHighlighter>coderay</sourceHighlighter>
+							<sourceDocumentName>administrationguide.adoc</sourceDocumentName>
+							<outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
@@ -99,6 +134,6 @@
 			<artifactId>appng-testsupport</artifactId>
 			<scope>test</scope>
 		</dependency>
-	
+
 	</dependencies>
 </project>

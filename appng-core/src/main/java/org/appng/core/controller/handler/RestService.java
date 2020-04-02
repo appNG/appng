@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,9 @@ public class RestService {
 			eher.setMessageConverters(messageConverters);
 			Collection<Object> advices = context.getBeansWithAnnotation(ControllerAdvice.class).values();
 			Set<Object> mappedHandlers = new HashSet<>(advices);
-			mappedHandlers.add(handlerMethod.getBean());
+			if(null != handlerMethod) {
+				mappedHandlers.add(handlerMethod.getBean());
+			}
 			eher.setMappedHandlers(mappedHandlers);
 			eher.afterPropertiesSet();
 			eher.resolveException(wrapped, servletResponse, handlerMethod, e);

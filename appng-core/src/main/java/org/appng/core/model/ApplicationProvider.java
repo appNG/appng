@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -246,7 +246,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		}
 
 		PageParameterProcessor pageParameterProcessor = new PageParameterProcessor(getSessionParamKey(site),
-				sessionParamNames, env, applicationRequest, page.getId());
+				sessionParamNames, env, applicationRequest);
 		boolean urlParamsAdded = pageParameterProcessor.processPageParams(applicationUrlParameters, urlSchema);
 		Map<String, String> pageParams = pageParameterProcessor.getParameters();
 		initSession(applicationConfig, env, getSessionParamKey(site));
@@ -406,8 +406,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			applicationRequest.setLabel(sectionelement.getTitle());
 
 			if (null != sectionelement.getDatasource()) {
-				DataSourceElement datasourceElement = getDataSourceSectionElement(applicationRequest, applicationConfig,
-						sectionelement, pageReference.getId());
+				DataSourceElement datasourceElement = getDataSourceSectionElement(applicationRequest, sectionelement);
 				if (null != datasourceElement) {
 					datasourceElement.setTitle(sectionelement.getTitle());
 					dataSourceWrappers.add(datasourceElement);
@@ -507,8 +506,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private DataSourceElement getDataSourceSectionElement(ApplicationRequest applicationRequest,
-			ApplicationConfig applicationConfig, SectionelementDef sectionelement, String pageId)
-			throws ProcessingException {
+			SectionelementDef sectionelement) throws ProcessingException {
 		DatasourceRef datasourceRef = sectionelement.getDatasource();
 		if (null != datasourceRef) {
 			DataSourceElement wrapper = new DataSourceElement(site, application, applicationRequest,
@@ -713,7 +711,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	public List<JarInfo> getJarInfos() {
-		if (null == jarInfos) {
+		if (jarInfos.isEmpty()) {
 			for (Resource resource : application.getResources().getResources(ResourceType.JAR)) {
 				JarInfo jarInfo = JarInfoBuilder.getJarInfo(resource.getCachedFile(), application.getName());
 				jarInfos.add(jarInfo);

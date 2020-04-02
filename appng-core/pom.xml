@@ -11,9 +11,13 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.20.3</version>
+		<version>1.21.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+
+	<properties>
+		<testcontainers.version>1.13.0</testcontainers.version>
+	</properties>
 
 	<build>
 		<plugins>
@@ -24,6 +28,7 @@
 						<!-- skip integration tests -->
 						<exclude>**/*IT.java</exclude>
 					</excludes>
+					<argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -84,6 +89,23 @@
 			</resource>
 		</resources>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>mariadb</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.mariadb.jdbc</groupId>
+					<artifactId>mariadb-java-client</artifactId>
+					<version>2.5.4</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
 	<!-- BEGIN DEPENDENCY MANAGEMENT -->
 	<dependencies>
@@ -161,6 +183,16 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-search</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>edu.ucar</groupId>
+					<artifactId>cdm</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- END PROJECT DEPENDENCIES -->
 		<!-- BEGIN FRAMEWORK DEPENDENCIES -->
@@ -285,6 +317,10 @@
 			<artifactId>joda-time</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 			<scope>provided</scope>
@@ -314,19 +350,39 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-			<scope>provided</scope>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-web</artifactId>
-			<scope>provided</scope>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mysql</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mariadb</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mssqlserver</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ldap</groupId>
+			<artifactId>spring-ldap-ldif-core</artifactId>
+			<version>2.3.2.RELEASE</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>5.7.2</version>
+			<version>5.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -341,7 +397,7 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>3.1.0</version>
+			<version>3.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
@@ -358,6 +414,24 @@
 			<artifactId>semantic-version</artifactId>
 			<version>1.2.0</version>
 		</dependency>
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-spring</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.passay</groupId>
+			<artifactId>passay</artifactId>
+			<version>1.5.0</version>
+		</dependency>		
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->
 </project>

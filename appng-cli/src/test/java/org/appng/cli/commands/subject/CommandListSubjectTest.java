@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.appng.cli.commands.subject;
 
+import org.appng.api.model.UserType;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.cli.prettytable.PrettyTable;
@@ -32,6 +33,7 @@ public class CommandListSubjectTest extends AbstractCommandTest {
 		subject.setEmail("ad@min.com");
 		subject.setLanguage("de");
 		subject.setDescription("an admin");
+		subject.setUserType(UserType.LOCAL_USER);
 		cliEnv.getCoreService().createSubject(subject);
 		command = new ListSubjects();
 		return command;
@@ -44,6 +46,11 @@ public class CommandListSubjectTest extends AbstractCommandTest {
 		validateCell(prettyTable, 1, TableConstants.USER_NAME, "admin");
 		validateCell(prettyTable, 1, TableConstants.REAL_NAME, "Admin Istrator");
 		validateCell(prettyTable, 1, TableConstants.EMAIL, "ad@min.com");
+		validateCell(prettyTable, 1, TableConstants.LAST_LOGIN, "null");
+		validateCell(prettyTable, 1, TableConstants.LOCKED, "false");
+		validateCell(prettyTable, 1, TableConstants.EXPIRY_DATE, "null");
+		validateCell(prettyTable, 1, TableConstants.PASSWORD_CHANGE_POLICY, "MAY");
+		validateCell(prettyTable, 1, TableConstants.FAILED_LOGIN_ATTEMPTS, "0");
 	}
 
 }

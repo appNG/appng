@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,17 +74,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 		BinaryJedisPubSub pubSub = new BinaryJedisPubSub() {
 
 			public void onMessage(byte[] channel, byte[] message) {
-				Event event = eventSerializer.deserialize(message);
-				if (null != event) {
-					try {
-						LOGGER.debug("Received event {}", event);
-						onEvent(eventSerializer.getSite(event.getSiteName()), event);
-					} catch (Exception e) {
-						LOGGER.error(String.format("error while performing event %s", event), e);
-					}
-				} else {
-					LOGGER.debug("could not read event {}", message);
-				}
+				Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, message);
 			}
 		};
 		jedis.subscribe(pubSub, this.channel.getBytes());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,8 @@ public class ApplicationPropertyConstantCreator {
 		if (pomXml.exists()) {
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			try (FileInputStream fis = new FileInputStream(pomXml)) {
-				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(fis));
+				DocumentBuilderFactory dbf = BuilderFactory.documentBuilderFactory();
+				Document doc = dbf.newDocumentBuilder().parse(new InputSource(fis));
 				application.setName(xpath.evaluate("/project/name", doc));
 				application.setVersion(xpath.evaluate("/project/version", doc));
 			} catch (ParserConfigurationException | SAXException | XPathExpressionException | IOException e) {

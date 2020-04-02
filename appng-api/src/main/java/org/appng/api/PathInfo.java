@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,9 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 
 /**
- * 
  * Default {@link Path}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 public class PathInfo implements Path {
 
@@ -43,6 +41,7 @@ public class PathInfo implements Path {
 	private final List<String> blobDirectories;
 	private final List<String> documentDirectories;
 	private String repositoryPath;
+	private String monitoringPath;
 	private final String host;
 	private String rootPath;
 	private String servletPath;
@@ -65,33 +64,37 @@ public class PathInfo implements Path {
 	 * Creates a new {@link PathInfo}
 	 * 
 	 * @param host
-	 *            the host of the current {@link org.appng.api.model.Site}
+	 *                            the host of the current {@link org.appng.api.model.Site}
 	 * @param domain
-	 *            the domain of the current {@link org.appng.api.model.Site}
+	 *                            the domain of the current {@link org.appng.api.model.Site}
 	 * @param currentSite
-	 *            the name of the current {@link org.appng.api.model.Site}
+	 *                            the name of the current {@link org.appng.api.model.Site}
 	 * @param servletPath
-	 *            the current servletPath, as returned by {@link javax.servlet.http.HttpServletRequest#getServletPath()}
+	 *                            the current servletPath, as returned by
+	 *                            {@link javax.servlet.http.HttpServletRequest#getServletPath()}
 	 * @param guiPath
-	 *            value of the property {@value org.appng.api.SiteProperties#MANAGER_PATH} of the current
-	 *            {@link org.appng.api.model.Site}
+	 *                            value of the property {@value org.appng.api.SiteProperties#MANAGER_PATH} of the
+	 *                            current {@link org.appng.api.model.Site}
 	 * @param servicePath
-	 *            value of the property {@value org.appng.api.SiteProperties#SERVICE_PATH} of the current
-	 *            {@link org.appng.api.model.Site}
+	 *                            value of the property {@value org.appng.api.SiteProperties#SERVICE_PATH} of the
+	 *                            current {@link org.appng.api.model.Site}
 	 * @param blobDirectories
-	 *            a list parsed from the property {@value org.appng.api.SiteProperties#ASSETS_DIR} of the current
-	 *            {@link org.appng.api.model.Site}
+	 *                            a list parsed from the property {@value org.appng.api.SiteProperties#ASSETS_DIR} of
+	 *                            the current {@link org.appng.api.model.Site}
 	 * @param documentDirectories
-	 *            a list parsed from the property {@value org.appng.api.SiteProperties#DOCUMENT_DIR} of the current
-	 *            {@link org.appng.api.model.Site}
+	 *                            a list parsed from the property {@value org.appng.api.SiteProperties#DOCUMENT_DIR} of
+	 *                            the current {@link org.appng.api.model.Site}
 	 * @param repositoryPath
-	 *            value of the platform property {@value org.appng.api.Platform.Property#REPOSITORY_PATH}
+	 *                            value of the platform property
+	 *                            {@value org.appng.api.Platform.Property#REPOSITORY_PATH}
+	 * @param monitoringPath
+	 *                            the path to appNGs built in monitoring
 	 * @param extension
-	 *            value of the platform property {@value org.appng.api.Platform.Property#JSP_FILE_TYPE}
+	 *                            value of the platform property {@value org.appng.api.Platform.Property#JSP_FILE_TYPE}
 	 */
 	public PathInfo(String host, String domain, String currentSite, String servletPath, String guiPath,
 			String servicePath, List<String> blobDirectories, List<String> documentDirectories, String repositoryPath,
-			String extension) {
+			String monitoringPath, String extension) {
 		this.host = host;
 		this.domain = domain;
 		this.currentSite = currentSite;
@@ -101,8 +104,19 @@ public class PathInfo implements Path {
 		this.blobDirectories = blobDirectories;
 		this.documentDirectories = documentDirectories;
 		this.repositoryPath = repositoryPath;
+		this.monitoringPath = monitoringPath;
 		this.extension = extension;
 		parse();
+	}
+
+	/**
+	 * @see PathInfo#PathInfo(String, String, String, String, String, String, List, List, String, String, String)
+	 */
+	public PathInfo(String host, String domain, String currentSite, String servletPath, String guiPath,
+			String servicePath, List<String> blobDirectories, List<String> documentDirectories, String repositoryPath,
+			String extension) {
+		this(host, domain, currentSite, servletPath, guiPath, servicePath, blobDirectories, documentDirectories,
+				repositoryPath, "/health", extension);
 	}
 
 	private void parse() {
@@ -119,21 +133,19 @@ public class PathInfo implements Path {
 		}
 		if (isGui()) {
 			int idx = pathElements.indexOf(guiPath.substring(1));
-			if (hasElementAt(idx)) {
-				if (hasElementAt(idx + 1)) {
-					siteIdx = idx + 1;
+			if (hasElementAt(idx) && hasElementAt(idx + 1)) {
+				siteIdx = idx + 1;
+				if (pathElements.get(siteIdx).startsWith(OUTPUT_PREFIX)) {
+					siteIdx += 1;
 					if (pathElements.get(siteIdx).startsWith(OUTPUT_PREFIX)) {
 						siteIdx += 1;
-						if (pathElements.get(siteIdx).startsWith(OUTPUT_PREFIX)) {
-							siteIdx += 1;
-						}
 					}
+				}
 
-					if (hasElementAt(siteIdx + 1)) {
-						applicationIdx = siteIdx + 1;
-						if (hasElementAt(applicationIdx + 1)) {
-							pageIdx = applicationIdx + 1;
-						}
+				if (hasElementAt(siteIdx + 1)) {
+					applicationIdx = siteIdx + 1;
+					if (hasElementAt(applicationIdx + 1)) {
+						pageIdx = applicationIdx + 1;
 					}
 				}
 			}
@@ -219,7 +231,7 @@ public class PathInfo implements Path {
 	 * Manually sets the name of the selected {@link Application}
 	 * 
 	 * @param application
-	 *            the name of the {@link Application}
+	 *                    the name of the {@link Application}
 	 */
 	public void setApplicationName(String application) {
 		this.applicationName = application;
@@ -244,7 +256,7 @@ public class PathInfo implements Path {
 	 * Manually sets the page within a {@link Application}
 	 * 
 	 * @param page
-	 *            the page to set
+	 *             the page to set
 	 */
 	public void setPage(String page) {
 		this.page = page;
@@ -252,10 +264,8 @@ public class PathInfo implements Path {
 	}
 
 	public String getPage() {
-		if (null == this.page) {
-			if (hasElementAt(pageIdx)) {
-				return pathElements.get(pageIdx);
-			}
+		if (null == this.page && hasElementAt(pageIdx)) {
+			return pathElements.get(pageIdx);
 		}
 		return page;
 	}
@@ -264,9 +274,9 @@ public class PathInfo implements Path {
 	 * Manually sets the name and value for an action within a {@link Application}
 	 * 
 	 * @param actionName
-	 *            the name of the action
+	 *                    the name of the action
 	 * @param actionValue
-	 *            the value for the action
+	 *                    the value for the action
 	 */
 	public void setAction(String actionName, String actionValue) {
 		this.actionName = actionName;
@@ -303,14 +313,10 @@ public class PathInfo implements Path {
 	public List<String> getApplicationUrlParameters() {
 		if (isGui()) {
 			if (hasElementAt(pageIdx) && hasElementAt(pageIdx + 1)) {
-				List<String> params = pathElements.subList(pageIdx + 1, pathElements.size());
-				return params;
+				return pathElements.subList(pageIdx + 1, pathElements.size());
 			}
-		} else if (isService()) {
-			if (hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 3)) {
-				List<String> params = pathElements.subList(applicationIdx + 3, pathElements.size());
-				return params;
-			}
+		} else if (isService() && hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 3)) {
+			return pathElements.subList(applicationIdx + 3, pathElements.size());
 		}
 		return new ArrayList<>(0);
 	}
@@ -365,6 +371,11 @@ public class PathInfo implements Path {
 		return servletPath.startsWith(SEPARATOR + repositoryPath);
 	}
 
+	@Override
+	public boolean isMonitoring() {
+		return servletPath.startsWith(monitoringPath);
+	}
+
 	public String getGuiPath() {
 		return guiPath;
 	}
@@ -382,19 +393,15 @@ public class PathInfo implements Path {
 	}
 
 	public String getOutputFormat() {
-		if (isGui()) {
-			if (siteIdx - rootIdx > 1) {
-				return pathElements.get(rootIdx + 1).substring(1);
-			}
+		if (isGui() && siteIdx - rootIdx > 1) {
+			return pathElements.get(rootIdx + 1).substring(1);
 		}
 		return null;
 	}
 
 	public String getOutputType() {
-		if (isGui()) {
-			if (siteIdx - rootIdx > 2) {
-				return pathElements.get(rootIdx + 2).substring(1);
-			}
+		if (isGui() && siteIdx - rootIdx > 2) {
+			return pathElements.get(rootIdx + 2).substring(1);
 		}
 		return null;
 	}
@@ -408,15 +415,13 @@ public class PathInfo implements Path {
 	}
 
 	public String getService() {
-		if (isService()) {
-			if (hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 2)) {
-				String parameters = pathElements.get(applicationIdx + 2);
-				int indexOf = parameters.indexOf("?");
-				if (indexOf > 0) {
-					return parameters.substring(0, indexOf);
-				}
-				return parameters;
+		if (isService() && hasElementAt(applicationIdx) && hasElementAt(applicationIdx + 2)) {
+			String parameters = pathElements.get(applicationIdx + 2);
+			int indexOf = parameters.indexOf('?');
+			if (indexOf > 0) {
+				return parameters.substring(0, indexOf);
 			}
+			return parameters;
 		}
 		return null;
 	}
@@ -457,14 +462,14 @@ public class PathInfo implements Path {
 	 * Builds the the path to which a {@link HttpServletRequest} has to be forwarded to in order the retrieve a file
 	 * from a document directory. If the requested fiel is a JSP, the JSP Url-Parameters are being initialized.
 	 * 
-	 * @param wwwRootPath
-	 *            the relative path to a {@link Site}s web-folder, under which the document-folders reside
-	 * @param wwwRootFile
-	 *            a file representing the very same relative path
-	 * @return the forward path
-	 * @see #isDocument()
-	 * @see #getDocumentDirectories()
-	 * @see #isJsp()
+	 * @param  wwwRootPath
+	 *                     the relative path to a {@link Site}s web-folder, under which the document-folders reside
+	 * @param  wwwRootFile
+	 *                     a file representing the very same relative path
+	 * @return             the forward path
+	 * @see                #isDocument()
+	 * @see                #getDocumentDirectories()
+	 * @see                #isJsp()
 	 */
 	public String getForwardPath(String wwwRootPath, File wwwRootFile) {
 		String realServletPath = initJspUrlParameters(wwwRootFile);
@@ -496,7 +501,7 @@ public class PathInfo implements Path {
 		}
 
 		public String getSegments(int index) {
-			StringBuffer segmentString = new StringBuffer();
+			StringBuilder segmentString = new StringBuilder();
 			getSegmentsList(1, index).forEach(segment -> segmentString.append(SEPARATOR + segment));
 			return 0 == segmentString.length() ? SEPARATOR : segmentString.toString();
 		}

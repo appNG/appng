@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,7 +194,7 @@ public class PlatformTransformer {
 			}
 			if (!errorCollector.hasErrors()) {
 				Boolean formatOutput = platformProperties.getBoolean(org.appng.api.Platform.Property.FORMAT_OUTPUT);
-				result = transform(xmlSource, sourceAwareTemplate, formatOutput, devMode);
+				result = transform(xmlSource, sourceAwareTemplate, formatOutput);
 				this.contentType = HttpHeaders.getContentType(HttpHeaders.CONTENT_TYPE_TEXT_HTML, charSet);
 				if (writeDebugFiles) {
 					writeDebugFile(AbstractRequestProcessor.INDEX_HTML, result, debugFolder);
@@ -308,7 +308,7 @@ public class PlatformTransformer {
 		this.templates.addAll(templates);
 	}
 
-	private String transform(Source xmlSource, Templates templates, Boolean formatOutput, Boolean devMode)
+	private String transform(Source xmlSource, Templates templates, Boolean formatOutput)
 			throws TransformerException {
 		StringWriter output = new StringWriter();
 		Transformer transformer = templates.newTransformer();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ import org.appng.xml.application.Datasource;
 import org.appng.xml.application.DatasourceType;
 import org.appng.xml.application.Datasources;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.internal.util.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -73,11 +73,9 @@ public class DatabaseService extends MigrationService {
 	protected DatabaseConnectionRepository databaseConnectionRepository;
 
 	private MigrationStatus migrateSchema(DatabaseConnection rootConnection, String dbInfo,
-			SiteApplication siteApplication, Datasource datasource, File sqlFolder, String databasePrefix) {
+			SiteApplication siteApplication, File sqlFolder, String databasePrefix) {
 		Site site = siteApplication.getSite();
 		Application application = siteApplication.getApplication();
-		DatasourceType type = datasource.getType();
-		DatabaseType databaseType = DatabaseType.valueOf(type.name());
 		LOGGER.info("connected to {} ({})", rootConnection.getJdbcUrl(), dbInfo);
 		try {
 			DatabaseConnection applicationConnection = createApplicationConnection(site, application, rootConnection,
@@ -86,18 +84,7 @@ public class DatabaseService extends MigrationService {
 			if (dataBaseExists(rootConnection, databaseName)) {
 				LOGGER.info("database '{}' already exists!", databaseName);
 			} else {
-				DataSource dataSource = getDataSource(rootConnection);
-				JdbcOperations operation = new JdbcTemplate(dataSource);
-				List<String> sqlScriptLines = getScript(databaseType, SCRIPT_INIT);
-				for (String statement : sqlScriptLines) {
-					String password = new String(applicationConnection.getPassword());
-					String sqlScript = StringUtils.replaceEach(statement,
-							new String[] { PARAM_DATABASE, PARAM_USER, PARAM_PASSWORD },
-							new String[] { databaseName, applicationConnection.getUserName(), password });
-					operation.execute(sqlScript);
-				}
-				LOGGER.info("created database at {}", applicationConnection.getJdbcUrl());
-				LOGGER.info("created user {}", applicationConnection.getUserName());
+				initApplicationConnection(applicationConnection, getDataSource(rootConnection));
 			}
 
 			siteApplication.setDatabaseConnection(applicationConnection);
@@ -106,6 +93,26 @@ public class DatabaseService extends MigrationService {
 			LOGGER.error("an error ocured while migrating the schema", e);
 		}
 		return MigrationStatus.ERROR;
+	}
+
+	protected void initApplicationConnection(DatabaseConnection applicationConnection, DataSource dataSource)
+			throws IOException, URISyntaxException {
+		executeSqlScript(applicationConnection, dataSource, SCRIPT_INIT);
+		LOGGER.info("created database at {}", applicationConnection.getJdbcUrl());
+		LOGGER.info("created user {}", applicationConnection.getUserName());
+	}
+
+	private void executeSqlScript(DatabaseConnection applicationConnection, DataSource dataSource, String scriptName)
+			throws IOException, URISyntaxException {
+		JdbcOperations operation = new JdbcTemplate(dataSource);
+		List<String> sqlScriptLines = getScript(applicationConnection.getType(), scriptName);
+		for (String statement : sqlScriptLines) {
+			String password = new String(applicationConnection.getPassword());
+			String sqlScript = StringUtils.replaceEach(statement,
+					new String[] { PARAM_DATABASE, PARAM_USER, PARAM_PASSWORD },
+					new String[] { applicationConnection.getName(), applicationConnection.getUserName(), password });
+			operation.execute(sqlScript);
+		}
 	}
 
 	private boolean dataBaseExists(DatabaseConnection databaseConnection, String databaseName) {
@@ -121,7 +128,6 @@ public class DatabaseService extends MigrationService {
 		return false;
 	}
 
-	@Transactional
 	private DatabaseConnection createApplicationConnection(Site site, Application application,
 			DatabaseConnection rootConnection, String databasePrefix) {
 		DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -135,7 +141,7 @@ public class DatabaseService extends MigrationService {
 	 * the default values.
 	 * 
 	 * @param siteApplication
-	 *            a {@link SiteApplication}
+	 *                        a {@link SiteApplication}
 	 */
 	public void resetApplicationConnection(SiteApplication siteApplication, String databasePrefix) {
 		DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
@@ -200,9 +206,8 @@ public class DatabaseService extends MigrationService {
 				File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
 				String jdbcUrl = databaseConnection.getJdbcUrl();
 				LOGGER.info("starting database migration for {} from {}", jdbcUrl, scriptFolder.getAbsolutePath());
-				Flyway flyway = new Flyway();
-				flyway.setDataSource(getDataSource(databaseConnection));
-				flyway.setLocations(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
+				Flyway flyway = getFlyway(databaseConnection,
+						Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
 				return migrate(flyway, databaseConnection);
 			} else {
 				return MigrationStatus.ERROR;
@@ -221,7 +226,7 @@ public class DatabaseService extends MigrationService {
 		String newPassword = StringUtils.capitalize(databaseName);
 		newPassword = StringUtils.reverse(newPassword);
 		int i = 1;
-		while (newPassword.indexOf(UNDERSCORE) > 0) {
+		while (newPassword.contains(UNDERSCORE)) {
 			newPassword = StringUtils.replaceOnce(newPassword, UNDERSCORE, String.valueOf(i++));
 			newPassword = StringUtils.capitalize(newPassword);
 		}
@@ -239,24 +244,13 @@ public class DatabaseService extends MigrationService {
 	}
 
 	MigrationStatus dropDataBaseAndUser(DatabaseConnection databaseConnection) {
-		DatabaseType type = databaseConnection.getType();
 		DatabaseConnection rootConnection = getRootConnectionOfType(databaseConnection.getType());
 		if (rootConnection.isManaged()) {
 			if (rootConnection.testConnection(null)) {
 				try {
 					DataSource dataSource = getDataSource(rootConnection.getJdbcUrl(), rootConnection.getUserName(),
 							new String(rootConnection.getPassword()));
-					JdbcOperations operation = new JdbcTemplate(dataSource);
-					String databaseName = databaseConnection.getName();
-					String user = databaseConnection.getUserName();
-					List<String> sqlScriptLines = getScript(type, SCRIPT_DROP);
-					for (String statement : sqlScriptLines) {
-						String sqlScript = StringUtils.replaceEach(statement,
-								new String[] { PARAM_DATABASE, PARAM_USER }, new String[] { databaseName, user });
-						operation.execute(sqlScript);
-					}
-					LOGGER.info("dropped database at {}", databaseConnection.getJdbcUrl());
-					LOGGER.info("dropped user  {}", user);
+					dropApplicationConnection(databaseConnection, dataSource);
 					return MigrationStatus.DB_MIGRATED;
 				} catch (Exception e) {
 					LOGGER.error(String.format("error while dropping database %s", databaseConnection.getName()), e);
@@ -271,18 +265,28 @@ public class DatabaseService extends MigrationService {
 		return MigrationStatus.DB_SUPPORTED;
 	}
 
+	protected void dropApplicationConnection(DatabaseConnection databaseConnection, DataSource dataSource)
+			throws IOException, URISyntaxException {
+		executeSqlScript(databaseConnection, dataSource, SCRIPT_DROP);
+		LOGGER.info("dropped database at {}", databaseConnection.getJdbcUrl());
+		LOGGER.info("dropped user {}", databaseConnection.getUserName());
+	}
+
 	/**
 	 * Configures and (optionally) migrates the appNG root {@link DatabaseConnection} from the given
 	 * {@link java.util.Properties}.
 	 * 
-	 * @param config
-	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
-	 * @param setActive
-	 *            if the connection should be set as he active root connection, creating a new
-	 *            {@link DatabaseConnection} if necessary. Only applied if {@link #status(DatabaseConnection)} returns a
-	 *            non-null value.
-	 * @return the appNG root {@link DatabaseConnection}
+	 * @param  config
+	 *                   the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * @param  managed
+	 *                   whether to make the connection managed
+	 * @param  setActive
+	 *                   if the connection should be set as he active root connection, creating a new
+	 *                   {@link DatabaseConnection} if necessary. Only applied if {@link #status(DatabaseConnection)}
+	 *                   returns a non-null value.
+	 * @return           the appNG root {@link DatabaseConnection}
 	 */
+	@Transactional
 	public DatabaseConnection initDatabase(java.util.Properties config, boolean managed, boolean setActive) {
 		DatabaseConnection platformConnection = initDatabase(config);
 		MigrationInfoService statusComplete = platformConnection.getMigrationInfoService();
@@ -300,10 +304,10 @@ public class DatabaseService extends MigrationService {
 	 * {@code DatabaseConnection#setActive(false)} if this is not the case.
 	 * 
 	 * @param rootConnection
-	 *            the current root connection
+	 *                           the current root connection
 	 * @param changeManagedState
-	 *            if set to {@code true}, the managed state for an existing connection is set to
-	 *            {@code rootConnection#isManaged()}
+	 *                           if set to {@code true}, the managed state for an existing connection is set to
+	 *                           {@code rootConnection#isManaged()}
 	 */
 	@Transactional
 	public DatabaseConnection setActiveConnection(DatabaseConnection rootConnection, boolean changeManagedState) {
@@ -371,47 +375,46 @@ public class DatabaseService extends MigrationService {
 	 * Migrates the database for the given {@link SiteApplication}.
 	 * 
 	 * @param siteApplication
-	 *            the {@link SiteApplication} to migrate the database for
+	 *                        the {@link SiteApplication} to migrate the database for
 	 * @param applicationInfo
-	 *            the {@link Application}'s {@link ApplicationInfo} as read from
-	 *            {@value org.appng.api.model.ResourceType#APPLICATION_XML_NAME}.
+	 *                        the {@link Application}'s {@link ApplicationInfo} as read from
+	 *                        {@value org.appng.api.model.ResourceType#APPLICATION_XML_NAME}.
 	 * @param sqlFolder
-	 *            the root folder for the migration-scripts provided by the {@link SiteApplication}
+	 *                        the root folder for the migration-scripts provided by the {@link SiteApplication}
 	 * @return the {@link MigrationService.MigrationStatus}
 	 */
+	@Transactional
 	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication, ApplicationInfo applicationInfo,
 			File sqlFolder, String databasePrefix) {
 		Datasources datasources = applicationInfo.getDatasources();
 		MigrationStatus status = MigrationStatus.NO_DB_SUPPORTED;
-		if (null != datasources) {
-			if (!datasources.getDatasource().isEmpty()) {
-				for (Datasource datasource : datasources.getDatasource()) {
-					DatasourceType datasourceType = datasource.getType();
-					DatabaseType databaseType = DatabaseType.valueOf(datasourceType.name());
-					DatabaseConnection rootConnection = getRootConnectionOfType(databaseType);
-					if (rootConnection.isActive()) {
-						if (rootConnection.isManaged()) {
-							StringBuilder dbInfo = new StringBuilder();
-							if (rootConnection.testConnection(dbInfo)) {
-								return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, datasource,
-										sqlFolder, databasePrefix);
-							} else {
-								status = MigrationStatus.DB_NOT_AVAILABLE;
-								LOGGER.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
-										rootConnection.getDriverClass());
-							}
+		if (null != datasources && !datasources.getDatasource().isEmpty()) {
+			for (Datasource datasource : datasources.getDatasource()) {
+				DatasourceType datasourceType = datasource.getType();
+				DatabaseType databaseType = DatabaseType.valueOf(datasourceType.name());
+				DatabaseConnection rootConnection = getRootConnectionOfType(databaseType);
+				if (rootConnection.isActive()) {
+					if (rootConnection.isManaged()) {
+						StringBuilder dbInfo = new StringBuilder();
+						if (rootConnection.testConnection(dbInfo)) {
+							return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, sqlFolder,
+									databasePrefix);
 						} else {
-							DatabaseConnection databaseConnection = configureApplicationConnection(siteApplication,
-									datasource, databasePrefix);
-							save(databaseConnection);
-							databaseConnection.setSite(siteApplication.getSite());
-							siteApplication.setDatabaseConnection(databaseConnection);
-							return MigrationStatus.DB_SUPPORTED;
+							status = MigrationStatus.DB_NOT_AVAILABLE;
+							LOGGER.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),
+									rootConnection.getDriverClass());
 						}
 					} else {
-						status = MigrationStatus.DB_NOT_AVAILABLE;
-						LOGGER.info("connection {} is inactive, skipping", rootConnection.toString());
+						DatabaseConnection databaseConnection = configureApplicationConnection(siteApplication,
+								datasource, databasePrefix);
+						save(databaseConnection);
+						databaseConnection.setSite(siteApplication.getSite());
+						siteApplication.setDatabaseConnection(databaseConnection);
+						return MigrationStatus.DB_SUPPORTED;
 					}
+				} else {
+					status = MigrationStatus.DB_NOT_AVAILABLE;
+					LOGGER.info("connection {} is inactive, skipping", rootConnection.toString());
 				}
 			}
 		}
@@ -422,7 +425,7 @@ public class DatabaseService extends MigrationService {
 	 * Persists the given {@link DatabaseConnection}.
 	 * 
 	 * @param databaseConnection
-	 *            the connection to persist.
+	 *                           the connection to persist.
 	 */
 	@Transactional
 	public void save(DatabaseConnection databaseConnection) {

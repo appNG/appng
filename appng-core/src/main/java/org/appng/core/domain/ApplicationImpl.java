@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 	private List<ApplicationSubject> applicationSubjects;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
@@ -258,7 +258,7 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 	}
 
 	@Transient
-	public ConfigurableApplicationContext getContext() {
+	public synchronized ConfigurableApplicationContext getContext() {
 		return context;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.appng.core.model;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.appng.api.model.Application;
@@ -63,6 +64,13 @@ public interface PackageArchive {
 	 *             </ul>
 	 */
 	<T> T processZipFile(ZipFileProcessor<T> processor) throws IOException;
+
+	/**
+	 * Returns the archive's ZIP-file.
+	 * 
+	 * @return the file
+	 */
+	File getFile();
 
 	/**
 	 * Returns the binary data of the archive's ZIP-file. Should only be called if {@link #isValid()} returns

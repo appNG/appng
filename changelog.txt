@@ -1,3 +1,51 @@
+Release Notes - appNG - Version 1.21.0 (2020-03-31)
+---------------------------------------------------
+* [APPNG-2334] - Release of 1.21.0
+* [APPNG-2333] - Avoid appNGizer logs to console by default
+* [APPNG-2332] - Provide a message sender/receiver based on a Hazelcast ReliableTopic
+* [APPNG-2331] - Allow to use system properties/environment in single CLI commands
+* [APPNG-2330] - Duplicate child-fields for fields of type="list:object" after executing an action
+* [APPNG-2329] - Support LDAP Group hierarchies
+* [APPNG-2328] - appNGizer and Maven plugin should be able to install hidden/privileged applications
+* [APPNG-2327] - Log size of package and upload speed
+* [APPNG-2326] - Allow larger package sizes when uploading to local repository
+* [APPNG-2325] - Support for MariaDB
+* [APPNG-2324] - Provide a loading screen while appNG is starting
+* [APPNG-2323] - appNGizer Repository upload package should skip reload
+* [APPNG-2322] - Use latest versions of appNG Manager and Authentication in parent pom
+* [APPNG-2320] - Provide a more flexible implementation of org.appng.api.auth.PasswordPolicy
+* [APPNG-2319] - Improvements on handling of user accounts
+* [APPNG-2318] - Fix some issues identified by sonar
+* [APPNG-2317] - Make JaCoCo work
+* [APPNG-2316] - Set default values for a site's caching properties
+* [APPNG-2315] - Use MySql-Connector 8, adapt MySql init and drop scripts to run with MySql 8
+* [APPNG-2314] - Error on read  Action is discarded
+* [APPNG-2313] - Update license headers to 2020
+* [APPNG-2312] - Update to Flyway 5.2.4
+* [APPNG-2311] - Properties should be made type-safe by explicitly defining the required type
+* [APPNG-2310] - Provide a REST service offering status information about sites and applications for a node
+* [APPNG-2309] - Always set response headers before writing response
+* [APPNG-2308] - Messages for Datasources
+* [APPNG-2307] - CommandBatchTest.testSysEnvVariables depends on fixed LANG system variable
+* [APPNG-2306] - Use a timeout for HsqlStarterTest
+* [APPNG-2305] - Fix duplicate dependency org.projectlombok:lombok in BOM
+* [APPNG-2304] - Improve documentation of ImageProcessor.autoCrop
+* [APPNG-2303] - Possible ClassCastException in PageCacheFilter due to Last-Modified Header
+* [APPNG-2301] - Dependency Updates for 1.21.0
+* [APPNG-2300] - Missing variable replacements in install.list
+* [APPNG-2299] - appNGizer: ClassNotFoundException is thrown when receiving an application specific event
+* [APPNG-2298] - Support setting the JDBC connection timeout and validation timeout in DatasourceConfigurer
+* [APPNG-2297] - OptimisticLockException on site reload after installing application with database
+* [APPNG-2296] - Parallelize init/update of RepositoryCacheFilesystem
+* [APPNG-2269] - Replace Ehcache with JCache, using Hazelcast as implementation
+* [APPNG-2259] - Possible NPE in LdapService.getMembersOfGroup
+* [APPNG-2253] - Support for PostgreSQL
+* [APPNG-2208] - There should be an easy and convenient way for checking include-conditions on a page
+
+Release Notes - appNG - Version 1.20.3 (2020-02-20)
+---------------------------------------------------
+* [APPNG-2259] - Possible NPE in LdapService.getMembersOfGroup
+
 Release Notes - appNG - Version 1.20.2 (2019-09-24)
 ---------------------------------------------------
 * [APPNG-2294] - Release of 1.20.2
