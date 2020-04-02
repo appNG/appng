@@ -154,8 +154,8 @@
 		<description>Set to 'true' to enable support for Mapped Diagnostic Context (MDC) Logging.</description>
 	</property>
 	<property name="messagingEnabled" self="http://localhost/platform/property/messagingEnabled">
-		<value>true</value>
-		<defaultValue>true</defaultValue>
+		<value>false</value>
+		<defaultValue>false</defaultValue>
 		<description>Set to true to enable cluster messaging</description>
 	</property>
 	<property name="messagingGroupAddress" self="http://localhost/platform/property/messagingGroupAddress">
