@@ -154,8 +154,8 @@
 		<description>Set to 'true' to enable support for Mapped Diagnostic Context (MDC) Logging.</description>
 	</property>
 	<property name="messagingEnabled" self="http://localhost/platform/property/messagingEnabled">
-		<value>false</value>
-		<defaultValue>false</defaultValue>
+		<value>true</value>
+		<defaultValue>true</defaultValue>
 		<description>Set to true to enable cluster messaging</description>
 	</property>
 	<property name="messagingGroupAddress" self="http://localhost/platform/property/messagingGroupAddress">
@@ -169,9 +169,9 @@
 		<description>The port used for multicast messaging</description>
 	</property>
 	<property name="messagingReceiver" self="http://localhost/platform/property/messagingReceiver">
-		<value>org.appng.core.controller.messaging.MulticastReceiver</value>
-		<defaultValue>org.appng.core.controller.messaging.MulticastReceiver</defaultValue>
-		<description>Define messaging implementation by referring class name. Default method is multicast </description>
+		<value>org.appng.core.controller.messaging.HazelcastReceiver</value>
+		<defaultValue>org.appng.core.controller.messaging.HazelcastReceiver</defaultValue>
+		<description>Define messaging implementation by referring class name.</description>
 	</property>
 	<property name="monitorPerformance" self="http://localhost/platform/property/monitorPerformance">
 		<value>false</value>

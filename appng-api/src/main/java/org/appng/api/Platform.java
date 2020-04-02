@@ -186,7 +186,7 @@ public final class Platform {
 		public static final String MDC_ENABLED = "mdcEnabled";
 		/** Set to true to enable cluster messaging */
 		public static final String MESSAGING_ENABLED = "messagingEnabled";
-		/** Class name of the desired messaging Receiver implementation. Default is multicast **/
+		/** Class name of the desired messaging Receiver implementation. **/
 		public static final String MESSAGING_RECEIVER = "messagingReceiver";
 		/** The multicast address used for messaging */
 		public static final String MESSAGING_GROUP_ADDRESS = "messagingGroupAddress";

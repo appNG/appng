@@ -37,7 +37,7 @@ import org.appng.api.model.Property.Type;
 import org.appng.api.model.Site;
 import org.appng.api.support.PropertyHolder;
 import org.appng.core.controller.HttpHeaders;
-import org.appng.core.controller.messaging.MulticastReceiver;
+import org.appng.core.controller.messaging.HazelcastReceiver;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.security.ConfigurablePasswordPolicy;
@@ -367,10 +367,10 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.MAX_UPLOAD_SIZE, 30 * 1024 * 1024);
 		addPlatformProperty(defaultOverrides, Platform.Property.MAX_LOGIN_ATTEMPTS, 20);
 		addPlatformProperty(defaultOverrides, Platform.Property.MDC_ENABLED, Boolean.TRUE);
-		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_ENABLED, Boolean.FALSE);
+		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_ENABLED, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_ADDRESS, "224.2.2.4");
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_PORT, 4000);
-		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_RECEIVER, MulticastReceiver.class.getName());
+		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_RECEIVER, HazelcastReceiver.class.getName());
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITOR_PERFORMANCE, false);
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITORING_PATH, "/health");
 		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
