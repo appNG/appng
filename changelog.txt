@@ -1,6 +1,7 @@
 Release Notes - appNG - Version 1.21.0 (2020-03-31)
 ---------------------------------------------------
-* [APPNG-2333] - Release of 1.21.0
+* [APPNG-2334] - Release of 1.21.0
+* [APPNG-2333] - Avoid appNGizer logs to console by default
 * [APPNG-2332] - Provide a message sender/receiver based on a Hazelcast ReliableTopic
 * [APPNG-2331] - Allow to use system properties/environment in single CLI commands
 * [APPNG-2330] - Duplicate child-fields for fields of type="list:object" after executing an action
@@ -25,7 +26,7 @@ Release Notes - appNG - Version 1.21.0 (2020-03-31)
 * [APPNG-2310] - Provide a REST service offering status information about sites and applications for a node
 * [APPNG-2309] - Always set response headers before writing response
 * [APPNG-2308] - Messages for Datasources
-* [APPNG-2307] - CommandBatchTest.testSysEnvVariables is depends on fixed LANG system variable
+* [APPNG-2307] - CommandBatchTest.testSysEnvVariables depends on fixed LANG system variable
 * [APPNG-2306] - Use a timeout for HsqlStarterTest
 * [APPNG-2305] - Fix duplicate dependency org.projectlombok:lombok in BOM
 * [APPNG-2304] - Improve documentation of ImageProcessor.autoCrop
