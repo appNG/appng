@@ -109,9 +109,8 @@ public class Home extends ControllerBase implements InitializingBean {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
 		CacheProvider cacheProvider = new CacheProvider(platformConfig);
-		for (SiteImpl s : getCoreService().getSites()) {
-			updateSiteMap(env, cacheProvider, s.getName(), s.isActive(), SiteState.STOPPED);
-		}
+		getCoreService().getSites().stream().filter(SiteImpl::isActive)
+				.forEach(s -> updateSiteMap(env, cacheProvider, s.getName(), SiteState.STOPPED));
 		return platformConfig;
 	}
 

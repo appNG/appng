@@ -183,8 +183,7 @@ public abstract class ControllerBase implements DisposableBean {
 					throws InvalidConfigurationException, BusinessException {
 				SiteState state = event.getState();
 				Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-				updateSiteMap(env, new CacheProvider(platformConfig), event.getSiteName(),
-						SiteState.STARTED.equals(state), state);
+				updateSiteMap(env, new CacheProvider(platformConfig), event.getSiteName(), state);
 			}
 
 			public Class<SiteStateEvent> getEventClass() {
@@ -197,49 +196,60 @@ public abstract class ControllerBase implements DisposableBean {
 		messagingInitialized = true;
 	}
 
-	protected void updateSiteMap(Environment env, CacheProvider cacheProvider, String siteName, boolean isSiteActive,
-			SiteState state) {
+	protected void updateSiteMap(Environment env, CacheProvider cacheProvider, String siteName, SiteState state) {
 		Map<String, org.appng.api.model.Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		SiteImpl site;
-		if (isSiteActive) {
+		SiteImpl site = (SiteImpl) siteMap.get(siteName);
+		if (SiteState.DELETED.equals(state)) {
+			siteMap.remove(siteName);
+			closeClassLoader(site);
+			site = null;
+		} else if (null == site) {
 			site = getCoreService().getSiteByName(siteName);
-			List<URL> jarUrls = new ArrayList<URL>();
-			site.getSiteApplications().stream().filter(SiteApplication::isActive).forEach(a -> {
-				File platformCache = cacheProvider.getPlatformCache(site, a.getApplication());
-				File jarFolder = new File(platformCache, ResourceType.JAR.getFolder());
-				if (jarFolder.exists()) {
-					for (String file : jarFolder.list((d, n) -> n.endsWith(".jar"))) {
-						try {
-							jarUrls.add(new File(jarFolder, file).toPath().toUri().toURL());
-						} catch (MalformedURLException e) {
-							logger().error("error adding jar", e);
-						}
-					}
-				}
-			});
+		}
 
-			SiteClassLoader siteClassLoader = new SiteClassLoader(jarUrls.toArray(new URL[0]),
-					getClass().getClassLoader(), site.getName());
-			site.setSiteClassLoader(siteClassLoader);
-			site.setState(state);
-
-			if (siteMap.containsKey(siteName)) {
-				SiteImpl existing = (SiteImpl) siteMap.get(siteName);
-				try {
-					existing.getSiteClassLoader().close();
-				} catch (IOException e) {
-					// ignore
-				}
+		if (null != site) {
+			if (null == site.getSiteClassLoader() || SiteState.STARTING.equals(state)) {
+				closeClassLoader(site);
+				site.setSiteClassLoader(buildSiteClassLoader(cacheProvider, site));
 			}
 
+			site.setState(state);
 			siteMap.put(site.getName(), site);
 			logger().info("Site {} is {}", site.getName(), site.getState());
-		} else if (siteMap.containsKey(siteName)) {
-			site = (SiteImpl) siteMap.get(siteName);
-			site.setState(state);
-			logger().info("Site {} is {}", site.getName(), site.getState());
 		}
+
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
+	}
+
+	private void closeClassLoader(SiteImpl site) {
+		if (null != site) {
+			try {
+				SiteClassLoader siteClassLoader = site.getSiteClassLoader();
+				if (null != siteClassLoader) {
+					siteClassLoader.close();
+				}
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
+	private SiteClassLoader buildSiteClassLoader(CacheProvider cacheProvider, SiteImpl site) {
+		List<URL> jarUrls = new ArrayList<URL>();
+		site.getSiteApplications().stream().filter(SiteApplication::isActive).forEach(a -> {
+			File platformCache = cacheProvider.getPlatformCache(site, a.getApplication());
+			File jarFolder = new File(platformCache, ResourceType.JAR.getFolder());
+			if (jarFolder.exists()) {
+				for (String file : jarFolder.list((d, n) -> n.endsWith(".jar"))) {
+					try {
+						jarUrls.add(new File(jarFolder, file).toPath().toUri().toURL());
+					} catch (MalformedURLException e) {
+						logger().error("error adding jar", e);
+					}
+				}
+			}
+		});
+		return new SiteClassLoader(jarUrls.toArray(new URL[0]), getClass().getClassLoader(), site.getName());
 	}
 
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
