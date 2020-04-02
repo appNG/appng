@@ -440,8 +440,10 @@ public class CoreServiceTest {
 			Thread.sleep(100);
 		}
 
-		Map<String, SiteState> siteStates = nodeStates.get(nodeId).getSiteStates();
-		Assert.assertNull(siteStates.get(realSite.getName()));
+		while (null != stateMap.get(realSite.getName())) {
+			Thread.sleep(100);
+		}
+
 		receiver.close();
 	}
 
@@ -742,15 +744,15 @@ public class CoreServiceTest {
 		assertFalse(coreService.login(null, environment, "subject-3", "test"));
 
 		Mockito.verify(environment).setAttribute(Scope.REQUEST, "subject.locked", true);
-		
+
 		subject = coreService.getSubjectByName("subject-3", false);
 		assertTrue(subject.isExpired(new Date()));
 		assertTrue(subject.isLocked());
-		
+
 		Mockito.verify(environment, Mockito.never()).setSubject(Mockito.any());
 		resetSubject("subject-3");
 	}
-	
+
 	@Test
 	public void testLoginSubjectIsLocked() {
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
