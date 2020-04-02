@@ -408,7 +408,7 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	@Test(timeout = 20000)
+	@Test(timeout = 30000)
 	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -432,6 +432,7 @@ public class CoreServiceTest {
 			Thread.sleep(100);
 		}
 		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null), false);
+
 		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
 		// 5x NodeEvent
