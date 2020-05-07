@@ -75,7 +75,6 @@ import lombok.extern.slf4j.Slf4j;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 @Parameters(commandDescription = "Sends and receives a heartbeat using the configured messaging settings.")
@@ -136,11 +135,12 @@ public class HeartBeat implements ExecutableCliCommand {
 		Sender sender = Messaging.createMessageSender(env, executor, nodeId, loggingHandler,
 				Arrays.asList(heartBeatHandler));
 		LOGGER.debug("created {}", sender);
-		while (true) {
+		while (!Thread.currentThread().isInterrupted()) {
 			sender.send(new HeartBeatEvent(site));
 			try {
 				Thread.sleep(interval);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 

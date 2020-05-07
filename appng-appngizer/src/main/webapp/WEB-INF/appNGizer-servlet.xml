@@ -31,7 +31,7 @@
 	</bean>
 
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-		<property name="maxUploadSize" value="25000000" />
+		<property name="maxUploadSize" value="50000000" />
 	</bean>
 
 	<context:component-scan base-package="org.appng.appngizer" />

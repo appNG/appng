@@ -147,15 +147,9 @@ public class DigestValidator {
 	 *         </ul>
 	 */
 	public boolean validate(String sharedSecret) {
-		if (!errors) {
-			if (setClientDate()) {
-				if (validateTimestamp()) {
-					if (validateHashedPart(sharedSecret)) {
-						LOGGER.info("Digest successfully validated.");
-						return true;
-					}
-				}
-			}
+		if (!errors && setClientDate() && validateTimestamp() && validateHashedPart(sharedSecret)) {
+			LOGGER.info("Digest successfully validated.");
+			return true;
 		}
 		LOGGER.error("Digest validation failed.");
 		return false;

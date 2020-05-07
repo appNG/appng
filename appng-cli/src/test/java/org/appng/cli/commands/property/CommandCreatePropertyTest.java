@@ -40,7 +40,7 @@ public class CommandCreatePropertyTest extends AbstractCommandTest {
 		PropertyImpl property = cliEnv.getCoreService().getProperty(PropertySupport.PREFIX_PLATFORM + MY_PROP);
 		Assert.assertEquals("true", property.getString());
 		Assert.assertEquals("platform." + MY_PROP, property.getId());
-		Assert.assertEquals(Property.Type.TEXT, property.getType());
+		Assert.assertEquals(Property.Type.BOOLEAN, property.getType());
 	}
 
 }

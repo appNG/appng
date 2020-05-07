@@ -96,17 +96,17 @@ public class SiteProperties {
 	/** Set to true to enable caching for this site */
 	public static final String CACHE_ENABLED = "cacheEnabled";
 	/**
-	 * URL path prefixes which are never cached. Contains one prefix per line (CLOB
-	 * value).
+	 * URL path prefixes which are never cached. Contains one prefix per line (multiline value).
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
 	/** @deprecated no more used */
+	@Deprecated
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
-	/** The cache timeouts as a multi-lined property, key=value */
+	/** The cache timeouts as a multiline property, key=value */
 	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
 	/** Use Ant-style path matching for {@link #CACHE_TIMEOUTS}? */
 	public static final String CACHE_TIMEOUTS_ANT_STYLE = "cacheTimeoutsAntStyle";
-	/** The time a cache entry lives, in seconds */
+	/** The default TTL for a cache entry in seconds, if there's no matching path defined in {@link #CACHE_TIMEOUTS}. */
 	public static final String CACHE_TIME_TO_LIVE = "cacheTimeToLive";
 	/** Set to true to enable caching statistics */
 	public static final String CACHE_STATISTICS = "cacheStatistics";
@@ -145,8 +145,12 @@ public class SiteProperties {
 	public static final String INDEX_CONFIG = "indexConfig";
 	/** The folder containing the Lucene-Index, relative to {@link #WWW_DIR} */
 	public static final String INDEX_DIR = "indexDir";
+	/** The maximum number of milliseconds that a client will wait for a connection from the connection pool. */
+	public static final String JDBC_CONNECTION_TIMEOUT = "jdbcConnectionTimeout";
 	/** Set to {@code true} to enable JDBC Performance Logger */
-	public static final String LOG_JDBC_PERFORMANCE = "logJdbcPerformance";
+	public static final String JDBC_LOG_PERFORMANCE = "jdbcLogPerformance";
+	/** The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive. */
+	public static final String JDBC_VALIDATION_TIMEOUT = "jdbcValidationTimeout";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
 	/** the queue size used per directory when indexing the file system **/
@@ -197,7 +201,7 @@ public class SiteProperties {
 	public static final String WWW_DIR = "wwwDir";
 
 	/**
-	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (CLOB value). Supports blank
+	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (multiline value). Supports blank
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";

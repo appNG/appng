@@ -239,7 +239,7 @@ abstract class RestActionBase extends RestOperation {
 						.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
 				BeanWrapper beanWrapper = getBeanWrapper(metaData);
 				ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
-						beanWrapper, 0);
+						beanWrapper);
 				action.getFields().add(actionField);
 			});
 		}
@@ -249,8 +249,7 @@ abstract class RestActionBase extends RestOperation {
 	}
 
 	protected ActionField getActionField(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
-			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef, BeanWrapper beanWrapper,
-			int index) {
+			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef, BeanWrapper beanWrapper) {
 		ActionField actionField = new ActionField();
 		actionField.setName(fieldData.getName());
 
@@ -346,7 +345,7 @@ abstract class RestActionBase extends RestOperation {
 						Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.getAndIncrement(),
 								childData);
 						ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
-								childField, beanWrapper, i.get());
+								childField, beanWrapper);
 						actionField.addFieldsItem(childActionField);
 						if (childField.isPresent()) {
 							applyValidationRules(request, childActionField, childField.get());
@@ -382,7 +381,9 @@ abstract class RestActionBase extends RestOperation {
 				for (ActionField childField : childFields) {
 					Optional<FieldDef> childDef = originalDef.getFields().stream()
 							.filter(f -> f.getName().equals(childField.getName())).findFirst();
-					applyValidationRules(request, childField, childDef.get());
+					if (childDef.isPresent()) {
+						applyValidationRules(request, childField, childDef.get());
+					}
 				}
 			}
 		}

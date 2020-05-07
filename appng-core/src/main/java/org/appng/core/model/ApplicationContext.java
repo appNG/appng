@@ -71,7 +71,7 @@ public class ApplicationContext extends AnnotationConfigApplicationContext {
 			dataSourceFactory.setConfigurerClass(
 					props.getProperty(PropertySupport.PREFIX_SITE + SiteProperties.DATASOURCE_CONFIGURER));
 			dataSourceFactory.setLogPerformance(Boolean.valueOf(
-					props.getProperty(PropertySupport.PREFIX_SITE + SiteProperties.LOG_JDBC_PERFORMANCE, "false")));
+					props.getProperty(PropertySupport.PREFIX_SITE + SiteProperties.JDBC_LOG_PERFORMANCE, "false")));
 			registerBean("datasource", DataSourceFactory.class, () -> dataSourceFactory);
 		} else {
 			register(ApplicationConfig.class);

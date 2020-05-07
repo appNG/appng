@@ -32,10 +32,12 @@ public class UploadMojo extends AppNGizerMojo {
 			login();
 			getRepository();
 			upload();
-		} catch (URISyntaxException | InterruptedException | ExecutionException e) {
+		} catch (URISyntaxException | ExecutionException e) {
 			throw new MojoExecutionException("error during upload", e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new MojoExecutionException("upload was interrupted", e);
 		}
-
 	}
 
 }

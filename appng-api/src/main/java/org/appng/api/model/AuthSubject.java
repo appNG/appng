@@ -15,13 +15,23 @@
  */
 package org.appng.api.model;
 
+import java.util.Date;
+
 /**
  * An {@link AuthSubject} provides some user-credentials.
  * 
  * @author Matthias Müller
- * 
  */
 public interface AuthSubject extends Account {
+
+	/**
+	 * The policy for changing the subject's password
+	 * 
+	 * @since 1.21
+	 */
+	enum PasswordChangePolicy {
+		MAY, MUST, MUST_NOT, MUST_RECOVER;
+	}
 
 	/**
 	 * Returns the salted digest for this {@link AuthSubject}.
@@ -41,7 +51,7 @@ public interface AuthSubject extends Account {
 	 * Sets the salt for this {@link AuthSubject}.
 	 * 
 	 * @param salt
-	 *            the salt
+	 *             the salt
 	 */
 	void setSalt(String salt);
 
@@ -49,8 +59,38 @@ public interface AuthSubject extends Account {
 	 * Sets the salted digest for this {@link AuthSubject}.
 	 * 
 	 * @param digest
-	 *            the digest
+	 *               the digest
 	 */
 	void setDigest(String digest);
+
+	/**
+	 * Returns the {@link PasswordChangePolicy} for this subject
+	 * 
+	 * @return the {@link PasswordChangePolicy} for this subject
+	 * @since  1.21
+	 */
+	default PasswordChangePolicy getPasswordChangePolicy() {
+		return PasswordChangePolicy.MAY;
+	}
+
+	/**
+	 * Sets the {@link PasswordChangePolicy} to use.
+	 * 
+	 * @param passwordChangePolicy
+	 *                             the policy to use
+	 * @since                      1.21
+	 */
+	default void setPasswordChangePolicy(PasswordChangePolicy passwordChangePolicy) {
+	}
+
+	/**
+	 * Sets the date when the password was last changed
+	 * 
+	 * @param date
+	 *             the date
+	 * @since      1.21
+	 */
+	default void setPasswordLastChanged(Date date) {
+	}
 
 }

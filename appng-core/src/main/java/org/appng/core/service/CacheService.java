@@ -41,6 +41,8 @@ import org.springframework.http.HttpMethod;
 import com.hazelcast.cache.CacheStatistics;
 import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
+import com.hazelcast.cache.impl.HazelcastServerCachingProvider;
+import com.hazelcast.client.cache.impl.HazelcastClientCachingProvider;
 import com.hazelcast.config.CacheConfig;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -73,11 +75,13 @@ public class CacheService {
 
 	private static CacheManager cacheManager;
 
-	public static CacheManager createCacheManager(HazelcastInstance instance) {
+	public static CacheManager createCacheManager(HazelcastInstance instance, boolean isClient) {
 		Properties properties = new Properties();
 		properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
 		properties.put(HazelcastCachingProvider.HAZELCAST_CONFIG_LOCATION, "appNG configuration");
-		cacheManager = Caching.getCachingProvider().getCacheManager(null, null, properties);
+		Class<?> cacheProviderClass = isClient ? HazelcastClientCachingProvider.class
+				: HazelcastServerCachingProvider.class;
+		cacheManager = Caching.getCachingProvider(cacheProviderClass.getName()).getCacheManager(null, null, properties);
 		return cacheManager;
 	}
 
@@ -144,7 +148,8 @@ public class CacheService {
 			configuration.setStatisticsEnabled(statisticsEnabled);
 			configuration.setManagementEnabled(true);
 			cache = cacheManager.createCache(cacheKey, configuration);
-			LOGGER.info("Created cache '{}' with TTL of {} seconds (statistics: {}).", cacheKey, ttl, statisticsEnabled);
+			LOGGER.info("Created cache '{}' with TTL of {} seconds (statistics: {}).", cacheKey, ttl,
+					statisticsEnabled);
 		}
 		return cache;
 	}
@@ -233,11 +238,9 @@ public class CacheService {
 		int removed = 0;
 		for (Entry<String, CachedResponse> entry : cache) {
 			count++;
-			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)) {
-				if (cache.remove(entry.getKey())) {
-					LOGGER.debug("removed from cache: {}", entry.getKey());
-					removed++;
-				}
+			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix) && cache.remove(entry.getKey())) {
+				LOGGER.debug("removed from cache: {}", entry.getKey());
+				removed++;
 			}
 		}
 		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);

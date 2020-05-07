@@ -23,12 +23,14 @@ import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.messaging.HazelcastReceiver;
 import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.CacheProvider;
 import org.appng.core.model.RepositoryCacheFactory;
+import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.PropertySupport;
 import org.flywaydb.core.api.MigrationInfo;
 import org.slf4j.Logger;
@@ -47,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class Home extends ControllerBase implements InitializingBean {
 
-	private static final String HAZELCAST_CONFIG = "../appNGizer/WEB-INF/conf/hazelcast-client.xml";
 	static final String AUTHORIZED = "authorized";
 	static final String ROOT = "/";
 
@@ -67,11 +68,9 @@ public class Home extends ControllerBase implements InitializingBean {
 
 	@GetMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> welcome() {
-		initMessaging();
 		String appngVersion = (String) context.getAttribute(AppNGizer.APPNG_VERSION);
 		boolean dbInitialized = getDatabaseStatus() != null;
-		org.appng.appngizer.model.Home entity = new org.appng.appngizer.model.Home(appngVersion, dbInitialized,
-				getUriBuilder());
+		org.appng.appngizer.model.Home entity = new org.appng.appngizer.model.Home(appngVersion, dbInitialized);
 		entity.applyUriComponents(getUriBuilder());
 		return ok(entity);
 	}
@@ -86,10 +85,9 @@ public class Home extends ControllerBase implements InitializingBean {
 		PropertyImpl receiverClass = coreService
 				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_RECEIVER);
 		if (null != receiverClass && HazelcastReceiver.class.getName().equals(receiverClass.getString())) {
-			String cacheConfig = PropertySupport.PREFIX_PLATFORM + Platform.Property.CACHE_CONFIG;
-			props.put(cacheConfig, HAZELCAST_CONFIG);
-			logger().info("Detected {}, using configuration {} for {}", receiverClass.getString(), HAZELCAST_CONFIG,
-					cacheConfig);
+			String useClient = PropertySupport.PREFIX_PLATFORM + HazelcastConfigurer.HAZELCAST_USE_CLIENT;
+			props.put(useClient, "true");
+			logger().info("Detected {}, setting {} to true", receiverClass.getString(), useClient);
 		}
 		MigrationInfo databaseStatus = getDatabaseStatus();
 		if (null == databaseStatus) {
@@ -102,6 +100,7 @@ public class Home extends ControllerBase implements InitializingBean {
 		Environment env = DefaultEnvironment.get(context);
 		Properties platformConfig = initPlatform(props, env);
 		RepositoryCacheFactory.init(platformConfig);
+		initMessaging();
 	}
 
 	protected Properties initPlatform(java.util.Properties defaultOverrides, Environment env) {
@@ -110,9 +109,8 @@ public class Home extends ControllerBase implements InitializingBean {
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
 		CacheProvider cacheProvider = new CacheProvider(platformConfig);
-		for (SiteImpl s : getCoreService().getSites()) {
-			updateSiteMap(env, cacheProvider, s.getName(), s.isActive());
-		}
+		getCoreService().getSites().stream().filter(SiteImpl::isActive)
+				.forEach(s -> updateSiteMap(env, cacheProvider, s.getName(), SiteState.STOPPED));
 		return platformConfig;
 	}
 

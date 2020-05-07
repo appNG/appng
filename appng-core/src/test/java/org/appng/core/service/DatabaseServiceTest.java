@@ -30,6 +30,8 @@ import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.DatabaseConnectionRepository;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationState;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -45,6 +47,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -70,7 +73,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "4.1.2");
+		validateSchemaVersion(platformConnection, "4.2.1");
 
 		DatabaseConnection mssql = new DatabaseConnection(DatabaseType.MSSQL, rootName, "", "".getBytes());
 		mssql.setName(rootName);
@@ -107,6 +110,23 @@ public class DatabaseServiceTest extends TestInitializer {
 		testInitDatabaseMySql("5.7");
 	}
 
+	@Test
+	@Ignore("uses testcontainers, which needs docker")
+	public void testInitDatabaseMySql8() throws Exception {
+		testInitDatabaseMySql("8");
+	}
+
+	@Test
+	@Ignore("run with profile 'mariadb', uses testcontainers, which needs docker")
+	public void testInitDatabaseMariaDB() throws Exception {
+		try (MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:10.4")) {
+			mariadb.withUsername("root").withPassword("").start();
+			System.err.println(mariadb.getJdbcUrl());
+			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", "10.4", "?useMysqlMetadata=true", true,
+					true);
+		}
+	}
+
 	void testInitDatabaseMySql(String version) throws Exception {
 		try (MySQLContainer<?> mysql = new MySQLContainer<>("mysql:" + version)) {
 			mysql.withUsername("root").withPassword("").start();
@@ -124,6 +144,12 @@ public class DatabaseServiceTest extends TestInitializer {
 	@Ignore("uses testcontainers, which needs docker")
 	public void testInitDatabasePostgreSQL11() throws Exception {
 		testInitDatabasePostgreSQL("11.3");
+	}
+
+	@Test
+	@Ignore("uses testcontainers, which needs docker")
+	public void testInitDatabasePostgreSQL12() throws Exception {
+		testInitDatabasePostgreSQL("12.1");
 	}
 
 	void testInitDatabasePostgreSQL(String version) throws Exception {
@@ -145,18 +171,27 @@ public class DatabaseServiceTest extends TestInitializer {
 	private void validateConnectionType(JdbcDatabaseContainer<?> container, DatabaseType databaseType,
 			String productName, String productVersion, boolean checksize, boolean checkConnection)
 			throws SQLException, IOException, URISyntaxException {
-		Properties platformProperties = getProperties(databaseType, container.getJdbcUrl(), container.getUsername(),
+		validateConnectionType(container, databaseType, productName, productVersion, "", checksize, checkConnection);
+	}
+
+	private void validateConnectionType(JdbcDatabaseContainer<?> container, DatabaseType databaseType,
+			String productName, String productVersion, String connectionParams, boolean checksize,
+			boolean checkConnection) throws SQLException, IOException, URISyntaxException {
+		String jdbcUrl = container.getJdbcUrl();
+		jdbcUrl += connectionParams;
+		Properties platformProperties = getProperties(databaseType, jdbcUrl, container.getUsername(),
 				container.getPassword(), databaseType.getDefaultDriver());
 		DatabaseConnection platformConnection = databaseService.initDatabase(platformProperties);
 		StringBuilder dbInfo = new StringBuilder();
 		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
-		Assert.assertTrue(dbInfo.toString(), dbInfo.toString().startsWith(productName + " " + productVersion));
+		Assert.assertTrue(dbInfo.toString(), dbInfo.toString().contains(productName));
+		Assert.assertTrue(dbInfo.toString(), dbInfo.toString().contains(productVersion));
 		Assert.assertEquals("appNG Root Database", platformConnection.getDescription());
 		Assert.assertEquals(databaseType, platformConnection.getType());
 		if (checksize) {
 			Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
 		}
-		validateSchemaVersion(platformConnection, "4.1.2");
+		validateSchemaVersion(platformConnection, "4.2.1");
 
 		testRootConnectionJPA(platformConnection);
 		if (checkConnection) {
@@ -183,9 +218,15 @@ public class DatabaseServiceTest extends TestInitializer {
 		site.setDomain("http://localhost:8080");
 		em.persist(site);
 		em.getTransaction().commit();
+		em.close();
 		Assert.assertNotNull(site.getId());
 		Assert.assertNotNull(site.getVersion());
-		em.close();
+
+		em = emf.createEntityManager();
+		em.getTransaction().begin();
+		SiteImpl loadedSite = em.find(SiteImpl.class, site.getId());
+		Assert.assertEquals(site.getVersion(), loadedSite.getVersion());
+
 		emf.close();
 		lcemf.destroy();
 	}
@@ -221,7 +262,9 @@ public class DatabaseServiceTest extends TestInitializer {
 	}
 
 	private void validateSchemaVersion(DatabaseConnection connection, String version) throws SQLException {
-		Assert.assertEquals(version, databaseService.status(connection).getVersion().toString());
+		MigrationInfo status = databaseService.status(connection);
+		Assert.assertEquals(version, status.getVersion().toString());
+		Assert.assertEquals(MigrationState.SUCCESS, status.getState());
 	}
 
 	@Test

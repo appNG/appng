@@ -15,14 +15,33 @@
  */
 package org.appng.api.auth;
 
+import org.appng.api.MessageParam;
+import org.appng.api.model.Properties;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * A {@link PasswordPolicy} defines how a valid password looks like, is able to create such a password and to check
  * whether a given character-sequence is a valid password according to the requirements.
  * 
  * @author Matthias Müller
- * 
  */
 public interface PasswordPolicy {
+
+	/**
+	 * Holds the result of validating a password.
+	 * 
+	 * @see   PasswordPolicy#validatePassword(String, char[], char[])
+	 * @since 1.21
+	 */
+	@Getter
+	@AllArgsConstructor
+	class ValidationResult {
+		private final boolean isValid;
+		private final MessageParam[] messages;
+	}
+
 	/** numbers 0-9 */
 	String NUMBER = "0123456789";
 	/** lowercase letters a-z */
@@ -33,19 +52,50 @@ public interface PasswordPolicy {
 	String PUNCT = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
 	/**
+	 * Configures the {@link PasswordPolicy}
+	 * 
+	 * @param platformProperties
+	 *                           the platform's {@link Properties}
+	 * @since                    1.21
+	 */
+	default void configure(Properties platformProperties) {
+
+	}
+
+	/**
 	 * Checks whether the given character-sequence is a valid password.
 	 * 
-	 * @param password
-	 *            the character-sequence sequence to check
-	 * @return {@code true} if the character-sequence is a valid password, {@code false} otherwise
+	 * @param      password
+	 *                      the character-sequence sequence to check
+	 * @return              {@code true} if the character-sequence is a valid password, {@code false} otherwise
+	 * @deprecated          will be removed in 2.x, use {@link #validatePassword(String, char[], char[])} instead
 	 */
+	@Deprecated
 	boolean isValidPassword(char[] password);
+
+	/**
+	 * Validates the password an returns a {@link ValidationResult}
+	 * 
+	 * @param  username
+	 *                         the username (can be {@code null})
+	 * @param  currentPassword
+	 *                         the current password (can be {@code null})
+	 * @param  password
+	 *                         the new password (must not be {@code null})
+	 * @return                 the validation result
+	 * @sine                   1.21
+	 */
+	default ValidationResult validatePassword(String username, char[] currentPassword, char[] password) {
+		return null;
+	}
 
 	/**
 	 * Returns the message-key of an errormessage for the case that the password doesn't match the requirements.
 	 * 
-	 * @return the message key
+	 * @return     the message key
+	 * @deprecated a {@link ValidationResult} should be used, see {@link #validatePassword(String, char[], char[])}
 	 */
+	@Deprecated
 	String getErrorMessageKey();
 
 	/**

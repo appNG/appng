@@ -16,16 +16,21 @@
 package org.appng.appngizer.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -41,10 +46,12 @@ import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
 import org.appng.api.model.ResourceType;
+import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.appngizer.model.xml.Nameable;
+import org.appng.core.controller.handler.MonitoringHandler.SiteInfo;
 import org.appng.core.controller.messaging.SiteStateEvent;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
@@ -60,10 +67,13 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -98,50 +108,138 @@ public abstract class ControllerBase implements DisposableBean {
 
 	protected synchronized void initMessaging() {
 		if (!messagingInitialized) {
-			DefaultEnvironment env = DefaultEnvironment.get(context);
 			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
-			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
+			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appNGizer-messaging").build();
 			executor = Executors.newSingleThreadExecutor(threadFactory);
 
-			EventHandler<Event> defaultHandler = new EventHandler<Event>() {
-				public void onEvent(Event event, Environment environment, org.appng.api.model.Site site)
-						throws InvalidConfigurationException, BusinessException {
-					logger().info("received: {}", event);
-				}
+			Properties platformCfg = coreService.getPlatformProperties();
+			String monitoringPath = platformCfg.getString(Platform.Property.MONITORING_PATH);
 
-				public Class<Event> getEventClass() {
-					return Event.class;
+			Callable<Void> waitForAppNG = () -> {
+				List<SiteImpl> sites = coreService.getSites();
+				Optional<SiteImpl> activeSite = sites.stream().filter(SiteImpl::isActive).findFirst();
+
+				if (activeSite.isPresent()) {
+					RestTemplate restTemplate = new RestTemplate();
+					DefaultEnvironment env = DefaultEnvironment.get(context);
+
+					HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+					while (!HttpStatus.OK.equals(statusCode)) {
+						ResponseEntity<SiteInfo> healthResponse = checkSiteHealth(platformCfg, env, monitoringPath,
+								activeSite.get(), restTemplate);
+						if (null != healthResponse) {
+							statusCode = healthResponse.getStatusCode();
+						}
+						TimeUnit.SECONDS.sleep(5);
+					}
+
+					doInit(env);
 				}
+				return null;
 			};
 
-			EventHandler<SiteStateEvent> siteStateHandler = new EventHandler<SiteStateEvent>() {
-				public void onEvent(SiteStateEvent event, Environment environment, org.appng.api.model.Site site)
-						throws InvalidConfigurationException, BusinessException {
-					SiteState state = event.getState();
-					Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-					updateSiteMap(env, new CacheProvider(platformConfig), event.getSiteName(),
-							SiteState.STARTED.equals(state));
-				}
-
-				public Class<SiteStateEvent> getEventClass() {
-					return SiteStateEvent.class;
-				}
-			};
-
-			String nodeId = Messaging.getNodeId(env) + "_appNGizer";
-			Messaging.createMessageSender(env, executor, nodeId, defaultHandler, Arrays.asList(siteStateHandler));
-			messagingInitialized = true;
+			executor.submit(waitForAppNG);
 		}
 	}
 
-	protected void updateSiteMap(Environment env, CacheProvider cacheProvider, String siteName, boolean doAdd) {
+	private ResponseEntity<SiteInfo> checkSiteHealth(Properties platformCfg, Environment env, String monitoringPath,
+			Site site, RestTemplate restTemplate) {
+		String healthMonitor = site.getDomain() + monitoringPath;
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			String password = platformCfg.getString("monitoringPassword",
+					platformCfg.getString(Platform.Property.SHARED_SECRET));
+			String encodedAuth = Base64.getEncoder()
+					.encodeToString((String.format("monitoring:%s", password)).getBytes());
+			headers.add(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
+			RequestEntity<Void> healthRequest = new RequestEntity<Void>(null, headers, HttpMethod.GET,
+					new URI(healthMonitor));
+			ResponseEntity<SiteInfo> healthResponse = restTemplate.exchange(healthRequest, SiteInfo.class);
+			SiteInfo siteInfo = healthResponse.getBody();
+			logger().info("Health status from {} for site {} returned {}", healthRequest.getUrl(), siteInfo.getName(),
+					siteInfo.getState());
+			return healthResponse;
+		} catch (Exception e) {
+			logger().warn("Failed retrieving health status from {}: {} ({})", healthMonitor,
+					e.getClass().getSimpleName(), e.getMessage());
+		}
+		return null;
+	}
+
+	private void doInit(DefaultEnvironment env) {
+		EventHandler<Event> defaultHandler = new EventHandler<Event>() {
+			public void onEvent(Event event, Environment environment, org.appng.api.model.Site site)
+					throws InvalidConfigurationException, BusinessException {
+				logger().info("received: {}", event);
+			}
+
+			public Class<Event> getEventClass() {
+				return Event.class;
+			}
+		};
+
+		EventHandler<SiteStateEvent> siteStateHandler = new EventHandler<SiteStateEvent>() {
+			public void onEvent(SiteStateEvent event, Environment environment, org.appng.api.model.Site site)
+					throws InvalidConfigurationException, BusinessException {
+				SiteState state = event.getState();
+				Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+				updateSiteMap(env, new CacheProvider(platformConfig), event.getSiteName(), state);
+			}
+
+			public Class<SiteStateEvent> getEventClass() {
+				return SiteStateEvent.class;
+			}
+		};
+
+		String nodeId = Messaging.getNodeId(env) + "_appNGizer";
+		Messaging.createMessageSender(env, executor, nodeId, defaultHandler, Arrays.asList(siteStateHandler));
+		messagingInitialized = true;
+	}
+
+	protected void updateSiteMap(Environment env, CacheProvider cacheProvider, String siteName, SiteState state) {
 		Map<String, org.appng.api.model.Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		if (doAdd) {
-			SiteImpl site = getCoreService().getSiteByName(siteName);
-			List<URL> jarUrls = new ArrayList<URL>();
-			site.getSiteApplications().stream().filter(SiteApplication::isActive).forEach(a -> {
-				File platformCache = cacheProvider.getPlatformCache(site, a.getApplication());
-				File jarFolder = new File(platformCache, ResourceType.JAR.getFolder());
+		SiteImpl site = (SiteImpl) siteMap.get(siteName);
+		if (SiteState.DELETED.equals(state)) {
+			siteMap.remove(siteName);
+			closeClassLoader(site);
+			site = null;
+		} else if (null == site) {
+			site = getCoreService().getSiteByName(siteName);
+		}
+
+		if (null != site) {
+			if (null == site.getSiteClassLoader() || SiteState.STARTING.equals(state)) {
+				closeClassLoader(site);
+				site.setSiteClassLoader(buildSiteClassLoader(cacheProvider, site));
+			}
+
+			site.setState(state);
+			siteMap.put(site.getName(), site);
+			logger().info("Site {} is {}", site.getName(), site.getState());
+		}
+
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
+	}
+
+	private void closeClassLoader(SiteImpl site) {
+		if (null != site) {
+			try {
+				SiteClassLoader siteClassLoader = site.getSiteClassLoader();
+				if (null != siteClassLoader) {
+					siteClassLoader.close();
+				}
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
+	private SiteClassLoader buildSiteClassLoader(CacheProvider cacheProvider, SiteImpl site) {
+		List<URL> jarUrls = new ArrayList<URL>();
+		site.getSiteApplications().stream().filter(SiteApplication::isActive).forEach(a -> {
+			File platformCache = cacheProvider.getPlatformCache(site, a.getApplication());
+			File jarFolder = new File(platformCache, ResourceType.JAR.getFolder());
+			if (jarFolder.exists()) {
 				for (String file : jarFolder.list((d, n) -> n.endsWith(".jar"))) {
 					try {
 						jarUrls.add(new File(jarFolder, file).toPath().toUri().toURL());
@@ -149,18 +247,9 @@ public abstract class ControllerBase implements DisposableBean {
 						logger().error("error adding jar", e);
 					}
 				}
-			});
-
-			SiteClassLoader siteClassLoader = new SiteClassLoader(jarUrls.toArray(new URL[0]),
-					getClass().getClassLoader(), site.getName());
-			site.setSiteClassLoader(siteClassLoader);
-			site.setState(SiteState.STARTED);
-			siteMap.put(site.getName(), site);
-			logger().info("Site {} is {}", site.getName(), site.getState());
-		} else {
-			siteMap.remove(siteName);
-		}
-		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
+			}
+		});
+		return new SiteClassLoader(jarUrls.toArray(new URL[0]), getClass().getClassLoader(), site.getName());
 	}
 
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)

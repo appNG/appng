@@ -97,6 +97,11 @@
 		<defaultValue>/usr/bin</defaultValue>
 		<description>The path to the ImageMagick executable</description>
 	</property>
+	<property name="inactiveLockPeriod" self="http://localhost/platform/property/inactiveLockPeriod">
+		<value>0</value>
+		<defaultValue>0</defaultValue>
+		<description>The number of days after a subject get's locked if the user did not log in.</description>
+	</property>
 	<property name="jspFileType" self="http://localhost/platform/property/jspFileType">
 		<value>jsp</value>
 		<defaultValue>jsp</defaultValue>
@@ -133,6 +138,11 @@
 		<description>If set to 'true', appNG will manage the databases (create schemas and users) required by the
 			applications.</description>
 	</property>
+	<property name="maxLoginAttempts" self="http://localhost/platform/property/maxLoginAttempts">
+		<value>20</value>
+		<defaultValue>20</defaultValue>
+		<description>The maximum number of failed login attempts before a subject gets locked.</description>
+	</property>
 	<property name="maxUploadSize" self="http://localhost/platform/property/maxUploadSize">
 		<value>31457280</value>
 		<defaultValue>31457280</defaultValue>
@@ -159,9 +169,9 @@
 		<description>The port used for multicast messaging</description>
 	</property>
 	<property name="messagingReceiver" self="http://localhost/platform/property/messagingReceiver">
-		<value>org.appng.core.controller.messaging.MulticastReceiver</value>
-		<defaultValue>org.appng.core.controller.messaging.MulticastReceiver</defaultValue>
-		<description>Define messaging implementation by referring class name. Default method is multicast </description>
+		<value>org.appng.core.controller.messaging.HazelcastReceiver</value>
+		<defaultValue>org.appng.core.controller.messaging.HazelcastReceiver</defaultValue>
+		<description>Define messaging implementation by referring class name.</description>
 	</property>
 	<property name="monitorPerformance" self="http://localhost/platform/property/monitorPerformance">
 		<value>false</value>

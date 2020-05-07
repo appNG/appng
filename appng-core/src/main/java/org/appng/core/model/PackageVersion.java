@@ -110,7 +110,7 @@ public class PackageVersion implements Identifier, Comparable<PackageVersion> {
 	}
 
 	public int compareTo(PackageVersion o) {
-		return packageInfo.getTimestamp().compareTo(o.getTimestamp());
+		return RepositoryUtils.getVersionComparator().compare(o.packageInfo, packageInfo);
 	}
 
 	public boolean isSnapshot() {

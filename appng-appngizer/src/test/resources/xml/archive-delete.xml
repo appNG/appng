@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<packages xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/repository/local/demo-application">
-	<package name="demo-application">
+<packages xmlns="http://www.appng.org/schema/appngizer"	self="http://localhost/repository/local/demo-application">
+	<package name="demo-application"
+		self="http://localhost/repository/local/demo-application/1.5.4/2017-04-10-1046">
 		<displayName>Demo Application</displayName>
 		<version>1.5.4</version>
 		<timestamp>2017-04-10-1046</timestamp>
 		<installed>false</installed>
 		<type>APPLICATION</type>
 	</package>
-	<package name="demo-application">
+	<package name="demo-application"
+		self="http://localhost/repository/local/demo-application/1.5.2/2012-11-27-1305">
 		<displayName>Demo Application</displayName>
 		<version>1.5.2</version>
 		<timestamp>2012-11-27-1305</timestamp>
 		<installed>false</installed>
 		<type>APPLICATION</type>
 	</package>
-	<package name="demo-application">
+	<package name="demo-application"
+		self="http://localhost/repository/local/demo-application/1.5.1/2012-08-03-1408">
 		<displayName>Demo Application</displayName>
 		<version>1.5.1</version>
 		<timestamp>2012-08-03-1408</timestamp>

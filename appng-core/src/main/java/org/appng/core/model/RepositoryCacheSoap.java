@@ -52,7 +52,6 @@ import lombok.extern.slf4j.Slf4j;
  * Implementation of {@link RepositoryCache} that retrieves the packages from a remote repository.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class RepositoryCacheSoap extends RepositoryCacheBase {
@@ -87,23 +86,21 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 	}
 
 	void update() throws BusinessException {
-		List<org.appng.core.xml.repository.Package> publishedPackages = getPublishedApplications();
-		for (org.appng.core.xml.repository.Package pkg : publishedPackages) {
-			String packageName = pkg.getName();
+		getPackages().stream().forEach(pkg -> {
 			LOGGER.debug("Retrieving archive from remote repository '{}': {}", repository.getRemoteRepositoryName(),
-					packageName);
-			applicationWrapperMap.put(packageName, new PackageWrapper(pkg));
-		}
+					pkg.getName());
+			applicationWrapperMap.put(pkg.getName(), new PackageWrapper(pkg));
+		});
 	}
 
-	void update(String packageName) throws BusinessException {
-		List<PackageInfo> packages = getPublishedApplicationVersions(packageName);
-		for (PackageInfo packageInfo : packages) {
-			applicationWrapperMap.get(packageName).put(packageInfo);
-		}
+	@Override
+	public List<PackageInfo> getVersions(String packageName) throws BusinessException {
+		getPackageVersions(packageName).stream()
+				.forEach(packageInfo -> applicationWrapperMap.get(packageName).addPackage(packageInfo));
+		return super.getVersions(packageName);
 	}
 
-	private List<org.appng.core.xml.repository.Package> getPublishedApplications() throws BusinessException {
+	private List<org.appng.core.xml.repository.Package> getPackages() throws BusinessException {
 		GetPackagesRequest request = new GetPackagesRequest();
 		request.setRepositoryName(repository.getRemoteRepositoryName());
 		request.setDigest(repository.getDigest());
@@ -132,7 +129,7 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 		return publishedPackages.getPackage();
 	}
 
-	private List<PackageInfo> getPublishedApplicationVersions(String packageName) throws BusinessException {
+	private List<PackageInfo> getPackageVersions(String packageName) throws BusinessException {
 		GetPackageVersionsRequest request = new GetPackageVersionsRequest();
 		request.setRepositoryName(repository.getRemoteRepositoryName());
 		request.setDigest(repository.getDigest());
@@ -162,7 +159,7 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 		return response.getCertification();
 	}
 
-	public PackageArchive getApplicationArchive(String packageName, String packageVersion, String packageTimestamp)
+	public PackageArchive getPackageArchive(String packageName, String packageVersion, String packageTimestamp)
 			throws BusinessException {
 		GetPackageRequest request = new GetPackageRequest();
 		request.setRepositoryName(repository.getRemoteRepositoryName());
@@ -230,9 +227,13 @@ public class RepositoryCacheSoap extends RepositoryCacheBase {
 		return config;
 	}
 
-	public void deleteApplicationVersion(String packageName, String packageVersion, String packageTimestamp)
+	public void deletePackageVersion(String packageName, String packageVersion, String packageTimestamp)
 			throws BusinessException {
-		throw new BusinessException("Deleting application versions is not supported for remote repositories!");
+		throw new BusinessException("Deleting packages is not supported for remote repositories!");
+	}
+
+	public boolean add(PackageArchive packagearchive) throws BusinessException {
+		throw new BusinessException("Adding packages is not supported for remote repositories!");
 	}
 
 }

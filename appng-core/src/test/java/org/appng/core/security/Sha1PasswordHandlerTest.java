@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings("deprecation")
 public class Sha1PasswordHandlerTest extends PasswordHandlerTest {
 
 	private static final String SHA1_DIGEST = "J3IAPwfD2uOg98+rooFUN1ItUcE=";
@@ -28,7 +29,7 @@ public class Sha1PasswordHandlerTest extends PasswordHandlerTest {
 	@Test
 	public void testSavePassword() {
 		PasswordHandler handler = new Sha1PasswordHandler(subject);
-		handler.savePassword(PASSWORD);
+		handler.applyPassword(PASSWORD);
 		Assert.assertNotNull(subject.getDigest());
 		Assert.assertTrue(!subject.getDigest().startsWith(BCryptPasswordHandler.getPrefix()));
 		Assert.assertNotNull(subject.getSalt());
@@ -55,7 +56,7 @@ public class Sha1PasswordHandlerTest extends PasswordHandlerTest {
 		subject.setSalt(SHA1_SALT);
 		subject.setEmail(EMAIL);
 		PasswordHandler handler = new Sha1PasswordHandler(subject);
-		String digest = handler.getPasswordResetDigest();
+		String digest = handler.calculatePasswordResetDigest();
 		Assert.assertEquals(SHA1_SALT, subject.getSalt());
 		Assert.assertEquals(SHA1_PW_RESET_DIGEST, digest);
 	}

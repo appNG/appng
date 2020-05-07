@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +41,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.appng.api.ApplicationController;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -54,6 +56,7 @@ import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
 import org.appng.api.model.AuthSubject;
+import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.Group;
 import org.appng.api.model.Permission;
 import org.appng.api.model.Properties;
@@ -186,6 +189,12 @@ public class CoreService {
 	protected PlatformEventListener auditableListener;
 
 	public Subject createSubject(SubjectImpl subject) {
+		boolean changePasswordAllowed = UserType.LOCAL_USER.equals(subject.getUserType());
+		subject.setPasswordChangePolicy(
+				changePasswordAllowed ? PasswordChangePolicy.MAY : PasswordChangePolicy.MUST_NOT);
+		if (changePasswordAllowed) {
+			subject.setPasswordLastChanged(new Date());
+		}
 		return subjectRepository.save(subject);
 	}
 
@@ -381,7 +390,7 @@ public class CoreService {
 				applicationRepository.detach((ApplicationImpl) application);
 			}
 			siteRepository.detach((SiteImpl) site);
-			initSiteProperties((SiteImpl) site, null, true);
+			initSiteProperties((SiteImpl) site, true);
 		}
 	}
 
@@ -389,47 +398,36 @@ public class CoreService {
 		return propertyRepository.save(property);
 	}
 
-	private Subject loginSubject(Site site, String username, String password) {
+	private SubjectImpl loginSubject(Site site, SubjectImpl subject, String username, String password, Environment env) {
 		char[] pwdArr = password.toCharArray();
-		LOGGER.debug("user '{}' tries to login", username);
-		Subject loginSubject = null;
-		Subject subject = getSubjectByName(username, true);
+		SubjectImpl loginSubject = null;
 		if (subject != null) {
-			UserType userType = subject.getUserType();
-			switch (userType) {
+			boolean precondition = false;
+			switch (subject.getUserType()) {
 			case LOCAL_USER:
-				if (isValidPassword(subject, password)) {
-					loginSubject = subject;
-				} else {
-					LOGGER.warn("User '{}' submitted wrong password.", subject.getName());
-				}
+				precondition = isValidPassword(subject, password);
 				break;
-
 			case GLOBAL_USER:
-				boolean success = ldapService.loginUser(site, username, pwdArr);
-				if (success) {
-					loginSubject = subject;
-				}
+				precondition = ldapService.loginUser(site, username, pwdArr);
 				break;
 			default:
 				break;
-
 			}
+
+			if (verifySubject(precondition, subject, env, "User '{}' submitted wrong password.")) {
+				loginSubject = subject;
+			}
+
 		} else {
 			List<SubjectImpl> globalGroups = getSubjectsByType(UserType.GLOBAL_GROUP);
 			if (!globalGroups.isEmpty()) {
-				List<String> groupNames = new ArrayList<>();
-				for (SubjectImpl subjectImpl : globalGroups) {
-					groupNames.add(subjectImpl.getName());
-				}
+				List<String> groupNames = globalGroups.stream().map(SubjectImpl::getName).collect(Collectors.toList());
 				SubjectImpl groupSubject = new SubjectImpl();
+				groupSubject.setUserType(UserType.GLOBAL_GROUP);
+				groupSubject.setPasswordChangePolicy(PasswordChangePolicy.MUST_NOT);
 				List<String> subjectNames = ldapService.loginGroup(site, username, pwdArr, groupSubject, groupNames);
 				if (!subjectNames.isEmpty()) {
-					for (String subjectName : subjectNames) {
-						Subject s = getSubjectByName(subjectName, true);
-						List<Group> groups = s.getGroups();
-						groupSubject.getGroups().addAll(groups);
-					}
+					subjectNames.forEach(n -> groupSubject.getGroups().addAll(getSubjectByName(n, true).getGroups()));
 					loginSubject = groupSubject;
 				}
 			} else {
@@ -470,11 +468,13 @@ public class CoreService {
 	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
 	 * This method may be removed in the future.
 	 * 
-	 * @param  authSubject
-	 *                     The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
-	 *                     determine which implementation of the {@link PasswordHandler} interface will be returned.
-	 * @return             the {@link PasswordHandler} for the {@link AuthSubject}
+	 * @param      authSubject
+	 *                         The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
+	 *                         determine which implementation of the {@link PasswordHandler} interface will be returned.
+	 * @return                 the {@link PasswordHandler} for the {@link AuthSubject}
+	 * @deprecated             will be removed in 2.x
 	 */
+	@Deprecated
 	public PasswordHandler getPasswordHandler(AuthSubject authSubject) {
 		if (!authSubject.getDigest().startsWith(BCryptPasswordHandler.getPrefix())) {
 			return new Sha1PasswordHandler(authSubject);
@@ -495,7 +495,7 @@ public class CoreService {
 	}
 
 	public Subject restoreSubject(String name) {
-		Subject subject = getSubjectByName(name, true);
+		SubjectImpl subject = getSubjectByName(name, true);
 		if (null != subject) {
 			initAuthenticatedSubject(subject);
 			LOGGER.trace("successfully restored subject '{}'", subject.getName());
@@ -512,19 +512,18 @@ public class CoreService {
 	}
 
 	public boolean login(Environment env, Principal principal) {
-		Subject loginSubject = null;
-		Subject subject = getSubjectByName(principal.getName(), true);
+		SubjectImpl loginSubject = null;
+		SubjectImpl subject = getSubjectByName(principal.getName(), false);
 		if (null != subject) {
-			if (UserType.GLOBAL_USER.equals(subject.getUserType())) {
-				loginSubject = subject;
+			if (verifySubject(UserType.GLOBAL_USER.equals(subject.getUserType()), subject, env,
+					"{} must be a global user!")) {
 				LOGGER.info("user {} found", principal.getName());
-			} else {
-				LOGGER.error("subject must be of type {}", UserType.GLOBAL_USER);
+				loginSubject = subject;
 			}
 		} else {
 			LOGGER.info("Subject authentication failed. Trying to authenticate based on LDAP group membership.");
 			loginSubject = new SubjectImpl();
-			((SubjectImpl) loginSubject).setName(principal.getName());
+			loginSubject.setName(principal.getName());
 
 			boolean hasAnyRole = false;
 			List<SubjectImpl> globalGroups = getSubjectsByType(UserType.GLOBAL_GROUP);
@@ -533,13 +532,12 @@ public class CoreService {
 				if (request.isUserInRole(globalGroup.getName())) {
 					LOGGER.info("user '{}' belongs to group '{}'", principal.getName(), globalGroup.getName());
 					hasAnyRole = true;
-					List<Group> groups = globalGroup.getGroups();
-					for (Group group : groups) {
+					for (Group group : globalGroup.getGroups()) {
 						initGroup(group);
 						if (!loginSubject.getGroups().contains(group)) {
 							loginSubject.getGroups().add(group);
-							((SubjectImpl) loginSubject).setLanguage(globalGroup.getLanguage());
-							((SubjectImpl) loginSubject).setRealname(globalGroup.getName());
+							loginSubject.setLanguage(globalGroup.getLanguage());
+							loginSubject.setRealname(globalGroup.getName());
 						}
 					}
 				}
@@ -559,15 +557,12 @@ public class CoreService {
 		DigestValidator validator = new DigestValidator(digest, digestMaxValidity);
 		String username = validator.getUsername();
 		if (StringUtils.isNotBlank(username)) {
-			Subject s = getSubjectByName(username, true);
-			if (null != s) {
-				if (validator.validate(sharedSecret)) {
-					sharedSecret = "";
-					login(env, s);
-					LOGGER.debug("digest validation succeeded for {}", username);
-					return true;
-				} else {
-					LOGGER.debug("digest validation failed for {}", username);
+			SubjectImpl subject = getSubjectByName(username, false);
+			if (null != subject) {
+				boolean success = validator.validate(sharedSecret);
+				sharedSecret = "";
+				if (verifySubject(success, subject, env, "Digest validation failed for {}")) {
+					return login(env, subject);
 				}
 			} else {
 				LOGGER.debug("user for digest login not found: {}", username);
@@ -575,12 +570,70 @@ public class CoreService {
 		} else {
 			LOGGER.debug("empty user name for digest validation!");
 		}
+
+		return false;
+	}
+
+	private boolean verifySubject(boolean precondition, SubjectImpl subject, Environment env, String message) {
+		Properties platformCfg = getPlatformConfig(env);
+		String username = subject.getAuthName();
+		Date now = new Date();
+		if (precondition) {
+			Integer inactiveLockPeriod = platformCfg.getInteger(Platform.Property.INACTIVE_LOCK_PERIOD);
+			boolean isLocalUser = UserType.LOCAL_USER.equals(subject.getUserType());
+			if (subject.isLocked()) {
+				createEvent(Type.INFO, "Rejected login for locked user %s.", username);
+			} else if (subject.isExpired(now)) {
+				subject.setLocked(true);
+				createEvent(Type.INFO, "User %s has been locked because the expiry date has exceeded (%s).", username,
+						subject.getExpiryDate());
+			} else if (subject.isInactive(now, inactiveLockPeriod)) {
+				subject.setLocked(true);
+				createEvent(Type.WARN, "User %s has been locked due to inactivity (last login was at %s).", username,
+						subject.getLastLogin());
+			} else if (isLocalUser && PasswordChangePolicy.MUST_RECOVER.equals(subject.getPasswordChangePolicy())) {
+				createEvent(Type.INFO, "Rejected login for user %s, password recovery is required.", username);
+				env.setAttribute(Scope.REQUEST, "subject.mustRecoverPassword", true);
+			} else {
+				Boolean forceChangePassword = platformCfg.getBoolean(Platform.Property.FORCE_CHANGE_PASSWORD, false);
+				Integer maxPasswordValidity = platformCfg.getInteger(Platform.Property.PASSWORD_MAX_VALIDITY, -1);
+				boolean mayChangePassword = PasswordChangePolicy.MAY.equals(subject.getPasswordChangePolicy());
+				if (isLocalUser && mayChangePassword && forceChangePassword && maxPasswordValidity > 0
+						&& null != subject.getPasswordLastChanged()) {
+					Date pwExpiredAt = DateUtils.addDays(subject.getPasswordLastChanged(), maxPasswordValidity);
+					if (pwExpiredAt.before(now)) {
+						subject.setPasswordChangePolicy(PasswordChangePolicy.MUST);
+						createEvent(Type.INFO,
+								"User %s must change password (has not been changed since more than %s days).",
+								username, maxPasswordValidity);
+					}
+				}
+				subject.setAuthenticated(true);
+				subject.setLastLogin(now);
+				subject.setFailedLoginAttempts(0);
+				return true;
+			}
+		} else {
+			subject.setAuthenticated(false);
+			subject.setFailedLoginAttempts(subject.getFailedLoginAttempts() + 1);
+			Integer maxAttempts = platformCfg.getInteger(Platform.Property.MAX_LOGIN_ATTEMPTS);
+			if (maxAttempts <= subject.getFailedLoginAttempts()) {
+				subject.setLocked(true);
+				createEvent(Type.WARN, "User %s has been locked after %s failed login attempts.", username,
+						subject.getFailedLoginAttempts());
+			} else {
+				createEvent(Type.INFO, "User %s has %s failed login attempts.", username,
+						subject.getFailedLoginAttempts());
+			}
+			LOGGER.debug(message, username);
+		}
+		env.setAttribute(Scope.REQUEST, "subject.locked", subject.isLocked());
 		return false;
 	}
 
 	public boolean login(Site site, Environment env, String username, String password) {
-		Subject s = loginSubject(site, username, password);
-		return login(env, s);
+		SubjectImpl subject = loginSubject(site, getSubjectByName(username, false), username, password, env);
+		return login(env, subject);
 	}
 
 	public boolean loginGroup(Environment env, AuthSubject authSubject, String password, Integer groupId) {
@@ -602,11 +655,14 @@ public class CoreService {
 		return false;
 	}
 
-	private boolean login(Environment env, Subject subject) {
+	private boolean login(Environment env, SubjectImpl subject) {
 		if (subject != null) {
+			((DefaultEnvironment) env).setSubject(subject);
+			if(null != subject.getId()) {
+				subjectRepository.saveAndFlush(subject);
+			}
 			initAuthenticatedSubject(subject);
 			LOGGER.info("successfully logged in user '{}'", subject.getName());
-			((DefaultEnvironment) env).setSubject(subject);
 			auditableListener.createEvent(Type.INFO, "logged in");
 			return true;
 		}
@@ -639,7 +695,7 @@ public class CoreService {
 			}
 		}
 
-		initSiteProperties(site, env, true);
+		initSiteProperties(site, true);
 		siteRepository.save(site);
 	}
 
@@ -647,21 +703,18 @@ public class CoreService {
 		createSite(site, null);
 	}
 
-	private void initAuthenticatedSubject(Subject subject) {
+	private void initAuthenticatedSubject(SubjectImpl subject) {
+		initializeSubject(subject);
 		((SubjectImpl) subject).setAuthenticated(true);
 		((SubjectImpl) subject).setSalt(null);
 		((SubjectImpl) subject).setDigest(null);
 	}
 
 	protected void initSiteProperties(SiteImpl site) {
-		initSiteProperties(site, null);
+		initSiteProperties(site, false);
 	}
 
-	protected void initSiteProperties(SiteImpl site, Environment environment) {
-		initSiteProperties(site, environment, false);
-	}
-
-	protected void initSiteProperties(SiteImpl site, Environment environment, boolean doSave) {
+	protected void initSiteProperties(SiteImpl site, boolean doSave) {
 		PropertyHolder siteProperties = getSiteProperties(site);
 		List<String> platformProps = PropertySupport.getSiteRelevantPlatformProps();
 		SearchQuery<PropertyImpl> query = propertyRepository.createSearchQuery().in("name", platformProps);
@@ -864,14 +917,14 @@ public class CoreService {
 	public RepositoryImpl createRepository(RepositoryImpl repository) {
 		return repoRepository.save(repository);
 	}
-
+	
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
 			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased,
-			FieldProcessor fp) throws BusinessException {
+			FieldProcessor fp, boolean updateHiddenAndPrivileged) throws BusinessException {
 		PackageArchive applicationArchive = getArchive(repositoryId, name, version, timestamp);
 		switch (applicationArchive.getType()) {
 		case APPLICATION:
-			provideApplication(applicationArchive, isFileBased, isPrivileged, isHidden, fp);
+			provideApplication(applicationArchive, isFileBased, isPrivileged, isHidden, fp, updateHiddenAndPrivileged);
 			break;
 		case TEMPLATE:
 			provideTemplate(applicationArchive);
@@ -882,8 +935,7 @@ public class CoreService {
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
 			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased)
 			throws BusinessException {
-
-		return installPackage(repositoryId, name, version, timestamp, isPrivileged, isHidden, isFileBased, null);
+		return installPackage(repositoryId, name, version, timestamp, isPrivileged, isHidden, isFileBased, null, false);
 	}
 
 	private PackageArchive getArchive(final Integer repositoryId, final String applicationName,
@@ -936,9 +988,9 @@ public class CoreService {
 		}
 		return -2;
 	}
-
+	
 	private ApplicationImpl provideApplication(PackageArchive applicationArchive, boolean isFileBased,
-			boolean isPrivileged, boolean isHidden, FieldProcessor fp) throws BusinessException {
+			boolean isPrivileged, boolean isHidden, FieldProcessor fp, boolean updateHiddenAndPrivileged) throws BusinessException {
 		ApplicationInfo applicationInfo = (ApplicationInfo) applicationArchive.getPackageInfo();
 		String applicationName = applicationInfo.getName();
 		String applicationVersion = applicationInfo.getVersion();
@@ -953,7 +1005,10 @@ public class CoreService {
 			createApplication(application, applicationInfo, fp);
 		} else {
 			LOGGER.info("updating application {}-{}", applicationName, applicationVersion);
-			// Update application information
+			if (updateHiddenAndPrivileged) {
+				application.setPrivileged(isPrivileged);
+				application.setHidden(isHidden);
+			}
 			RepositoryImpl.getApplication(application, applicationInfo);
 		}
 		updateApplication(application, applicationArchive, outputDir);
@@ -1206,28 +1261,45 @@ public class CoreService {
 	}
 
 	public byte[] resetPassword(AuthSubject authSubject, PasswordPolicy passwordPolicy, String email, String hash) {
-		PasswordHandler passwordHandler = getPasswordHandler(authSubject);
-		if (passwordHandler.isValidPasswordResetDigest(hash)) {
-			LOGGER.debug("setting new password for {}", email);
-			String password = passwordPolicy.generatePassword();
-			PasswordHandler defaultPasswordHandler = getDefaultPasswordHandler(authSubject);
-			defaultPasswordHandler.savePassword(password);
-			return password.getBytes();
+		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
+		if (canSubjectResetPassword(subject)) {
+			PasswordHandler passwordHandler = getPasswordHandler(authSubject);
+			if (passwordHandler.isValidPasswordResetDigest(hash)) {
+				LOGGER.debug("setting new password for {}", email);
+				String password = passwordPolicy.generatePassword();
+				getDefaultPasswordHandler(authSubject).applyPassword(password);
+				subject.setDigest(authSubject.getDigest());
+				subject.setSalt(null);
+				subject.setPasswordLastChanged(new Date());
+				subject.setPasswordChangePolicy(PasswordChangePolicy.MAY);
+				return password.getBytes();
+			} else {
+				LOGGER.debug("hash did not match, not setting new password for '{}'", authSubject.getAuthName());
+			}
 		} else {
-			LOGGER.debug("hash did not match, not setting new password for '{}'", email);
+			LOGGER.debug("{} does not exist, is locked or must not change password!", authSubject.getAuthName());
 		}
 		return null;
 	}
 
-	public String forgotPassword(AuthSubject subject) throws BusinessException {
-		PasswordHandler passwordHandler = getPasswordHandler(subject);
-		String digest = passwordHandler.getPasswordResetDigest();
-		passwordHandler.updateSubject(this);
-		return digest;
+	
+	public String forgotPassword(AuthSubject authSubject) throws BusinessException {
+		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
+		if (canSubjectResetPassword(subject)) {
+			return getPasswordHandler(subject).calculatePasswordResetDigest();
+		} else {
+			throw new BusinessException(String.format("%s does not exist, is locked or must not change password!",
+					authSubject.getAuthName()));
+		}
 	}
 
-	public void updateSubject(SubjectImpl subject) {
-		subjectRepository.save(subject);
+	private boolean canSubjectResetPassword(SubjectImpl subject) {
+		return !(null == subject || PasswordChangePolicy.MUST_NOT.equals(subject.getPasswordChangePolicy())
+				|| subject.isExpired(new Date()));
+	}
+
+	public SubjectImpl updateSubject(SubjectImpl subject) {
+		return subjectRepository.save(subject);
 	}
 
 	public AccessibleApplication findApplicationByName(String name) {
@@ -1666,21 +1738,21 @@ public class CoreService {
 		}
 	}
 
+	public PasswordPolicy.ValidationResult updatePassword(PasswordPolicy policy, char[] currentPassword,
+			char[] password, SubjectImpl currentSubject) {
+		PasswordPolicy.ValidationResult validationResult = policy.validatePassword(currentSubject.getAuthName(),
+				currentPassword, password);
+		if (validationResult.isValid()) {
+			PasswordHandler passwordHandler = getDefaultPasswordHandler(currentSubject);
+			passwordHandler.applyPassword(new String(password));
+		}
+		return validationResult;
+	}
+
+	@Deprecated
 	public Boolean updatePassword(char[] password, char[] passwordConfirmation, SubjectImpl currentSubject)
 			throws BusinessException {
-		boolean passwordUpdated = false;
-		String passwordString = new String(password);
-		String passwordConfirmationString = new String(passwordConfirmation);
-		if (StringUtils.isNotEmpty(passwordString) && StringUtils.isNotEmpty(passwordConfirmationString)) {
-			if (passwordString.equals(passwordConfirmationString)) {
-				PasswordHandler passwordHandler = getDefaultPasswordHandler(currentSubject);
-				passwordHandler.savePassword(passwordString);
-				passwordUpdated = true;
-			} else {
-				throw new BusinessException("Passwords are not equal.");
-			}
-		}
-		return passwordUpdated;
+		throw new UnsupportedOperationException();
 	}
 
 	public void resetConnection(FieldProcessor fp, Integer conId) {
@@ -1731,7 +1803,6 @@ public class CoreService {
 				int waited = 0;
 				int waitTime = platformConfig.getInteger(Platform.Property.WAIT_TIME, 1000);
 				int maxWaitTime = platformConfig.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
-				shutdownSite.setState(SiteState.STOPPING);
 
 				if (platformConfig.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
 					LOGGER.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
@@ -1743,6 +1814,7 @@ public class CoreService {
 							Thread.sleep(waitTime);
 							waited += waitTime;
 						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
 							LOGGER.error("error while waiting for site to finish its requests", e);
 						}
 						LOGGER.info("waiting for {} requests to finish before shutting down site {}", requests,
@@ -1752,6 +1824,7 @@ public class CoreService {
 
 				LOGGER.info("destroying site {}", shutdownSite);
 				if (SiteState.STARTED.equals(shutdownSite.getState())) {
+					shutdownSite.setState(SiteState.STOPPING);
 					for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
 						shutdownApplication(siteApplication, env);
 					}
@@ -1853,6 +1926,7 @@ public class CoreService {
 		if (null != subject) {
 			List<Group> groups = subject.getGroups();
 			for (Group group : groups) {
+				((GroupImpl) group).setSubjects(new HashSet<>());
 				initGroup(group);
 			}
 			subjectRepository.detach(subject);
@@ -1861,8 +1935,7 @@ public class CoreService {
 
 	private void initGroup(Group group) {
 		for (Role applicationRole : group.getRoles()) {
-			Set<Permission> permissions = applicationRole.getPermissions();
-			permissions.iterator().hasNext();
+			applicationRole.getPermissions().size();
 			groupRepository.detach((GroupImpl) group);
 		}
 	}
@@ -2060,6 +2133,10 @@ public class CoreService {
 
 	public void createEvent(Type type, String message, HttpSession session) {
 		auditableListener.createEvent(type, message, session);
+	}
+
+	public void createEvent(Type type, String message, Object... args) {
+		auditableListener.createEvent(type,	String.format(message, args));
 	}
 
 	public void setSiteReloadCount(SiteImpl site) {

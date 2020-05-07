@@ -28,7 +28,7 @@ public class BCryptPasswordHandlerTest extends PasswordHandlerTest {
 	@Test
 	public void testSavePassword() {
 		PasswordHandler handler = new BCryptPasswordHandler(subject);
-		handler.savePassword(PASSWORD);
+		handler.applyPassword(PASSWORD);
 		Assert.assertNotNull(subject.getDigest());
 		Assert.assertTrue(subject.getDigest().startsWith(BCryptPasswordHandler.getPrefix()));
 		Assert.assertNull(subject.getSalt());
@@ -53,7 +53,7 @@ public class BCryptPasswordHandlerTest extends PasswordHandlerTest {
 		subject.setSalt(null);
 		subject.setEmail(EMAIL);
 		PasswordHandler handler = new BCryptPasswordHandler(subject);
-		String digest = handler.getPasswordResetDigest();
+		String digest = handler.calculatePasswordResetDigest();
 		Assert.assertNotNull(subject.getSalt());
 		assertTrue(!digest.startsWith(BCryptPasswordHandler.getPrefix()));
 	}

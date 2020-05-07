@@ -17,10 +17,8 @@ package org.appng.core.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.naming.AuthenticationException;
@@ -36,6 +34,7 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.core.domain.SubjectImpl;
@@ -64,8 +63,6 @@ import lombok.extern.slf4j.Slf4j;
 public class LdapService {
 
 	private String ldapCtxFactory = "com.sun.jndi.ldap.LdapCtxFactory";
-	private LdapContext ctx = null;
-	private StartTlsResponse tls = null;
 
 	private static final String CN_ATTRIBUTE = "cn";
 	private static final String MEMBER_ATTRIBUTE = "member";
@@ -73,6 +70,8 @@ public class LdapService {
 
 	private static final String SAM_DOMAIN_SEPARATOR = "\\";
 	private static final String LDAP_NETWORK_TIMEOUTS = "8000";
+	private static final Pattern DN_PATTERN = Pattern
+			.compile("^[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?(,[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?)+$");
 
 	/** The domain for the LDAP authentication */
 	public static final String LDAP_DOMAIN = "ldapDomain";
@@ -98,7 +97,7 @@ public class LdapService {
 	 * useful for unit testing. The default value is {@code com.sun.jndi.ldap.LdapCtxFactory}.
 	 *
 	 * @param ldapCtxFactory
-	 *            an alternative context factory class to be used.
+	 *                       an alternative context factory class to be used.
 	 */
 	public void setLdapCtxFactory(String ldapCtxFactory) {
 		this.ldapCtxFactory = ldapCtxFactory;
@@ -127,16 +126,7 @@ public class LdapService {
 			String windowsDomain = siteProperties.getString(LDAP_DOMAIN);
 			String principalScheme = siteProperties.getString(LDAP_PRINCIPAL_SCHEME);
 
-			boolean rawPrincipal = false;
-			if (isServiceUser) {
-				Pattern dnPattern = Pattern
-						.compile("^[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?(,[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?)+$");
-				Matcher dnMatcher = dnPattern.matcher(username);
-				if (dnMatcher.matches())
-					rawPrincipal = true;
-			}
-
-			if (rawPrincipal) {
+			if (isServiceUser && DN_PATTERN.matcher(username).matches()) {
 				this.principal = username;
 			} else {
 				switch (principalScheme.toUpperCase()) {
@@ -189,102 +179,114 @@ public class LdapService {
 	/**
 	 * Tries to login the user with the given username and password.
 	 * 
-	 * @param site
-	 *            the {@link Site} the user wants to login at
-	 * @param username
-	 *            The plain name of the user without base-DN. This name will be mapped to an LDAP principal according to
-	 *            the value of {@value #LDAP_PRINCIPAL_SCHEME}.
-	 *            <ul>
-	 *            <li>"DN": results in <code>{@value #LDAP_ID_ATTRIBUTE}=username,{@value #LDAP_USER_BASE_DN}</code>
-	 *            (this should work with any LDAP server)</li>
-	 *            <li>"UPN": results in <code>username@{@value #LDAP_DOMAIN}</code> (probably most common name format to
-	 *            log on to Active Directory, @see <a https://msdn.microsoft.com/en-us/library/cc223499.aspx">MSDN on
-	 *            LDAP simple authentication</a>)</li>
-	 *            <li>"SAM": results in <code>{@value #LDAP_DOMAIN}&#92;username</code> (name format including
-	 *            sAMAccountName and NetBios name to logon to active Directory)</li>
-	 *            </ul>
-	 * @param password
-	 *            the password of the user
-	 * @return {@code true} if the user could be successfully logged in, {@code false} otherwise
+	 * @param  site
+	 *                  the {@link Site} the user wants to login at
+	 * @param  username
+	 *                  The plain name of the user without base-DN. This name will be mapped to an LDAP principal
+	 *                  according to the value of {@value #LDAP_PRINCIPAL_SCHEME}.
+	 *                  <ul>
+	 *                  <li>"DN": results in
+	 *                  <code>{@value #LDAP_ID_ATTRIBUTE}=username,{@value #LDAP_USER_BASE_DN}</code> (this should work
+	 *                  with any LDAP server)</li>
+	 *                  <li>"UPN": results in <code>username@{@value #LDAP_DOMAIN}</code> (probably most common name
+	 *                  format to log on to Active Directory, @see <a
+	 *                  https://msdn.microsoft.com/en-us/library/cc223499.aspx">MSDN on LDAP simple
+	 *                  authentication</a>)</li>
+	 *                  <li>"SAM": results in <code>{@value #LDAP_DOMAIN}&#92;username</code> (name format including
+	 *                  sAMAccountName and NetBios name to logon to active Directory)</li>
+	 *                  </ul>
+	 * @param  password
+	 *                  the password of the user
+	 * @return          {@code true} if the user could be successfully logged in, {@code null} otherwise
 	 */
-
 	public boolean loginUser(Site site, String username, char[] password) {
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
+		TlsAwareLdapContext ctx = null;
 		try {
-			getContext(ldapCredentials);
+			ctx = new TlsAwareLdapContext(ldapCredentials);
 			return true;
 		} catch (IOException | NamingException ex) {
 			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-			return false;
 		} finally {
-			closeContext();
+			closeContext(ctx);
 		}
+		return false;
 	}
 
 	/**
 	 * Tries to login the user as a member of at least one of the given groups. Therefore two steps are necessary.
 	 * First, the login of the user with the given password must be successful. Second, the user must be a member of at
-	 * least one group.
-	 * 
+	 * least one group.<br/>
 	 * Note that to determine the memberships a service user with credentials taken from {@value #LDAP_USER} and
 	 * {@value #LDAP_PASSWORD}, will be used. This username may be specified as Distinguished Name (DN) e.g. "cn=Service
 	 * User, dc=mycompany, dc=com". If this is the case, it will be used as LDAP principal without mapping. If it is not
 	 * a DN, it will be mapped as described in {@link #loginUser(Site, String, char[])}.
 	 * 
-	 * @param site
-	 *            the {@link Site} the user wants to login at
-	 * @param username
-	 *            the name of the user
-	 * @param password
-	 *            the password of the user
-	 * @param subject
-	 *            a {@link SubjectImpl} where the name and real name are set, in case the user belongs to at least one
-	 *            of the given groups
-	 * @param groupNames
-	 *            a list containing the names of all groups to check group membership for (without base-DN, this is set
-	 *            in the site-property {@value #LDAP_GROUP_BASE_DN})
-	 * @return the names of all groups that the user is a member of (may be empty)
+	 * @param  site
+	 *                    the {@link Site} the user wants to login at
+	 * @param  username
+	 *                    the name of the user
+	 * @param  password
+	 *                    the password of the user
+	 * @param  subject
+	 *                    a {@link SubjectImpl} where the name and real name are set, in case the user belongs to at
+	 *                    least one of the given groups
+	 * @param  groupNames
+	 *                    a list containing the names of all groups to check group membership for (without base-DN, this
+	 *                    is set in the site-property {@value #LDAP_GROUP_BASE_DN})
+	 * @return            the names of all groups that the user is a member of (may be empty)
 	 */
 	public List<String> loginGroup(Site site, String username, char[] password, SubjectImpl subject,
 			List<String> groupNames) {
-		if (loginUser(site, username, password)) {
-			return getUserGroups(username, site, subject, groupNames);
+		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
+		TlsAwareLdapContext ctx = null;
+		try {
+			ctx = new TlsAwareLdapContext(ldapCredentials);
+			return getUserGroups(ctx.delegate, username, site, subject, groupNames);
+		} catch (NamingException | IOException ex) {
+			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
+		} finally {
+			closeContext(ctx);
 		}
 		return new ArrayList<>();
 	}
 
-	private List<String> getUserGroups(String username, Site site, SubjectImpl subject, List<String> groupNames) {
+	private List<String> getUserGroups(LdapContext ctx, String username, Site site, SubjectImpl subject,
+			List<String> groupNames) throws NamingException {
 		List<String> userGroups = new ArrayList<>();
-
-		String serviceUser = site.getProperties().getString(LDAP_USER);
-		char[] servicePassword = site.getProperties().getString(LDAP_PASSWORD).toCharArray();
-		LdapCredentials ldapCredentials = new LdapCredentials(site, serviceUser, servicePassword, true);
-
 		String groupBaseDn = site.getProperties().getString(LDAP_GROUP_BASE_DN);
 		String idAttribute = site.getProperties().getString(LDAP_ID_ATTRIBUTE);
 
-		try {
-			ctx = getContext(ldapCredentials);
-			for (String group : groupNames) {
-				String groupDn = CN_ATTRIBUTE + "=" + group + "," + groupBaseDn;
-				Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
-				for (String member : getMemberNames(memberAttrs)) {
-					Attributes userAttrs = ctx.getAttributes(member);
-					String id = getAttribute(userAttrs, idAttribute);
-					String realName = getAttribute(userAttrs, CN_ATTRIBUTE);
-					if (username.equalsIgnoreCase(id)) {
-						userGroups.add(group);
-						subject.setName(username);
-						subject.setRealname(realName);
-					}
-				}
+		for (String group : groupNames) {
+			if (checkGroupMembership(ctx, username, subject, groupBaseDn, idAttribute, group)) {
+				userGroups.add(group);
 			}
-		} catch (IOException | NamingException ex) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-		} finally {
-			closeContext();
 		}
 		return userGroups;
+	}
+
+	private boolean checkGroupMembership(LdapContext ctx, String username, SubjectImpl subject, String groupBaseDn,
+			String idAttribute, String group) throws NamingException {
+		String groupDn = getGroupDn(group, groupBaseDn);
+		try {
+			for (String member : getGroupMembers(ctx, groupDn)) {
+				Attributes userAttrs = getUserAttributes(ctx, member, idAttribute);
+				String id = getAttribute(userAttrs, idAttribute);
+				if (username.equalsIgnoreCase(id)) {
+					fillSubjectFromAttributes(subject, idAttribute, userAttrs);
+					LOGGER.info("User '{}' ({}) is member of '{}'", username, member, groupDn);
+					return true;
+				}
+			}
+		} catch (NamingException e) {
+			LOGGER.info(String.format("Cannot evaluate group members of group '%s' (%s: %s)", groupDn,
+					e.getClass().getName(), e.getMessage()));
+		}
+		return false;
+	}
+
+	private Attributes getUserAttributes(LdapContext ctx, String member, String idAttribute) throws NamingException {
+		return ctx.getAttributes(member, new String[] { idAttribute, CN_ATTRIBUTE, MAIL_ATTRIBUTE });
 	}
 
 	/**
@@ -292,11 +294,11 @@ public class LdapService {
 	 * Objects in the {@code member} attribute(s) of
 	 * <code>{@value #LDAP_ID_ATTRIBUTE}=groupName,{@value #LDAP_GROUP_BASE_DN}</code>.
 	 * 
-	 * @param site
-	 *            the {@link Site} in which the application using this group is running
-	 * @param groupName
-	 *            the name of the group whose members should be fetched
-	 * @return the members of the groupName (may be empty)
+	 * @param  site
+	 *                   the {@link Site} in which the application using this group is running
+	 * @param  groupName
+	 *                   the name of the group whose members should be fetched
+	 * @return           the members of the groupName (may be empty)
 	 */
 	public List<SubjectImpl> getMembersOfGroup(Site site, String groupName) {
 		List<SubjectImpl> subjects = new ArrayList<>();
@@ -307,50 +309,55 @@ public class LdapService {
 
 		String groupBaseDn = site.getProperties().getString(LDAP_GROUP_BASE_DN);
 		String idAttribute = site.getProperties().getString(LDAP_ID_ATTRIBUTE);
+		String groupDn = getGroupDn(groupName, groupBaseDn);
 
+		TlsAwareLdapContext ctx = null;
 		try {
-			ctx = getContext(ldapCredentials);
-			String groupDn = CN_ATTRIBUTE + "=" + groupName + "," + groupBaseDn;
-			Attributes memberAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
-			for (String member : getMemberNames(memberAttrs)) {
-				Attributes userAttrs = ctx.getAttributes(member);
-				SubjectImpl ldapSubject = new SubjectImpl();
-				ldapSubject.setName(getAttribute(userAttrs, idAttribute));
-				ldapSubject.setRealname(getAttribute(userAttrs, CN_ATTRIBUTE));
-				ldapSubject.setEmail(getAttribute(userAttrs, MAIL_ATTRIBUTE).toLowerCase());
+			ctx = new TlsAwareLdapContext(ldapCredentials);
+			for (String member : getGroupMembers(ctx.delegate, groupDn)) {
+				Attributes userAttrs = getUserAttributes(ctx.delegate, member, idAttribute);
+				SubjectImpl ldapSubject = fillSubjectFromAttributes(new SubjectImpl(), idAttribute, userAttrs);
 				subjects.add(ldapSubject);
 			}
 		} catch (IOException | NamingException ex) {
 			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
 		} finally {
-			closeContext();
+			closeContext(ctx);
 		}
-
+		LOGGER.info("Found {} member(s) for group '{}'", subjects.size(), groupDn);
 		return subjects;
+	}
+
+	private SubjectImpl fillSubjectFromAttributes(SubjectImpl subject, String idAttribute, Attributes userAttrs)
+			throws NamingException {
+		subject.setName(getAttribute(userAttrs, idAttribute));
+		subject.setRealname(getAttribute(userAttrs, CN_ATTRIBUTE));
+		subject.setEmail(StringUtils.lowerCase(getAttribute(userAttrs, MAIL_ATTRIBUTE)));
+		return subject;
+	}
+
+	private List<String> getGroupMembers(LdapContext ctx, String groupDn) throws NamingException {
+		Attributes groupAttrs = ctx.getAttributes(groupDn, new String[] { MEMBER_ATTRIBUTE });
+		Attribute memberAttr = groupAttrs.get(MEMBER_ATTRIBUTE);
+		List<String> members = new ArrayList<>();
+		if (memberAttr != null) {
+			NamingEnumeration<?> memberIt = memberAttr.getAll();
+			while (memberIt.hasMoreElements()) {
+				members.add((String) memberIt.nextElement());
+			}
+		}
+		return members;
+	}
+
+	private String getGroupDn(String groupName, String groupBaseDn) {
+		// if the group base dn is defined in site properties, assemble the attribute name. If this property is not set,
+		// the group name must contain a complete valid ldap reference incl. base group dn
+		return StringUtils.isBlank(groupBaseDn) ? groupName : (CN_ATTRIBUTE + "=" + groupName + "," + groupBaseDn);
 	}
 
 	private String getAttribute(Attributes attrs, String attribute) throws NamingException {
 		Attribute attr = attrs.get(attribute);
 		return null == attr ? null : ((String) attr.get());
-	}
-
-	private LdapContext getContext(LdapCredentials ldapCredentials) throws NamingException, IOException {
-		Properties env = ldapCredentials.getLdapEnv();
-		ctx = new InitialLdapContext(env, null);
-
-		if (ldapCredentials.useStartTls) {
-			tls = (StartTlsResponse) ctx.extendedOperation(new StartTlsRequest());
-			tls.setHostnameVerifier(new HostnameVerifier() {
-				@Override
-				public boolean verify(String hostname, SSLSession session) {
-					return true; // Allow STARTTLS with plain IP addresses.
-				}
-			});
-			tls.negotiate();
-			ldapCredentials.addToContext(ctx);
-			ctx.reconnect(null);
-		}
-		return ctx;
 	}
 
 	private void logException(String host, String principal, Exception e) {
@@ -368,33 +375,49 @@ public class LdapService {
 		}
 	}
 
-	private void closeContext() {
-		if (tls != null) {
-			try {
-				tls.close();
-			} catch (IOException ioe) {
-				LOGGER.warn("error closing TLS connection", ioe);
-			}
-		}
-		if (ctx != null) {
-			try {
-				ctx.close();
-			} catch (NamingException ne) {
-				LOGGER.warn("error closing LDAP context", ne);
-			}
+	private void closeContext(TlsAwareLdapContext ctx) {
+		if (null != ctx) {
+			ctx.close();
 		}
 	}
 
-	private List<String> getMemberNames(Attributes attributes) throws NamingException {
-		Attribute memberAttr = attributes.get(MEMBER_ATTRIBUTE);
-		if (memberAttr == null)
-			return Collections.emptyList();
-		else {
-			List<String> result = new ArrayList<>();
-			NamingEnumeration<?> memberAttrEnum = memberAttr.getAll();
-			while (memberAttrEnum.hasMoreElements())
-				result.add(memberAttrEnum.nextElement().toString());
-			return result;
+	private class TlsAwareLdapContext {
+		private final LdapContext delegate;
+		private StartTlsResponse tls;
+
+		public TlsAwareLdapContext(LdapCredentials ldapCredentials) throws NamingException, IOException {
+			delegate = new InitialLdapContext(ldapCredentials.getLdapEnv(), null);
+
+			if (ldapCredentials.useStartTls) {
+				tls = (StartTlsResponse) delegate.extendedOperation(new StartTlsRequest());
+				tls.setHostnameVerifier(new HostnameVerifier() {
+					@Override
+					public boolean verify(String hostname, SSLSession session) {
+						return true; // Allow STARTTLS with plain IP addresses.
+					}
+				});
+				tls.negotiate();
+				ldapCredentials.addToContext(delegate);
+				delegate.reconnect(null);
+			}
+		}
+
+		public void close() {
+			if (tls != null) {
+				try {
+					tls.close();
+				} catch (IOException ioe) {
+					LOGGER.warn("error closing TLS connection", ioe);
+				}
+			}
+			if (delegate != null) {
+				try {
+					delegate.close();
+				} catch (NamingException ne) {
+					LOGGER.warn("error closing LDAP context", ne);
+				}
+			}
+
 		}
 	}
 

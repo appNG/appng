@@ -342,10 +342,8 @@ public class ElementHelper {
 		if (null != referenceParams) {
 			for (Param p : referenceParams.getParam()) {
 				String newValue = parameterSupport.replaceParameters(p.getValue());
-				if (StringUtils.isEmpty(newValue)) {
-					if (StringUtils.isNotEmpty(p.getDefault())) {
-						newValue = p.getDefault();
-					}
+				if (StringUtils.isEmpty(newValue) && StringUtils.isNotEmpty(p.getDefault())) {
+					newValue = p.getDefault();
 				}
 				p.setValue(newValue);
 				if (null != newValue) {

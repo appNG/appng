@@ -21,7 +21,7 @@
 		<admin.name>admin</admin.name>
 		<admin.realName>appNG Administrator</admin.realName>
 		<admin.email>admin@example.com</admin.email>
-		<admin.password>s3cr3t</admin.password>
+		<admin.password>@ppNG$42</admin.password>
 		<install.opts>-f</install.opts>
 	</properties>
 
@@ -102,7 +102,7 @@
 					<dependency>
 						<groupId>org.apache.ant</groupId>
 						<artifactId>ant-jsch</artifactId>
-						<version>1.10.1</version>
+						<version>1.10.7</version>
 					</dependency>
 				</dependencies>
 			</plugin>

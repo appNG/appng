@@ -20,7 +20,7 @@ import java.net.URL;
 
 import org.appng.maven.plugins.appngizer.InstallMojo;
 
-public class AppNGizerMojoTest {
+public class RunAppNGizerMojo {
 
 	public static void main(String[] args) throws Exception {
 		InstallMojo mojo = new InstallMojo();

@@ -79,6 +79,7 @@ public class Captcha {
 		} catch (IOException e) {
 			LOGGER.error("IOException", e);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			LOGGER.error("InterruptedException", e);
 		} catch (IM4JavaException e) {
 			LOGGER.error("IM4JavaException", e);

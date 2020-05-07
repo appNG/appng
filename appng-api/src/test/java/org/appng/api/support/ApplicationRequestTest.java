@@ -53,13 +53,14 @@ public class ApplicationRequestTest {
 
 		ApplicationPath applicationPath = ar.applicationPath();
 		Map<String, Object> conditionsParams = new HashMap<>(params);
-		conditionsParams.put(ApplicationPath.PATH, applicationPath);
+		conditionsParams.put(ApplicationPath.PATH_VAR, applicationPath);
 		ExpressionEvaluator ee = new ExpressionEvaluator(conditionsParams);
 
 		params.keySet().forEach(k -> Assert.assertTrue(applicationPath.hasParam(k)));
 		Assert.assertFalse(applicationPath.hasParam("foo"));
 
-		Assert.assertTrue(ee.evaluate("${ PATH.equals('/item', '/update/', id) }"));
+		Assert.assertTrue(ee.evaluate("${ PATH.isEqual('/item', '/update/', id) }"));
+		Assert.assertTrue(ee.evaluate("${ PATH.isEqual('/item/update/2') }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.starts('/item', '/update/', id) }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.ends('/item/update/', id) }"));
 		Assert.assertTrue(ee.evaluate("${ PATH.contains('/item', '/update/', id) }"));

@@ -129,9 +129,8 @@ public class Messaging {
 	 */
 	public static Sender createMessageSender(Environment env, ExecutorService executor, String nodeId,
 			EventHandler<? extends Event> defaultHandler, Iterable<EventHandler<? extends Event>> handlers) {
-		Sender sender = null;
 		if (isEnabled(env)) {
-			sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
+			Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
 			if (null == sender) {
 				try {
 					LOGGER.info("node id is {}", nodeId);
@@ -160,12 +159,13 @@ public class Messaging {
 					return sender;
 				} catch (ReflectiveOperationException e) {
 					LOGGER.error("error while initializing messaging", e);
+					shutdown(env);
 				}
 			}
 		} else {
 			LOGGER.info("messaging is disabled");
 		}
-		return sender;
+		return null;
 	}
 
 	public static boolean isEnabled(Environment env) {
@@ -187,9 +187,10 @@ public class Messaging {
 	private static void close(Object o) {
 		if (null != o && o instanceof Closeable) {
 			try {
+				LOGGER.info("Closing {}", o);
 				((Closeable) o).close();
 			} catch (IOException e) {
-				LOGGER.error("error while closing", o);
+				LOGGER.error("Error while closing " + o, e);
 			}
 		}
 	}

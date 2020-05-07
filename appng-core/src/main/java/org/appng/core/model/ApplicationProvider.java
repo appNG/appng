@@ -245,7 +245,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		}
 
 		PageParameterProcessor pageParameterProcessor = new PageParameterProcessor(getSessionParamKey(site),
-				sessionParamNames, env, applicationRequest, page.getId());
+				sessionParamNames, env, applicationRequest);
 		boolean urlParamsAdded = pageParameterProcessor.processPageParams(applicationUrlParameters, urlSchema);
 		Map<String, String> pageParams = pageParameterProcessor.getParameters();
 		initSession(applicationConfig, env, getSessionParamKey(site));
@@ -405,8 +405,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			applicationRequest.setLabel(sectionelement.getTitle());
 
 			if (null != sectionelement.getDatasource()) {
-				DataSourceElement datasourceElement = getDataSourceSectionElement(applicationRequest, applicationConfig,
-						sectionelement, pageReference.getId());
+				DataSourceElement datasourceElement = getDataSourceSectionElement(applicationRequest, sectionelement);
 				if (null != datasourceElement) {
 					datasourceElement.setTitle(sectionelement.getTitle());
 					dataSourceWrappers.add(datasourceElement);
@@ -506,8 +505,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private DataSourceElement getDataSourceSectionElement(ApplicationRequest applicationRequest,
-			ApplicationConfig applicationConfig, SectionelementDef sectionelement, String pageId)
-			throws ProcessingException {
+			SectionelementDef sectionelement) throws ProcessingException {
 		DatasourceRef datasourceRef = sectionelement.getDatasource();
 		if (null != datasourceRef) {
 			DataSourceElement wrapper = new DataSourceElement(site, application, applicationRequest,

@@ -40,6 +40,7 @@ import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -176,7 +177,7 @@ public class LdapContextMock implements LdapContext {
 
 	@Override
 	public Attributes getAttributes(String name, String[] attrIds) throws NamingException {
-		if (name.endsWith(groupBaseDn)) {
+		if (name.endsWith("ou=groups,l=egypt") && null != attrIds) {
 			Answer<NamingEnumeration<?>> attrEnumAnswer;
 			Attributes groupAttrs = Mockito.mock(Attributes.class);
 			Attribute memberAttr = Mockito.mock(Attribute.class);
@@ -220,8 +221,8 @@ public class LdapContextMock implements LdapContext {
 
 			return memberAttrs;
 		} else {
-			throw new NamingException(
-					"No attributes are prepared to be be returned from DN '" + name + "'. Error in unit tests!");
+			throw new NamingException("No attributes are prepared to be be returned from DN '" + name
+					+ "' with attribues " + StringUtils.join(attrIds) + ". Error in unit tests!");
 		}
 	}
 

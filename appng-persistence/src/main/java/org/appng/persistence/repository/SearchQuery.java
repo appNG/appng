@@ -585,7 +585,7 @@ public class SearchQuery<T> {
 
 		List<T> content = query.getResultList();
 		if (null == total) {
-			total = new Integer(content.size()).longValue();
+			total = (long) content.size();
 		}
 		if (null == pageable) {
 			pageable = PageRequest.of(0, total.intValue() <= 0 ? 1 : total.intValue());

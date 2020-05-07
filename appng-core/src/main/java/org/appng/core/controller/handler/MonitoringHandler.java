@@ -62,6 +62,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * A {@link RequestHandler} that exposes some health information for the site.
@@ -182,8 +183,9 @@ public class MonitoringHandler implements RequestHandler {
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class SiteInfo {
+	public static class SiteInfo {
 		String name;
 		SiteState state;
 		String host;
@@ -195,8 +197,9 @@ public class MonitoringHandler implements RequestHandler {
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class ApplicationInfo {
+	public static class ApplicationInfo {
 		String version;
 		String description;
 		boolean hidden;
@@ -207,8 +210,9 @@ public class MonitoringHandler implements RequestHandler {
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class Connection {
+	public static class Connection {
 		String url;
 		String user;
 		Integer maxPoolSize;
@@ -220,8 +224,9 @@ public class MonitoringHandler implements RequestHandler {
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class Jar {
+	public static class Jar {
 		String name;
 		OffsetDateTime lastModified;
 	}

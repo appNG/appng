@@ -10,7 +10,8 @@
 	<property name="allowSkipRender" self="http://localhost/site/localhost/property/allowSkipRender">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
-		<description>Allow skipping of the render phase using render=false for the manager GUI or the XSLT based rendering of taglets.</description>
+		<description>Allow skipping of the render phase using render=false for the manager GUI or the XSLT based rendering of
+			taglets.</description>
 	</property>
 	<property name="appendTabId" self="http://localhost/site/localhost/property/appendTabId">
 		<value>false</value>
@@ -39,7 +40,7 @@
 	<property name="authLoginRef" self="http://localhost/site/localhost/property/authLoginRef">
 		<value>webform</value>
 		<defaultValue>webform</defaultValue>
-		<description>The action names (comma-separated) for the pages defined in {@link #AUTH_LOGIN_PAGE}. The number of
+		<description>The action names (comma-separated) for the pages defined in 'authLoginPage'. The number of
 			comma-separated names must be the same as in 'authLoginPage', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!
 		</description>
 	</property>
@@ -75,7 +76,7 @@
 	</property>
 	<property clob="true" name="cacheExceptions" self="http://localhost/site/localhost/property/cacheExceptions">
 		<value>/manager</value>
-		<description>URL path prefixes which are never cached. Contains one prefix per line (CLOB value).</description>
+		<description>URL path prefixes which are never cached. Contains one prefix per line (multiline value).</description>
 	</property>
 	<property name="cacheStatistics" self="http://localhost/site/localhost/property/cacheStatistics">
 		<value>false</value>
@@ -85,7 +86,17 @@
 	<property name="cacheTimeToLive" self="http://localhost/site/localhost/property/cacheTimeToLive">
 		<value>1800</value>
 		<defaultValue>1800</defaultValue>
-		<description>The time a cache entry lives, in seconds.</description>
+		<description>The default TTL for a cache entry in seconds, if there's no matching path defined in 'cacheTimeouts'.
+		</description>
+	</property>
+	<property clob="true" name="cacheTimeouts" self="http://localhost/site/localhost/property/cacheTimeouts">
+		<value></value>
+		<description>The cache timeouts as a multiline property, key=value</description>
+	</property>
+	<property name="cacheTimeoutsAntStyle" self="http://localhost/site/localhost/property/cacheTimeoutsAntStyle">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>Use Ant-style path matching for 'cacheTimeouts'?</description>
 	</property>
 	<property name="csrfProtectedMethods" self="http://localhost/site/localhost/property/csrfProtectedMethods">
 		<value>POST,PUT</value>
@@ -161,7 +172,8 @@
 		<defaultValue>/index</defaultValue>
 		<description>The folder containing the Lucene-Index, relative to 'wwwDir'</description>
 	</property>
-	<property name="indexFileSystemQueueSize" self="http://localhost/site/localhost/property/indexFileSystemQueueSize">
+	<property name="indexFileSystemQueueSize"
+		self="http://localhost/site/localhost/property/indexFileSystemQueueSize">
 		<value>2500</value>
 		<defaultValue>2500</defaultValue>
 		<description>the queue size used per directory when indexing the file system</description>
@@ -181,6 +193,23 @@
 		<defaultValue>5000</defaultValue>
 		<description>The timeout in milliseconds for indexing</description>
 	</property>
+	<property name="jdbcConnectionTimeout" self="http://localhost/site/localhost/property/jdbcConnectionTimeout">
+		<value>5000</value>
+		<defaultValue>5000</defaultValue>
+		<description>The maximum number of milliseconds that a client will wait for a connection from the connection pool
+		</description>
+	</property>
+	<property name="jdbcLogPerformance" self="http://localhost/site/localhost/property/jdbcLogPerformance">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to 'true' to enable JDBC Performance Logger</description>
+	</property>
+	<property name="jdbcValidationTimeout" self="http://localhost/site/localhost/property/jdbcValidationTimeout">
+		<value>5000</value>
+		<defaultValue>5000</defaultValue>
+		<description>The maximum number of milliseconds that the connection pool will wait for a connection to be validated as
+			alive.</description>
+	</property>
 	<property name="ldapDomain" self="http://localhost/site/localhost/property/ldapDomain">
 		<value>EXAMPLE</value>
 		<defaultValue>EXAMPLE</defaultValue>
@@ -194,7 +223,8 @@
 	<property name="ldapHost" self="http://localhost/site/localhost/property/ldapHost">
 		<value>ldap(s):&lt;host&gt;:&lt;port&gt;</value>
 		<defaultValue>ldap(s):&lt;host&gt;:&lt;port&gt;</defaultValue>
-		<description>The LDAP host in provider URL format ("ldap(s)://&lt;host&gt;:&lt;port&gt;"). Note that you might need to add CA certificates to the truststore of the executing JVM if you enable "ldaps://".</description>
+		<description>The LDAP host in provider URL format ("ldap(s)://&lt;host&gt;:&lt;port&gt;"). Note that you might need to
+			add CA certificates to the truststore of the executing JVM if you enable "ldaps://".</description>
 	</property>
 	<property name="ldapIdAttribute" self="http://localhost/site/localhost/property/ldapIdAttribute">
 		<value>sAMAccountName</value>
@@ -224,12 +254,15 @@
 	<property name="ldapUser" self="http://localhost/site/localhost/property/ldapUser">
 		<value>serviceUser</value>
 		<defaultValue>serviceUser</defaultValue>
-		<description>The name of the LDAP service-user for general LDAP lookups. If the value is a Distinguished Name (e.g. "cn=Service User,dc=mycompany,dc=com") it will be used directly as LDAP principal. Otherwise the principal will be derived according to the value specified for ${site.ldapPrincipalScheme}.</description>
+		<description>The name of the LDAP service-user for general LDAP lookups. If the value is a Distinguished Name (e.g.
+			"cn=Service User,dc=mycompany,dc=com") it will be used directly as LDAP principal. Otherwise the principal will be
+			derived according to the value specified for ${site.ldapPrincipalScheme}.</description>
 	</property>
 	<property name="ldapUserBaseDn" self="http://localhost/site/localhost/property/ldapUserBaseDn">
 		<value>OU=Users,DC=example,DC=com</value>
 		<defaultValue>OU=Users,DC=example,DC=com</defaultValue>
-		<description>The base-DN which is used to map a plain username to a Distinguished Name, if "DN" is used as principal scheme (see property "ldapPrincipalScheme").</description>
+		<description>The base-DN which is used to map a plain username to a Distinguished Name, if "DN" is used as principal
+			scheme (see property "ldapPrincipalScheme").</description>
 	</property>
 	<property name="locale" self="http://localhost/site/localhost/property/locale">
 		<value>en</value>
@@ -301,7 +334,8 @@
 	<property name="supportReloadFile" self="http://localhost/site/localhost/property/supportReloadFile">
 		<value>true</value>
 		<defaultValue>true</defaultValue>
-		<description>If true, a site reload is performed when a file named .reload is created in the site's root directory.</description>
+		<description>If true, a site reload is performed when a file named .reload is created in the site's root directory.
+		</description>
 	</property>
 	<property name="supportedLanguages" self="http://localhost/site/localhost/property/supportedLanguages">
 		<value>en, de</value>
@@ -326,8 +360,8 @@
 	<property name="wwwDir" self="http://localhost/site/localhost/property/wwwDir">
 		<value>/www</value>
 		<defaultValue>/www</defaultValue>
-		<description>The name of the folder containing the web-contents, relative to 'repositoryPath' configured at the platform	
-		</description>
+		<description>The name of the folder containing the web-contents, relative to 'repositoryPath' configured at the
+			platform</description>
 	</property>
 	<property clob="true" name="xssExceptions" self="http://localhost/site/localhost/property/xssExceptions">
 		<value><![CDATA[# template
@@ -335,7 +369,8 @@
 # appng-manager
 /manager/localhost/appng-manager
 ]]></value>
-		<description>URL path prefixes where XSS protection is omitted. Contains one prefix per line (CLOB value). Supports
-			blank lines and comments (#).</description>
+		<description>URL path prefixes where XSS protection is omitted. Contains one prefix per line (multiline value).
+			Supports blank lines and comments (#).</description>
 	</property>
 </properties>
+
