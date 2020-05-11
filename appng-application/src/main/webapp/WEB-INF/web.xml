@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
 	<!-- init Logging -->
@@ -17,14 +18,19 @@
 		<listener-class>org.appng.core.controller.PlatformStartup</listener-class>
 	</listener>
 
-	<!-- support Spring request-scope -->
-	<listener>
-		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-	</listener>
-
 	<!-- ##################### Filter definitions ##################### -->
+	<!-- support Spring's request-scope -->
+	<filter>
+		<filter-name>RequestContextFilter</filter-name>
+		<filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>RequestContextFilter</filter-name>
+		<servlet-name>controller</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
 
-	<!-- XSS Filter-->
+	<!-- XSS Filter -->
 	<filter>
 		<filter-name>XSSFilter</filter-name>
 		<filter-class>org.appng.core.controller.filter.XSSFilter</filter-class>

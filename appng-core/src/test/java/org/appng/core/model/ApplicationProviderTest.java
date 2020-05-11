@@ -33,6 +33,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Resources;
 import org.appng.api.model.Role;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.testapplication.TestApplicationConfig;
 import org.appng.testsupport.TestBase;
 import org.appng.testsupport.validation.WritingXmlValidator;
 import org.appng.testsupport.validation.XPathDifferenceHandler;
@@ -50,8 +51,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
-@ContextConfiguration(locations = { "classpath:applications/application1/beans.xml", TestBase.TESTCONTEXT,
-		TestBase.TESTCONTEXT_JPA }, inheritLocations = false, initializers = ApplicationProviderTest.class)
+@ContextConfiguration(classes = TestApplicationConfig.class, inheritLocations = false, initializers = ApplicationProviderTest.class)
 public class ApplicationProviderTest extends TestBase {
 
 	private static final String PAGE_ID = "entity";
@@ -117,7 +117,7 @@ public class ApplicationProviderTest extends TestBase {
 
 		}
 
-		public void init(ApplicationInfo applicationInfo){
+		public void init(ApplicationInfo applicationInfo) {
 			super.init(new java.util.Properties(), applicationInfo);
 		}
 

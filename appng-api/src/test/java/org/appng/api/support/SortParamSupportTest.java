@@ -55,12 +55,12 @@ public class SortParamSupportTest {
 	public void testWithPageParams() {
 		Mockito.when(sessionMap.get(SESS_PARAM_ID)).thenReturn("type:asc;lastname:asc;name:asc;id:asc;page:4;pageSize:5");
 		Pageable fromSession = sortParamSupport.getPageable(null);
-		Assert.assertEquals(new Sort(Direction.ASC, "type", "lastname", "name", "id"), fromSession.getSort());
+		Assert.assertEquals(Sort.by(Direction.ASC, "type", "lastname", "name", "id"), fromSession.getSort());
 		Assert.assertEquals(4, fromSession.getPageNumber());
 		Assert.assertEquals(5, fromSession.getPageSize());
 		Mockito.when(sessionMap.get(SESS_PARAM_ID)).thenReturn("type:desc");
 		Pageable pageable = sortParamSupport.getPageable("name:desc;lastname:desc;id:desc;page:5;pageSize:20");
-		Assert.assertEquals(new Sort(Direction.DESC, "type", "name", "lastname", "id"), pageable.getSort());
+		Assert.assertEquals(Sort.by(Direction.DESC, "type", "name", "lastname", "id"), pageable.getSort());
 		Assert.assertEquals(5, pageable.getPageNumber());
 		Assert.assertEquals(20, pageable.getPageSize());
 
@@ -69,12 +69,12 @@ public class SortParamSupportTest {
 
 		Mockito.when(sessionMap.get(SESS_PARAM_ID)).thenReturn("name:asc");
 		Pageable pageable2 = sortParamSupport.getPageable("name;page:3;pageSize:50");
-		Assert.assertNull(pageable2.getSort());
+		Assert.assertEquals(Sort.unsorted(), pageable2.getSort());
 		Assert.assertEquals(3, pageable2.getPageNumber());
 		Assert.assertEquals(50, pageable2.getPageSize());
 
 		Pageable pageable3 = sortParamSupport.getPageable("reset");
-		Assert.assertNull(pageable3.getSort());
+		Assert.assertEquals(Sort.unsorted(), pageable3.getSort());
 		Assert.assertEquals(0, pageable3.getPageNumber());
 		Assert.assertEquals(10, pageable3.getPageSize());
 	}
@@ -122,7 +122,7 @@ public class SortParamSupportTest {
 	public void testClear() {
 		Mockito.when(sessionMap.get(SESS_PARAM_ID)).thenReturn("lastname:asc;name:desc;id:desc");
 		Pageable sortParams = sortParamSupport.getPageable("lastname:;name:;id:");
-		Assert.assertNull(sortParams.getSort());
+		Assert.assertEquals(Sort.unsorted(), sortParams.getSort());
 	}
 
 }

@@ -69,7 +69,6 @@ import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.service.InitializerServiceTest;
 import org.appng.core.service.LdapService;
 import org.appng.core.service.PropertySupport;
-import org.appng.testsupport.TestBase;
 import org.appng.testsupport.validation.WritingXmlValidator;
 import org.appng.xml.BaseObject;
 import org.appng.xml.MarshallService;
@@ -316,9 +315,6 @@ public class TestSupport {
 		addSiteProperty(SiteProperties.AUTH_LOGIN_REF, "webform");
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
 		addSiteProperty(LdapService.LDAP_PASSWORD, "secret");
-
-		addSiteProperty("configLocations",
-				StringUtils.join(new Object[] { TestBase.TESTCONTEXT, TestBase.TESTCONTEXT_JPA }, ","));
 
 		site.setProperties(new PropertyHolder(sitePropPrefix, siteProperties));
 		siteMap.put(site.getName(), site);

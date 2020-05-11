@@ -29,8 +29,8 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 /**
  * A custom {@link JpaRepositoryFactoryBean}.<br/>
  * See <a href=
- * "http://docs.spring.io/spring-data/jpa/docs/1.11.0.RELEASE/reference/html/#repositories.custom-behaviour-for-all-repositories">
- * 4.6.2. Adding custom behavior to all repositories</a> from the reference Documentation for further details.
+ * "https://docs.spring.io/spring-data/jpa/docs/2.1.10.RELEASE/reference/html/#repositories.customize-base-repository">
+ * 4.6.2. Customize the Base Repository</a> from the reference Documentation for further details.
  * 
  * @author Matthias Müller
  */

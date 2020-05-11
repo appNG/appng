@@ -25,7 +25,6 @@ import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.model.ApplicationCacheManager;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.cache.CacheManager;
@@ -45,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Ordered {
 
-	private static final String DATASOURCE_BEAN_NAME = "datasource";
 	private static final String MESSAGES_CORE = "messages-core";
 	private final DatabaseConnection connection;
 	private Collection<String> dictionaryNames;
@@ -87,23 +85,17 @@ public class ApplicationPostProcessor implements BeanFactoryPostProcessor, Order
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		beanFactory.registerSingleton("site", site);
 		beanFactory.registerSingleton("application", application);
-		beanFactory.getBean(ApplicationCacheManager.class).initialize(site, application, platformCacheManager);
+		beanFactory.registerSingleton("cacheManager",
+				new ApplicationCacheManager().initialize(site, application, platformCacheManager));
 
-		try {
-			DatasourceConfigurer datasourceConfigurer = beanFactory.getBean(DatasourceConfigurer.class);
-			if (null != connection) {
-				try {
-					LOGGER.debug("configuring {}", connection);
-					datasourceConfigurer.configure(connection);
-				} catch (Exception e) {
-					throw new BeanCreationException("error while creating DatasourceConfigurer", e);
-				}
-			} else {
-				LOGGER.debug("no connection given, destroying bean '{}'", DATASOURCE_BEAN_NAME);
-				beanFactory.destroyBean(DATASOURCE_BEAN_NAME, datasourceConfigurer);
+		if (null != connection) {
+			try {
+				LOGGER.debug("configuring {}", connection);
+				DatasourceConfigurer datasourceConfigurer = beanFactory.getBean(DatasourceConfigurer.class);
+				datasourceConfigurer.configure(connection);
+			} catch (Exception e) {
+				throw new BeanCreationException("error while creating DatasourceConfigurer", e);
 			}
-		} catch (NoSuchBeanDefinitionException e) {
-			LOGGER.debug("no DatasourceConfigurer found in bean-factory");
 		}
 
 		dictionaryNames.add(MESSAGES_CORE);

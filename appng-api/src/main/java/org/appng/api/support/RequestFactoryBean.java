@@ -39,22 +39,19 @@ import org.appng.forms.XSSUtil;
 import org.appng.forms.impl.RequestBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FactoryBean} responsible for initializing a {@link Request}.
  * 
  * @author Matthias Müller
- * 
  */
 
 @Slf4j
-public class RequestFactoryBean implements FactoryBean<Request>, InitializingBean {
+public class RequestFactoryBean implements FactoryBean<ApplicationRequest>, InitializingBean {
 
 	private Environment environment;
 
@@ -69,7 +66,6 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 	RequestFactoryBean() {
 	}
 
-	@Autowired
 	public RequestFactoryBean(HttpServletRequest httpServletRequest, Environment environment,
 			ConversionService conversionService, MessageSource messageSource) {
 		this.request = new ApplicationRequest();
@@ -79,7 +75,7 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 		this.messageSource = messageSource;
 	}
 
-	public Request getObject() {
+	public ApplicationRequest getObject() {
 		return request;
 	}
 

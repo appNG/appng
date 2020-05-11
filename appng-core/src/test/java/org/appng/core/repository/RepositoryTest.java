@@ -32,9 +32,9 @@ public class RepositoryTest extends AbstractRepositoryTest {
 		repository.save(application);
 
 		Assert.assertEquals(application, repository.findByName(application.getName()));
-		Assert.assertEquals(application, repository.findOne(application.getId()));
+		Assert.assertEquals(application, repository.findById(application.getId()).get());
 		repository.delete(application);
-		Assert.assertNull(repository.findOne(application.getId()));
+		Assert.assertFalse(repository.findById(application.getId()).isPresent());
 	}
 
 }

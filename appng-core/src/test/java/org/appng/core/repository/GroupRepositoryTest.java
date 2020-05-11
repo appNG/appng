@@ -53,13 +53,13 @@ public class GroupRepositoryTest extends AbstractRepositoryTest {
 		repository.save(group);
 
 		Assert.assertEquals(group, repository.findByName(group.getName()));
-		Assert.assertEquals(group, repository.findOne(group.getId()));
+		Assert.assertEquals(group, repository.findById(group.getId()).get());
 		Assert.assertEquals(group, repository.getGroup(group.getId()));
 		Assert.assertEquals(Arrays.asList(1), repository.getGroupIdsForNames(Arrays.asList("name", "name2")));
 
 		Assert.assertEquals(Arrays.asList(group), repository.findGroupsForApplicationRole(applicationRole.getId()));
 
 		repository.delete(group);
-		Assert.assertNull(repository.findOne(group.getId()));
+		Assert.assertFalse(repository.findById(group.getId()).isPresent());
 	}
 }

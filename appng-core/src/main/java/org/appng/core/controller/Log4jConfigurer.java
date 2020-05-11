@@ -16,6 +16,7 @@
 package org.appng.core.controller;
 
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -24,9 +25,12 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.PropertyConfigurator;
 import org.appng.api.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ResourceUtils;
+import org.springframework.util.SystemPropertyUtils;
 import org.springframework.web.util.WebAppRootListener;
 
 /**
@@ -40,7 +44,6 @@ public class Log4jConfigurer extends WebAppRootListener {
 	protected static final String LOG4J_PROPERTIES = "/conf/log4j.properties";
 	public static final String WEB_INF = "/WEB-INF";
 
-	@SuppressWarnings("deprecation")
 	public void contextInitialized(ServletContextEvent sce) {
 		super.contextInitialized(sce);
 		ServletContext ctx = sce.getServletContext();
@@ -53,7 +56,9 @@ public class Log4jConfigurer extends WebAppRootListener {
 			}
 		}
 		try {
-			org.springframework.util.Log4jConfigurer.initLogging(log4jLocation);
+			String resolvedLocation = SystemPropertyUtils.resolvePlaceholders(log4jLocation);
+			URL url = ResourceUtils.getURL(resolvedLocation);
+			PropertyConfigurator.configure(url);
 			LOGGER = LoggerFactory.getLogger(Log4jConfigurer.class);
 			LOGGER.info("Initialized log4j from {}", log4jLocation);
 		} catch (FileNotFoundException e) {

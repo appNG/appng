@@ -28,7 +28,7 @@ public class CalculatorService {
 
     @RequestMapping(value = "/add", // <1>
             method = RequestMethod.POST, // <2>
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE) // <3>
+            produces = MediaType.APPLICATION_JSON_VALUE) // <3>
     public ResponseEntity<Result> add(@RequestBody Operators operators) { // <4>
         return new ResponseEntity<Result>(new Result(operators.a, operators.b), HttpStatus.OK);
     }

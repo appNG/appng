@@ -88,7 +88,6 @@ public class Updater {
 	private static final String INIT_PARAM_BLOCK_REMOTE_IPS = "blockRemoteIPs";
 	private static final String INIT_PARAM_BUILD_REPOSITORY = "buildRepository";
 	private static final String INIT_PARAM_REPLACE_BIN = "replaceBin";
-	private static final String INIT_PARAM_REPLACE_PLATFORMCONTEXT = "replacePlatformContext";
 	private static final String INIT_PARAM_REPLACE_WEB_XML = "replaceWebXml";
 	private static final String INIT_PARAM_USE_FQDN = "useFQDN";
 	private static final String WEB_INF = "WEB-INF/";
@@ -188,7 +187,7 @@ public class Updater {
 		return new ResponseEntity<>(content, HttpStatus.OK);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, path = "/update/status", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(method = RequestMethod.GET, path = "/update/status", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Status> getStatus() {
 		Status status = new Status(this.status.get(), completed.get());
 		return new ResponseEntity<Updater.Status>(status, HttpStatus.OK);

@@ -18,6 +18,7 @@ package org.appng.core.repository.config;
 import javax.sql.DataSource;
 
 import org.appng.core.domain.DatabaseConnection;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Matthias Müller
  */
 @Slf4j
-public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceConfigurer {
+public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceConfigurer, DisposableBean {
 
 	private DatasourceConfigurer configurer;
 

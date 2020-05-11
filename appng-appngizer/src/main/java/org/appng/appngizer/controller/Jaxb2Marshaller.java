@@ -39,7 +39,7 @@ public class Jaxb2Marshaller extends org.springframework.oxm.jaxb.Jaxb2Marshalle
 	}
 
 	@Override
-	protected Marshaller createMarshaller() {
+	public Marshaller createMarshaller() {
 		javax.xml.bind.Marshaller marshaller = super.createMarshaller();
 		try {
 			marshaller.setProperty(CharacterEscapeHandler.class.getName(), this);
