@@ -15,46 +15,44 @@
  */
 package org.appng.appngizer.controller;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.WebRequestInterceptor;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SessionFilter implements Filter {
+public class SessionInterceptor implements WebRequestInterceptor {
 
-	public void init(FilterConfig filterConfig) throws ServletException {
-	}
-
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
-		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		String servletPath = httpServletRequest.getServletPath();
-		if (!Home.ROOT.equals(servletPath)) {
+	@Override
+	public void preHandle(WebRequest request) throws Exception {
+		ServletWebRequest servletWebRequest = ServletWebRequest.class.cast(request);
+		HttpServletRequest httpServletRequest = servletWebRequest.getRequest();
+		String pathInfo = httpServletRequest.getPathInfo();
+		if (!Home.ROOT.equals(pathInfo)) {
 			HttpSession session = httpServletRequest.getSession();
 			Boolean authorized = (Boolean) session.getAttribute(Home.AUTHORIZED);
 			if (!Boolean.TRUE.equals(authorized)) {
 				LOGGER.info("session {} is not authorized, sending 403.", session.getId());
-				((HttpServletResponse) response).sendError(HttpStatus.FORBIDDEN.value(), "Please authenticate first!");
+				servletWebRequest.getResponse().sendError(HttpStatus.FORBIDDEN.value(), "Please authenticate first!");
 				return;
 			}
 		}
-		chain.doFilter(request, response);
 	}
 
-	public void destroy() {
+	@Override
+	public void postHandle(WebRequest request, ModelMap model) throws Exception {
+		// empty
+	}
 
+	@Override
+	public void afterCompletion(WebRequest request, Exception ex) throws Exception {
+		// empty
 	}
 
 }

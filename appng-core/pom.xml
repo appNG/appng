@@ -431,7 +431,7 @@
 			<groupId>org.passay</groupId>
 			<artifactId>passay</artifactId>
 			<version>1.5.0</version>
-		</dependency>		
+		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->
 </project>

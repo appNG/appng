@@ -20,15 +20,19 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
+import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
@@ -36,6 +40,7 @@ import org.appng.appngizer.model.xml.PackageType;
 import org.appng.appngizer.model.xml.Repository;
 import org.appng.appngizer.model.xml.RepositoryMode;
 import org.appng.appngizer.model.xml.RepositoryType;
+import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.service.CoreService;
 import org.appng.core.service.PropertySupport;
 import org.appng.testsupport.validation.WritingXmlValidator;
@@ -79,7 +84,7 @@ public abstract class ControllerTest {
 	protected XPathDifferenceHandler differenceListener;
 
 	static boolean platformInitialized = false;
-
+	
 	void installApplication() throws Exception {
 		Repository repo = new Repository();
 		repo.setName("local");
@@ -115,6 +120,10 @@ public abstract class ControllerTest {
 		this.differenceListener = new XPathDifferenceHandler();
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		if (!platformInitialized) {
+			Map<Object, Object> platformEnv = new ConcurrentHashMap<>();
+			platformEnv.put(Platform.Environment.APPNG_VERSION, "1.21.x");
+			this.wac.getServletContext().setAttribute(Scope.PLATFORM.name(), platformEnv);
+			RepositoryCacheFactory.init(null, null, null, null, false);
 			Properties defaultOverrides = new Properties();
 			defaultOverrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
 			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true, false);
@@ -170,6 +179,7 @@ public abstract class ControllerTest {
 
 	protected MockHttpServletResponse verify(MockHttpServletRequestBuilder builder, HttpStatus status,
 			String controlSource) throws Exception, UnsupportedEncodingException, SAXException, IOException {
+		builder.sessionAttr(Home.AUTHORIZED, true);
 		MvcResult mvcResult = mockMvc.perform(builder).andReturn();
 		MockHttpServletResponse response = mvcResult.getResponse();
 		Assert.assertEquals("HTTP status does not match	", status.value(), response.getStatus());

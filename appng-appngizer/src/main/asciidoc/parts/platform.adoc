@@ -38,17 +38,14 @@ include::../xml/database.xml[]
 
 === Reload platform
 
-IMPORTANT: This action is only available if appNGizer is running in the same Tomcat as appNG itself.
+IMPORTANT: This action will asynchronously restart the whole web-application, making also appNGizer temporarily unavailable!
 
 *URL:* http://localhost:8080/appNGizer/platform/reload
 
 *Method:* POST
 
-*Response Body:*
-[source,xml,indent=0]
-----
-include::../xml/platform.xml[]
-----
+*Response Headers:* 303 (See other)
+
 
 === System environment
 *URL:* http://localhost:8080/appNGizer/platform/environment

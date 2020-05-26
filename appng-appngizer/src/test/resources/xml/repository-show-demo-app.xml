@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <packages xmlns="http://www.appng.org/schema/appngizer"
-	self="http://localhost/repository/local%20repo/demo-application">
+	self="http://localhost/appNGizer/repository/local%20repo/demo-application">
 	<package name="demo-application"
-		self="http://localhost/repository/local%20repo/demo-application/1.5.4/2017-04-10-1046">
+		self="http://localhost/appNGizer/repository/local%20repo/demo-application/1.5.4/2017-04-10-1046">
 		<displayName>Demo Application</displayName>
 		<version>1.5.4</version>
 		<timestamp>2017-04-10-1046</timestamp>
@@ -10,7 +10,7 @@
 		<type>APPLICATION</type>
 	</package>
 	<package name="demo-application"
-		self="http://localhost/repository/local%20repo/demo-application/1.5.3/2013-01-13-1303">
+		self="http://localhost/appNGizer/repository/local%20repo/demo-application/1.5.3/2013-01-13-1303">
 		<displayName>Demo Application</displayName>
 		<version>1.5.3</version>
 		<timestamp>2013-01-13-1303</timestamp>
@@ -18,7 +18,7 @@
 		<type>APPLICATION</type>
 	</package>
 	<package name="demo-application"
-		self="http://localhost/repository/local%20repo/demo-application/1.5.2/2012-11-27-1305">
+		self="http://localhost/appNGizer/repository/local%20repo/demo-application/1.5.2/2012-11-27-1305">
 		<displayName>Demo Application</displayName>
 		<version>1.5.2</version>
 		<timestamp>2012-11-27-1305</timestamp>
@@ -26,7 +26,7 @@
 		<type>APPLICATION</type>
 	</package>
 	<package name="demo-application"
-		self="http://localhost/repository/local%20repo/demo-application/1.5.1/2012-08-03-1408">
+		self="http://localhost/appNGizer/repository/local%20repo/demo-application/1.5.1/2012-08-03-1408">
 		<displayName>Demo Application</displayName>
 		<version>1.5.1</version>
 		<timestamp>2012-08-03-1408</timestamp>

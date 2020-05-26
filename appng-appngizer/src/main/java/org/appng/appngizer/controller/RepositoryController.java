@@ -37,6 +37,7 @@ import org.appng.appngizer.model.xml.PackageType;
 import org.appng.core.domain.RepositoryImpl;
 import org.appng.core.model.InstallablePackage;
 import org.appng.core.model.PackageArchive;
+import org.appng.core.model.RepositoryCache;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.model.RepositoryMode;
 import org.appng.core.model.RepositoryType;
@@ -254,8 +255,13 @@ public class RepositoryController extends ControllerBase {
 	}
 
 	@PostMapping(value = "/repository/{name}/upload")
-	public ResponseEntity<Package> uploadPackage(@PathVariable("name") String name,
-			@RequestParam("file") MultipartFile file) throws BusinessException {
+	public ResponseEntity<Package> uploadPackage(
+	// @formatter:off
+			@PathVariable("name") String name,
+			@RequestParam("file") MultipartFile file,
+			@RequestParam(required = false, defaultValue = "false") boolean install
+	// @formatter:on
+	) throws BusinessException {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
 		if (null == r) {
 			return notFound();
@@ -271,7 +277,21 @@ public class RepositoryController extends ControllerBase {
 				Identifier installedApp = getApplicationByName(packageArchive.getPackageInfo().getName());
 				Identifier installedTemplate = getTemplateByName(packageArchive.getPackageInfo().getName());
 				Package pkg = getPackage(name, installedApp, installedTemplate, packageArchive.getPackageInfo());
-				RepositoryCacheFactory.instance().getCache(r).add(packageArchive);
+				RepositoryCache cache = RepositoryCacheFactory.instance().getCache(r);
+				PackageArchive existingArchive = cache.getPackageArchive(pkg.getName(), pkg.getVersion(),
+						pkg.getTimestamp());
+				boolean packageMissing = null == existingArchive;
+				if (packageMissing) {
+					packageMissing = !cache.add(packageArchive);
+				}
+
+				if (packageMissing) {
+					return reply(HttpStatus.BAD_REQUEST);
+				}
+
+				if (install) {
+					return installPackage(name, pkg);
+				}
 				return ok(pkg);
 			} else {
 				FileUtils.deleteQuietly(outFile);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<subject xmlns="http://www.appng.org/schema/appngizer" name="Admin" self="http://localhost/subject/Admin">
+<subject xmlns="http://www.appng.org/schema/appngizer" name="Admin" self="http://localhost/appNGizer/subject/Admin">
 	<realName>Admin Istrator</realName>
 	<email>admin@appng.com</email>
 	<description>a subject for administrators</description>
