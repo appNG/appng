@@ -122,36 +122,6 @@
 							</attributes>
 						</configuration>
 					</execution>
-					<execution>
-						<id>pdf-generate-setup-guide</id>
-						<phase>package</phase>
-						<goals>
-							<goal>process-asciidoc</goal>
-						</goals>
-						<configuration>
-							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
-						</configuration>
-					</execution>
-					<execution>
-						<id>html-generate-setup-guide</id>
-						<phase>package</phase>
-						<goals>
-							<goal>process-asciidoc</goal>
-						</goals>
-						<configuration>
-							<backend>html5</backend>
-							<outputDirectory>target/generated-docs/html</outputDirectory>
-							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
-							<attributes>
-								<toc>left</toc>
-								<linkcss>true</linkcss>
-								<icons>font</icons>
-								<sectanchors>true</sectanchors>
-								<stylesheet>appng.css</stylesheet>
-								<output-format>html</output-format>
-							</attributes>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 		</plugins>
