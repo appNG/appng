@@ -223,10 +223,6 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |https://appng.org/appng/docs/{current}/reference/html/developerguide.html[HTML^], https://appng.org/appng/docs/{current}/reference/pdf/developerguide.pdf[PDF^]
 
 |appNGizer
-|Setup Guide
-|https://appng.org/appng/docs/{current}/appngizer/html/appngizer-setup-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-setup-guide.pdf[PDF^]
-
-|appNGizer
 |Platform installation guide
 |https://appng.org/appng/docs/{current}/appngizer/html/appngizer-platform-installation-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-platform-installation-guide.pdf[PDF^]
 
@@ -250,10 +246,6 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |{stable}
 |https://appng.org/appng/builds/stable/appng-application-camunda-{stable}.war[WAR^]
 
-|appNGizer
-|{stable}
-|https://appng.org/appng/builds/stable/appng-appngizer-{stable}.war[WAR^]
-
 |Standalone
 |{stable}
 |https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip[ZIP^]
@@ -274,10 +266,6 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |appNG with https://camunda.org/[Camunda BPMN^]
 |{snapshot}
 |https://appng.org/appng/builds/snapshot/appng-application-camunda-{snapshot}.war[WAR^]
-
-|appNGizer
-|{snapshot}
-|https://appng.org/appng/builds/snapshot/appng-appngizer-{snapshot}.war[WAR^]
 
 |Standalone
 |{snapshot}
