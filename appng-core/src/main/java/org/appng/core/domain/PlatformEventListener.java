@@ -75,7 +75,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		if (PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())) {
+		if (null == context || PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())) {
 			PlatformEventListener.context = applicationContext;
 			LOGGER.info("Using application context {}", applicationContext);
 		}
