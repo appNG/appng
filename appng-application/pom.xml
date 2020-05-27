@@ -163,6 +163,11 @@
 			<groupId>org.appng</groupId>
 			<artifactId>appng-mail</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-appngizer</artifactId>
+			<version>${appNG.version}</version>
+		</dependency>
 		<!-- END PROJECT DEPENDENCIES -->
 		<!-- BEGIN FRAMEWORK DEPENDENCIES -->
 		<dependency>
