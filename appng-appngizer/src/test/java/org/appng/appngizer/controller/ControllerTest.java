@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,6 +36,7 @@ import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
+import org.appng.api.support.PropertyHolder;
 import org.appng.appngizer.model.xml.PackageType;
 import org.appng.appngizer.model.xml.Repository;
 import org.appng.appngizer.model.xml.RepositoryMode;
@@ -84,7 +85,7 @@ public abstract class ControllerTest {
 	protected XPathDifferenceHandler differenceListener;
 
 	static boolean platformInitialized = false;
-	
+
 	void installApplication() throws Exception {
 		Repository repo = new Repository();
 		repo.setName("local");
@@ -122,11 +123,16 @@ public abstract class ControllerTest {
 		if (!platformInitialized) {
 			Map<Object, Object> platformEnv = new ConcurrentHashMap<>();
 			platformEnv.put(Platform.Environment.APPNG_VERSION, "1.21.x");
+			List<? extends Property> properties = Arrays.asList(
+					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.SHARED_SECRET, "4711"));
+			platformEnv.put(Platform.Environment.PLATFORM_CONFIG,
+					new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties));
 			this.wac.getServletContext().setAttribute(Scope.PLATFORM.name(), platformEnv);
 			RepositoryCacheFactory.init(null, null, null, null, false);
 			Properties defaultOverrides = new Properties();
 			defaultOverrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
-			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true, false);
+			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true,
+					false);
 			platformInitialized = true;
 		}
 	}
@@ -179,7 +185,7 @@ public abstract class ControllerTest {
 
 	protected MockHttpServletResponse verify(MockHttpServletRequestBuilder builder, HttpStatus status,
 			String controlSource) throws Exception, UnsupportedEncodingException, SAXException, IOException {
-		builder.sessionAttr(Home.AUTHORIZED, true);
+		builder.header(HttpHeaders.AUTHORIZATION, "Bearer 4711");
 		MvcResult mvcResult = mockMvc.perform(builder).andReturn();
 		MockHttpServletResponse response = mvcResult.getResponse();
 		Assert.assertEquals("HTTP status does not match	", status.value(), response.getStatus());

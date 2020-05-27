@@ -15,9 +15,15 @@
  */
 package org.appng.appngizer.controller;
 
+import java.util.Enumeration;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.appng.api.Scope;
+import org.appng.api.model.Properties;
+import org.appng.api.support.environment.DefaultEnvironment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -36,8 +42,22 @@ public class SessionInterceptor implements WebRequestInterceptor {
 		String pathInfo = httpServletRequest.getPathInfo();
 		if (!Home.ROOT.equals(pathInfo)) {
 			HttpSession session = httpServletRequest.getSession();
-			Boolean authorized = (Boolean) session.getAttribute(Home.AUTHORIZED);
-			if (!Boolean.TRUE.equals(authorized)) {
+
+			Properties platformConfig = DefaultEnvironment.get(httpServletRequest.getServletContext())
+					.getAttribute(Scope.PLATFORM, org.appng.api.Platform.Environment.PLATFORM_CONFIG);
+			String sharedSecret = platformConfig.getString(org.appng.api.Platform.Property.SHARED_SECRET);
+
+			Enumeration<String> headers = httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION);
+			Boolean authorized = false;
+			while (headers.hasMoreElements()) {
+				if (String.format("Bearer %s", sharedSecret).equals(headers.nextElement())) {
+					authorized = true;
+					break;
+				}
+			}
+
+			authorized |= Boolean.TRUE.equals(session.getAttribute(Home.AUTHORIZED));
+			if (!authorized) {
 				LOGGER.info("session {} is not authorized, sending 403.", session.getId());
 				servletWebRequest.getResponse().sendError(HttpStatus.FORBIDDEN.value(), "Please authenticate first!");
 				return;
