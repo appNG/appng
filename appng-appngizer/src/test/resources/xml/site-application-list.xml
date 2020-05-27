@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<applications xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/site/localhost/application">
-	<application name="demo-application" self="http://localhost/site/localhost/application/demo-application">
+<applications xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/appNGizer/site/localhost/application">
+	<application name="demo-application" self="http://localhost/appNGizer/site/localhost/application/demo-application">
 		<links>
-			<link name="role" self="http://localhost/application/demo-application/role" />
-			<link name="permission" self="http://localhost/application/demo-application/permission" />
-			<link name="property" self="http://localhost/site/localhost/application/demo-application/property" />
+			<link name="role" self="http://localhost/appNGizer/application/demo-application/role" />
+			<link name="permission" self="http://localhost/appNGizer/application/demo-application/permission" />
+			<link name="property" self="http://localhost/appNGizer/site/localhost/application/demo-application/property" />
 		</links>
 		<displayName>Demo Application</displayName>
 		<privileged>false</privileged>

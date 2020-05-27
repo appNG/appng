@@ -19,12 +19,13 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.appngizer.model.xml.Linkable;
-import org.springframework.oxm.UncategorizedMappingException;
+import org.springframework.oxm.MarshallingFailureException;
 
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 
@@ -39,14 +40,13 @@ public class Jaxb2Marshaller extends org.springframework.oxm.jaxb.Jaxb2Marshalle
 	}
 
 	@Override
-	protected Marshaller createMarshaller() {
-		javax.xml.bind.Marshaller marshaller = super.createMarshaller();
+	protected void initJaxbMarshaller(Marshaller marshaller) throws JAXBException {
+		super.initJaxbMarshaller(marshaller);
 		try {
 			marshaller.setProperty(CharacterEscapeHandler.class.getName(), this);
 		} catch (PropertyException e) {
-			throw new UncategorizedMappingException("error setting CharacterEscapeHandler", e);
+			throw new MarshallingFailureException("error setting CharacterEscapeHandler", e);
 		}
-		return marshaller;
 	}
 
 	public void escape(char[] buf, int start, int len, boolean isAttValue, Writer out) throws IOException {

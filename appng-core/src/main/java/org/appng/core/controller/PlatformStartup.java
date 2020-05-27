@@ -73,6 +73,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PlatformStartup implements ServletContextListener {
 
 	static final String APPNG_STARTED = "APPNG_STARTED";
+	public static final String APPNG_CONTEXT = "appNG platform context";
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
 	public static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
@@ -148,7 +149,7 @@ public class PlatformStartup implements ServletContextListener {
 			DatabaseConnection platformConnection) throws IOException {
 		AnnotationConfigWebApplicationContext platformCtx = new AnnotationConfigWebApplicationContext();
 		platformCtx.register(PlatformConfig.class);
-		platformCtx.setDisplayName("appNG platform context");
+		platformCtx.setDisplayName(APPNG_CONTEXT);
 		platformCtx.setServletContext(ctx);
 		PropertySourcesPlaceholderConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		config.put(DatabaseService.DATABASE_TYPE, platformConnection.getType().name());

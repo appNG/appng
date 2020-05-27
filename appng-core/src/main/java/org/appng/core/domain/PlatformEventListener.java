@@ -33,6 +33,7 @@ import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.model.Subject;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.core.controller.PlatformStartup;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +75,10 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		PlatformEventListener.context = applicationContext;
-		LOGGER.info("Using application context {}", applicationContext);
+		if (null == context || PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())) {
+			PlatformEventListener.context = applicationContext;
+			LOGGER.info("Using application context {}", applicationContext);
+		}
 	}
 
 	@PrePersist
@@ -96,7 +99,7 @@ public class PlatformEventListener implements ApplicationContextAware {
 	private void createEvent(Type type, Auditable<?> auditable) {
 		createEvent(type, String.format(auditable.getAuditName()));
 	}
-	
+
 	public void createEvent(Type type, String message) {
 		HttpServletRequest servletRequest = getServletRequest();
 		HttpSession session = null == servletRequest ? null : servletRequest.getSession();

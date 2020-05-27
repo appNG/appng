@@ -17,6 +17,7 @@ package org.appng.appngizer.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,6 +81,18 @@ public class SiteController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
+	public static class ReloadSiteFromAppNGizer extends ReloadSiteEvent implements Serializable {
+
+		public ReloadSiteFromAppNGizer(String siteName) {
+			super(siteName);
+		}
+
+		@Override
+		protected void setNodeId(String nodeId) {
+			super.setNodeId(nodeId + "_appNGizer");
+		}
+	}
+
 	@PutMapping(value = "/site/{name}/reload")
 	public ResponseEntity<Void> reloadSite(@PathVariable("name") String name) throws BusinessException {
 		SiteImpl site = getSiteByName(name);
@@ -89,7 +102,7 @@ public class SiteController extends ControllerBase {
 		Sender sender = getSender(DefaultEnvironment.get(context));
 		if (null != sender) {
 			LOGGER.debug("messaging is active, sending ReloadSiteEvent");
-			sender.send(new ReloadSiteEvent(name));
+			sender.send(new ReloadSiteFromAppNGizer(name));
 		} else if (supportsReloadFile(site)) {
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			File reloadFile = new File(rootDir, ".reload");
@@ -106,7 +119,6 @@ public class SiteController extends ControllerBase {
 	}
 
 	private Sender getSender(Environment env) {
-		initMessaging();
 		return Messaging.getMessageSender(env);
 	}
 

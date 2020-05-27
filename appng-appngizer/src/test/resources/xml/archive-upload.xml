@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <package xmlns="http://www.appng.org/schema/appngizer" name="demo-application"
-    self="http://localhost/repository/local/demo-application/1.5.3/2013-01-13-1303">
+    self="http://localhost/appNGizer/repository/local/demo-application/1.5.3/2013-01-13-1303">
     <displayName>Demo Application</displayName>
     <version>1.5.3</version>
     <timestamp>2013-01-13-1303</timestamp>

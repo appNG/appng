@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <property xmlns="http://www.appng.org/schema/appngizer" name="assetsDir"
-	self="http://localhost/site/localhost/property/assetsDir">
+	self="http://localhost/appNGizer/site/localhost/property/assetsDir">
 	<value>42</value>
 	<defaultValue>/assets</defaultValue>
 	<description>foo</description>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<applications xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/application">
-	<application name="demo-application" self="http://localhost/application/demo-application">
+<applications xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/appNGizer/application">
+	<application name="demo-application" self="http://localhost/appNGizer/application/demo-application">
 		<displayName>Demo Application</displayName>
 		<privileged>false</privileged>
 		<fileBased>true</fileBased>

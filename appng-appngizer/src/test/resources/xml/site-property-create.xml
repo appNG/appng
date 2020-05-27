@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <property xmlns="http://www.appng.org/schema/appngizer" name="theAnswer"
-	self="http://localhost/site/localhost/property/theAnswer">
+	self="http://localhost/appNGizer/site/localhost/property/theAnswer">
 	<value>42</value>
 	<defaultValue>42</defaultValue>
 	<description>to life, the universe and everything</description>

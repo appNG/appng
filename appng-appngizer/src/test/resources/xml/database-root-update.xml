@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<database xmlns="http://www.appng.org/schema/appngizer" id="1" self="http://localhost/platform/database">
+<database xmlns="http://www.appng.org/schema/appngizer" id="1" self="http://localhost/appNGizer/platform/database">
 	<links>
-		<link name="initialize" self="http://localhost/platform/database/initialize" />
+		<link name="initialize" self="http://localhost/appNGizer/platform/database/initialize" />
 	</links>
 	<type>HSQL</type>
 	<user>sa</user>
