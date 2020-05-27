@@ -30,27 +30,36 @@ This goal uploads the application to a local repository and can also install it 
 General (default in braces):
 
 * `endpoint` (`http://localhost:8080/appNGizer/`) +
-the endpoint URL of appNGizer
+The endpoint URL of appNGizer.
 
 * `sharedSecret` (_none_) +
-the platform's shared secret to authenticate with
+The platform's shared secret to authenticate with.
 
 * `repository`  (`Local`) +
-the name of the *local* repository
+The name of the *local* repository.
 
 * `baseauthUser` (_none_) +
-the user name for basic authentication
+The user name for basic authentication.
 
 * `baseauthPassword` (_none_) +
-the password for basic authentication
+The password for basic authentication.
 
 `install` goal only:
 
 * `activate` (`false`) +
-if the installed archive should be activated for the site
+Whether or not the installed archive should be activated for the `site`.
+
+* `directInstall` (`false`) +
+When set to `true`, the application is installed directly after uploading instead of making a separate request. This is especially useful in a clustered environment with non-sticky sessions.
+
+* `hidden` (`false`) +
+Whether or not the application should be installed as a hidden one.
+
+* `privileged`(`false`) +
+Whether or not the application should be installed as a privileged one.
 
 * `site` (_none_) +
-the name of the site to reload after installing the application +
+The name of the site to reload after installing the application. +
 +
 [NOTE]
 ====
@@ -71,6 +80,9 @@ you have to set the site property `supportReloadFile` to `true`. The site reload
         <sharedSecret>TheSecret</sharedSecret>
         <repository>Local</repository>
         <activate>true</activate>
+        <privileged>true</privileged>
+        <hidden>false</hidden>
+        <directInstall>true</directInstall>
         <site>manager</site>
     </configuration>
     <executions>

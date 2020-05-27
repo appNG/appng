@@ -46,8 +46,8 @@ public class InstallMojo extends AppNGizerMojo {
 	@Parameter(property = "hidden")
 	protected boolean hidden = false;
 
-	@Parameter(property = "installDuringUpload")
-	protected boolean installDuringUpload = false;
+	@Parameter(property = "directInstall")
+	protected boolean directInstall = false;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		try {
@@ -55,7 +55,7 @@ public class InstallMojo extends AppNGizerMojo {
 			login();
 			getRepository();
 
-			ResponseEntity<Package> uploaded = upload(installDuringUpload, privileged, hidden);
+			ResponseEntity<Package> uploaded = upload(directInstall, privileged, hidden);
 
 			boolean doReload = true;
 			HttpStatus status = uploaded.getStatusCode();
@@ -65,7 +65,7 @@ public class InstallMojo extends AppNGizerMojo {
 			if (packageOk) {
 				Package uploadPackage = uploaded.getBody();
 				String packageName = uploadPackage.getName();
-				if (installDuringUpload) {
+				if (directInstall) {
 					packageOk = true;
 				} else {
 					if (uploadPackage.isInstalled()) {
@@ -120,7 +120,7 @@ public class InstallMojo extends AppNGizerMojo {
 				}
 			} else {
 				getLog().error(String.format(
-						"error " + (installDuringUpload ? "installing" : "uploading") + " package , return code was %s",
+						"error " + (directInstall ? "installing" : "uploading") + " package , return code was %s",
 						uploaded.getStatusCode()));
 			}
 
