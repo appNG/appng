@@ -41,6 +41,7 @@ import org.appng.appngizer.model.xml.PackageType;
 import org.appng.appngizer.model.xml.Repository;
 import org.appng.appngizer.model.xml.RepositoryMode;
 import org.appng.appngizer.model.xml.RepositoryType;
+import org.appng.core.controller.PlatformStartup;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.service.CoreService;
 import org.appng.core.service.PropertySupport;
@@ -51,6 +52,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,10 +72,16 @@ import org.springframework.xml.transform.StringResult;
 import org.xml.sax.SAXException;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = { "classpath:test-context.xml" })
+@ContextConfiguration(locations = { "classpath:test-context.xml" }, initializers = ControllerTest.Initializer.class)
 @DirtiesContext
 @WebAppConfiguration
 public abstract class ControllerTest {
+
+	static class Initializer implements ApplicationContextInitializer<AbstractApplicationContext> {
+		public void initialize(AbstractApplicationContext applicationContext) {
+			applicationContext.setDisplayName(PlatformStartup.APPNG_CONTEXT);
+		}
+	}
 
 	@Autowired
 	protected WebApplicationContext wac;
