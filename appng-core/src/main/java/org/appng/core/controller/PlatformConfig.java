@@ -85,7 +85,7 @@ public class PlatformConfig {
 		return pel;
 	}
 
-	@Bean(destroyMethod = "destroy")
+	@Bean
 	public DataSourceFactory dataSource(
 	// @formatter:off
 			@Value("${hibernate.connection.url}") String jdbcUrl,

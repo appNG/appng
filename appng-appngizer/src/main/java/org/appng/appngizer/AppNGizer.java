@@ -114,7 +114,7 @@ public class AppNGizer extends WebMvcConfigurationSupport {
 		return emfb;
 	}
 
-	@Bean(destroyMethod = "destroy")
+	@Bean
 	public DataSourceFactory datasource(AppNGizerConfigurer configurer) {
 		Properties props = configurer.getProps();
 		DatabaseType dbType = DatabaseType.valueOf(props.getProperty("database.type"));
