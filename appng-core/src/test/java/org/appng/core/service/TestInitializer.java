@@ -15,9 +15,11 @@
  */
 package org.appng.core.service;
 
+import org.appng.core.controller.PlatformStartup;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 public class TestInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -29,6 +31,7 @@ public class TestInitializer implements ApplicationContextInitializer<Configurab
 		PropertyResourceConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		configurer.setProperties(properties);
 		applicationContext.addBeanFactoryPostProcessor(configurer);
+		((AbstractApplicationContext) applicationContext).setDisplayName(PlatformStartup.APPNG_CONTEXT);
 	}
 
 	protected java.util.Properties getProperties() {
