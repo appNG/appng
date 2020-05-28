@@ -25,6 +25,7 @@ import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest.CommandTestInitializer;
 import org.appng.cli.prettytable.PrettyTable;
 import org.appng.cli.prettytable.TableRow;
+import org.appng.core.controller.PlatformStartup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
@@ -55,17 +57,18 @@ public abstract class AbstractCommandTest {
 	protected ConfigurableApplicationContext context;
 
 	public static class CommandTestInitializer
-			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+			implements ApplicationContextInitializer<AbstractApplicationContext> {
 
 		public CommandTestInitializer() {
 
 		}
 
-		public void initialize(ConfigurableApplicationContext platformContext) {
+		public void initialize(AbstractApplicationContext platformContext) {
 			Properties config = getProperties(getClass());
 			PropertyResourceConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 			configurer.setProperties(config);
 			platformContext.addBeanFactoryPostProcessor(configurer);
+			platformContext.setDisplayName(PlatformStartup.APPNG_CONTEXT);
 		}
 
 		public static Properties getProperties(Class<?> caller) {
