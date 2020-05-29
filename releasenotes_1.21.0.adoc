@@ -32,7 +32,7 @@ Check out the https://appng.org/appng/docs/{appNG-version}/reference/html/admini
 
 
 === Spring's cache abstraction
-Another great benefit is the *support for Spring's {spring-docs}/spring-framework-reference/htmlsingle/#cache[Caching abtraction^]* by providing a {spring-docs}/javadoc-api/org/springframework/cache/CacheManager.html[CacheManager^] that is available out-of-the-box for every application that want's to use it.
+Another great benefit is the *support for Spring's {spring-docs}/spring-framework-reference/htmlsingle/#cache[Caching abstraction^]* by providing a {spring-docs}/javadoc-api/org/springframework/cache/CacheManager.html[CacheManager^] that is available out-of-the-box for every application that want's to use it.
 
 Just add `@EnableCaching` to your  `@Configuration` (`<cache:annotation-driven/>` when using `beans.xml`) and add some {spring-docs}/spring-framework-reference/htmlsingle/#cache-annotations[caching annotations^] to your business logic and you are ready to go!
 
