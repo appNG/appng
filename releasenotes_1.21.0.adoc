@@ -2,7 +2,7 @@
 Matthias Müller <matthias.mueller@appng.org>
 2020-03-31
 
-:appNG-version: 1.21.0-SNAPSHOT
+:appNG-version: 1.21.0
 :spring-docs: https://docs.spring.io/spring/docs/4.3.x
 
 The appNG development team is happy to announce the release of appNG 1.21.0.
