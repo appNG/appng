@@ -1,0 +1,87 @@
+= appNG 1.21.0 released
+Matthias Müller <matthias.mueller@appng.org>
+2020-03-31
+
+:appNG-version: 1.21.0-SNAPSHOT
+:spring-docs: https://docs.spring.io/spring/docs/4.3.x
+
+The appNG development team is happy to announce the release of appNG 1.21.0.
+
+With more than three dozen fixed issues, this release comes with a large set of noteworthy changes.
+
+For a full list of changes check out the https://appng.org/jira/secure/ReleaseNote.jspa?version=11207&styleName=Text&projectId=10000[release notes^] on JIRA.
+
+Let's take a closer look at those.
+
+== Caching reloaded, powered by Hazelcast
+In the past, the good old Ehcache has served us well when it came to caching.
+
+Nonetheless, there were some limitations.
+To remove these, https://hazelcast.org[Hazelcast^] has been chosen as the new caching solution.
+
+[TIP]
+====
+When upgrading an existing appNG instance, make sure https://appng.org/appng/docs/{appNG-version}/reference/html/administrationguide.html#platform-configuration[hazelcast.xml^] is placed in `WEB-INF/conf` and the platform property `cacheConfig` points to `WEB-INF/conf/hazelcast.xml`.
+====
+
+=== Page caches
+Hazelcast enables appNG to provide a *configurable page cache* for each site, allowing to define a *custom TTL* 
+for different paths and **Ant-style path matching**.
+
+Check out the https://appng.org/appng/docs/{appNG-version}/reference/html/administrationguide.html#caching[section about caching^] in the platform administration guide for details.
+
+
+=== Spring's cache abstraction
+Another great benefit is the *support for Spring's {spring-docs}/spring-framework-reference/htmlsingle/#cache[Caching abtraction^]* by providing a {spring-docs}/javadoc-api/org/springframework/cache/CacheManager.html[CacheManager^] that is available out-of-the-box for every application that want's to use it.
+
+Just add `@EnableCaching` to your  `@Configuration` (`<cache:annotation-driven/>` when using `beans.xml`) and add some {spring-docs}/spring-framework-reference/htmlsingle/#cache-annotations[caching annotations^] to your business logic and you are ready to go!
+
+
+== User management
+
+Regarding user management, a few improvements have been made.
+
+A user account now can be locked manually, automatically after X login attempts or after X days of inactivity. 
+It can also have an expiry date. 
+
+It is now possible to define whether a user may or must (not) change it's password, or if the password needs to be recovered.
+
+For details about managing users and password policies, check out the https://appng.org/appng/docs/{appNG-version}/reference/html/administrationguide.html#user-management[administration  guide^].
+
+=== Password policies
+
+The rules for how a password must be composed can now be configured in detail. KUDOS go to the great https://www.passay.org/[Passay^] library here.
+
+=== Improved support for LDAP groups
+
+In past, all LDAP groups used by appNG had to be located under the same base DN. This restriction has been removed by allowing to enter the fully qualified distinguished name (FQDN) of the LDAP group to use.
+
+== Dependency updates
+Like for most minor releases, dependencies have been updated for this release:
+
+* Flyway 4.2.0 -> 5.2.4 
+* Lucene 8.2.0 -> 8.5.0
+* Jackson 2.10.0.pr1 -> 2.10.3, including `jackson-datatype-jsr310`
+* many other minor and patch versions
+
+[IMPORTANT]
+====
+Note that also some new dependencies were added, so make sure you are using the latest version of the BOM `pom.xml`.
+====
+
+
+== Repository improvements
+
+For appNG's repository mechanism, some performance improvements where made.
+
+Scanning for artifacts is now way much faster. The same applies when uploading artifacts with appNGizer, that now also is able to install hidden an privileged applications.
+
+
+== Database support
+The existing support for *MySql* now also includes version **8.x**, which (in combination with `mysql-connector-java` 8.x) allows using the *Java 8 Date Time API* for JPA entities.
+
+New on the other hand is the support for https://www.postgresql.org/[PostgreSQL^] >= 10 and https://mariadb.org/[MariaDB^] 10.x (`useMysqlMetadata=true` must be used for `hibernate.connection.url` in `appNG.properties`).
+
+== Miscellaneous
+
+
