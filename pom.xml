@@ -58,7 +58,7 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!-- dependency versions -->
 		<appNG.manager.version>1.17.0</appNG.manager.version>
-		<appNG.scheduler.version>1.12.0</appNG.scheduler.version>
+		<appNG.scheduler.version>1.13.0</appNG.scheduler.version>
 		<appNG.authentication.version>1.13.0</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<esapi.version>2.2.0.0</esapi.version>
