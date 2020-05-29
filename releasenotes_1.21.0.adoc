@@ -60,9 +60,9 @@ In past, all LDAP groups used by appNG had to be located under the same base DN.
 == Dependency updates
 Like for most minor releases, dependencies have been updated for this release:
 
-* Flyway 4.2.0 -> 5.2.4 
-* Lucene 8.2.0 -> 8.5.0
-* Jackson 2.10.0.pr1 -> 2.10.3, including `jackson-datatype-jsr310`
+* https://flywaydb.org/[Flyway^] 4.2.0 -> 5.2.4 
+* https://lucene.apache.org/[Lucene] 8.2.0 -> 8.5.0
+* https://github.com/FasterXML[Jackson^] 2.10.0.pr1 -> 2.10.3, including `jackson-datatype-jsr310`
 * many other minor and patch versions
 
 [IMPORTANT]
@@ -82,7 +82,3 @@ Scanning for artifacts is now way much faster. The same applies when uploading a
 The existing support for *MySql* now also includes version **8.x**, which (in combination with `mysql-connector-java` 8.x) allows using the *Java 8 Date Time API* for JPA entities.
 
 New on the other hand is the support for https://www.postgresql.org/[PostgreSQL^] >= 10 and https://mariadb.org/[MariaDB^] 10.x (`useMysqlMetadata=true` must be used for `hibernate.connection.url` in `appNG.properties`).
-
-== Miscellaneous
-
-
