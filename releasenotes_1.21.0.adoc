@@ -1,3 +1,4 @@
+image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
 = appNG 1.21.0 released
 Matthias Müller <matthias.mueller@appng.org>
 2020-03-31
