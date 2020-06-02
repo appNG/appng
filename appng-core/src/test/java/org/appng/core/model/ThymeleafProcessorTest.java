@@ -307,6 +307,8 @@ public class ThymeleafProcessorTest {
 		Result result = appNG.result(appNG.datasource("site-properties"), 1);
 		Linkpanel linkpanel = appNG.linkpanel(result, "actions");
 		Link defaultLink = appNG.defaultLink(linkpanel);
+		Link defaultLink2 = appNG.defaultLink(Arrays.asList(linkpanel));
+		Assert.assertEquals(defaultLink, defaultLink2);
 		Assert.assertNotNull(defaultLink);
 		Assert.assertEquals("actions[1]", defaultLink.getId());
 	}

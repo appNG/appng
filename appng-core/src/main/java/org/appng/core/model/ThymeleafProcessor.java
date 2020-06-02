@@ -246,8 +246,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		writeDebugFile(LOGGER, outfolder, name, content);
 	}
 
-	protected void writeTemplateFiles(File outfolder, ThymeleafTemplateEngine templateEngine)
-			throws IOException {
+	protected void writeTemplateFiles(File outfolder, ThymeleafTemplateEngine templateEngine) throws IOException {
 		Set<String> templateNames = new HashSet<>();
 		for (ITemplateResolver tplRes : templateEngine.getTemplateResolvers()) {
 			String prefix = ((FileTemplateResolver) tplRes).getPrefix();
@@ -787,6 +786,16 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 					if (Boolean.parseBoolean(l.getDefault())) {
 						return l;
 					}
+				}
+			}
+			return null;
+		}
+
+		public Link defaultLink(List<Linkpanel> panels) {
+			for (Linkpanel panel : panels) {
+				Link defaultLink = defaultLink(panel);
+				if (null != defaultLink) {
+					return defaultLink;
 				}
 			}
 			return null;
