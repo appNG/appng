@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -32,10 +33,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
@@ -71,6 +78,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
@@ -114,13 +123,14 @@ public abstract class ControllerBase implements DisposableBean {
 
 			Properties platformCfg = coreService.getPlatformProperties();
 			String monitoringPath = platformCfg.getString(Platform.Property.MONITORING_PATH);
+			Boolean trustAllCertificates = platformCfg.getBoolean(AppNGizer.TRUST_ALL_CERTIFICATES, true);
 
 			Callable<Void> waitForAppNG = () -> {
 				List<SiteImpl> sites = coreService.getSites();
 				Optional<SiteImpl> activeSite = sites.stream().filter(SiteImpl::isActive).findFirst();
 
 				if (activeSite.isPresent()) {
-					RestTemplate restTemplate = new RestTemplate();
+					RestTemplate restTemplate = getRestTemplate(trustAllCertificates);
 					DefaultEnvironment env = DefaultEnvironment.get(context);
 
 					HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -140,6 +150,17 @@ public abstract class ControllerBase implements DisposableBean {
 
 			executor.submit(waitForAppNG);
 		}
+	}
+
+	private RestTemplate getRestTemplate(Boolean trustAllCertificates) throws GeneralSecurityException {
+		if (trustAllCertificates) {
+			SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, (chain, authType) -> true).build();
+			SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier());
+			CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+			ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+			return new RestTemplate(requestFactory);
+		}
+		return new RestTemplate();
 	}
 
 	private ResponseEntity<SiteInfo> checkSiteHealth(Properties platformCfg, Environment env, String monitoringPath,
