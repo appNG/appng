@@ -408,7 +408,7 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	@org.junit.Ignore
+	//@org.junit.Ignore
 	@Test(timeout = 30000)
 	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
@@ -442,9 +442,9 @@ public class CoreServiceTest {
 			Thread.sleep(100);
 		}
 
-		while (null != stateMap.get(realSite.getName())) {
-			Thread.sleep(100);
-		}
+		//while (null != stateMap.get(realSite.getName())) {
+		//	Thread.sleep(100);
+		//}
 
 		receiver.close();
 	}
