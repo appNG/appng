@@ -37,6 +37,7 @@ public class AppNGizer implements ServletContextListener {
 	private static final String MANIFEST_MF = "META-INF/MANIFEST.MF";
 	static final String APPNG_HOME = "APPNG_HOME";
 	static final String APPNG_VERSION = "APPNG_VERSION";
+	static final String TRUST_ALL_CERTIFICATES = "trustAllCertificates";
 
 	public void contextInitialized(ServletContextEvent sce) {
 		ServletContext servletContext = sce.getServletContext();

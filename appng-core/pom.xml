@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.21.0</version>
+		<version>1.21.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -28,7 +28,6 @@
 						<!-- skip integration tests -->
 						<exclude>**/*IT.java</exclude>
 					</excludes>
-					<argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
 				</configuration>
 			</plugin>
 			<plugin>

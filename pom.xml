@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.21.0</version>
+	<version>1.21.1</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
@@ -48,7 +48,7 @@
 
 	<properties>
 		<appNG.version>${project.version}</appNG.version>
-		<argLine>-Xms1g -Xmx2g -Dfile.encoding=${project.build.sourceEncoding}</argLine>
+		<argLine>-Xms512m -Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 		<docDir>./target/generated-docs</docDir>
 		<license.licenseName>apache_v2</license.licenseName>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
@@ -444,11 +444,11 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M4</version>
+					<version>3.0.0-M5</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>3.0.0-M4</version>
+					<version>3.0.0-M5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
