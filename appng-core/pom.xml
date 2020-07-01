@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<testcontainers.version>1.13.0</testcontainers.version>
+		<testcontainers.version>1.14.3</testcontainers.version>
 	</properties>
 
 	<build>
@@ -382,7 +382,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>5.8.0</version>
+			<version>5.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -430,7 +430,7 @@
 		<dependency>
 			<groupId>org.passay</groupId>
 			<artifactId>passay</artifactId>
-			<version>1.5.0</version>
+			<version>1.6.0</version>
 		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->

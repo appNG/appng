@@ -62,21 +62,21 @@
 		<appNG.authentication.version>1.13.0</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<esapi.version>2.2.0.0</esapi.version>
-		<hazelcast.version>4.0</hazelcast.version>
-		<hibernate.version>5.4.10.Final</hibernate.version>
-		<jackson.version>2.10.3</jackson.version>
+		<hazelcast.version>4.0.1</hazelcast.version>
+		<hibernate.version>5.4.18.Final</hibernate.version>
+		<jackson.version>2.11.1</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
-		<lucene.version>8.5.0</lucene.version>
-		<pdfBox.version>2.0.18</pdfBox.version>
+		<lucene.version>8.5.2</lucene.version>
+		<pdfBox.version>2.0.20</pdfBox.version>
 		<poi.version>3.17</poi.version>
-		<queryDsl.version>4.3.0</queryDsl.version>
+		<queryDsl.version>4.3.1</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<spring.version>4.3.25.RELEASE</spring.version>
+		<spring.version>4.3.27.RELEASE</spring.version>
 		<springData.version>1.13.23.RELEASE</springData.version>
 		<springDataEnvers.version>1.1.23.RELEASE</springDataEnvers.version>
 		<springDataJpa.version>1.11.23.RELEASE</springDataJpa.version>
-		<springSecurity.version>4.2.13.RELEASE</springSecurity.version>
+		<springSecurity.version>4.2.17.RELEASE</springSecurity.version>
 		<springWS.version>2.4.6.RELEASE</springWS.version>
 		<tika.version>1.18</tika.version>
 		<tomcat.version>9.0.31</tomcat.version>
@@ -834,7 +834,12 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.12.2</version>
+				<version>1.13.1</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>1.9.4</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -856,12 +861,12 @@
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.6</version>
+				<version>2.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.9</version>
+				<version>3.10</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
@@ -882,6 +887,11 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
 				<version>1.8</version>
+			</dependency>
+			<dependency>
+				<groupId>org.dom4j</groupId>
+				<artifactId>dom4j</artifactId>
+				<version>2.1.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
@@ -950,12 +960,12 @@
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>3.4.2</version>
+				<version>3.4.5</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>28.2-jre</version>
+				<version>29.0-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.saxon</groupId>
@@ -985,7 +995,7 @@
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-				<version>8.0.19</version>
+				<version>8.0.20</version>
 			</dependency>
 			<dependency>
 				<groupId>org.im4java</groupId>
@@ -1066,7 +1076,7 @@
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
-				<version>2.10.5</version>
+				<version>2.10.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>
