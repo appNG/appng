@@ -28,7 +28,6 @@
 						<!-- skip integration tests -->
 						<exclude>**/*IT.java</exclude>
 					</excludes>
-					<argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
