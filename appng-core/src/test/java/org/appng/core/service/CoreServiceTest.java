@@ -441,14 +441,16 @@ public class CoreServiceTest {
 		// 5x NodeEvent
 		// 1x SiteDeletedEvent
 		while (11 != receiver.getProcessed().size()) {
-			LOGGER.info("Processed {} events", receiver.getProcessed().size());
 			Thread.sleep(100);
 		}
+		LOGGER.info("Processed {} events", receiver.getProcessed().size());
 
-		SiteState state;
-		while (null != (state = stateMap.get(realSite.getName()))) {
-			LOGGER.info("state for site {} is {}", realSite.getName(), state);
-			Thread.sleep(100);
+		synchronized (stateMap) {
+			SiteState state;
+			while (null != (state = stateMap.get(realSite.getName()))) {
+				LOGGER.info("state for site {} is {}", realSite.getName(), state);
+				Thread.sleep(100);
+			}
 		}
 
 		receiver.close();
