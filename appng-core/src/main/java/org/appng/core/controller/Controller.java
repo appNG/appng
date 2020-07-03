@@ -128,7 +128,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 			@Override
 			public PrintWriter getWriter() throws IOException {
-				return new PrintWriter(new NullOutputStream());
+				return new PrintWriter(NullOutputStream.NULL_OUTPUT_STREAM);
 			}
 		};
 	}

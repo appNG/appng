@@ -76,7 +76,6 @@ public class MonitoringHandlerTest {
 		String content = resp.getContentAsString();
 
 		Assert.assertTrue(content.contains("JAVA_HOME"));
-		Assert.assertTrue(content.contains("USERNAME"));
 	}
 
 	@Test
