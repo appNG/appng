@@ -75,7 +75,8 @@
 		<description>Set to true to enable caching for this site</description>
 	</property>
 	<property clob="true" name="cacheExceptions" self="http://localhost/appNGizer/site/localhost/property/cacheExceptions">
-		<value>/manager</value>
+		<value><![CDATA[/manager
+/health]]></value>
 		<description>URL path prefixes which are never cached. Contains one prefix per line (multiline value).</description>
 	</property>
 	<property name="cacheStatistics" self="http://localhost/appNGizer/site/localhost/property/cacheStatistics">
