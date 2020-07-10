@@ -146,11 +146,14 @@ public class PlatformStartup implements ServletContextListener {
 	private void printLogo() throws URISyntaxException, IOException, FileNotFoundException {
 		LOGGER.info("");
 		LOGGER.info(StringUtils.repeat("-", 48));
-		String appNGVersion = "";
+		String appNGVersion = "appNG.version";
 		String jarPath = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-		try (InputStream logoIs = getClass().getResourceAsStream("logo.txt");
-				JarInputStream jis = new JarInputStream(new FileInputStream(jarPath))) {
-			appNGVersion = jis.getManifest().getMainAttributes().getValue("Implementation-Version");
+		if (jarPath.startsWith("jar:file")) {
+			try (JarInputStream jis = new JarInputStream(new FileInputStream(jarPath))) {
+				appNGVersion = jis.getManifest().getMainAttributes().getValue("Implementation-Version");
+			}
+		}
+		try (InputStream logoIs = getClass().getResourceAsStream("logo.txt")) {
 			IOUtils.readLines(logoIs, StandardCharsets.UTF_8).stream().forEach(LOGGER::info);
 		}
 		LOGGER.info(StringUtils.leftPad(appNGVersion, 41, "-") + "-------");
