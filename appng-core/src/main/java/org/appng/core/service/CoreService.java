@@ -887,7 +887,8 @@ public class CoreService {
 			File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
 			String databasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
 			ApplicationProvider applicationProvider = new ApplicationProvider(site, application);
-			applicationProvider.setProperties(getApplicationProperties(site, applicationProvider));
+			PropertyHolder applicationProperties = getApplicationProperties(null, applicationProvider);
+			applicationProvider.setProperties(applicationProperties);
 			return databaseService.manageApplicationConnection(applicationProvider, applicationInfo, sqlFolder,
 					databasePrefix);
 		} catch (Exception e) {

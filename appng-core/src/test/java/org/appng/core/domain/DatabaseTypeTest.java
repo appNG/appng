@@ -42,6 +42,15 @@ public class DatabaseTypeTest {
 		runTest(MSSQL, "jdbc:sqlserver://localhost:1433;databaseName=appng");
 	}
 
+	@Test
+	public void testGetDatabaseConnectionString() {
+		DatabaseConnection con = new DatabaseConnection(MYSQL, "jdbc:mysql://localhost:3306/appng?foo=bar",
+				DatabaseType.MYSQL.getDefaultDriver(), null, null, null);
+		Assert.assertEquals("appng", con.getDatabaseName());
+		Assert.assertEquals("jdbc:mysql://localhost:3306/app-database?foo=bar",
+				con.getDatabaseConnectionString("app-database"));
+	}
+
 	private void runTest(DatabaseType type, String jdbcUrl) {
 		Assert.assertEquals("appng", type.getDatabaseName(jdbcUrl));
 		Assert.assertEquals("appng", type.getDatabaseName(jdbcUrl + "?foo=bar"));
