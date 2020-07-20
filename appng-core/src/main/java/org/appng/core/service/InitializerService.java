@@ -165,7 +165,8 @@ public class InitializerService {
 	 *                                       an {@link ExecutorService} used by the cluster messaging
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
-	 * @see                                  #loadPlatform(PlatformProperties, Environment, String, String, ExecutorService)
+	 * @see                                  #loadPlatform(PlatformProperties, Environment, String, String,
+	 *                                       ExecutorService)
 	 */
 	@Transactional
 	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
@@ -180,12 +181,12 @@ public class InitializerService {
 	/**
 	 * Reloads the platform with all of it's {@link Site}s.
 	 * 
-	 * @param env
-	 *                 the current {@link Environment}
-	 * @param siteName
-	 *                 the (optional) name of the {@link Site} that caused the platform reload
-	 * @param target
-	 *                 an (optional) target to redirect to after platform reload
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteName
+	 *                                       the (optional) name of the {@link Site} that caused the platform reload
+	 * @param  target
+	 *                                       an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -424,10 +425,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *                   the current {@link Environment}
-	 * @param siteToLoad
-	 *                   the {@link Site} to load
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -440,10 +441,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *                   the current {@link Environment}
-	 * @param siteToLoad
-	 *                   the {@link Site} to load
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -456,10 +457,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *                       the {@link Site} to load
-	 * @param servletContext
-	 *                       the current {@link ServletContext}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
+	 * @param  servletContext
+	 *                                       the current {@link ServletContext}
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -471,15 +472,16 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *                        the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
-	 *                        {@link CoreService#getSiteByName(String)}
-	 * @param env
-	 *                        the current {@link Environment}
-	 * @param sendReloadEvent
-	 *                        whether or not a {@link ReloadSiteEvent} should be sent
-	 * @param fp
-	 *                        a {@link FieldProcessor} to attach messages to
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load, freshly loaded with
+	 *                                       {@link CoreService#getSite(Integer)} or
+	 *                                       {@link CoreService#getSiteByName(String)}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  sendReloadEvent
+	 *                                       whether or not a {@link ReloadSiteEvent} should be sent
+	 * @param  fp
+	 *                                       a {@link FieldProcessor} to attach messages to
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -647,15 +649,6 @@ public class InitializerService {
 
 					applications.add(applicationProvider);
 
-					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
-					MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, databaseConnection);
-					if (migrationStatus.isErroneous()) {
-						String errorMessage = String.format(
-								"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
-								site.getName(), databaseConnection.getDatabaseName(), application.getName());
-						fp.addErrorMessage(errorMessage);
-					}
-
 				} catch (InvalidConfigurationException ice) {
 					String errorMessage = String.format("[%s] Error while loading application '%s'.", site.getName(),
 							application.getName());
@@ -698,9 +691,20 @@ public class InitializerService {
 		Set<ApplicationProvider> validApplications = new HashSet<>();
 		for (ApplicationProvider application : applications) {
 			try {
+				File applicationCacheFolder = cacheProvider.getPlatformCache(site, application);
+				File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
+				MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, application);
+				if (migrationStatus.isErroneous()) {
+					String errorMessage = String.format(
+							"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
+							site.getName(), application.getDatabaseConnection().getDatabaseName(),
+							application.getName());
+					fp.addErrorMessage(errorMessage);
+				}
+
 				String beansXmlLocation = cacheProvider.getRelativePlatformCache(site, application) + File.separator
 						+ ResourceType.BEANS_XML_NAME;
-				// this is required to support testing of InitialiterService
+				// this is required to support testing of InitializerService
 				List<String> configLocations = new ArrayList<>(
 						siteProps.getList(CONFIG_LOCATIONS, ApplicationContext.CONTEXT_CLASSPATH, ","));
 				configLocations.add(beansXmlLocation);

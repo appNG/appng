@@ -63,6 +63,11 @@ public class ApplicationProperties {
 	 */
 	public static final String[] FEATURES = { FEATURE_IMAGE_PROCESSING, FEATURE_INDEXING };
 
+	/**
+	 * Optional property describing the package where Flyway Java migration reside
+	 */
+	public static final String FLYWAY_MIGRATION_PACKAGE = "flywayMigrationPackage";
+
 	private ApplicationProperties() {
 
 	}
