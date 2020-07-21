@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,8 +135,14 @@ public class SiteProperties {
 	public static final String INDEX_CONFIG = "indexConfig";
 	/** The folder containing the Lucene-Index, relative to {@link #WWW_DIR} */
 	public static final String INDEX_DIR = "indexDir";
+	/** The maximum number of milliseconds that a client will wait for a connection from the connection pool. */
+	public static final String JDBC_CONNECTION_TIMEOUT = "jdbcConnectionTimeout";
 	/** Set to {@code true} to enable JDBC Performance Logger */
-	public static final String LOG_JDBC_PERFORMANCE = "logJdbcPerformance";
+	public static final String JDBC_LOG_PERFORMANCE = "jdbcLogPerformance";
+	/** The maximum lifetime in milliseconds for a connection in the pool. */
+	public static final String JDBC_MAX_LIFETIME="jdbcMaxLifetime";
+	/** The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive. */
+	public static final String JDBC_VALIDATION_TIMEOUT = "jdbcValidationTimeout";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
 	/** the queue size used per directory when indexing the file system **/
@@ -187,7 +193,7 @@ public class SiteProperties {
 	public static final String WWW_DIR = "wwwDir";
 
 	/**
-	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (CLOB value). Supports blank
+	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (multiline value). Supports blank
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";

@@ -231,6 +231,10 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.INDEX_DIR, "/index");
 		addSiteProperty(SiteProperties.INDEX_TIMEOUT, 5000);
 		addSiteProperty(SiteProperties.INDEX_QUEUE_SIZE, 1000);
+		addSiteProperty(SiteProperties.JDBC_CONNECTION_TIMEOUT, DataSourceFactory.DEFAULT_TIMEOUT);
+		addSiteProperty(SiteProperties.JDBC_LOG_PERFORMANCE, false);
+		addSiteProperty(SiteProperties.JDBC_MAX_LIFETIME, DataSourceFactory.DEFAULT_LIFE_TIME);
+		addSiteProperty(SiteProperties.JDBC_VALIDATION_TIMEOUT, DataSourceFactory.DEFAULT_TIMEOUT);
 		addSiteProperty(SiteProperties.SEARCH_CHUNK_SIZE, 20);
 		addSiteProperty(SiteProperties.SEARCH_MAX_HITS, 100);
 		addSiteProperty(Platform.Property.MAIL_HOST, "localhost");

@@ -16,7 +16,10 @@
 
 	<bean id="datasource" class="org.appng.core.repository.config.DataSourceFactory" destroy-method="destroy" >
 		<property name="configurerClass" value="${site.DatasourceConfigurer}" />
-		<property name="logPerformance" value="${site.logJdbcPerformance:false}" />
+		<property name="logPerformance" value="${site.jdbcLogPerformance}" />
+		<property name="connectionTimeout" value="${site.jdbcConnectionTimeout}" />
+		<property name="maxLifetime" value="${site.jdbcMaxLifetime}" />
+		<property name="validationTimeout" value="${site.jdbcValidationTimeout}" />
 	</bean>
 
 	<bean id="environment" class="org.appng.api.support.environment.EnvironmentFactoryBean" scope="request" />
