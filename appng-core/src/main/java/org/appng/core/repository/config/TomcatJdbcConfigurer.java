@@ -21,6 +21,7 @@ import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.appng.core.JMXUtils;
 import org.appng.core.domain.DatabaseConnection;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,8 +34,9 @@ import lombok.extern.slf4j.Slf4j;
 public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 
 	private org.apache.tomcat.jdbc.pool.DataSource tomcatDatasource;
-	private int connectionTimeout;
-	private int validationTimeout;
+	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
+	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
+	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
 
 	public TomcatJdbcConfigurer() {
 
@@ -55,13 +57,14 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 		tomcatDatasource.setName(connection.getName());
 		tomcatDatasource.setInitialSize(connection.getMinConnections());
 		tomcatDatasource.setMaxActive(connection.getMaxConnections());
+		tomcatDatasource.setMaxAge(maxLifetime);
 		tomcatDatasource.setValidationInterval(connection.getValidationPeriod() * 60 * 1000);
 		tomcatDatasource.setValidationQuery(connection.getValidationQuery());
-		tomcatDatasource.setValidationQueryTimeout(validationTimeout);
+		tomcatDatasource.setValidationQueryTimeout((int) validationTimeout);
 		if (tomcatDatasource.getMaxIdle() > tomcatDatasource.getMaxActive()) {
 			tomcatDatasource.setMaxIdle(tomcatDatasource.getMaxActive());
 		}
-		tomcatDatasource.setMaxWait(connectionTimeout);
+		tomcatDatasource.setMaxWait((int) connectionTimeout);
 		try {
 			ConnectionPool pool = tomcatDatasource.createPool();
 			JMXUtils.register(pool.getJmxPool(), JMX_DOMAIN + ":type=" + tomcatDatasource.getName());
@@ -82,14 +85,6 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 
 	public void setLogPerformance(boolean logPerformance) {
 		// not supported
-	}
-
-	public void setConnectionTimeout(int connectionTimeout) {
-		this.connectionTimeout = connectionTimeout;
-	}
-
-	public void setValidationTimeout(int validationTimeout) {
-		this.validationTimeout = validationTimeout;
 	}
 
 }

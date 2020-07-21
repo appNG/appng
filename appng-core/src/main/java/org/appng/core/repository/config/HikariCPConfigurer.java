@@ -25,6 +25,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import ch.sla.jdbcperflogger.driver.WrappingDriver;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,9 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	private HikariDataSource hikariDataSource;
-	private boolean logPerformance = false;
-	private int connectionTimeout = 5000;
-	private int validationTimeout = 5000;
+	private @Setter boolean logPerformance = false;
+	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
+	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
+	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
 
 	public HikariCPConfigurer() {
 
@@ -61,6 +63,7 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 		configuration.setMaximumPoolSize(connection.getMaxConnections());
 		configuration.setConnectionTimeout(connectionTimeout);
 		configuration.setValidationTimeout(validationTimeout);
+		configuration.setMaxLifetime(maxLifetime);
 		if (StringUtils.isNotBlank(connection.getValidationQuery())) {
 			configuration.setConnectionTestQuery(connection.getValidationQuery());
 		}
@@ -99,22 +102,6 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	public DataSource getDataSource() {
 		return hikariDataSource;
-	}
-
-	public boolean isLogPerformance() {
-		return logPerformance;
-	}
-
-	public void setLogPerformance(boolean logPerformance) {
-		this.logPerformance = logPerformance;
-	}
-
-	public void setConnectionTimeout(int connectionTimeout) {
-		this.connectionTimeout = connectionTimeout;
-	}
-	
-	public void setValidationTimeout(int validationTimeout) {
-		this.validationTimeout = validationTimeout;
 	}
 
 }

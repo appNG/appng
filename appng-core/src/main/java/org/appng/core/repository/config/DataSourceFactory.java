@@ -21,6 +21,7 @@ import org.appng.core.domain.DatabaseConnection;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,10 +34,11 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 
 	private DatasourceConfigurer configurer;
 
-	private String configurerClass;
-	private boolean logPerformance = false;
-	private int connectionTimeout;
-	private int validationTimeout;
+	private @Setter String configurerClass;
+	private @Setter boolean logPerformance = false;
+	private @Setter long connectionTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
+	private @Setter long validationTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
+	private @Setter long maxLifetime = DatasourceConfigurer.DEFAULT_LIFE_TIME;
 
 	public DataSourceFactory() {
 
@@ -61,6 +63,7 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 			this.configurer.setLogPerformance(logPerformance);
 			this.configurer.setConnectionTimeout(connectionTimeout);
 			this.configurer.setValidationTimeout(validationTimeout);
+			this.configurer.setMaxLifetime(maxLifetime);
 		} catch (Exception e) {
 			LOGGER.error(String.format("error creating instance of '%s'", configurerClass), e);
 		}
@@ -92,28 +95,12 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 		return configurerClass;
 	}
 
-	public void setConfigurerClass(String configurerClass) {
-		this.configurerClass = configurerClass;
-	}
-
 	public boolean isLogPerformance() {
 		return logPerformance;
 	}
 
-	public void setLogPerformance(boolean logPerformance) {
-		this.logPerformance = logPerformance;
-	}
-
 	public long getConnectionTimeout() {
 		return connectionTimeout;
-	}
-
-	public void setConnectionTimeout(int connectionTimeout) {
-		this.connectionTimeout = connectionTimeout;
-	}
-
-	public void setValidationTimeout(int validationTimeout) {
-		this.validationTimeout = validationTimeout;
 	}
 
 }
