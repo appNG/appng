@@ -92,6 +92,7 @@ import org.appng.core.domain.SiteImpl;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.domain.Template;
 import org.appng.core.model.AccessibleApplication;
+import org.appng.core.model.ApplicationProvider;
 import org.appng.core.model.ApplicationSubjectImpl;
 import org.appng.core.model.CacheProvider;
 import org.appng.core.model.PackageArchive;
@@ -885,7 +886,10 @@ public class CoreService {
 			ApplicationInfo applicationInfo = applicationResources.getApplicationInfo();
 			File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
 			String databasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
-			return databaseService.manageApplicationConnection(siteApplication, applicationInfo, sqlFolder,
+			ApplicationProvider applicationProvider = new ApplicationProvider(site, application);
+			PropertyHolder applicationProperties = getApplicationProperties(null, applicationProvider);
+			applicationProvider.setProperties(applicationProperties);
+			return databaseService.manageApplicationConnection(applicationProvider, applicationInfo, sqlFolder,
 					databasePrefix);
 		} catch (Exception e) {
 			LOGGER.error(String.format("error during database setup for application %s", application.getName()), e);

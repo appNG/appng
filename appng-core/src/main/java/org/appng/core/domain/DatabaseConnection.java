@@ -459,7 +459,8 @@ public class DatabaseConnection implements Auditable<Integer> {
 			return getJdbcUrl().substring(0, getJdbcUrl().indexOf(DATABASE_NAME) + DATABASE_NAME.length())
 					+ databaseName;
 		default:
-			return getJdbcUrl().substring(0, getJdbcUrl().lastIndexOf('/') + 1) + databaseName;
+			String currentDatabaseName = getType().getDatabaseName(getJdbcUrl());
+			return getJdbcUrl().replace(currentDatabaseName, databaseName);
 
 		}
 	}
