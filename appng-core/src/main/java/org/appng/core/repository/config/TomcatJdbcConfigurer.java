@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,18 @@ import org.appng.core.domain.DatabaseConnection;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link DatasourceConfigurer} based on the <a href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Tomcat
+ * A {@link DatasourceConfigurer} based on the <a href="http://tomcat.apache.org/tomcat-8.5-doc/jdbc-pool.html">Tomcat
  * JDBC Connection Pool</a>.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 
 	private org.apache.tomcat.jdbc.pool.DataSource tomcatDatasource;
+	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
+	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
+	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
 
 	public TomcatJdbcConfigurer() {
 
@@ -54,11 +56,14 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 		tomcatDatasource.setName(connection.getName());
 		tomcatDatasource.setInitialSize(connection.getMinConnections());
 		tomcatDatasource.setMaxActive(connection.getMaxConnections());
+		tomcatDatasource.setMaxAge(maxLifetime);
 		tomcatDatasource.setValidationInterval(connection.getValidationPeriod() * 60 * 1000);
 		tomcatDatasource.setValidationQuery(connection.getValidationQuery());
+		tomcatDatasource.setValidationQueryTimeout((int) validationTimeout);
 		if (tomcatDatasource.getMaxIdle() > tomcatDatasource.getMaxActive()) {
 			tomcatDatasource.setMaxIdle(tomcatDatasource.getMaxActive());
 		}
+		tomcatDatasource.setMaxWait((int) connectionTimeout);
 		try {
 			ConnectionPool pool = tomcatDatasource.createPool();
 			JMXUtils.register(pool.getJmxPool(), JMX_DOMAIN + ":type=" + tomcatDatasource.getName());
