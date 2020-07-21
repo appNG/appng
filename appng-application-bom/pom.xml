@@ -262,13 +262,13 @@
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast-spring</artifactId>
-				<version>4.0.1</version>
+				<version>4.0.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
-				<version>4.0.1</version>
+				<version>4.0.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -712,49 +712,49 @@
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-analyzers-common</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-core</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-facet</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-highlighter</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-memory</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queries</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queryparser</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-sandbox</artifactId>
-				<version>8.5.2</version>
+				<version>8.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -892,31 +892,37 @@
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-constants</artifactId>
-				<version>1.11</version>
+				<version>1.13</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-css</artifactId>
-				<version>1.11</version>
+				<version>1.13</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-i18n</artifactId>
-				<version>1.11</version>
+				<version>1.13</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.xmlgraphics</groupId>
+				<artifactId>batik-shared-resources</artifactId>
+				<version>1.13</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-util</artifactId>
-				<version>1.11</version>
+				<version>1.13</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>xmlgraphics-commons</artifactId>
-				<version>2.3</version>
+				<version>2.4</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -964,7 +970,7 @@
 			<dependency>
 				<groupId>org.checkerframework</groupId>
 				<artifactId>checker-qual</artifactId>
-				<version>2.10.0</version>
+				<version>2.11.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1132,13 +1138,13 @@
 			<dependency>
 				<groupId>org.owasp.antisamy</groupId>
 				<artifactId>antisamy</artifactId>
-				<version>1.5.8</version>
+				<version>1.5.10</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>
 				<artifactId>esapi</artifactId>
-				<version>2.2.0.0</version>
+				<version>2.2.1.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
