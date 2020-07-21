@@ -205,6 +205,11 @@
 		<defaultValue>false</defaultValue>
 		<description>Set to 'true' to enable JDBC Performance Logger</description>
 	</property>
+	<property name="jdbcMaxLifetime" self="http://localhost/appNGizer/site/localhost/property/jdbcMaxLifetime">
+		<value>900000</value>
+		<defaultValue>900000</defaultValue>
+		<description>The maximum lifetime in milliseconds for a connection in the pool.</description>
+	</property>
 	<property name="jdbcValidationTimeout" self="http://localhost/appNGizer/site/localhost/property/jdbcValidationTimeout">
 		<value>5000</value>
 		<defaultValue>5000</defaultValue>

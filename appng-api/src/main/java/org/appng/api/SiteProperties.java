@@ -149,6 +149,8 @@ public class SiteProperties {
 	public static final String JDBC_CONNECTION_TIMEOUT = "jdbcConnectionTimeout";
 	/** Set to {@code true} to enable JDBC Performance Logger */
 	public static final String JDBC_LOG_PERFORMANCE = "jdbcLogPerformance";
+	/** The maximum lifetime in milliseconds for a connection in the pool. */
+	public static final String JDBC_MAX_LIFETIME="jdbcMaxLifetime";
 	/** The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive. */
 	public static final String JDBC_VALIDATION_TIMEOUT = "jdbcValidationTimeout";
 	/** The timeout in milliseconds for indexing */

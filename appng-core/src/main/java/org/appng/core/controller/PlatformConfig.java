@@ -95,8 +95,11 @@ public class PlatformConfig {
 			@Value("${database.type}") String type,
 			@Value("${database.minConnections:3}") Integer minConnections,
 			@Value("${database.maxConnections:10}") Integer maxConnections,
+			@Value("${database.maxLifetime:90000}") Integer maxLifetime,
 			@Value("${database.validationQuery}") String validationQuery,
 			@Value("${database.validationPeriod}") Integer validationPeriod,
+			@Value("${database.validationTimeout:5000}") Integer validationTimeout,
+			@Value("${database.connectionTimeout:5000}") Integer connectionTimeout,
 			@Value("${database.logPerformance:false}") boolean logPerformance
 	// @formatter:on
 	) {
@@ -107,6 +110,9 @@ public class PlatformConfig {
 		connection.setValidationPeriod(validationPeriod);
 		connection.setName("appNG ROOT connection");
 		HikariCPConfigurer configurer = new HikariCPConfigurer(connection, logPerformance);
+		configurer.setMaxLifetime(maxLifetime);
+		configurer.setValidationTimeout(validationTimeout);
+		configurer.setConnectionTimeout(connectionTimeout);
 		return new DataSourceFactory(configurer);
 	}
 
