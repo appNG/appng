@@ -391,13 +391,12 @@ public class DatabaseService extends MigrationService {
 	 * Migrates the database for the given {@link SiteApplication}.
 	 * 
 	 * @param  siteApplication
-	 *                             the {@link SiteApplication} to migrate the database for
-	 * @param  applicationInfo
-	 *                             the {@link Application}'s {@link ApplicationInfo} as read from
-	 *                             {@value org.appng.api.model.ResourceType#APPLICATION_XML_NAME}.
+	 *                         the {@link SiteApplication} to migrate the database for
 	 * @param  sqlFolder
-	 *                             the root folder for the migration-scripts provided by the {@link SiteApplication}
-	 * @return                     the {@link MigrationService.MigrationStatus}
+	 *                         the root folder for the migration-scripts provided by the {@link SiteApplication}
+	 * @param  databasePrefix
+	 *                         the prefix for the database to create
+	 * @return                 the {@link MigrationService.MigrationStatus}
 	 */
 	@Transactional
 	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication, File sqlFolder,
