@@ -48,7 +48,7 @@
 
 	<properties>
 		<appNG.version>${project.version}</appNG.version>
-		<argLine>-Xms512m -Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=${project.build.sourceEncoding}</argLine>
+		<argLine>-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 		<docDir>./target/generated-docs</docDir>
 		<license.licenseName>apache_v2</license.licenseName>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
