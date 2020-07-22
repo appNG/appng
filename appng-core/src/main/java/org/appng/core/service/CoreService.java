@@ -92,7 +92,6 @@ import org.appng.core.domain.SiteImpl;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.domain.Template;
 import org.appng.core.model.AccessibleApplication;
-import org.appng.core.model.ApplicationProvider;
 import org.appng.core.model.ApplicationSubjectImpl;
 import org.appng.core.model.CacheProvider;
 import org.appng.core.model.PackageArchive;
@@ -398,7 +397,8 @@ public class CoreService {
 		return propertyRepository.save(property);
 	}
 
-	private SubjectImpl loginSubject(Site site, SubjectImpl subject, String username, String password, Environment env) {
+	private SubjectImpl loginSubject(Site site, SubjectImpl subject, String username, String password,
+			Environment env) {
 		char[] pwdArr = password.toCharArray();
 		SubjectImpl loginSubject = null;
 		if (subject != null) {
@@ -658,7 +658,7 @@ public class CoreService {
 	private boolean login(Environment env, SubjectImpl subject) {
 		if (subject != null) {
 			((DefaultEnvironment) env).setSubject(subject);
-			if(null != subject.getId()) {
+			if (null != subject.getId()) {
 				subjectRepository.saveAndFlush(subject);
 			}
 			initAuthenticatedSubject(subject);
@@ -810,12 +810,14 @@ public class CoreService {
 			}
 		}
 	}
-
-	public MigrationStatus assignApplicationToSite(SiteImpl site, Application application, boolean createProperties) {
+	
+	public MigrationStatus assignApplicationToSite(SiteImpl site, Application application,
+			boolean createProperties) {
 		SiteApplication siteApplication = new SiteApplication(site, application);
 		siteApplication.setActive(true);
 		siteApplication.setReloadRequired(true);
 		siteApplication.setMarkedForDeletion(false);
+
 		MigrationStatus migrationStatus = createDatabaseConnection(siteApplication);
 		DatabaseConnection dbc = siteApplication.getDatabaseConnection();
 		if (!migrationStatus.isErroneous()) {
@@ -881,16 +883,18 @@ public class CoreService {
 		CacheProvider cacheProvider = new CacheProvider(platformConfig);
 		try {
 			File platformCache = cacheProvider.getPlatformCache(site, application);
-			Resources applicationResources = getResources(application, platformCache, applicationRootFolder);
-			applicationResources.dumpToCache(ResourceType.APPLICATION, ResourceType.SQL);
-			ApplicationInfo applicationInfo = applicationResources.getApplicationInfo();
+			Resources resources = getResources(application, platformCache, applicationRootFolder);
+			resources.dumpToCache(ResourceType.APPLICATION, ResourceType.SQL);
 			File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
 			String databasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
-			ApplicationProvider applicationProvider = new ApplicationProvider(site, application);
-			PropertyHolder applicationProperties = getApplicationProperties(null, applicationProvider);
-			applicationProvider.setProperties(applicationProperties);
-			return databaseService.manageApplicationConnection(applicationProvider, applicationInfo, sqlFolder,
+			PropertyHolder applicationProperties = getApplicationProperties(null, siteApplication.getApplication());
+			((AccessibleApplication) application).setProperties(applicationProperties);
+			if (null == application.getResources()) {
+				((AccessibleApplication) application).setResources(resources);
+			}
+			MigrationStatus status = databaseService.manageApplicationConnection(siteApplication, sqlFolder,
 					databasePrefix);
+			return status;
 		} catch (Exception e) {
 			LOGGER.error(String.format("error during database setup for application %s", application.getName()), e);
 		} finally {
@@ -920,7 +924,7 @@ public class CoreService {
 	public RepositoryImpl createRepository(RepositoryImpl repository) {
 		return repoRepository.save(repository);
 	}
-	
+
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
 			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased,
 			FieldProcessor fp, boolean updateHiddenAndPrivileged) throws BusinessException {
@@ -991,9 +995,10 @@ public class CoreService {
 		}
 		return -2;
 	}
-	
+
 	private ApplicationImpl provideApplication(PackageArchive applicationArchive, boolean isFileBased,
-			boolean isPrivileged, boolean isHidden, FieldProcessor fp, boolean updateHiddenAndPrivileged) throws BusinessException {
+			boolean isPrivileged, boolean isHidden, FieldProcessor fp, boolean updateHiddenAndPrivileged)
+			throws BusinessException {
 		ApplicationInfo applicationInfo = (ApplicationInfo) applicationArchive.getPackageInfo();
 		String applicationName = applicationInfo.getName();
 		String applicationVersion = applicationInfo.getVersion();
@@ -1285,7 +1290,6 @@ public class CoreService {
 		return null;
 	}
 
-	
 	public String forgotPassword(AuthSubject authSubject) throws BusinessException {
 		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
 		if (canSubjectResetPassword(subject)) {
@@ -2139,7 +2143,7 @@ public class CoreService {
 	}
 
 	public void createEvent(Type type, String message, Object... args) {
-		auditableListener.createEvent(type,	String.format(message, args));
+		auditableListener.createEvent(type, String.format(message, args));
 	}
 
 	public void setSiteReloadCount(SiteImpl site) {

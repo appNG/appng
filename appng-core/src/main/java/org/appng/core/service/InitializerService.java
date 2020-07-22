@@ -688,17 +688,22 @@ public class InitializerService {
 				.getBean(org.springframework.cache.CacheManager.class);
 
 		// Step 2: Build application context
+		String dataBasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
 		Set<ApplicationProvider> validApplications = new HashSet<>();
 		for (ApplicationProvider application : applications) {
 			try {
 				File applicationCacheFolder = cacheProvider.getPlatformCache(site, application);
 				File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
-				MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, application);
+				SiteApplication siteApplication = coreService.getSiteApplication(site.getName(), application.getName());
+				MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, application,
+						dataBasePrefix);
+				DatabaseConnection dbc = application.getDatabaseConnection();
+				siteApplication.setDatabaseConnection(dbc);
+
 				if (migrationStatus.isErroneous()) {
 					String errorMessage = String.format(
 							"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
-							site.getName(), application.getDatabaseConnection().getDatabaseName(),
-							application.getName());
+							site.getName(), dbc.getDatabaseName(), application.getName());
 					fp.addErrorMessage(errorMessage);
 				}
 
@@ -734,8 +739,8 @@ public class InitializerService {
 				}
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
-				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
-						application.getDatabaseConnection(), platformCacheManager, dictionaryNames);
+				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application, dbc,
+						platformCacheManager, dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
 				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
