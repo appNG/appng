@@ -47,7 +47,7 @@ public class GroupControllerTest extends ControllerTest {
 		updated.setName("Administrator");
 		updated.setDescription("a group for administrators");
 		MockHttpServletResponse response = putAndVerify("/group/Admin", null, updated, HttpStatus.SEE_OTHER);
-		assertLocation("http://localhost/group/Administrator", response);
+		assertLocation("http://localhost/appNGizer/group/Administrator", response);
 
 		getAndVerify("/group/Administrator", "xml/group-update.xml", HttpStatus.OK);
 	}

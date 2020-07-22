@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <property xmlns="http://www.appng.org/schema/appngizer" clob="true" name="xssExceptions"
-	self="http://localhost/site/localhost/property/xssExceptions">
+	self="http://localhost/appNGizer/site/localhost/property/xssExceptions">
 	<value><![CDATA[#comment
 foo
 bar]]></value>

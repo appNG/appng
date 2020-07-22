@@ -116,9 +116,4 @@ public interface Subject extends Named<Integer>, AuthSubject {
 		return 0;
 	}
 
-	@Override
-	default PasswordChangePolicy getPasswordChangePolicy() {
-		return PasswordChangePolicy.MAY;
-	}
-
 }

@@ -49,6 +49,8 @@ import org.appng.api.FieldProcessor;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
+import org.appng.api.auth.PasswordPolicy;
+import org.appng.api.auth.PasswordPolicy.ValidationResult;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.TestReceiver;
 import org.appng.api.messaging.TestReceiver.TestSerializer;
@@ -89,6 +91,7 @@ import org.appng.core.model.RepositoryMode;
 import org.appng.core.model.RepositoryType;
 import org.appng.core.repository.DatabaseConnectionRepository;
 import org.appng.core.security.BCryptPasswordHandler;
+import org.appng.core.security.ConfigurablePasswordPolicy;
 import org.appng.core.security.DefaultPasswordPolicy;
 import org.appng.core.security.DigestUtil;
 import org.appng.core.security.PasswordHandler;
@@ -118,6 +121,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Transactional(rollbackFor = BusinessException.class)
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -405,7 +411,7 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	@Test(timeout = 20000)
+	@Test(timeout = 40000)
 	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -428,7 +434,8 @@ public class CoreServiceTest {
 		while (null == nodeStates.get(nodeId)) {
 			Thread.sleep(100);
 		}
-		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null), false);
+
 		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
 		// 5x NodeEvent
@@ -436,9 +443,16 @@ public class CoreServiceTest {
 		while (11 != receiver.getProcessed().size()) {
 			Thread.sleep(100);
 		}
+		LOGGER.info("Processed {} events", receiver.getProcessed().size());
 
-		Map<String, SiteState> siteStates = nodeStates.get(nodeId).getSiteStates();
-		Assert.assertNull(siteStates.get(realSite.getName()));
+		synchronized (stateMap) {
+			SiteState state;
+			while (null != (state = stateMap.get(realSite.getName()))) {
+				LOGGER.info("state for site {} is {}", realSite.getName(), state);
+				Thread.sleep(100);
+			}
+		}
+
 		receiver.close();
 	}
 
@@ -739,15 +753,15 @@ public class CoreServiceTest {
 		assertFalse(coreService.login(null, environment, "subject-3", "test"));
 
 		Mockito.verify(environment).setAttribute(Scope.REQUEST, "subject.locked", true);
-		
+
 		subject = coreService.getSubjectByName("subject-3", false);
 		assertTrue(subject.isExpired(new Date()));
 		assertTrue(subject.isLocked());
-		
+
 		Mockito.verify(environment, Mockito.never()).setSubject(Mockito.any());
 		resetSubject("subject-3");
 	}
-	
+
 	@Test
 	public void testLoginSubjectIsLocked() {
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
@@ -851,7 +865,7 @@ public class CoreServiceTest {
 
 		FieldProcessor fp = new FieldProcessorImpl("REF_TEST");
 		coreService.installPackage(repository.getId(), applicationName, applicationVersion, applicationTimestamp, true,
-				false, true, fp);
+				false, true, fp, false);
 
 		Messages messages = fp.getMessages();
 		assertEquals(1, messages.getMessageList().size());
@@ -1008,8 +1022,25 @@ public class CoreServiceTest {
 	@Test
 	public void testUpdatePassword() throws BusinessException {
 		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
-		char[] password = "foobar".toCharArray();
-		assertTrue(coreService.updatePassword(password, password, subject));
+		PasswordPolicy dummyPolicy = new ConfigurablePasswordPolicy() {
+
+			public ValidationResult validatePassword(String username, char[] currentPassword, char[] password) {
+				return new ValidationResult(true, null);
+			}
+		};
+		ValidationResult updatePassword = coreService.updatePassword(dummyPolicy, "test".toCharArray(),
+				"foobar".toCharArray(), subject);
+		assertTrue(updatePassword.isValid());
+	}
+
+	@Test
+	public void testUpdatePasswordFail() throws BusinessException {
+		SubjectImpl subject = coreService.getSubjectByName("subject-3", false);
+		PasswordPolicy policy = new ConfigurablePasswordPolicy();
+		policy.configure(null);
+		ValidationResult updatePassword = coreService.updatePassword(policy, "test".toCharArray(),
+				"foobar".toCharArray(), subject);
+		assertFalse(updatePassword.isValid());
 	}
 
 	@Test

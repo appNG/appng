@@ -2,14 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>appng-appngizer</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>appNGizer</name>
 	<description>REST based administration for appNG</description>
 
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.21.0-SNAPSHOT</version>
+		<version>1.22.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -31,51 +31,6 @@
 					</compilerArgs>
 					<fork>true</fork>
 				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<skip>false</skip>
-					<filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
-					<webResources>
-						<resource>
-							<directory>src/main/webapp/META-INF</directory>
-							<filtering>true</filtering>
-							<targetPath>META-INF</targetPath>
-						</resource>
-						<resource>
-							<directory>src/main/webapp/WEB-INF</directory>
-							<filtering>true</filtering>
-							<targetPath>WEB-INF</targetPath>
-						</resource>
-					</webResources>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>deploy</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target>
-								<copy todir="${outFolder}">
-									<fileset dir="target">
-										<include name="*.war" />
-									</fileset>
-								</copy>
-							</target>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.asciidoctor</groupId>
@@ -167,63 +122,10 @@
 							</attributes>
 						</configuration>
 					</execution>
-					<execution>
-						<id>pdf-generate-setup-guide</id>
-						<phase>package</phase>
-						<goals>
-							<goal>process-asciidoc</goal>
-						</goals>
-						<configuration>
-							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
-						</configuration>
-					</execution>
-					<execution>
-						<id>html-generate-setup-guide</id>
-						<phase>package</phase>
-						<goals>
-							<goal>process-asciidoc</goal>
-						</goals>
-						<configuration>
-							<backend>html5</backend>
-							<outputDirectory>target/generated-docs/html</outputDirectory>
-							<sourceDocumentName>appngizer-setup-guide.adoc</sourceDocumentName>
-							<attributes>
-								<toc>left</toc>
-								<linkcss>true</linkcss>
-								<icons>font</icons>
-								<sectanchors>true</sectanchors>
-								<stylesheet>appng.css</stylesheet>
-								<output-format>html</output-format>
-							</attributes>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>local</id>
-			<properties>
-				<appNGHome>${env.CATALINA_HOME}/webapps/ROOT</appNGHome>
-			</properties>
-			<build>
-				<finalName>appNGizer</finalName>
-				<plugins>
-					<plugin>
-						<artifactId>maven-war-plugin</artifactId>
-						<configuration>
-							<goals>
-								<goal>exploded</goal>
-							</goals>
-							<webappDirectory>${env.CATALINA_HOME}/webapps/${project.build.finalName}</webappDirectory>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 	<dependencies>
 		<dependency>
@@ -261,10 +163,6 @@
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-catalina</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast-client</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.hazelcast</groupId>

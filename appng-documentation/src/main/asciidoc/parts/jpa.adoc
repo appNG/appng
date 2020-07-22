@@ -1,10 +1,6 @@
 === Using JPA
 An application can easily make use of http://projects.spring.io/spring-data-jpa[Spring Data JPA^] for implementing the data access layer. See the {spring-data-jpa}/reference/html/[Reference Documentation^] for more details.
 
-IMPORTANT: If you add JPA capabilities to an application that is already assigned to a site, 
-you first need to remove the applicaton from the site. Then deploy the new application archive and assign it to the site again.
- This only needs to be done once.
-
 If your application want's to use JPA, follow these simple steps:
 
 . Add the following dependency to your `pom.xml` (the version is inherited from the parent pom):

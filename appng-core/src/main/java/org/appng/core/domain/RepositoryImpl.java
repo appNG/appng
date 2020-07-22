@@ -220,10 +220,10 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 			String packageName = publishedApplicationWrapper.getName();
 			if (installedPackages.containsKey(packageName)) {
 				String applicationVersion = installedPackages.get(packageName).getPackageVersion();
-				provisionableApplication = new InstallablePackage(cache.getPublishedApplicationWrapper(packageName),
+				provisionableApplication = new InstallablePackage(cache.getPackageWrapper(packageName),
 						applicationVersion);
 			} else {
-				provisionableApplication = new InstallablePackage(cache.getPublishedApplicationWrapper(packageName));
+				provisionableApplication = new InstallablePackage(cache.getPackageWrapper(packageName));
 			}
 			provisionableApplications.add(provisionableApplication);
 		}
@@ -240,27 +240,27 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 	}
 
 	@Transient
-	public List<PackageVersion> getPackageVersions(List<Identifier> provisionedApplicationsList, String name)
+	public List<PackageVersion> getPackageVersions(List<Identifier> provisionedPackagesList, String name)
 			throws BusinessException {
-		Map<String, Identifier> provisionedApplications = getInstalledPackagesMap(provisionedApplicationsList);
+		Map<String, Identifier> provisionedPackages = getInstalledPackagesMap(provisionedPackagesList);
 		RepositoryCache cache = getRepositoryCache();
-		List<PackageInfo> publishedApplicationVersions = cache.getVersions(name);
-		List<PackageVersion> provisionableApplicationVersions = new ArrayList<>();
-		for (PackageInfo applicationInfo : publishedApplicationVersions) {
+		List<PackageInfo> publishedPackageVersions = cache.getVersions(name);
+		List<PackageVersion> provisionablePackageVersions = new ArrayList<>();
+		for (PackageInfo applicationInfo : publishedPackageVersions) {
 			PackageVersion provisionableApplicationVersion;
-			String applicationName = applicationInfo.getName();
-			String applicationVersion = applicationInfo.getVersion();
-			String applicationTimestamp = applicationInfo.getTimestamp();
-			Identifier provisionedApplication = provisionedApplications.get(applicationName);
+			String pkgName = applicationInfo.getName();
+			String pkgVersion = applicationInfo.getVersion();
+			String pkgTimestamp = applicationInfo.getTimestamp();
+			Identifier provisionedPackage = provisionedPackages.get(pkgName);
 			boolean isDeletable = repositoryType.equals(RepositoryType.LOCAL);
-			boolean isProvisioned = (null != provisionedApplication)
-					&& provisionedApplication.getPackageVersion().equals(applicationVersion)
-					&& provisionedApplication.getTimestamp().equals(applicationTimestamp);
+			boolean isProvisioned = (null != provisionedPackage)
+					&& provisionedPackage.getPackageVersion().equals(pkgVersion)
+					&& provisionedPackage.getTimestamp().equals(pkgTimestamp);
 			provisionableApplicationVersion = new PackageVersion(applicationInfo, isProvisioned, isDeletable);
-			provisionableApplicationVersions.add(provisionableApplicationVersion);
+			provisionablePackageVersions.add(provisionableApplicationVersion);
 		}
-		Collections.sort(provisionableApplicationVersions);
-		return provisionableApplicationVersions;
+		Collections.sort(provisionablePackageVersions);
+		return provisionablePackageVersions;
 	}
 
 	@Transient
@@ -300,7 +300,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 			String applicationTimestamp) throws BusinessException {
 		if (isActive && StringUtils.isNotEmpty(applicationName)) {
 			RepositoryCache repositoryCache = getRepositoryCache();
-			return repositoryCache.getApplicationArchive(applicationName, applicationVersion, applicationTimestamp);
+			return repositoryCache.getPackageArchive(applicationName, applicationVersion, applicationTimestamp);
 		} else if (!isActive) {
 			throw new BusinessException("Repository is not active: " + name);
 		}
@@ -312,7 +312,7 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 			throws Exception {
 		if (isActive && StringUtils.isNotEmpty(applicationName)) {
 			RepositoryCache repositoryCache = getRepositoryCache();
-			repositoryCache.deleteApplicationVersion(applicationName, applicationVersion, applicationTimestamp);
+			repositoryCache.deletePackageVersion(applicationName, applicationVersion, applicationTimestamp);
 		} else {
 			throw new Exception("Application repository is not active! ID: " + id);
 		}

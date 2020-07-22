@@ -1,0 +1,8 @@
+{
+  "name" : "appng",
+  "state" : "STARTED",
+  "host" : "localhost",
+  "domain" : "http://localhost:8080",
+  "startupTime" : "1982-04-30T08:15:00+02:00",
+  "uptimeSeconds" : 1204768206
+}

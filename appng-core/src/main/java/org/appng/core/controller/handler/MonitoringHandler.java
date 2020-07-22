@@ -62,6 +62,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * A {@link RequestHandler} that exposes some health information for the site.
@@ -105,7 +106,8 @@ public class MonitoringHandler implements RequestHandler {
 			String pathsegment = pathInfo.getElementAt(2);
 			Object result = null;
 			if (null == pathsegment) {
-				result = getSiteInfo(site);
+				boolean details = "true".equalsIgnoreCase(servletRequest.getParameter("details"));
+				result = getSiteInfo(site, details, servletResponse);
 			} else if ("system".equals(pathsegment)) {
 				result = new TreeMap<>(System.getProperties());
 			} else if ("environment".equals(pathsegment)) {
@@ -122,37 +124,34 @@ public class MonitoringHandler implements RequestHandler {
 		}
 	}
 
-	private SiteInfo getSiteInfo(Site site) {
-		Map<String, ApplicationInfo> applicationInfos = new HashMap<>();
-		if (site.getState().equals(SiteState.STARTED)) {
-			for (Application a : site.getApplications()) {
-				List<Jar> jars = null;
-				if (null != a.getResources()) {
-					jars = a.getResources().getResources(ResourceType.JAR).stream().map(j -> jarFromResoure(j))
-							.collect(Collectors.toList());
-				}
-				DataSource ds = a.getBean(DataSource.class);
-				Connection connection = null;
-				if (null != ds && ds instanceof HikariDataSource) {
-					HikariDataSource hkds = HikariDataSource.class.cast(ds);
-					connection = new Connection(hkds.getDataSourceProperties().getProperty("url"),
-							hkds.getDataSourceProperties().getProperty("user"), hkds.getMaximumPoolSize());
-				}
-				ApplicationInfo appInfo = new ApplicationInfo(a.getPackageVersion(), a.getDescription(), a.isHidden(),
-						a.isPrivileged(), a.isFileBased(), connection, jars);
-				applicationInfos.put(a.getName(), appInfo);
-			}
-		}
+	private SiteInfo getSiteInfo(Site site, boolean details, HttpServletResponse servletResponse) {
 		Long uptime = null;
 		OffsetDateTime startup = null;
 		if (null != site.getStartupTime()) {
 			startup = OffsetDateTime.ofInstant(site.getStartupTime().toInstant(), ZoneId.systemDefault());
 			uptime = Duration.between(startup.toLocalDateTime(), LocalDateTime.now()).getSeconds();
 		}
-		java.util.Properties plainProperties = site.getProperties().getPlainProperties();
-		Map<Object, Object> typedProperties = new TreeMap<>();
-		for (Entry<Object, Object> entry : plainProperties.entrySet()) {
 
+		boolean isSiteStarted = SiteState.STARTED.equals(site.getState());
+
+		Map<String, ApplicationInfo> applicationInfos = null;
+		Map<Object, Object> typedProperties = null;
+		if (details) {
+			if (isSiteStarted) {
+				applicationInfos = addApplications(site);
+			}
+			typedProperties = addProperties(site);
+		}
+		HttpStatus status = isSiteStarted ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+		servletResponse.setStatus(status.value());
+		return new SiteInfo(site.getName(), site.getState(), site.getHost(), site.getDomain(), startup, uptime,
+				applicationInfos, typedProperties);
+	}
+
+	private Map<Object, Object> addProperties(Site site) {
+		Map<Object, Object> typedProperties = new TreeMap<>();
+		java.util.Properties plainProperties = site.getProperties().getPlainProperties();
+		for (Entry<Object, Object> entry : plainProperties.entrySet()) {
 			String value = (String) entry.getValue();
 			String key = (String) entry.getKey();
 			if (key.toLowerCase().contains(PREFIX_PASSWORD)) {
@@ -167,9 +166,29 @@ public class MonitoringHandler implements RequestHandler {
 				typedProperties.put(key, value);
 			}
 		}
+		return typedProperties;
+	}
 
-		return new SiteInfo(site.getName(), site.getState(), site.getHost(), site.getDomain(), startup, uptime,
-				applicationInfos, typedProperties);
+	private Map<String, ApplicationInfo> addApplications(Site site) {
+		Map<String, ApplicationInfo> applicationInfos = new HashMap<>();
+		for (Application a : site.getApplications()) {
+			List<Jar> jars = null;
+			if (null != a.getResources()) {
+				jars = a.getResources().getResources(ResourceType.JAR).stream().map(j -> jarFromResoure(j))
+						.collect(Collectors.toList());
+			}
+			DataSource ds = a.getBean(DataSource.class);
+			Connection connection = null;
+			if (null != ds && ds instanceof HikariDataSource) {
+				HikariDataSource hkds = HikariDataSource.class.cast(ds);
+				connection = new Connection(hkds.getDataSourceProperties().getProperty("url"),
+						hkds.getDataSourceProperties().getProperty("user"), hkds.getMaximumPoolSize());
+			}
+			ApplicationInfo appInfo = new ApplicationInfo(a.getPackageVersion(), a.getDescription(), a.isHidden(),
+					a.isPrivileged(), a.isFileBased(), connection, jars);
+			applicationInfos.put(a.getName(), appInfo);
+		}
+		return applicationInfos;
 	}
 
 	private boolean isAuthenticated(Environment env, HttpServletRequest servletRequest) {
@@ -182,8 +201,9 @@ public class MonitoringHandler implements RequestHandler {
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class SiteInfo {
+	public static class SiteInfo {
 		String name;
 		SiteState state;
 		String host;
@@ -195,8 +215,9 @@ public class MonitoringHandler implements RequestHandler {
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class ApplicationInfo {
+	public static class ApplicationInfo {
 		String version;
 		String description;
 		boolean hidden;
@@ -207,22 +228,28 @@ public class MonitoringHandler implements RequestHandler {
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class Connection {
+	public static class Connection {
 		String url;
 		String user;
 		Integer maxPoolSize;
 	}
 
 	Jar jarFromResoure(Resource j) {
-		return new Jar(j.getCachedFile().getAbsolutePath(), OffsetDateTime
+		if (null == j.getCachedFile()) {
+			return new Jar(j.getName(), j.getSize(), null);
+		}
+		return new Jar(j.getCachedFile().getAbsolutePath(), j.getSize(), OffsetDateTime
 				.ofInstant(Instant.ofEpochMilli(j.getCachedFile().lastModified()), TimeZone.getDefault().toZoneId()));
 	}
 
 	@Data
+	@NoArgsConstructor
 	@AllArgsConstructor
-	class Jar {
+	public static class Jar {
 		String name;
+		int size;
 		OffsetDateTime lastModified;
 	}
 }

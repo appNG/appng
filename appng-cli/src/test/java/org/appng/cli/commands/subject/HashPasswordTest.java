@@ -21,12 +21,13 @@ import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class HashPasswordTest extends AbstractCommandTest {
 
-	private static final String SUPERSECRET = "supersecret";
+	private static final String SUPERSECRET = "Supers3cr3t!";
 
 	public HashPassword getCommand() {
 		return new HashPassword(SUPERSECRET);
@@ -37,6 +38,11 @@ public class HashPasswordTest extends AbstractCommandTest {
 		authSubject.setDigest(cliEnv.getResult());
 		BCryptPasswordHandler passwordHandler = new BCryptPasswordHandler(authSubject);
 		passwordHandler.isValidPassword(SUPERSECRET);
+	}
+	
+	@Test(expected = BusinessException.class)
+	public void testInvalid() throws BusinessException {
+		new HashPassword("").execute(cliEnv);
 	}
 	
 	@Ignore("only for local usage")

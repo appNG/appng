@@ -58,7 +58,7 @@ public class RepositoryWatcherTest {
 		siteProps.addProperty(SiteProperties.CACHE_STATISTICS, true, null, Property.Type.BOOLEAN);
 		site.setProperties(siteProps);
 
-		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null));
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null), false);
 		Cache<String, CachedResponse> cache = CacheService.createCache(site);
 
 		String fehlerJsp = "/de/fehler.jsp";

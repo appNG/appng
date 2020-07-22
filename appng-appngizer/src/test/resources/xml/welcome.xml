@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<home xmlns="http://www.appng.org/schema/appngizer" version="1.21.x" self="http://localhost/appNGizer/">
+	<links>
+		<link name="platform" self="http://localhost/appNGizer/platform" />
+		<link name="site" self="http://localhost/appNGizer/site" />
+		<link name="application" self="http://localhost/appNGizer/application" />
+		<link name="repository" self="http://localhost/appNGizer/repository" />
+		<link name="subject" self="http://localhost/appNGizer/subject" />
+		<link name="group" self="http://localhost/appNGizer/group" />
+	</links>
+</home>

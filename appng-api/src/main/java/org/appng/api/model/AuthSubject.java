@@ -69,7 +69,9 @@ public interface AuthSubject extends Account {
 	 * @return the {@link PasswordChangePolicy} for this subject
 	 * @since  1.21
 	 */
-	PasswordChangePolicy getPasswordChangePolicy();
+	default PasswordChangePolicy getPasswordChangePolicy() {
+		return PasswordChangePolicy.MAY;
+	}
 
 	/**
 	 * Sets the {@link PasswordChangePolicy} to use.
@@ -78,7 +80,8 @@ public interface AuthSubject extends Account {
 	 *                             the policy to use
 	 * @since                      1.21
 	 */
-	void setPasswordChangePolicy(PasswordChangePolicy passwordChangePolicy);
+	default void setPasswordChangePolicy(PasswordChangePolicy passwordChangePolicy) {
+	}
 
 	/**
 	 * Sets the date when the password was last changed
@@ -87,6 +90,7 @@ public interface AuthSubject extends Account {
 	 *             the date
 	 * @since      1.21
 	 */
-	void setPasswordLastChanged(Date date);
+	default void setPasswordLastChanged(Date date) {
+	}
 
 }

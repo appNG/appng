@@ -64,6 +64,8 @@ This folder contains the application's JAR file as well as 3rd party JARs that a
 === `application-home/sql` (optional)
 For every `<datasource>` listed in <<application.xml>>, there must be a subfolder containing the DDL scripts for that type. Since appNG uses Flyway (https://flywaydb.org[^]) to keep the database up to date, the naming scheme `V<version>\__<name>.sql` must be used for those scripts, for example `V1.2.5__add_new_table.sql`.
 
+Flyway's https://flywaydb.org/documentation/migrations#java-based-migrations[Java-based migrations^] are also supported. You must set the application property <<prop-flywayMigrationPackage,flywayMigrationPackage>> to make those work.
+
 === `application-home/resources` (optional)
 This is the place for custom CSS-, Javascript- and image-files, as well as other resources needed by your application. These assets are most likely used by some <<Custom XSL stylesheets>>.
 

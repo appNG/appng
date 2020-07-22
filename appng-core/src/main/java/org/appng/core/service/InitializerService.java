@@ -153,23 +153,26 @@ public class InitializerService {
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
-	 * @param env
-	 *                       the current {@link Environment}
-	 * @param rootConnection
-	 *                       the root {@link DatabaseConnection}
-	 * @param ctx
-	 *                       the current {@link ServletContext}
-	 * @param executor
-	 *                       an {@link ExecutorService} used by the cluster messaging
+	 * @param  platformConfig
+	 *                                       the current {@link PlatformProperties}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  rootConnection
+	 *                                       the root {@link DatabaseConnection}
+	 * @param  ctx
+	 *                                       the current {@link ServletContext}
+	 * @param  executor
+	 *                                       an {@link ExecutorService} used by the cluster messaging
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
-	 * @see #loadPlatform(java.util.Properties, Environment, String, String, ExecutorService)
+	 * @see                                  #loadPlatform(PlatformProperties, Environment, String, String,
+	 *                                       ExecutorService)
 	 */
 	@Transactional
-	public void initPlatform(java.util.Properties defaultOverrides, Environment env, DatabaseConnection rootConnection,
+	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
 			ServletContext ctx, ExecutorService executor) throws InvalidConfigurationException {
 		logEnvironment();
-		loadPlatform(defaultOverrides, env, null, null, executor);
+		loadPlatform(platformConfig, env, null, null, executor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
 		coreService.createEvent(Type.INFO, "Started platform");
@@ -178,19 +181,20 @@ public class InitializerService {
 	/**
 	 * Reloads the platform with all of it's {@link Site}s.
 	 * 
-	 * @param env
-	 *                 the current {@link Environment}
-	 * @param siteName
-	 *                 the (optional) name of the {@link Site} that caused the platform reload
-	 * @param target
-	 *                 an (optional) target to redirect to after platform reload
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteName
+	 *                                       the (optional) name of the {@link Site} that caused the platform reload
+	 * @param  target
+	 *                                       an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
 	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
 		LOGGER.info(StringUtils.leftPad("Reloading appNG", 100, "="));
-		loadPlatform(config, env, siteName, target, executor);
+		PlatformProperties platformConfig = loadPlatformProperties(config, env);
+		loadPlatform(platformConfig, env, siteName, target, executor);
 		LOGGER.info(StringUtils.leftPad("appNG reloaded", 100, "="));
 	}
 
@@ -227,22 +231,19 @@ public class InitializerService {
 	/**
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
-	 * @param env
-	 *                 the current {@link Environment}
-	 * @param siteName
-	 *                 the (optional) name of the {@link Site} that caused the platform reload
-	 * @param target
-	 *                 an (optional) target to redirect to after platform reload
+	 * @param  platformConfig
+	 *                                       the current {@link PlatformProperties}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteName
+	 *                                       the (optional) name of the {@link Site} that caused the platform reload
+	 * @param  target
+	 *                                       an (optional) target to redirect to after platform reload
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
-	public void loadPlatform(java.util.Properties defaultOverrides, Environment env, String siteName, String target,
+	public void loadPlatform(PlatformProperties platformConfig, Environment env, String siteName, String target,
 			ExecutorService executor) throws InvalidConfigurationException {
-		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
-		String rootPath = servletContext.getRealPath("/");
-		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
-				false);
-		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -258,7 +259,7 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
-		CacheService.createCacheManager(hazelcast);
+		CacheService.createCacheManager(hazelcast, HazelcastConfigurer.isClient());
 
 		CacheManager cacheManager = CacheService.getCacheManager();
 
@@ -319,6 +320,15 @@ public class InitializerService {
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);
 		}
+	}
+
+	public PlatformProperties loadPlatformProperties(java.util.Properties defaultOverrides, Environment env) {
+		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
+		String rootPath = servletContext.getRealPath("/");
+		PlatformProperties platformConfig = getCoreService().initPlatformConfig(defaultOverrides, rootPath, false, true,
+				false);
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformConfig);
+		return platformConfig;
 	}
 
 	class SiteReloadWatcher implements Runnable {
@@ -415,10 +425,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *                   the current {@link Environment}
-	 * @param siteToLoad
-	 *                   the {@link Site} to load
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -431,10 +441,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *                   the current {@link Environment}
-	 * @param siteToLoad
-	 *                   the {@link Site} to load
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -447,10 +457,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *                       the {@link Site} to load
-	 * @param servletContext
-	 *                       the current {@link ServletContext}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
+	 * @param  servletContext
+	 *                                       the current {@link ServletContext}
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -462,15 +472,16 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *                        the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
-	 *                        {@link CoreService#getSiteByName(String)}
-	 * @param env
-	 *                        the current {@link Environment}
-	 * @param sendReloadEvent
-	 *                        whether or not a {@link ReloadSiteEvent} should be sent
-	 * @param fp
-	 *                        a {@link FieldProcessor} to attach messages to
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load, freshly loaded with
+	 *                                       {@link CoreService#getSite(Integer)} or
+	 *                                       {@link CoreService#getSiteByName(String)}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  sendReloadEvent
+	 *                                       whether or not a {@link ReloadSiteEvent} should be sent
+	 * @param  fp
+	 *                                       a {@link FieldProcessor} to attach messages to
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -544,6 +555,7 @@ public class InitializerService {
 		} else {
 			TemplateService.materializeTemplate(template, platformConfig, siteProps);
 		}
+		Integer validationPeriod = platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD);
 
 		// Step 1: Load applications for the current site,
 		// prepare for further initialization
@@ -564,11 +576,18 @@ public class InitializerService {
 				try {
 					DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
 					if (null != databaseConnection) {
-						databaseConnection.setActive(databaseConnection.testConnection(null));
-						databaseConnection.setValidationPeriod(
-								platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD));
-						databaseConnection = databaseService.saveAndFlush(databaseConnection);
-						if (!databaseConnection.isActive()) {
+						boolean isActive = databaseConnection.isActive();
+						boolean isWorking = databaseConnection.testConnection(null);
+						if (isWorking ^ isActive) {
+							databaseConnection.setActive(isWorking);
+							databaseService.save(databaseConnection);
+							siteApplication = coreService.getSiteApplication(siteApplication.getSite().getName(),
+									siteApplication.getApplication().getName());
+							databaseConnection = siteApplication.getDatabaseConnection();
+						}
+						if (isWorking) {
+							databaseConnection.setValidationPeriod(validationPeriod);
+						} else {
 							throw new InvalidConfigurationException(site, application.getName(),
 									String.format("Connection %s for application %s of site %s is not working!",
 											databaseConnection, application.getName(), site.getName()));
@@ -630,15 +649,6 @@ public class InitializerService {
 
 					applications.add(applicationProvider);
 
-					File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
-					MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, databaseConnection);
-					if (migrationStatus.isErroneous()) {
-						String errorMessage = String.format(
-								"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
-								site.getName(), databaseConnection.getDatabaseName(), application.getName());
-						fp.addErrorMessage(errorMessage);
-					}
-
 				} catch (InvalidConfigurationException ice) {
 					String errorMessage = String.format("[%s] Error while loading application '%s'.", site.getName(),
 							application.getName());
@@ -678,12 +688,28 @@ public class InitializerService {
 				.getBean(org.springframework.cache.CacheManager.class);
 
 		// Step 2: Build application context
+		String dataBasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
 		Set<ApplicationProvider> validApplications = new HashSet<>();
 		for (ApplicationProvider application : applications) {
 			try {
+				File applicationCacheFolder = cacheProvider.getPlatformCache(site, application);
+				File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
+				SiteApplication siteApplication = coreService.getSiteApplication(site.getName(), application.getName());
+				MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, application,
+						dataBasePrefix);
+				DatabaseConnection dbc = application.getDatabaseConnection();
+				siteApplication.setDatabaseConnection(dbc);
+
+				if (migrationStatus.isErroneous()) {
+					String errorMessage = String.format(
+							"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
+							site.getName(), dbc.getDatabaseName(), application.getName());
+					fp.addErrorMessage(errorMessage);
+				}
+
 				String beansXmlLocation = cacheProvider.getRelativePlatformCache(site, application) + File.separator
 						+ ResourceType.BEANS_XML_NAME;
-				// this is required to support testing of InitialiterService
+				// this is required to support testing of InitializerService
 				List<String> configLocations = new ArrayList<>(
 						siteProps.getList(CONFIG_LOCATIONS, ApplicationContext.CONTEXT_CLASSPATH, ","));
 				configLocations.add(beansXmlLocation);
@@ -713,8 +739,8 @@ public class InitializerService {
 				}
 				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
 
-				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
-						application.getDatabaseConnection(), platformCacheManager, dictionaryNames);
+				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application, dbc,
+						platformCacheManager, dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
 				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
@@ -838,7 +864,7 @@ public class InitializerService {
 	 * 
 	 * @param ctx
 	 *            the current {@link ServletContext}
-	 * @see #shutDownSite(Environment, Site, boolean)
+	 * @see       #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.get(ctx);

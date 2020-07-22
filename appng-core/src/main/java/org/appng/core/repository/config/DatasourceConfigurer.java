@@ -15,6 +15,8 @@
  */
 package org.appng.core.repository.config;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.sql.DataSource;
 
 import org.appng.core.domain.DatabaseConnection;
@@ -26,6 +28,9 @@ import org.appng.core.domain.DatabaseConnection;
  * @author Matthias Müller
  */
 public interface DatasourceConfigurer {
+	
+	long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(5);
+	long DEFAULT_LIFE_TIME = TimeUnit.MINUTES.toMillis(15);
 
 	/**
 	 * the JMX-domain to register the configurer instance at
@@ -63,15 +68,22 @@ public interface DatasourceConfigurer {
 	 * @param connectionTimeout
 	 *                          the timeout
 	 */
-	void setConnectionTimeout(int connectionTimeout);
-	
+	void setConnectionTimeout(long connectionTimeout);
+
 	/**
 	 * Sets the validation timeout in milliseconds
 	 * 
 	 * @param validationTimeout
 	 *                          the timeout
 	 */
-	void setValidationTimeout(int validationTimeout);
+	void setValidationTimeout(long validationTimeout);
 
+	/**
+	 * Sets the maximum lifetime for a connection in the pool
+	 * 
+	 * @param maxLifetime
+	 *                    the maximum lifetime
+	 */
+	void setMaxLifetime(long maxLifetime);
 
 }

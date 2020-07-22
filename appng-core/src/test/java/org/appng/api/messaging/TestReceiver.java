@@ -18,6 +18,7 @@ package org.appng.api.messaging;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -38,7 +39,7 @@ public class TestReceiver implements Receiver, Runnable {
 
 	private ArrayBlockingQueue<Event> events = new ArrayBlockingQueue<>(10);
 	private Serializer eventDeserializer;
-	private List<Event> processed = new ArrayList<>();
+	private List<Event> processed = Collections.synchronizedList(new ArrayList<>());
 
 	public void registerHandler(EventHandler<?> handler) {
 

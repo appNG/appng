@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<site xmlns="http://www.appng.org/schema/appngizer" name="localhost" self="http://localhost/site/localhost">
+<site xmlns="http://www.appng.org/schema/appngizer" name="localhost" self="http://localhost/appNGizer/site/localhost">
 	<links>
-		<link name="properties" self="http://localhost/site/localhost/property" />
-		<link name="applications" self="http://localhost/site/localhost/application" />
-		<link name="databases" self="http://localhost/site/localhost/database" />
-		<link name="reload" self="http://localhost/site/localhost/reload" />
+		<link name="properties" self="http://localhost/appNGizer/site/localhost/property" />
+		<link name="applications" self="http://localhost/appNGizer/site/localhost/application" />
+		<link name="databases" self="http://localhost/appNGizer/site/localhost/database" />
+		<link name="reload" self="http://localhost/appNGizer/site/localhost/reload" />
 	</links>
 	<host>localhost</host>
 	<domain>http://localhost:8081</domain>

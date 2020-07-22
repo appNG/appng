@@ -397,7 +397,8 @@ public class CoreService {
 		return propertyRepository.save(property);
 	}
 
-	private SubjectImpl loginSubject(Site site, SubjectImpl subject, String username, String password, Environment env) {
+	private SubjectImpl loginSubject(Site site, SubjectImpl subject, String username, String password,
+			Environment env) {
 		char[] pwdArr = password.toCharArray();
 		SubjectImpl loginSubject = null;
 		if (subject != null) {
@@ -682,7 +683,7 @@ public class CoreService {
 	private boolean login(Environment env, SubjectImpl subject) {
 		if (subject != null) {
 			((DefaultEnvironment) env).setSubject(subject);
-			if(null != subject.getId()) {
+			if (null != subject.getId()) {
 				subjectRepository.saveAndFlush(subject);
 			}
 			initAuthenticatedSubject(subject);
@@ -834,12 +835,14 @@ public class CoreService {
 			}
 		}
 	}
-
-	public MigrationStatus assignApplicationToSite(SiteImpl site, Application application, boolean createProperties) {
+	
+	public MigrationStatus assignApplicationToSite(SiteImpl site, Application application,
+			boolean createProperties) {
 		SiteApplication siteApplication = new SiteApplication(site, application);
 		siteApplication.setActive(true);
 		siteApplication.setReloadRequired(true);
 		siteApplication.setMarkedForDeletion(false);
+
 		MigrationStatus migrationStatus = createDatabaseConnection(siteApplication);
 		DatabaseConnection dbc = siteApplication.getDatabaseConnection();
 		if (!migrationStatus.isErroneous()) {
@@ -905,13 +908,18 @@ public class CoreService {
 		CacheProvider cacheProvider = new CacheProvider(platformConfig);
 		try {
 			File platformCache = cacheProvider.getPlatformCache(site, application);
-			Resources applicationResources = getResources(application, platformCache, applicationRootFolder);
-			applicationResources.dumpToCache(ResourceType.APPLICATION, ResourceType.SQL);
-			ApplicationInfo applicationInfo = applicationResources.getApplicationInfo();
+			Resources resources = getResources(application, platformCache, applicationRootFolder);
+			resources.dumpToCache(ResourceType.APPLICATION, ResourceType.SQL);
 			File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
 			String databasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
-			return databaseService.manageApplicationConnection(siteApplication, applicationInfo, sqlFolder,
+			PropertyHolder applicationProperties = getApplicationProperties(null, siteApplication.getApplication());
+			((AccessibleApplication) application).setProperties(applicationProperties);
+			if (null == application.getResources()) {
+				((AccessibleApplication) application).setResources(resources);
+			}
+			MigrationStatus status = databaseService.manageApplicationConnection(siteApplication, sqlFolder,
 					databasePrefix);
+			return status;
 		} catch (Exception e) {
 			LOGGER.error(String.format("error during database setup for application %s", application.getName()), e);
 		} finally {
@@ -944,11 +952,11 @@ public class CoreService {
 
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
 			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased,
-			FieldProcessor fp) throws BusinessException {
+			FieldProcessor fp, boolean updateHiddenAndPrivileged) throws BusinessException {
 		PackageArchive applicationArchive = getArchive(repositoryId, name, version, timestamp);
 		switch (applicationArchive.getType()) {
 		case APPLICATION:
-			provideApplication(applicationArchive, isFileBased, isPrivileged, isHidden, fp);
+			provideApplication(applicationArchive, isFileBased, isPrivileged, isHidden, fp, updateHiddenAndPrivileged);
 			break;
 		case TEMPLATE:
 			provideTemplate(applicationArchive);
@@ -959,8 +967,7 @@ public class CoreService {
 	public PackageInfo installPackage(final Integer repositoryId, final String name, final String version,
 			String timestamp, final boolean isPrivileged, final boolean isHidden, final boolean isFileBased)
 			throws BusinessException {
-
-		return installPackage(repositoryId, name, version, timestamp, isPrivileged, isHidden, isFileBased, null);
+		return installPackage(repositoryId, name, version, timestamp, isPrivileged, isHidden, isFileBased, null, false);
 	}
 
 	private PackageArchive getArchive(final Integer repositoryId, final String applicationName,
@@ -1015,7 +1022,8 @@ public class CoreService {
 	}
 
 	private ApplicationImpl provideApplication(PackageArchive applicationArchive, boolean isFileBased,
-			boolean isPrivileged, boolean isHidden, FieldProcessor fp) throws BusinessException {
+			boolean isPrivileged, boolean isHidden, FieldProcessor fp, boolean updateHiddenAndPrivileged)
+			throws BusinessException {
 		ApplicationInfo applicationInfo = (ApplicationInfo) applicationArchive.getPackageInfo();
 		String applicationName = applicationInfo.getName();
 		String applicationVersion = applicationInfo.getVersion();
@@ -1030,7 +1038,10 @@ public class CoreService {
 			createApplication(application, applicationInfo, fp);
 		} else {
 			LOGGER.info("updating application {}-{}", applicationName, applicationVersion);
-			// Update application information
+			if (updateHiddenAndPrivileged) {
+				application.setPrivileged(isPrivileged);
+				application.setHidden(isHidden);
+			}
 			RepositoryImpl.getApplication(application, applicationInfo);
 		}
 		updateApplication(application, applicationArchive, outputDir);
@@ -1304,7 +1315,6 @@ public class CoreService {
 		return null;
 	}
 
-	
 	public String forgotPassword(AuthSubject authSubject) throws BusinessException {
 		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
 		if (canSubjectResetPassword(subject)) {
@@ -1760,21 +1770,21 @@ public class CoreService {
 		}
 	}
 
+	public PasswordPolicy.ValidationResult updatePassword(PasswordPolicy policy, char[] currentPassword,
+			char[] password, SubjectImpl currentSubject) {
+		PasswordPolicy.ValidationResult validationResult = policy.validatePassword(currentSubject.getAuthName(),
+				currentPassword, password);
+		if (validationResult.isValid()) {
+			PasswordHandler passwordHandler = getDefaultPasswordHandler(currentSubject);
+			passwordHandler.applyPassword(new String(password));
+		}
+		return validationResult;
+	}
+
+	@Deprecated
 	public Boolean updatePassword(char[] password, char[] passwordConfirmation, SubjectImpl currentSubject)
 			throws BusinessException {
-		boolean passwordUpdated = false;
-		String passwordString = new String(password);
-		String passwordConfirmationString = new String(passwordConfirmation);
-		if (StringUtils.isNotEmpty(passwordString) && StringUtils.isNotEmpty(passwordConfirmationString)) {
-			if (passwordString.equals(passwordConfirmationString)) {
-				PasswordHandler passwordHandler = getDefaultPasswordHandler(currentSubject);
-				passwordHandler.applyPassword(passwordString);
-				passwordUpdated = true;
-			} else {
-				throw new BusinessException("Passwords are not equal.");
-			}
-		}
-		return passwordUpdated;
+		throw new UnsupportedOperationException();
 	}
 
 	public void resetConnection(FieldProcessor fp, Integer conId) {
@@ -1825,7 +1835,6 @@ public class CoreService {
 				int waited = 0;
 				int waitTime = platformConfig.getInteger(Platform.Property.WAIT_TIME, 1000);
 				int maxWaitTime = platformConfig.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
-				shutdownSite.setState(SiteState.STOPPING);
 
 				if (platformConfig.getBoolean(Platform.Property.WAIT_ON_SITE_SHUTDOWN, false)) {
 					LOGGER.info("preparing to shutdown site {} that is currently handling {} requests", shutdownSite,
@@ -1847,6 +1856,7 @@ public class CoreService {
 
 				LOGGER.info("destroying site {}", shutdownSite);
 				if (SiteState.STARTED.equals(shutdownSite.getState())) {
+					shutdownSite.setState(SiteState.STOPPING);
 					for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
 						shutdownApplication(siteApplication, env);
 					}
@@ -2158,7 +2168,7 @@ public class CoreService {
 	}
 
 	public void createEvent(Type type, String message, Object... args) {
-		auditableListener.createEvent(type,	String.format(message, args));
+		auditableListener.createEvent(type, String.format(message, args));
 	}
 
 	public void setSiteReloadCount(SiteImpl site) {

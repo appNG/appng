@@ -20,6 +20,7 @@ import static org.appng.api.Scope.SESSION;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +38,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.servlets.DefaultServlet;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.appng.api.Environment;
 import org.appng.api.Path;
@@ -63,6 +65,7 @@ import org.appng.core.model.PlatformTransformer;
 import org.appng.xml.MarshallService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -89,8 +92,15 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	private Manager manager;
 
+	protected final byte[] loadingScreen;
+
 	public Controller() {
 		LOGGER.info("Controller created");
+		try (InputStream is = getClass().getResourceAsStream("loading.html")) {
+			loadingScreen = IOUtils.toByteArray(is);
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	protected void doHead(HttpServletRequest request, HttpServletResponse response)
@@ -118,7 +128,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 			@Override
 			public PrintWriter getWriter() throws IOException {
-				return new PrintWriter(new NullOutputStream());
+				return new PrintWriter(NullOutputStream.NULL_OUTPUT_STREAM);
 			}
 		};
 	}
@@ -163,6 +173,14 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	@Override
 	protected void doGet(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws ServletException, IOException {
+		if (!Boolean.TRUE.equals(servletRequest.getServletContext().getAttribute(PlatformStartup.APPNG_STARTED))) {
+			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+			servletResponse.setContentType(MediaType.TEXT_HTML_VALUE);
+			servletResponse.setContentLength(loadingScreen.length);
+			servletResponse.getOutputStream().write(loadingScreen);
+			return;
+		}
+
 		String servletPath = servletRequest.getServletPath();
 		String serverName = servletRequest.getServerName();
 

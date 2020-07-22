@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <properties xmlns="http://www.appng.org/schema/appngizer" self="/site/localhost/property">
-	<property status-code="201" status-message="Created" name="myNewProp" self="http://localhost/site/localhost/property/myNewProp">
+	<property status-code="201" status-message="Created" name="myNewProp" self="http://localhost/appNGizer/site/localhost/property/myNewProp">
 		<value>42</value>
 		<defaultValue>42</defaultValue>
 		<description>to life, the universe and everything</description>

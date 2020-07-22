@@ -41,7 +41,6 @@ import org.apache.catalina.startup.Tomcat;
 public class ApplicationStartup {
 
 	private static final String APPLICATION_WAR = "appng-application-%s.war";
-	private static final String APPNGIZER_WAR = "appng-appngizer-%s.war";
 	private static final String AUTO_INSTALL_LIST = "auto-install.list";
 	private static final String APPNG_PROPERTIES = "appNG.properties";
 	private static final String LOG4J_PROPERTIES = "log4j.properties";
@@ -55,7 +54,6 @@ public class ApplicationStartup {
 
 		File webapps = new File("webapps");
 		File appng = new File(webapps, "appng");
-		File appNGizer = new File(webapps, "appNGizer");
 		File webInf = new File(appng, "WEB-INF");
 		boolean install = arguments.contains(INSTALL);
 
@@ -89,20 +87,6 @@ public class ApplicationStartup {
 			System.out.println("Installation protocoll: " + new File(conf, installFiles[0]));
 		}
 
-		if (appNGizer.exists()) {
-			System.out.println("appNGizer installed at " + appNGizer.getAbsolutePath());
-		} else {
-			unzipWarFile(appNGizer, String.format(APPNGIZER_WAR, appngVersion));
-			String envAppngHome = "${appNGHome}";
-			replaceInFile(new File(appNGizer, "META-INF/context.xml"), envAppngHome, appng.getAbsolutePath());
-			replaceInFile(new File(appNGizer, "WEB-INF/web.xml"), envAppngHome, appng.getAbsolutePath());
-			if (!isWindows()) {
-				String systemAppngHome = "${APPNG_HOME}";
-				File servletXml = new File(appNGizer, "WEB-INF/appNGizer-servlet.xml");
-				replaceInFile(servletXml, systemAppngHome, "/" + systemAppngHome);
-			}
-		}
-
 		System.out.println("Starting Tomcat");
 		System.setProperty("catalina.base", new File("").getAbsolutePath());
 		int port = 8080;
@@ -114,7 +98,6 @@ public class ApplicationStartup {
 		connector.setPort(port);
 		tomcat.setConnector(connector);
 		tomcat.addWebapp("", appng.getAbsolutePath());
-		tomcat.addWebapp("/appNGizer", appNGizer.getAbsolutePath());
 		tomcat.start();
 		tomcat.getServer().await();
 	}

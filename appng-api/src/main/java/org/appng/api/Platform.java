@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
@@ -185,7 +186,7 @@ public final class Platform {
 		public static final String MDC_ENABLED = "mdcEnabled";
 		/** Set to true to enable cluster messaging */
 		public static final String MESSAGING_ENABLED = "messagingEnabled";
-		/** Class name of the desired messaging Receiver implementation. Default is multicast **/
+		/** Class name of the desired messaging Receiver implementation. **/
 		public static final String MESSAGING_RECEIVER = "messagingReceiver";
 		/** The multicast address used for messaging */
 		public static final String MESSAGING_GROUP_ADDRESS = "messagingGroupAddress";
@@ -197,6 +198,8 @@ public final class Platform {
 		public static final String MONITOR_PERFORMANCE = "monitorPerformance";
 		/** The maximum number of days a password is valid, where -1 means forever */
 		public static final String PASSWORD_MAX_VALIDITY ="passwordMaxValidity";
+		/** The fully qualified name of the {@link PasswordPolicy} to use. */
+		public static final String PASSWORD_POLICY = "passwordPolicy";
 		/**
 		 * The resource-bundle key (for messages-core) for the message which is being displayed when the password does
 		 * not match the policy.

@@ -29,6 +29,7 @@ import org.appng.api.Platform;
 import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.auth.AuthTools;
+import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Property;
@@ -36,9 +37,11 @@ import org.appng.api.model.Property.Type;
 import org.appng.api.model.Site;
 import org.appng.api.support.PropertyHolder;
 import org.appng.core.controller.HttpHeaders;
-import org.appng.core.controller.messaging.MulticastReceiver;
+import org.appng.core.controller.messaging.HazelcastReceiver;
 import org.appng.core.domain.SiteImpl;
+import org.appng.core.repository.config.DataSourceFactory;
 import org.appng.core.repository.config.HikariCPConfigurer;
+import org.appng.core.security.ConfigurablePasswordPolicy;
 import org.appng.core.security.DefaultPasswordPolicy;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +51,8 @@ import lombok.extern.slf4j.Slf4j;
  * {@link Site} or an {@link Application}.
  * 
  * @author Matthias Müller
- * 
- * @see Properties
- * @see PropertyHolder
+ * @see    Properties
+ * @see    PropertyHolder
  */
 @Slf4j
 public class PropertySupport {
@@ -70,7 +72,7 @@ public class PropertySupport {
 	 * Creates a new {@link PropertySupport} using the given {@link PropertyHolder}.
 	 * 
 	 * @param propertyHolder
-	 *            the {@link PropertyHolder} to use
+	 *                       the {@link PropertyHolder} to use
 	 */
 	public PropertySupport(PropertyHolder propertyHolder) {
 		this.propertyHolder = propertyHolder;
@@ -199,11 +201,11 @@ public class PropertySupport {
 	 * {@link PropertyHolder} this {@link PropertySupport} was created with.
 	 * 
 	 * @param site
-	 *            the {@link Site} to initialize the {@link Properties} for
+	 *                       the {@link Site} to initialize the {@link Properties} for
 	 * @param platformConfig
-	 *            the platform configuration
-	 * @see #PropertySupport(PropertyHolder)
-	 * @see SiteProperties
+	 *                       the platform configuration
+	 * @see                  #PropertySupport(PropertyHolder)
+	 * @see                  SiteProperties
 	 */
 	public void initSiteProperties(SiteImpl site, Properties platformConfig) {
 		bundle = ResourceBundle.getBundle("org/appng/core/site-config");
@@ -211,9 +213,20 @@ public class PropertySupport {
 		String appNGData = platformConfig.getString(Platform.Property.APPNG_DATA);
 		String repositoryPath = platformConfig.getString(Platform.Property.REPOSITORY_PATH);
 		addSiteProperty(SiteProperties.SITE_ROOT_DIR, normalizePath(appNGData, repositoryPath, site.getName()));
-		String pwdRegEx = platformConfig.getString(Platform.Property.PASSWORD_POLICY_REGEX);
-		String errorMessageKey = platformConfig.getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
-		site.setPasswordPolicy(new DefaultPasswordPolicy(pwdRegEx, errorMessageKey));
+
+		String passwordPolicyClass = platformConfig.getString(Platform.Property.PASSWORD_POLICY,
+				ConfigurablePasswordPolicy.class.getName());
+		PasswordPolicy passwordPolicy = null;
+		try {
+			passwordPolicy = (PasswordPolicy) getClass().getClassLoader().loadClass(passwordPolicyClass).newInstance();
+		} catch (ReflectiveOperationException e) {
+			LOGGER.error("error while instantiating " + passwordPolicyClass, e);
+			passwordPolicy = new ConfigurablePasswordPolicy();
+		}
+
+		LOGGER.debug("Using {} for site {}", passwordPolicy.getClass().getName(), site.getName());
+		passwordPolicy.configure(platformConfig);
+		site.setPasswordPolicy(passwordPolicy);
 
 		addSiteProperty(SiteProperties.NAME, site.getName());
 		addSiteProperty(SiteProperties.HOST, site.getHost());
@@ -225,7 +238,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.SUPPORTED_LANGUAGES, "en, de");
 		addSiteProperty(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN, true);
 		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
-		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath, Type.MULTILINE);
+		addSiteProperty(SiteProperties.CACHE_EXCEPTIONS, managerPath + "\r\n/health", Type.MULTILINE);
 		addSiteProperty(SiteProperties.CACHE_TIME_TO_LIVE, 1800);
 		addSiteProperty(SiteProperties.CACHE_TIMEOUTS, StringUtils.EMPTY, Type.MULTILINE);
 		addSiteProperty(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE, true);
@@ -235,6 +248,10 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.INDEX_DIR, "/index");
 		addSiteProperty(SiteProperties.INDEX_TIMEOUT, 5000);
 		addSiteProperty(SiteProperties.INDEX_QUEUE_SIZE, 1000);
+		addSiteProperty(SiteProperties.JDBC_CONNECTION_TIMEOUT, DataSourceFactory.DEFAULT_TIMEOUT);
+		addSiteProperty(SiteProperties.JDBC_LOG_PERFORMANCE, false);
+		addSiteProperty(SiteProperties.JDBC_MAX_LIFETIME, DataSourceFactory.DEFAULT_LIFE_TIME);
+		addSiteProperty(SiteProperties.JDBC_VALIDATION_TIMEOUT, DataSourceFactory.DEFAULT_TIMEOUT);
 		addSiteProperty(SiteProperties.SEARCH_CHUNK_SIZE, 20);
 		addSiteProperty(SiteProperties.SEARCH_MAX_HITS, 100);
 		addSiteProperty(Platform.Property.MAIL_HOST, "localhost");
@@ -301,15 +318,16 @@ public class PropertySupport {
 	 * {@link PropertyHolder} this {@link PropertySupport} was created with.
 	 * 
 	 * @param rootPath
-	 *            the root path of the platform (see {@link org.appng.api.Platform.Property#PLATFORM_ROOT_PATH})
+	 *                           the root path of the platform (see
+	 *                           {@link org.appng.api.Platform.Property#PLATFORM_ROOT_PATH})
 	 * @param devMode
-	 *            value for the {@link org.appng.api.Platform.Property#DEV_MODE} property to set
+	 *                           value for the {@link org.appng.api.Platform.Property#DEV_MODE} property to set
 	 * @param immutableOverrides
-	 *            some {@link java.util.Properties} used to override the default values
+	 *                           some {@link java.util.Properties} used to override the default values
 	 * @param finalize
-	 *            whether or not to call {@link PropertyHolder#setFinal()}
-	 * @see #PropertySupport(PropertyHolder)
-	 * @see org.appng.api.Platform.Property
+	 *                           whether or not to call {@link PropertyHolder#setFinal()}
+	 * @see                      #PropertySupport(PropertyHolder)
+	 * @see                      org.appng.api.Platform.Property
 	 */
 	public void initPlatformConfig(String rootPath, Boolean devMode, java.util.Properties immutableOverrides,
 			boolean finalize) {
@@ -352,10 +370,10 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.MAX_UPLOAD_SIZE, 30 * 1024 * 1024);
 		addPlatformProperty(defaultOverrides, Platform.Property.MAX_LOGIN_ATTEMPTS, 20);
 		addPlatformProperty(defaultOverrides, Platform.Property.MDC_ENABLED, Boolean.TRUE);
-		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_ENABLED, Boolean.FALSE);
+		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_ENABLED, Boolean.TRUE);
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_ADDRESS, "224.2.2.4");
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_GROUP_PORT, 4000);
-		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_RECEIVER, MulticastReceiver.class.getName());
+		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_RECEIVER, HazelcastReceiver.class.getName());
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITOR_PERFORMANCE, false);
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITORING_PATH, "/health");
 		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
@@ -397,8 +415,7 @@ public class PropertySupport {
 					String value = defaultOverrides.getProperty(prefixedName);
 					String name = prefixedName.substring(PREFIX_PLATFORM.length());
 					boolean isMultiline = value.contains(StringUtils.LF);
-					propertyHolder.addProperty(name, value, null,
-							isMultiline ? Type.MULTILINE : Type.forObject(value));
+					propertyHolder.addProperty(name, value, null, isMultiline ? Type.MULTILINE : Type.forObject(value));
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("added optional property {}{} = {}", PREFIX_PLATFORM, name, value);
 					}

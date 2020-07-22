@@ -82,8 +82,8 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	private Date expiryDate;
 
 	@NotNull(message = ValidationMessages.VALIDATION_NOT_NULL)
-	@Pattern(regexp = ValidationPatterns.USERNAME_PATTERN, message = ValidationPatterns.USERNAME_MSSG)
-	@Size(max = ValidationPatterns.LENGTH_64, message = ValidationMessages.VALIDATION_STRING_MAX)
+	@Pattern(regexp = ValidationPatterns.USERNAME_OR_LDAPGROUP_PATTERN, message = ValidationPatterns.USERNAME_GROUP_MSSG)
+	@Size(max = ValidationPatterns.LENGTH_255, message = ValidationMessages.VALIDATION_STRING_MAX)
 	@Column(unique = true)
 	public String getName() {
 		return name;

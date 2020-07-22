@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.21.0-SNAPSHOT</version>
+		<version>1.22.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -42,6 +42,7 @@
 						<spring-data-version>${springData.version}</spring-data-version>
 						<spring-data-jpa-version>${springDataJpa.version}</spring-data-jpa-version>
 						<lucene-version>${lucene.version}</lucene-version>
+						<manager-version>${appNG.manager.version}</manager-version>
 					</attributes>
 				</configuration>
 				<executions>

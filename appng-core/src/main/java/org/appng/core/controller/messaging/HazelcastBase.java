@@ -18,7 +18,7 @@ package org.appng.core.controller.messaging;
 import org.appng.api.messaging.Serializer;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
+import com.hazelcast.topic.ITopic;
 
 /**
  * Base class for Hazelcast messaging

@@ -324,7 +324,9 @@ public class TestSupport {
 		siteMap.put(site.getName(), site);
 
 		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
-		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true);
+		java.util.Properties overrides = new java.util.Properties();
+		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
+		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true, overrides, true);
 		platformMap = new ConcurrentHashMap<>();
 		platformMap.put(Platform.Environment.SITES, siteMap);
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);

@@ -71,15 +71,24 @@ import lombok.extern.slf4j.Slf4j;
 @EntityListeners(PlatformEventListener.class)
 public class DatabaseConnection implements Auditable<Integer> {
 
-	private static final String DATABASE_NAME = "databaseName=";
 	public static final String DB_PLACEHOLDER = "<name>";
-	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
+	private static final String DATABASE_NAME = "databaseName=";
+
+	private static final String MARIADB_DATASOURCE = "org.mariadb.jdbc.MariaDbDataSource";
+	private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
 	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
-	private static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static final String MYSQL_LEGACY_DRIVER = "com.mysql.jdbc.Driver";
 
+	private static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
+	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
+	private static String MYSQL_URL = "jdbc:mysql://localhost:%s/%s";
+
 	static {
-		if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
+		if (ClassUtils.isPresent(MARIADB_DATASOURCE, null)) {
+			MYSQL_DATASOURCE = MARIADB_DATASOURCE;
+			MYSQL_DRIVER = MARIADB_DRIVER;
+			MYSQL_URL = "jdbc:mariadb://localhost:%s/%s";
+		} else if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
 			MYSQL_DATASOURCE = MYSQL_LEGACY_DATASOURCE;
 			MYSQL_DRIVER = MYSQL_LEGACY_DRIVER;
 		}
@@ -89,7 +98,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 	public enum DatabaseType {
 
 		/** MySQL */
-		MYSQL(MYSQL_DRIVER, 3306, MYSQL_DATASOURCE, "jdbc:mysql://localhost:%s/%s", "select 1"),
+		MYSQL(MYSQL_DRIVER, 3306, MYSQL_DATASOURCE, MYSQL_URL, "select 1"),
 
 		/** Microsoft SQL Server */
 		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", 1433, "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
@@ -450,7 +459,8 @@ public class DatabaseConnection implements Auditable<Integer> {
 			return getJdbcUrl().substring(0, getJdbcUrl().indexOf(DATABASE_NAME) + DATABASE_NAME.length())
 					+ databaseName;
 		default:
-			return getJdbcUrl().substring(0, getJdbcUrl().lastIndexOf('/') + 1) + databaseName;
+			String currentDatabaseName = getType().getDatabaseName(getJdbcUrl());
+			return getJdbcUrl().replace(currentDatabaseName, databaseName);
 
 		}
 	}

@@ -1,0 +1,88 @@
+== User Management
+
+AppNG offers extensive possibilities for user administration.
+
+=== User Types
+
+In general a distinction is made between **local users, single LDAP users and LDAP groups**.
+
+For local users, you have full control over all the user's details, like if he may or must (not) change his password.
+
+With setting the platform properties 
+
+* `forceChangePassword` to `true`
+* `passwordMaxValidity` to a value greater zero (unit: days)
+
+a local user can be forced to change his password after a certain time.
+
+By setting the platform property `inactiveLockPeriod` to a value greater zero (unit: days), users can be locked automatically due to inactivity. 
+
+=== LDAP Connectivity
+
+It's possible to configure LDAP connectivity on a site level.
+
+For details, check out the {manager-guide}#ldap-connectivity[appNG Manager User Guide^].
+
+
+=== Password Policies
+
+Using the multiline platform property  `configurablePasswordPolicy`, it is possible to exactly define how a valid password must be built upon.
+
+These are available settings to do so:
+
+* `minLowerCase` (default: `1`) +
+The minimum number of lowercase letters (a-z).
+* `minUppercase` (default: `1`) +
+The minimum number of uppercase letters (A-Z).
+* `minDigits` (default: `1`) +
+The minimum number of digits (0-9).
+* `minSpecialChars` (default: `1`) +
+The minimum number of special characters (see `allowedSpecialChars`).
+* `allowedSpecialChars` (default: `!"#$%&'()*+,-./:;<=>?@[\]^_``{|}~`) +
+The allowed special characters,
+* `minLength` (default: `8`) +
+The minimum length of the password.
+* `maxLength` (default: `255`) +
+The maximum length of the password. 
+* `useHistory` (default: `true`) +
+When changing the password, make sure it differs from the current one. 
+* `useUsername` (default: `true`) +
+Make sure the password does not contain the username, also in reverse order and ignoring case.
+* `numCharacterGroups` (default: `4`) +
+The minimum number of different character groups that must be used for a password.
+* `allowOtherCharacters` (default: `false`) +
+Whether or not to allow other characters than letters, digits and the defined special characters.
+* `allowWhiteSpace` (default: `false`) +
+Whether or not to allow whitespaces. 
+* `generateLength` (default: `8`) +
+The length of a generated password.
+* `generateLowerCase` (default: `3`) +
+The number of lowercase letters (a-z) for a generated password.
+* `generateUppercase` (default: `3`) +
+The number of uppercase letters (A-Z) for a generated password.
+* `generateDigits` (default: `1`) +
+The number of digits (0-9) for a generated password.
+* `generateSpecialChars` (default: `1`) +
+The number of special characters for a generated password.
+
+Consequently, the implicit default configuration looks as follows:
+[source]
+----
+minLowerCase = 1
+minUppercase = 1
+minDigits = 1
+minSpecialChars = 1
+allowedSpecialChars = !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+minLength = 8
+maxLength = 255
+useHistory = true
+useUsername = true
+numCharacterGroups = 4
+allowOtherCharacters = false
+allowWhiteSpace = false
+generateLength = 8
+generateLowerCase = 3
+generateUppercase = 3
+generateDigits = 1
+generateSpecialChars = 1
+----
