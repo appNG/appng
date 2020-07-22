@@ -174,7 +174,7 @@ public class PlatformConfig {
 		marshallService.setUseSchema(false);
 		marshallService.setPrettyPrint(true);
 		marshallService.setSchemaLocation("http://www.appng.org/schema/platform/appng-platform.xsd");
-		marshallService.setCdataElements(Arrays.asList("title", "description", "label", "value", "message"));
+		marshallService.setCdataElements(Arrays.asList("title", "description", "label", "tooltip", "value", "message"));
 		return marshallService;
 	}
 
