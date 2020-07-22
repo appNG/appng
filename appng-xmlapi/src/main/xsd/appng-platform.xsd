@@ -2718,6 +2718,7 @@ If empty, the template is being applied to any output-type.]]>
 		<xs:sequence>
 			<xs:element name="sort" type="sort" minOccurs="0" />
 			<xs:element name="label" type="label" minOccurs="0" />
+			<xs:element name="tooltip" type="label" minOccurs="0"/>
 			<xs:element name="icon" type="icon" minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="condition" type="condition" minOccurs="0" />
 			<xs:element name="permissions" type="fieldPermissions" minOccurs="0" maxOccurs="2" />

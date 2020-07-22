@@ -5,6 +5,7 @@
     </field>
 	<field name="readableField">
 		<label>readableField</label>
+		<tooltip id="tooltip">tooltip</tooltip>
 	</field>
 	<field name="conditionTrue">
 		<label>conditionTrue</label>

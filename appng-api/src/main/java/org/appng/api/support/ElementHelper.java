@@ -309,6 +309,7 @@ public class ElementHelper {
 				if (hasPermission) {
 					if (!write) {
 						request.setLabel(fieldDef.getLabel());
+						request.setLabel(fieldDef.getTooltip());
 					}
 					Condition condition = fieldDef.getCondition();
 					boolean isValid = expressionMatchesOrContainsCurrent(condition, expressionEvaluator);
