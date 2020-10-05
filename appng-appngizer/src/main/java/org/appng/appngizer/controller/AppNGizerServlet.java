@@ -15,12 +15,15 @@
  */
 package org.appng.appngizer.controller;
 
+import javax.servlet.annotation.MultipartConfig;
+
 import org.apache.catalina.ContainerServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.Host;
 import org.apache.catalina.Wrapper;
 import org.springframework.web.servlet.DispatcherServlet;
 
+@MultipartConfig
 public class AppNGizerServlet extends DispatcherServlet implements ContainerServlet {
 
 	public static final String HOST = "host";

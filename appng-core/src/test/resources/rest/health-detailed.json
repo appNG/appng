@@ -1,0 +1,27 @@
+{
+  "name" : "appng",
+  "state" : "STARTED",
+  "host" : "localhost",
+  "domain" : "http://localhost:8080",
+  "startupTime" : "1982-04-30T08:15:00+02:00",
+  "uptimeSeconds" : 1204768206,
+  "applications" : {
+    "acme" : {
+      "version" : "42.0.1-RELEASE",
+      "hidden" : false,
+      "privileged" : true,
+      "filebased" : false,
+      "jars" : [ {
+        "name" : "acme.jar",
+        "size" : 42
+      } ]
+    }
+  },
+  "props" : {
+    "answer" : 42,
+    "awesome" : true,
+    "decimal" : 8.15,
+    "foo" : "bar",
+    "passWORD" : "******"
+  }
+}

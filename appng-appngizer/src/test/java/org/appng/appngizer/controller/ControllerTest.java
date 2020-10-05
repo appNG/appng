@@ -20,22 +20,29 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
+import org.appng.api.Scope;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
+import org.appng.api.support.PropertyHolder;
 import org.appng.appngizer.model.xml.PackageType;
 import org.appng.appngizer.model.xml.Repository;
 import org.appng.appngizer.model.xml.RepositoryMode;
 import org.appng.appngizer.model.xml.RepositoryType;
+import org.appng.core.controller.PlatformStartup;
+import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.service.CoreService;
 import org.appng.core.service.PropertySupport;
 import org.appng.testsupport.validation.WritingXmlValidator;
@@ -45,6 +52,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -63,10 +72,16 @@ import org.springframework.xml.transform.StringResult;
 import org.xml.sax.SAXException;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = { "classpath:test-context.xml" })
+@ContextConfiguration(locations = { "classpath:test-context.xml" }, initializers = ControllerTest.Initializer.class)
 @DirtiesContext
 @WebAppConfiguration
 public abstract class ControllerTest {
+
+	static class Initializer implements ApplicationContextInitializer<AbstractApplicationContext> {
+		public void initialize(AbstractApplicationContext applicationContext) {
+			applicationContext.setDisplayName(PlatformStartup.APPNG_CONTEXT);
+		}
+	}
 
 	@Autowired
 	protected WebApplicationContext wac;
@@ -115,9 +130,18 @@ public abstract class ControllerTest {
 		this.differenceListener = new XPathDifferenceHandler();
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		if (!platformInitialized) {
+			Map<Object, Object> platformEnv = new ConcurrentHashMap<>();
+			platformEnv.put(Platform.Environment.APPNG_VERSION, "1.21.x");
+			List<? extends Property> properties = Arrays.asList(
+					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.SHARED_SECRET, "4711"));
+			platformEnv.put(Platform.Environment.PLATFORM_CONFIG,
+					new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties));
+			this.wac.getServletContext().setAttribute(Scope.PLATFORM.name(), platformEnv);
+			RepositoryCacheFactory.init(null, null, null, null, false);
 			Properties defaultOverrides = new Properties();
 			defaultOverrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
-			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true, false);
+			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true,
+					false);
 			platformInitialized = true;
 		}
 	}
@@ -170,6 +194,7 @@ public abstract class ControllerTest {
 
 	protected MockHttpServletResponse verify(MockHttpServletRequestBuilder builder, HttpStatus status,
 			String controlSource) throws Exception, UnsupportedEncodingException, SAXException, IOException {
+		builder.header(HttpHeaders.AUTHORIZATION, "Bearer 4711");
 		MvcResult mvcResult = mockMvc.perform(builder).andReturn();
 		MockHttpServletResponse response = mvcResult.getResponse();
 		Assert.assertEquals("HTTP status does not match	", status.value(), response.getStatus());

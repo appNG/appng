@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -34,6 +35,7 @@ import org.appng.api.model.Site;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.SiteApplication;
+import org.appng.core.model.ApplicationProvider;
 import org.appng.core.repository.DatabaseConnectionRepository;
 import org.appng.xml.application.ApplicationInfo;
 import org.appng.xml.application.Datasource;
@@ -72,14 +74,12 @@ public class DatabaseService extends MigrationService {
 	@Autowired
 	protected DatabaseConnectionRepository databaseConnectionRepository;
 
-	private MigrationStatus migrateSchema(DatabaseConnection rootConnection, String dbInfo,
-			SiteApplication siteApplication, File sqlFolder, String databasePrefix) {
-		Site site = siteApplication.getSite();
-		Application application = siteApplication.getApplication();
+	private MigrationStatus migrateSchemaForApplication(DatabaseConnection rootConnection, String dbInfo,
+			SiteApplication application, File sqlFolder, String databasePrefix) {
 		LOGGER.info("connected to {} ({})", rootConnection.getJdbcUrl(), dbInfo);
 		try {
-			DatabaseConnection applicationConnection = createApplicationConnection(site, application, rootConnection,
-					databasePrefix);
+			DatabaseConnection applicationConnection = createApplicationConnection(application.getSite(),
+					application.getApplication(), rootConnection, databasePrefix);
 			String databaseName = applicationConnection.getName();
 			if (dataBaseExists(rootConnection, databaseName)) {
 				LOGGER.info("database '{}' already exists!", databaseName);
@@ -87,8 +87,12 @@ public class DatabaseService extends MigrationService {
 				initApplicationConnection(applicationConnection, getDataSource(rootConnection));
 			}
 
-			siteApplication.setDatabaseConnection(applicationConnection);
-			return migrateApplication(sqlFolder, applicationConnection);
+			application.setDatabaseConnection(applicationConnection);
+			if (StringUtils.isNotBlank(application.getApplication().getProperties()
+					.getString(ApplicationProperties.FLYWAY_MIGRATION_PACKAGE))) {
+				return MigrationStatus.DB_NOT_MIGRATED;
+			}
+			return migrateApplication(sqlFolder, application, databasePrefix);
 		} catch (Exception e) {
 			LOGGER.error("an error ocured while migrating the schema", e);
 		}
@@ -199,21 +203,33 @@ public class DatabaseService extends MigrationService {
 				+ UNDERSCORE + application.getName().replaceAll("-", UNDERSCORE)).toLowerCase();
 	}
 
-	MigrationStatus migrateApplication(File sqlFolder, DatabaseConnection databaseConnection) {
+	MigrationStatus migrateApplication(File sqlFolder, SiteApplication siteApplication, String dataBasePrefix) {
+		DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
 		if (null != databaseConnection) {
 			if (databaseConnection.testConnection(null)) {
 				String typeFolder = databaseConnection.getType().name().toLowerCase();
 				File scriptFolder = new File(sqlFolder.getAbsolutePath(), typeFolder);
 				String jdbcUrl = databaseConnection.getJdbcUrl();
 				LOGGER.info("starting database migration for {} from {}", jdbcUrl, scriptFolder.getAbsolutePath());
-				Flyway flyway = getFlyway(databaseConnection,
-						Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
+
+				List<String> locations = new ArrayList<>();
+				locations.add(Location.FILESYSTEM_PREFIX + scriptFolder.getAbsolutePath());
+				String flywayMigrationPackage = siteApplication.getApplication().getProperties()
+						.getString(ApplicationProperties.FLYWAY_MIGRATION_PACKAGE);
+				if (StringUtils.isNotBlank(flywayMigrationPackage)) {
+					LOGGER.info("adding Flyway migration package '{}' for application {}", flywayMigrationPackage,
+							siteApplication.getApplication().getName());
+					locations.add(flywayMigrationPackage);
+				}
+				Flyway flyway = getFlyway(databaseConnection, siteApplication.getSite().getSiteClassLoader(),
+						locations.toArray(new String[0]));
 				return migrate(flyway, databaseConnection);
 			} else {
 				return MigrationStatus.ERROR;
 			}
+		} else {
+			return manageApplicationConnection(siteApplication, sqlFolder, dataBasePrefix);
 		}
-		return MigrationStatus.NO_DB_SUPPORTED;
 	}
 
 	private List<String> getScript(DatabaseType type, String name) throws IOException, URISyntaxException {
@@ -374,21 +390,20 @@ public class DatabaseService extends MigrationService {
 	/**
 	 * Migrates the database for the given {@link SiteApplication}.
 	 * 
-	 * @param siteApplication
-	 *                        the {@link SiteApplication} to migrate the database for
-	 * @param applicationInfo
-	 *                        the {@link Application}'s {@link ApplicationInfo} as read from
-	 *                        {@value org.appng.api.model.ResourceType#APPLICATION_XML_NAME}.
-	 * @param sqlFolder
-	 *                        the root folder for the migration-scripts provided by the {@link SiteApplication}
-	 * @return the {@link MigrationService.MigrationStatus}
+	 * @param  siteApplication
+	 *                         the {@link SiteApplication} to migrate the database for
+	 * @param  sqlFolder
+	 *                         the root folder for the migration-scripts provided by the {@link SiteApplication}
+	 * @param  databasePrefix
+	 *                         the prefix for the database to create
+	 * @return                 the {@link MigrationService.MigrationStatus}
 	 */
 	@Transactional
-	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication, ApplicationInfo applicationInfo,
-			File sqlFolder, String databasePrefix) {
-		Datasources datasources = applicationInfo.getDatasources();
+	public MigrationStatus manageApplicationConnection(SiteApplication siteApplication, File sqlFolder,
+			String databasePrefix) {
+		Datasources datasources = siteApplication.getApplication().getResources().getApplicationInfo().getDatasources();
 		MigrationStatus status = MigrationStatus.NO_DB_SUPPORTED;
-		if (null != datasources && !datasources.getDatasource().isEmpty()) {
+		if (!(null == datasources || datasources.getDatasource().isEmpty())) {
 			for (Datasource datasource : datasources.getDatasource()) {
 				DatasourceType datasourceType = datasource.getType();
 				DatabaseType databaseType = DatabaseType.valueOf(datasourceType.name());
@@ -397,8 +412,8 @@ public class DatabaseService extends MigrationService {
 					if (rootConnection.isManaged()) {
 						StringBuilder dbInfo = new StringBuilder();
 						if (rootConnection.testConnection(dbInfo)) {
-							return migrateSchema(rootConnection, dbInfo.toString(), siteApplication, sqlFolder,
-									databasePrefix);
+							return migrateSchemaForApplication(rootConnection, dbInfo.toString(), siteApplication,
+									sqlFolder, databasePrefix);
 						} else {
 							status = MigrationStatus.DB_NOT_AVAILABLE;
 							LOGGER.warn("the connection '{}' using '{}' does not work", rootConnection.getName(),

@@ -71,15 +71,7 @@ public class RequestUtil {
 	 * @see         Site#getHost()
 	 */
 	public static Site getSiteByHost(Environment env, String host) {
-		Map<String, Site> sites = getSiteMap(env);
-		if (null != sites) {
-			for (Site site : sites.values()) {
-				if (host.equals(site.getHost())) {
-					return site;
-				}
-			}
-		}
-		return null;
+		return getSiteMap(env).values().stream().filter(s -> host.equals(s.getHost())).findFirst().orElse(null);
 	}
 
 	/**
@@ -93,12 +85,7 @@ public class RequestUtil {
 	 * @see         Site#getName()
 	 */
 	public static Site getSiteByName(Environment env, String name) {
-		Map<String, Site> sites = getSiteMap(env);
-		Site site = null;
-		if (null != sites) {
-			site = sites.get(name);
-		}
-		return site;
+		return getSiteMap(env).get(name);
 	}
 
 	/**
@@ -151,11 +138,7 @@ public class RequestUtil {
 	 * @return     the {@link Site} names
 	 */
 	public static Set<String> getSiteNames(Environment env) {
-		Map<String, Site> sites = getSiteMap(env);
-		if (null != sites) {
-			return Collections.unmodifiableSet(sites.keySet());
-		}
-		return Collections.emptySet();
+		return Collections.unmodifiableSet(getSiteMap(env).keySet());
 	}
 
 	/**

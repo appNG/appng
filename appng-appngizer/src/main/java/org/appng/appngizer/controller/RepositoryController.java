@@ -37,6 +37,7 @@ import org.appng.appngizer.model.xml.PackageType;
 import org.appng.core.domain.RepositoryImpl;
 import org.appng.core.model.InstallablePackage;
 import org.appng.core.model.PackageArchive;
+import org.appng.core.model.RepositoryCache;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.model.RepositoryMode;
 import org.appng.core.model.RepositoryType;
@@ -254,8 +255,15 @@ public class RepositoryController extends ControllerBase {
 	}
 
 	@PostMapping(value = "/repository/{name}/upload")
-	public ResponseEntity<Package> uploadPackage(@PathVariable("name") String name,
-			@RequestParam("file") MultipartFile file) throws BusinessException {
+	public ResponseEntity<Package> uploadPackage(
+	// @formatter:off
+			@PathVariable("name") String name,
+			@RequestParam("file") MultipartFile file,
+			@RequestParam(required = false, defaultValue = "false") boolean install,
+			@RequestParam(required = false, defaultValue = "false") boolean privileged,
+			@RequestParam(required = false, defaultValue = "false") boolean hidden
+	// @formatter:on
+	) throws BusinessException {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
 		if (null == r) {
 			return notFound();
@@ -271,7 +279,21 @@ public class RepositoryController extends ControllerBase {
 				Identifier installedApp = getApplicationByName(packageArchive.getPackageInfo().getName());
 				Identifier installedTemplate = getTemplateByName(packageArchive.getPackageInfo().getName());
 				Package pkg = getPackage(name, installedApp, installedTemplate, packageArchive.getPackageInfo());
-				RepositoryCacheFactory.instance().getCache(r).add(packageArchive);
+
+				RepositoryCache cache = RepositoryCacheFactory.instance().getCache(r);
+				boolean packageAvailable = cache.add(packageArchive);
+				if (!packageAvailable) {
+					cache.getPackageArchive(pkg.getName(), pkg.getVersion(), pkg.getTimestamp());
+					packageAvailable = true;
+				}
+				if (!packageAvailable) {
+					return reply(HttpStatus.BAD_REQUEST);
+				}
+				if (install) {
+					pkg.setPrivileged(privileged);
+					pkg.setHidden(hidden);
+					return installPackage(name, pkg);
+				}
 				return ok(pkg);
 			} else {
 				FileUtils.deleteQuietly(outFile);

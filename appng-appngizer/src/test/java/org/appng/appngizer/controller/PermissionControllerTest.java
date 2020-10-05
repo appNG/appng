@@ -39,7 +39,7 @@ public class PermissionControllerTest extends ControllerTest {
 		p.setName("newName");
 		HttpServletResponse response = putAndVerify("/application/demo-application/permission/testPermission", null, p,
 				HttpStatus.SEE_OTHER);
-		assertLocation("http://localhost/application/demo-application/permission/newName", response);
+		assertLocation("http://localhost/appNGizer/application/demo-application/permission/newName", response);
 
 		deleteAndVerify("/application/demo-application", null, HttpStatus.NO_CONTENT);
 	}

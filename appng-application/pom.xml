@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.21.1</version>
+		<version>1.22.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -162,6 +162,11 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.appng</groupId>
+			<artifactId>appng-appngizer</artifactId>
+			<version>${appNG.version}</version>
 		</dependency>
 		<!-- END PROJECT DEPENDENCIES -->
 		<!-- BEGIN FRAMEWORK DEPENDENCIES -->

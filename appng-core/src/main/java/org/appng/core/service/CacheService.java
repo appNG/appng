@@ -244,7 +244,7 @@ public class CacheService {
 			}
 		}
 		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
-		return count;
+		return removed;
 	}
 
 }

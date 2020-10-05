@@ -59,7 +59,11 @@ There are some built-in features an application can use by utilizing pre-defined
 If set to `true`, the application can add documents to the site's search index. See the chapter about  <<indexing-and-searching, indexing and searching>> for details.
 
 * `featureImageProcessing (boolean)` +
-If set to `true`, the application can obtain a pre configured {appng}/org/appng/tools/image/ImageProcessor.html[org.appng.tools.image.ImageProcessor^]. See {appng}/org/appng/api/model/Application.html#getFeatureProvider--[Application#getFeatureProvider()^] and  {appng}/org/appng/api/model/FeatureProvider.html#getImageProcessor-java.io.File-java.lang.String-[FeatureProvider#getImageProcessor(File sourceFile, String targetFile)^] for details.
+If set to `true`, the application can obtain a pre-configured {appng}/org/appng/tools/image/ImageProcessor.html[org.appng.tools.image.ImageProcessor^]. See {appng}/org/appng/api/model/Application.html#getFeatureProvider--[Application#getFeatureProvider()^] and  {appng}/org/appng/api/model/FeatureProvider.html#getImageProcessor-java.io.File-java.lang.String-[FeatureProvider#getImageProcessor(File sourceFile, String targetFile)^] for details.
+
+[[prop-flywayMigrationPackage]]
+* `flywayMigrationPackage (String)` +
+The path to the package where Flyway's Java-based migrations can be found, for example `com/example/db/migration`.
 
 [[prop-activeProfiles]]
 * `activeProfiles (String)` +

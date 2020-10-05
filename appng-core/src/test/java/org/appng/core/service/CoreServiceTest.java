@@ -121,6 +121,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Transactional(rollbackFor = BusinessException.class)
 @Rollback(false)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -408,8 +411,7 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	//@org.junit.Ignore
-	@Test(timeout = 30000)
+	@Test(timeout = 40000)
 	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -441,10 +443,15 @@ public class CoreServiceTest {
 		while (11 != receiver.getProcessed().size()) {
 			Thread.sleep(100);
 		}
+		LOGGER.info("Processed {} events", receiver.getProcessed().size());
 
-		//while (null != stateMap.get(realSite.getName())) {
-		//	Thread.sleep(100);
-		//}
+		synchronized (stateMap) {
+			SiteState state;
+			while (null != (state = stateMap.get(realSite.getName()))) {
+				LOGGER.info("state for site {} is {}", realSite.getName(), state);
+				Thread.sleep(100);
+			}
+		}
 
 		receiver.close();
 	}

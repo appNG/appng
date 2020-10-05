@@ -295,6 +295,9 @@ public class ElementHelperTest {
 		Mockito.when(applicationRequest.getMessage("dateFormat")).thenReturn("yyyy-MM-dd");
 
 		FieldDef field = addField(metaData, "readableField");
+		Label tooltip = new Label();
+		tooltip.setId("tooltip");
+		field.setTooltip(tooltip);
 		FieldDef fieldNoPermission = addField(metaData, "fieldNoRead");
 		FieldDef conditionFalse = addField(metaData, "conditionFalse", "${1 eq 2}");
 		FieldDef conditionTrue = addField(metaData, "conditionTrue", "${1 eq 1}");

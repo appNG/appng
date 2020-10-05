@@ -192,10 +192,20 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		getLog().info("Retrieved repo " + repo.getBody().getName() + " at " + repo.getBody().getSelf());
 		return repo;
 	}
-
+	
 	protected ResponseEntity<Package> upload() throws URISyntaxException, InterruptedException, ExecutionException {
+		return upload(false, false, false);
+	}
+
+	protected ResponseEntity<Package> upload(boolean install, boolean privileged, boolean hidden)
+			throws URISyntaxException, InterruptedException, ExecutionException {
 		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 		multipartRequest.add("file", new FileSystemResource(file));
+		if (install) {
+			multipartRequest.add("install", String.valueOf(install));
+			multipartRequest.add("privileged", String.valueOf(privileged));
+			multipartRequest.add("hidden", String.valueOf(hidden));
+		}
 		HttpHeaders uploadHeader = getHeader();
 		uploadHeader.setContentType(MediaType.MULTIPART_FORM_DATA);
 

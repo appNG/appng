@@ -18,6 +18,7 @@
 		<property name="configurerClass" value="${site.DatasourceConfigurer}" />
 		<property name="logPerformance" value="${site.jdbcLogPerformance}" />
 		<property name="connectionTimeout" value="${site.jdbcConnectionTimeout}" />
+		<property name="maxLifetime" value="${site.jdbcMaxLifetime}" />
 		<property name="validationTimeout" value="${site.jdbcValidationTimeout}" />
 	</bean>
 

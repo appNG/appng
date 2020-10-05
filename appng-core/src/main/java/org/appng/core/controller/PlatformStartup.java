@@ -15,10 +15,13 @@
  */
 package org.appng.core.controller;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.sql.Driver;
@@ -29,6 +32,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.jar.JarInputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -73,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PlatformStartup implements ServletContextListener {
 
 	static final String APPNG_STARTED = "APPNG_STARTED";
+	public static final String APPNG_CONTEXT = "appNG platform context";
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
 	public static final String WEB_INF = "/WEB-INF";
 	private ExecutorService executor;
@@ -82,6 +87,7 @@ public class PlatformStartup implements ServletContextListener {
 
 		try {
 			final StopWatch startupWatch = new StopWatch("startup");
+			printLogo();
 			startupWatch.start();
 			ServletContext ctx = sce.getServletContext();
 			String appngData = System.getProperty(Platform.Property.APPNG_DATA);
@@ -92,13 +98,6 @@ public class PlatformStartup implements ServletContextListener {
 			} else {
 				configIs = new FileInputStream(Paths.get(appngData, CONFIG_LOCATION).toFile());
 			}
-
-			LOGGER.info("");
-			LOGGER.info("Launching appNG, the Next Generation Application Platform ...");
-			LOGGER.info("");
-			InputStream logoIs = getClass().getResourceAsStream("logo.txt");
-			IOUtils.readLines(logoIs, StandardCharsets.UTF_8).forEach(l -> LOGGER.info(l));
-			logoIs.close();
 
 			Environment env = DefaultEnvironment.get(ctx);
 
@@ -144,11 +143,27 @@ public class PlatformStartup implements ServletContextListener {
 		}
 	}
 
+	private void printLogo() throws URISyntaxException, IOException, FileNotFoundException {
+		LOGGER.info(StringUtils.repeat("-", 48));
+		String appNGVersion = "appNG.version";
+		String jarPath = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+		if (jarPath.endsWith(".jar")) {
+			try (JarInputStream jis = new JarInputStream(new FileInputStream(jarPath))) {
+				appNGVersion = jis.getManifest().getMainAttributes().getValue("Implementation-Version");
+			}
+		}
+		try (InputStream logoIs = getClass().getResourceAsStream("logo.txt")) {
+			IOUtils.readLines(logoIs, StandardCharsets.UTF_8).stream().forEach(LOGGER::info);
+		}
+		LOGGER.info(StringUtils.leftPad(appNGVersion, 41, "-") + "-------");
+		LOGGER.info("...the Next Generation Application Platform");
+	}
+
 	protected void initPlatformContext(ServletContext ctx, Environment env, Properties config,
 			DatabaseConnection platformConnection) throws IOException {
 		AnnotationConfigWebApplicationContext platformCtx = new AnnotationConfigWebApplicationContext();
 		platformCtx.register(PlatformConfig.class);
-		platformCtx.setDisplayName("appNG platform context");
+		platformCtx.setDisplayName(APPNG_CONTEXT);
 		platformCtx.setServletContext(ctx);
 		PropertySourcesPlaceholderConfigurer appNGConfigurer = new PropertySourcesPlaceholderConfigurer();
 		config.put(DatabaseService.DATABASE_TYPE, platformConnection.getType().name());

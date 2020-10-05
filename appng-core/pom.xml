@@ -11,12 +11,12 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.21.1</version>
+		<version>1.22.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
-		<testcontainers.version>1.13.0</testcontainers.version>
+		<testcontainers.version>1.14.3</testcontainers.version>
 	</properties>
 
 	<build>
@@ -269,11 +269,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jasper</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<scope>provided</scope>
@@ -381,7 +376,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>5.8.0</version>
+			<version>5.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -396,7 +391,7 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>3.2.0</version>
+			<version>3.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
@@ -429,8 +424,8 @@
 		<dependency>
 			<groupId>org.passay</groupId>
 			<artifactId>passay</artifactId>
-			<version>1.5.0</version>
-		</dependency>		
+			<version>1.6.0</version>
+		</dependency>
 	</dependencies>
 	<!-- END DEPENDENCY MANAGEMENT -->
 </project>
