@@ -15,6 +15,7 @@
  */
 package org.appng.api;
 
+import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -36,9 +37,8 @@ import org.appng.forms.FormUploadValidator;
  * Used to validate the size, filetype(s) and amount of a ({@link Collection}) of) {@link FormUpload}(s).
  * 
  * @author Matthias Müller
- * 
  */
-@Target({ METHOD })
+@Target({ METHOD, FIELD })
 @Retention(RUNTIME)
 @Documented
 @Constraint(validatedBy = { FileUploadValidator.class, FileUploadListValidator.class })
@@ -77,12 +77,12 @@ public @interface FileUpload {
 		/**
 		 * Formats the given size using a {@link NumberFormat}
 		 * 
-		 * @param size
-		 *            the size in bytes
-		 * @param format
-		 *            the {@link NumberFormat}
-		 * @return the formatted size
-		 * @see FileUpload.Unit#format(FileUpload.Unit, long, NumberFormat)
+		 * @param  size
+		 *                the size in bytes
+		 * @param  format
+		 *                the {@link NumberFormat}
+		 * @return        the formatted size
+		 * @see           FileUpload.Unit#format(FileUpload.Unit, long, NumberFormat)
 		 */
 		public String format(long size, NumberFormat format) {
 			return format(this, size, format);
@@ -100,13 +100,13 @@ public @interface FileUpload {
 		 * 
 		 * <pre>
 		 * 
-		 * @param unit
-		 *            the {@link Unit}
-		 * @param size
-		 *            the size in bytes
-		 * @param format
-		 *            the {@link NumberFormat}
-		 * @return the formatted size
+		 * @param  unit
+		 *                the {@link Unit}
+		 * @param  size
+		 *                the size in bytes
+		 * @param  format
+		 *                the {@link NumberFormat}
+		 * @return        the formatted size
 		 */
 		public static String format(Unit unit, long size, NumberFormat format) {
 			return format.format((double) size / unit.factor) + unit.name();
@@ -126,18 +126,17 @@ public @interface FileUpload {
 
 	/**
 	 * @return the minimum size for an uploaded file (default: 0 {@link #unit()})
-	 * @see #unit()
+	 * @see    #unit()
 	 */
 	long minSize() default 0;
 
 	/**
 	 * @return the maximum size for an uploaded file (default: 10 {@link #unit()})
-	 * @see #unit()
+	 * @see    #unit()
 	 */
 	long maxSize() default 10;
 
 	/**
-	 * 
 	 * @return the {@link Unit} for {@link #minSize()} and {@link #maxSize()} (default: {@link Unit#MB})
 	 */
 	Unit unit() default Unit.MB;
