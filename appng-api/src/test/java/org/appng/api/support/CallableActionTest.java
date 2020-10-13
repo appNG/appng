@@ -220,7 +220,7 @@ public class CallableActionTest {
 			return null;
 		}).when(actionProvider).perform(Mockito.eq(site), Mockito.eq(application), Mockito.eq(environment),
 				Mockito.any(), Mockito.eq(applicationRequest), Mockito.any(), Mockito.any());
-
+		Mockito.when(actionRef.getMode()).thenReturn("awesome");
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
 		Assert.assertNotNull(envMessages.get());
@@ -230,7 +230,7 @@ public class CallableActionTest {
 		Assert.assertEquals(MessageType.OK, messageList.get(0).getClazz());
 		Assert.assertEquals("ACTION!", messageList.get(1).getContent());
 		Assert.assertEquals(MessageType.OK, messageList.get(1).getClazz());
-
+		Mockito.verify(action.getAction()).setMode(actionRef.getMode());
 	}
 
 	public void mockMessages(AtomicReference<Messages> envMessages, AtomicReference<Messages> actionMessages,
