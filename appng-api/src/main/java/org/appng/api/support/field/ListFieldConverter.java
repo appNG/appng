@@ -176,7 +176,7 @@ class ListFieldConverter extends ConverterBase {
 			boolean addField = !(anyChild.isPresent() && FieldType.OBJECT.equals(child.getType()));
 			if (addField) {
 				children.add(child);
-				LOGGER.debug("adding nested field {} to {})", FieldWrapper.toString(child),
+				LOGGER.debug("adding nested field {} to {}", FieldWrapper.toString(child),
 						FieldWrapper.toString(parent));
 			}
 		}
