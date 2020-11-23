@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform">
+    <field name="offsprings[0]" type="object" binding="offsprings[0]">
+        <field name="offsprings" type="list:object" binding="offsprings[0].offsprings">
+            <field name="offsprings[]" type="object" binding="offsprings[0].offsprings.offsprings[]">
+                <field name="name" type="text" binding="offsprings[0].offsprings.offsprings[].name"/>
+            </field>
+        </field>
+        <field name="name" type="text" binding="offsprings[0].name">
+            <condition expression="false"/>
+        </field>
+        <field name="name" type="text" binding="offsprings[0].name">
+            <condition expression="true"/>
+        </field>
+    </field>
+    <field name="offsprings[1]" type="object" binding="offsprings[1]">
+        <field name="offsprings" type="list:object" binding="offsprings[1].offsprings">
+            <field name="offsprings[]" type="object" binding="offsprings[1].offsprings.offsprings[]">
+                <field name="name" type="text" binding="offsprings[1].offsprings.offsprings[].name"/>
+            </field>
+        </field>
+        <field name="name" type="text" binding="offsprings[1].name">
+            <condition expression="false"/>
+        </field>
+        <field name="name" type="text" binding="offsprings[1].name">
+            <condition expression="true"/>
+        </field>
+    </field>
+</metaData>

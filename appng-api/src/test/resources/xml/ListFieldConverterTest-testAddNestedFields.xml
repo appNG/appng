@@ -7,8 +7,12 @@
 					<field name="name" type="text"></field>
 				</field>
 			</field>
-
-			<field name="name" type="text"></field>
+			<field name="name" type="text" binding="offsprings[].name">
+				<condition expression="${1 > 2 }" />
+			</field>
+			<field name="name" type="text" binding="offsprings[].name">
+				<condition expression="${2 > 1}" />
+			</field>
 		</field>
 	</field>
 </metaData>
