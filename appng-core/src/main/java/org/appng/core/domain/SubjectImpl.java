@@ -16,8 +16,10 @@
 package org.appng.core.domain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -193,9 +195,12 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 
 	@Transient
 	public boolean hasApplication(Application application) {
-		for (Group g : groups) {
-			for (Role role : g.getRoles()) {
-				if (application.getRoles().contains(role)) {
+		if (null == application) {
+			return false;
+		}
+		for (Group g : Optional.ofNullable(groups).orElse(Collections.emptyList())) {
+			for (Role role : Optional.ofNullable(g.getRoles()).orElse(Collections.emptySet())) {
+				if (Optional.ofNullable(application.getRoles()).orElse(Collections.emptySet()).contains(role)) {
 					return true;
 				}
 			}
@@ -204,13 +209,19 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	}
 
 	@Transient
+	@Deprecated
 	public List<Role> getApplicationroles(Application application) {
+		return getApplicationRoles(application);
+	}
+	
+	@Transient
+	public List<Role> getApplicationRoles(Application application) {
 		List<Role> applicationRoles = new ArrayList<>();
-		for (Group g : groups) {
-			for (Role role : g.getRoles()) {
-				if (application.getRoles().contains(role)) {
-					applicationRoles.add(role);
-				}
+		if (null != application) {
+			for (Group g : Optional.ofNullable(groups).orElse(Collections.emptyList())) {
+				Optional.ofNullable(g.getRoles()).orElse(Collections.emptySet()).stream()
+						.filter(Optional.ofNullable(application.getRoles()).orElse(Collections.emptySet())::contains)
+						.forEach(applicationRoles::add);
 			}
 		}
 		return applicationRoles;
