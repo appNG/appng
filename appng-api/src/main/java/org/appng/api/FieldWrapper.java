@@ -279,8 +279,10 @@ public class FieldWrapper extends FieldDef {
 	}
 
 	public static String toString(FieldDef fieldDef) {
+		String condition = null == fieldDef.getCondition() ? ""
+				: ", condition: " + fieldDef.getCondition().getExpression();
 		return fieldDef.getBinding() + " (type: " + fieldDef.getType() + ", format: " + fieldDef.getFormat()
-				+ ", readonly:" + fieldDef.getReadonly() + ", hidden: " + fieldDef.getHidden() + ")";
+				+ ", readonly:" + fieldDef.getReadonly() + ", hidden: " + fieldDef.getHidden() + condition + ")";
 	}
 
 	public Linkpanel getLinkpanel() {
