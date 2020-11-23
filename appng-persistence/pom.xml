@@ -55,7 +55,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.persistence</groupId>
+			<groupId>jakarta.activation</groupId>
 			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
 		<dependency>
