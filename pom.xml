@@ -684,34 +684,14 @@
 			</dependency>
 			<!-- BEGIN Jakarta Dependencies -->
 			<dependency>
-				<groupId>jakarta.annotation</groupId>
-				<artifactId>jakarta.annotation-api</artifactId>
-				<version>1.3.5</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.mail</groupId>
-				<artifactId>jakarta.mail</artifactId>
-				<version>1.6.5</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.validation</groupId>
-				<artifactId>jakarta.validation-api</artifactId>
-				<version>2.0.2</version>
-			</dependency>
-			<dependency>
 				<groupId>jakarta.activation</groupId>
 				<artifactId>jakarta.activation-api</artifactId>
 				<version>1.2.2</version>
 			</dependency>
 			<dependency>
-				<groupId>jakarta.persistence</groupId>
-				<artifactId>jakarta.persistence-api</artifactId>
-				<version>2.2.3</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.el</groupId>
-				<artifactId>jakarta.el-api</artifactId>
-				<version>3.0.3</version>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>1.3.5</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.inject</groupId>
@@ -719,14 +699,24 @@
 				<version>1.0.3</version>
 			</dependency>
 			<dependency>
-				<groupId>jakarta.xml.soap</groupId>
-				<artifactId>jakarta.xml.soap-api</artifactId>
-				<version>1.4.2</version>
+				<groupId>jakarta.persistence</groupId>
+				<artifactId>jakarta.persistence-api</artifactId>
+				<version>2.2.3</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.validation</groupId>
+				<artifactId>jakarta.validation-api</artifactId>
+				<version>2.0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.ws.rs</groupId>
 				<artifactId>jakarta.ws.rs-api</artifactId>
 				<version>2.1.6</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.xml.soap</groupId>
+				<artifactId>jakarta.xml.soap-api</artifactId>
+				<version>1.4.2</version>
 			</dependency>
 			<!-- END Jakarta Dependencies -->
 			<!-- BEGIN FRAMEWORK DEPENDENCIES -->
