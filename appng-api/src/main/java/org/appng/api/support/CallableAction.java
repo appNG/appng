@@ -164,6 +164,7 @@ public class CallableAction {
 			this.elementHelper = new ElementHelper(site, application);
 			DataConfig config = getAction().getConfig();
 			getAction().setEventId(eventId);
+			getAction().setMode(actionRef.getMode());
 
 			Map<String, String> actionParameters = elementHelper.initializeParameters(
 					"action '" + actionRef.getId() + "' (" + actionRef.getEventId() + ")", applicationRequest,

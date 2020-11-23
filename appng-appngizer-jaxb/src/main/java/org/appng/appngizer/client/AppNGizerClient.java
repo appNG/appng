@@ -54,6 +54,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -221,18 +222,22 @@ public interface AppNGizerClient {
 		}
 
 		/**
-		 * Reads a {@link Site}'s {@link Properties} with the given
-		 * {@link AppNGizerClient} and writes these to the given {@link OutputStream}
-		 * using YAML format.
+		 * Reads a {@link Site}'s {@link Properties} with the given {@link AppNGizerClient} and writes these to the
+		 * given {@link OutputStream} using YAML format.
 		 * 
-		 * @param appNGizer      the {@link AppNGizerClient} to use
-		 * @param name           the name of the {@link Site}
-		 * @param format         the format to use
-		 * @param out            the target to write to
-		 * @param nonDefaultOnly write only those properties where the value differs
-		 *                       from the default value
-		 * @return the {@link Site}'s {@link Properties}
-		 * @throws IOException if an error occurred while writing the output
+		 * @param  appNGizer
+		 *                        the {@link AppNGizerClient} to use
+		 * @param  name
+		 *                        the name of the {@link Site}
+		 * @param  format
+		 *                        the format to use
+		 * @param  out
+		 *                        the target to write to
+		 * @param  nonDefaultOnly
+		 *                        write only those properties where the value differs from the default value
+		 * @return                the {@link Site}'s {@link Properties}
+		 * @throws IOException
+		 *                        if an error occurred while writing the output
 		 */
 		public static Properties readSiteProperties(AppNGizerClient appNGizer, String name, OutputStream out,
 				Format format, boolean nonDefaultOnly) throws IOException {
@@ -254,19 +259,22 @@ public interface AppNGizerClient {
 		}
 
 		/**
-		 * Reads an {@link Application}'s {@link Properties} with the given
-		 * {@link AppNGizerClient} and writes these to the given {@link OutputStream}
-		 * using YAML format.
+		 * Reads an {@link Application}'s {@link Properties} with the given {@link AppNGizerClient} and writes these to
+		 * the given {@link OutputStream} using YAML format.
 		 * 
-		 * @param appNGizer      the {@link AppNGizerClient} to use
-		 * @param site           the {@link Site} where the {@link Application} is
-		 *                       installed on
-		 * @param app            the {@link Application}'s name
-		 * @param out            the target to write to
-		 * @param format         the {@link Format} to use
-		 * @param nonDefaultOnly write only those properties where the value differs
-		 *                       from the default value
-		 * @return the {@link Application}'s {@link Properties}
+		 * @param  appNGizer
+		 *                        the {@link AppNGizerClient} to use
+		 * @param  site
+		 *                        the {@link Site} where the {@link Application} is installed on
+		 * @param  app
+		 *                        the {@link Application}'s name
+		 * @param  out
+		 *                        the target to write to
+		 * @param  format
+		 *                        the {@link Format} to use
+		 * @param  nonDefaultOnly
+		 *                        write only those properties where the value differs from the default value
+		 * @return                the {@link Application}'s {@link Properties}
 		 * @throws IOException
 		 */
 		public static Properties readSiteApplicationProperties(AppNGizerClient appNGizer, String site, String app,
@@ -280,17 +288,20 @@ public interface AppNGizerClient {
 		}
 
 		/**
-		 * Reads the platform's {@link Properties} with the given
-		 * {@link AppNGizerClient} and writes these to the given {@link OutputStream}
-		 * using YAML format.
+		 * Reads the platform's {@link Properties} with the given {@link AppNGizerClient} and writes these to the given
+		 * {@link OutputStream} using YAML format.
 		 * 
-		 * @param appNGizer      the {@link AppNGizerClient} to use
-		 * @param out            the target to write to
-		 * @param format         the {@link Format} to use
-		 * @param nonDefaultOnly write only those properties where the value differs
-		 *                       from the default value
-		 * @return the platform's {@link Properties}
-		 * @throws IOException if an error occurred while writing the output
+		 * @param  appNGizer
+		 *                        the {@link AppNGizerClient} to use
+		 * @param  out
+		 *                        the target to write to
+		 * @param  format
+		 *                        the {@link Format} to use
+		 * @param  nonDefaultOnly
+		 *                        write only those properties where the value differs from the default value
+		 * @return                the platform's {@link Properties}
+		 * @throws IOException
+		 *                        if an error occurred while writing the output
 		 */
 		public static Properties readPlatformProperties(AppNGizerClient appNGizer, OutputStream out, Format format,
 				boolean nonDefaultOnly) throws IOException {
@@ -314,11 +325,15 @@ public interface AppNGizerClient {
 		/**
 		 * Writes the given {@link PropertyWrapper} to the given {@link OutputStream}
 		 * 
-		 * @param out     the stream to write to
-		 * @param name    the name to use
-		 * @param format
-		 * @param wrapper the wrapper to read from
-		 * @throws IOException if an error occurs while writing
+		 * @param  out
+		 *                     the stream to write to
+		 * @param  name
+		 *                     the name to use
+		 * @param  format
+		 * @param  wrapper
+		 *                     the wrapper to read from
+		 * @throws IOException
+		 *                     if an error occurs while writing
 		 */
 		public static void write(String name, OutputStream out, Format format, PropertyWrapper wrapper)
 				throws IOException {
@@ -337,14 +352,18 @@ public interface AppNGizerClient {
 		}
 
 		/**
-		 * Writes a {@link Site}'s {@link Properties} defined by the given
-		 * {@link InputStream} with the given {@link AppNGizerClient}
+		 * Writes a {@link Site}'s {@link Properties} defined by the given {@link InputStream} with the given
+		 * {@link AppNGizerClient}
 		 * 
-		 * @param appNGizer the {@link AppNGizerClient} to use
-		 * @param in        the {@link InputStream} to read from
-		 * @param format    the {@link Format} to use
-		 * @return the {@link Site}'s {@link Properties}
-		 * @throws IOException if an error occurred while reading the input
+		 * @param  appNGizer
+		 *                     the {@link AppNGizerClient} to use
+		 * @param  in
+		 *                     the {@link InputStream} to read from
+		 * @param  format
+		 *                     the {@link Format} to use
+		 * @return             the {@link Site}'s {@link Properties}
+		 * @throws IOException
+		 *                     if an error occurred while reading the input
 		 */
 		public static Properties writeSiteProperties(AppNGizerClient appNGizer, String site, InputStream in,
 				Format format) throws IOException {
@@ -371,10 +390,13 @@ public interface AppNGizerClient {
 		/**
 		 * Reads a stream and parses it to a map of {@link SiteConfig}s
 		 * 
-		 * @param in     the stream to read from
-		 * @param format the {@link Format} to use
-		 * @return the map
-		 * @throws IOException if an error occurred while reading the input
+		 * @param  in
+		 *                     the stream to read from
+		 * @param  format
+		 *                     the {@link Format} to use
+		 * @return             the map
+		 * @throws IOException
+		 *                     if an error occurred while reading the input
 		 */
 		public static Map<String, SiteConfig> readSite(InputStream in, Format format) throws IOException {
 			return getObjectMapper(format).readValue(in, new TypeReference<HashMap<String, SiteConfig>>() {
@@ -382,16 +404,23 @@ public interface AppNGizerClient {
 		}
 
 		private static ObjectMapper getObjectMapper(Format format) {
-			return new ObjectMapper(Format.JSON.equals(format) ? new JsonFactory() : new YAMLFactory());
+			JsonFactory factory = Format.JSON.equals(format) ? new JsonFactory()
+					: new YAMLFactory().enable(YAMLGenerator.Feature.LITERAL_BLOCK_STYLE)
+							.disable(YAMLGenerator.Feature.SPLIT_LINES)
+							.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
+			return new ObjectMapper(factory).setSerializationInclusion(Include.NON_ABSENT);
 		}
 
 		/**
 		 * Reads a stream and parses it to a map of {@link PropertyWrapper}s
 		 * 
-		 * @param in     the stream to read from
-		 * @param format the {@link Format} to use
-		 * @return the map
-		 * @throws IOException if an error occurred while reading the input
+		 * @param  in
+		 *                     the stream to read from
+		 * @param  format
+		 *                     the {@link Format} to use
+		 * @return             the map
+		 * @throws IOException
+		 *                     if an error occurred while reading the input
 		 */
 		public static Map<String, PropertyWrapper> read(InputStream in, Format format) throws IOException {
 			return getObjectMapper(format).readValue(in, new TypeReference<HashMap<String, PropertyWrapper>>() {
@@ -399,14 +428,18 @@ public interface AppNGizerClient {
 		}
 
 		/**
-		 * Writes the platform's {@link Properties} defined by the given
-		 * {@link InputStream} with the given {@link AppNGizerClient}
+		 * Writes the platform's {@link Properties} defined by the given {@link InputStream} with the given
+		 * {@link AppNGizerClient}
 		 * 
-		 * @param appNGizer the {@link AppNGizerClient} to use
-		 * @param in        the {@link InputStream} to read from
-		 * @param format    the {@link Format} to use
-		 * @return the platform's {@link Properties}
-		 * @throws IOException if an error occurred while reading the input
+		 * @param  appNGizer
+		 *                     the {@link AppNGizerClient} to use
+		 * @param  in
+		 *                     the {@link InputStream} to read from
+		 * @param  format
+		 *                     the {@link Format} to use
+		 * @return             the platform's {@link Properties}
+		 * @throws IOException
+		 *                     if an error occurred while reading the input
 		 */
 		public static Properties writePlatformProperties(AppNGizerClient appNGizer, InputStream in, Format format)
 				throws IOException {
@@ -419,17 +452,22 @@ public interface AppNGizerClient {
 		}
 
 		/**
-		 * Writes an {@link Application}'s {@link Properties} defined by the given
-		 * {@link InputStream} with the given {@link AppNGizerClient}
+		 * Writes an {@link Application}'s {@link Properties} defined by the given {@link InputStream} with the given
+		 * {@link AppNGizerClient}
 		 * 
-		 * @param appNGizer the {@link AppNGizerClient} to use
-		 * @param site      the {@link Site} where the {@link Application} is installed
-		 *                  on
-		 * @param app       the {@link Application}'s name
-		 * @param in        the {@link InputStream} to read from
-		 * @param format    the {@link Format} to use
-		 * @return the {@link Application}'s {@link Properties}
-		 * @throws IOException if an error occurred while reading the input
+		 * @param  appNGizer
+		 *                     the {@link AppNGizerClient} to use
+		 * @param  site
+		 *                     the {@link Site} where the {@link Application} is installed on
+		 * @param  app
+		 *                     the {@link Application}'s name
+		 * @param  in
+		 *                     the {@link InputStream} to read from
+		 * @param  format
+		 *                     the {@link Format} to use
+		 * @return             the {@link Application}'s {@link Properties}
+		 * @throws IOException
+		 *                     if an error occurred while reading the input
 		 */
 		public static Properties writeSiteApplicationProperties(AppNGizerClient appNGizer, String site, String app,
 				InputStream in, Format format) throws IOException {
