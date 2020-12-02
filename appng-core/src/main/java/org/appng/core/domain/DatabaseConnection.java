@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,14 +59,11 @@ import org.springframework.util.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Represents a connection to a database which is being used either by the platform itself ("root-connection") or by a
  * {@link SiteApplication}.
  * 
  * @author Matthias Müller
- * 
- * @see SiteApplication#getDatabaseConnection()
- * 
+ * @see    SiteApplication#getDatabaseConnection()
  */
 @Slf4j
 @Entity
@@ -76,15 +73,20 @@ public class DatabaseConnection implements Auditable<Integer> {
 
 	private static final String DATABASE_NAME = "databaseName=";
 	public static final String DB_PLACEHOLDER = "<name>";
-	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
-	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
+
+	private static final String MARIADB_DATASOURCE = "org.mariadb.jdbc.MariaDbDataSource";
+	private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
+	private static final String MARIADB_URL = "jdbc:mariadb://localhost:%s/%s";
+
 	private static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
-	private static final String MYSQL_LEGACY_DRIVER = "com.mysql.jdbc.Driver";
+	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
+	private static String MYSQL_URL = "jdbc:mysql://localhost:%s/%s";
 
 	static {
-		if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
-			MYSQL_DATASOURCE = MYSQL_LEGACY_DATASOURCE;
-			MYSQL_DRIVER = MYSQL_LEGACY_DRIVER;
+		if (ClassUtils.isPresent(MARIADB_DATASOURCE, null)) {
+			MYSQL_DATASOURCE = MARIADB_DATASOURCE;
+			MYSQL_DRIVER = MARIADB_DRIVER;
+			MYSQL_URL = MARIADB_URL;
 		}
 	}
 
@@ -92,26 +94,28 @@ public class DatabaseConnection implements Auditable<Integer> {
 	public enum DatabaseType {
 
 		/** MySQL */
-		MYSQL(MYSQL_DRIVER, MYSQL_DATASOURCE, "jdbc:mysql://localhost:3306/" + DB_PLACEHOLDER, "select 1"),
+		MYSQL(MYSQL_DRIVER, 3306, MYSQL_DATASOURCE, MYSQL_URL, "select 1"),
 
 		/** Microsoft SQL Server */
-		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
-				"jdbc:sqlserver://localhost:1433;databaseName=" + DB_PLACEHOLDER, "select 1"),
+		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", 1433, "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
+				"jdbc:sqlserver://localhost:%s;databaseName=%s", "select 1"),
 
 		/** HSQL DB */
-		HSQL("org.hsqldb.jdbc.JDBCDriver", "org.hsqldb.jdbc.JDBCDataSource",
-				"jdbc:hsqldb:hsql://localhost:9001/" + DB_PLACEHOLDER, "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
+		HSQL("org.hsqldb.jdbc.JDBCDriver", 9001, "org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:hsql://localhost:%s/%s",
+				"select 1 from INFORMATION_SCHEMA.SYSTEM_USERS");
 
 		private final String defaultDriver;
 		private final String templateUrl;
+		private final Integer defaultPort;
 		private String validationQuery;
 		private String dataSourceClassName;
 
-		private DatabaseType(String defaultDriver, String dataSourceClassName, String templateUrl,
+		private DatabaseType(String defaultDriver, Integer defaultPort, String dataSourceClassName, String templateUrl,
 				String validationQuery) {
 			this.defaultDriver = defaultDriver;
+			this.defaultPort = defaultPort;
 			this.dataSourceClassName = dataSourceClassName;
-			this.templateUrl = templateUrl;
+			this.templateUrl = String.format(templateUrl, defaultPort, DB_PLACEHOLDER);
 			this.validationQuery = validationQuery;
 		}
 
@@ -125,6 +129,11 @@ public class DatabaseConnection implements Auditable<Integer> {
 		/** an example JDBC-URL */
 		public String getTemplateUrl() {
 			return templateUrl;
+		}
+
+		/** the default port */
+		public Integer getDefaultPort() {
+			return defaultPort;
 		}
 
 		/** the default validation query */
@@ -199,7 +208,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
@@ -437,17 +446,14 @@ public class DatabaseConnection implements Auditable<Integer> {
 
 	public String getDatabaseConnectionString(String databaseName) {
 		switch (type) {
-		case MYSQL:
-			return getJdbcUrl().substring(0, getJdbcUrl().lastIndexOf('/') + 1) + databaseName;
 
 		case MSSQL:
 			return getJdbcUrl().substring(0, getJdbcUrl().indexOf(DATABASE_NAME) + DATABASE_NAME.length())
 					+ databaseName;
-		case HSQL:
-			return getJdbcUrl().substring(0, getJdbcUrl().lastIndexOf('/') + 1) + databaseName;
-
 		default:
-			return null;
+			String currentDatabaseName = getType().getDatabaseName(getJdbcUrl());
+			return getJdbcUrl().replace(currentDatabaseName, databaseName);
+
 		}
 	}
 

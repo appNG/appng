@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,22 @@ public class DatabaseTypeTest {
 	@Test
 	public void testMySql() {
 		runTest(MYSQL, "jdbc:mysql://localhost:3306/appng");
-		Assert.assertEquals("com.mysql.jdbc.Driver", MYSQL.getDefaultDriver());
-		Assert.assertEquals("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", MYSQL.getDataSourceClassName());
+		Assert.assertEquals("com.mysql.cj.jdbc.Driver", MYSQL.getDefaultDriver());
+		Assert.assertEquals("com.mysql.cj.jdbc.MysqlDataSource", MYSQL.getDataSourceClassName());
 	}
 
 	@Test
 	public void testMsSql() {
 		runTest(MSSQL, "jdbc:sqlserver://localhost:1433;databaseName=appng");
+	}
+
+	@Test
+	public void testGetDatabaseConnectionString() {
+		DatabaseConnection con = new DatabaseConnection(MYSQL, "jdbc:mysql://localhost:3306/appng?foo=bar",
+				DatabaseType.MYSQL.getDefaultDriver(), null, null, null);
+		Assert.assertEquals("appng", con.getDatabaseName());
+		Assert.assertEquals("jdbc:mysql://localhost:3306/app-database?foo=bar",
+				con.getDatabaseConnectionString("app-database"));
 	}
 
 	private void runTest(DatabaseType type, String jdbcUrl) {
