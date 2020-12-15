@@ -59,7 +59,7 @@ public class MigrationService {
 	protected static final String APP_NG_ROOT_DATABASE = "appNG Root Database";
 	protected static final String DATABASE_NAME_PREFIX = "appNG ";
 
-	private static final String LOCATION_PREFIX = "db.migration.";
+	private static final String LOCATION_PREFIX = "db/migration/";
 
 	/**
 	 * Enum type defining the different states of a database migration.
