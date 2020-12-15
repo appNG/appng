@@ -27,6 +27,6 @@
 	
 	<bean id="selectionFactory" class="org.appng.api.support.SelectionFactory" />
 	
-	<bean id="cacheManager" class="org.appng.core.model.ApplicationCacheManager" />
+	<bean id="cacheManager" class="org.appng.core.model.ApplicationCacheManager" primary="true"/>
 
 </beans>
