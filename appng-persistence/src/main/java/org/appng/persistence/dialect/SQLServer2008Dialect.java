@@ -16,11 +16,9 @@
 package org.appng.persistence.dialect;
 
 /**
- * A {@link org.hibernate.dialect.SQLServer2008Dialect}. Just in case we will need this in the future.
- * 
- * @author Matthias Herlitzius
- * 
+ * @deprecated Use {@link org.appng.persistence.hibernate.dialect.SQLServer2008Dialect} instead.
  */
-public class SQLServer2008Dialect extends org.hibernate.dialect.SQLServer2008Dialect {
+@Deprecated
+public class SQLServer2008Dialect extends org.appng.persistence.hibernate.dialect.SQLServer2008Dialect {
 
 }

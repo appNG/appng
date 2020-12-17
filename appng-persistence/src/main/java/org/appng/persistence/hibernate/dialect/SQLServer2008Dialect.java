@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.persistence.dialect;
+package org.appng.persistence.hibernate.dialect;
 
 /**
- * @deprecated Use {@link org.appng.persistence.hibernate.dialect.HSQLDialect} instead.
+ * A {@link org.hibernate.dialect.SQLServer2008Dialect}. Just in case we will need this in the future.
+ * 
+ * @author Matthias Herlitzius
+ * 
  */
-@Deprecated
-public class HSQLDialect extends org.appng.persistence.hibernate.dialect.HSQLDialect{
+public class SQLServer2008Dialect extends org.hibernate.dialect.SQLServer2008Dialect {
+
 }
