@@ -22,6 +22,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -416,6 +417,13 @@ public class DefaultEnvironment implements Environment {
 			session.removeAttribute(Session.Environment.SUBJECT);
 			session.logout();
 			session = null;
+		}
+		if (null != request) {
+			try {
+				((HttpServletRequest) request.getServletRequest()).logout();
+			} catch (ServletException e) {
+				LOGGER.error("error during logout", e);
+			}
 		}
 	}
 
