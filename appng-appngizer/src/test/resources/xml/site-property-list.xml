@@ -332,6 +332,12 @@
 		<defaultValue>service</defaultValue>
 		<description>The output type to be used when actions/datasources are being called through service URLs</description>
 	</property>
+	<property name="sessionTrackingEnabled"
+		self="http://localhost/appNGizer/site/localhost/property/sessionTrackingEnabled">
+		<value>true</value>
+		<defaultValue>true</defaultValue>
+		<description>Track usage of HTTP sessions?</description>
+	</property>
 	<property name="siteRootDir" self="http://localhost/appNGizer/site/localhost/property/siteRootDir">
 		<value>target/webapps/ROOT/repository/localhost</value>
 		<defaultValue>target/webapps/ROOT/repository/localhost</defaultValue>

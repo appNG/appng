@@ -481,12 +481,13 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		sites.put(site.getHost(), site);
 		platformEnv.put(Platform.Environment.SITES, sites);
 
-		this.session = new MockHttpSession(servletContext);
+		session = new MockHttpSession(servletContext);
+		servletRequest.setSession(session);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformEnv);
 
 		environment = context.getBean("environment", Environment.class);
 		if (!((DefaultEnvironment) environment).isInitialized()) {
-			environment.init(servletContext, session, servletRequest, servletResponse, site.getHost());
+			environment.init(servletContext, servletRequest, servletResponse, site.getHost());
 		}
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, path);
 		Mockito.when(path.getServicePath()).thenReturn(SITE_SERVICE_PATH);

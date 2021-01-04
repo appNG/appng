@@ -206,6 +206,9 @@ public class HeartBeat implements ExecutableCliCommand {
 			return false;
 		}
 
+		public void init(ServletContext context, ServletRequest request, ServletResponse response, String host) {
+		}
+
 		public void init(ServletContext context, HttpSession session, ServletRequest request, ServletResponse response,
 				String host) {
 		}

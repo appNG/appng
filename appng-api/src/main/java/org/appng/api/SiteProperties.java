@@ -186,6 +186,8 @@ public class SiteProperties {
 	 * {@link ActionProvider}s and {@link DataProvider}s)
 	 */
 	public static final String SERVICE_PATH = "service-path";
+	/** Track usage of HTTP sessions? **/
+	public static final String SESSION_TRACKING_ENABLED = "sessionTrackingEnabled";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
 	/**

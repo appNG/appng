@@ -52,7 +52,7 @@ public class DefaultEnvironment implements Environment {
 	private static final String SEP = System.getProperty("line.separator");
 	private PlatformEnvironment platform;
 	private SiteEnvironment site;
-	private SessionEnvironment session;
+	private volatile SessionEnvironment session;
 	private RequestEnvironment request;
 	private boolean initialized;
 	private Locale locale = Locale.getDefault();
@@ -61,43 +61,53 @@ public class DefaultEnvironment implements Environment {
 
 	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession, ServletRequest servletRequest,
 			ServletResponse servletResponse) {
-		init(servletContext, httpSession, servletRequest, servletResponse, null);
+		init(servletContext, servletRequest, servletResponse, null);
 	}
 
 	protected DefaultEnvironment() {
 
 	}
 
+	@Override
+	@Deprecated
 	public synchronized void init(ServletContext servletContext, HttpSession httpSession, ServletRequest servletRequest,
 			ServletResponse servletResponse, String host) {
+		init(servletContext, servletRequest, servletResponse, host);
+	}
+
+	public synchronized void init(ServletContext servletContext, ServletRequest servletRequest,
+			ServletResponse servletResponse, String host) {
 		if (!initialized) {
-			for (Scope scope : Scope.values()) {
-				disable(scope);
-			}
 			if (null != servletContext) {
 				platform = new PlatformEnvironment(servletContext);
 				enable(Scope.PLATFORM);
 				if (null != host) {
 					site = new SiteEnvironment(servletContext, host);
 					enable(Scope.SITE);
+				} else {
+					disable(Scope.SITE);
 				}
+			} else {
+				disable(Scope.PLATFORM);
 			}
-			if (null != httpSession) {
-				Site currentSite = RequestUtil.getSite(this, servletRequest);
-				session = new SessionEnvironment(httpSession, null == currentSite ? null : currentSite.getName());
-				enable(Scope.SESSION);
-			}
+
 			if (null != servletRequest) {
 				request = new RequestEnvironment(servletRequest, servletResponse);
 				enable(Scope.REQUEST);
+				enable(Scope.SESSION);
 				if (null == site) {
 					site = new SiteEnvironment(servletContext, servletRequest.getServerName());
 					enable(Scope.SITE);
+				} else {
+					disable(Scope.SITE);
 				}
+			} else {
+				disable(Scope.REQUEST);
+				disable(Scope.SESSION);
 			}
+
 			initialized = true;
 			initLocation();
-
 		} else {
 			throw new IllegalStateException("environment has already been initialized!");
 		}
@@ -134,7 +144,7 @@ public class DefaultEnvironment implements Environment {
 	 *                the host for the site-{@link Scope}
 	 */
 	public DefaultEnvironment(ServletContext context, String host) {
-		init(context, null, null, null, host);
+		init(context, null, null, host);
 	}
 
 	/**
@@ -274,7 +284,7 @@ public class DefaultEnvironment implements Environment {
 			env = site;
 			break;
 		case SESSION:
-			env = session;
+			env = getOrInitSession();
 			break;
 		case REQUEST:
 			env = request;
@@ -289,6 +299,24 @@ public class DefaultEnvironment implements Environment {
 			LOGGER.debug("scope {} is not available", scope);
 		}
 		return null;
+	}
+
+	private ScopedEnvironment getOrInitSession() {
+		if (null == session && scopeEnabled.get(Scope.SESSION)) {
+			synchronized (ScopedEnvironment.class) {
+				if (null == session) {
+					HttpServletRequest httpServletRequest = (HttpServletRequest) request.getServletRequest();
+					if (null != httpServletRequest.getSession()) {
+						Site currentSite = RequestUtil.getSite(this, httpServletRequest);
+						session = new SessionEnvironment(httpServletRequest.getSession(),
+								null == currentSite ? null : currentSite.getName());
+					} else {
+						disable(Scope.SESSION);
+					}
+				}
+			}
+		}
+		return session;
 	}
 
 	public Set<String> keySet(Scope scope) {
@@ -352,7 +380,7 @@ public class DefaultEnvironment implements Environment {
 			boolean createNewSession = site == null
 					|| site.getProperties().getBoolean(SiteProperties.RENEW_SESSION_AFTER_LOGIN, true);
 			if (createNewSession && subject.isAuthenticated()) {
-				Map<String, Object> oldContainer = session.getContainer();
+				Map<String, Object> oldContainer = getOrInitSession().getContainer();
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.SID);
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.TIMEOUT);
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.STARTTIME);
@@ -367,14 +395,14 @@ public class DefaultEnvironment implements Environment {
 	}
 
 	public Locale getLocale() {
-		if (null == session) {
+		if (null == getOrInitSession()) {
 			return locale;
 		}
 		return getAttribute(Scope.SESSION, Session.Environment.LOCALE);
 	}
 
 	public void setLocale(Locale locale) {
-		if (null == session) {
+		if (null == getOrInitSession()) {
 			this.locale = locale;
 		} else {
 			setAttribute(Scope.SESSION, Session.Environment.LOCALE, locale);
@@ -382,14 +410,14 @@ public class DefaultEnvironment implements Environment {
 	}
 
 	public TimeZone getTimeZone() {
-		if (null == session) {
+		if (null == getOrInitSession()) {
 			return timeZone;
 		}
 		return getAttribute(Scope.SESSION, Session.Environment.TIMEZONE);
 	}
 
 	public void setTimeZone(TimeZone timeZone) {
-		if (null == session) {
+		if (null == getOrInitSession()) {
 			this.timeZone = timeZone;
 		} else {
 			setAttribute(Scope.SESSION, Session.Environment.TIMEZONE, timeZone);
@@ -417,7 +445,7 @@ public class DefaultEnvironment implements Environment {
 	 * Removes the current {@link Subject} form the {@link HttpSession} and invalidates the latter.
 	 */
 	public void logoutSubject() {
-		if (null != session) {
+		if (null != getOrInitSession()) {
 			session.removeAttribute(Session.Environment.SUBJECT);
 			session.logout();
 			session = null;

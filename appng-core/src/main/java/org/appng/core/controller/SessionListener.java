@@ -33,6 +33,7 @@ import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
@@ -126,34 +127,35 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void requestInitialized(ServletRequestEvent sre) {
 		ServletRequest request = sre.getServletRequest();
-		DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext(), request);
+		DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext());
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		HttpSession httpSession = httpServletRequest.getSession();
 		Site site = RequestUtil.getSite(env, request);
 		setSecureFlag(httpServletRequest, site);
 		setDiagnosticContext(env, httpServletRequest, site);
+		if (site.getProperties().getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)) {
+			HttpSession httpSession = httpServletRequest.getSession();
+			Session session = (Session) httpSession.getAttribute(META_DATA);
+			if (null == session) {
+				session = createSession(httpSession);
+			}
+			session.update(httpSession.getCreationTime(), httpSession.getLastAccessedTime(),
+					httpSession.getMaxInactiveInterval());
+			session.setSite(null == site ? null : site.getName());
+			session.setDomain(site == null ? null : site.getDomain());
+			session.setUser(env.getSubject() == null ? null : env.getSubject().getAuthName());
+			session.setIp(request.getRemoteAddr());
+			session.setUserAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
+			session.addRequest();
+			setSession(httpSession, session);
 
-		Session session = (Session) httpSession.getAttribute(META_DATA);
-		if (null == session) {
-			session = createSession(httpSession);
-		}
-		session.update(httpSession.getCreationTime(), httpSession.getLastAccessedTime(),
-				httpSession.getMaxInactiveInterval());
-		session.setSite(null == site ? null : site.getName());
-		session.setDomain(site == null ? null : site.getDomain());
-		session.setUser(env.getSubject() == null ? null : env.getSubject().getAuthName());
-		session.setIp(request.getRemoteAddr());
-		session.setUserAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
-		session.addRequest();
-		setSession(httpSession, session);
-
-		if (LOGGER.isTraceEnabled()) {
-			String referer = httpServletRequest.getHeader(HttpHeaders.REFERER);
-			LOGGER.trace(
-					"Session updated: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {}, path: {}, referer: {})",
-					session.getId(), DATE_PATTERN.format(session.getCreationTime()),
-					DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
-					session.getUserAgent(), httpServletRequest.getServletPath(), referer);
+			if (LOGGER.isTraceEnabled()) {
+				String referer = httpServletRequest.getHeader(HttpHeaders.REFERER);
+				LOGGER.trace(
+						"Session updated: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {}, path: {}, referer: {})",
+						session.getId(), DATE_PATTERN.format(session.getCreationTime()),
+						DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
+						session.getUserAgent(), httpServletRequest.getServletPath(), referer);
+			}
 		}
 
 	}
@@ -166,7 +168,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			if (null != queryString) {
 				MDC.put("query", queryString);
 			}
-			MDC.put(MDC_SESSION_ID, httpServletRequest.getSession().getId());
+			MDC.put(MDC_SESSION_ID, httpServletRequest.getRequestedSessionId());
 			if (null != site) {
 				MDC.put("site", site.getName());
 			}

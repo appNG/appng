@@ -822,8 +822,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			throw new IllegalStateException("environment can not be null!");
 		}
 		if (!env.isInitialized()) {
-			env.init(servletRequest.getServletContext(), servletRequest.getSession(), servletRequest, servletResponse,
-					site.getHost());
+			env.init(servletRequest.getServletContext(), servletRequest, servletResponse, site.getHost());
 			for (Application application : site.getApplications()) {
 				String sessionParamName = application.getSessionParamKey(site);
 				if (null == env.getAttribute(SESSION, sessionParamName)) {
