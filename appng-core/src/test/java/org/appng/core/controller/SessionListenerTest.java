@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSessionEvent;
 
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
@@ -51,6 +52,7 @@ public class SessionListenerTest {
 		sessionListener = new SessionListener();
 
 		platformMap = new ConcurrentHashMap<>();
+
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, props);
@@ -58,7 +60,9 @@ public class SessionListenerTest {
 		Site site = Mockito.mock(Site.class);
 		Mockito.when(site.getDomain()).thenReturn("http://localhost:8080");
 		Mockito.when(site.getHost()).thenReturn("localhost");
-		Mockito.when(site.getProperties()).thenReturn(Mockito.mock(Properties.class));
+		Properties siteProps = Mockito.mock(Properties.class);
+		Mockito.when(site.getProperties()).thenReturn(siteProps);
+		Mockito.when(siteProps.getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)).thenReturn(true);
 		sitemap.put(site.getHost(), site);
 		platformMap.put(Platform.Environment.SITES, sitemap);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformMap);

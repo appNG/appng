@@ -28,6 +28,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
@@ -168,7 +169,10 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			if (null != queryString) {
 				MDC.put("query", queryString);
 			}
-			MDC.put(MDC_SESSION_ID, httpServletRequest.getRequestedSessionId());
+			String requestedSessionId = httpServletRequest.getRequestedSessionId();
+			if (StringUtils.isNotBlank(requestedSessionId)) {
+				MDC.put(MDC_SESSION_ID, requestedSessionId);
+			}
 			if (null != site) {
 				MDC.put("site", site.getName());
 			}
