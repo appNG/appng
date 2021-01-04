@@ -28,7 +28,7 @@ import org.appng.core.domain.DatabaseConnection;
  * @author Matthias Müller
  */
 public interface DatasourceConfigurer {
-	
+
 	long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(5);
 	long DEFAULT_LIFE_TIME = TimeUnit.MINUTES.toMillis(15);
 

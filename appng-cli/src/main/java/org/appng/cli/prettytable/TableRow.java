@@ -22,7 +22,6 @@ import java.util.List;
  * A table row for a {@link PrettyTable}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class TableRow {
 

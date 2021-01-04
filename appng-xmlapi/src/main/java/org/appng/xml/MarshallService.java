@@ -108,8 +108,8 @@ public class MarshallService {
 	}
 
 	public enum AppNGSchema {
-		PLATFORM("org.appng.xml.platform", NS_PLATFORM, "appng-platform.xsd"), APPLICATION("org.appng.xml.application",
-				NS_APPLICATION, "appng-application.xsd");
+		PLATFORM("org.appng.xml.platform", NS_PLATFORM, "appng-platform.xsd"),
+		APPLICATION("org.appng.xml.application", NS_APPLICATION, "appng-application.xsd");
 
 		private final String xsd;
 		private final String namespace;
@@ -168,8 +168,8 @@ public class MarshallService {
 				unmarshaller.setEventHandler(unmarshallingEventHandler);
 				if (null != schemaLocation) {
 					LOGGER.trace("schemaLocation is {}", schemaLocation);
-					marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, this.schema.getNamespace() + " "
-							+ schemaLocation);
+					marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
+							this.schema.getNamespace() + " " + schemaLocation);
 				}
 			}
 		} catch (JAXBException e) {
@@ -186,8 +186,8 @@ public class MarshallService {
 		return marshallService;
 	}
 
-	public void marshal(Object data, OutputStream out) throws ParserConfigurationException, JAXBException,
-			TransformerException {
+	public void marshal(Object data, OutputStream out)
+			throws ParserConfigurationException, JAXBException, TransformerException {
 		Document document = marshallToDocument(data);
 		buildTransformer().transform(new DOMSource(document), new StreamResult(out));
 		logValidationMessages(marshallingEventHandler);
@@ -221,8 +221,8 @@ public class MarshallService {
 		}
 	}
 
-	private Document marshallToDocument(Object data) throws ParserConfigurationException, JAXBException,
-			TransformerException {
+	private Document marshallToDocument(Object data)
+			throws ParserConfigurationException, JAXBException, TransformerException {
 		Document document = documentBuilderFactory.newDocumentBuilder().newDocument();
 		marshaller.marshal(data, document);
 		return document;

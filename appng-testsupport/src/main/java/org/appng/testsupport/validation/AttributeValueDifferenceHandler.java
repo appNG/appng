@@ -53,16 +53,14 @@ import org.w3c.dom.Node;
  * use {@link XPathDifferenceHandler} instead.
  * 
  * @author Matthias Müller
- * 
  */
 public class AttributeValueDifferenceHandler extends DifferenceHandler {
 
 	private List<String> ignored;
 
 	/**
-	 * 
 	 * @param ignored
-	 *            name(s) of the attribute(s) to ignore the value for
+	 *                name(s) of the attribute(s) to ignore the value for
 	 */
 	public AttributeValueDifferenceHandler(String... ignored) {
 		this.ignored = Arrays.asList(ignored);

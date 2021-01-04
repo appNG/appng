@@ -15,7 +15,6 @@
  */
 package org.appng.search.json;
 
-
 public abstract class Filter {
 
 }

@@ -27,7 +27,6 @@ import org.appng.xml.application.PackageInfo;
  * are obtained from the {@link Application}'s ZIP-file.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface PackageArchive {
 
@@ -52,16 +51,18 @@ public interface PackageArchive {
 	 * Processes the {@link PackageArchive}'s ZIP-file with the given {@link ZipFileProcessor}.
 	 * 
 	 * @param processor
-	 *            a {@link ZipFileProcessor}
+	 *                  a {@link ZipFileProcessor}
 	 * @param <T>
-	 *            the return type of the {@link ZipFileProcessor}
+	 *                  the return type of the {@link ZipFileProcessor}
+	 * 
 	 * @return an object of type {@code <T>}
+	 * 
 	 * @throws IOException
-	 *             <ul>
-	 *             <li>if {@link ZipFileProcessor#process(org.apache.commons.compress.archivers.zip.ZipFile)} throws an
-	 *             {@link IOException}
-	 *             <li>if the ZIP-file could not be read
-	 *             </ul>
+	 *                     <ul>
+	 *                     <li>if {@link ZipFileProcessor#process(org.apache.commons.compress.archivers.zip.ZipFile)}
+	 *                     throws an {@link IOException}
+	 *                     <li>if the ZIP-file could not be read
+	 *                     </ul>
 	 */
 	<T> T processZipFile(ZipFileProcessor<T> processor) throws IOException;
 
@@ -77,8 +78,9 @@ public interface PackageArchive {
 	 * {@code true}.
 	 * 
 	 * @return the binary data
+	 * 
 	 * @throws IOException
-	 *             if the ZIP-file could not be read
+	 *                     if the ZIP-file could not be read
 	 */
 	byte[] getBytes() throws IOException;
 

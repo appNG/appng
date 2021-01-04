@@ -146,10 +146,9 @@ public class Signer {
 						reachedDigests = true;
 						continue;
 					} else {
-						throw new SigningException(ErrorType.VERIFY,
-								String.format(
-										"Release file has unexpected format on line %d. Expected 'key: value', but got '%s'.",
-										lineNo, line));
+						throw new SigningException(ErrorType.VERIFY, String.format(
+								"Release file has unexpected format on line %d. Expected 'key: value', but got '%s'.",
+								lineNo, line));
 					}
 				}
 
@@ -196,9 +195,8 @@ public class Signer {
 			// Write the release file
 			Path releaseFilePath = repoPath.resolve("index");
 			LOGGER.info("Writing release file '{}'", releaseFilePath);
-			try (
-					BufferedWriter releaseFileOut = Files.newBufferedWriter(releaseFilePath, config.getCharset(),
-							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			try (BufferedWriter releaseFileOut = Files.newBufferedWriter(releaseFilePath, config.getCharset(),
+					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
 				LOGGER.info("..adding repository attributes");
 				for (String key : BaseConfig.validRepoAttributes) {
@@ -226,9 +224,8 @@ public class Signer {
 			throw new SigningException(ErrorType.SIGN,
 					"IOException during repo signing. Please check the configured paths and masks.", ioe);
 		} catch (SignatureException se) {
-			throw new SigningException(ErrorType.SIGN,
-					String.format(
-							"SignatureException during repo signing. There is no plausible reason in this part of the code. You probably found a bug!"),
+			throw new SigningException(ErrorType.SIGN, String.format(
+					"SignatureException during repo signing. There is no plausible reason in this part of the code. You probably found a bug!"),
 					se);
 		}
 

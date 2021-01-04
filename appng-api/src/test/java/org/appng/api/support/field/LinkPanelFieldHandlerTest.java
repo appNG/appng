@@ -45,12 +45,10 @@ public class LinkPanelFieldHandlerTest extends AbstractFieldConverterTest {
 		params.put("param1", 5);
 		super.setup(FieldType.LINKPANEL, params);
 		fieldWrapper.setLinkpanel(getLinkPanel());
-		Mockito.when(
-				messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "7" }, LABEL_WITH_PARAM,
-						environment.getLocale())).thenReturn("label-with-param-5-7");
-		Mockito.when(
-				messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "foobar" }, LABEL_WITH_PARAM,
-						environment.getLocale())).thenReturn("5 - foobar");
+		Mockito.when(messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "7" }, LABEL_WITH_PARAM,
+				environment.getLocale())).thenReturn("label-with-param-5-7");
+		Mockito.when(messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "foobar" }, LABEL_WITH_PARAM,
+				environment.getLocale())).thenReturn("5 - foobar");
 	}
 
 	@Test

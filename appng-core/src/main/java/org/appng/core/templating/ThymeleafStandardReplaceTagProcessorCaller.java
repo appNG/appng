@@ -21,13 +21,11 @@ import org.thymeleaf.model.IProcessableElementTag;
 import org.thymeleaf.processor.element.IElementTagStructureHandler;
 
 /**
- * This interface is implemented by custom tag processors supporting
- * interceptors. If an interceptor replaces the target or context of a tag
- * processing it has to call the original processing of the functionality with
- * its customized context or attributes.
+ * This interface is implemented by custom tag processors supporting interceptors. If an interceptor replaces the target
+ * or context of a tag processing it has to call the original processing of the functionality with its customized
+ * context or attributes.
  * 
  * @author Claus Stümke
- *
  */
 public interface ThymeleafStandardReplaceTagProcessorCaller {
 

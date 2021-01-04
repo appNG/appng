@@ -73,7 +73,6 @@ import lombok.extern.slf4j.Slf4j;
  * {@link CliCommands}-object.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class CliCore {
@@ -147,7 +146,7 @@ public class CliCore {
 	 * Performs a cli command
 	 * 
 	 * @param cliConfig
-	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 *                  the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
 	 **/
 	public int perform(final Properties cliConfig) {
 
@@ -239,9 +238,11 @@ public class CliCore {
 	 * {@link #perform(Properties)}.
 	 * 
 	 * @param args
-	 *            the command line arguments
+	 *             the command line arguments
+	 * 
 	 * @return {@code true} if the given arguments have been parsed to an {@link ExecutableCliCommand} and
 	 *         {@link #perform(Properties)} should be called, {@code false} otherwise
+	 * 
 	 * @see #getStatus()
 	 */
 	public boolean processCommand(String[] args) throws ParameterException {
@@ -299,7 +300,6 @@ public class CliCore {
 	 * Enum type for logging events.
 	 * 
 	 * @author Matthias Herlitzius
-	 * 
 	 */
 	private enum LogCategory {
 		INFO, WARN, ERROR;

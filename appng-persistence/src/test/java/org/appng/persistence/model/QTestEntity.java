@@ -23,38 +23,36 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
 import com.querydsl.core.types.Path;
 
-
 /**
  * QTestEntity is a Querydsl query type for TestEntity
  */
 @Generated("com.querydsl.codegen.EntitySerializer")
 public class QTestEntity extends EntityPathBase<TestEntity> {
 
-    private static final long serialVersionUID = -1328827481L;
+	private static final long serialVersionUID = -1328827481L;
 
-    public static final QTestEntity testEntity = new QTestEntity("testEntity");
+	public static final QTestEntity testEntity = new QTestEntity("testEntity");
 
-    public final BooleanPath booleanValue = createBoolean("booleanValue");
+	public final BooleanPath booleanValue = createBoolean("booleanValue");
 
-    public final NumberPath<Double> doubleValue = createNumber("doubleValue", Double.class);
+	public final NumberPath<Double> doubleValue = createNumber("doubleValue", Double.class);
 
-    public final NumberPath<Integer> id = createNumber("id", Integer.class);
+	public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
-    public final NumberPath<Integer> integerValue = createNumber("integerValue", Integer.class);
+	public final NumberPath<Integer> integerValue = createNumber("integerValue", Integer.class);
 
-    public final StringPath name = createString("name");
+	public final StringPath name = createString("name");
 
-    public QTestEntity(String variable) {
-        super(TestEntity.class, forVariable(variable));
-    }
+	public QTestEntity(String variable) {
+		super(TestEntity.class, forVariable(variable));
+	}
 
-    public QTestEntity(Path<? extends TestEntity> path) {
-        super(path.getType(), path.getMetadata());
-    }
+	public QTestEntity(Path<? extends TestEntity> path) {
+		super(path.getType(), path.getMetadata());
+	}
 
-    public QTestEntity(PathMetadata metadata) {
-        super(TestEntity.class, metadata);
-    }
+	public QTestEntity(PathMetadata metadata) {
+		super(TestEntity.class, metadata);
+	}
 
 }
-

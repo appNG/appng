@@ -21,7 +21,6 @@ import java.io.Serializable;
  * Common base-type for all types of this package.
  * 
  * @author Matthias Müller
- * 
  */
 @javax.xml.bind.annotation.XmlTransient
 public class BaseObject implements Serializable {

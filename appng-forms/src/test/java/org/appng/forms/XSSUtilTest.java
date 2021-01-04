@@ -21,12 +21,13 @@ import org.junit.Test;
 import org.owasp.esapi.ESAPI;
 
 public class XSSUtilTest {
-	
+
 	@Test
-	public void test(){
+	public void test() {
 		XSSUtil xssUtil = new XSSUtil(ESAPI.encoder(), new Whitelist());
 		Assert.assertEquals("", xssUtil.stripXss("<script>alert('XSS!')<%2Fscript>"));
-		Assert.assertEquals("", xssUtil.stripXss("<meta http-equiv%3D\"refresh\" content%3D\"0; url%3Dhttps:%2F%2Fwww.aiticon.com%2F\">"));
+		Assert.assertEquals("", xssUtil
+				.stripXss("<meta http-equiv%3D\"refresh\" content%3D\"0; url%3Dhttps:%2F%2Fwww.aiticon.com%2F\">"));
 	}
 
 }

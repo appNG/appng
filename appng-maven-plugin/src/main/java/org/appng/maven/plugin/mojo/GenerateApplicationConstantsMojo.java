@@ -28,28 +28,27 @@ import org.appng.xml.ApplicationPropertyConstantCreator;
 @Mojo(name = "generateApplicationConstants", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
 public class GenerateApplicationConstantsMojo extends AbstractGeneratorMojo {
 
-    /**
-     * a prefix for the name of the generated constants (optional)
-     */
-    @Parameter(property = "prefix", defaultValue = "", required = false)
-    private String prefix;
+	/**
+	 * a prefix for the name of the generated constants (optional)
+	 */
+	@Parameter(property = "prefix", defaultValue = "", required = false)
+	private String prefix;
 
-    @Override
-    protected void createConstantClass() throws IOException, JAXBException {
-        ApplicationPropertyConstantCreator.main(getArgs());
-    }
+	@Override
+	protected void createConstantClass() throws IOException, JAXBException {
+		ApplicationPropertyConstantCreator.main(getArgs());
+	}
 
-    @Override
-    protected String getMessage() {
-        return "generate application constants";
-    }
+	@Override
+	protected String getMessage() {
+		return "generate application constants";
+	}
 
-    @Override
-    protected String[] getArgs() {
-        return prefix == null
-                ? new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() }
-                : new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath(), prefix };
+	@Override
+	protected String[] getArgs() {
+		return prefix == null ? new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() }
+				: new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath(), prefix };
 
-    }
+	}
 
 }

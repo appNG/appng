@@ -24,7 +24,6 @@ import com.beust.jcommander.Parameter;
  * Base class for {@link ExecutableCliCommand}s that list something.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public abstract class CommandList {
 

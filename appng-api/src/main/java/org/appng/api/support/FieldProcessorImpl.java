@@ -40,11 +40,9 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 
 /**
- * 
  * Default {@link FieldProcessor}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 

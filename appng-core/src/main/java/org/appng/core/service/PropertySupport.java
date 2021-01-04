@@ -51,8 +51,9 @@ import lombok.extern.slf4j.Slf4j;
  * {@link Site} or an {@link Application}.
  * 
  * @author Matthias Müller
- * @see    Properties
- * @see    PropertyHolder
+ * 
+ * @see Properties
+ * @see PropertyHolder
  */
 @Slf4j
 public class PropertySupport {
@@ -84,16 +85,18 @@ public class PropertySupport {
 	 * prefix for a site-property is {@code site.}, for a platform-property it's {@value #PREFIX_PLATFORM}. For an
 	 * {@link Application} property no prefix is used.
 	 * 
-	 * @param  platFormConfig
-	 *                          the platform configuration, only needed if {@code addPlatformScope} is {@code true}.
-	 * @param  site
-	 *                          the {@link Site} to retrieve {@link Properties} from (may be null)
-	 * @param  application
-	 *                          the {@link Application} to retrieve {@link Properties} from (may be null)
-	 * @param  addPlatformScope
-	 *                          set to {@code true} to add the platform properties
-	 * @return                  the aggregated {@link java.util.Properties} with prefixed entries
-	 * @see                     Properties#getPlainProperties()
+	 * @param platFormConfig
+	 *                         the platform configuration, only needed if {@code addPlatformScope} is {@code true}.
+	 * @param site
+	 *                         the {@link Site} to retrieve {@link Properties} from (may be null)
+	 * @param application
+	 *                         the {@link Application} to retrieve {@link Properties} from (may be null)
+	 * @param addPlatformScope
+	 *                         set to {@code true} to add the platform properties
+	 * 
+	 * @return the aggregated {@link java.util.Properties} with prefixed entries
+	 * 
+	 * @see Properties#getPlainProperties()
 	 */
 	public static java.util.Properties getProperties(Properties platFormConfig, Site site, Application application,
 			boolean addPlatformScope) {
@@ -114,13 +117,14 @@ public class PropertySupport {
 	 * Returns the dot-separated full name for a given property, depending on whether a {@link Site} and/or an
 	 * {@link Application} are given.
 	 * 
-	 * @param  site
-	 *                     the {@link Site}, may be {@code null}
-	 * @param  application
-	 *                     the {@link Application}, may be {@code null}
-	 * @param  name
-	 *                     the raw name of the property, without dot-notation
-	 * @return             the full name of the property.
+	 * @param site
+	 *                    the {@link Site}, may be {@code null}
+	 * @param application
+	 *                    the {@link Application}, may be {@code null}
+	 * @param name
+	 *                    the raw name of the property, without dot-notation
+	 * 
+	 * @return the full name of the property.
 	 */
 	public static String getPropertyName(Site site, Application application, String name) {
 		return getPropertyPrefix(site, application) + name;
@@ -149,9 +153,10 @@ public class PropertySupport {
 	/**
 	 * Returns the dot-separated property-prefix for a site-property.
 	 * 
-	 * @param  site
-	 *              the {@link Site}
-	 * @return      the dot-separated property-prefix
+	 * @param site
+	 *             the {@link Site}
+	 * 
+	 * @return the dot-separated property-prefix
 	 */
 	public static String getSitePrefix(Site site) {
 		return getPropertyPrefix(site, null);
@@ -204,8 +209,9 @@ public class PropertySupport {
 	 *                       the {@link Site} to initialize the {@link Properties} for
 	 * @param platformConfig
 	 *                       the platform configuration
-	 * @see                  #PropertySupport(PropertyHolder)
-	 * @see                  SiteProperties
+	 * 
+	 * @see #PropertySupport(PropertyHolder)
+	 * @see SiteProperties
 	 */
 	public void initSiteProperties(SiteImpl site, Properties platformConfig) {
 		bundle = ResourceBundle.getBundle("org/appng/core/site-config");
@@ -326,8 +332,9 @@ public class PropertySupport {
 	 *                           some {@link java.util.Properties} used to override the default values
 	 * @param finalize
 	 *                           whether or not to call {@link PropertyHolder#setFinal()}
-	 * @see                      #PropertySupport(PropertyHolder)
-	 * @see                      org.appng.api.Platform.Property
+	 * 
+	 * @see #PropertySupport(PropertyHolder)
+	 * @see org.appng.api.Platform.Property
 	 */
 	public void initPlatformConfig(String rootPath, Boolean devMode, java.util.Properties immutableOverrides,
 			boolean finalize) {

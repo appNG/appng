@@ -26,14 +26,12 @@ import org.springframework.beans.BeanWrapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FieldConverter} for {@link FieldDef}initions of type
  * <ul>
  * <li>{@link FieldType#OBJECT}</li>
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class ObjectFieldConverter extends ConverterBase {

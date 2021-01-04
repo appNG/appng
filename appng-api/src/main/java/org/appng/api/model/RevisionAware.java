@@ -16,9 +16,7 @@
 package org.appng.api.model;
 
 /**
- * 
  * @author Matthias Müller
- * 
  */
 public interface RevisionAware {
 

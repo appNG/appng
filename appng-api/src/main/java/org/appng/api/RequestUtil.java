@@ -44,13 +44,15 @@ public class RequestUtil {
 	/**
 	 * Retrieves a {@link Site} by its host-identifier.
 	 * 
-	 * @param  env
-	 *                        the current {@link Environment}
-	 * @param  servletRequest
-	 *                        the current {@link ServletRequest}
-	 * @return                the {@link Site}, if any
-	 * @see                   #getHostIdentifier(ServletRequest, Environment)
-	 * @see                   #getSiteByHost(Environment, String)
+	 * @param env
+	 *                       the current {@link Environment}
+	 * @param servletRequest
+	 *                       the current {@link ServletRequest}
+	 * 
+	 * @return the {@link Site}, if any
+	 * 
+	 * @see #getHostIdentifier(ServletRequest, Environment)
+	 * @see #getSiteByHost(Environment, String)
 	 */
 	public static Site getSite(Environment env, ServletRequest servletRequest) {
 		if (null == servletRequest || null == env) {
@@ -63,12 +65,14 @@ public class RequestUtil {
 	/**
 	 * Retrieves a {@link Site} by its host.
 	 * 
-	 * @param  env
-	 *              the current {@link Environment}
-	 * @param  host
-	 *              the host of the {@link Site}
-	 * @return      the {@link Site}, if any
-	 * @see         Site#getHost()
+	 * @param env
+	 *             the current {@link Environment}
+	 * @param host
+	 *             the host of the {@link Site}
+	 * 
+	 * @return the {@link Site}, if any
+	 * 
+	 * @see Site#getHost()
 	 */
 	public static Site getSiteByHost(Environment env, String host) {
 		return getSiteMap(env).values().stream().filter(s -> host.equals(s.getHost())).findFirst().orElse(null);
@@ -77,12 +81,14 @@ public class RequestUtil {
 	/**
 	 * Retrieves a {@link Site} by its name.
 	 * 
-	 * @param  env
-	 *              the current {@link Environment}
-	 * @param  name
-	 *              the name of the {@link Site}
-	 * @return      the {@link Site}, if any
-	 * @see         Site#getName()
+	 * @param env
+	 *             the current {@link Environment}
+	 * @param name
+	 *             the name of the {@link Site}
+	 * 
+	 * @return the {@link Site}, if any
+	 * 
+	 * @see Site#getName()
 	 */
 	public static Site getSiteByName(Environment env, String name) {
 		return getSiteMap(env).get(name);
@@ -92,13 +98,15 @@ public class RequestUtil {
 	 * Retrieves a {@link Site} by its name, waiting up to {@code Platform.Property#MAX_WAIT_TIME} milliseconds until
 	 * it's state is {@code SiteState#STARTED}.
 	 * 
-	 * @param  env
-	 *              the current {@link Environment}
-	 * @param  name
-	 *              the name of the {@link Site}
-	 * @return      the {@link Site}, if any
-	 * @see         #getSiteByName(Environment, String)
-	 * @see         Site#hasState(SiteState...)
+	 * @param env
+	 *             the current {@link Environment}
+	 * @param name
+	 *             the name of the {@link Site}
+	 * 
+	 * @return the {@link Site}, if any
+	 * 
+	 * @see #getSiteByName(Environment, String)
+	 * @see Site#hasState(SiteState...)
 	 */
 	public static Site waitForSite(Environment env, String name) {
 		Site site = getSiteByName(env, name);
@@ -133,9 +141,10 @@ public class RequestUtil {
 	/**
 	 * Returns an immutable {@link Set} containing all the {@link Site} names.
 	 * 
-	 * @param  env
-	 *             the current {@link Environment}
-	 * @return     the {@link Site} names
+	 * @param env
+	 *            the current {@link Environment}
+	 * 
+	 * @return the {@link Site} names
 	 */
 	public static Set<String> getSiteNames(Environment env) {
 		return Collections.unmodifiableSet(getSiteMap(env).keySet());
@@ -144,13 +153,14 @@ public class RequestUtil {
 	/**
 	 * Creates and returns a {@link PathInfo}-object based upon the given parameters.
 	 * 
-	 * @param  env
-	 *                     the current {@link Environment}
-	 * @param  site
-	 *                     the current {@link Site}
-	 * @param  servletPath
-	 *                     the current servlet-path
-	 * @return             a {@link PathInfo}-object
+	 * @param env
+	 *                    the current {@link Environment}
+	 * @param site
+	 *                    the current {@link Site}
+	 * @param servletPath
+	 *                    the current servlet-path
+	 * 
+	 * @return a {@link PathInfo}-object
 	 */
 	public static PathInfo getPathInfo(Environment env, Site site, String servletPath) {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
@@ -183,20 +193,20 @@ public class RequestUtil {
 	 * Retrieves the host-identifier for the given {@link ServletRequest}, using the given {@link Environment} to
 	 * retrieve the {@link VHostMode} used by appNG.
 	 * 
-	 * @param  request
-	 *                 the {@link ServletRequest}
-	 * @param  env
-	 *                 an {@link Environment}
+	 * @param request
+	 *                the {@link ServletRequest}
+	 * @param env
+	 *                an {@link Environment}
+	 * 
 	 * @return
-	 *                 <ul>
-	 *                 <li>the IP-address, if {@link VHostMode#IP_BASED} is used (see
-	 *                 {@link ServletRequest#getLocalAddr()})
-	 *                 <li>the value of the request-header {@code SERVER_LOCAL_NAME}, if present. This header has to be
-	 *                 added by the webserver of choice (usually <a href="http://httpd.apache.org/">Apache httpd</a>),
-	 *                 in case a {@link Site} needs to be accessible from a domain that is different from the one
-	 *                 configured by {@link Site#getDomain()}.
-	 *                 <li>the lower-cased server name, otherwise (see {@link ServletRequest#getServerName()})
-	 *                 </ul>
+	 *         <ul>
+	 *         <li>the IP-address, if {@link VHostMode#IP_BASED} is used (see {@link ServletRequest#getLocalAddr()})
+	 *         <li>the value of the request-header {@code SERVER_LOCAL_NAME}, if present. This header has to be added by
+	 *         the webserver of choice (usually <a href="http://httpd.apache.org/">Apache httpd</a>), in case a
+	 *         {@link Site} needs to be accessible from a domain that is different from the one configured by
+	 *         {@link Site#getDomain()}.
+	 *         <li>the lower-cased server name, otherwise (see {@link ServletRequest#getServerName()})
+	 *         </ul>
 	 */
 	public static String getHostIdentifier(ServletRequest request, Environment env) {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);

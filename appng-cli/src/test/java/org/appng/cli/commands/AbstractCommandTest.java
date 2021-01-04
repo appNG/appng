@@ -56,8 +56,7 @@ public abstract class AbstractCommandTest {
 	@Autowired
 	protected ConfigurableApplicationContext context;
 
-	public static class CommandTestInitializer
-			implements ApplicationContextInitializer<AbstractApplicationContext> {
+	public static class CommandTestInitializer implements ApplicationContextInitializer<AbstractApplicationContext> {
 
 		public CommandTestInitializer() {
 

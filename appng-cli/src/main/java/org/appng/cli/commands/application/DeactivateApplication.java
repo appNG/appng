@@ -35,7 +35,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Unlinks a application from a site.")
 public class DeactivateApplication extends BaseApplication implements ExecutableCliCommand {

@@ -29,11 +29,9 @@ import org.appng.api.ParameterSupport;
 import org.appng.el.ExpressionEvaluator;
 
 /**
- * 
  * Basic {@link ParameterSupport} implementation.
  * 
  * @author Matthias Müller
- * 
  */
 public class ParameterSupportBase implements ParameterSupport {
 

@@ -31,7 +31,6 @@ import org.springframework.context.ApplicationContext;
  * An event to be fired when a {@link Site} has been deleted.
  * 
  * @author Matthias Müller
- *
  */
 public class SiteDeletedEvent extends Event {
 

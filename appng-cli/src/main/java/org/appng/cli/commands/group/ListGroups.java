@@ -41,7 +41,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Lists all groups.")
 public class ListGroups extends CommandList implements ExecutableCliCommand {

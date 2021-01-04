@@ -41,15 +41,16 @@ public class PropertyConstantCreator {
 	 * </pre>
 	 * 
 	 * @param args
-	 *            args[0]* - the path to the property file to use<br/>
-	 *            args[1]* - the fully qualified name of the target class to generate<br/>
-	 *            args[2]* - the output-folder for the generated class<br/>
-	 *            args[3] - the charset used to read the properties file, defaults to
-	 *            {@code System.getProperty("file.encoding")}
+	 *             args[0]* - the path to the property file to use<br/>
+	 *             args[1]* - the fully qualified name of the target class to generate<br/>
+	 *             args[2]* - the output-folder for the generated class<br/>
+	 *             args[3] - the charset used to read the properties file, defaults to
+	 *             {@code System.getProperty("file.encoding")}
+	 * 
 	 * @throws IOException
-	 *             if the property file can not be found or the target class can not be written
+	 *                                  if the property file can not be found or the target class can not be written
 	 * @throws IllegalArgumentException
-	 *             if one of the parameters is missing
+	 *                                  if one of the parameters is missing
 	 */
 	public static void main(String[] args) throws IOException {
 

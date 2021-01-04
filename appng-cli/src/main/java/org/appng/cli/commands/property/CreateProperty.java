@@ -43,7 +43,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Creates a property.")
 public class CreateProperty implements ExecutableCliCommand {

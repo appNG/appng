@@ -63,7 +63,8 @@ import lombok.extern.slf4j.Slf4j;
  * {@link SiteApplication}.
  * 
  * @author Matthias Müller
- * @see    SiteApplication#getDatabaseConnection()
+ * 
+ * @see SiteApplication#getDatabaseConnection()
  */
 @Slf4j
 @Entity

@@ -22,7 +22,6 @@ import java.io.Serializable;
  * information which will be stored by the scheduler application in the appNG database per job execution.
  * 
  * @author Claus Stümke
- *
  */
 @SuppressWarnings("serial")
 public class ScheduledJobResult implements Serializable {
@@ -34,7 +33,6 @@ public class ScheduledJobResult implements Serializable {
 	 * simple enum reflecting the results a {@link ScheduledJob} execution can have.
 	 * 
 	 * @author Claus Stümke
-	 *
 	 */
 	public enum ExecutionResult {
 		FAIL, SUCCESS;
@@ -66,7 +64,7 @@ public class ScheduledJobResult implements Serializable {
 	 * sets the general semantic result of the {@link ScheduledJob}
 	 * 
 	 * @param result
-	 *            {@code result}
+	 *               {@code result}
 	 */
 	public void setResult(ExecutionResult result) {
 		this.result = result;
@@ -76,7 +74,7 @@ public class ScheduledJobResult implements Serializable {
 	 * sets the custom data of a {@link ScheduledJob} execution
 	 * 
 	 * @param customData
-	 *            {@code customData}
+	 *                   {@code customData}
 	 */
 	public void setCustomData(String customData) {
 		this.customData = customData;

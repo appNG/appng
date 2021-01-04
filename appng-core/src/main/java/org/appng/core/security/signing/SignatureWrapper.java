@@ -19,7 +19,6 @@ package org.appng.core.security.signing;
  * A simple wrapper class for the index, the signature and the client certificate
  * 
  * @author Matthias Müller
- *
  */
 public class SignatureWrapper {
 

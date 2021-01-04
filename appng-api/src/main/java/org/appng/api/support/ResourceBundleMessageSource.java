@@ -24,7 +24,6 @@ import java.util.TreeSet;
  * A {@link org.springframework.context.support.ResourceBundleMessageSource} that can retrieve the available keys.
  * 
  * @author Matthias Müller
- * 
  */
 public class ResourceBundleMessageSource extends org.springframework.context.support.ResourceBundleMessageSource {
 
@@ -32,8 +31,10 @@ public class ResourceBundleMessageSource extends org.springframework.context.sup
 	 * Returns the keys for the given locale
 	 * 
 	 * @param locale
-	 *            the {@link Locale} to get the keys for
+	 *               the {@link Locale} to get the keys for
+	 * 
 	 * @return a (sorted) set of keys
+	 * 
 	 * @see ResourceBundle#keySet()
 	 */
 	public Set<String> getKeys(Locale locale) {

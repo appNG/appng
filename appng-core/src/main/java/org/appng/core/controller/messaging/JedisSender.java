@@ -30,6 +30,7 @@ import redis.clients.jedis.Jedis;
  * message broker. See {@link JedisReceiver} for configuration details.
  * 
  * @author Claus Stuemke, aiticon GmbH, 2015
+ * 
  * @see JedisReceiver
  */
 @Slf4j

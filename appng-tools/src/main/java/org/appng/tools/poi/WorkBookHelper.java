@@ -37,7 +37,6 @@ import org.appng.tools.poi.Borders.BorderBuilder;
  * A utility-class to support easier creation of a {@link Workbook}
  * 
  * @author Matthias Müller, 2012
- * 
  */
 public class WorkBookHelper {
 

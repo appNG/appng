@@ -28,7 +28,6 @@ import org.slf4j.Logger;
  * Utility class for {@link Receiver}s to handle {@link Event}s
  * 
  * @author Matthias Müller
- *
  */
 class Messaging {
 

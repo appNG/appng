@@ -19,13 +19,11 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 /**
- * 
  * A {@link MessageParam} provides a message key and optionally some message arguments which can be used when formatting
  * a message with {@link MessageFormat#format(String, Object...)}. The purpose is to make it easier to provide end-user
  * friendly messages.
  * 
  * @author Matthias Müller
- * 
  */
 public interface MessageParam {
 	/**

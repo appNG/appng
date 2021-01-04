@@ -19,7 +19,6 @@ package org.appng.persistence.hibernate.dialect;
  * A {@link org.hibernate.dialect.SQLServer2008Dialect}. Just in case we will need this in the future.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class SQLServer2008Dialect extends org.hibernate.dialect.SQLServer2008Dialect {
 

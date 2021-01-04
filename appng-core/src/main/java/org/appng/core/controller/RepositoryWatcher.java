@@ -44,18 +44,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- * A service that watches for modified/deleted files in a {@link Site}'s
- * www-directory (see {@link SiteProperties#WWW_DIR}) using a
- * {@link WatchService}.
+ * A service that watches for modified/deleted files in a {@link Site}'s www-directory (see
+ * {@link SiteProperties#WWW_DIR}) using a {@link WatchService}.
  * </p>
- * If caching for the site is active (see
- * {@link SiteProperties#CACHE_ENABLED}), cache entries for the
- * modified/deleted files are removed from the cache. Since there could be some
- * forwarding rules defined in the site's {@code urlrewrite.xml}, it is also
- * necessary to parse these rules and remove the 'aliases' from the cache.
+ * If caching for the site is active (see {@link SiteProperties#CACHE_ENABLED}), cache entries for the modified/deleted
+ * files are removed from the cache. Since there could be some forwarding rules defined in the site's
+ * {@code urlrewrite.xml}, it is also necessary to parse these rules and remove the 'aliases' from the cache.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class RepositoryWatcher implements Runnable {

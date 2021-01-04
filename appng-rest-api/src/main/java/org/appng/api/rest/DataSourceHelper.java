@@ -81,7 +81,8 @@ public class DataSourceHelper {
 	 * Retrieves the filter with the given name, if any
 	 * 
 	 * @param name
-	 *            the name of the filter
+	 *             the name of the filter
+	 * 
 	 * @return an {@code Optional<Filter>}
 	 */
 	public Optional<Filter> getFilter(String name) {

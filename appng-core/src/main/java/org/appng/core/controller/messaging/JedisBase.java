@@ -25,7 +25,6 @@ import redis.clients.jedis.Jedis;
  * Base class for Jedis messaging
  * 
  * @author Claus Stümke, aiticon GmbH, 2015
- *
  */
 public class JedisBase {
 

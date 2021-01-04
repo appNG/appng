@@ -43,7 +43,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Deletes a repository.")
 public class DeleteRepository implements ExecutableCliCommand {

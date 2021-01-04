@@ -22,7 +22,6 @@ import org.junit.Test;
  * Test for {@link OptionImpl}.
  * 
  * @author Gajanan Nilwarn
- * 
  */
 public class OptionImplTest {
 

@@ -25,7 +25,6 @@ import org.junit.Test;
  * Test for {@link AuthTools}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class AuthToolsTest {
 

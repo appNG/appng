@@ -19,7 +19,6 @@ package org.appng.api.model;
  * Interface for something that is nameable, also providing a description.
  * 
  * @author Matthias Müller
- * 
  */
 public interface Nameable {
 

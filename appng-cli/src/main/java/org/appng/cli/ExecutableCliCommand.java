@@ -21,7 +21,6 @@ import org.appng.api.BusinessException;
  * Interface to be implemented by each command.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface ExecutableCliCommand {
 
@@ -30,8 +29,9 @@ public interface ExecutableCliCommand {
 	 * 
 	 * @param cle
 	 *            the {@link CliEnvironment} to use
+	 * 
 	 * @throws BusinessException
-	 *             if on error occurs while executing the command
+	 *                           if on error occurs while executing the command
 	 */
 	void execute(CliEnvironment cle) throws BusinessException;
 

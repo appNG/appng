@@ -179,25 +179,26 @@ public class LdapService {
 	/**
 	 * Tries to login the user with the given username and password.
 	 * 
-	 * @param  site
-	 *                  the {@link Site} the user wants to login at
-	 * @param  username
-	 *                  The plain name of the user without base-DN. This name will be mapped to an LDAP principal
-	 *                  according to the value of {@value #LDAP_PRINCIPAL_SCHEME}.
-	 *                  <ul>
-	 *                  <li>"DN": results in
-	 *                  <code>{@value #LDAP_ID_ATTRIBUTE}=username,{@value #LDAP_USER_BASE_DN}</code> (this should work
-	 *                  with any LDAP server)</li>
-	 *                  <li>"UPN": results in <code>username@{@value #LDAP_DOMAIN}</code> (probably most common name
-	 *                  format to log on to Active Directory, @see <a
-	 *                  https://msdn.microsoft.com/en-us/library/cc223499.aspx">MSDN on LDAP simple
-	 *                  authentication</a>)</li>
-	 *                  <li>"SAM": results in <code>{@value #LDAP_DOMAIN}&#92;username</code> (name format including
-	 *                  sAMAccountName and NetBios name to logon to active Directory)</li>
-	 *                  </ul>
-	 * @param  password
-	 *                  the password of the user
-	 * @return          {@code true} if the user could be successfully logged in, {@code null} otherwise
+	 * @param site
+	 *                 the {@link Site} the user wants to login at
+	 * @param username
+	 *                 The plain name of the user without base-DN. This name will be mapped to an LDAP principal
+	 *                 according to the value of {@value #LDAP_PRINCIPAL_SCHEME}.
+	 *                 <ul>
+	 *                 <li>"DN": results in
+	 *                 <code>{@value #LDAP_ID_ATTRIBUTE}=username,{@value #LDAP_USER_BASE_DN}</code> (this should work
+	 *                 with any LDAP server)</li>
+	 *                 <li>"UPN": results in <code>username@{@value #LDAP_DOMAIN}</code> (probably most common name
+	 *                 format to log on to Active Directory, @see <a
+	 *                 https://msdn.microsoft.com/en-us/library/cc223499.aspx">MSDN on LDAP simple
+	 *                 authentication</a>)</li>
+	 *                 <li>"SAM": results in <code>{@value #LDAP_DOMAIN}&#92;username</code> (name format including
+	 *                 sAMAccountName and NetBios name to logon to active Directory)</li>
+	 *                 </ul>
+	 * @param password
+	 *                 the password of the user
+	 * 
+	 * @return {@code true} if the user could be successfully logged in, {@code null} otherwise
 	 */
 	public boolean loginUser(Site site, String username, char[] password) {
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
@@ -222,19 +223,20 @@ public class LdapService {
 	 * User, dc=mycompany, dc=com". If this is the case, it will be used as LDAP principal without mapping. If it is not
 	 * a DN, it will be mapped as described in {@link #loginUser(Site, String, char[])}.
 	 * 
-	 * @param  site
-	 *                    the {@link Site} the user wants to login at
-	 * @param  username
-	 *                    the name of the user
-	 * @param  password
-	 *                    the password of the user
-	 * @param  subject
-	 *                    a {@link SubjectImpl} where the name and real name are set, in case the user belongs to at
-	 *                    least one of the given groups
-	 * @param  groupNames
-	 *                    a list containing the names of all groups to check group membership for (without base-DN, this
-	 *                    is set in the site-property {@value #LDAP_GROUP_BASE_DN})
-	 * @return            the names of all groups that the user is a member of (may be empty)
+	 * @param site
+	 *                   the {@link Site} the user wants to login at
+	 * @param username
+	 *                   the name of the user
+	 * @param password
+	 *                   the password of the user
+	 * @param subject
+	 *                   a {@link SubjectImpl} where the name and real name are set, in case the user belongs to at
+	 *                   least one of the given groups
+	 * @param groupNames
+	 *                   a list containing the names of all groups to check group membership for (without base-DN, this
+	 *                   is set in the site-property {@value #LDAP_GROUP_BASE_DN})
+	 * 
+	 * @return the names of all groups that the user is a member of (may be empty)
 	 */
 	public List<String> loginGroup(Site site, String username, char[] password, SubjectImpl subject,
 			List<String> groupNames) {
@@ -294,11 +296,12 @@ public class LdapService {
 	 * Objects in the {@code member} attribute(s) of
 	 * <code>{@value #LDAP_ID_ATTRIBUTE}=groupName,{@value #LDAP_GROUP_BASE_DN}</code>.
 	 * 
-	 * @param  site
-	 *                   the {@link Site} in which the application using this group is running
-	 * @param  groupName
-	 *                   the name of the group whose members should be fetched
-	 * @return           the members of the groupName (may be empty)
+	 * @param site
+	 *                  the {@link Site} in which the application using this group is running
+	 * @param groupName
+	 *                  the name of the group whose members should be fetched
+	 * 
+	 * @return the members of the groupName (may be empty)
 	 */
 	public List<SubjectImpl> getMembersOfGroup(Site site, String groupName) {
 		List<SubjectImpl> subjects = new ArrayList<>();

@@ -23,7 +23,6 @@ package org.appng.api;
  * <li>{@link XMLTaglet}
  * <li>{@link GlobalXMLTaglet}
  * </ul>
- * 
  * If {@link #processPage()} returns {@code false}, the rest of the JSP-page will be skipped.
  * 
  * @author Matthias Müller
@@ -37,6 +36,7 @@ public interface PageProcessor {
 
 	/**
 	 * Returns whether or not the rest of the JSP-page should be skipped
+	 * 
 	 * @return {@code true} if the rest of the JSP-page should be skipped, {@code false} otherwise
 	 */
 	boolean processPage();

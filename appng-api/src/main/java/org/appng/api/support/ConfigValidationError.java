@@ -19,7 +19,6 @@ package org.appng.api.support;
  * The config validator can create a more detailed error element for found configuration errors.
  * 
  * @author Claus Stümke, aiticon GmbH, 2017
- *
  */
 public class ConfigValidationError {
 

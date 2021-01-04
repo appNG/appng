@@ -34,7 +34,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Deletes a site.")
 public class DeleteSite implements ExecutableCliCommand {

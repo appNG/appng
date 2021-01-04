@@ -117,9 +117,10 @@ public final class JarInfo implements Comparable<JarInfo> {
 
 	private enum JarInfoResource {
 
-		IMPLEMENTATION_TITLE("Implementation-Title", "Title"), IMPLEMENTATION_VERSION("Implementation-Version",
-				"Version"), IMPLEMENTATION_VENDOR_ID("Implementation-Vendor-Id",
-						"Vendor-ID"), IMPLEMENTATION_VENDOR("Implementation-Vendor", "Vendor");
+		IMPLEMENTATION_TITLE("Implementation-Title", "Title"),
+		IMPLEMENTATION_VERSION("Implementation-Version", "Version"),
+		IMPLEMENTATION_VENDOR_ID("Implementation-Vendor-Id", "Vendor-ID"),
+		IMPLEMENTATION_VENDOR("Implementation-Vendor", "Vendor");
 
 		private final String name;
 		private final String acronym;
@@ -159,8 +160,7 @@ public final class JarInfo implements Comparable<JarInfo> {
 				throw new IOException("File not exists or is not a file");
 			}
 			Attributes mainAttributes = null;
-			try (
-					InputStream is = new FileInputStream(jarFile);
+			try (InputStream is = new FileInputStream(jarFile);
 					JarInputStream jarInputStream = new JarInputStream(is)) {
 				Manifest manifest = jarInputStream.getManifest();
 				if (null != manifest) {

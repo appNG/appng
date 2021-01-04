@@ -28,9 +28,7 @@ import org.appng.tools.image.ImageProcessor;
  * {@code application-info.xml} or via the administration-tool.
  * <p/>
  * 
- * 
  * @author Matthias Herlitzius
- * 
  */
 public interface FeatureProvider {
 
@@ -40,9 +38,11 @@ public interface FeatureProvider {
 	 * {@code true}.
 	 * 
 	 * @param sourceFile
-	 *            the source image (should have an absolute path)
+	 *                   the source image (should have an absolute path)
 	 * @param targetFile
-	 *            the path to the target file to be created, relative to {@link org.appng.api.Platform.Property#IMAGE_CACHE_FOLDER}.
+	 *                   the path to the target file to be created, relative to
+	 *                   {@link org.appng.api.Platform.Property#IMAGE_CACHE_FOLDER}.
+	 * 
 	 * @return an {@link ImageProcessor} for the given source file
 	 */
 	ImageProcessor getImageProcessor(File sourceFile, String targetFile);
@@ -51,6 +51,7 @@ public interface FeatureProvider {
 	 * Returns the folder to use for caching images, only available if {@code featureImageProcessing} is enabled.
 	 * 
 	 * @see FeatureProvider#getImageProcessor(File, String)
+	 * 
 	 * @return the cache folder for images
 	 */
 	File getImageCache();

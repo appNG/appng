@@ -51,7 +51,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Lists the available properties.")
 public class ListProperties extends CommandList implements ExecutableCliCommand {

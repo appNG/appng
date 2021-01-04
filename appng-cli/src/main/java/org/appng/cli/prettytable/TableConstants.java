@@ -19,7 +19,6 @@ package org.appng.cli.prettytable;
  * Some constant values used when dealing with {@link PrettyTable}s.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class TableConstants {
 

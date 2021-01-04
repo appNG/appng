@@ -97,8 +97,7 @@ public class GuiHandler implements RequestHandler {
 	}
 
 	private void processGui(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment env,
-			Site site, PathInfo pathInfo, String templateDir)
-			throws IOException, InvalidConfigurationException {
+			Site site, PathInfo pathInfo, String templateDir) throws IOException, InvalidConfigurationException {
 		Subject subject = env.getSubject();
 		if (env.isSubjectAuthenticated()) {
 

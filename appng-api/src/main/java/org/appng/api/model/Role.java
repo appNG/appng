@@ -21,8 +21,8 @@ import java.util.Set;
  * A {@link Role} is used for grouping the {@link Permission}s of a {@link Application}. It is getting assigned to
  * multiple {@link Group}s.
  * 
- * 
  * @author Matthias Müller
+ * 
  * @see Permission
  * @see Group
  */

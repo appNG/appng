@@ -26,7 +26,6 @@ import org.junit.Test;
  * Test for {@link OptionsImpl}.
  * 
  * @author Gajanan Nilwarn
- * 
  */
 public class OptionsImplTest {
 
@@ -62,7 +61,7 @@ public class OptionsImplTest {
 		Assert.assertEquals(Integer.valueOf(6), options.getInteger("options-6", "integer-6"));
 		Assert.assertEquals(Integer.valueOf(-7), options.getInteger("options-7", "integer-7"));
 		Assert.assertNull(options.getInteger("options-4", "attribute-4"));
-		Assert.assertNull(options.getInteger("options-7","not-exists"));
+		Assert.assertNull(options.getInteger("options-7", "not-exists"));
 	}
 
 	@Test

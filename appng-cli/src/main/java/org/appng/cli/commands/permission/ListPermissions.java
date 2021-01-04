@@ -53,7 +53,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Lists the available permissions for a application/a role of a application.")
 public class ListPermissions extends CommandList implements ExecutableCliCommand {

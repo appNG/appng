@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
  * Provides methods required to create a salted hash of a given secret using the SHA-1 algorithm.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class SaltedDigestSha1 implements SaltedDigest {

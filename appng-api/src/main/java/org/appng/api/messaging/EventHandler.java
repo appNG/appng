@@ -38,15 +38,16 @@ public interface EventHandler<E extends Event> {
 	 * Handles the given {@link Event}, usually by calling it's {@code perform}-method.
 	 * 
 	 * @param event
-	 *            the {@link Event} to be handled
+	 *                    the {@link Event} to be handled
 	 * @param environment
-	 *            the {@link Environment} to use
+	 *                    the {@link Environment} to use
 	 * @param site
-	 *            the {@link Site} where the {@link Event} occurred
+	 *                    the {@link Site} where the {@link Event} occurred
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if there's a configuration error
+	 *                                       if there's a configuration error
 	 * @throws BusinessException
-	 *             if an error occurs while performing the event
+	 *                                       if an error occurs while performing the event
 	 * 
 	 * @see Event#perform(Environment, Site)
 	 */

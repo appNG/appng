@@ -25,19 +25,19 @@ import org.appng.tools.file.PropertyConstantCreator;
 @Mojo(name = "generateMessageConstants", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
 public class GenerateMessageConstantsMojo extends AbstractGeneratorMojo {
 
-    @Override
-    protected void createConstantClass() throws IOException {
-        PropertyConstantCreator.main(getArgs());
-    }
+	@Override
+	protected void createConstantClass() throws IOException {
+		PropertyConstantCreator.main(getArgs());
+	}
 
-    @Override
-    protected String getMessage() {
-        return "generate message constants";
-    }
+	@Override
+	protected String getMessage() {
+		return "generate message constants";
+	}
 
-    @Override
-    protected String[] getArgs() {
-        return new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() };
-    }
+	@Override
+	protected String[] getArgs() {
+		return new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() };
+	}
 
 }

@@ -24,7 +24,6 @@ import org.appng.api.Option;
  * Testdata for {@link OptionImplTest} and {@link OptionsImplTest}.
  * 
  * @author Gajanan Nilwarn
- * 
  */
 public class OptionData {
 

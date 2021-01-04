@@ -16,11 +16,9 @@
 package org.appng.core.domain;
 
 /**
- * 
  * Utility class providing constants for commonly used validation patterns
  * 
  * @author Matthias Müller
- * 
  */
 public class ValidationPatterns {
 

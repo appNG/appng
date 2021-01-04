@@ -21,7 +21,6 @@ package org.appng.api;
  * the file inline.
  * 
  * @author Matthias Müller
- * 
  */
 public interface AttachmentWebservice extends Webservice {
 

@@ -82,7 +82,8 @@ import lombok.NoArgsConstructor;
  * </ul>
  * </p>
  * 
- * @see    Platform.Property#MONITORING_PATH
+ * @see Platform.Property#MONITORING_PATH
+ * 
  * @author Matthias Müller
  */
 public class MonitoringHandler implements RequestHandler {

@@ -20,7 +20,6 @@ import java.io.FilenameFilter;
 import java.util.regex.Pattern;
 
 /**
- * 
  * @author herlitzius.matthias
  */
 public class FilePrefixFilter implements FilenameFilter {

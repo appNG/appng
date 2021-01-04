@@ -49,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
  * A utility class helping importing/exporting data and retrieving connection information.
  * 
  * @author Matthias Müller
- *
  */
 
 @Slf4j
@@ -365,8 +364,10 @@ public class DatabaseUtil {
 	 * {@value org.appng.testsupport.persistence.ConnectionHelper#HIBERNATE_CONNECTION_URL} = <jdbcUrl-with-hsqlPort>
 	 * 
 	 * @param class1
+	 * 
 	 * @return a {@link Map} containing the
 	 *         {@value org.appng.testsupport.persistence.ConnectionHelper#HIBERNATE_CONNECTION_URL}-property
+	 * 
 	 * @throws Exception
 	 */
 	public static Map<String, String> importTestData(Class<? extends TestDataProvider> class1) throws Exception {

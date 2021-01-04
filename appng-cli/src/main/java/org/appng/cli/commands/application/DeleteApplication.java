@@ -39,7 +39,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Deletes a application.")
 public class DeleteApplication implements ExecutableCliCommand {

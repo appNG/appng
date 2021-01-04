@@ -23,7 +23,6 @@ import org.appng.xml.application.PackageInfo;
  * Provides general information about a {@link PackageInfo}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface Identifier extends Named<Integer>, Versionable<Date> {
 

@@ -53,7 +53,6 @@ import lombok.extern.slf4j.Slf4j;
  * It is also possible to write a message to the given {@link Writer}, see {@link #CONTENT} and {@link #ERROR_MESSAGE}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class EmailProvider implements FormProcessProvider {

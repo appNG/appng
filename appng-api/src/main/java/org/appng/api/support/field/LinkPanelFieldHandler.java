@@ -38,18 +38,17 @@ import org.springframework.context.MessageSource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Base {@link FieldConverter} for {@link FieldDef}initions of type {@link FieldType#LINKPANEL}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class LinkPanelFieldHandler extends ConverterBase {
 
 	private LabelSupport labelSupport;
 
-	LinkPanelFieldHandler(ExpressionEvaluator expressionEvaluator, Environment environment, MessageSource messageSource) {
+	LinkPanelFieldHandler(ExpressionEvaluator expressionEvaluator, Environment environment,
+			MessageSource messageSource) {
 		setExpressionEvaluator(expressionEvaluator);
 		setEnvironment(environment);
 		setMessageSource(messageSource);

@@ -38,12 +38,13 @@ public interface DocumentProvider {
 	 * Returns some {@link DocumentProducer}s to take into account when building the {@link Site}'s global lucene index.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                    the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                    the current {@link Application}
+	 * 
 	 * @return some {@link DocumentProducer}s
 	 */
-	Iterable<DocumentProducer> getDocumentProducers(Site site, Application application) throws InterruptedException,
-			TimeoutException;
+	Iterable<DocumentProducer> getDocumentProducers(Site site, Application application)
+			throws InterruptedException, TimeoutException;
 
 }

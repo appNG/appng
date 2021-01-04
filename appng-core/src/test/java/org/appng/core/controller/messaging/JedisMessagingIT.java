@@ -19,7 +19,6 @@ package org.appng.core.controller.messaging;
  * Integration test for Jedis messaging.
  * 
  * @author Matthias Müller
- *
  */
 public class JedisMessagingIT extends AbstractMessagingIT {
 

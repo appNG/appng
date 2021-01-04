@@ -20,6 +20,7 @@ package org.appng.api;
  * {@code messageKey}-argument, it's easy to create a user-friendly error message.
  * 
  * @author Matthias Müller
+ * 
  * @see MessageParam
  */
 public class BusinessException extends Exception implements MessageParam {

@@ -33,7 +33,6 @@ import org.springframework.jdbc.datasource.init.ScriptUtils;
  * A container for all information about a database connection like the JDBC-Url, user, password etc.
  * 
  * @author Matthias Müller
- * 
  */
 public class ConnectionInfo {
 
@@ -82,7 +81,7 @@ public class ConnectionInfo {
 
 	/**
 	 * @param jdbcUrl
-	 *            the jdbcUrl to set
+	 *                the jdbcUrl to set
 	 */
 	public void setJdbcUrl(String jdbcUrl) {
 		this.jdbcUrl = jdbcUrl;
@@ -97,7 +96,7 @@ public class ConnectionInfo {
 
 	/**
 	 * @param user
-	 *            the user to set
+	 *             the user to set
 	 */
 	public void setUser(String user) {
 		this.user = user;
@@ -112,7 +111,7 @@ public class ConnectionInfo {
 
 	/**
 	 * @param password
-	 *            the password to set
+	 *                 the password to set
 	 */
 	public void setPassword(String password) {
 		this.password = password;
@@ -127,7 +126,7 @@ public class ConnectionInfo {
 
 	/**
 	 * @param driverClass
-	 *            the driverClass to set
+	 *                    the driverClass to set
 	 */
 	public void setDriverClass(String driverClass) {
 		this.driverClass = driverClass;
@@ -142,7 +141,7 @@ public class ConnectionInfo {
 
 	/**
 	 * @param connection
-	 *            the connection to set
+	 *                   the connection to set
 	 */
 	public void setConnection(Class<? extends IDatabaseConnection> connection) {
 		this.connection = connection;
@@ -157,7 +156,7 @@ public class ConnectionInfo {
 
 	/**
 	 * @param persistenceUnit
-	 *            the persistenceUnit to set
+	 *                        the persistenceUnit to set
 	 */
 	public void setPersistenceUnit(String persistenceUnit) {
 		this.persistenceUnit = persistenceUnit;
@@ -172,7 +171,7 @@ public class ConnectionInfo {
 
 	/**
 	 * @param tableNames
-	 *            the tableNames to set
+	 *                   the tableNames to set
 	 */
 	public void setTableNames(List<String> tableNames) {
 		this.tableNames = tableNames;

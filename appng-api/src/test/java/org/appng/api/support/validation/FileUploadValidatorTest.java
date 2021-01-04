@@ -50,16 +50,14 @@ public class FileUploadValidatorTest {
 		Mockito.when(file1.exists()).thenReturn(true);
 		Mockito.when(file1.isFile()).thenReturn(true);
 		long maxSize = Unit.MB.getFactor() * 20;
-		FormUpload upload1 = new FormUploadBean(file1, "text.txt", "txt", Arrays.asList("text/plain"),
-				maxSize);
+		FormUpload upload1 = new FormUploadBean(file1, "text.txt", "txt", Arrays.asList("text/plain"), maxSize);
 		Assert.assertFalse(fileUploadValidator.isValid(upload1, null));
 
 		File file2 = Mockito.mock(File.class);
 		Mockito.when(file2.length()).thenReturn(Unit.MB.getFactor() * 10);
 		Mockito.when(file2.exists()).thenReturn(true);
 		Mockito.when(file2.isFile()).thenReturn(true);
-		FormUpload upload2 = new FormUploadBean(file2, "text.txt", "txt", Arrays.asList("text/plain"),
-				maxSize);
+		FormUpload upload2 = new FormUploadBean(file2, "text.txt", "txt", Arrays.asList("text/plain"), maxSize);
 		Assert.assertTrue(fileUploadValidator.isValid(upload2, null));
 	}
 

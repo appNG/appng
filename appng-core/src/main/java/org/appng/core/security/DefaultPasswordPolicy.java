@@ -28,7 +28,8 @@ import org.appng.api.model.Properties;
  * The default {@link PasswordPolicy} requiring 6 to 64 non-whitespace characters for a valid password.
  * 
  * @deprecated use {@link ConfigurablePasswordPolicy} instead
- * @author     Matthias Müller
+ * 
+ * @author Matthias Müller
  */
 @Deprecated
 public class DefaultPasswordPolicy implements PasswordPolicy {

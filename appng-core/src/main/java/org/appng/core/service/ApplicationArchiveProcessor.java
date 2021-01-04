@@ -58,7 +58,8 @@ public class ApplicationArchiveProcessor implements ZipFileProcessor<List<Resour
 	 * Processes the {@link ZipFile}.
 	 * 
 	 * @param zipFile
-	 *            a {@link ZipFile} representing a {@link PackageArchive}.
+	 *                a {@link ZipFile} representing a {@link PackageArchive}.
+	 * 
 	 * @return a list of {@link Resource}s contained in the {@link PackageArchive}
 	 */
 	public List<Resource> process(ZipFile zipFile) throws IOException {

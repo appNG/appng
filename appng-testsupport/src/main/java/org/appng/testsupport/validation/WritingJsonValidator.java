@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
  * Utility class that supports testing if two JSON documents have the same content.
  *
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class WritingJsonValidator {
@@ -70,11 +69,13 @@ public class WritingJsonValidator {
 	 * Writes the document represented by {@code data} to a {@link File}.
 	 *
 	 * @param data
-	 *            a {@link JsonWrapper}
+	 *             a {@link JsonWrapper}
 	 * @param name
-	 *            the path to the file (relative to {@link #controlFileSource} )
+	 *             the path to the file (relative to {@link #controlFileSource} )
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while writing the file
+	 *                     if an I/O error occurs while writing the file
+	 * 
 	 * @return the generated {@link File}
 	 */
 	public static File writeToDisk(Object data, String name) throws IOException {
@@ -85,11 +86,13 @@ public class WritingJsonValidator {
 	 * Writes the document represented by {@code json} to a {@link File}.
 	 *
 	 * @param json
-	 *            a JSON string
+	 *                    a JSON string
 	 * @param controlFile
-	 *            the path to the file (relative to {@link #controlFileSource} )
+	 *                    the path to the file (relative to {@link #controlFileSource} )
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while writing the file
+	 *                     if an I/O error occurs while writing the file
+	 * 
 	 * @return the generated {@link File}
 	 */
 	public static File writeToDiskPlain(String json, String controlFile) throws IOException {
@@ -105,11 +108,12 @@ public class WritingJsonValidator {
 	 * {@code controlFile}.
 	 *
 	 * @param action
-	 *            the {@link Action} to create JSON from
+	 *                    the {@link Action} to create JSON from
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while creating the JSON or while reading the control file
+	 *                     if an error occurs while creating the JSON or while reading the control file
 	 */
 	public static void validate(Action action, String controlFile) throws IOException {
 		validate(new JsonWrapper(action), controlFile);
@@ -120,11 +124,12 @@ public class WritingJsonValidator {
 	 * {@code controlFile}.
 	 *
 	 * @param datasource
-	 *            the {@link Datasource} to create JSON from
+	 *                    the {@link Datasource} to create JSON from
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while creating the JSON or while reading the control file
+	 *                     if an error occurs while creating the JSON or while reading the control file
 	 */
 	public static void validate(Datasource datasource, String controlFile) throws IOException {
 		validate(new JsonWrapper(datasource), controlFile);
@@ -135,11 +140,12 @@ public class WritingJsonValidator {
 	 * {@code controlFile}.
 	 *
 	 * @param object
-	 *            the object to create JSON from
+	 *                    the object to create JSON from
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while creating the JSON or while reading the control file
+	 *                     if an error occurs while creating the JSON or while reading the control file
 	 */
 	public static void validate(Object object, String controlFile) throws IOException {
 		validate(toJSON(object), controlFile);
@@ -150,13 +156,14 @@ public class WritingJsonValidator {
 	 * {@code controlFile}.
 	 *
 	 * @param objectMapper
-	 *            the custom {@link ObjectMapper} to use
+	 *                     the custom {@link ObjectMapper} to use
 	 * @param object
-	 *            the object to create JSON from
+	 *                     the object to create JSON from
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                     the path to the control file (relative to the classpath)
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while creating the JSON or while reading the control file
+	 *                     if an error occurs while creating the JSON or while reading the control file
 	 */
 	public static void validate(ObjectMapper objectMapper, Object object, String controlFile) throws IOException {
 		String json = toJSON(objectMapper, object);
@@ -171,11 +178,12 @@ public class WritingJsonValidator {
 	 * Validates that {@code json}-string is equal to the document parsed from the {@code controlFile}.
 	 *
 	 * @param json
-	 *            the JSON string
+	 *                    the JSON string
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while parsing the JSON string or while reading the control file
+	 *                     if an error occurs while parsing the JSON string or while reading the control file
 	 */
 	public static void validate(String json, String controlFile) throws IOException {
 		if (writeJson) {
@@ -189,7 +197,8 @@ public class WritingJsonValidator {
 	 * Normalizes the line breaks of the string to use {@link System#lineSeparator()}.
 	 * 
 	 * @param string
-	 *            the string to normalize
+	 *               the string to normalize
+	 * 
 	 * @return the normalized string
 	 */
 	public static String normalizeLines(String string) {
@@ -200,10 +209,12 @@ public class WritingJsonValidator {
 	 * Reads the given control file from the classpath
 	 *
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
+	 * 
 	 * @return the file
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while reading the control file
+	 *                     if an error occurs while reading the control file
 	 */
 	public static File getControlFile(String controlFile) throws IOException {
 		try {
@@ -217,10 +228,12 @@ public class WritingJsonValidator {
 	 * Maps the given {@code object} to a JSON string.
 	 *
 	 * @param object
-	 *            the object to be mapped
+	 *               the object to be mapped
+	 * 
 	 * @return the JSON mapped from the object
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while mapping the object to JSON
+	 *                     if an error occurs while mapping the object to JSON
 	 */
 	public static String toJSON(Object object) throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY)
@@ -232,12 +245,14 @@ public class WritingJsonValidator {
 	 * Maps the given {@code object} to a JSON string using the given {@link ObjectMapper}.
 	 *
 	 * @param objectMapper
-	 *            the the custom {@link ObjectMapper} to use
+	 *                     the the custom {@link ObjectMapper} to use
 	 * @param object
-	 *            the object to be mapped
+	 *                     the object to be mapped
+	 * 
 	 * @return the JSON mapped from the object
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while mapping the object to JSON
+	 *                     if an error occurs while mapping the object to JSON
 	 */
 	public static String toJSON(ObjectMapper objectMapper, Object object) throws IOException {
 		StringWriter jsonWriter = new StringWriter();
@@ -253,7 +268,6 @@ public class WritingJsonValidator {
 	 * A wrapper class for {@link Action}s and {@link Datasource}s
 	 *
 	 * @author Matthias Müller
-	 *
 	 */
 	public static class JsonWrapper {
 		Action action;

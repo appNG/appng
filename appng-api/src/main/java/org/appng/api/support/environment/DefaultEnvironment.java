@@ -129,9 +129,9 @@ public class DefaultEnvironment implements Environment {
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                a {@link ServletContext}
 	 * @param host
-	 *            the host for the site-{@link Scope}
+	 *                the host for the site-{@link Scope}
 	 */
 	public DefaultEnvironment(ServletContext context, String host) {
 		init(context, null, null, null, host);
@@ -141,7 +141,7 @@ public class DefaultEnvironment implements Environment {
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param pageContext
-	 *            a {@link PageContext}
+	 *                    a {@link PageContext}
 	 */
 	public static DefaultEnvironment get(PageContext pageContext) {
 		return new DefaultEnvironment(pageContext.getServletContext(), pageContext.getSession(),
@@ -153,7 +153,8 @@ public class DefaultEnvironment implements Environment {
 	 * for the returned instance.
 	 * 
 	 * @param session
-	 *            a {@link HttpSession}
+	 *                a {@link HttpSession}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(HttpSession session) {
@@ -164,9 +165,10 @@ public class DefaultEnvironment implements Environment {
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                a {@link ServletContext}
 	 * @param request
-	 *            a {@link ServletRequest}
+	 *                a {@link ServletRequest}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request) {
@@ -177,9 +179,10 @@ public class DefaultEnvironment implements Environment {
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param request
-	 *            a {@link ServletRequest}
+	 *                 a {@link ServletRequest}
 	 * @param response
-	 *            a {@link ServletResponse}
+	 *                 a {@link ServletResponse}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletRequest request, ServletResponse response) {
@@ -192,11 +195,12 @@ public class DefaultEnvironment implements Environment {
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                 a {@link ServletContext}
 	 * @param request
-	 *            a {@link ServletRequest}
+	 *                 a {@link ServletRequest}
 	 * @param response
-	 *            a {@link ServletResponse}
+	 *                 a {@link ServletResponse}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request, ServletResponse response) {
@@ -208,7 +212,8 @@ public class DefaultEnvironment implements Environment {
 	 * instance.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                a {@link ServletContext}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletContext context) {
@@ -339,7 +344,7 @@ public class DefaultEnvironment implements Environment {
 	 * Sets the {@link Subject} fur the current {@link HttpSession}.
 	 * 
 	 * @param subject
-	 *            the {@link Subject} to set
+	 *                the {@link Subject} to set
 	 */
 	public void setSubject(Subject subject) {
 		if (null != subject) {
@@ -437,7 +442,8 @@ public class DefaultEnvironment implements Environment {
 	 * Disables the given {@link Scope} for this environment
 	 * 
 	 * @param scope
-	 *            the {@link Scope} to disable
+	 *              the {@link Scope} to disable
+	 * 
 	 * @see #enable(Scope)
 	 */
 	public void disable(Scope scope) {
@@ -451,7 +457,8 @@ public class DefaultEnvironment implements Environment {
 	 * Enables the given {@link Scope} for this environment
 	 * 
 	 * @param scope
-	 *            the {@link Scope} to enable
+	 *              the {@link Scope} to enable
+	 * 
 	 * @see #disable(Scope)
 	 */
 	public void enable(Scope scope) {
@@ -487,6 +494,7 @@ public class DefaultEnvironment implements Environment {
 	 * Checks whether this {@link Environment} has been initialized.
 	 * 
 	 * @return {@code true} if his {@link Environment} has been initialized, {@code false} otherwise.
+	 * 
 	 * @see #init(ServletContext, HttpSession, ServletRequest, ServletResponse, String)
 	 */
 	public boolean isInitialized() {
@@ -497,7 +505,7 @@ public class DefaultEnvironment implements Environment {
 	 * Clears the site-scoped attributes for the given {@link Site}.
 	 * 
 	 * @param site
-	 *            The {@link Site} to clear the site-scope for.
+	 *             The {@link Site} to clear the site-scope for.
 	 */
 	public void clearSiteScope(Site site) {
 		String identifier = Scope.SITE.forSite(site.getHost());

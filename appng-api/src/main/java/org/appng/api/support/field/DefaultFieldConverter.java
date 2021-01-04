@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
  * Default {@link FieldConverter}-implementation.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class DefaultFieldConverter extends ConverterBase {

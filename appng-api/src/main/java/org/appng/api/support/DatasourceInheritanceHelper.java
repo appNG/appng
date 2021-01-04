@@ -48,13 +48,11 @@ import lombok.extern.slf4j.Slf4j;
  * <li>config permissions - override</li>
  * <li>config labels - add</li>
  * </ul>
- * 
  * The simplest usage of this inheritance mechanism can be used to create a clone of an existing datasource definition
  * just with another datasource id to be able to place the datasource a second time with other parameters on the same
  * page.
  * 
  * @author Claus Stümke, aiticon GmbH, 2016
- *
  */
 @Slf4j
 public class DatasourceInheritanceHelper {
@@ -65,6 +63,7 @@ public class DatasourceInheritanceHelper {
 	 * Returns {@code true} if the id contains exactly one inheritance separator string "::"
 	 * 
 	 * @param datasourceId
+	 * 
 	 * @return {@code true} if the id contains an inheritance separator string
 	 */
 	public static boolean isInheriting(String datasourceId) {
@@ -77,6 +76,7 @@ public class DatasourceInheritanceHelper {
 	 * descendant
 	 * 
 	 * @param datasourceId
+	 * 
 	 * @return the descendant's id
 	 */
 	public static String getDescendantId(String datasourceId) {
@@ -88,6 +88,7 @@ public class DatasourceInheritanceHelper {
 	 * datasource
 	 * 
 	 * @param datasourceId
+	 * 
 	 * @return the ancestor's id
 	 */
 	public static String getAncestorId(String datasourceId) {
@@ -100,6 +101,7 @@ public class DatasourceInheritanceHelper {
 	 * 
 	 * @param descendantDefinition
 	 * @param ancestor
+	 * 
 	 * @return the cloned {@link Datasource}
 	 */
 	public static Datasource inherit(Datasource descendantDefinition, Datasource ancestor,

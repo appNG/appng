@@ -50,7 +50,9 @@ public class Messaging {
 	 * 
 	 * @param env
 	 *            the {@link Environment} to use
+	 * 
 	 * @return the {@link Sender}, if available
+	 * 
 	 * @see #createMessageSender(Environment, ExecutorService)
 	 * @see #createMessageSender(Environment, ExecutorService, String, EventHandler, Iterable)
 	 */
@@ -65,9 +67,10 @@ public class Messaging {
 	 * the local host name is used and the property is set.
 	 * 
 	 * @param env
-	 *            the {@link Environment} to use
+	 *                 the {@link Environment} to use
 	 * @param executor
-	 *            the {@link ExecutorService} to run the {@link Receiver} with
+	 *                 the {@link ExecutorService} to run the {@link Receiver} with
+	 * 
 	 * @return
 	 *         <ul>
 	 *         <li>the {@link Sender} (if the platform property
@@ -85,6 +88,7 @@ public class Messaging {
 	 * 
 	 * @param env
 	 *            the {@link Environment} to use
+	 * 
 	 * @return the node id for this node
 	 */
 	public static String getNodeId(Environment env) {
@@ -111,15 +115,16 @@ public class Messaging {
 	 * taken from the platform property {@value org.appng.api.Platform.Property#MESSAGING_RECEIVER}.
 	 * 
 	 * @param env
-	 *            the {@link Environment} to use
+	 *                       the {@link Environment} to use
 	 * @param executor
-	 *            the {@link ExecutorService} to run the {@link Receiver} with
+	 *                       the {@link ExecutorService} to run the {@link Receiver} with
 	 * @param nodeId
-	 *            the node id for the {@link Serializer}
+	 *                       the node id for the {@link Serializer}
 	 * @param defaultHandler
-	 *            the default {@link EventHandler} for the {@link Receiver} (may be {@code null})
+	 *                       the default {@link EventHandler} for the {@link Receiver} (may be {@code null})
 	 * @param handlers
-	 *            a list of {@link EventHandler}s to be registered at the {@link Receiver}
+	 *                       a list of {@link EventHandler}s to be registered at the {@link Receiver}
+	 * 
 	 * @return
 	 *         <ul>
 	 *         <li>the {@link Sender} (if the platform property

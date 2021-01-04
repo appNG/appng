@@ -23,7 +23,6 @@ package org.appng.forms;
  * @see FormUpload#isValid(Class)
  * 
  * @author Matthias Müller
- * 
  */
 public interface FormUploadValidator {
 
@@ -31,7 +30,8 @@ public interface FormUploadValidator {
 	 * Validates the given {@link FormUpload}.
 	 * 
 	 * @param formUpload
-	 *            the {@link FormUpload} to validate
+	 *                   the {@link FormUpload} to validate
+	 * 
 	 * @return {@code true} if the given {@link FormUpload} is valid, {@code false} otherwise.
 	 */
 	boolean isValid(FormUpload formUpload);

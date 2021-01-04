@@ -75,7 +75,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see ServiceRequestHandler
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class SoapService {

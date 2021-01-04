@@ -20,26 +20,26 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class PropertyImplTest {
-	
+
 	@Test
 	public void testDetermineType() {
 		PropertyImpl booleanProp = new PropertyImpl("booleanProp", "true");
 		booleanProp.determineType();
 		Assert.assertEquals(Property.Type.BOOLEAN, booleanProp.getType());
-		
+
 		PropertyImpl intProp = new PropertyImpl("intProp", "5");
 		intProp.determineType();
 		Assert.assertEquals(Property.Type.INT, intProp.getType());
-		
+
 		PropertyImpl decimalProp = new PropertyImpl("decimalProp", "5.42");
 		decimalProp.determineType();
 		Assert.assertEquals(Property.Type.DECIMAL, decimalProp.getType());
-		
+
 		PropertyImpl multilineProp = new PropertyImpl("multilineProp", null);
 		multilineProp.setClob("textProp");
 		multilineProp.determineType();
 		Assert.assertEquals(Property.Type.MULTILINE, multilineProp.getType());
-		
+
 		PropertyImpl textProp = new PropertyImpl("textProp", "test");
 		textProp.determineType();
 		Assert.assertEquals(Property.Type.TEXT, textProp.getType());

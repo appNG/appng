@@ -20,7 +20,6 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 
 /**
- * 
  * Utility-class providing constants for the names of a {@link Site}'s {@link Properties}.
  * 
  * @author Matthias Müller
@@ -29,7 +28,10 @@ import org.appng.api.model.Site;
  */
 public class SiteProperties {
 
-	/** Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of {@link Taglet}s. */
+	/**
+	 * Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of
+	 * {@link Taglet}s.
+	 */
 	public static final String ALLOW_SKIP_RENDER = "allowSkipRender";
 
 	/**
@@ -111,13 +113,12 @@ public class SiteProperties {
 	/** Set to true to enable caching statistics */
 	public static final String CACHE_STATISTICS = "cacheStatistics";
 	/**
-	 * The suffix to be removed from a <rule><from> element when parsing the rules
-	 * from urlrewrite.xml for the repository watchers
+	 * The suffix to be removed from a <rule><from> element when parsing the rules from urlrewrite.xml for the
+	 * repository watchers
 	 */
 	public static final String CACHE_WATCHER_RULE_SOURCE_SUFFIX = "cacheWatcherRuleSourceSuffix";
 	/**
-	 * Whether or not to watch the repository folder for changes and invalidate
-	 * cache elements, if necessary
+	 * Whether or not to watch the repository folder for changes and invalidate cache elements, if necessary
 	 */
 	public static final String CACHE_WATCH_REPOSITORY = "cacheWatchRepository";
 	/** Whether or not the cache is cleared on a site shutdown/reload */
@@ -150,8 +151,10 @@ public class SiteProperties {
 	/** Set to {@code true} to enable JDBC Performance Logger */
 	public static final String JDBC_LOG_PERFORMANCE = "jdbcLogPerformance";
 	/** The maximum lifetime in milliseconds for a connection in the pool. */
-	public static final String JDBC_MAX_LIFETIME="jdbcMaxLifetime";
-	/** The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive. */
+	public static final String JDBC_MAX_LIFETIME = "jdbcMaxLifetime";
+	/**
+	 * The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive.
+	 */
 	public static final String JDBC_VALIDATION_TIMEOUT = "jdbcValidationTimeout";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
@@ -207,7 +210,6 @@ public class SiteProperties {
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";
-
 
 	private SiteProperties() {
 

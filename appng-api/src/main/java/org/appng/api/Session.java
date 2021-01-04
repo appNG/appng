@@ -23,11 +23,9 @@ import javax.security.auth.Subject;
 import org.appng.xml.platform.Messages;
 
 /**
- * 
  * Utility-class providing constants used for accessing an {@link Environment}-attribute with {@link Scope#SESSION}.
  * 
  * @author Matthias Müller
- * 
  */
 public final class Session {
 

@@ -36,9 +36,10 @@ public interface Property {
 		/**
 		 * Returns the best matching type for the given object
 		 * 
-		 * @param  value
-		 *               the object
-		 * @return       the best matching type for the given object
+		 * @param value
+		 *              the object
+		 * 
+		 * @return the best matching type for the given object
 		 */
 		public static Type forObject(Object value) {
 			if (null == value) {
@@ -66,11 +67,12 @@ public interface Property {
 		/**
 		 * Checks if the given input value is a valid string representation according to the given type.
 		 * 
-		 * @param  type
-		 *               the type
-		 * @param  value
-		 *               the input value
-		 * @return       {@code true} if the value is a valid string representation, {@code false otherwise}
+		 * @param type
+		 *              the type
+		 * @param value
+		 *              the input value
+		 * 
+		 * @return {@code true} if the value is a valid string representation, {@code false otherwise}
 		 */
 		public static boolean isValidValue(Type type, String value) {
 			boolean notBlank = StringUtils.isNotBlank(value);
@@ -89,9 +91,10 @@ public interface Property {
 		/**
 		 * Finds the best matching type for the given input string
 		 * 
-		 * @param  value
-		 *               the input string
-		 * @return       the type
+		 * @param value
+		 *              the input string
+		 * 
+		 * @return the type
 		 */
 		public static Type forString(String value) {
 			if (isValidValue(BOOLEAN, value)) {
@@ -123,13 +126,15 @@ public interface Property {
 	 * Returns the {@code String}-value of this {@code Property}
 	 * 
 	 * @return the {@code String}-value
+	 * 
 	 * @see Properties#getString(String)
 	 * @see Properties#getString(String, String)
 	 */
 	String getString();
 
 	/**
-	 * Returns the {@code Boolean}-value of this {@code Property}:<li>
+	 * Returns the {@code Boolean}-value of this {@code Property}:
+	 * <li>
 	 * <ul>
 	 * <li>{@link Boolean#TRUE} if {@link #getString()} returns {@code true} or {@code 1}
 	 * <li>{@link Boolean#FALSE} if the {@link #getString()} returns a non-null {@link String}
@@ -170,6 +175,7 @@ public interface Property {
 	 * {@link #getString()} returns a non-null {@link String}, {@code null} otherwise.
 	 * 
 	 * @return the {@code Double}-value (may be {@code null})
+	 * 
 	 * @see Properties#getDouble(String)
 	 * @see Properties#getDouble(String, Double)
 	 */

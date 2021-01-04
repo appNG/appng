@@ -21,7 +21,6 @@ import org.mockito.Mockito;
  * Integration test for Rabbit MQ messaging.
  * 
  * @author Matthias Müller
- *
  */
 public class RabbitMQMessagingIT extends AbstractMessagingIT {
 

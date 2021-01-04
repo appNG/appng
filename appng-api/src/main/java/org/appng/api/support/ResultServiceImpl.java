@@ -35,11 +35,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 /**
- * 
  * Default {@link ResultService} implementation
  * 
  * @author Matthias Müller
- * 
  */
 public class ResultServiceImpl extends AdapterBase implements ResultService {
 

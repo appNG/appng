@@ -70,11 +70,11 @@ public class OptionsImpl implements Options {
 	public Integer getInteger(String name, String attribute) {
 		return hasOption(name) ? getOption(name).getInteger(attribute) : null;
 	}
-	
+
 	public Boolean getBoolean(String name, String attribute) {
 		return hasOption(name) ? getOption(name).getBoolean(attribute) : null;
 	}
-	
+
 	public <E extends Enum<E>> E getEnum(String name, String attribute, Class<E> type) {
 		return hasOption(name) ? getOption(name).getEnum(attribute, type) : null;
 	}

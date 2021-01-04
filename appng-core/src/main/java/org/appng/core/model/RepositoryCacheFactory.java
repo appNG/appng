@@ -37,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class RepositoryCacheFactory {
@@ -56,15 +55,18 @@ public class RepositoryCacheFactory {
 	 * Initializes the factory.
 	 * 
 	 * @param cert
-	 *            the certificate to use when verifying a signed remote repository (PEM format)
+	 *                          the certificate to use when verifying a signed remote repository (PEM format)
 	 * @param privateKey
-	 *            the private key to use when signing a local published repository (PEM format)
+	 *                          the private key to use when signing a local published repository (PEM format)
 	 * @param trustStore
-	 *            the truststore used when verifying a signed remote repository (to build a {@link java.security.KeyStore} from)
+	 *                          the truststore used when verifying a signed remote repository (to build a
+	 *                          {@link java.security.KeyStore} from)
 	 * @param storePass
-	 *            the truststore's password
+	 *                          the truststore's password
 	 * @param validateCertChain
-	 *            whether or not signed remote repositories are validated against the configured truststore
+	 *                          whether or not signed remote repositories are validated against the configured
+	 *                          truststore
+	 * 
 	 * @return the singleton instance of {@link RepositoryCacheFactory}
 	 */
 	public static RepositoryCacheFactory init(String cert, String privateKey, byte[] trustStore, String storePass,
@@ -88,11 +90,11 @@ public class RepositoryCacheFactory {
 	 * Initializes the factory with properties from the platform's configuration
 	 * 
 	 * @param platformConfig
-	 *            the platform's configuration
+	 *                       the platform's configuration
+	 * 
 	 * @return the singleton instance of {@link RepositoryCacheFactory}
 	 * 
 	 * @see RepositoryCacheFactory#init
-	 * 
 	 * @see Platform.Property#REPOSITORY_CERT
 	 * @see Platform.Property#REPOSITORY_SIGNATURE
 	 * @see Platform.Property#REPOSITORY_TRUSTSTORE
@@ -129,10 +131,12 @@ public class RepositoryCacheFactory {
 	 * Returns a {@link RepositoryCache} for the given {@link Repository}
 	 * 
 	 * @param repository
-	 *            the {@link Repository}
+	 *                   the {@link Repository}
+	 * 
 	 * @return the {@link RepositoryCache}
+	 * 
 	 * @throws BusinessException
-	 *             if an error occurred while retrieving the {@link RepositoryCache}
+	 *                           if an error occurred while retrieving the {@link RepositoryCache}
 	 */
 	public RepositoryCache getCache(Repository repository) throws BusinessException {
 		StopWatch stopWatch = new StopWatch("ApplicationRepositoryCache");
@@ -176,9 +180,11 @@ public class RepositoryCacheFactory {
 	 * Checks whether the {@link Repository} has a valid {@link URI}.
 	 * 
 	 * @param repository
-	 *            the {@link Repository} to check
+	 *                   the {@link Repository} to check
+	 * 
 	 * @throws BusinessException
-	 *             if the {@link URI} defined by the {@link Repository} is not valid
+	 *                           if the {@link URI} defined by the {@link Repository} is not valid
+	 * 
 	 * @see RepositoryScheme
 	 * @see Repository#getUri()
 	 */

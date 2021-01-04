@@ -39,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  * <a href="https://developers.google.com/maps/documentation/geocoding/#JSON">JSON API</a>.
  * 
  * @author mueller.matthias
- * 
  */
 
 @Slf4j

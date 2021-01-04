@@ -21,17 +21,16 @@ import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.history.RevisionRepository;
 
 /**
- * 
  * A {@link SearchRepository} that additionally offers Spring Data Envers functionality
  * 
  * @author Claus Stuemke
  * 
  * @param <T>
- *            the domain class
+ *             the domain class
  * @param <ID>
- *            the type of the Id of the domain class
+ *             the type of the Id of the domain class
  * @param <N>
- *            the type of the revision
+ *             the type of the revision
  * 
  * @see SearchRepository
  * @see RevisionRepository

@@ -21,7 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 
 /**
- * A {@link ResponseEntity} that offers an {@link ErrorModel}, which contains details about potential errors on the server side.
+ * A {@link ResponseEntity} that offers an {@link ErrorModel}, which contains details about potential errors on the
+ * server side.
  * 
  * @author Matthias Müller
  *

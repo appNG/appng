@@ -28,14 +28,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A custom implementation of the {@link StandardReplaceTagProcessor}. Before
- * calling the original doProcess method, it first calls all known interceptors.
- * The interceptors can customize the process attributes and context to call
- * another fragment instead. In this case the interceptor has to return 'true'
- * to indicate that the processing is already done
+ * A custom implementation of the {@link StandardReplaceTagProcessor}. Before calling the original doProcess method, it
+ * first calls all known interceptors. The interceptors can customize the process attributes and context to call another
+ * fragment instead. In this case the interceptor has to return 'true' to indicate that the processing is already done
  * 
  * @author Claus Stümke
- *
  */
 @Slf4j
 public class ReplaceTagProcessor extends AbstractStandardFragmentInsertionTagProcessor
@@ -55,8 +52,8 @@ public class ReplaceTagProcessor extends AbstractStandardFragmentInsertionTagPro
 	protected void doProcess(final ITemplateContext context, final IProcessableElementTag tag,
 			final AttributeName attributeName, final String attributeValue,
 			final IElementTagStructureHandler structureHandler) {
-		LOGGER.debug("called replace tag processor with tag {} attributeName {} and attributeValue {}", tag, attributeName,
-				attributeValue);
+		LOGGER.debug("called replace tag processor with tag {} attributeName {} and attributeValue {}", tag,
+				attributeName, attributeValue);
 		if (null != interceptors) {
 			// an interceptor can decide if the original fragment shall be called, with
 			// the original context and attributes. An interceptor can change the attributes
@@ -74,8 +71,8 @@ public class ReplaceTagProcessor extends AbstractStandardFragmentInsertionTagPro
 	}
 
 	/**
-	 * this method is for the interceptors to be able to do their own kind of
-	 * processing call with customized attributes or context
+	 * this method is for the interceptors to be able to do their own kind of processing call with customized attributes
+	 * or context
 	 */
 	public void callStandardDoProcess(ITemplateContext context, IProcessableElementTag tag, AttributeName attributeName,
 			String attributeValue, IElementTagStructureHandler structureHandler) {

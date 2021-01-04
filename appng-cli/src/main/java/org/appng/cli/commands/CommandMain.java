@@ -57,7 +57,6 @@ import org.flywaydb.core.api.MigrationInfoService;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class CommandMain {
 
@@ -68,7 +67,8 @@ public class CommandMain {
 		return parameters;
 	}
 
-	@Parameter(names = { "-h", "-help" }, help = true, description = "Prints the usage of the appNG Command Line Interface")
+	@Parameter(names = { "-h",
+			"-help" }, help = true, description = "Prints the usage of the appNG Command Line Interface")
 	private boolean usage = false;
 
 	@Parameter(names = "-schemaexport", description = "Exports the schema to the database. Use only during development!")
@@ -80,7 +80,8 @@ public class CommandMain {
 	@Parameter(names = "-plainsql", description = "Do not format the SQL.")
 	private boolean plainsql = false;
 
-	@Parameter(names = { "-initdatabase", "-i" }, description = "Initializes the database. Use this in production. Must be executed also if connection parameters like user name or password of the database root connection have been changed.")
+	@Parameter(names = { "-initdatabase",
+			"-i" }, description = "Initializes the database. Use this in production. Must be executed also if connection parameters like user name or password of the database root connection have been changed.")
 	private boolean initDatabase = false;
 
 	@Parameter(names = { "-managed", "-m" }, description = "Make the root-connection managed by appNG")
@@ -116,9 +117,11 @@ public class CommandMain {
 	 * Initializes the appNG root connection
 	 * 
 	 * @param databaseService
-	 *            a {@link DatabaseService}
+	 *                        a {@link DatabaseService}
 	 * @param config
-	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 *                        the properties read from
+	 *                        {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * 
 	 * @return the {@link MigrationInfo} for the current version of the database (see
 	 *         {@link MigrationInfoService#current()})
 	 */

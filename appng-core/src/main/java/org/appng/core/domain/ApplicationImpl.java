@@ -61,11 +61,9 @@ import org.springframework.context.MessageSource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Default {@link Application}/{@link AccessibleApplication}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 @Entity

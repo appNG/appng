@@ -153,20 +153,21 @@ public class InitializerService {
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
-	 * @param  platformConfig
-	 *                                       the current {@link PlatformProperties}
-	 * @param  env
-	 *                                       the current {@link Environment}
-	 * @param  rootConnection
-	 *                                       the root {@link DatabaseConnection}
-	 * @param  ctx
-	 *                                       the current {@link ServletContext}
-	 * @param  executor
-	 *                                       an {@link ExecutorService} used by the cluster messaging
+	 * @param platformConfig
+	 *                       the current {@link PlatformProperties}
+	 * @param env
+	 *                       the current {@link Environment}
+	 * @param rootConnection
+	 *                       the root {@link DatabaseConnection}
+	 * @param ctx
+	 *                       the current {@link ServletContext}
+	 * @param executor
+	 *                       an {@link ExecutorService} used by the cluster messaging
+	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
-	 * @see                                  #loadPlatform(PlatformProperties, Environment, String, String,
-	 *                                       ExecutorService)
+	 * 
+	 * @see #loadPlatform(PlatformProperties, Environment, String, String, ExecutorService)
 	 */
 	@Transactional
 	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
@@ -181,12 +182,13 @@ public class InitializerService {
 	/**
 	 * Reloads the platform with all of it's {@link Site}s.
 	 * 
-	 * @param  env
-	 *                                       the current {@link Environment}
-	 * @param  siteName
-	 *                                       the (optional) name of the {@link Site} that caused the platform reload
-	 * @param  target
-	 *                                       an (optional) target to redirect to after platform reload
+	 * @param env
+	 *                 the current {@link Environment}
+	 * @param siteName
+	 *                 the (optional) name of the {@link Site} that caused the platform reload
+	 * @param target
+	 *                 an (optional) target to redirect to after platform reload
+	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -231,14 +233,15 @@ public class InitializerService {
 	/**
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
-	 * @param  platformConfig
-	 *                                       the current {@link PlatformProperties}
-	 * @param  env
-	 *                                       the current {@link Environment}
-	 * @param  siteName
-	 *                                       the (optional) name of the {@link Site} that caused the platform reload
-	 * @param  target
-	 *                                       an (optional) target to redirect to after platform reload
+	 * @param platformConfig
+	 *                       the current {@link PlatformProperties}
+	 * @param env
+	 *                       the current {@link Environment}
+	 * @param siteName
+	 *                       the (optional) name of the {@link Site} that caused the platform reload
+	 * @param target
+	 *                       an (optional) target to redirect to after platform reload
+	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -425,10 +428,11 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param  env
-	 *                                       the current {@link Environment}
-	 * @param  siteToLoad
-	 *                                       the {@link Site} to load
+	 * @param env
+	 *                   the current {@link Environment}
+	 * @param siteToLoad
+	 *                   the {@link Site} to load
+	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -441,10 +445,11 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param  env
-	 *                                       the current {@link Environment}
-	 * @param  siteToLoad
-	 *                                       the {@link Site} to load
+	 * @param env
+	 *                   the current {@link Environment}
+	 * @param siteToLoad
+	 *                   the {@link Site} to load
+	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -457,10 +462,11 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param  siteToLoad
-	 *                                       the {@link Site} to load
-	 * @param  servletContext
-	 *                                       the current {@link ServletContext}
+	 * @param siteToLoad
+	 *                       the {@link Site} to load
+	 * @param servletContext
+	 *                       the current {@link ServletContext}
+	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -472,16 +478,16 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param  siteToLoad
-	 *                                       the {@link Site} to load, freshly loaded with
-	 *                                       {@link CoreService#getSite(Integer)} or
-	 *                                       {@link CoreService#getSiteByName(String)}
-	 * @param  env
-	 *                                       the current {@link Environment}
-	 * @param  sendReloadEvent
-	 *                                       whether or not a {@link ReloadSiteEvent} should be sent
-	 * @param  fp
-	 *                                       a {@link FieldProcessor} to attach messages to
+	 * @param siteToLoad
+	 *                        the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
+	 *                        {@link CoreService#getSiteByName(String)}
+	 * @param env
+	 *                        the current {@link Environment}
+	 * @param sendReloadEvent
+	 *                        whether or not a {@link ReloadSiteEvent} should be sent
+	 * @param fp
+	 *                        a {@link FieldProcessor} to attach messages to
+	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
@@ -864,7 +870,8 @@ public class InitializerService {
 	 * 
 	 * @param ctx
 	 *            the current {@link ServletContext}
-	 * @see       #shutDownSite(Environment, Site, boolean)
+	 * 
+	 * @see #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.get(ctx);

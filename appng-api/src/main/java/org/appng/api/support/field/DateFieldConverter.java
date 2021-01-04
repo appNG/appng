@@ -39,11 +39,9 @@ import org.springframework.context.MessageSource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FieldConverter} for {@link FieldDef}initions of type {@link FieldType#DATE}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class DateFieldConverter extends ConverterBase {

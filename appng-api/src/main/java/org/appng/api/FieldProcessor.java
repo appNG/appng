@@ -24,13 +24,11 @@ import org.appng.xml.platform.MetaData;
 import org.springframework.data.domain.Pageable;
 
 /**
- * 
  * A {@link FieldProcessor} keeps track of the {@link MetaData} and {@link Linkpanel}s defined in the
  * {@link org.appng.xml.platform.DataConfig} of a {@link org.appng.xml.platform.Datasource}. It provides several methods
  * to add {@link org.appng.xml.platform.Message}s, which can be field-specific.
  * 
  * @author Matthias Müller
- * 
  */
 public interface FieldProcessor {
 
@@ -45,8 +43,10 @@ public interface FieldProcessor {
 	 * Returns the {@link FieldDef} with the given binding, if existing.
 	 * 
 	 * @param fieldBinding
-	 *            the binding of the {@link FieldDef} to return
+	 *                     the binding of the {@link FieldDef} to return
+	 * 
 	 * @return the {@link FieldDef} with the given binding, or {@code null} if no such {@link FieldDef} exists
+	 * 
 	 * @see FieldDef#getBinding()
 	 */
 	FieldDef getField(String fieldBinding);
@@ -62,7 +62,8 @@ public interface FieldProcessor {
 	 * Checks whether a {@link FieldDef} with the given binding exists for this {@link FieldProcessor}.
 	 * 
 	 * @param fieldBinding
-	 *            the binding of the {@link FieldDef} to check
+	 *                     the binding of the {@link FieldDef} to check
+	 * 
 	 * @return {@code true} if such a {@link FieldDef} exists, {@code false} otherwise.
 	 * 
 	 * @see #getField(String)
@@ -83,6 +84,7 @@ public interface FieldProcessor {
 	 * 
 	 * @return {@code true} if there are any {@link org.appng.xml.platform.Message}s of
 	 *         {@link org.appng.xml.platform.MessageType#ERROR}, {@code false} otherwise
+	 * 
 	 * @see #addErrorMessage(String)
 	 * @see #addErrorMessage(FieldDef, String)
 	 */
@@ -95,6 +97,7 @@ public interface FieldProcessor {
 	 * @return {@code true} if any of the {@link FieldProcessor}s {@link FieldDef}s has a
 	 *         {@link org.appng.xml.platform.Message} of type {@link org.appng.xml.platform.MessageType#ERROR},
 	 *         {@code false} otherwise
+	 * 
 	 * @see #addErrorMessage(FieldDef, String)
 	 */
 	boolean hasFieldErrors();
@@ -103,7 +106,7 @@ public interface FieldProcessor {
 	 * Adds a {@link org.appng.xml.platform.Message} of type {@link org.appng.xml.platform.MessageType#OK}.
 	 * 
 	 * @param message
-	 *            the message to add
+	 *                the message to add
 	 */
 	void addOkMessage(String message);
 
@@ -111,7 +114,7 @@ public interface FieldProcessor {
 	 * Adds the given list of {@link Linkpanel}s to this {@link FieldProcessor}
 	 * 
 	 * @param panels
-	 *            a list of {@link Linkpanel}s
+	 *               a list of {@link Linkpanel}s
 	 */
 	void addLinkPanels(List<Linkpanel> panels);
 
@@ -119,7 +122,8 @@ public interface FieldProcessor {
 	 * Returns the {@link Linkpanel} with the given name, if existing.
 	 * 
 	 * @param fieldName
-	 *            the name of the {@link FieldDef} respectively the {@link Linkpanel}
+	 *                  the name of the {@link FieldDef} respectively the {@link Linkpanel}
+	 * 
 	 * @return the {@link Linkpanel}, if existing, {@code null} otherwise
 	 */
 	Linkpanel getLinkPanel(String fieldName);
@@ -129,9 +133,9 @@ public interface FieldProcessor {
 	 * field.
 	 * 
 	 * @param field
-	 *            the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
+	 *                the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
 	 * @param message
-	 *            the message to add
+	 *                the message to add
 	 */
 	void addOkMessage(FieldDef field, String message);
 
@@ -139,7 +143,8 @@ public interface FieldProcessor {
 	 * Adds a {@link org.appng.xml.platform.Message} of type {@link org.appng.xml.platform.MessageType#ERROR}.
 	 * 
 	 * @param message
-	 *            the message to add
+	 *                the message to add
+	 * 
 	 * @see FieldProcessor#hasErrors()
 	 */
 	void addErrorMessage(String message);
@@ -149,9 +154,10 @@ public interface FieldProcessor {
 	 * given field.
 	 * 
 	 * @param field
-	 *            the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
+	 *                the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
 	 * @param message
-	 *            the message to add
+	 *                the message to add
+	 * 
 	 * @see FieldProcessor#hasErrors()
 	 * @see FieldProcessor#hasFieldErrors()
 	 */
@@ -161,7 +167,7 @@ public interface FieldProcessor {
 	 * Adds a {@link org.appng.xml.platform.Message} of type {@link org.appng.xml.platform.MessageType#INVALID}.
 	 * 
 	 * @param message
-	 *            the message to add
+	 *                the message to add
 	 */
 	void addInvalidMessage(String message);
 
@@ -170,9 +176,9 @@ public interface FieldProcessor {
 	 * given field.
 	 * 
 	 * @param field
-	 *            the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
+	 *                the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
 	 * @param message
-	 *            the message to add
+	 *                the message to add
 	 */
 	void addInvalidMessage(FieldDef field, String message);
 
@@ -180,7 +186,7 @@ public interface FieldProcessor {
 	 * Adds a {@link org.appng.xml.platform.Message} of type {@link org.appng.xml.platform.MessageType#INVALID}.
 	 * 
 	 * @param message
-	 *            the message to add
+	 *                the message to add
 	 */
 	void addNoticeMessage(String message);
 
@@ -189,9 +195,9 @@ public interface FieldProcessor {
 	 * given field.
 	 * 
 	 * @param field
-	 *            the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
+	 *                the {@link FieldDef} to add the {@link org.appng.xml.platform.Message} to
 	 * @param message
-	 *            the message to add
+	 *                the message to add
 	 */
 	void addNoticeMessage(FieldDef field, String message);
 
@@ -200,6 +206,7 @@ public interface FieldProcessor {
 	 * using {@code addXXMessage(String message)}.
 	 * 
 	 * @return a new {@link Messages} instance containing the previously added {@link org.appng.xml.platform.Message}s
+	 * 
 	 * @see #addOkMessage(String)
 	 * @see #addNoticeMessage(String)
 	 * @see #addInvalidMessage(String)
@@ -233,7 +240,7 @@ public interface FieldProcessor {
 	 * Clears all {@link org.appng.xml.platform.Message}s for the {@link FieldDef}initions with the given bindings.
 	 * 
 	 * @param fieldBindings
-	 *            the bindings of the fields to clear the messages for
+	 *                      the bindings of the fields to clear the messages for
 	 * 
 	 * @see #addOkMessage(FieldDef, String)
 	 * @see #addNoticeMessage(FieldDef, String)

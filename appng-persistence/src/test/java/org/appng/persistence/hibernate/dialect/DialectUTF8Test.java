@@ -21,19 +21,18 @@ import org.hibernate.dialect.Dialect;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 public class DialectUTF8Test {
 
 	@Test
 	public void testMariaDB103() {
 		runTest(new MariaDB103DialectUTF8());
 	}
-	
+
 	@Test
 	public void testMySql57() {
 		runTest(new MySql57DialectUTF8());
 	}
-	
+
 	@Test
 	public void testMySql8() {
 		runTest(new MySql8DialectUTF8());

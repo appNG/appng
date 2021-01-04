@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
  * Utility-class used to parse {@code <appNG:searchable>}-tags from JSP-files.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ParseTags {
@@ -54,7 +53,7 @@ public class ParseTags {
 	 * Creates a new {@code ParseTags} using the given tag-prefix (usually {@code appNG}).
 	 * 
 	 * @param tagPrefix
-	 *            the tag prefix
+	 *                  the tag prefix
 	 */
 	public ParseTags(String tagPrefix) {
 		this.tagPrefix = tagPrefix;
@@ -65,10 +64,12 @@ public class ParseTags {
 	 * {@link StringBuilder} (the text content of the {@code <appNG:searchable>}-tag) as the value.
 	 * 
 	 * @param is
-	 *            the {@link InputStream}
+	 *           the {@link InputStream}
+	 * 
 	 * @return the {@link Map} of fields
+	 * 
 	 * @throws IOException
-	 *             if such an error occurred while reading/parsing the stream
+	 *                     if such an error occurred while reading/parsing the stream
 	 */
 	public Map<String, StringBuilder> parse(InputStream is) throws IOException {
 		try (InputStream inner = is) {

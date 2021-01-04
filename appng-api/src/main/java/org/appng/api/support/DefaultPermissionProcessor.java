@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
  * Default {@link PermissionProcessor} implementation.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class DefaultPermissionProcessor implements PermissionProcessor {
@@ -55,11 +54,11 @@ public class DefaultPermissionProcessor implements PermissionProcessor {
 	 * given {@link Application} on the given {@link Site}.
 	 * 
 	 * @param subject
-	 *            the current {@link Subject} (if any)
+	 *                    the current {@link Subject} (if any)
 	 * @param site
-	 *            the {@link Site} currently used by the {@link Subject}
+	 *                    the {@link Site} currently used by the {@link Subject}
 	 * @param application
-	 *            the {@link Application} currently used by the {@link Subject}
+	 *                    the {@link Application} currently used by the {@link Subject}
 	 */
 	public DefaultPermissionProcessor(Subject subject, Site site, Application application) {
 		this.site = site;

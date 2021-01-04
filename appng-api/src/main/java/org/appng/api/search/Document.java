@@ -22,19 +22,16 @@ import org.appng.api.model.Site;
 import org.appng.api.observe.Observable;
 
 /**
- * 
  * A {@link Document} is tracked by the <a href="http://lucene.apache.org/">Lucene</a> searchindex. It implements
  * {@link Observable} so it can notify an {@link org.appng.api.observe.Observer} of changes.<br/>
  * A Lucene {@link org.apache.lucene.document.Document} is being created from a {@link Document} instance, which is then
  * being added/updated/deleted from/to the index, depending on the {@link DocumentEvent} passed to
  * {@link DocumentProducer}{@code #put({@link DocumentEvent})}.
- * 
  * <p>
  * TODO appng-search is the better place for this
  * </p>
  * 
  * @author Matthias Müller
- * 
  * 
  * @see DocumentProducer
  * @see DocumentEvent

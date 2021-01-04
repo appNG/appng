@@ -30,7 +30,6 @@ import javax.xml.transform.stream.StreamSource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
  */

@@ -19,7 +19,6 @@ package org.appng.core.model;
  * Display modes of a {@link Repository}, meaning which kinds of {@link PackageArchive} are being served.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public enum RepositoryMode {
 	/** all versions, stable and snapshot */

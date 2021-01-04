@@ -24,15 +24,13 @@ import org.apache.commons.text.StringEscapeUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link Parameter} can be added to any {@link ParameterOwner}. 
- * 
+ * A {@link Parameter} can be added to any {@link ParameterOwner}.
  * <p/>
  * <b>Usage:</b>
  * 
  * <pre>
  * &lt;appNG:param name="foo">bar&lt;/appNG:param>
  * </pre>
- * 
  * 
  * @author Matthias Müller
  * 
@@ -41,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see org.appng.taglib.search.Search
  * @see org.appng.taglib.search.SearchPart
  * @see TagletAdapter
- *
  */
 @Slf4j
 public class Parameter extends BodyTagSupport {

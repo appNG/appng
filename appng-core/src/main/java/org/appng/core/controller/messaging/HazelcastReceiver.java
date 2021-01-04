@@ -39,11 +39,9 @@ import com.hazelcast.topic.MessageListener;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link Receiver} that uses a <a href=
- * "https://docs.hazelcast.org/docs/3.12/manual/html-single/#reliable-topic">reliable
- * topic</a> for sending {@link Event}s.
- * 
- * Following platform properties are supported (default value in brackets):
+ * A {@link Receiver} that uses a
+ * <a href= "https://docs.hazelcast.org/docs/3.12/manual/html-single/#reliable-topic">reliable topic</a> for sending
+ * {@link Event}s. Following platform properties are supported (default value in brackets):
  * <ul>
  * <li>{@code hazelcastTopicName} (appng-messaging): Name of the topic</li>
  * </ul>

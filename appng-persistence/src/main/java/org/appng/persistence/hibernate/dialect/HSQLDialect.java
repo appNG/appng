@@ -23,7 +23,6 @@ import org.hibernate.HibernateException;
  * A {@link HSQLDialect} which converts varchar-fields with a length of >=1024 to hsql-type 'LONGVARCHAR'
  * 
  * @author Matthias Müller
- * 
  */
 public class HSQLDialect extends org.hibernate.dialect.HSQLDialect {
 

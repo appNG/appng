@@ -46,7 +46,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * Abstract base class for integration tests of messaging {@link Sender}s and {@link Receiver}s
  * 
  * @author Matthias Müller
- *
  */
 public abstract class AbstractMessagingIT {
 
@@ -81,8 +80,7 @@ public abstract class AbstractMessagingIT {
 		}
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(props);
-		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES))
-				.thenReturn(new HashMap<>());
+		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES)).thenReturn(new HashMap<>());
 
 		final BeanWrapperImpl wrapper = new BeanWrapperImpl();
 

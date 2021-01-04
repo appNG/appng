@@ -21,7 +21,6 @@ import javax.persistence.EntityManager;
  * TODO insert description
  * 
  * @author mueller.matthias, aiticon GmbH, 2011
- * 
  */
 public interface TestDataProvider {
 

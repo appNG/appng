@@ -24,11 +24,9 @@ import org.appng.api.FileUpload;
 import org.appng.forms.FormUpload;
 
 /**
- * 
  * Checks that a {@link Collection} of {@link FormUpload}s matches the restrictions given by a {@link FileUpload}.
  * 
  * @author Matthias Müller
- * 
  */
 public class FileUploadListValidator implements ConstraintValidator<FileUpload, Collection<FormUpload>> {
 

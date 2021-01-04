@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class is used to replace special characters from the search terms.
- * 
  */
 @Slf4j
 public class GermanSearchTermProcessor implements SearchTermProcessor {
@@ -97,7 +96,9 @@ public class GermanSearchTermProcessor implements SearchTermProcessor {
 	/**
 	 * replace German special alphabet.
 	 * 
-	 * @param term the term
+	 * @param term
+	 *             the term
+	 * 
 	 * @return the term without german Umlaut characters
 	 */
 	public String removeUmlauts(String term) {
@@ -112,6 +113,7 @@ public class GermanSearchTermProcessor implements SearchTermProcessor {
 	 * remove special characters from the search term.
 	 * 
 	 * @param term
+	 * 
 	 * @return the cleaned search term
 	 */
 	public String cleanSearchWord(String term) {
@@ -125,6 +127,7 @@ public class GermanSearchTermProcessor implements SearchTermProcessor {
 	 * Check whether search word has a German special character.
 	 * 
 	 * @param searchWord
+	 * 
 	 * @return
 	 */
 	private boolean hasUmlaut(String searchWord) {

@@ -117,7 +117,7 @@ public class ApplicationProviderTest extends TestBase {
 
 		}
 
-		public void init(ApplicationInfo applicationInfo){
+		public void init(ApplicationInfo applicationInfo) {
 			super.init(new java.util.Properties(), applicationInfo);
 		}
 

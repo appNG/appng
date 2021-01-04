@@ -21,7 +21,6 @@ import org.appng.api.model.Site;
  * Enum type defining the possible scopes of an {@link Environment}-attribute.
  * 
  * @author Matthias Müller
- * 
  */
 public enum Scope {
 
@@ -51,12 +50,13 @@ public enum Scope {
 	URL;
 
 	/**
-	 * 
 	 * @param host
-	 *            the host of the {@link Site} to get the name for
+	 *             the host of the {@link Site} to get the name for
+	 * 
 	 * @return a String used in order to identify an {@link Environment} for a {@link Site}
+	 * 
 	 * @throws IllegalArgumentException
-	 *             if this scope not equals {@link Scope#SITE}
+	 *                                  if this scope not equals {@link Scope#SITE}
 	 */
 	public String forSite(String host) {
 		if (SITE.equals(this)) {

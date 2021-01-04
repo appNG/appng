@@ -37,11 +37,9 @@ import com.beust.jcommander.Parameters;
  *        The group name. Multiple values can be provided (separated by space).
  *   * -u
  *        The user name of the subject.
- * 
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Adds a group to a subject.")
 public class AddGroup implements ExecutableCliCommand {

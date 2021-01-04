@@ -59,7 +59,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Imports a application.")
 public class InstallApplication implements ExecutableCliCommand {
@@ -76,7 +75,7 @@ public class InstallApplication implements ExecutableCliCommand {
 	@Parameter(names = "-r", required = true, description = "The name of the repository.")
 	private String repositoryName;
 
-	@Parameter(names = {"-p", "-c"}, required = false, description = "Install as privileged application.")
+	@Parameter(names = { "-p", "-c" }, required = false, description = "Install as privileged application.")
 	private boolean isPrivileged = false;
 
 	@Parameter(names = "-h", required = false, description = "Application will be hidden.")

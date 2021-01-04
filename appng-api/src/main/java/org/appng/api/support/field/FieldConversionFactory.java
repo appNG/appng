@@ -41,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
  * any {@link FieldType}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class FieldConversionFactory implements FieldConverter, InitializingBean {
@@ -168,8 +167,8 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 		FieldConverter fileConverter = new FileFieldConverter(conversionService);
 		converters.put(FieldType.FILE, fileConverter);
 		converters.put(FieldType.FILE_MULTIPLE, fileConverter);
-		FieldConverter defaultConverter = new DefaultFieldConverter(expressionEvaluator, conversionService,
-				environment, messageSource);
+		FieldConverter defaultConverter = new DefaultFieldConverter(expressionEvaluator, conversionService, environment,
+				messageSource);
 		converters.put(FieldType.TEXT, defaultConverter);
 		converters.put(FieldType.PASSWORD, defaultConverter);
 		converters.put(FieldType.LONGTEXT, defaultConverter);

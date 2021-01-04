@@ -25,11 +25,11 @@ public class Permissions extends org.appng.appngizer.model.xml.Permissions imple
 		this.getPermission().addAll(permissions);
 		setSelf("/application/" + app + "/permission");
 	}
-	
+
 	@Override
 	public void applyUriComponents(UriComponentsBuilder builder) {
 		for (org.appng.appngizer.model.xml.Permission p : permission) {
-			((UriAware)p).applyUriComponents(builder.cloneBuilder());
+			((UriAware) p).applyUriComponents(builder.cloneBuilder());
 		}
 		UriAware.super.applyUriComponents(builder);
 	}

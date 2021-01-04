@@ -45,9 +45,9 @@ public class PropertyHelper {
 				throw new BusinessException("Error while reading: " + path.toString(), e);
 			}
 		} else {
-			if(isDefault){
+			if (isDefault) {
 				property.setDefaultString(value);
-			}else{
+			} else {
 				property.setString(value);
 			}
 			property.setClob(null);

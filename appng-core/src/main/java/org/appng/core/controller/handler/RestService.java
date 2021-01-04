@@ -59,7 +59,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see ServiceRequestHandler
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class RestService {
@@ -112,7 +111,7 @@ public class RestService {
 			eher.setMessageConverters(messageConverters);
 			Collection<Object> advices = context.getBeansWithAnnotation(ControllerAdvice.class).values();
 			Set<Object> mappedHandlers = new HashSet<>(advices);
-			if(null != handlerMethod) {
+			if (null != handlerMethod) {
 				mappedHandlers.add(handlerMethod.getBean());
 			}
 			eher.setMappedHandlers(mappedHandlers);

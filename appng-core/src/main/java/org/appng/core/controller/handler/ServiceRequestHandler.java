@@ -98,7 +98,6 @@ import lombok.extern.slf4j.Slf4j;
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-manager/webservice/logViewer&lt;get-params>
  * </ul>
- * 
  * <li><b>datasource</b><br/>
  * Used for calling a datasource provided by a {@link Application}.<br/>
  * Provides different formats: json,xml and html.<br/>
@@ -108,7 +107,6 @@ import lombok.extern.slf4j.Slf4j;
  * <li>http://localhost:8080/service/manager/appng-manager/datasource/json/sites
  * <li>http://localhost:8080/service/manager/appng-manager/datasource/html/sites
  * </ul>
- * 
  * <li><b>action</b><br/>
  * Used for calling an action provided by a {@link Application}.<br/>
  * Provides different formats: json,xml and html.<br/>
@@ -118,7 +116,6 @@ import lombok.extern.slf4j.Slf4j;
  * <li>http://localhost:8080/service/manager/appng-manager/action/json/siteEvent/create?form_action=create
  * <li>http://localhost:8080/service/manager/appng-manager/action/html/siteEvent/create?form_action=create
  * </ul>
- * 
  * <li><b>soap</b><br/>
  * Used for calling a {@link org.appng.api.SoapService} provided by a {@link Application}.<br/>
  * Example (GET for the wsdl):
@@ -129,7 +126,6 @@ import lombok.extern.slf4j.Slf4j;
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-demoapplication/soap/PersonService
  * </ul>
- * 
  * <li><b>rest</b><br/>
  * Used for addressing a {@link org.springframework.web.bind.annotation.RestController} offered by an
  * {@link Application}<br/>
@@ -141,7 +137,6 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ServiceRequestHandler implements RequestHandler {

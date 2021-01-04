@@ -91,7 +91,8 @@ import lombok.extern.slf4j.Slf4j;
  * <tr>
  * <td>equals</td>
  * <td>must be equal to another field or value</td>
- * <td>{@code rule="equals('foo')}<br/>{@code rule="equals(anotherfield)}"</td>
+ * <td>{@code rule="equals('foo')}<br/>
+ * {@code rule="equals(anotherfield)}"</td>
  * </tr>
  * <tr>
  * <td>regExp</td>

@@ -43,7 +43,6 @@ import org.appng.xml.application.TemplateType;
  * The persistent representation of an appNG template
  * 
  * @author Matthias Müller
- *
  */
 @Entity
 @Table(name = "template")

@@ -29,12 +29,10 @@ import org.springframework.core.convert.ConversionService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Base {@link FieldConverter} for {@link FieldDef}initions of type {@link FieldType#FILE} and
  * {@link FieldType#FILE_MULTIPLE}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class FileFieldConverter extends ConverterBase {

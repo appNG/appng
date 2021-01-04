@@ -48,7 +48,6 @@ import org.springframework.context.MessageSource;
  * Test for {@link DefaultValidationProvider}.
  * 
  * @author Matthias Müller
- * 
  */
 public class ValidationProviderTest extends AbstractTest {
 

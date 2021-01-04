@@ -85,8 +85,8 @@ public class FormRequestTest {
 		request.append(bar + "\r\n");
 
 		request.append("--" + boundary + "\r\n");
-		request.append("Content-Disposition: form-data; name=\"" + file + "\"; filename=\"" + filenameComplete
-				+ "\"\r\n");
+		request.append(
+				"Content-Disposition: form-data; name=\"" + file + "\"; filename=\"" + filenameComplete + "\"\r\n");
 		request.append("Content-Type: " + contentType + "\r\n");
 		request.append("\r\n");
 

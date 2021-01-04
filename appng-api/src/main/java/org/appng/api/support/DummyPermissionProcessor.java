@@ -24,7 +24,6 @@ import org.appng.api.model.Subject;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link PermissionProcessor} that always returns {@code true} for
  * <ul>
  * <li>{@link #hasPermission(String)}
@@ -32,15 +31,14 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class DummyPermissionProcessor extends DefaultPermissionProcessor {
 
 	public DummyPermissionProcessor(Subject subject, Site site, Application application) {
 		super(subject, site, application);
-		LOGGER.debug("creating instance for subject {}, site {}, application {}", subject.getAuthName(),
-				site.getName(), application.getName());
+		LOGGER.debug("creating instance for subject {}, site {}, application {}", subject.getAuthName(), site.getName(),
+				application.getName());
 	}
 
 	@Override

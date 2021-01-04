@@ -56,7 +56,6 @@ import com.beust.jcommander.Parameters;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Creates a subject.")
 public class CreateSubject implements ExecutableCliCommand {

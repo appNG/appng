@@ -36,7 +36,6 @@ import org.springframework.core.convert.ConversionService;
  * s.
  * 
  * @author Matthias Müller
- * 
  */
 abstract class ConverterBase implements FieldConverter {
 
@@ -46,8 +45,8 @@ abstract class ConverterBase implements FieldConverter {
 	protected ExpressionEvaluator expressionEvaluator;
 
 	protected void handleException(FieldWrapper field, String key) {
-		getLog().warn("error in field {}: can not convert '{}' to type '{}' using format '{}'", field.getBinding(), field.getStringValue(),
-				field.getTargetClass().getName(), field.getFormat());
+		getLog().warn("error in field {}: can not convert '{}' to type '{}' using format '{}'", field.getBinding(),
+				field.getStringValue(), field.getTargetClass().getName(), field.getFormat());
 		Message message = new Message();
 		message.setClazz(MessageType.ERROR);
 		message.setRef(field.getName());

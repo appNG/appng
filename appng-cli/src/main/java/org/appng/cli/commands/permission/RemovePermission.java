@@ -40,7 +40,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Removes one ore more permissions from a role.")
 public class RemovePermission implements ExecutableCliCommand {

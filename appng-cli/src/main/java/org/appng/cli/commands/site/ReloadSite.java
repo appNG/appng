@@ -39,7 +39,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Reloads a site (site property supportReloadFile must be true).")
 public class ReloadSite implements ExecutableCliCommand {

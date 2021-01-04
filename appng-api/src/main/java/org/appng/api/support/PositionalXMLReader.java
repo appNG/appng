@@ -38,9 +38,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * XML Reader creating a {@link Document} with line information for each node. This has been inspired by the following
  * blog post https://eyalsch.wordpress.com/2010/11/30/xml-dom-2/
  * 
- * 
  * @author Claus Stümke, aiticon GmbH, 2017
- *
  */
 public class PositionalXMLReader {
 	final static String LINE_NUMBER_KEY_NAME = "lineNumber";

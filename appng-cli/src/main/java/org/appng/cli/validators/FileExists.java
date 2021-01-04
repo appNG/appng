@@ -26,7 +26,6 @@ import com.beust.jcommander.ParameterException;
  * An {@code com.beust.jcommander.IParameterValidator} assuring that a file exists.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class FileExists implements IParameterValidator {
 

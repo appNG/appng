@@ -267,8 +267,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected CachedResponse performRequest(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, ExpiryPolicy expiryPolicy)
-			throws IOException, ServletException {
+			final FilterChain chain, Site site, ExpiryPolicy expiryPolicy) throws IOException, ServletException {
 		final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
 		final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, outstr);
 		chain.doFilter(request, wrapper);

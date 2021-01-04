@@ -42,11 +42,9 @@ import org.appng.api.model.Permission;
 import org.appng.api.model.Role;
 
 /**
- * 
  * Default {@link Role}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Entity
 @Table(name = "role")

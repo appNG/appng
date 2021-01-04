@@ -61,7 +61,6 @@ import org.appng.xml.platform.Platform;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Default {@link ApplicationConfigProvider}-implementation.
  * 
  * @author Matthias Müller
@@ -251,8 +250,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void readData() throws IOException, ClassNotFoundException {
 		Object o = null;
-		try (
-				ByteArrayInputStream bais = new ByteArrayInputStream(data);
+		try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
 				ObjectInputStream is = new ObjectInputStream(bais)) {
 			while ((o = is.readObject()) != null) {
 				if (o instanceof PageMap) {
@@ -281,8 +279,7 @@ public class ApplicationConfigProviderImpl implements ApplicationConfigProvider 
 	}
 
 	private void writeData() throws IOException {
-		try (
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
 				ObjectOutputStream outputStream = new ObjectOutputStream(out)) {
 			data = null;
 			outputStream.writeObject(pageMap);

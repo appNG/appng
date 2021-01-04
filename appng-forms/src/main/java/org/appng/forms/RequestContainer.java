@@ -28,7 +28,6 @@ import org.apache.commons.fileupload.FileUpload;
  * multi-valued) request-parameters including {@link FormUpload}s.
  * 
  * @author Matthias Müller
- * 
  */
 public interface RequestContainer {
 
@@ -36,7 +35,6 @@ public interface RequestContainer {
 	 * Returns the host name for this request
 	 * 
 	 * @return the host name
-	 * 
 	 */
 	String getHost();
 
@@ -64,7 +62,8 @@ public interface RequestContainer {
 	 * {@link #getParameterList(String)} instead if you want to deal with a multi-valued parameter.</b>
 	 * 
 	 * @param name
-	 *            the name of the parameter
+	 *             the name of the parameter
+	 * 
 	 * @return the value of the parameter (may be null)
 	 */
 	String getParameter(String name);
@@ -80,7 +79,8 @@ public interface RequestContainer {
 	 * Checks whether a parameter with the given name exists.
 	 * 
 	 * @param name
-	 *            the name of the parameter
+	 *             the name of the parameter
+	 * 
 	 * @return {@code true} if such a parameter exists, {@code false} otherwise
 	 */
 	boolean hasParameter(String name);
@@ -89,7 +89,8 @@ public interface RequestContainer {
 	 * Returns a {@link List} containing all the values for the parameter with the given name.
 	 * 
 	 * @param name
-	 *            the name of the parameter
+	 *             the name of the parameter
+	 * 
 	 * @return a {@link List} (never {@code null}, but may be empty) containing all the values for the given parameter
 	 */
 	List<String> getParameterList(String name);
@@ -106,7 +107,8 @@ public interface RequestContainer {
 	 * Returns an immutable {@link List} of all {@link FormUpload}s for the parameter with the given name.
 	 * 
 	 * @param name
-	 *            the name of the parameters
+	 *             the name of the parameters
+	 * 
 	 * @return a list if {@link FormUpload}s (never {@code null}, but may be empty)
 	 */
 	List<FormUpload> getFormUploads(String name);

@@ -29,7 +29,6 @@ import org.appng.api.model.Site;
  * {@link NodeEvent}.
  * 
  * @author Matthias Müller
- *
  */
 public class RequestNodeState extends Event {
 

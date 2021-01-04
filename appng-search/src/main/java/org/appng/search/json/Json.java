@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * Helper class to convert an object to it's JSON representation and vice versa.
  * 
  * @author Matthias Müller
- *
  */
 public class Json {
 

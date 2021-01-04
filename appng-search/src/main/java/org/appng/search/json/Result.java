@@ -131,8 +131,6 @@ public class Result implements Comparable<Result> {
 	public void setFields(Fields fields) {
 		this.fields = fields;
 	}
-	
-	
 
 	public static Result fromDocument(Document d) {
 		Result result = new Result();

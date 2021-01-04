@@ -18,10 +18,11 @@ package org.appng.api.model;
 import java.util.List;
 
 /**
- * A {@link ApplicationSubject} is an {@link Account} which owns several {@link Role}s. The {@link ApplicationSubject}s of a
- * {@link Application} can be retrieved by calling {@link Application#getApplicationSubjects()}.
+ * A {@link ApplicationSubject} is an {@link Account} which owns several {@link Role}s. The {@link ApplicationSubject}s
+ * of a {@link Application} can be retrieved by calling {@link Application#getApplicationSubjects()}.
  * 
  * @author Matthias Müller
+ * 
  * @see Application#getApplicationSubjects()
  */
 public interface ApplicationSubject extends Account {

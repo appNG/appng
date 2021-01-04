@@ -26,7 +26,6 @@ import org.appng.api.model.Site;
  * the calling and executing {@link Site} are always the same.
  * 
  * @author Matthias Müller
- * 
  */
 public interface GlobalTaglet extends Taglet {
 
@@ -34,15 +33,15 @@ public interface GlobalTaglet extends Taglet {
 	 * Executes the {@code Taglet} and returns a {@link String} to be embedded at the calling JSP-page.
 	 * 
 	 * @param callingSite
-	 *            the {@link Site} where the original JSP-call came from
+	 *                         the {@link Site} where the original JSP-call came from
 	 * @param executingSite
-	 *            the {@link Site} in which the JSP-call will be executed
+	 *                         the {@link Site} in which the JSP-call will be executed
 	 * @param application
-	 *            the current {@link Application}
+	 *                         the current {@link Application}
 	 * @param request
-	 *            the current {@link Request}
+	 *                         the current {@link Request}
 	 * @param tagletAttributes
-	 *            a {@link Map} containing the attributes for the {@code Taglet}
+	 *                         a {@link Map} containing the attributes for the {@code Taglet}
 	 * 
 	 * @return a String to be embedded into the calling JSP
 	 */

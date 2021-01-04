@@ -52,7 +52,7 @@ public class SigningException extends IOException {
 		super(message, cause);
 		this.type = type;
 	}
-	
+
 	SigningException(ErrorType type, String message, Exception cause, X509Certificate cert) {
 		super(message, cause);
 		this.type = type;

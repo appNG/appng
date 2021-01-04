@@ -33,7 +33,6 @@ import org.junit.Test;
  * Test for {@link ListProperties}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class CommandListPropertiesTest extends AbstractCommandTest {
 

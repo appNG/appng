@@ -39,7 +39,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Updates a property.")
 public class UpdateProperty implements ExecutableCliCommand {

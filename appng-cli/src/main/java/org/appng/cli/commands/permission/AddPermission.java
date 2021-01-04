@@ -40,7 +40,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Adds one ore more permissions to a role.")
 public class AddPermission implements ExecutableCliCommand {

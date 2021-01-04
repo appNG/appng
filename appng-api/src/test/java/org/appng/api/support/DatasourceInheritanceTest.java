@@ -42,7 +42,6 @@ import org.mockito.MockitoAnnotations;
  * TODO insert description
  * 
  * @author Claus Stümke, aiticon GmbH, 2016
- *
  */
 public class DatasourceInheritanceTest {
 

@@ -21,7 +21,6 @@ import java.util.Set;
  * A {@link Group} is a set of {@link Subject}s which has several {@link Role}s.
  * 
  * @author Matthias Müller
- * 
  */
 public interface Group extends Named<Integer> {
 

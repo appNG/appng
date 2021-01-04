@@ -23,7 +23,6 @@ import org.apache.commons.io.FilenameUtils;
  * Utility-class to support {@link CliBootstrap}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 class CliBootstrapEnvironment {
 
@@ -32,7 +31,8 @@ class CliBootstrapEnvironment {
 	 * from the retrieved value.
 	 * 
 	 * @param name
-	 *            the name of the system property
+	 *             the name of the system property
+	 * 
 	 * @return the file, or {@code null} if no such system property exists.
 	 */
 	File getFileFromEnv(String name) {
@@ -46,7 +46,7 @@ class CliBootstrapEnvironment {
 			return null;
 		}
 	}
-	
+
 	File getAbsoluteFile(File file) {
 		if (null != file) {
 			return new File(FilenameUtils.normalize(file.getAbsolutePath()));

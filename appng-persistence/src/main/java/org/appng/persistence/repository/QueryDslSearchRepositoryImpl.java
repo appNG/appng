@@ -44,9 +44,9 @@ import com.querydsl.core.types.Predicate;
  * @author Matthias Müller
  * 
  * @param <T>
- *            the domain class
+ *             the domain class
  * @param <ID>
- *            the type of the Id of the domain class
+ *             the type of the Id of the domain class
  */
 public class QueryDslSearchRepositoryImpl<T, ID extends Serializable> extends SearchRepositoryImpl<T, ID>
 		implements QueryDslSearchRepository<T, ID> {

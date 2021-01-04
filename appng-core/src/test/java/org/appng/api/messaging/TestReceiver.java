@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
  * Implementation of {@link Sender}, {@link Receiver} and {@link Serializer} for testing purposes.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class TestReceiver implements Receiver, Runnable {

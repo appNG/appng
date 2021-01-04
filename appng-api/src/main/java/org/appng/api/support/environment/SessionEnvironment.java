@@ -56,7 +56,7 @@ class SessionEnvironment extends AbstractEnvironment {
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String name) {
 		Object attribute = getContainer().get(name);
-		if (null != attribute && attribute instanceof AttributeWrapper ) {
+		if (null != attribute && attribute instanceof AttributeWrapper) {
 			attribute = AttributeWrapper.class.cast(attribute).getValue();
 		}
 		return (T) attribute;

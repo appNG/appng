@@ -44,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
  * {@link ApplicationContext} and delegates to {@link CliCore}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class CliBootstrap {
@@ -58,9 +57,11 @@ public class CliBootstrap {
 	 * {@link #run(String[])}.
 	 * 
 	 * @param args
-	 *            the command line arguments
+	 *             the command line arguments
+	 * 
 	 * @throws IOException
-	 *             if {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION} could not be found
+	 *                     if {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION} could not be found
+	 * 
 	 * @see #run(String[])
 	 */
 	public static void main(String[] args) throws IOException {
@@ -72,7 +73,8 @@ public class CliBootstrap {
 	 * Runs the command line interface
 	 * 
 	 * @param args
-	 *            the command line arguments
+	 *             the command line arguments
+	 * 
 	 * @return the execution status:
 	 *         <ul>
 	 *         <li>{@value org.appng.cli.CliCore#STATUS_OK} - if everything went well</li>
@@ -83,8 +85,9 @@ public class CliBootstrap {
 	 *         <li>{@value org.appng.cli.CliCore#OPTION_INVALID} - if an invalid option was added to the command</li>
 	 *         <li>{@value org.appng.cli.CliCore#OPTION_MISSING} - if the command is missing some options</li>
 	 *         </ul>
+	 * 
 	 * @throws IOException
-	 *             if {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION} could not be found
+	 *                     if {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION} could not be found
 	 */
 	public static int run(String[] args) throws IOException {
 		StopWatch cliWatch = new StopWatch("cli");

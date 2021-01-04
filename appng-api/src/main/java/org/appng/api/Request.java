@@ -26,12 +26,10 @@ import org.appng.forms.RequestContainer;
 import org.springframework.http.HttpHeaders;
 
 /**
- * 
  * A {@link Request} is the framework-internal representation of a {@link HttpServletRequest}, wrapping the afore
  * mentioned and adding framework-specific methods.
  * 
  * @author Matthias Müller
- * 
  */
 public interface Request extends RequestContainer, RequestSupport, ValidationProvider {
 
@@ -76,6 +74,7 @@ public interface Request extends RequestContainer, RequestSupport, ValidationPro
 	 * resulting {@link List} would be equal to {@code Arrays.asList("europe","germany")}.
 	 * 
 	 * @return the URL-Parameters for a JSP-Page
+	 * 
 	 * @see Path#getJspUrlParameters()
 	 */
 	// XXX is this needed?

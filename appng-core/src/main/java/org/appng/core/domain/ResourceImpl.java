@@ -40,11 +40,9 @@ import org.appng.api.model.Resource;
 import org.appng.api.model.ResourceType;
 
 /**
- * 
  * Default {@link Resource}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Entity
 @Table(name = "resource")

@@ -26,7 +26,6 @@ import org.junit.Assert;
  * Test for {@link CreateProperty}.
  * 
  * @author Matthias Müller
- * 
  */
 public class CommandCreatePropertyTest extends AbstractCommandTest {
 

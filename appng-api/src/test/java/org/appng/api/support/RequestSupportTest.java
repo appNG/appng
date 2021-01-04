@@ -65,8 +65,7 @@ public class RequestSupportTest extends RequestSupportImpl {
 	private Environment env;
 	private static ExpressionEvaluator params = new ExpressionEvaluator(new HashMap<>());
 
-	final @Before
-	public void setUp() throws Exception {
+	final @Before public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		ConversionServiceFactoryBean conversionServiceFactoryBean = new ConversionServiceFactoryBean();
 		conversionServiceFactoryBean.afterPropertiesSet();

@@ -42,7 +42,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Lists the available sites.")
 public class ListSites extends CommandList implements ExecutableCliCommand {

@@ -54,7 +54,6 @@ import com.beust.jcommander.Parameters;
  * 
  * @author Matthias Müller
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Processes a batch file")
 public class CommandBatch implements ExecutableCliCommand {

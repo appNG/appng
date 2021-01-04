@@ -15,7 +15,6 @@
  */
 package org.appng.search.json;
 
-
 public class SearchFilter extends Filter {
 
 	private FilterItem search;

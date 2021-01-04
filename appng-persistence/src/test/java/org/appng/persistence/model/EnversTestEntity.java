@@ -27,7 +27,6 @@ import org.hibernate.envers.Audited;
  * TODO insert description
  * 
  * @author Claus Stümke, aiticon GmbH, 2016
- *
  */
 @Entity
 @Audited

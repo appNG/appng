@@ -23,11 +23,9 @@ import org.appng.forms.FormUpload;
 import org.appng.forms.FormUploadValidator;
 
 /**
- * 
  * Checks that a {@link FormUpload} matches the restrictions given by a {@link FileUpload}.
  * 
  * @author Matthias Müller
- * 
  */
 public class FileUploadValidator implements ConstraintValidator<FileUpload, FormUpload> {
 

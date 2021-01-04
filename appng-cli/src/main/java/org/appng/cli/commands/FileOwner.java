@@ -40,7 +40,7 @@ public class FileOwner {
 	 * Create a new {@code FileOwner} for the given {@link File}.
 	 * 
 	 * @param file
-	 *            the {@link File} to set the owner and group for
+	 *             the {@link File} to set the owner and group for
 	 */
 	public FileOwner(File file) {
 		this.file = file;
@@ -51,9 +51,10 @@ public class FileOwner {
 	 * system command. Works only on linux operating systems (see {@link OperatingSystem#isLinux()}).
 	 * 
 	 * @param user
-	 *            the owner (user) to set
+	 *              the owner (user) to set
 	 * @param group
-	 *            the group to set
+	 *              the group to set
+	 * 
 	 * @return {@code true} if setting the user/group was successful, {@code false} otherwise
 	 */
 	public boolean own(String user, String group) {

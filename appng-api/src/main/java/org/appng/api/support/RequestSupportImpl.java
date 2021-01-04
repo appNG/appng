@@ -43,11 +43,9 @@ import org.springframework.util.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Default {@link RequestSupport} implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class RequestSupportImpl extends AdapterBase implements RequestSupport {

@@ -100,7 +100,6 @@ public class SearchRepositoryTest {
 		}), pageable);
 		validate(page);
 	}
-	
 
 	@Test
 	public void testQueryStringUnpaged() {

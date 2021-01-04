@@ -29,7 +29,8 @@ public interface Sender {
 	 * Configures this sender with the given {@link Serializer}
 	 * 
 	 * @param eventDeserializer
-	 *            the {@link Serializer} to use
+	 *                          the {@link Serializer} to use
+	 * 
 	 * @return the sender
 	 */
 	Sender configure(Serializer eventDeserializer);
@@ -38,7 +39,8 @@ public interface Sender {
 	 * Sends the given {@link Event}
 	 * 
 	 * @param event
-	 *            the {@link Event} so send
+	 *              the {@link Event} so send
+	 * 
 	 * @return whether or not sending the event was successful
 	 */
 	boolean send(Event event);

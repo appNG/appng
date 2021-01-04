@@ -46,11 +46,9 @@ import org.springframework.core.convert.ConversionService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FactoryBean} responsible for initializing a {@link Request}.
  * 
  * @author Matthias Müller
- * 
  */
 
 @Slf4j

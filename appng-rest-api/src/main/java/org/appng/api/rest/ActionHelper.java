@@ -56,9 +56,10 @@ public class ActionHelper {
 	 * {@link Option}s will remain active. Otherwise, previously active {@link Options} will be de-selected.
 	 * 
 	 * @param name
-	 *            the name of the field
+	 *              the name of the field
 	 * @param value
-	 *            the option value to select
+	 *              the option value to select
+	 * 
 	 * @return the current {@link ActionHelper}
 	 */
 	public ActionHelper setFieldSelectionValue(String name, String value) {
@@ -79,7 +80,7 @@ public class ActionHelper {
 	 * De-selects all {@link Option}s of a selection
 	 * 
 	 * @param name
-	 *            the name of the selection field
+	 *             the name of the selection field
 	 */
 	public ActionHelper deselectAllOptions(String name) {
 		Optional<ActionField> field = getField(name);

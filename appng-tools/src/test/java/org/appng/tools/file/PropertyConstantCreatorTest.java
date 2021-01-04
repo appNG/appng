@@ -32,7 +32,8 @@ public class PropertyConstantCreatorTest {
 		String target = "target/constants/";
 
 		PropertyConstantCreator.main(new String[] { "src/test/resources/props.properties", className, target });
-		List<String> expected = Files.readAllLines(new File("src/test/resources/" + path.substring(path.lastIndexOf('/'))).toPath());
+		List<String> expected = Files
+				.readAllLines(new File("src/test/resources/" + path.substring(path.lastIndexOf('/'))).toPath());
 		List<String> actual = Files.readAllLines(new File(target + path).toPath());
 
 		Assert.assertEquals(expected, actual);

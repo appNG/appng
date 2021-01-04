@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
  * A utility class offering some string operations
  * 
  * @author Matthais Müller
- *
  */
 public class StringNormalizer {
 
@@ -48,7 +47,8 @@ public class StringNormalizer {
 	 * Finally, it replaces german umlauts ( ä ö ü ß) with their two-letter representations (ae oe ue ss).
 	 * 
 	 * @param input
-	 *            the input string
+	 *              the input string
+	 * 
 	 * @return the "normalized" string
 	 */
 	public static final String normalize(final String input) {
@@ -68,7 +68,8 @@ public class StringNormalizer {
 	 * Removes all non-printable characters from the given string.
 	 * 
 	 * @param value
-	 *            the string
+	 *              the string
+	 * 
 	 * @return the string without any non printable characters
 	 */
 	public static String removeNonPrintableCharacters(final String value) {
@@ -79,9 +80,10 @@ public class StringNormalizer {
 	 * Replaces all non-printable characters of the given string with the given replacement
 	 * 
 	 * @param value
-	 *            the string
+	 *                    the string
 	 * @param replacement
-	 *            the replacement string
+	 *                    the replacement string
+	 * 
 	 * @return the string with the replacements for non-printable characters
 	 */
 	public static String replaceNonPrintableCharacters(final String value, final String replacement) {

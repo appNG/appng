@@ -59,7 +59,6 @@ import org.w3c.dom.Document;
  * 
  * @see Part
  * @see Result
- *
  */
 public class SearchFormatter {
 

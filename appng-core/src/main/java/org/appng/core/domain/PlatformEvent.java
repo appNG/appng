@@ -34,7 +34,6 @@ import javax.persistence.Version;
  * A platform event.
  * 
  * @author Matthias Müller
- *
  */
 @Entity
 @Table(name = "platform_event")

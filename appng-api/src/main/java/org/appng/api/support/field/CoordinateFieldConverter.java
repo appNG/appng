@@ -24,11 +24,9 @@ import org.slf4j.Logger;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FieldConverter} for {@link FieldDef}initions of type {@link FieldType#COORDINATE}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class CoordinateFieldConverter extends ConverterBase {

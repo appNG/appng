@@ -26,7 +26,6 @@ import org.springframework.context.NoSuchMessageException;
  * always taken from the first {@link MessageSource} that returns a non-{@code null} value (if any).
  * 
  * @author Matthias Müller
- * 
  */
 public class MessageSourceChain implements MessageSource {
 

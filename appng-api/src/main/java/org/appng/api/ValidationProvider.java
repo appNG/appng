@@ -23,7 +23,6 @@ import org.appng.xml.platform.Validation;
  * Provides some validation-related methods.
  * 
  * @author Matthias Müller
- * 
  */
 public interface ValidationProvider {
 
@@ -32,11 +31,12 @@ public interface ValidationProvider {
 	 * {@link FieldProcessor#addErrorMessage(FieldDef, String)}.
 	 * 
 	 * @param bean
-	 *            the bean to validate
+	 *                       the bean to validate
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} containing the {@link MetaData} for the bean
+	 *                       the {@link FieldProcessor} containing the {@link MetaData} for the bean
 	 * @param groups
-	 *            the JSR-303 validation groups to use
+	 *                       the JSR-303 validation groups to use
+	 * 
 	 * @see FieldProcessor#addErrorMessage(FieldDef, String)
 	 */
 	void validateBean(Object bean, FieldProcessor fieldProcessor, Class<?>... groups);
@@ -46,13 +46,14 @@ public interface ValidationProvider {
 	 * {@link FieldProcessor#addErrorMessage(FieldDef, String)}.
 	 * 
 	 * @param bean
-	 *            the bean to validate
+	 *                        the bean to validate
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} containing the {@link MetaData} for the bean
+	 *                        the {@link FieldProcessor} containing the {@link MetaData} for the bean
 	 * @param excludeBindings
-	 *            an array of field-bindings to ignore during validation
+	 *                        an array of field-bindings to ignore during validation
 	 * @param groups
-	 *            the JSR-303 validation groups to use
+	 *                        the JSR-303 validation groups to use
+	 * 
 	 * @see FieldProcessor#addErrorMessage(FieldDef, String)
 	 */
 	void validateBean(Object bean, FieldProcessor fieldProcessor, String[] excludeBindings, Class<?>... groups);
@@ -62,13 +63,14 @@ public interface ValidationProvider {
 	 * {@link FieldProcessor#addErrorMessage(FieldDef, String)}.
 	 * 
 	 * @param bean
-	 *            the bean to validate
+	 *                       the bean to validate
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} containing the {@link MetaData} for the bean
+	 *                       the {@link FieldProcessor} containing the {@link MetaData} for the bean
 	 * @param fieldBinding
-	 *            the binding of the {@link FieldDef} to validate
+	 *                       the binding of the {@link FieldDef} to validate
 	 * @param groups
-	 *            the JSR-303 validation groups to use
+	 *                       the JSR-303 validation groups to use
+	 * 
 	 * @see FieldProcessor#addErrorMessage(FieldDef, String)
 	 */
 	void validateField(Object bean, FieldProcessor fieldProcessor, String fieldBinding, Class<?>... groups);
@@ -78,13 +80,14 @@ public interface ValidationProvider {
 	 * the {@link FieldDef}initions.
 	 * 
 	 * @param metaData
-	 *            the {@link MetaData} to add the {@link Validation}s to
+	 *                    the {@link MetaData} to add the {@link Validation}s to
 	 * @param classLoader
-	 *            the {@link ClassLoader} to load the {@link MetaData}s bindClass
+	 *                    the {@link ClassLoader} to load the {@link MetaData}s bindClass
 	 * @param groups
-	 *            the JSR-303 validation groups to use
+	 *                    the JSR-303 validation groups to use
+	 * 
 	 * @throws ClassNotFoundException
-	 *             if the bindClass can not be loaded
+	 *                                if the bindClass can not be loaded
 	 * 
 	 * @see org.appng.xml.platform.Min
 	 * @see org.appng.xml.platform.Max
@@ -96,8 +99,8 @@ public interface ValidationProvider {
 	 * @see org.appng.xml.platform.Type
 	 * @see org.appng.xml.platform.Pattern
 	 * @see org.appng.xml.platform.FileUpload
-	 * 
 	 */
-	void addValidationMetaData(MetaData metaData, ClassLoader classLoader, Class<?>... groups) throws ClassNotFoundException;
+	void addValidationMetaData(MetaData metaData, ClassLoader classLoader, Class<?>... groups)
+			throws ClassNotFoundException;
 
 }

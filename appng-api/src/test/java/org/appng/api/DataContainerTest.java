@@ -94,8 +94,8 @@ public class DataContainerTest {
 
 	@Test
 	public void testSetPageSort() {
-		PageRequest newPageable = new PageRequest(5, 10, new Sort(new Order(Direction.ASC, "name"), new Order(
-				Direction.DESC, "firstName")));
+		PageRequest newPageable = new PageRequest(5, 10,
+				new Sort(new Order(Direction.ASC, "name"), new Order(Direction.DESC, "firstName")));
 		List<Person> personList = new ArrayList<>(persons);
 		Person anakin = new Person(3, "Anakin", "Skywalker");
 		Person unknown = new Person(4, null, "Skywalker");

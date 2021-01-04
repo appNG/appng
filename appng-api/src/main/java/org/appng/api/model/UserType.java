@@ -22,7 +22,6 @@ import java.util.List;
  * Defines the different types a {@link Subject} can be of.
  * 
  * @author Matthias Müller
- * 
  */
 public enum UserType {
 

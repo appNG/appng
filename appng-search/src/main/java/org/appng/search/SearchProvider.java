@@ -44,33 +44,35 @@ public interface SearchProvider {
 	 * Performs the actual search
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                      the current {@link Environment}
 	 * @param site
-	 *            the current {@link Site}
+	 *                      the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                      the current {@link Application}
 	 * @param directory
-	 *            the {@link Directory} representing the current {@link Site}'s Lucene index.<br>
-	 *            Note that it only makes sense to use this directory for searching if the {@link Application} also
-	 *            contributes some {@link Document}s to the {@link Site}'s global index by using
-	 *            {@link FeatureProvider#getIndexer()} or implementing {@link DocumentProvider}. Otherwise, the
-	 *            {@link Application} might have it's own Lucene index or even get the {@link Document}s from somewhere
-	 *            else (for example from the database or filesystem).
+	 *                      the {@link Directory} representing the current {@link Site}'s Lucene index.<br>
+	 *                      Note that it only makes sense to use this directory for searching if the {@link Application}
+	 *                      also contributes some {@link Document}s to the {@link Site}'s global index by using
+	 *                      {@link FeatureProvider#getIndexer()} or implementing {@link DocumentProvider}. Otherwise,
+	 *                      the {@link Application} might have it's own Lucene index or even get the {@link Document}s
+	 *                      from somewhere else (for example from the database or filesystem).
 	 * @param term
-	 *            the search term
+	 *                      the search term
 	 * @param language
-	 *            the language for the search
+	 *                      the language for the search
 	 * @param parseFields
-	 *            the fields to search
+	 *                      the fields to search
 	 * @param analyzer
-	 *            the {@link Analyzer} to use
+	 *                      the {@link Analyzer} to use
 	 * @param highlightWith
-	 *            a tagname to highlight fragments with, e.g {@code span} or {@code div}
+	 *                      a tagname to highlight fragments with, e.g {@code span} or {@code div}
 	 * @param parameters
-	 *            some custom parameters for this search
+	 *                      some custom parameters for this search
+	 * 
 	 * @return an {@link Iterable}&lt;{@link Document}&gt; containing the found {@link Document}s
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while searching
+	 *                     if an error occurs while searching
 	 */
 	Iterable<Document> doSearch(Environment env, Site site, Application application, Directory directory, String term,
 			String language, String[] parseFields, Analyzer analyzer, String highlightWith,

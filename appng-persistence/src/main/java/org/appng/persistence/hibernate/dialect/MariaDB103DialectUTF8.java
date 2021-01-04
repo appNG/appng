@@ -22,10 +22,10 @@ import org.hibernate.dialect.MariaDB103Dialect;
 /**
  * A {@link MariaDB103Dialect} which converts varchar-fields ({@link Types#VARCHAR}) with
  * <ul>
- * <li>a length of <=    1000 to type <a href="https://mariadb.com/kb/en/varchar/">varchar</a>
- * <li>a length of <=   16383 to type <a href="https://mariadb.com/kb/en/text/">text</a>
+ * <li>a length of <= 1000 to type <a href="https://mariadb.com/kb/en/varchar/">varchar</a>
+ * <li>a length of <= 16383 to type <a href="https://mariadb.com/kb/en/text/">text</a>
  * <li>a length of <= 4194303 to type <a href="https://mariadb.com/kb/en/mediumtext/">mediumtext</a>
- * <li>a length of >  4194303 to type <a href="https://mariadb.com/kb/en/longtext/">longtext</a>
+ * <li>a length of > 4194303 to type <a href="https://mariadb.com/kb/en/longtext/">longtext</a>
  * </ul>
  * These values assume <a href="https://mariadb.com/kb/en/supported-character-sets-and-collations">utf8mb4</a> character
  * encoding, where each character consumes up to 4 bytes.<br/>

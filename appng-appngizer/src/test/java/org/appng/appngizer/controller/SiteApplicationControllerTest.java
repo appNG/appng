@@ -77,7 +77,8 @@ public class SiteApplicationControllerTest extends ControllerTest {
 		anotherGrant.setSite("anotherSite");
 		grants.getGrant().add(anotherGrant);
 
-		putAndVerify("/site/localhost/application/demo-application/grants", "xml/site-application-grants.xml", grants, HttpStatus.OK);
+		putAndVerify("/site/localhost/application/demo-application/grants", "xml/site-application-grants.xml", grants,
+				HttpStatus.OK);
 
 		String propertyPath = "/site/localhost/application/demo-application/property";
 

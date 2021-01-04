@@ -70,7 +70,7 @@ public class Repository extends org.appng.appngizer.model.xml.Repository impleme
 		}
 		if (null != getLinks()) {
 			for (org.appng.appngizer.model.xml.Link link : getLinks().getLink()) {
-				link.setSelf(uriString+link.getSelf());
+				link.setSelf(uriString + link.getSelf());
 			}
 		}
 		setSelf(uriString);

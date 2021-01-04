@@ -50,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
  * Default {@link Resources}-implementation
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class ApplicationResourceHolder implements Resources {
@@ -68,16 +67,18 @@ public class ApplicationResourceHolder implements Resources {
 	 * Creates a new {@link ApplicationResourceHolder}
 	 * 
 	 * @param application
-	 *            the {@link Application} that owns the {@link Resources}
+	 *                          the {@link Application} that owns the {@link Resources}
 	 * @param marshallService
-	 *            a {@link MarshallService} using {@link AppNGSchema#APPLICATION}
+	 *                          a {@link MarshallService} using {@link AppNGSchema#APPLICATION}
 	 * @param applicationFolder
-	 *            the location of the {@link Application}'s {@link Resource}s on disc, only needed if the
-	 *            {@link Application} is filebased
+	 *                          the location of the {@link Application}'s {@link Resource}s on disc, only needed if the
+	 *                          {@link Application} is filebased
 	 * @param outputFolder
-	 *            the output folder for storing the cached resources of the {@link Application}
+	 *                          the output folder for storing the cached resources of the {@link Application}
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if no valid application-info.xml could be found
+	 *                                       if no valid application-info.xml could be found
+	 * 
 	 * @see Application#getResourceSet()
 	 * @see Application#isFileBased()
 	 * @see #dumpToCache(ResourceType...)

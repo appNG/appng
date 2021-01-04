@@ -24,7 +24,6 @@ import com.hazelcast.topic.ITopic;
  * Base class for Hazelcast messaging
  * 
  * @author Matthias Müller
- *
  */
 abstract class HazelcastBase {
 

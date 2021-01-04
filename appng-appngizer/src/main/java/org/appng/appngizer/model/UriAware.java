@@ -34,7 +34,7 @@ public interface UriAware {
 	}
 
 	Links getLinks();
-	
+
 	void setLinks(Links links);
 
 	default void addLink(org.appng.appngizer.model.xml.Link link) {
@@ -43,7 +43,6 @@ public interface UriAware {
 		}
 		getLinks().getLink().add(link);
 	}
-
 
 	default String encode(String name) {
 		try {

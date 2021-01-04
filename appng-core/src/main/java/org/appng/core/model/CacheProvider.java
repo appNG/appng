@@ -35,18 +35,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides caching directories to the appNG platform and to appNG applications. Both types of caches provide a
- * dedicated directory layout per site and application.
- * 
- * The platform cache caches application-specific {@link Resource}s. Resources should be cached by calling
- * {@link Resources#dumpToCache(org.appng.api.model.ResourceType...)}.
- * 
- * The application cache may be used by applications and provides a location in the file system where instance-specific
- * files can be cached. These are usually artifacts which are based on some source data stored in a database.
- * 
- * The cache is not a persistent data storage and must not be used for unrecoverable data.
+ * dedicated directory layout per site and application. The platform cache caches application-specific
+ * {@link Resource}s. Resources should be cached by calling
+ * {@link Resources#dumpToCache(org.appng.api.model.ResourceType...)}. The application cache may be used by applications
+ * and provides a location in the file system where instance-specific files can be cached. These are usually artifacts
+ * which are based on some source data stored in a database. The cache is not a persistent data storage and must not be
+ * used for unrecoverable data.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class CacheProvider {
@@ -68,8 +64,8 @@ public class CacheProvider {
 	 * Creates a new CacheProvider. Retrieves the directory layout from the platform configuration.
 	 * 
 	 * @param platformConfig
-	 *            The platform configuration. Contains values for keys defined in
-	 *            {@link org.appng.api.Platform.Property}.
+	 *                       The platform configuration. Contains values for keys defined in
+	 *                       {@link org.appng.api.Platform.Property}.
 	 */
 	public CacheProvider(Properties platformConfig) {
 		this(platformConfig, false);
@@ -79,11 +75,11 @@ public class CacheProvider {
 	 * Creates a new CacheProvider. Retrieves the directory layout from the platform configuration.
 	 * 
 	 * @param platformConfig
-	 *            The platform configuration. Contains values for keys defined in
-	 *            {@link org.appng.api.Platform.Property}.
+	 *                       The platform configuration. Contains values for keys defined in
+	 *                       {@link org.appng.api.Platform.Property}.
 	 * @param changeOwner
-	 *            if set to {@code true} and we're running on *nix, a recursive {@code chown} command is being executed
-	 *            for the cache folder
+	 *                       if set to {@code true} and we're running on *nix, a recursive {@code chown} command is
+	 *                       being executed for the cache folder
 	 */
 	public CacheProvider(Properties platformConfig, boolean changeOwner) {
 
@@ -115,8 +111,7 @@ public class CacheProvider {
 	 * Clears both the platform cache and the application cache for the given site.
 	 * 
 	 * @param site
-	 *            The site which caches are cleared.
-	 * 
+	 *             The site which caches are cleared.
 	 */
 	public void clearCache(Site site) {
 		clear(getPlatformCache(site));
@@ -128,8 +123,9 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
-	 *            The application which caches are cleared. The application must be assigned to the aforementioned site.
-	 *            The caches of the same application assigned to other sites will not be cleared.
+	 *                    The application which caches are cleared. The application must be assigned to the
+	 *                    aforementioned site. The caches of the same application assigned to other sites will not be
+	 *                    cleared.
 	 */
 	public void clearCache(Site site, String application) {
 		clear(getPlatformCache(site.getName(), application));
@@ -167,6 +163,7 @@ public class CacheProvider {
 	 * Returns the root platform cache directory for a site.
 	 * 
 	 * @param site
+	 * 
 	 * @return the root platform cache directory for a site
 	 */
 	protected File getPlatformCache(Nameable site) {
@@ -177,6 +174,7 @@ public class CacheProvider {
 	 * Returns the root platform cache directory for a site.
 	 * 
 	 * @param site
+	 * 
 	 * @return the root platform cache directory for a site
 	 */
 	protected File getPlatformCache(String site) {
@@ -188,6 +186,7 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
+	 * 
 	 * @return the root platform cache directory for an application
 	 */
 	public File getPlatformCache(Nameable site, Nameable application) {
@@ -199,6 +198,7 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
+	 * 
 	 * @return the root platform cache directory for an application
 	 */
 	protected File getPlatformCache(String site, String application) {
@@ -210,6 +210,7 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
+	 * 
 	 * @return the relative platform cache directory for an application
 	 */
 	public String getRelativePlatformCache(Nameable site, Nameable application) {
@@ -230,6 +231,7 @@ public class CacheProvider {
 	 * Returns the root application cache directory for a site.
 	 * 
 	 * @param site
+	 * 
 	 * @return the root application cache directory for a site
 	 */
 	protected File getApplicationCache(Nameable site) {
@@ -240,6 +242,7 @@ public class CacheProvider {
 	 * Returns the root application cache directory for a site.
 	 * 
 	 * @param site
+	 * 
 	 * @return the root application cache directory for a site
 	 */
 	protected File getApplicationCache(String site) {
@@ -251,6 +254,7 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
+	 * 
 	 * @return the root application cache directory for an application
 	 */
 	protected File getApplicationCache(Nameable site, Nameable application) {
@@ -262,6 +266,7 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
+	 * 
 	 * @return the root application cache directory for an application
 	 */
 	protected File getApplicationCache(String site, String application) {
@@ -274,6 +279,7 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
+	 * 
 	 * @return the root image cache directory for an application
 	 */
 	public File getImageCache(Nameable site, Nameable application) {
@@ -286,6 +292,7 @@ public class CacheProvider {
 	 * 
 	 * @param site
 	 * @param application
+	 * 
 	 * @return the root image cache directory for an application
 	 */
 	protected File getImageCache(String site, String application) {

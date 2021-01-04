@@ -112,8 +112,8 @@ abstract class RestActionBase extends RestOperation {
 				actionId);
 
 		if (null == originalAction) {
-			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
-					site.getName());
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
+					application.getName(), site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
@@ -167,8 +167,8 @@ abstract class RestActionBase extends RestOperation {
 				actionId);
 
 		if (null == originalAction) {
-			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
-					site.getName());
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
+					application.getName(), site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 

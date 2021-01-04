@@ -20,7 +20,6 @@ package org.appng.api.search;
  * {@link #put(Object, long)} and {@link #putWithTimeout(Object, long)} method. It can access it's queued
  * {@link Producer}s with the corresponding {@link #get()}, {@link #get(long)} and {@link #getBlockingQueue()}
  * method.<br/>
- * 
  * TODO MM this has nothing to do especially with searching! Design seems overloaded, use a shared single BlockingQueue
  * for communication between consumer and producer!
  * 

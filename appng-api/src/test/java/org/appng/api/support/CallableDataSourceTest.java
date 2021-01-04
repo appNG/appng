@@ -67,7 +67,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * Test for {@link CallableDataSource}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class CallableDataSourceTest {
 
@@ -190,7 +189,7 @@ public class CallableDataSourceTest {
 		MetaData metaData = new MetaData();
 		metaData.setBindClass(Person.class.getName());
 		DataContainer dataContainer = new DataContainer(new FieldProcessorImpl("foo", metaData));
-		Page<Person> page = new PageImpl<Person>(Collections.<Person> emptyList(), pageable, total);
+		Page<Person> page = new PageImpl<Person>(Collections.<Person>emptyList(), pageable, total);
 		dataContainer.setPage(page);
 		mockDataProvider(dataContainer);
 	}

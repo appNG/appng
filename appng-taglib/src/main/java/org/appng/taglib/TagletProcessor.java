@@ -94,22 +94,24 @@ public class TagletProcessor {
 	 * Performs the actual taglet-call.
 	 * 
 	 * @param callingSite
-	 *            the {@link Site} where the taglet-call happened
+	 *                           the {@link Site} where the taglet-call happened
 	 * @param executingSite
-	 *            the {@link Site} that actually executes the taglet
+	 *                           the {@link Site} that actually executes the taglet
 	 * @param application
-	 *            the {@link Application} from where the taglet comes from
+	 *                           the {@link Application} from where the taglet comes from
 	 * @param tagletAttributes
-	 *            the attributes of the taglet-call
+	 *                           the attributes of the taglet-call
 	 * @param applicationRequest
-	 *            the current {@link Request}
+	 *                           the current {@link Request}
 	 * @param methodName
-	 *            the name of the taglet to be called
+	 *                           the name of the taglet to be called
 	 * @param type
-	 *            the type of the taglet, may be {@code text} or {@code xml}
+	 *                           the type of the taglet, may be {@code text} or {@code xml}
 	 * @param out
-	 *            a {@link Writer} used to write the output of the taglet
+	 *                           a {@link Writer} used to write the output of the taglet
+	 * 
 	 * @return {@code true} if the JSP should be further processed, {@code false} otherwise
+	 * 
 	 * @throws JAXBException
 	 * @throws TransformerConfigurationException
 	 * @throws FileNotFoundException

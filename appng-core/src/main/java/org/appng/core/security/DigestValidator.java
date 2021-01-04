@@ -53,7 +53,7 @@ public class DigestValidator {
 	 * Validate the digest, assuming a maximum age of 3 minutes.
 	 * 
 	 * @param digest
-	 *            the digest to validate
+	 *               the digest to validate
 	 */
 	public DigestValidator(String digest) {
 		this(digest, 3);
@@ -63,9 +63,9 @@ public class DigestValidator {
 	 * Validate the digest.
 	 * 
 	 * @param digest
-	 *            the digest to validate
+	 *                         the digest to validate
 	 * @param maxOffsetMinutes
-	 *            the maximum age of the digest in minutes
+	 *                         the maximum age of the digest in minutes
 	 */
 	public DigestValidator(String digest, int maxOffsetMinutes) {
 		this.maxOffsetMinutes = maxOffsetMinutes;
@@ -138,7 +138,8 @@ public class DigestValidator {
 	 * Validates the digest using the given shared secret.
 	 * 
 	 * @param sharedSecret
-	 *            the shared secret
+	 *                     the shared secret
+	 * 
 	 * @return
 	 *         <ul>
 	 *         <li>{@code true} if the digest is syntactically and semantically correct, i.e. if it not exceeds the

@@ -39,14 +39,14 @@ public class HashPasswordTest extends AbstractCommandTest {
 		BCryptPasswordHandler passwordHandler = new BCryptPasswordHandler(authSubject);
 		passwordHandler.isValidPassword(SUPERSECRET);
 	}
-	
+
 	@Test(expected = BusinessException.class)
 	public void testInvalid() throws BusinessException {
 		new HashPassword("").execute(cliEnv);
 	}
-	
+
 	@Ignore("only for local usage")
-	public void testInteractive() throws BusinessException{
+	public void testInteractive() throws BusinessException {
 		new HashPassword(true).execute(cliEnv);
 	}
 

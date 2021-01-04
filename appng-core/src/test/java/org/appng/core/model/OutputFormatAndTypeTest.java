@@ -71,7 +71,8 @@ public class OutputFormatAndTypeTest {
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformScope);
 		processor.setPlatformTransformer(new PlatformTransformer());
 		processor.setTemplatePath(PlatformTransformerTest.TEMPLATE_PATH);
-		processor.init(new MockHttpServletRequest(servletContext), new MockHttpServletResponse(), null, PlatformTransformerTest.TEMPLATE_PATH);
+		processor.init(new MockHttpServletRequest(servletContext), new MockHttpServletResponse(), null,
+				PlatformTransformerTest.TEMPLATE_PATH);
 	}
 
 	@Test

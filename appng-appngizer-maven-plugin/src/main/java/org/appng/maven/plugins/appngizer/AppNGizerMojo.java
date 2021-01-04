@@ -192,7 +192,7 @@ abstract class AppNGizerMojo extends AbstractMojo {
 		getLog().info("Retrieved repo " + repo.getBody().getName() + " at " + repo.getBody().getSelf());
 		return repo;
 	}
-	
+
 	protected ResponseEntity<Package> upload() throws URISyntaxException, InterruptedException, ExecutionException {
 		return upload(false, false, false);
 	}

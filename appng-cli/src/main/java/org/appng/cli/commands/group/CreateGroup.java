@@ -37,7 +37,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Creates a group.")
 public class CreateGroup implements ExecutableCliCommand {

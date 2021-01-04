@@ -468,11 +468,13 @@ public class CoreService {
 	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
 	 * This method may be removed in the future.
 	 * 
-	 * @param      authSubject
-	 *                         The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
-	 *                         determine which implementation of the {@link PasswordHandler} interface will be returned.
-	 * @return                 the {@link PasswordHandler} for the {@link AuthSubject}
-	 * @deprecated             will be removed in 2.x
+	 * @param authSubject
+	 *                    The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
+	 *                    determine which implementation of the {@link PasswordHandler} interface will be returned.
+	 * 
+	 * @return the {@link PasswordHandler} for the {@link AuthSubject}
+	 * 
+	 * @deprecated will be removed in 2.x
 	 */
 	@Deprecated
 	public PasswordHandler getPasswordHandler(AuthSubject authSubject) {
@@ -486,9 +488,10 @@ public class CoreService {
 	/**
 	 * Returns the default password manager which should be used to handle all passwords.
 	 * 
-	 * @param  authSubject
-	 *                     The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
-	 * @return             the default {@link PasswordHandler} for the {@link AuthSubject}
+	 * @param authSubject
+	 *                    The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
+	 * 
+	 * @return the default {@link PasswordHandler} for the {@link AuthSubject}
 	 */
 	public PasswordHandler getDefaultPasswordHandler(AuthSubject authSubject) {
 		return new BCryptPasswordHandler(authSubject);
@@ -810,9 +813,8 @@ public class CoreService {
 			}
 		}
 	}
-	
-	public MigrationStatus assignApplicationToSite(SiteImpl site, Application application,
-			boolean createProperties) {
+
+	public MigrationStatus assignApplicationToSite(SiteImpl site, Application application, boolean createProperties) {
 		SiteApplication siteApplication = new SiteApplication(site, application);
 		siteApplication.setActive(true);
 		siteApplication.setReloadRequired(true);
@@ -974,14 +976,15 @@ public class CoreService {
 	/**
 	 * Deletes a {@link Template}
 	 * 
-	 * @param  name
-	 *              the name of the template to delete
+	 * @param name
+	 *             the name of the template to delete
+	 * 
 	 * @return
-	 *              <ul>
-	 *              <li>0 - if everything went OK
-	 *              <li>-1 - if no such template exists
-	 *              <li>-2 - if the template is still in use
-	 *              </ul>
+	 *         <ul>
+	 *         <li>0 - if everything went OK
+	 *         <li>-1 - if no such template exists
+	 *         <li>-2 - if the template is still in use
+	 *         </ul>
 	 */
 	public Integer deleteTemplate(String name) {
 		Template template = templateService.getTemplateByName(name);

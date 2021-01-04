@@ -46,7 +46,6 @@ import org.junit.Test;
  * {@link ImageIO#read(File)} and even ~150 times as fast as {@link Info}
  * 
  * @author mueller.matthias
- * 
  */
 @Ignore("run locally when needed")
 public class DimensionTest {

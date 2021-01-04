@@ -33,7 +33,6 @@ import org.mockito.Mockito;
  * </p>
  * 
  * @author Matthias Müller
- *
  */
 public class MultiCastMessagingIT extends AbstractMessagingIT {
 

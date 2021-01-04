@@ -37,7 +37,6 @@ import org.springframework.core.convert.support.ConfigurableConversionService;
  * Test for {@link FormDataBinder}
  * 
  * @author Matthias Müller
- *
  */
 public class FormDataBinderTest extends RequestDataBinderTest {
 

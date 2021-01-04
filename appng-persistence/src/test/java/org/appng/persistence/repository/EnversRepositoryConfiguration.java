@@ -35,7 +35,6 @@ import org.springframework.transaction.PlatformTransactionManager;
  * TODO insert description
  * 
  * @author Claus Stümke, aiticon GmbH, 2016
- *
  */
 @Configuration
 @EnableJpaRepositories(basePackages = {

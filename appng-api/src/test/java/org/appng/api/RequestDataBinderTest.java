@@ -40,7 +40,6 @@ import org.springframework.core.convert.support.DefaultConversionService;
  * Test for {@link RequestDataBinder}
  * 
  * @author Matthias Müller
- *
  */
 public class RequestDataBinderTest {
 

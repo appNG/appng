@@ -21,7 +21,6 @@ import java.util.Locale;
  * Basic account data.
  * 
  * @author Matthias Müller
- * 
  */
 public interface Account {
 
@@ -51,6 +50,7 @@ public interface Account {
 	 * </ul>
 	 * 
 	 * @return the language
+	 * 
 	 * @see Locale#forLanguageTag(String)
 	 */
 	String getLanguage();

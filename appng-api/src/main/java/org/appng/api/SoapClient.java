@@ -31,11 +31,9 @@ import org.springframework.ws.transport.http.HttpUrlConnectionMessageSender;
 import org.springframework.xml.transform.StringResult;
 
 /**
- * 
  * A simple SOAP-client for <a href="http://jaxb.java.net/">JAXB</a>-based webservices.
  * 
  * @author Matthias Müller
- * 
  */
 public class SoapClient {
 
@@ -46,10 +44,10 @@ public class SoapClient {
 
 	/**
 	 * @param contextPath
-	 *            the contextpath (package-names) for the {@link JAXBContext} to be created. Multiple packages have to
-	 *            be separated by a colon (':').
+	 *                    the contextpath (package-names) for the {@link JAXBContext} to be created. Multiple packages
+	 *                    have to be separated by a colon (':').
 	 * @param uri
-	 *            the endpoint uri of the webservice
+	 *                    the endpoint uri of the webservice
 	 * 
 	 * @see JAXBContext#newInstance(String, ClassLoader)
 	 */
@@ -59,12 +57,12 @@ public class SoapClient {
 
 	/**
 	 * @param contextPath
-	 *            the contextpath (package-names) for the {@link JAXBContext} to be created. Multiple packages have to
-	 *            be separated by a colon (':').
+	 *                    the contextpath (package-names) for the {@link JAXBContext} to be created. Multiple packages
+	 *                    have to be separated by a colon (':').
 	 * @param uri
-	 *            the endpoint uri of the webservice
+	 *                    the endpoint uri of the webservice
 	 * @param format
-	 *            {@code true} if {@link Marshaller} should format output
+	 *                    {@code true} if {@link Marshaller} should format output
 	 */
 	public SoapClient(String contextPath, String uri, boolean format) {
 		this.marshaller = new Jaxb2Marshaller();
@@ -110,7 +108,8 @@ public class SoapClient {
 	 * sends the given request to the uri which was passed to the constructor
 	 * 
 	 * @param request
-	 *            the request, needs to be an {@link XmlRootElement}
+	 *                the request, needs to be an {@link XmlRootElement}
+	 * 
 	 * @return an instance of the desired type
 	 */
 	@SuppressWarnings("unchecked")
@@ -119,7 +118,6 @@ public class SoapClient {
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	public int getConnectTimeout() {
@@ -127,7 +125,6 @@ public class SoapClient {
 	}
 
 	/**
-	 * 
 	 * @param connectTimeout
 	 */
 	public void setConnectTimeout(int connectTimeout) {
@@ -135,7 +132,6 @@ public class SoapClient {
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	public int getReadTimeout() {
@@ -143,7 +139,6 @@ public class SoapClient {
 	}
 
 	/**
-	 * 
 	 * @param readTimeout
 	 */
 	public void setReadTimeout(int readTimeout) {

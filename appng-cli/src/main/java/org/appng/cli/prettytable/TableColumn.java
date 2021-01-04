@@ -19,7 +19,6 @@ package org.appng.cli.prettytable;
  * A table column for a {@link PrettyTable}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 class TableColumn {
 
@@ -32,11 +31,11 @@ class TableColumn {
 	 * Creates a new {@code TableColumn}
 	 * 
 	 * @param name
-	 *            the name of the column
+	 *                  the name of the column
 	 * @param isVerbose
-	 *            whether this column should only be displayed in verbose mode
+	 *                  whether this column should only be displayed in verbose mode
 	 * @param index
-	 *            the index of this column
+	 *                  the index of this column
 	 */
 	TableColumn(String name, boolean isVerbose, int index) {
 		this.name = name;

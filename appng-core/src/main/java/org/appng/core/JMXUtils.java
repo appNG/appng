@@ -34,9 +34,10 @@ public class JMXUtils {
 	 * Registers the given object under the given name, if no other object is already registered under this name.
 	 * 
 	 * @param object
-	 *            the object to register
+	 *               the object to register
 	 * @param name
-	 *            the name for the object to register
+	 *               the name for the object to register
+	 * 
 	 * @return {@code true} if the object has been registered, {@code false} otherwise (also if an exception occurred
 	 *         while registering).
 	 */
@@ -58,7 +59,8 @@ public class JMXUtils {
 	 * Unregisters the object currently registered under the given name, if existing.
 	 * 
 	 * @param name
-	 *            the name for the object to unregister
+	 *             the name for the object to unregister
+	 * 
 	 * @return {@code true} if the object has been unregistered, {@code false} otherwise (also if an exception occurred
 	 *         while unregistering).
 	 */

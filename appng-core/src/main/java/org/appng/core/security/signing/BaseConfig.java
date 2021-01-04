@@ -80,13 +80,11 @@ public abstract class BaseConfig {
 
 	protected void setSigningCerts(byte[] cert, ErrorType errorType) throws SigningException {
 		try {
-			signingCertChain = CertTools.addCerts(cert,  new ArrayList<>());
+			signingCertChain = CertTools.addCerts(cert, new ArrayList<>());
 		} catch (CertificateException ce) {
-			throw new SigningException(errorType,
-					String.format(
-							"Error while loading signing certificate. You may want to check it with OpenSSL: 'openssl x509 -in %s -text -noout'",
-							"<cert>.pem"),
-					ce);
+			throw new SigningException(errorType, String.format(
+					"Error while loading signing certificate. You may want to check it with OpenSSL: 'openssl x509 -in %s -text -noout'",
+					"<cert>.pem"), ce);
 		}
 	}
 

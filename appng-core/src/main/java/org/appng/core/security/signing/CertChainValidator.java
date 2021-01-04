@@ -45,7 +45,6 @@ import lombok.extern.slf4j.Slf4j;
  * Validates a certificate chain against a truststore.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class CertChainValidator {
@@ -62,9 +61,9 @@ public class CertChainValidator {
 	 * Creates a new validator using the default truststore located at {@code $java.home/lib/security/cacerts}
 	 * 
 	 * @throws SigningException
-	 *             if an error occurred while reading from the truststore
+	 *                               if an error occurred while reading from the truststore
 	 * @throws FileNotFoundException
-	 *             if the truststore does not exist
+	 *                               if the truststore does not exist
 	 */
 	CertChainValidator() throws SigningException, FileNotFoundException {
 		File dir = new File(

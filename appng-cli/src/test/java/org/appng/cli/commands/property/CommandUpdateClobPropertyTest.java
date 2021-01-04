@@ -31,7 +31,6 @@ import org.junit.Assert;
  * Test for {@link UpdateProperty}.
  * 
  * @author Matthias Müller
- * 
  */
 public class CommandUpdateClobPropertyTest extends AbstractCommandTest {
 

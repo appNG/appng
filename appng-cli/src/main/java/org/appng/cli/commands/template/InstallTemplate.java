@@ -43,7 +43,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Installs a template.")
 public class InstallTemplate implements ExecutableCliCommand {

@@ -470,13 +470,16 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	 * {@link OutputFormat} for the upcoming transformation.
 	 * 
 	 * @param marshallService
-	 *            the {@link MarshallService} to use for unmarshalling
+	 *                        the {@link MarshallService} to use for unmarshalling
 	 * @param path
-	 *            the current {@link Path}-object
+	 *                        the current {@link Path}-object
+	 * 
 	 * @return the {@link Platform}-object
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if the {@value org.appng.core.service.TemplateService#PLATFORM_XML}-file could net be found or
-	 *             unmarshalled.
+	 *                                       if the {@value org.appng.core.service.TemplateService#PLATFORM_XML}-file
+	 *                                       could net be found or unmarshalled.
+	 * 
 	 * @see #getOutputFormat()
 	 * @see #getOutputType()
 	 */
@@ -491,8 +494,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		}
 	}
 
-	protected String writeErrorPage(Properties platformProperties, File debugFolder, String platformXml, String templateName, Exception e,
-			Object executionContext) {
+	protected String writeErrorPage(Properties platformProperties, File debugFolder, String platformXml,
+			String templateName, Exception e, Object executionContext) {
 		logger().error("error while processing", e);
 		servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		StringWriter stringWriter = new StringWriter();

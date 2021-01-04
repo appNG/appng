@@ -42,7 +42,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Adds a application role to a group.")
 public class AddRole implements ExecutableCliCommand {

@@ -29,7 +29,6 @@ import org.appng.api.model.Site;
  * Handles a {@link HttpServletRequest}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface RequestHandler {
 
@@ -42,19 +41,20 @@ public interface RequestHandler {
 	 * Handles the given {@link HttpServletRequest},
 	 * 
 	 * @param servletRequest
-	 *            the current {@link HttpServletRequest}
+	 *                        the current {@link HttpServletRequest}
 	 * @param servletResponse
-	 *            the current {@link HttpServletResponse}
+	 *                        the current {@link HttpServletResponse}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                        the current {@link Environment}
 	 * @param site
-	 *            the current {@link Site}
+	 *                        the current {@link Site}
 	 * @param pathInfo
-	 *            the current {@link PathInfo}
+	 *                        the current {@link PathInfo}
+	 * 
 	 * @throws ServletException
-	 *             if a servlet-specific error occurs
+	 *                          if a servlet-specific error occurs
 	 * @throws IOException
-	 *             if a resource could not be found
+	 *                          if a resource could not be found
 	 */
 	void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException;

@@ -30,12 +30,10 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 
 /**
- * 
  * A {@link SiteApplication} represents a {@link Application} which is assigned to a {@link Site}, optionally using a
  * {@link DatabaseConnection}.
  * 
  * @author Matthias Müller
- * 
  */
 @Entity
 @Table(name = "site_application")

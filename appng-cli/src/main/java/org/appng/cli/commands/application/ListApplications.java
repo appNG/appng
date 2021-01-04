@@ -46,7 +46,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Lists the available applications/the applications installed for a site.")
 public class ListApplications extends CommandList implements ExecutableCliCommand {

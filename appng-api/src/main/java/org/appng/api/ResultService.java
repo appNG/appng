@@ -26,12 +26,10 @@ import org.appng.xml.platform.Resultset;
 import org.springframework.data.domain.Page;
 
 /**
- * 
  * Provides methods to transform a bindobject to a {@link Result} and a {@link Page} of bindobjects to a
  * {@link Resultset}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface ResultService {
 
@@ -40,9 +38,10 @@ public interface ResultService {
 	 * {@link MetaData}.
 	 * 
 	 * @param fp
-	 *            a {@link FieldProcessor}
+	 *             a {@link FieldProcessor}
 	 * @param page
-	 *            a {@link Page} of bindobjects
+	 *             a {@link Page} of bindobjects
+	 * 
 	 * @return a {@link Resultset} containing a {@link Result} for each item of the {@link Page}. Every {@link Result}
 	 *         contains a {@link Datafield} for each {@link FieldDef} provided by the {@link FieldProcessor}'s
 	 *         {@link MetaData}.
@@ -55,9 +54,10 @@ public interface ResultService {
 	 * <b>Note that pagination will not be available.</b>
 	 * 
 	 * @param fp
-	 *            a {@link FieldProcessor}
+	 *              a {@link FieldProcessor}
 	 * @param items
-	 *            a {@link Collection} of bindobjects
+	 *              a {@link Collection} of bindobjects
+	 * 
 	 * @return a {@link Resultset} containing a {@link Result} for each item of the {@link Collection}. Every
 	 *         {@link Result} contains a {@link Datafield} for each {@link FieldDef} provided by the
 	 *         {@link FieldProcessor}'s {@link MetaData}.
@@ -68,9 +68,10 @@ public interface ResultService {
 	 * Builds a {@link Result} from the provided bindObject, using the {@link FieldProcessor}'s {@link MetaData}.
 	 * 
 	 * @param fp
-	 *            a {@link FieldProcessor}
+	 *                   a {@link FieldProcessor}
 	 * @param bindObject
-	 *            a bindobject
+	 *                   a bindobject
+	 * 
 	 * @return a {@link Result} containing a {@link Datafield} for each {@link FieldDef} provided by the
 	 *         {@link FieldProcessor}'s {@link MetaData}.
 	 */

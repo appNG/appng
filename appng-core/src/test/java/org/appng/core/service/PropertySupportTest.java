@@ -66,9 +66,9 @@ public class PropertySupportTest {
 		site.setName("localhost");
 		site.setHost("localhost");
 		propertySupport.initSiteProperties(site, getPlatformConfig(new Properties()));
-		Assert.assertEquals(Boolean.FALSE,siteProps.getObject(SiteProperties.CACHE_ENABLED));
+		Assert.assertEquals(Boolean.FALSE, siteProps.getObject(SiteProperties.CACHE_ENABLED));
 		Assert.assertFalse(siteProps.getBoolean(SiteProperties.CACHE_ENABLED));
-		Assert.assertEquals("localhost",  siteProps.getObject(SiteProperties.HOST));
+		Assert.assertEquals("localhost", siteProps.getObject(SiteProperties.HOST));
 		Assert.assertEquals("localhost", siteProps.getString(SiteProperties.HOST));
 	}
 

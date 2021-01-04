@@ -18,7 +18,13 @@ package org.appng.cli;
 import java.io.IOException;
 
 /**
- * Run CLI from IDE, use with <pre>-DAPPNG_HOME=/path/to/appng</pre>.
+ * Run CLI from IDE, use with
+ * 
+ * <pre>
+ * -DAPPNG_HOME=/path/to/appng
+ * </pre>
+ * 
+ * .
  */
 public class CliBootstrapRunner {
 

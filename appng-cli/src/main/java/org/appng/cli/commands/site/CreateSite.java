@@ -47,7 +47,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Creates a site.")
 public class CreateSite implements ExecutableCliCommand {

@@ -27,11 +27,9 @@ import org.appng.api.model.Subject;
 import org.springframework.context.ApplicationContext;
 
 /**
- * 
  * Utility class providing platform-wide used constants.
  * 
  * @author Matthias Müller
- * 
  */
 public final class Platform {
 
@@ -80,7 +78,6 @@ public final class Platform {
 	public static final String SERVICE_TYPE_ACTION = "action";
 
 	/**
-	 * 
 	 * Constants used for the global platform-configuration. Those get wrapped into a {@link Properties}-object and can
 	 * be accessed via the {@link org.appng.api.Environment} as follows:
 	 * 
@@ -94,7 +91,6 @@ public final class Platform {
 	 * {@link Application#isPrivileged()} returns {@code true}.</b>
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public final class Property {
 		/** The absolute root-path of the platform */
@@ -124,10 +120,9 @@ public final class Platform {
 		 */
 		public static final String CONSTRAINTS_AS_RULE = "constraintsAsRule";
 		/**
-		 * The global configuration for configuring caching. This property either
-		 * contains the platform-relative path to a config file (e.g.
-		 * {@code WEB-INF/conf/hazelcast.xml}) or the XML configuration itself in XML
-		 * format (stored as multiline value).
+		 * The global configuration for configuring caching. This property either contains the platform-relative path to
+		 * a config file (e.g. {@code WEB-INF/conf/hazelcast.xml}) or the XML configuration itself in XML format (stored
+		 * as multiline value).
 		 */
 		public static final String CACHE_CONFIG = "cacheConfig";
 		/**
@@ -155,7 +150,10 @@ public final class Platform {
 		public static final String ENCODING = "encoding";
 		/** Set to 'true' if applications should be deployed to the local filesystem, 'false' otherwise. */
 		public static final String FILEBASED_DEPLOYMENT = "filebasedDeployment";
-		/** Should users be forced to change their password if it hasn't changed for more than {@link #PASSWORD_MAX_VALIDITY} days? */
+		/**
+		 * Should users be forced to change their password if it hasn't changed for more than
+		 * {@link #PASSWORD_MAX_VALIDITY} days?
+		 */
 		public static final String FORCE_CHANGE_PASSWORD = "forceChangePassword";
 		/** Disable for production use. If enabled, debugging is easier, but Textarea values are formatted wrong. */
 		public static final String FORMAT_OUTPUT = "formatOutput";
@@ -164,7 +162,7 @@ public final class Platform {
 		/** The path to the ImageMagick executables */
 		public static final String IMAGEMAGICK_PATH = "imageMagickPath";
 		/** The number of days after a {@link Subject} get's locked if the user did not log in. */
-		public static final String  INACTIVE_LOCK_PERIOD = "inactiveLockPeriod";
+		public static final String INACTIVE_LOCK_PERIOD = "inactiveLockPeriod";
 		/** The file-extension for JSP-files. */
 		public static final String JSP_FILE_TYPE = "jspFileType";
 		/** The default {@link Locale}. Use one of {@link java.util.Locale#getAvailableLocales()} */
@@ -197,7 +195,7 @@ public final class Platform {
 		/** Set to true to enable performance monitoring for the target XML */
 		public static final String MONITOR_PERFORMANCE = "monitorPerformance";
 		/** The maximum number of days a password is valid, where -1 means forever */
-		public static final String PASSWORD_MAX_VALIDITY ="passwordMaxValidity";
+		public static final String PASSWORD_MAX_VALIDITY = "passwordMaxValidity";
 		/** The fully qualified name of the {@link PasswordPolicy} to use. */
 		public static final String PASSWORD_POLICY = "passwordPolicy";
 		/**
@@ -293,11 +291,9 @@ public final class Platform {
 	}
 
 	/**
-	 * 
 	 * Constants used for accessing an {@link Environment}-attribute with {@link Scope#PLATFORM}.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public final class Environment {
 

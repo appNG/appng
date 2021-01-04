@@ -98,9 +98,10 @@ public class CacheService {
 	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a cache instance
 	 * which already must exists.
 	 * 
-	 * @param  site
-	 *              The {@link Site} to get the cache for
-	 * @return      The {@link Cache} instance for the specified site.
+	 * @param site
+	 *             The {@link Site} to get the cache for
+	 * 
+	 * @return The {@link Cache} instance for the specified site.
 	 */
 	public static Cache<String, CachedResponse> getCache(Site site) {
 		return cacheManager.getCache(getCacheKey(site));
@@ -120,9 +121,10 @@ public class CacheService {
 	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a new cache
 	 * instance. Should be only used in {@link InitializerService}
 	 * 
-	 * @param  site
-	 *              The site.
-	 * @return      The {@link Cache} instance for the specified site.
+	 * @param site
+	 *             The site.
+	 * 
+	 * @return The {@link Cache} instance for the specified site.
 	 */
 	public synchronized static Cache<String, CachedResponse> createCache(Site site) {
 		String cacheKey = getCacheKey(site);

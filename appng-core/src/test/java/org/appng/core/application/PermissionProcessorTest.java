@@ -163,7 +163,7 @@ public class PermissionProcessorTest {
 	}
 
 	@Test
-	public void testAnonymous(){
+	public void testAnonymous() {
 		Config config = new Config();
 		Permissions permissions = new Permissions();
 		config.setPermissions(permissions);

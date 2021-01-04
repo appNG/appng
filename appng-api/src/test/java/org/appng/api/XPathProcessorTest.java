@@ -52,7 +52,8 @@ public class XPathProcessorTest {
 		XPathProcessor xpath = new XPathProcessor(doc);
 		xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
 		Assert.assertEquals("datasource", xpath.getString("//appng:datasource[2]/@id"));
-		Assert.assertEquals("doesNotExist", xpath.getString("//appng:datasource[@id=\"datasource\"]//appng:meta-data/@bindClass"));
+		Assert.assertEquals("doesNotExist",
+				xpath.getString("//appng:datasource[@id=\"datasource\"]//appng:meta-data/@bindClass"));
 	}
 
 	@Test

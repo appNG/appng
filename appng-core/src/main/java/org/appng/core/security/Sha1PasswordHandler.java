@@ -25,6 +25,7 @@ import org.appng.core.service.CoreService;
  * Provides methods to hash and validate passwords using the SHA-1 algorithm.
  * 
  * @author Matthias Herlitzius
+ * 
  * @deprecated wille be removed in 2.x
  */
 @Deprecated

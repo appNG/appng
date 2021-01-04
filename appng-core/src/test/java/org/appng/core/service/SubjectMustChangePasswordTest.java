@@ -87,21 +87,21 @@ public class SubjectMustChangePasswordTest {
 		boolean success = coreService.login(null, environment, subject.getName(), password);
 		assertTrue(success);
 		subject = coreService.getSubjectByName(subject.getName(), false);
-		assertEquals(PasswordChangePolicy.MAY,subject.getPasswordChangePolicy());
+		assertEquals(PasswordChangePolicy.MAY, subject.getPasswordChangePolicy());
 
 		subject.setPasswordLastChanged(DateUtils.addDays(new Date(), -2));
 		coreService.updateSubject(subject);
 		success = coreService.login(null, environment, subject.getName(), password);
 		assertTrue(success);
 		subject = coreService.getSubjectByName(subject.getName(), false);
-		assertEquals(PasswordChangePolicy.MAY,subject.getPasswordChangePolicy());
+		assertEquals(PasswordChangePolicy.MAY, subject.getPasswordChangePolicy());
 
 		subject.setPasswordLastChanged(DateUtils.addDays(new Date(), -3));
 		coreService.updateSubject(subject);
 		success = coreService.login(null, environment, subject.getName(), password);
 		assertTrue(success);
 		subject = coreService.getSubjectByName(subject.getName(), false);
-		assertEquals(PasswordChangePolicy.MUST,subject.getPasswordChangePolicy());
+		assertEquals(PasswordChangePolicy.MUST, subject.getPasswordChangePolicy());
 	}
 
 }

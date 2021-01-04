@@ -21,7 +21,6 @@ import java.util.Map;
  * A {@link org.appng.api.ParameterSupport} which uses '#{' as prefix and '}' as suffix.
  * 
  * @author Matthias Müller
- * 
  */
 public class HashParameterSupport extends ParameterSupportBase {
 
@@ -32,7 +31,7 @@ public class HashParameterSupport extends ParameterSupportBase {
 	 * Creates a new {@link HashParameterSupport} using the given parameters.
 	 * 
 	 * @param parameters
-	 *            the parameters to use
+	 *                   the parameters to use
 	 */
 	public HashParameterSupport(Map<String, String> parameters) {
 		super(PREFIX, SUFFIX, parameters);

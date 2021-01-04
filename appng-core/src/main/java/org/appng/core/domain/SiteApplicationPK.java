@@ -21,11 +21,9 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 /**
- * 
  * Composite primary-key for a {@link SiteApplication}
  * 
  * @author Matthias Müller
- * 
  */
 @Embeddable
 public class SiteApplicationPK implements Serializable {

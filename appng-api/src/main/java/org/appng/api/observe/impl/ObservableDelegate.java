@@ -38,7 +38,7 @@ public class ObservableDelegate<T extends Observable<T>> implements Observable<T
 	 * Creates a new {@link ObservableDelegate} which delegates to the given {@link Observable}.
 	 * 
 	 * @param observable
-	 *            the {@link Observable} to delegate to.
+	 *                   the {@link Observable} to delegate to.
 	 */
 	public ObservableDelegate(T observable) {
 		this.observable = observable;

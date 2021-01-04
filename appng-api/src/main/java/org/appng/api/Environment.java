@@ -40,6 +40,7 @@ import org.appng.api.model.Subject;
  * </ul>
  * 
  * @author Matthias Müller
+ * 
  * @see Scope
  */
 public interface Environment {
@@ -48,11 +49,11 @@ public interface Environment {
 	 * Sets an attribute for the given {@link Scope} to the given value.
 	 * 
 	 * @param scope
-	 *            the {@link Scope} of the attribute to set
+	 *              the {@link Scope} of the attribute to set
 	 * @param name
-	 *            the name of the attribute to set
+	 *              the name of the attribute to set
 	 * @param value
-	 *            the attribute to set
+	 *              the attribute to set
 	 */
 	void setAttribute(Scope scope, String name, Object value);
 
@@ -60,9 +61,10 @@ public interface Environment {
 	 * Returns the attribute with the given name for the given {@link Scope}.
 	 * 
 	 * @param scope
-	 *            the {@link Scope} of the attribute to get
+	 *              the {@link Scope} of the attribute to get
 	 * @param name
-	 *            the name of the attribute to get
+	 *              the name of the attribute to get
+	 * 
 	 * @return the attribute of the desired type, or {@code null} if the attribute does not exist in the given
 	 *         {@link Scope}
 	 */
@@ -72,9 +74,10 @@ public interface Environment {
 	 * Removes the attribute with the given name from the given {@link Scope} and returns it.
 	 * 
 	 * @param scope
-	 *            the {@link Scope} of the attribute to remove
+	 *              the {@link Scope} of the attribute to remove
 	 * @param name
-	 *            the name of the attribute to remove
+	 *              the name of the attribute to remove
+	 * 
 	 * @return the attribute of the desired type, or {@code null} if the attribute does not exist in the given
 	 *         {@link Scope}
 	 */
@@ -84,9 +87,10 @@ public interface Environment {
 	 * Returns the string-representation of an attribute, calling {@code toString()} on the resulting object.
 	 * 
 	 * @param scope
-	 *            the {@link Scope} of the attribute to get
+	 *              the {@link Scope} of the attribute to get
 	 * @param name
-	 *            the name of the attribute to get
+	 *              the name of the attribute to get
+	 * 
 	 * @return the string-representation of the attribute, or {@code null} if the attribute does not exist in the given
 	 *         {@link Scope}
 	 */
@@ -96,7 +100,8 @@ public interface Environment {
 	 * Returns a {@link Set} of all attribute names for the given {@link Scope}
 	 * 
 	 * @param scope
-	 *            the {@link Scope} the get the attribute names for
+	 *              the {@link Scope} the get the attribute names for
+	 * 
 	 * @return a {@link Set} containing all attribute names, or {@code null} if the {@link Scope} is not available
 	 */
 	Set<String> keySet(Scope scope);
@@ -137,18 +142,20 @@ public interface Environment {
 	 * Initializes the {@link Environment}.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                 a {@link ServletContext}
 	 * @param session
-	 *            a {@link HttpSession}
+	 *                 a {@link HttpSession}
 	 * @param request
-	 *            a {@link ServletRequest}
+	 *                 a {@link ServletRequest}
 	 * @param response
-	 *            a {@link ServletResponse}
+	 *                 a {@link ServletResponse}
 	 * @param host
-	 *            the host for the site-{@link Scope}
+	 *                 the host for the site-{@link Scope}
+	 * 
 	 * @throws IllegalStateException
-	 *             if this {@link Environment} already has been initialized
+	 *                               if this {@link Environment} already has been initialized
 	 */
-	void init(ServletContext context, HttpSession session, ServletRequest request, ServletResponse response, String host);
+	void init(ServletContext context, HttpSession session, ServletRequest request, ServletResponse response,
+			String host);
 
 }

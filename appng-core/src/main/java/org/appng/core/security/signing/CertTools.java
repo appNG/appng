@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
  * Utility class for getting {@link X509Certificate}s
  * 
  * @author Matthias Müller
- *
  */
 public class CertTools {
 

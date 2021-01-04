@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
  * A {@link XmlWebApplicationContext} representing a {@link SiteApplication}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ApplicationContext extends XmlWebApplicationContext {
@@ -42,16 +41,16 @@ public class ApplicationContext extends XmlWebApplicationContext {
 	 * Creates a new {@link ApplicationContext}.
 	 * 
 	 * @param siteApplication
-	 *            the {@link SiteApplication} this {@link ApplicationContext} represents
+	 *                        the {@link SiteApplication} this {@link ApplicationContext} represents
 	 * @param parent
-	 *            the parent {@link ApplicationContext}, set only if the {@link SiteApplication}'s {@link Application}
-	 *            is a core {@link Application}
+	 *                        the parent {@link ApplicationContext}, set only if the {@link SiteApplication}'s
+	 *                        {@link Application} is a core {@link Application}
 	 * @param classLoader
-	 *            the {@link ClassLoader} for this context
+	 *                        the {@link ClassLoader} for this context
 	 * @param sc
-	 *            the {@link ServletContext} for this context
+	 *                        the {@link ServletContext} for this context
 	 * @param configLocations
-	 *            the config locations for this context
+	 *                        the config locations for this context
 	 */
 	public ApplicationContext(SiteApplication siteApplication, org.springframework.context.ApplicationContext parent,
 			ClassLoader classLoader, ServletContext sc, String[] configLocations) {
@@ -73,10 +72,12 @@ public class ApplicationContext extends XmlWebApplicationContext {
 	 * {@link BeansException} if such a bean does not exist.
 	 * 
 	 * @param requiredType
-	 *            the type that the bean must match
+	 *                     the type that the bean must match
+	 * 
 	 * @return the bean, or {@code null} if no such bean exists
+	 * 
 	 * @throws BeansException
-	 *             - <b>never thrown</b>, instead {@code null} is returned
+	 *                        - <b>never thrown</b>, instead {@code null} is returned
 	 */
 	@Override
 	public <T> T getBean(Class<T> requiredType) throws BeansException {

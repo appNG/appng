@@ -20,11 +20,9 @@ import org.appng.api.model.SimpleProperty;
 import org.appng.api.support.PropertyHolder;
 
 /**
- * 
  * A {@link PropertyHolder} that provides persistable {@link PropertyImpl}-instances.
  * 
  * @author Matthias Müller
- * 
  */
 public class PersistentPropertyHolder extends PropertyHolder {
 

@@ -34,11 +34,9 @@ import org.appng.api.ValidationMessages;
 import org.appng.api.model.Permission;
 
 /**
- * 
  * Default {@link Permission}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Entity
 @Table(name = "permission")

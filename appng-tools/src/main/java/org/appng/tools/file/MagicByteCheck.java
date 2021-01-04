@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
  * This is an utility class to to check the type of file by probing the magic bytes.
  * 
  * @author Claus Stümke, aiticon GmbH, 2016
- *
  */
 @Slf4j
 public class MagicByteCheck {
@@ -44,11 +43,12 @@ public class MagicByteCheck {
 	 * types first.
 	 * 
 	 * @param sourceFile
-	 *            the file to check
+	 *                   the file to check
+	 * 
 	 * @return true if the extension of the file is equal with the determined extension from magic bytes.
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if there is any issue reading the file
+	 *                                  if there is any issue reading the file
 	 */
 	public static boolean compareFileExtensionWithMagicBytes(File sourceFile) {
 		StopWatch sw = new StopWatch();
@@ -69,9 +69,10 @@ public class MagicByteCheck {
 	 * Retrieves the file's extension by magic byte detection.
 	 * 
 	 * @param file
-	 *            the file to check
+	 *             the file to check
+	 * 
 	 * @throws IllegalArgumentException
-	 *             if there is any issue reading the file
+	 *                                  if there is any issue reading the file
 	 */
 	public static String getExtensionByMagicBytes(File file) {
 		String[] fileExtensions;

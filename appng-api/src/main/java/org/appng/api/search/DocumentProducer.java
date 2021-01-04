@@ -18,10 +18,7 @@ package org.appng.api.search;
 import org.apache.lucene.analysis.Analyzer;
 
 /**
- * 
- * A {@link Producer} that produces {@link DocumentEvent}s.
- * 
- * TODO appng-search is the better place for this
+ * A {@link Producer} that produces {@link DocumentEvent}s. TODO appng-search is the better place for this
  * 
  * @author Matthias Müller
  * 
@@ -36,11 +33,11 @@ public class DocumentProducer extends Producer<DocumentEvent> {
 	 * Creates a new {@link DocumentProducer}
 	 * 
 	 * @param queueSize
-	 *            the queue size for this producer
+	 *                      the queue size for this producer
 	 * @param analyzerClass
-	 *            the type of the {@link Analyzer} to use for indexing the document
+	 *                      the type of the {@link Analyzer} to use for indexing the document
 	 * @param name
-	 *            the name for this producer
+	 *                      the name for this producer
 	 */
 	public DocumentProducer(int queueSize, Class<? extends Analyzer> analyzerClass, String name) {
 		super(queueSize);
@@ -52,9 +49,9 @@ public class DocumentProducer extends Producer<DocumentEvent> {
 	 * Creates a new {@link DocumentProducer} with a queue size of 500
 	 * 
 	 * @param analyzerClass
-	 *            the type of the {@link Analyzer} to use for indexing the document
+	 *                      the type of the {@link Analyzer} to use for indexing the document
 	 * @param name
-	 *            the name for this producer
+	 *                      the name for this producer
 	 */
 	public DocumentProducer(Class<? extends Analyzer> analyzerClass, String name) {
 		this(500, analyzerClass, name);

@@ -34,7 +34,6 @@ import org.appng.forms.FormUpload;
 import org.appng.forms.Request;
 
 /**
- * 
  * <table border="1">
  * <tr>
  * <th>rule</th>
@@ -48,7 +47,6 @@ import org.appng.forms.Request;
  * XXX TODO MM
  * 
  * @author Matthias Müller
- * 
  */
 public class RuleValidation {
 
@@ -212,8 +210,8 @@ public class RuleValidation {
 		if (CharSequence.class.isAssignableFrom(item.getClass())) {
 			return ((CharSequence) item).length();
 		}
-		throw new UnsupportedOperationException("can not invoke size() on object of type" + item.getClass().getName()
-				+ "!");
+		throw new UnsupportedOperationException(
+				"can not invoke size() on object of type" + item.getClass().getName() + "!");
 	}
 
 	public static boolean size(Object item, int size) {

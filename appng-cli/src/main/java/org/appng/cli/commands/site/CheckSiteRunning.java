@@ -48,7 +48,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Checks whether a site is running.")
 public class CheckSiteRunning implements ExecutableCliCommand {

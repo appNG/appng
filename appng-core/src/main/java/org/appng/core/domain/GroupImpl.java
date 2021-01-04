@@ -40,11 +40,9 @@ import org.appng.api.model.Role;
 import org.appng.api.model.Subject;
 
 /**
- * 
  * Default {@link Group}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 @Entity
 @Table(name = "authgroup")

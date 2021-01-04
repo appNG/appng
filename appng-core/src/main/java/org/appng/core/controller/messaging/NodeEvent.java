@@ -38,7 +38,6 @@ import org.appng.api.model.Site.SiteState;
  * environment,memory usage, state of sites).
  * 
  * @author Matthias Müller
- *
  */
 public class NodeEvent extends Event {
 

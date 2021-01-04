@@ -26,7 +26,6 @@ import javax.el.ValueExpression;
  * A {@link Map}-based {@link javax.el.VariableMapper} implementation.
  * 
  * @author Matthias Müller
- * 
  */
 class VariableMapper extends javax.el.VariableMapper {
 

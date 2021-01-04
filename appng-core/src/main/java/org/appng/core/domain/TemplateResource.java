@@ -40,9 +40,7 @@ import org.appng.api.model.ResourceType;
 /**
  * Representats a {@link Resource} of an appNG template.
  * 
- * 
  * @author Matthias Müller
- *
  */
 @Entity
 @Table(name = "template_resource")

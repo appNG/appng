@@ -59,7 +59,7 @@ public class MailTest {
 			Message message = transport.getMessage(mail);
 
 			Assert.assertEquals("subject", message.getSubject());
-			InternetAddress[] addresses = new InternetAddress[]{new InternetAddress(address)};
+			InternetAddress[] addresses = new InternetAddress[] { new InternetAddress(address) };
 			Assert.assertArrayEquals(addresses, message.getFrom());
 			Assert.assertArrayEquals(addresses, message.getRecipients(javax.mail.Message.RecipientType.TO));
 			Assert.assertArrayEquals(addresses, message.getRecipients(javax.mail.Message.RecipientType.CC));

@@ -35,7 +35,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Links a application to a site.")
 public class ActivateApplication extends BaseApplication implements ExecutableCliCommand {

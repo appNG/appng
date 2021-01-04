@@ -29,7 +29,6 @@ import org.appng.xml.application.Roles;
  * Delegate for {@link ApplicationInfo }.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class PackageVersion implements Identifier, Comparable<PackageVersion> {
 

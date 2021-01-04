@@ -26,7 +26,6 @@ import org.owasp.esapi.ESAPI;
  * Utility class for creating {@link XSSUtil}-instances.
  * 
  * @author Matthias Müller
- *
  */
 public class XSSHelper {
 
@@ -49,6 +48,7 @@ public class XSSHelper {
 	 * 
 	 * @param platformProps
 	 * @param exceptions
+	 * 
 	 * @return
 	 */
 	public static XSSUtil getXssUtil(Properties platformProps, String... exceptions) {

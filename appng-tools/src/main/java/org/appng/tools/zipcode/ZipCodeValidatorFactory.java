@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
  * TODO insert description
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class ZipCodeValidatorFactory {

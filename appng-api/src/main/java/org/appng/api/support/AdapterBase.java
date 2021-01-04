@@ -32,9 +32,7 @@ import org.springframework.core.convert.ConversionService;
 /**
  * Baseclass for {@link ResultService} and {@link RequestSupport} implementations
  * 
- * 
  * @author Matthias Müller
- * 
  */
 abstract class AdapterBase implements InitializingBean {
 

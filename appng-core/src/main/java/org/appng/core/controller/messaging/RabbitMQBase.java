@@ -37,7 +37,6 @@ import com.rabbitmq.client.ConnectionFactory;
  * 
  * @author Claus Stümke, aiticon GmbH, 2015
  * @author Matthias Müller
- *
  */
 public abstract class RabbitMQBase implements Closeable {
 

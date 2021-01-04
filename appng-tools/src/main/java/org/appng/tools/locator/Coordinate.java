@@ -19,7 +19,6 @@ package org.appng.tools.locator;
  * Entity which represents a geo-coordinate
  * 
  * @author Matthias Müller
- * 
  */
 public class Coordinate {
 

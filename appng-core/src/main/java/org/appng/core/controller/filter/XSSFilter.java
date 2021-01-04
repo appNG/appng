@@ -49,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class XSSFilter implements Filter {

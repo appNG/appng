@@ -111,8 +111,7 @@ public class ResultServiceTest {
 		Person p = new Person();
 		p.setName("John");
 		p.setBirthDate(new SimpleDateFormat(pattern).parse("2012.12.12 13:14:15"));
-		Mockito.when(request.getExpressionEvaluator())
-				.thenReturn(new ExpressionEvaluator(new HashMap<>()));
+		Mockito.when(request.getExpressionEvaluator()).thenReturn(new ExpressionEvaluator(new HashMap<>()));
 		Mockito.when(env.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT+3"));
 		Result result = rss.getResult(fp, p);
 		XmlValidator.validate(result);

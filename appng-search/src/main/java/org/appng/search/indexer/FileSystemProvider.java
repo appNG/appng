@@ -78,12 +78,14 @@ public class FileSystemProvider implements DocumentProvider {
 	 * Performs the actual indexing.
 	 * 
 	 * @param documentQueueSize
-	 *            the initial queue size for each {@link DocumentProducer}
+	 *                          the initial queue size for each {@link DocumentProducer}
+	 * 
 	 * @return an {@link Iterable} of {@link DocumentProducer}s
+	 * 
 	 * @throws InterruptedException
-	 *             if such an exception occurs while adding a {@link DocumentEvent} to the indexer
+	 *                              if such an exception occurs while adding a {@link DocumentEvent} to the indexer
 	 * @throws TimeoutException
-	 *             if such an exception occurs while adding a {@link DocumentEvent} to the indexer
+	 *                              if such an exception occurs while adding a {@link DocumentEvent} to the indexer
 	 */
 	public Iterable<DocumentProducer> indexDirectory(int documentQueueSize)
 			throws InterruptedException, TimeoutException {
@@ -194,13 +196,13 @@ public class FileSystemProvider implements DocumentProvider {
 						document.addField(customField);
 					}
 
-					LOGGER.debug("indexing ({}/{}):{}", fileNo,total, file.getAbsolutePath());
+					LOGGER.debug("indexing ({}/{}):{}", fileNo, total, file.getAbsolutePath());
 				} else {
 					LOGGER.debug("skipping {}", file.getAbsolutePath());
 				}
 			} else {
 				try (Reader parsingReader = new ParsingReader(file)) {
-					LOGGER.debug("indexing ({}/{}):{}", fileNo,total, file.getAbsolutePath());
+					LOGGER.debug("indexing ({}/{}):{}", fileNo, total, file.getAbsolutePath());
 					byte[] bytes = IOUtils.toByteArray(parsingReader, Charset.defaultCharset());
 					content = new String(bytes);
 					document.setName(FilenameUtils.getName(file.getName()));

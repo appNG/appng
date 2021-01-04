@@ -28,12 +28,10 @@ import org.appng.xml.platform.Labels;
 import org.springframework.context.MessageSource;
 
 /**
- * 
  * This class is responsible for setting the value of a {@link Label}. This is done by using the {@link Label}s id to
  * retrieve the message from a {@link MessageSource}. The {@link Label}'s
  * 
  * @author Matthias Müller
- * 
  */
 public class LabelSupport {
 

@@ -47,7 +47,7 @@ public class ParameterTest extends BodyTagSupport implements ParameterOwner {
 		p2.setName("param2");
 		p2.setParent(this);
 		p2.doEndTag();
-		
+
 		Parameter p3 = new Parameter();
 		p3.setName("param3");
 		p3.setParent(this);

@@ -34,7 +34,6 @@ import org.appng.xml.platform.SectionelementDef;
  * {@link CallableDataSource}.
  * 
  * @author Matthias Müller
- * 
  */
 class DataSourceElement extends Sectionelement {
 
@@ -44,21 +43,24 @@ class DataSourceElement extends Sectionelement {
 	 * Creates a new {@code DataSourceElement}.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                           the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                           the current {@link Application}
 	 * @param applicationRequest
-	 *            the current {@link ApplicationRequest}
+	 *                           the current {@link ApplicationRequest}
 	 * @param parameterSupport
-	 *            a {@link ParameterSupport} containing the parameters of the {@link PageDefinition}
+	 *                           a {@link ParameterSupport} containing the parameters of the {@link PageDefinition}
 	 * @param datasourceRef
-	 *            the {@link DatasourceRef} as given in the {@link SectionelementDef} of a {@link PageDefinition}.
+	 *                           the {@link DatasourceRef} as given in the {@link SectionelementDef} of a
+	 *                           {@link PageDefinition}.
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurs while assembling the {@code DataSourceElement}
+	 *                             if an error occurs while assembling the {@code DataSourceElement}
 	 */
-	DataSourceElement(Site site, Application application, ApplicationRequest applicationRequest, ParameterSupport parameterSupport,
-			DatasourceRef datasourceRef) throws ProcessingException {
-		this.callableDataSource = new CallableDataSource(site, application, applicationRequest, parameterSupport, datasourceRef);
+	DataSourceElement(Site site, Application application, ApplicationRequest applicationRequest,
+			ParameterSupport parameterSupport, DatasourceRef datasourceRef) throws ProcessingException {
+		this.callableDataSource = new CallableDataSource(site, application, applicationRequest, parameterSupport,
+				datasourceRef);
 		this.datasource = callableDataSource.getDatasource();
 	}
 
@@ -74,7 +76,6 @@ class DataSourceElement extends Sectionelement {
 
 	/**
 	 * Delegates to {@link CallableDataSource#perform(String)}.
-	 * 
 	 */
 	Data perform(String pageId) throws ProcessingException {
 		return callableDataSource.perform(pageId);

@@ -24,7 +24,6 @@ import org.appng.api.Scope;
  * Abstract base-class for all {@link ScopedEnvironment}s.
  * 
  * @author Matthias Müller
- * 
  */
 abstract class AbstractEnvironment implements ScopedEnvironment {
 

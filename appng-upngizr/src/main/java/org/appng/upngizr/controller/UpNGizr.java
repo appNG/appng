@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
  * A {@link DispatcherServlet} that implements {@link ContainerServlet}.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class UpNGizr extends DispatcherServlet implements ContainerServlet, ServletContextListener {

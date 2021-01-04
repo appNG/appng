@@ -22,10 +22,10 @@ import org.appng.api.Environment;
 import org.appng.api.Scope;
 
 /**
- * 
  * Interface for an environment of a certain {@link Scope}.
  * 
  * @author Matthias Müller
+ * 
  * @see Environment
  */
 interface ScopedEnvironment {

@@ -23,7 +23,6 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
  * An custom template engine to set a custom thymeleaf dialect
  * 
  * @author Claus Stümke
- *
  */
 public class ThymeleafTemplateEngine extends SpringTemplateEngine {
 

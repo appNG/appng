@@ -27,10 +27,9 @@ import org.springframework.beans.BeanWrapper;
  * a setter!
  * 
  * @author Matthias Müller
- * 
  */
 public final class ClassWrapper {
-	
+
 	private Class<?> wrappedClass;
 
 	public ClassWrapper(Class<?> clazz) {

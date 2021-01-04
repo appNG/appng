@@ -20,9 +20,7 @@ import java.text.ParseException;
 import org.joda.time.DateTime;
 
 /**
- * 
  * @author Claus Stümke, aiticon GmbH, 2016
- *
  */
 public class DateFieldConverterJodaDateTimeTest extends DateFieldConverterTest {
 

@@ -37,7 +37,6 @@ import org.appng.xml.platform.PageDefinition;
  * {@link Datasource}s and also the {@link ApplicationRootConfig}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface ApplicationConfigProvider extends Closeable {
 
@@ -45,10 +44,13 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Clones this {@link ApplicationConfigProvider}, which is necessary because the
 	 * 
 	 * @param marshallService
-	 *            a {@link MarshallService} to read the configuration files, only needed if appNG is in development-mode
+	 *                        a {@link MarshallService} to read the configuration files, only needed if appNG is in
+	 *                        development-mode
+	 * 
 	 * @return a new ApplicationConfigProvider
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if there is some configuration error inside the application
+	 *                                       if there is some configuration error inside the application
 	 */
 	ApplicationConfigProvider cloneConfig(MarshallService marshallService) throws InvalidConfigurationException;
 
@@ -70,7 +72,8 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Returns the {@link PageDefinition} with the given id, if present.
 	 * 
 	 * @param id
-	 *            the id of the {@link PageDefinition} to get
+	 *           the id of the {@link PageDefinition} to get
+	 * 
 	 * @return the {@link PageDefinition} with the given id, or {@code null} if no such {@link PageDefinition} exists
 	 */
 	PageDefinition getPage(String id);
@@ -86,7 +89,8 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Returns the {@link Event} with the given id, if present.
 	 * 
 	 * @param id
-	 *            the id of the {@link Event} to get
+	 *           the id of the {@link Event} to get
+	 * 
 	 * @return the {@link Event} with the given id, or {@code null} if no such {@link Event} exists
 	 */
 	Event getEvent(String id);
@@ -95,7 +99,8 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Returns the {@link Datasource} with the given id, if present.
 	 * 
 	 * @param id
-	 *            the id of the {@link Datasource} to get
+	 *           the id of the {@link Datasource} to get
+	 * 
 	 * @return the {@link Datasource} with the given id, or {@code null} if no such {@link Datasource} exists
 	 */
 	Datasource getDatasource(String id);
@@ -105,9 +110,10 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * {@code eventId}.
 	 * 
 	 * @param eventId
-	 *            the id of the {@link Event}
+	 *                 the id of the {@link Event}
 	 * @param actionId
-	 *            the id of the {@link Action}
+	 *                 the id of the {@link Action}
+	 * 
 	 * @return the {@link Action}, or {@code null} if there is no such {@link Event} or {@link Action}
 	 */
 	Action getAction(String eventId, String actionId);
@@ -116,7 +122,8 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Returns a map of all {@link Action}s for the {@link Event} with the given id, using the id as the key.
 	 * 
 	 * @param eventId
-	 *            the id of the {@link Event} to get the {@link Action}s for
+	 *                the id of the {@link Event} to get the {@link Action}s for
+	 * 
 	 * @return a map of all {@link Action}s for the given {@link Event}, or {@code null} if there is no such event
 	 */
 	Map<String, Action> getActions(String eventId);
@@ -132,7 +139,8 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Returns the name of the {@link Resource} where the {@link Event} with the given id was defined.
 	 * 
 	 * @param eventId
-	 *            the id of the {@link Event}
+	 *                the id of the {@link Event}
+	 * 
 	 * @return the name of the {@link Resource} where the {@link Event} with the given id was defined, or {@code null}
 	 *         if there is no such {@link Event}
 	 */
@@ -142,7 +150,8 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Returns the name of the {@link Resource} where the {@link PageDefinition} with the given id was defined.
 	 * 
 	 * @param pageId
-	 *            the id of the {@link PageDefinition}
+	 *               the id of the {@link PageDefinition}
+	 * 
 	 * @return the name of the {@link Resource} where the {@link PageDefinition} with the given id was defined, or
 	 *         {@code null} if there is no such {@link PageDefinition}
 	 */
@@ -152,7 +161,8 @@ public interface ApplicationConfigProvider extends Closeable {
 	 * Returns the name of the {@link Resource} where the {@link Datasource} with the given id was defined.
 	 * 
 	 * @param dataSourceId
-	 *            the id of the {@link Datasource}
+	 *                     the id of the {@link Datasource}
+	 * 
 	 * @return the name of the {@link Resource} where the {@link Datasource} with the given id was defined, or
 	 *         {@code null} if there is no such {@link Datasource}
 	 */

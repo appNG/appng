@@ -27,7 +27,6 @@ import org.appng.api.BusinessException;
  * Provides the ability to print some pretty formatted tables to the console.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class PrettyTable {
 

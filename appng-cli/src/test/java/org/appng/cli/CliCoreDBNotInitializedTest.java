@@ -32,8 +32,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.test.context.ContextConfiguration;
 
 @ContextConfiguration(initializers = CliCoreDBNotInitializedTest.class, inheritInitializers = false, inheritLocations = true)
-public class CliCoreDBNotInitializedTest extends AbstractCommandTest implements
-		ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class CliCoreDBNotInitializedTest extends AbstractCommandTest
+		implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
 	private CliCore cliCore = new CliCore();
 	private Properties cliConfig;
@@ -82,8 +82,8 @@ public class CliCoreDBNotInitializedTest extends AbstractCommandTest implements
 		cliCore = new CliCore();
 		cliCore.setContext(context);
 		cliConfig = CommandTestInitializer.getProperties(getClass());
-		cliConfig.setProperty(Platform.Property.PLATFORM_ROOT_PATH, CliBootstrapTest.TARGET
-				+ CliBootstrapTest.BOOTSTRAP_ROOT);
+		cliConfig.setProperty(Platform.Property.PLATFORM_ROOT_PATH,
+				CliBootstrapTest.TARGET + CliBootstrapTest.BOOTSTRAP_ROOT);
 	}
 
 	@Override

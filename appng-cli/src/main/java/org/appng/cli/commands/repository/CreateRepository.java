@@ -66,7 +66,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Creates a repository.")
 public class CreateRepository implements ExecutableCliCommand {

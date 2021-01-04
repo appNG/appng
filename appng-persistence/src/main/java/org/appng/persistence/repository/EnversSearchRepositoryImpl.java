@@ -51,12 +51,11 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
  * @author Claus Stuemke
  * 
  * @param <T>
- *            the domain class
+ *             the domain class
  * @param <ID>
- *            the type of the Id of the domain class
+ *             the type of the Id of the domain class
  * @param <N>
- *            the type of the revision
- * 
+ *             the type of the revision
  */
 public class EnversSearchRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>>
 		extends SearchRepositoryImpl<T, ID> implements EnversSearchRepository<T, ID, N> {
@@ -67,7 +66,6 @@ public class EnversSearchRepositoryImpl<T, ID extends Serializable, N extends Nu
 
 	/**
 	 * Can be overwritten by extending class to support alternative RevisionEntity implementations
-	 * 
 	 */
 	protected Class<?> getRevisionEntity() {
 		return DefaultRevisionEntity.class;
@@ -106,7 +104,7 @@ public class EnversSearchRepositoryImpl<T, ID extends Serializable, N extends Nu
 			return findRevisions;
 		}
 		// otherwise return empty page
-		return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>> emptyList(), pageable, 0);
+		return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>>emptyList(), pageable, 0);
 	}
 
 	public Revisions<N, T> findRevisions(ID id) {

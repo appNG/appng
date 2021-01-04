@@ -29,7 +29,6 @@ import org.apache.commons.io.FilenameUtils;
  * Defines the different types of a {@link Resource}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public enum ResourceType implements FilenameFilter {
 
@@ -109,7 +108,8 @@ public enum ResourceType implements FilenameFilter {
 	 * Checks whether the given file-ending is valid for this type.
 	 * 
 	 * @param fileEnding
-	 *            a file-ending, without '.'
+	 *                   a file-ending, without '.'
+	 * 
 	 * @return {@code true} if the given file-ending is valid for this type, {@code false} otherwise
 	 */
 	public boolean isValidFileEnding(String fileEnding) {
@@ -123,7 +123,8 @@ public enum ResourceType implements FilenameFilter {
 	 * Checks whether the given file-name is valid for this type.
 	 * 
 	 * @param fileName
-	 *            the name of the file
+	 *                 the name of the file
+	 * 
 	 * @return {@code true} if the given file-name is valid for this type, {@code false} otherwise
 	 */
 	public boolean isValidFileName(String fileName) {

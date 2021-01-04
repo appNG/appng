@@ -22,7 +22,6 @@ import java.util.Set;
  * The URI-scheme for an {@link Repository},
  * 
  * @author Matthias Herlitzius
- * 
  */
 public enum RepositoryScheme {
 

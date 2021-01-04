@@ -23,7 +23,6 @@ import org.junit.Test;
  * Test for {@link Scope}
  * 
  * @author Matthias Müller
- * 
  */
 public class ScopeTest {
 

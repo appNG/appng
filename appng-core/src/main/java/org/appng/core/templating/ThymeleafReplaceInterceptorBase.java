@@ -25,7 +25,6 @@ import org.thymeleaf.standard.expression.StandardExpressions;
  * A Base class for thymeleaf interceptors providing some utility functionality
  * 
  * @author Claus Stümke
- *
  */
 public abstract class ThymeleafReplaceInterceptorBase implements ThymeleafReplaceInterceptor {
 

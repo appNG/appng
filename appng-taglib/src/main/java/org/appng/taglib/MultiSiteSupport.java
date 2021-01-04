@@ -72,10 +72,9 @@ public class MultiSiteSupport {
 				if (null != executingSite && executingSite.hasState(SiteState.STARTED)) {
 					applicationProvider = (ApplicationProvider) executingSite.getSiteApplication(application);
 					if (null == applicationProvider) {
-						throw new JspException(
-								String.format(
-										"the application '%s' is not available for granting site '%s', check logs to see why it didn't start.",
-										application, site.getName()));
+						throw new JspException(String.format(
+								"the application '%s' is not available for granting site '%s', check logs to see why it didn't start.",
+								application, site.getName()));
 					}
 				} else {
 					throw new JspException(String.format(
@@ -83,8 +82,8 @@ public class MultiSiteSupport {
 							site.getName(), application));
 				}
 			} else {
-				throw new JspException(String.format("no application '%s' for site '%s'", application,
-						callingSite.getName()));
+				throw new JspException(
+						String.format("no application '%s' for site '%s'", application, callingSite.getName()));
 			}
 		}
 		if (null != method && !applicationProvider.containsBean(method)) {

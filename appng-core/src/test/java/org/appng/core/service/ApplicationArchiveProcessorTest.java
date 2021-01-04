@@ -43,9 +43,9 @@ public class ApplicationArchiveProcessorTest {
 		List<String> expectedNames = new ArrayList<>(Arrays.asList("datasources.xml", "events.xml", "master.xml",
 				"page.xml", "plugin.xml", "messages-demo.properties", "mssql/V1.0_script.sql", "mysql/V1.0_script.sql",
 				ResourceType.BEANS_XML_NAME, ResourceType.APPLICATION_XML_NAME));
-		List<ResourceType> expectedTypes = new ArrayList<>(Arrays.asList(ResourceType.XML,
-				ResourceType.XML, ResourceType.XML, ResourceType.XML, ResourceType.XML, ResourceType.DICTIONARY,
-				ResourceType.SQL, ResourceType.SQL, ResourceType.BEANS_XML, ResourceType.APPLICATION));
+		List<ResourceType> expectedTypes = new ArrayList<>(Arrays.asList(ResourceType.XML, ResourceType.XML,
+				ResourceType.XML, ResourceType.XML, ResourceType.XML, ResourceType.DICTIONARY, ResourceType.SQL,
+				ResourceType.SQL, ResourceType.BEANS_XML, ResourceType.APPLICATION));
 		for (Resource applicationResource : resources) {
 			System.out.println(applicationResource.getName());
 			int idx = expectedNames.indexOf(applicationResource.getName());

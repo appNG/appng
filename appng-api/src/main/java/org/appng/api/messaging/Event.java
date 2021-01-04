@@ -44,7 +44,7 @@ public abstract class Event implements Serializable {
 	 * Creates a new event
 	 * 
 	 * @param siteName
-	 *            the name of the {@link Site} this event is for
+	 *                 the name of the {@link Site} this event is for
 	 */
 	protected Event(String siteName) {
 		this.siteName = siteName;
@@ -77,13 +77,14 @@ public abstract class Event implements Serializable {
 	 * Performs the event
 	 * 
 	 * @param environment
-	 *            then {@link Environment} to use
+	 *                    then {@link Environment} to use
 	 * @param site
-	 *            the {@link Site} where the event occurred
+	 *                    the {@link Site} where the event occurred
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if there's a configuration error
+	 *                                       if there's a configuration error
 	 * @throws BusinessException
-	 *             if an error occurs while performing the event
+	 *                                       if an error occurs while performing the event
 	 */
 	public abstract void perform(Environment environment, Site site)
 			throws InvalidConfigurationException, BusinessException;

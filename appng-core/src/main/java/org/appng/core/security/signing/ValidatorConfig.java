@@ -55,17 +55,13 @@ public class ValidatorConfig extends BaseConfig {
 			this.signature = Signature.getInstance(sigAlgorithm.toString());
 			this.signature.initVerify(getSigningCert());
 		} catch (InvalidKeyException ike) {
-			throw new SigningException(ErrorType.VERIFY,
-					String.format(
-							"Certificate key was successfully loaded, but failed to instantiate at Signature(%s).initVerify().",
-							sigAlgorithm),
-					ike);
+			throw new SigningException(ErrorType.VERIFY, String.format(
+					"Certificate key was successfully loaded, but failed to instantiate at Signature(%s).initVerify().",
+					sigAlgorithm), ike);
 		} catch (NoSuchAlgorithmException nsae) {
-			throw new SigningException(ErrorType.VERIFY,
-					String.format(
-							"Signing algorithm '%s' could not be loaded, but it should. This should not happen with one of the tested Java versions (1.7+).",
-							sigAlgorithm),
-					nsae);
+			throw new SigningException(ErrorType.VERIFY, String.format(
+					"Signing algorithm '%s' could not be loaded, but it should. This should not happen with one of the tested Java versions (1.7+).",
+					sigAlgorithm), nsae);
 		}
 	}
 

@@ -35,7 +35,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Activates/deactivates a site.")
 public class SetSiteActive implements ExecutableCliCommand {

@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Claus Stümke, aiticon GmbH, 2015
  * @author Matthias Müller
+ * 
  * @see RabbitMQReceiver
  */
 @Slf4j

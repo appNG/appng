@@ -19,7 +19,6 @@ package org.appng.tools.zipcode;
  * TODO insert description
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface ZipCodeValidator {
 

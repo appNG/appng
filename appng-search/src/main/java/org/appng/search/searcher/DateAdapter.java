@@ -24,7 +24,6 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  * A {@link XmlAdapter} responsible for adapting a {@link String} to a {@link Date} and vice versa.
  * 
  * @author Matthias Müller
- *
  */
 public class DateAdapter extends XmlAdapter<String, Date> {
 

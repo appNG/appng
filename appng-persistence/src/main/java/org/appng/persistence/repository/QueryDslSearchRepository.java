@@ -21,21 +21,20 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
 /**
- * 
  * A {@link SearchRepository} that additionally offers Query DSL functionality
  * 
  * @author Matthias Müller
  * 
  * @param <T>
- *            the domain class
+ *             the domain class
  * @param <ID>
- *            the type of the Id of the domain class
+ *             the type of the Id of the domain class
  * 
  * @see SearchRepository
  * @see QueryDslPredicateExecutor
  */
 @NoRepositoryBean
-public interface QueryDslSearchRepository<T, ID extends Serializable> extends SearchRepository<T, ID>,
-		QueryDslPredicateExecutor<T> {
+public interface QueryDslSearchRepository<T, ID extends Serializable>
+		extends SearchRepository<T, ID>, QueryDslPredicateExecutor<T> {
 
 }

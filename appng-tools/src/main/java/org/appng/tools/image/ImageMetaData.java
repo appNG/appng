@@ -18,7 +18,6 @@ package org.appng.tools.image;
 import java.io.File;
 
 /**
- * 
  * @author herlitzius.matthias
  */
 public class ImageMetaData {

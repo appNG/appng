@@ -48,7 +48,6 @@ import lombok.extern.slf4j.Slf4j;
  * XSL-files to include. The insertion-point for the additional files must be set via {@link #setInsertBefore(String)}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class StyleSheetProvider {
@@ -84,9 +83,9 @@ public class StyleSheetProvider {
 	 * Sets the master XSL source for this {@code StyleSheetProvider}.
 	 * 
 	 * @param masterXsl
-	 *            the master source
+	 *                     the master source
 	 * @param templateRoot
-	 *            the absolute path to the directory where template resides
+	 *                     the absolute path to the directory where template resides
 	 */
 	public void setMasterSource(InputStream masterXsl, String templateRoot) {
 		try {
@@ -101,9 +100,9 @@ public class StyleSheetProvider {
 	 * Adds an additional XSL-source to be included into the master source
 	 * 
 	 * @param styleSheet
-	 *            the additional source
+	 *                   the additional source
 	 * @param reference
-	 *            the name of the source, used for XSL-comments and logging
+	 *                   the name of the source, used for XSL-comments and logging
 	 */
 	public void addStyleSheet(InputStream styleSheet, String reference) {
 		try {
@@ -130,11 +129,12 @@ public class StyleSheetProvider {
 	 * insertion-point.
 	 * 
 	 * @param deleteIncludes
-	 *            If set to {@code true}, all {@code <xsl:include>}s eventually contained in the master source will be
-	 *            removed before assembling the stylesheet. If set to {@code false}, the {@code <xsl:include>}s are
-	 *            being kept and processed.
+	 *                       If set to {@code true}, all {@code <xsl:include>}s eventually contained in the master
+	 *                       source will be removed before assembling the stylesheet. If set to {@code false}, the
+	 *                       {@code <xsl:include>}s are being kept and processed.
 	 * @param additionalOut
-	 *            an additional {@link OutputStream} to write the stylesheet to (optional)
+	 *                       an additional {@link OutputStream} to write the stylesheet to (optional)
+	 * 
 	 * @return the complete stylesheet as an array of bytes
 	 */
 	public byte[] getStyleSheet(boolean deleteIncludes, OutputStream additionalOut) {
@@ -265,7 +265,7 @@ public class StyleSheetProvider {
 	 * Sets the insertion point for the master source, at which additional stylesheets should be embedded.
 	 * 
 	 * @param insertBefore
-	 *            the insertion-point to use
+	 *                     the insertion-point to use
 	 */
 	public void setInsertBefore(String insertBefore) {
 		this.insertBefore = insertBefore;
@@ -284,6 +284,7 @@ public class StyleSheetProvider {
 	 * the additional stylesheets added via {@link #addStyleSheet(InputStream, String)}.
 	 * 
 	 * @return the ID
+	 * 
 	 * @see #addStyleSheet(InputStream, String)
 	 */
 	public String getId() {

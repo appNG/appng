@@ -32,7 +32,6 @@ import org.junit.Test;
  * tests {@link StyleSheetProvider}
  * 
  * @author Matthias Müller
- * 
  */
 public class StyleSheetProviderTest {
 	private StyleSheetProvider ssProvider;

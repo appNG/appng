@@ -40,7 +40,6 @@ import org.appng.tools.markup.XHTML;
  * </ol>
  * 
  * @author Matthias Müller
- * 
  */
 public class FormElement extends FormElementOwner implements ErrorAware {
 
@@ -54,7 +53,6 @@ public class FormElement extends FormElementOwner implements ErrorAware {
 	 * Defines the possible types for an HTML {@code <input>}-element
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public enum InputType {
 		/** {@code <input type="radio" />} */
@@ -75,7 +73,6 @@ public class FormElement extends FormElementOwner implements ErrorAware {
 	 * Defines the possible HTML Tags that a {@link FormElement} can represent.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public enum InputTag {
 		/**

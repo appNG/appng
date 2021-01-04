@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 /**
- * 
  * @author herlitzius.matthias
  */
 public class FileSuffixFilter implements FilenameFilter {

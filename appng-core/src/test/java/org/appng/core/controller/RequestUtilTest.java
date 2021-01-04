@@ -50,8 +50,8 @@ public class RequestUtilTest {
 		MockitoAnnotations.initMocks(this);
 		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
 		new PropertySupport(propertyHolder).initPlatformConfig("target/root", true);
-		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(
-				propertyHolder);
+		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.PLATFORM_CONFIG))
+				.thenReturn(propertyHolder);
 
 		Mockito.when(servletRequest.getServerName()).thenReturn("host-2");
 		Map<String, Site> sites = new HashMap<>();

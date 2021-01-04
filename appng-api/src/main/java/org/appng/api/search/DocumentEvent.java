@@ -18,13 +18,10 @@ package org.appng.api.search;
 import org.appng.api.observe.Observable.Event;
 
 /**
- * 
  * A {@link DocumentEvent} encapsulates a {@link Document} and an {@link Event} associated with this {@link Document}.
- * 
  * TODO appng-search is the better place for this
  * 
  * @author Matthias Müller
- * 
  */
 public class DocumentEvent {
 	private final Document document;

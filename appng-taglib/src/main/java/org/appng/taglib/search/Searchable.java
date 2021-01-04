@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * This class represents a Searchable Tag.<br/>
  * This tag is used to mark areas of a JSP as indexable/searchable. It can also be used to exclude certain areas form
- * indexing/searching, for example the navigation of page. During indexing, a {@link org.appng.api.search.Document} is being created from
- * each indexed JSP.
+ * indexing/searching, for example the navigation of page. During indexing, a {@link org.appng.api.search.Document} is
+ * being created from each indexed JSP.
  * <p/>
  * <b>Attributes:</b>
  * <ul>

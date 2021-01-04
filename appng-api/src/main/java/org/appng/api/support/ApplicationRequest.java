@@ -364,7 +364,9 @@ public class ApplicationRequest implements Request {
 	 * Creates a new {@link ApplicationPath} to be used to evaluate include-conditions on a page.
 	 * 
 	 * @return the {@link ApplicationPath}
-	 * @see    Path#getApplicationUrlParameters()
+	 * 
+	 * @see Path#getApplicationUrlParameters()
+	 * 
 	 * @since 1.21
 	 */
 	public ApplicationPath applicationPath() {

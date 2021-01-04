@@ -29,7 +29,6 @@ import org.appng.tools.os.Command.StreamConsumer;
  * result in a {@link List} of {@link String}s.
  * 
  * @author Matthias Müller
- * 
  */
 public class StringConsumer implements StreamConsumer<List<String>> {
 

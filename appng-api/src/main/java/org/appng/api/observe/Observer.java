@@ -31,9 +31,9 @@ public interface Observer<T extends Observable<T>> {
 	 * Method to be called when an {@link Event} is fired from an {@link Observable}.
 	 * 
 	 * @param observable
-	 *            the {@link Observable}
+	 *                   the {@link Observable}
 	 * @param event
-	 *            the {@link Event}
+	 *                   the {@link Event}
 	 */
 	void onEvent(T observable, Event event);
 

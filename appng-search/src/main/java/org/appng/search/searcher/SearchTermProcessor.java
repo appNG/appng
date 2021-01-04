@@ -19,7 +19,6 @@ import org.apache.lucene.analysis.Analyzer;
 
 /**
  * Interface for processing a search term, i.e. manipulating it in some kind of way.
- * 
  */
 public interface SearchTermProcessor {
 
@@ -27,7 +26,8 @@ public interface SearchTermProcessor {
 	 * Processes the search term.
 	 * 
 	 * @param term
-	 *            the term to process
+	 *             the term to process
+	 * 
 	 * @return the processed term
 	 */
 	public String getSearchTerm(String term);

@@ -54,7 +54,6 @@ import org.springframework.data.domain.Sort.Order;
  * the {@link Data} returned by {@link #getWrappedData()} using a {@link ResultService}.
  * 
  * @author Matthias Müller
- * 
  */
 public final class DataContainer {
 
@@ -70,7 +69,7 @@ public final class DataContainer {
 	 * Creates a new {@link DataContainer} using the given {@link FieldProcessor}.
 	 * 
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} containing all readable {@link FieldDef}initions
+	 *                       the {@link FieldProcessor} containing all readable {@link FieldDef}initions
 	 */
 	public DataContainer(final FieldProcessor fieldProcessor) {
 		this.data = new Data();
@@ -90,7 +89,7 @@ public final class DataContainer {
 	 * Sets the single item
 	 * 
 	 * @param item
-	 *            the item
+	 *             the item
 	 */
 	public void setItem(Object item) {
 		this.item = item;
@@ -126,7 +125,7 @@ public final class DataContainer {
 	 * supported when using this method.
 	 * 
 	 * @param items
-	 *            a {@code Collection} of items
+	 *              a {@code Collection} of items
 	 */
 	public void setItems(Collection<?> items) {
 		this.items = items;
@@ -140,9 +139,10 @@ public final class DataContainer {
 	 * of items, based on the given {@link Pageable}. See {@link #setPage(Collection, Pageable, boolean)} for details.
 	 * 
 	 * @param items
-	 *            the {@code Collection} of items the extract the {@link Page} from
+	 *                 the {@code Collection} of items the extract the {@link Page} from
 	 * @param pageable
-	 *            the {@link Pageable} for the {@link Page} to extract
+	 *                 the {@link Pageable} for the {@link Page} to extract
+	 * 
 	 * @see #setPage(Collection, Pageable, boolean)
 	 */
 	public void setPage(Collection<?> items, Pageable pageable) {
@@ -162,12 +162,11 @@ public final class DataContainer {
 	 * </p>
 	 * 
 	 * @param items
-	 *            the {@code Collection} of items the extract the {@link Page} from
+	 *                 the {@code Collection} of items the extract the {@link Page} from
 	 * @param pageable
-	 *            the {@link Pageable} for the {@link Page} to extract
+	 *                 the {@link Pageable} for the {@link Page} to extract
 	 * @param skipSort
-	 *            if the items should not get sorted, even if the {@code pageable} has a {@code Sort} property set
-	 * 
+	 *                 if the items should not get sorted, even if the {@code pageable} has a {@code Sort} property set
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setPage(Collection<?> items, Pageable pageable, boolean skipSort) {
@@ -228,6 +227,7 @@ public final class DataContainer {
 	 * Returns the {@link Pageable} (may be {@code null}) for this {@code DataContainer}
 	 * 
 	 * @return the {@link Pageable}, if any
+	 * 
 	 * @see #setPage(Page)
 	 * @see #setPage(Collection, Pageable)
 	 */
@@ -246,6 +246,7 @@ public final class DataContainer {
 	 * Returns the {@link Page} (may be {@code null}) for this {@code DataContainer}
 	 * 
 	 * @return the {@link Page}, if any
+	 * 
 	 * @see #setPage(Page)
 	 * @see #setPage(Collection, Pageable)
 	 */
@@ -257,7 +258,7 @@ public final class DataContainer {
 	 * Sets the {@link Page} for this {@code DataContainer}
 	 * 
 	 * @param page
-	 *            the {@link Page} to set
+	 *             the {@link Page} to set
 	 */
 	public void setPage(Page<?> page) {
 		this.page = page;
@@ -269,6 +270,7 @@ public final class DataContainer {
 	 * Convenience method to access the {@link Selection}s of the wrapped {@link Data}.
 	 * 
 	 * @return a list of {@link Selection}s
+	 * 
 	 * @see #getWrappedData()
 	 */
 	public List<Selection> getSelections() {
@@ -279,6 +281,7 @@ public final class DataContainer {
 	 * Convenience method to access the {@link SelectionGroup}s of the wrapped {@link Data}.
 	 * 
 	 * @return a list of {@link SelectionGroup}s
+	 * 
 	 * @see #getWrappedData()
 	 */
 	public List<SelectionGroup> getSelectionGroups() {

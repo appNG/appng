@@ -23,13 +23,11 @@ import org.appng.api.Request;
 import org.appng.api.Scope;
 
 /**
- * 
  * Utility class providing constants for commonly used {@link Environment} attributes.
  * 
  * @author Matthias Müller
  * 
  * @see Environment
- * 
  */
 public class EnvironmentKeys {
 

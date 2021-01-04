@@ -29,7 +29,8 @@ public interface NameProvider<T> {
 	 * Returns the name for the given instance
 	 * 
 	 * @param instance
-	 *            the instance
+	 *                 the instance
+	 * 
 	 * @return the name
 	 */
 	String getName(T instance);

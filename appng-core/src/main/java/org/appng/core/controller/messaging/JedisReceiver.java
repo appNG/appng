@@ -46,7 +46,6 @@ import redis.clients.jedis.Jedis;
  * </ul>
  * 
  * @author Claus Stuemke, aiticon GmbH, 2015
- *
  */
 @Slf4j
 public class JedisReceiver extends JedisBase implements Receiver, Runnable {
@@ -112,7 +111,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 
 	/**
 	 * @param host
-	 *            the host to set
+	 *             the host to set
 	 */
 	public void setHost(String host) {
 		this.host = host;
@@ -127,7 +126,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 
 	/**
 	 * @param port
-	 *            the port to set
+	 *             the port to set
 	 */
 	public void setPort(int port) {
 		this.port = port;
@@ -142,7 +141,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 
 	/**
 	 * @param timeout
-	 *            the timeout to set
+	 *                the timeout to set
 	 */
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;

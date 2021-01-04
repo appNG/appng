@@ -19,5 +19,5 @@ package org.appng.persistence.dialect;
  * @deprecated Use {@link org.appng.persistence.hibernate.dialect.HSQLDialect} instead.
  */
 @Deprecated
-public class HSQLDialect extends org.appng.persistence.hibernate.dialect.HSQLDialect{
+public class HSQLDialect extends org.appng.persistence.hibernate.dialect.HSQLDialect {
 }

@@ -19,7 +19,6 @@ package org.appng.core.model;
  * Responses can have BLOB or CLOB payload.
  * 
  * @author Matthias Herlitzius
- *
  */
 public enum ResponseType {
 	BINARY, CHARACTER;

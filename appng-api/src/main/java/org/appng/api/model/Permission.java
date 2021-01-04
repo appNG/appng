@@ -18,8 +18,8 @@ package org.appng.api.model;
 import org.appng.api.PermissionOwner;
 
 /**
- * A {@link Application} can provide several {@link Permission}s which are used to restrict the access to certain components.
- * Within a {@link Application}, {@link Permission}s are grouped into {@link Role}s.
+ * A {@link Application} can provide several {@link Permission}s which are used to restrict the access to certain
+ * components. Within a {@link Application}, {@link Permission}s are grouped into {@link Role}s.
  * 
  * @author Matthias Müller
  * 

@@ -61,8 +61,10 @@ import org.springframework.data.domain.Sort.Order;
  * given value is {@code null}.</b>
  * 
  * @author Matthias Müller
+ * 
  * @param T
- *        the JPA {@link Entity}-type
+ *          the JPA {@link Entity}-type
+ * 
  * @see SearchRepository#search(SearchQuery, Pageable)
  */
 public class SearchQuery<T> {
@@ -83,7 +85,7 @@ public class SearchQuery<T> {
 	 * Creates a new {@link SearchQuery} for the given type.
 	 * 
 	 * @param domainClass
-	 *            the type of the JPA {@link Entity}
+	 *                    the type of the JPA {@link Entity}
 	 */
 	public SearchQuery(Class<T> domainClass) {
 		this.domainClass = domainClass;
@@ -112,9 +114,9 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param clause
-	 *            the AND clause
+	 *               the AND clause
 	 * @param params
-	 *            the named parameters for the AND-clause
+	 *               the named parameters for the AND-clause
 	 * 
 	 * @see #and(String)
 	 * @see #setAppendEntityAlias(boolean)
@@ -133,7 +135,8 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param clause
-	 *            the AND-clause
+	 *               the AND-clause
+	 * 
 	 * @see #and(String, Map)
 	 * @see #setAppendEntityAlias(boolean)
 	 */
@@ -145,6 +148,7 @@ public class SearchQuery<T> {
 	 * Set to {@code false} to avoid adding the entity alias {@code e.} for each criteria in the JPQL query.
 	 * 
 	 * @param appendEntityAlias
+	 * 
 	 * @see #isAppendEntityAlias()
 	 * @see #setEntityAlias(String)
 	 */
@@ -165,7 +169,7 @@ public class SearchQuery<T> {
 	 * Sets the entity alias to by used in JPQL queries
 	 * 
 	 * @param entityAlias
-	 *            the alias
+	 *                    the alias
 	 */
 	public void setEntityAlias(String entityAlias) {
 		this.entityAlias = entityAlias;
@@ -180,9 +184,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> equals(String name, Object value) {
@@ -199,9 +204,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> notEquals(String name, Object value) {
@@ -218,9 +224,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> greaterThan(String name, Object value) {
@@ -237,9 +244,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> greaterEquals(String name, Object value) {
@@ -256,9 +264,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> lessThan(String name, Object value) {
@@ -275,9 +284,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> lessEquals(String name, Object value) {
@@ -294,9 +304,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *               the name of the attribute
 	 * @param values
-	 *            the values to check
+	 *               the values to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> in(String name, Collection<?> values) {
@@ -313,9 +324,10 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *               the name of the attribute
 	 * @param values
-	 *            the values to check
+	 *               the values to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> notIn(String name, Collection<?> values) {
@@ -335,9 +347,10 @@ public class SearchQuery<T> {
 	 * internally!</b>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> contains(String name, Object value) {
@@ -356,10 +369,12 @@ public class SearchQuery<T> {
 	 * <b>The {@code value} should contain some wildcards ('{@code %}').</b>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
+	 * 
 	 * @see #startsWith(String, Object)
 	 * @see #endsWith(String, Object)
 	 */
@@ -379,10 +394,12 @@ public class SearchQuery<T> {
 	 * <b>The {@code value} should contain some wildcards ('{@code %}').</b>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
+	 * 
 	 * @see #startsWith(String, Object)
 	 * @see #endsWith(String, Object)
 	 */
@@ -402,10 +419,12 @@ public class SearchQuery<T> {
 	 * <b>You don't have to add the wildcard '{@code %}' after the {@code value}, this is done internally!</b>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
+	 * 
 	 * @see #like(String, Object)
 	 */
 	public final SearchQuery<T> startsWith(String name, Object value) {
@@ -424,10 +443,12 @@ public class SearchQuery<T> {
 	 * <b>You don't have to add the wildcard '{@code %}' before the {@code value}, this is done internally!</b>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value to check
+	 *              the value to check
+	 * 
 	 * @return the current {@link SearchQuery}
+	 * 
 	 * @see #like(String, Object)
 	 */
 	public final SearchQuery<T> endsWith(String name, Object value) {
@@ -444,7 +465,8 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *             the name of the attribute
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> isNotNull(String name) {
@@ -461,7 +483,8 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *             the name of the attribute
+	 * 
 	 * @return the current {@link SearchQuery}
 	 */
 	public final SearchQuery<T> isNull(String name) {
@@ -481,11 +504,11 @@ public class SearchQuery<T> {
 	 * given {@code entityName}.
 	 * 
 	 * @param pageable
-	 *            the {@link Pageable}, may be {@code null}
+	 *                     the {@link Pageable}, may be {@code null}
 	 * @param queryBuilder
-	 *            the query builder
+	 *                     the query builder
 	 * @param entityName
-	 *            the name for the entity
+	 *                     the name for the entity
 	 */
 	protected void appendOrder(Pageable pageable, StringBuilder queryBuilder, String entityName) {
 		if (null != pageable) {
@@ -498,11 +521,11 @@ public class SearchQuery<T> {
 	 * {@code entityName}.
 	 * 
 	 * @param sort
-	 *            the {@link Sort}, may be {@code null}
+	 *                     the {@link Sort}, may be {@code null}
 	 * @param queryBuilder
-	 *            the query builder
+	 *                     the query builder
 	 * @param entityName
-	 *            the name for the entity
+	 *                     the name for the entity
 	 */
 	protected void appendOrder(Sort sort, StringBuilder queryBuilder, String entityName) {
 		if (null != sort) {
@@ -525,7 +548,7 @@ public class SearchQuery<T> {
 	 * </pre>
 	 * 
 	 * @param joinQuery
-	 *            the join-part of a JPQL query
+	 *                  the join-part of a JPQL query
 	 */
 	public void join(String joinQuery) {
 		this.joinQuery = joinQuery;
@@ -547,7 +570,8 @@ public class SearchQuery<T> {
 	 * Executes this {@link SearchQuery} with the given {@link EntityManager}.
 	 * 
 	 * @param entityManager
-	 *            the {@link EntityManager}
+	 *                      the {@link EntityManager}
+	 * 
 	 * @return the result-list
 	 */
 	public List<T> execute(EntityManager entityManager) {
@@ -559,9 +583,10 @@ public class SearchQuery<T> {
 	 * any) for paging and sorting the results.
 	 * 
 	 * @param pageable
-	 *            a {@link Pageable} (optional)
+	 *                      a {@link Pageable} (optional)
 	 * @param entityManager
-	 *            the {@link EntityManager}
+	 *                      the {@link EntityManager}
+	 * 
 	 * @return the result-{@link Page}
 	 * 
 	 * @see SearchRepository#search(SearchQuery, Pageable)
@@ -619,8 +644,10 @@ public class SearchQuery<T> {
 	 * Appends a JOIN-clause (if present) and the WHERE-clause to the given {@code queryBuilder}
 	 * 
 	 * @param queryBuilder
-	 *        the {@link StringBuilder} used to build the query
+	 *                     the {@link StringBuilder} used to build the query
+	 * 
 	 * @return the {@code queryBuilder}
+	 * 
 	 * @see #join(String)
 	 */
 	protected StringBuilder appendJoinAndWhereClause(StringBuilder queryBuilder) {
@@ -676,11 +703,12 @@ public class SearchQuery<T> {
 	 * {@link Pageable} starting at page 0 is returned.
 	 * 
 	 * @param query
-	 *            the {@link Query}
+	 *                 the {@link Query}
 	 * @param total
-	 *            the total number of items
+	 *                 the total number of items
 	 * @param pageable
-	 *            the {@link Pageable}
+	 *                 the {@link Pageable}
+	 * 
 	 * @return a (possibly new) {@link Pageable}
 	 */
 	protected Pageable applyPagination(Query query, Long total, Pageable pageable) {

@@ -28,7 +28,6 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
  * Configuration for upNGizr
  * 
  * @author Matthias Müller
- *
  */
 @Configuration
 @EnableWebMvc

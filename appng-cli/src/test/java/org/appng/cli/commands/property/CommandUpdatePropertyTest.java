@@ -26,16 +26,14 @@ import org.junit.Assert;
  * Test for {@link UpdateProperty}.
  * 
  * @author Matthias Müller
- * 
  */
 public class CommandUpdatePropertyTest extends AbstractCommandTest {
 
 	private static final String DEV_MODE = PropertySupport.PREFIX_PLATFORM + Platform.Property.DEV_MODE;
-	
+
 	public ExecutableCliCommand getCommand() {
 		return new UpdateProperty(DEV_MODE, "true", null);
 	}
-	
 
 	public void validate() {
 		PropertyImpl property = cliEnv.getCoreService().getProperty(DEV_MODE);

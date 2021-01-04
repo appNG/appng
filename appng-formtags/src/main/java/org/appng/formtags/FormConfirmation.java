@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 public class FormConfirmation {
 	/**
 	 * Defines when to display the FormConfirmation
-	 * 
 	 */
 	public enum FormConfirmationMode {
 		/** Show Form Confirmation section only if the form is submitted. (default mode) **/

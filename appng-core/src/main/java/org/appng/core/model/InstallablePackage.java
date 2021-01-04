@@ -21,7 +21,6 @@ import org.appng.core.xml.repository.PackageType;
  * A application shown in the {@link Repository} overview list.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class InstallablePackage {
 

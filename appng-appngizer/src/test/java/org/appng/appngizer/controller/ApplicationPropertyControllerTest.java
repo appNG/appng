@@ -45,7 +45,8 @@ public class ApplicationPropertyControllerTest extends ControllerTest {
 		prop.setDescription("this is foo, bar!");
 		putAndVerify("/application/demo-application/property/bar", "xml/application-property-update.xml", prop,
 				HttpStatus.OK);
-		getAndVerify("/application/demo-application/property/bar", "xml/application-property-update.xml", HttpStatus.OK);
+		getAndVerify("/application/demo-application/property/bar", "xml/application-property-update.xml",
+				HttpStatus.OK);
 
 		prop.setName("myNewProp");
 		prop.setDefaultValue("foo");

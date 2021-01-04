@@ -33,9 +33,8 @@ public class ApplicationResourceHolderTest {
 	public void test() throws InvalidConfigurationException, IOException {
 		Application app = Mockito.mock(Application.class);
 		Mockito.when(app.isFileBased()).thenReturn(true);
-		try (
-				ApplicationResourceHolder arh = new ApplicationResourceHolder(app, Mockito.mock(MarshallService.class),
-						new File("src/test/resources/application"), new File("target/cache/"))) {
+		try (ApplicationResourceHolder arh = new ApplicationResourceHolder(app, Mockito.mock(MarshallService.class),
+				new File("src/test/resources/application"), new File("target/cache/"))) {
 			arh.dumpToCache(ResourceType.APPLICATION);
 			File cachedFile = new File("target/cache/application.xml").getAbsoluteFile();
 			Assert.assertTrue(cachedFile.exists());

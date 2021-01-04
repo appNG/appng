@@ -32,7 +32,6 @@ import org.mockito.MockitoAnnotations;
  * Test for {@link CliBootstrap}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class CliBootstrapTest {
 

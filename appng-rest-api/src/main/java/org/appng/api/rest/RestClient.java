@@ -55,9 +55,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A simple client for the appNG REST API, open for extension.
- * 
- * <strong>Note that this class is NOT thread-safe!</strong>
+ * A simple client for the appNG REST API, open for extension. <strong>Note that this class is NOT thread-safe!</strong>
  */
 @Slf4j
 public class RestClient {
@@ -86,9 +84,9 @@ public class RestClient {
 	 * that performed a login action.
 	 * 
 	 * @param url
-	 *            the URL pointing to a site's service URL ({@code /service/<site-name>})
+	 *                the URL pointing to a site's service URL ({@code /service/<site-name>})
 	 * @param cookies
-	 *            the cookie to use
+	 *                the cookie to use
 	 * 
 	 * @see RestClient#getCookies()
 	 */
@@ -113,12 +111,14 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the application
+	 *                    the name of the application
 	 * @param id
-	 *            the ID of the {@link Datasource}
+	 *                    the ID of the {@link Datasource}
+	 * 
 	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id) throws URISyntaxException {
 		return datasource(application, id, (Pageable) null);
@@ -128,14 +128,16 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the application
+	 *                    the name of the application
 	 * @param id
-	 *            the ID of the {@link Datasource}
+	 *                    the ID of the {@link Datasource}
 	 * @param pageable
-	 *            a {@link Pageable} (optional)
+	 *                    a {@link Pageable} (optional)
+	 * 
 	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id, Pageable pageable)
 			throws URISyntaxException {
@@ -146,14 +148,16 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the application
+	 *                    the name of the application
 	 * @param id
-	 *            the ID of the {@link Datasource}
+	 *                    the ID of the {@link Datasource}
 	 * @param parameters
-	 *            some additional parameters
+	 *                    some additional parameters
+	 * 
 	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id,
 			MultiValueMap<String, String> parameters) throws URISyntaxException {
@@ -164,16 +168,18 @@ public class RestClient {
 	 * Retrieves the {@link Datasource}.
 	 * 
 	 * @param application
-	 *            the name of the application
+	 *                    the name of the application
 	 * @param id
-	 *            the ID of the {@link Datasource}
+	 *                    the ID of the {@link Datasource}
 	 * @param pageable
-	 *            a {@link Pageable} (optional)
+	 *                    a {@link Pageable} (optional)
 	 * @param parameters
-	 *            some additional parameters
+	 *                    some additional parameters
+	 * 
 	 * @return the {@link Datasource} wrapped in a {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Datasource> datasource(String application, String id, Pageable pageable,
 			MultiValueMap<String, String> parameters) throws URISyntaxException {
@@ -197,16 +203,18 @@ public class RestClient {
 	 * Retrieves the {@link Action}.
 	 * 
 	 * @param application
-	 *            the name of the application
+	 *                      the name of the application
 	 * @param eventId
-	 *            the event-ID of the {@link Action}
+	 *                      the event-ID of the {@link Action}
 	 * @param actionId
-	 *            the ID of the {@link Action}
+	 *                      the ID of the {@link Action}
 	 * @param pathVariables
-	 *            some additional path variables
+	 *                      some additional path variables
+	 * 
 	 * @return the (unprocessed) {@link Action} wrapped in a {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Action> getAction(String application, String eventId, String actionId,
 			String... pathVariables) throws URISyntaxException {
@@ -239,10 +247,12 @@ public class RestClient {
 	 * Retrieves the {@link Action} represented by the {@link Link}
 	 * 
 	 * @param link
-	 *            the {@link Link} representing the {@link Action}'s URI
+	 *             the {@link Link} representing the {@link Action}'s URI
+	 * 
 	 * @return the (unprocessed) {@link Action} wrapped in a {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Action> getAction(Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split(PATH_SEPARATOR);
@@ -255,12 +265,14 @@ public class RestClient {
 	 * Performs an {@link Action}, the URI is defined by the {@link Link}.
 	 * 
 	 * @param data
-	 *            the {@link Action}-data to send
+	 *             the {@link Action}-data to send
 	 * @param link
-	 *            the {@link Link}
+	 *             the {@link Link}
+	 * 
 	 * @return a {@link RestResponseEntity} wrapping the resulting {@link Action}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Action> performAction(Action data, Link link) throws URISyntaxException {
 		String[] pathSegments = link.getTarget().split(PATH_SEPARATOR);
@@ -302,14 +314,16 @@ public class RestClient {
 	 * Performs an {@link Action}.
 	 * 
 	 * @param application
-	 *            the name of the application
+	 *                      the name of the application
 	 * @param data
-	 *            the {@link Action}-data to send
+	 *                      the {@link Action}-data to send
 	 * @param pathVariables
-	 *            some additional path variables
+	 *                      some additional path variables
+	 * 
 	 * @return a {@link RestResponseEntity} wrapping the resulting {@link Action}
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the URI
+	 *                            if something is wrong with the URI
 	 */
 	public RestResponseEntity<Action> performAction(String application, Action data, String... pathVariables)
 			throws URISyntaxException {
@@ -352,10 +366,12 @@ public class RestClient {
 	 * Returns the resource represented by the link as binary data
 	 * 
 	 * @param link
-	 *            the ink to there resource
+	 *             the ink to there resource
+	 * 
 	 * @return the resource
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the link
+	 *                            if something is wrong with the link
 	 */
 	public RestResponseEntity<byte[]> getBinaryData(Link link) throws URISyntaxException {
 		String path = getRelativePathFromLink(link);
@@ -373,10 +389,12 @@ public class RestClient {
 	 * Returns the resource represented by the relative path
 	 * 
 	 * @param relativePath
-	 *            the relative path, e.g. <code>/application/rest/downloads/4711</code>
+	 *                     the relative path, e.g. <code>/application/rest/downloads/4711</code>
+	 * 
 	 * @return the resource
+	 * 
 	 * @throws URISyntaxException
-	 *             if something is wrong with the path
+	 *                            if something is wrong with the path
 	 */
 	public RestResponseEntity<byte[]> getBinaryData(String relativePath) throws URISyntaxException {
 		return getResource(relativePath, byte[].class);
@@ -391,14 +409,16 @@ public class RestClient {
 	 * </pre>
 	 * 
 	 * @param path
-	 *            the relative path to the resource, starting with the application's name
+	 *                   the relative path to the resource, starting with the application's name
 	 * @param body
-	 *            the request body (optional)
+	 *                   the request body (optional)
 	 * @param returnType
-	 *            the type of the response
+	 *                   the type of the response
 	 * @param method
-	 *            the {@link HttpMethod} to use
+	 *                   the {@link HttpMethod} to use
+	 * 
 	 * @return the {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
 	 */
 	public <OUT, IN> RestResponseEntity<IN> exchange(String path, OUT body, Class<IN> returnType, HttpMethod method)
@@ -451,10 +471,12 @@ public class RestClient {
 	 * </pre>
 	 * 
 	 * @param path
-	 *            the relative path to the resource, starting with the application's name
+	 *                   the relative path to the resource, starting with the application's name
 	 * @param returnType
-	 *            the type of the response
+	 *                   the type of the response
+	 * 
 	 * @return the {@link RestResponseEntity}
+	 * 
 	 * @throws URISyntaxException
 	 */
 	public <IN> RestResponseEntity<IN> getResource(String path, Class<IN> returnType) throws URISyntaxException {
@@ -477,9 +499,9 @@ public class RestClient {
 		 * Creates a new pageable without any sorting
 		 * 
 		 * @param page
-		 *            the zero-indexed page number
+		 *                 the zero-indexed page number
 		 * @param pageSize
-		 *            the size of a page
+		 *                 the size of a page
 		 **/
 		public Pageable(int page, int pageSize) {
 			this(page, pageSize, false);
@@ -489,11 +511,11 @@ public class RestClient {
 		 * Creates a new pageable without any sorting
 		 * 
 		 * @param page
-		 *            the zero-indexed page number
+		 *                 the zero-indexed page number
 		 * @param pageSize
-		 *            the size of a page
+		 *                 the size of a page
 		 * @param reset
-		 *            set to {@code true} to reset current sort criteria
+		 *                 set to {@code true} to reset current sort criteria
 		 **/
 		public Pageable(int page, int pageSize, boolean reset) {
 			this.page = page;
@@ -505,13 +527,13 @@ public class RestClient {
 		 * Creates a new pageable
 		 * 
 		 * @param page
-		 *            the zero-indexed page number
+		 *                 the zero-indexed page number
 		 * @param pageSize
-		 *            the size of a page
+		 *                 the size of a page
 		 * @param field
-		 *            the field to sort
+		 *                 the field to sort
 		 * @param order
-		 *            the direction to sort
+		 *                 the direction to sort
 		 **/
 		public Pageable(int page, int pageSize, String field, OrderEnum order) {
 			this(page, pageSize, field, order, false);
@@ -521,15 +543,15 @@ public class RestClient {
 		 * Creates a new pageable
 		 * 
 		 * @param page
-		 *            the zero-indexed page number
+		 *                 the zero-indexed page number
 		 * @param pageSize
-		 *            the size of a page
+		 *                 the size of a page
 		 * @param field
-		 *            the field to sort
+		 *                 the field to sort
 		 * @param order
-		 *            the direction to sort
+		 *                 the direction to sort
 		 * @param reset
-		 *            set to {@code true} to reset current sort criteria
+		 *                 set to {@code true} to reset current sort criteria
 		 */
 		public Pageable(int page, int pageSize, String field, OrderEnum order, boolean reset) {
 			setPage(page);
@@ -542,9 +564,10 @@ public class RestClient {
 		 * Adds a sort criteria for the given field.
 		 * 
 		 * @param field
-		 *            the field to sort
+		 *                  the field to sort
 		 * @param direction
-		 *            the direction to sort
+		 *                  the direction to sort
+		 * 
 		 * @return this {@link Pageable}
 		 */
 		public Pageable addSort(String field, OrderEnum direction) {

@@ -28,12 +28,11 @@ import org.appng.xml.platform.SectionelementDef;
 
 /**
  * An {@link DataProvider} usually retrieves some data from the persistence layer and returns it as a
- * {@link DataContainer}. The implementing class needs to be defined in the application's {@code beans.xml}. This bean is
- * then being referenced within an {@link Action} or a {@link SectionelementDef} using a {@link DatasourceRef}.
+ * {@link DataContainer}. The implementing class needs to be defined in the application's {@code beans.xml}. This bean
+ * is then being referenced within an {@link Action} or a {@link SectionelementDef} using a {@link DatasourceRef}.
  * <p>
  * 
  * @author Matthias Müller
- * 
  */
 public interface DataProvider {
 
@@ -42,29 +41,29 @@ public interface DataProvider {
 	 * <p>
 	 * Either {@link DataContainer#setItem(Object)} or one of
 	 * <ul>
-	 * <li> {@link DataContainer#setItems(java.util.Collection)}
-	 * <li>
-	 * {@link DataContainer#setPage(java.util.Collection, org.springframework.data.domain.Pageable)}
-	 * <li> {@link DataContainer#setPage(org.springframework.data.domain.Page)}
+	 * <li>{@link DataContainer#setItems(java.util.Collection)}
+	 * <li>{@link DataContainer#setPage(java.util.Collection, org.springframework.data.domain.Pageable)}
+	 * <li>{@link DataContainer#setPage(org.springframework.data.domain.Page)}
 	 * </ul>
-	 * 
 	 * must have been called on the returned {@link DataContainer}.
 	 * <p>
 	 * Those item(s) need(s) to be of the type defined in {@link MetaData#getBindClass()} of the {@link Datasource}'s
 	 * {@link DataConfig}.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                       the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                       the current {@link Application}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                       the current {@link Environment}
 	 * @param options
-	 *            the {@link Options} for this {@link DataProvider}
+	 *                       the {@link Options} for this {@link DataProvider}
 	 * @param request
-	 *            the current {@link Request}
+	 *                       the current {@link Request}
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} containing all readable {@link FieldDef}initions for this DataProvider
+	 *                       the {@link FieldProcessor} containing all readable {@link FieldDef}initions for this
+	 *                       DataProvider
+	 * 
 	 * @return a {@link DataContainer} holding the {@link Data} for the defining {@link Datasource}
 	 */
 	DataContainer getData(Site site, Application application, Environment environment, Options options, Request request,

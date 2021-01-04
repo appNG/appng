@@ -37,7 +37,6 @@ import javax.validation.constraints.Size;
  * {@code @}{@link Size}{@code (min = 1)}.
  * 
  * @author Matthias Müller
- *
  */
 @NotNull
 @Size(min = 1)

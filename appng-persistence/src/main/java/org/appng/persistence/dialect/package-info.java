@@ -3,4 +3,3 @@
  */
 @java.lang.Deprecated
 package org.appng.persistence.dialect;
-

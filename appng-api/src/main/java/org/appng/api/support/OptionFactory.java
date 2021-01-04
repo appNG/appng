@@ -36,15 +36,17 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                         a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -61,15 +63,17 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                        the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                        the title-id of the {@link OptionOwner} (see
+	 *                        {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                        the elements to create {@link Option}s from
 	 * @param selectedElement
-	 *            the selected element
+	 *                        the selected element
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                        a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -85,13 +89,15 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Named#getId()} is used. {@link Named#getName()()} is used for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -105,13 +111,15 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Named#getId()} is used. {@link Named#getName()()} is used for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                        the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                        the title-id of the {@link OptionOwner} (see
+	 *                        {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                        the elements to create {@link Option}s from
 	 * @param selectedElement
-	 *            the selected element
+	 *                        the selected element
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -125,13 +133,14 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Named#getId()} is used. {@link Named#getName()()} is used for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                    the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                    the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                    the elements to create {@link Option}s from
 	 * @param selector
-	 *            a {@link org.appng.api.support.OptionOwner.Selector}
+	 *                    a {@link org.appng.api.support.OptionOwner.Selector}
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -146,15 +155,16 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                     the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                     the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                     the elements to create {@link Option}s from
 	 * @param selector
-	 *            a {@link org.appng.api.support.OptionOwner.Selector}
+	 *                     a {@link org.appng.api.support.OptionOwner.Selector}
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                     a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -171,13 +181,15 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s id, {@link Identifiable#getId()} is used, for the value {@link #toString()}.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -193,13 +205,15 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s id, {@link Identifiable#getId()} is used, for the value {@link #toString()}.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                        the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                        the title-id of the {@link OptionOwner} (see
+	 *                        {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                        the elements to create {@link Option}s from
 	 * @param selectedElement
-	 *            the selected element
+	 *                        the selected element
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -214,15 +228,17 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link #toString()} is used for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                        the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                        the title-id of the {@link OptionOwner} (see
+	 *                        {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                        the elements to create {@link Option}s from
 	 * @param selectedElement
-	 *            the selected element
+	 *                        the selected element
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                        a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -237,15 +253,17 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link #toString()} is used for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                         a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -261,13 +279,14 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s id, {@link Identifiable#getId()} is used, for the value {@link #toString()}.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                    the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                    the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                    the elements to create {@link Option}s from
 	 * @param selector
-	 *            a {@link org.appng.api.support.OptionOwner.Selector}
+	 *                    a {@link org.appng.api.support.OptionOwner.Selector}
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -282,15 +301,16 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link #toString()} is used for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                     the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                     the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                     the elements to create {@link Option}s from
 	 * @param selector
-	 *            a {@link org.appng.api.support.OptionOwner.Selector}
+	 *                     a {@link org.appng.api.support.OptionOwner.Selector}
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                     a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -307,13 +327,15 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * 's id and value, {@link Enum#name()} is used.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -326,13 +348,15 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * 's id and value, {@link Enum#name()} is used.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                        the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                        the title-id of the {@link OptionOwner} (see
+	 *                        {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                        the elements to create {@link Option}s from
 	 * @param selectedElement
-	 *            the selected element
+	 *                        the selected element
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -346,15 +370,17 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                         a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -371,15 +397,17 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                        the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                        the title-id of the {@link OptionOwner} (see
+	 *                        {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                        the elements to create {@link Option}s from
 	 * @param selectedElement
-	 *            the selected element
+	 *                        the selected element
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                        a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -393,13 +421,14 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * and value, {@link Object#toString()} is used.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                    the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                    the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                    the elements to create {@link Option}s from
 	 * @param selector
-	 *            a {@link org.appng.api.support.OptionOwner.Selector}
+	 *                    a {@link org.appng.api.support.OptionOwner.Selector}
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -413,15 +442,16 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                     the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                     the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                     the elements to create {@link Option}s from
 	 * @param selector
-	 *            a {@link org.appng.api.support.OptionOwner.Selector}
+	 *                     a {@link org.appng.api.support.OptionOwner.Selector}
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                     a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -438,13 +468,15 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * and value, {@link Object#toString()} is used.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -458,15 +490,17 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * for the {@link Option}'s value.
 	 * 
 	 * @param id
-	 *            the id of the {@link OptionOwner}
+	 *                         the id of the {@link OptionOwner}
 	 * @param titleId
-	 *            the title-id of the {@link OptionOwner} (see {@link org.appng.xml.platform.Label#getId()}).
+	 *                         the title-id of the {@link OptionOwner} (see
+	 *                         {@link org.appng.xml.platform.Label#getId()}).
 	 * @param allElements
-	 *            the elements to create {@link Option}s from
+	 *                         the elements to create {@link Option}s from
 	 * @param selectedElements
-	 *            the selected elements
+	 *                         the selected elements
 	 * @param nameProvider
-	 *            a {@link NameProvider} (optional)
+	 *                         a {@link NameProvider} (optional)
+	 * 
 	 * @return a new {@link OptionOwner} (actually a {@link org.appng.xml.platform.Selection} or a
 	 *         {@link org.appng.xml.platform.OptionGroup})
 	 */
@@ -481,9 +515,9 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * Counts and sets the hits for the options based on their value.
 	 * 
 	 * @param options
-	 *            some options
+	 *                some options
 	 * @param counter
-	 *            a {@link HitCounter}
+	 *                a {@link HitCounter}
 	 * 
 	 * @see Option#getValue()
 	 * @see Option#getHits()
@@ -498,9 +532,9 @@ abstract class OptionFactory<T extends OptionOwner> {
 	 * Counts and sets the hits for the owner's options based on their value.
 	 * 
 	 * @param optionOwner
-	 *            an {@link OptionOwner}
+	 *                    an {@link OptionOwner}
 	 * @param counter
-	 *            a {@link HitCounter}
+	 *                    a {@link HitCounter}
 	 * 
 	 * @see Option#getValue()
 	 * @see Option#getHits()

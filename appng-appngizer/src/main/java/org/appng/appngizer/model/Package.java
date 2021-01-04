@@ -26,7 +26,7 @@ public class Package extends org.appng.appngizer.model.xml.Package implements Ur
 		p.setName(pkg.getName());
 		p.setDisplayName(pkg.getDisplayName());
 		p.setTimestamp(pkg.getTimestamp());
-		p.setVersion(pkg.getVersion());		
+		p.setVersion(pkg.getVersion());
 		p.setInstalled(installed);
 		PackageType type = (pkg instanceof ApplicationInfo) ? PackageType.APPLICATION : PackageType.TEMPLATE;
 		p.setType(type);

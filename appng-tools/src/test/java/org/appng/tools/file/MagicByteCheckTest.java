@@ -27,7 +27,6 @@ import org.junit.Test;
  * TODO insert description
  * 
  * @author Claus Stümke, aiticon GmbH, 2016
- *
  */
 public class MagicByteCheckTest {
 

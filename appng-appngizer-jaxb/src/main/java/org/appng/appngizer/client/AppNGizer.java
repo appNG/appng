@@ -68,12 +68,10 @@ import lombok.extern.slf4j.Slf4j;
  * appNGizer.login();
  * </pre>
  * 
- * Check out the <a href=
- * "https://appng.org/appng/docs/current/appngizer/html/appngizer-user-manual.html">appNGizer
+ * Check out the <a href= "https://appng.org/appng/docs/current/appngizer/html/appngizer-user-manual.html">appNGizer
  * User Manual</a> for a detailed description of the possible operations.
  * 
  * @author Matthias Müller
- *
  */
 
 @Slf4j

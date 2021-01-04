@@ -24,7 +24,6 @@ import javax.validation.constraints.Size;
  * Utility class providing constants for the message-keys used in validation-annotations.
  * 
  * @author Matthias Müller
- * 
  */
 public class ValidationMessages {
 

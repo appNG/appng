@@ -26,7 +26,7 @@ public class StringNormalizerTest {
 		String string = "äÄöÖüÜßñéôëïçèÕдвойной-верхнийáóúñéí°^!\"§$%&/()=?´{[]}\\`+-*%,:;<>#~'";
 		Assert.assertEquals("aeAeoeOeueUessneoeiceOдвоиноиверхнииaounei", StringNormalizer.normalize(string));
 	}
-	
+
 	@Test
 	public void testStripNonPrintableCharacter() {
 		for (int c = 0; c < 32; c++) {

@@ -21,9 +21,9 @@ import java.util.List;
 /**
  * If a {@link Application} want's to authorize a domain object to several {@link Role}s, the domain-object needs to
  * implement {@link Authorizable}.<br/>
- * The {@link Role}s provided by the {@link Application} can be obtained by calling {@link Application#getRoles()}. Since
- * the {@link Role}s are maintained by appNG and not by the {@link Application} itself, the {@link Authorizable} just
- * needs to maintain the IDs of the authorized {@link Role}s.<br/>
+ * The {@link Role}s provided by the {@link Application} can be obtained by calling {@link Application#getRoles()}.
+ * Since the {@link Role}s are maintained by appNG and not by the {@link Application} itself, the {@link Authorizable}
+ * just needs to maintain the IDs of the authorized {@link Role}s.<br/>
  * When using JPA for persisting domain objects, this can easily be done by using a
  * {@code javax.persistence.ElementCollection}.
  * 
@@ -42,11 +42,9 @@ import java.util.List;
 public interface Authorizable<T extends Serializable> extends Named<T> {
 
 	/**
-	 * Returns a list containing the IDs of all {@link Role}s which are authorized to access this
-	 * {@link Authorizable}.
+	 * Returns a list containing the IDs of all {@link Role}s which are authorized to access this {@link Authorizable}.
 	 * 
-	 * @return a list containing the IDs of all {@link Role}s which are authorized to access this
-	 *         {@link Authorizable}
+	 * @return a list containing the IDs of all {@link Role}s which are authorized to access this {@link Authorizable}
 	 */
 	public List<Integer> getRoleIds();
 

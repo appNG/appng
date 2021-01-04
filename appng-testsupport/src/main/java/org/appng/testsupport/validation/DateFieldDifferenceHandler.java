@@ -47,8 +47,6 @@ import org.w3c.dom.Node;
  * distinction is required, use {@link XPathDifferenceHandler} instead.
  * 
  * @author Matthias Müller
- * 
- * 
  */
 public class DateFieldDifferenceHandler extends DifferenceHandler {
 

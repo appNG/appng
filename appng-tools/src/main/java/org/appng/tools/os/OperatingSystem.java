@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
  * Enum type for different operating systems.
  * 
  * @author Matthias Müller
- * 
  */
 public enum OperatingSystem {
 

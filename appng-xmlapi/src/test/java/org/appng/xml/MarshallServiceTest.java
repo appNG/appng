@@ -37,8 +37,8 @@ public class MarshallServiceTest {
 	@Test
 	public void testRoundTrip() throws Exception {
 		MarshallService marshallService = init(true, true, true);
-		InputStream isOriginal = MarshallServiceTest.class.getClassLoader().getResourceAsStream(
-				"xml/platform-original.xml");
+		InputStream isOriginal = MarshallServiceTest.class.getClassLoader()
+				.getResourceAsStream("xml/platform-original.xml");
 		Object masterOriginal = marshallService.unmarshall(isOriginal);
 
 		InputStream isControl = MarshallServiceTest.class.getClassLoader().getResourceAsStream("xml/platform.xml");

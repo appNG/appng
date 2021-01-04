@@ -122,8 +122,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		try (MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:10.4")) {
 			mariadb.withUsername("root").withPassword("").start();
 			System.err.println(mariadb.getJdbcUrl());
-			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", "10.4", "", true,
-					true);
+			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", "10.4", "", true, true);
 		}
 	}
 

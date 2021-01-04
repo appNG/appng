@@ -26,7 +26,6 @@ import org.appng.api.model.Site;
  * {@link XMLTaglet}, the calling and executing {@link Site} are always the same.
  * 
  * @author Matthias Müller
- * 
  */
 public interface GlobalXMLTaglet extends XMLTaglet {
 
@@ -34,15 +33,15 @@ public interface GlobalXMLTaglet extends XMLTaglet {
 	 * Executes the {@code GlobalTaglet} and returns a {@link String} to be embedded at the calling JSP-page.
 	 * 
 	 * @param callingSite
-	 *            the {@link Site} where the original JSP-call came from
+	 *                         the {@link Site} where the original JSP-call came from
 	 * @param executingSite
-	 *            the {@link Site} in which the JSP-call will be executed
+	 *                         the {@link Site} in which the JSP-call will be executed
 	 * @param application
-	 *            the current {@link Application}
+	 *                         the current {@link Application}
 	 * @param request
-	 *            the current {@link Request}
+	 *                         the current {@link Request}
 	 * @param tagletAttributes
-	 *            a {@link Map} containing the attributes for the {@code XMLTaglet}
+	 *                         a {@link Map} containing the attributes for the {@code XMLTaglet}
 	 * 
 	 * @return a {@link DataContainer} to be marshaled to XML and transformed
 	 */

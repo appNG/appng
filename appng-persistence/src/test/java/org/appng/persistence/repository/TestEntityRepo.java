@@ -15,7 +15,6 @@
  */
 package org.appng.persistence.repository;
 
-
 import org.appng.persistence.model.TestEntity;
 import org.springframework.transaction.annotation.Transactional;
 
