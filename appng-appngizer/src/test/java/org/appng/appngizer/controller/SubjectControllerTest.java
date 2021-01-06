@@ -31,6 +31,33 @@ import org.springframework.http.HttpStatus;
 public class SubjectControllerTest extends ControllerTest {
 
 	@Test
+	public void testInvalidName() throws Exception {
+		Subject subject = new Subject();
+		subject.setName("john doe");
+		subject.setRealName("John Doe");
+		subject.setEmail("admin@appng.org");
+		subject.setTimeZone("Europe/London");
+		subject.setLanguage("en");
+		subject.setType(UserType.GLOBAL_USER);
+		postAndVerify("/subject", "", subject, HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void testDotInName() throws Exception {
+		Subject subject = new Subject();
+		subject.setName("john.doe");
+		subject.setRealName("John Doe");
+		subject.setEmail("admin@appng.org");
+		subject.setTimeZone("Europe/London");
+		subject.setLanguage("en");
+		subject.setType(UserType.GLOBAL_USER);
+		postAndVerify("/subject", "", subject, HttpStatus.CREATED);
+		subject.setTimeZone("Europe/Paris");
+		putAndVerify("/subject/john.doe", "", subject, HttpStatus.OK);
+		deleteAndVerify("/subject/john.doe", "", HttpStatus.NO_CONTENT);
+	}
+
+	@Test
 	public void testCreateRetrieveAndUpdate() throws Exception {
 		Group group = new Group();
 		group.setName("Admin");

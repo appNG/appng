@@ -17,16 +17,11 @@ package org.appng.appngizer.controller;
 
 import java.net.URI;
 
-import javax.net.ssl.SSLContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.ConstraintViolationException;
 
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContexts;
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
 import org.appng.api.model.Properties;
@@ -44,8 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -74,8 +67,16 @@ public abstract class ControllerBase {
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(BusinessException.class)
 	public void onBusinessException(HttpServletRequest request, BusinessException e) {
-		String message = String.format("%s error while processing [%s] %s", request.getSession().getId(),
-				request.getMethod(), request.getServletPath());
+		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
+				request.getMethod(), request.getRequestURI());
+		logger().error(message, e);
+	}
+
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(ConstraintViolationException.class)
+	public void onConstraintViolationException(HttpServletRequest request, ConstraintViolationException e) {
+		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
+				request.getMethod(), request.getRequestURI());
 		logger().error(message, e);
 	}
 

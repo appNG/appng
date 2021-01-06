@@ -28,6 +28,22 @@ import org.springframework.mock.web.MockHttpServletResponse;
 public class GroupControllerTest extends ControllerTest {
 
 	@Test
+	public void testInvalidName() throws Exception {
+		Group group = new Group();
+		group.setName("john doe!");
+		postAndVerify("/group", "", group, HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void testDotInName() throws Exception {
+		Group group = new Group();
+		group.setName("with.dot");
+		postAndVerify("/group", "", group, HttpStatus.CREATED);
+		putAndVerify("/group/with.dot", "", group, HttpStatus.OK);
+		deleteAndVerify("/group/with.dot", "", HttpStatus.NO_CONTENT);
+	}
+
+	@Test
 	public void testCreateRetrieveAndUpdate() throws Exception {
 		installApplication();
 

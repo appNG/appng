@@ -52,7 +52,7 @@ public class GroupController extends ControllerBase {
 		return ok(groups);
 	}
 
-	@GetMapping(value = "/group/{name}")
+	@GetMapping(value = "/group/{name:.+}")
 	public ResponseEntity<Group> getGroup(@PathVariable("name") String name) {
 		GroupImpl group = getCoreService().getGroupByName(name, true);
 		if (null == group) {
@@ -83,7 +83,7 @@ public class GroupController extends ControllerBase {
 		return created(getGroup(group.getName()).getBody());
 	}
 
-	@PutMapping(value = "/group/{name}")
+	@PutMapping(value = "/group/{name:.+}")
 	public ResponseEntity<Group> updateGroup(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Group group) {
 		boolean nameChanged = nameChanged(group, name);
@@ -126,7 +126,7 @@ public class GroupController extends ControllerBase {
 		}
 	}
 
-	@DeleteMapping(value = "/group/{name}")
+	@DeleteMapping(value = "/group/{name:.+}")
 	public ResponseEntity<Void> deleteGroup(@PathVariable("name") String name) {
 		GroupImpl currentGroup = getCoreService().getGroupByName(name);
 		if (null == currentGroup) {

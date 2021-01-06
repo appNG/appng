@@ -58,7 +58,7 @@ public class RoleController extends ControllerBase {
 		return ok(roles);
 	}
 
-	@GetMapping(value = "/application/{app}/role/{name}")
+	@GetMapping(value = "/application/{app}/role/{name:.+}")
 	public ResponseEntity<Role> getRole(@PathVariable("app") String app, @PathVariable("name") String name) {
 		org.appng.api.model.Role role = getApplicationRole(app, name);
 		if (null == role) {
@@ -87,7 +87,7 @@ public class RoleController extends ControllerBase {
 		return created(getRole(app, role.getName()).getBody());
 	}
 
-	@PutMapping(value = "/application/{app}/role/{name}")
+	@PutMapping(value = "/application/{app}/role/{name:.+}")
 	public ResponseEntity<Role> updateRole(@PathVariable("app") String app, @PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Role role) {
 		org.appng.core.domain.RoleImpl appRole = getApplicationRole(app, name);
@@ -115,7 +115,7 @@ public class RoleController extends ControllerBase {
 		getCoreService().saveRole((RoleImpl) appRole);
 	}
 
-	@DeleteMapping(value = "/application/{app}/role/{name}")
+	@DeleteMapping(value = "/application/{app}/role/{name:.+}")
 	public ResponseEntity<Void> deleteRole(@PathVariable("app") String app, @PathVariable("name") String name)
 			throws BusinessException {
 		org.appng.api.model.Role appRole = getApplicationRole(app, name);
