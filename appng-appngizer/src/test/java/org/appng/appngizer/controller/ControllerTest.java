@@ -184,7 +184,7 @@ public abstract class ControllerTest {
 			HttpStatus status, String controlSource)
 			throws Exception, UnsupportedEncodingException, SAXException, IOException {
 		if (null != content) {
-			builder.contentType(MediaType.TEXT_XML);
+			builder.contentType(MediaType.TEXT_XML_VALUE);
 			StringResult result = new StringResult();
 			marshaller.marshal(content, result);
 			builder.content(result.toString());
@@ -198,6 +198,9 @@ public abstract class ControllerTest {
 		MvcResult mvcResult = mockMvc.perform(builder).andReturn();
 		MockHttpServletResponse response = mvcResult.getResponse();
 		Assert.assertEquals("HTTP status does not match	", status.value(), response.getStatus());
+		if (HttpStatus.OK.equals(status)) {
+			Assert.assertEquals("Content type does not match ", MediaType.TEXT_XML_VALUE, response.getContentType());
+		}
 		validate(response.getContentAsString(), controlSource);
 		return response;
 	}

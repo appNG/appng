@@ -111,7 +111,7 @@ public class GroupController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	public void updateRoles(org.appng.appngizer.model.xml.Roles roles, GroupImpl group) {
+	private void updateRoles(org.appng.appngizer.model.xml.Roles roles, GroupImpl group) {
 		if (null != roles) {
 			group.getRoles().clear();
 			if (null != roles.getRole()) {
