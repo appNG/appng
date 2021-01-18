@@ -57,6 +57,7 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 	public void configure(DatabaseConnection connection) {
 		HikariConfig configuration = new HikariConfig();
 
+		configuration.setMinimumIdle(connection.getMinConnections());
 		configuration.setMaximumPoolSize(connection.getMaxConnections());
 		if (StringUtils.isNotBlank(connection.getValidationQuery())) {
 			configuration.setConnectionTestQuery(connection.getValidationQuery());
