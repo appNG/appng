@@ -21,6 +21,7 @@ import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.appng.core.JMXUtils;
 import org.appng.core.domain.DatabaseConnection;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**

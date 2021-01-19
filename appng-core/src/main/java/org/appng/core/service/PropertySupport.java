@@ -37,6 +37,7 @@ import org.appng.api.support.PropertyHolder;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.controller.messaging.MulticastReceiver;
 import org.appng.core.domain.SiteImpl;
+import org.appng.core.repository.config.DataSourceFactory;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.security.DefaultPasswordPolicy;
 

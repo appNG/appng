@@ -15,6 +15,8 @@
  */
 package org.appng.core.repository.config;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.sql.DataSource;
 
 import org.appng.core.domain.DatabaseConnection;
