@@ -46,8 +46,9 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of creation/destruction and usage of
- * {@link HttpSession}s by putting a {@link Session} object, which is updated on each request, into the
+ * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
+ * creation/destruction and usage of {@link HttpSession}s by putting a
+ * {@link Session} object, which is updated on each request, into the
  * {@link HttpSession}
  * 
  * @author Matthias Herlitzius
@@ -133,7 +134,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 		Site site = RequestUtil.getSite(env, request);
 		setSecureFlag(httpServletRequest, site);
 		setDiagnosticContext(env, httpServletRequest, site);
-		if (site.getProperties().getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)) {
+		if (null != site && site.getProperties().getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)) {
 			HttpSession httpSession = httpServletRequest.getSession();
 			Session session = (Session) httpSession.getAttribute(META_DATA);
 			if (null == session) {
