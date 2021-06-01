@@ -70,6 +70,8 @@ public class DatabaseServiceTest extends TestInitializer {
 		StringBuilder dbInfo = new StringBuilder();
 		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
 		Assert.assertTrue(dbInfo.toString().startsWith("HSQL Database Engine"));
+		Assert.assertEquals(Integer.valueOf(3), platformConnection.getMinConnections());
+		Assert.assertEquals(Integer.valueOf(25), platformConnection.getMaxConnections());
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
@@ -257,6 +259,8 @@ public class DatabaseServiceTest extends TestInitializer {
 		platformProperties.setProperty(DatabaseService.DATABASE_VALIDATION_QUERY, "");
 		platformProperties.setProperty(DatabaseService.DATABASE_VALIDATION_PERIOD, "15");
 		platformProperties.setProperty(DatabaseService.HIBERNATE_CONNECTION_DRIVER_CLASS, driverClass);
+		platformProperties.setProperty(DatabaseService.DATABASE_MIN_CONNECTIONS, "3");
+		platformProperties.setProperty(DatabaseService.DATABASE_MAX_CONNECTIONS, "25");
 		return platformProperties;
 	}
 

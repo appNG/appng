@@ -35,7 +35,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A service offering methods for configuring and initializing {@link DatabaseConnection}s using
+ * A service offering methods for configuring and initializing
+ * {@link DatabaseConnection}s using
  * <a href="http://www.flywaydb.org">Flyway</a>.
  * 
  * @author Matthias Müller
@@ -83,7 +84,8 @@ public class MigrationService {
 		/**
 		 * Checks whether this {@link MigrationStatus} is in an erroneous state.
 		 * 
-		 * @return {@code true} if this {@link MigrationStatus} is one of {@link MigrationStatus#ERROR} or
+		 * @return {@code true} if this {@link MigrationStatus} is one of
+		 *         {@link MigrationStatus#ERROR} or
 		 *         {@link MigrationStatus#DB_NOT_AVAILABLE}, {@code false} otherwise
 		 */
 		public boolean isErroneous() {
@@ -92,11 +94,11 @@ public class MigrationService {
 	}
 
 	/**
-	 * Configures and (optionally) migrates the appNG root {@link DatabaseConnection} from the given
-	 * {@link java.util.Properties}.
+	 * Configures and (optionally) migrates the appNG root
+	 * {@link DatabaseConnection} from the given {@link java.util.Properties}.
 	 * 
-	 * @param config
-	 *               the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * @param config the properties read from
+	 *               {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
 	 * 
 	 * @return the appNG root {@link DatabaseConnection}
 	 */
@@ -125,8 +127,11 @@ public class MigrationService {
 		String driverClass = properties.getProperty(HIBERNATE_CONNECTION_DRIVER_CLASS);
 		String username = properties.getProperty(HIBERNATE_CONNECTION_USERNAME);
 		String password = properties.getProperty(HIBERNATE_CONNECTION_PASSWORD);
+
+		Integer minConnections = Integer.valueOf((String) properties.getOrDefault(DATABASE_MIN_CONNECTIONS, "5"));
+		Integer maxConnections = Integer.valueOf((String) properties.getOrDefault(DATABASE_MAX_CONNECTIONS, "20"));
 		String validationQuery = properties.getProperty(DATABASE_VALIDATION_QUERY);
-		Integer validationPeriod = Integer.parseInt(properties.getProperty(DATABASE_VALIDATION_PERIOD));
+		Integer validationPeriod = Integer.valueOf(properties.getProperty(DATABASE_VALIDATION_PERIOD));
 
 		DatabaseConnection conn = new DatabaseConnection(databaseType, jdbcUrl, driverClass, username,
 				password.getBytes(), validationQuery);
@@ -135,14 +140,16 @@ public class MigrationService {
 		conn.setValidationPeriod(validationPeriod);
 		conn.registerDriver(true);
 		conn.setMigrationInfoService(statusComplete(conn));
+		conn.setMinConnections(minConnections);
+		conn.setMaxConnections(maxConnections);
 		return conn;
 	}
 
 	/**
 	 * Returns the current {@link MigrationInfo} for the connection
 	 * 
-	 * @param config
-	 *               the configuration read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 * @param config the configuration read from
+	 *               {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
 	 * 
 	 * @return the current {@link MigrationInfo} for the given connection
 	 * 
@@ -153,12 +160,13 @@ public class MigrationService {
 	}
 
 	/**
-	 * Returns the current {@link MigrationInfo} for the given {@link DatabaseConnection}
+	 * Returns the current {@link MigrationInfo} for the given
+	 * {@link DatabaseConnection}
 	 * 
-	 * @param connection
-	 *                   a {@link DatabaseConnection}
+	 * @param connection a {@link DatabaseConnection}
 	 * 
-	 * @return the current {@link MigrationInfo} for the given connection (may be {@code null}).
+	 * @return the current {@link MigrationInfo} for the given connection (may be
+	 *         {@code null}).
 	 * 
 	 * @see MigrationInfoService#current()
 	 */
@@ -171,13 +179,13 @@ public class MigrationService {
 	}
 
 	/**
-	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection} (the appNG root
-	 * connection).
+	 * Returns the current {@link MigrationInfoService} for the given
+	 * {@link DatabaseConnection} (the appNG root connection).
 	 * 
-	 * @param connection
-	 *                   a {@link DatabaseConnection}
+	 * @param connection a {@link DatabaseConnection}
 	 * 
-	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @return the current {@link MigrationInfoService} for the given connection
+	 *         (may be {@code null}).
 	 * 
 	 * @see MigrationInfoService
 	 */
@@ -186,15 +194,14 @@ public class MigrationService {
 	}
 
 	/**
-	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection} (the appNG root
-	 * connection).
+	 * Returns the current {@link MigrationInfoService} for the given
+	 * {@link DatabaseConnection} (the appNG root connection).
 	 * 
-	 * @param connection
-	 *                       a {@link DatabaseConnection}
-	 * @param testConnection
-	 *                       if the connection needs to be tested
+	 * @param connection     a {@link DatabaseConnection}
+	 * @param testConnection if the connection needs to be tested
 	 * 
-	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @return the current {@link MigrationInfoService} for the given connection
+	 *         (may be {@code null}).
 	 * 
 	 * @see MigrationInfoService
 	 */
@@ -213,15 +220,15 @@ public class MigrationService {
 	}
 
 	/**
-	 * Returns the current {@link MigrationInfoService} for the given {@link DatabaseConnection}, which must be owned by
-	 * a {@link SiteApplication}.
+	 * Returns the current {@link MigrationInfoService} for the given
+	 * {@link DatabaseConnection}, which must be owned by a {@link SiteApplication}.
 	 * 
-	 * @param connection
-	 *                   a {@link DatabaseConnection} owned by a {@link SiteApplication}
-	 * @param sqlFolder
-	 *                   the path to migration scripts
+	 * @param connection a {@link DatabaseConnection} owned by a
+	 *                   {@link SiteApplication}
+	 * @param sqlFolder  the path to migration scripts
 	 * 
-	 * @return the current {@link MigrationInfoService} for the given connection (may be {@code null}).
+	 * @return the current {@link MigrationInfoService} for the given connection
+	 *         (may be {@code null}).
 	 * 
 	 * @see MigrationInfoService
 	 */
@@ -238,7 +245,8 @@ public class MigrationService {
 	}
 
 	protected Flyway getFlyway(DatabaseConnection connection, ClassLoader classLoader, String... locations) {
-		// Flyway changed the name of the table from "schema_version" to "flyway_schema_history"
+		// Flyway changed the name of the table from "schema_version" to
+		// "flyway_schema_history"
 		// https://github.com/flyway/flyway/issues/1965
 		FluentConfiguration configuration = null == classLoader ? new FluentConfiguration()
 				: new FluentConfiguration(classLoader);
