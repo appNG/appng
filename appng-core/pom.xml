@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<testcontainers.version>1.14.3</testcontainers.version>
+		<testcontainers.version>1.15.3</testcontainers.version>
 	</properties>
 
 	<build>
@@ -373,7 +373,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>5.9.0</version>
+			<version>5.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -388,12 +388,12 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>3.3.0</version>
+			<version>3.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
 			<artifactId>thymeleaf-spring4</artifactId>
-			<version>3.0.11.RELEASE</version>
+			<version>3.0.12.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.appng</groupId>
