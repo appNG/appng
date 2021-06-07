@@ -156,7 +156,7 @@ public class SiteController extends ControllerBase {
 	}
 
 	@DeleteMapping(value = "/site/{name}")
-	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name, ServletContext context)
+	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name)
 			throws BusinessException {
 		SiteImpl currentSite = getSiteByName(name);
 		if (null == currentSite) {
