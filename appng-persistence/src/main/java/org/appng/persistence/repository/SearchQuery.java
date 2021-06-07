@@ -118,11 +118,14 @@ public class SearchQuery<T> {
 	 * @param params
 	 *               the named parameters for the AND-clause
 	 * 
+	 * @return the current {@link SearchQuery}
+	 * 
 	 * @see #and(String)
 	 * @see #setAppendEntityAlias(boolean)
 	 */
-	public void and(String clause, Map<String, Object> params) {
+	public SearchQuery<T> and(String clause, Map<String, Object> params) {
 		andClauses.add(new Clause(clause, params));
+		return this;
 	}
 
 	/**
@@ -137,11 +140,14 @@ public class SearchQuery<T> {
 	 * @param clause
 	 *               the AND-clause
 	 * 
+	 * @return the current {@link SearchQuery}
+	 * 
 	 * @see #and(String, Map)
 	 * @see #setAppendEntityAlias(boolean)
 	 */
-	public void and(String clause) {
+	public SearchQuery<T> and(String clause) {
 		and(clause, new HashMap<>());
+		return this;
 	}
 
 	/**
@@ -170,9 +176,12 @@ public class SearchQuery<T> {
 	 * 
 	 * @param entityAlias
 	 *                    the alias
+	 * 
+	 * @return the current {@link SearchQuery}
 	 */
-	public void setEntityAlias(String entityAlias) {
+	public SearchQuery<T> setEntityAlias(String entityAlias) {
 		this.entityAlias = entityAlias;
+		return this;
 	}
 
 	/**
@@ -549,16 +558,22 @@ public class SearchQuery<T> {
 	 * 
 	 * @param joinQuery
 	 *                  the join-part of a JPQL query
+	 * 
+	 * @return the current {@link SearchQuery}
 	 */
-	public void join(String joinQuery) {
+	public SearchQuery<T> join(String joinQuery) {
 		this.joinQuery = joinQuery;
+		return this;
 	}
 
 	/**
 	 * Causes the JPQL-query to select {@code distinct} entities only.
+	 * 
+	 * @return the current {@link SearchQuery}
 	 */
-	public void distinct() {
+	public SearchQuery<T> distinct() {
 		this.distinct = true;
+		return this;
 	}
 
 	@Override
@@ -680,8 +695,10 @@ public class SearchQuery<T> {
 	 * Sets the parameters defined by {@link #criteria} for the given queries.
 	 * 
 	 * @param queries
+	 * 
+	 * @return the current {@link SearchQuery}
 	 */
-	protected void setQueryParameters(Query... queries) {
+	protected SearchQuery<T> setQueryParameters(Query... queries) {
 		for (Query query : queries) {
 			int i = 0;
 			for (Criterion criterion : criteria) {
@@ -696,6 +713,7 @@ public class SearchQuery<T> {
 				}
 			}
 		}
+		return this;
 	}
 
 	/**
