@@ -63,7 +63,7 @@ public class BCryptPasswordHandlerTest extends PasswordHandlerTest {
 		testIsValidPasswordResetDigest(new BCryptPasswordHandler(subject));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testIsInvalidPasswordResetDigest() {
 		testIsInvalidPasswordResetDigest(new BCryptPasswordHandler(subject));
 	}
