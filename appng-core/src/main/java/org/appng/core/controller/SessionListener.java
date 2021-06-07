@@ -215,6 +215,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			List<String> patterns = platformConfig.getList(Platform.Property.SESSION_FILTER, "\n");
 			String userAgent = httpServletRequest.getHeader(HttpHeaders.USER_AGENT);
 			if (null != patterns && null != userAgent && patterns.stream().anyMatch(userAgent::matches)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Session automatically discarded: {} (user-agent: {})", httpSession.getId(), userAgent);
+				}
 				httpSession.invalidate();
 			}
 		}
