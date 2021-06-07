@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +56,7 @@ public class SessionListenerTest {
 
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
+		Mockito.when(props.getList(Platform.Property.SESSION_FILTER, "\n")).thenReturn(Arrays.asList(".*test.*"));
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, props);
 		Map<String, Site> sitemap = new HashMap<>();
 		Site site = Mockito.mock(Site.class);
@@ -86,6 +88,18 @@ public class SessionListenerTest {
 
 		Assert.assertNull(session1.getAttribute(SessionListener.META_DATA));
 		Assert.assertNotNull(session2.getAttribute(SessionListener.META_DATA));
+	}
+
+	@Test
+	public void testSessionFilter() {
+		MockHttpSession session = new MockHttpSession(servletContext);
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.setSession(session);
+		request.addHeader(HttpHeaders.USER_AGENT, "this is test");
+		session.setNew(true); // This has to be called after request.setSession
+		ServletRequestEvent requestEvent = new ServletRequestEvent(servletContext, request);
+		sessionListener.requestDestroyed(requestEvent);
+		Assert.assertTrue(session.isInvalid());
 	}
 
 	private void addRequest(HttpSession session) {
