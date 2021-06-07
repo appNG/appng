@@ -251,7 +251,10 @@ public final class Platform {
 		 * truststore.
 		 */
 		public static final String REPOSITORY_VERIFY_SIGNATURE = "repositoryVerifySignature";
-
+		/**
+		 * The regular expressions to match against the user-agent header for immediate discard of the session.
+		 */
+		public static final String SESSION_FILTER = "sessionFilter";
 		/** Set to {@code true} to enable XSS protection */
 		public static final String XSS_PROTECT = "xssProtect";
 		/**
