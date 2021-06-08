@@ -126,11 +126,12 @@ public class RepositoryWatcher implements Runnable {
 			}
 			for (WatchEvent<?> event : key.pollEvents()) {
 				long start = System.currentTimeMillis();
-				if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-					continue;
-				}
 				Path eventPath = (Path) key.watchable();
 				File absoluteFile = new File(eventPath.toFile(), ((Path) event.context()).toString());
+				if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+					LOGGER.warn("events for {} overflowed", absoluteFile);
+					continue;
+				}
 				LOGGER.debug("received event {} for {}", event.kind(), absoluteFile);
 				if (absoluteFile.equals(configFile)) {
 					readUrlRewrites(absoluteFile);
@@ -151,6 +152,7 @@ public class RepositoryWatcher implements Runnable {
 			}
 			boolean valid = key.reset();
 			if (!valid) {
+				LOGGER.warn("key could not be reset");
 				break;
 			}
 		}
