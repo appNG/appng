@@ -399,6 +399,7 @@ public class PropertySupport {
 				Type.PASSWORD);
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_VERIFY_SIGNATURE, true);
 		addPlatformProperty(defaultOverrides, Platform.Property.SESSION_TIMEOUT, 1800);
+		addPlatformProperty(defaultOverrides, Platform.Property.SESSION_FILTER, StringUtils.EMPTY, Type.MULTILINE);
 
 		String sharedSecretFullName = PREFIX_PLATFORM + Platform.Property.SHARED_SECRET;
 		Property sharedSecret = propertyHolder.getProperty(sharedSecretFullName);

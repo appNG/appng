@@ -16,6 +16,7 @@
 package org.appng.core.controller;
 
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -205,6 +206,21 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void requestDestroyed(ServletRequestEvent sre) {
 		MDC.clear();
+		ServletRequest request = sre.getServletRequest();
+		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+		HttpSession httpSession = httpServletRequest.getSession(false);
+		if (null != httpSession && httpSession.isNew()) {
+			DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext());
+			Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+			List<String> patterns = platformConfig.getList(Platform.Property.SESSION_FILTER, "\n");
+			String userAgent = httpServletRequest.getHeader(HttpHeaders.USER_AGENT);
+			if (null != patterns && null != userAgent && patterns.stream().anyMatch(userAgent::matches)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Session automatically discarded: {} (user-agent: {})", httpSession.getId(), userAgent);
+				}
+				httpSession.invalidate();
+			}
+		}
 	}
 
 }
