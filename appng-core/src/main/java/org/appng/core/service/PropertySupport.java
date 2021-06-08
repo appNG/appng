@@ -303,6 +303,7 @@ public class PropertySupport {
 		xssExceptions.append(managerPath + "/" + site.getName() + "/appng-manager" + StringUtils.LF);
 		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), Type.MULTILINE);
 
+		addSiteProperty(LdapService.LDAP_DISABLED, false);
 		addSiteProperty(LdapService.LDAP_HOST, "ldap(s):<host>:<port>");
 		addSiteProperty(LdapService.LDAP_USER_BASE_DN, "OU=Users,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_GROUP_BASE_DN, "OU=Groups,DC=example,DC=com");
