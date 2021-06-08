@@ -206,11 +206,11 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void requestDestroyed(ServletRequestEvent sre) {
 		MDC.clear();
-		DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext());
 		ServletRequest request = sre.getServletRequest();
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		HttpSession httpSession = httpServletRequest.getSession(false);
 		if (null != httpSession && httpSession.isNew()) {
+			DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext());
 			Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 			List<String> patterns = platformConfig.getList(Platform.Property.SESSION_FILTER, "\n");
 			String userAgent = httpServletRequest.getHeader(HttpHeaders.USER_AGENT);
