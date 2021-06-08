@@ -45,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
  * Service providing methods to login {@link Subject}s based on the LDAP-configuration of a {@link Site}. The following
  * site-properties need to be configured properly:
  * <ul>
+ * <li>{@value #LDAP_DISABLED}
  * <li>{@value #LDAP_DOMAIN}
  * <li>{@value #LDAP_GROUP_BASE_DN}
  * <li>{@value #LDAP_HOST}
@@ -73,6 +74,8 @@ public class LdapService {
 	private static final Pattern DN_PATTERN = Pattern
 			.compile("^[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?(,[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?)+$");
 
+	/** Whether authentication via LDAP is disabled */
+	public static final String LDAP_DISABLED = "ldapDisabled";
 	/** The domain for the LDAP authentication */
 	public static final String LDAP_DOMAIN = "ldapDomain";
 	/** The base-DN for LDAP-groups */
@@ -201,6 +204,9 @@ public class LdapService {
 	 * @return {@code true} if the user could be successfully logged in, {@code null} otherwise
 	 */
 	public boolean loginUser(Site site, String username, char[] password) {
+		if (isLdapDisabled(site)) {
+			return false;
+		}
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
 		TlsAwareLdapContext ctx = null;
 		try {
@@ -240,6 +246,9 @@ public class LdapService {
 	 */
 	public List<String> loginGroup(Site site, String username, char[] password, SubjectImpl subject,
 			List<String> groupNames) {
+		if (isLdapDisabled(site)) {
+			return new ArrayList<>();
+		}
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
 		TlsAwareLdapContext ctx = null;
 		try {
@@ -304,6 +313,9 @@ public class LdapService {
 	 * @return the members of the groupName (may be empty)
 	 */
 	public List<SubjectImpl> getMembersOfGroup(Site site, String groupName) {
+		if (isLdapDisabled(site)) {
+			return new ArrayList<>();
+		}
 		List<SubjectImpl> subjects = new ArrayList<>();
 
 		String serviceUser = site.getProperties().getString(LDAP_USER);
@@ -329,6 +341,10 @@ public class LdapService {
 		}
 		LOGGER.info("Found {} member(s) for group '{}'", subjects.size(), groupDn);
 		return subjects;
+	}
+
+	private boolean isLdapDisabled(Site site) {
+		return site.getProperties().getBoolean(LdapService.LDAP_DISABLED);
 	}
 
 	private SubjectImpl fillSubjectFromAttributes(SubjectImpl subject, String idAttribute, Attributes userAttrs)

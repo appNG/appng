@@ -216,6 +216,11 @@
 		<description>The maximum number of milliseconds that the connection pool will wait for a connection to be validated as
 			alive.</description>
 	</property>
+	<property name="ldapDisabled" self="http://localhost/appNGizer/site/localhost/property/ldapDisabled">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Set to 'true' to disable LDAP authentication</description>
+	</property>
 	<property name="ldapDomain" self="http://localhost/appNGizer/site/localhost/property/ldapDomain">
 		<value>EXAMPLE</value>
 		<defaultValue>EXAMPLE</defaultValue>
@@ -385,4 +390,3 @@
 			Supports blank lines and comments (#).</description>
 	</property>
 </properties>
-
