@@ -17,6 +17,7 @@ package org.appng.core.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -247,7 +248,7 @@ public class LdapService {
 	public List<String> loginGroup(Site site, String username, char[] password, SubjectImpl subject,
 			List<String> groupNames) {
 		if (isLdapDisabled(site)) {
-			return new ArrayList<>();
+			return Collections.emptyList();
 		}
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
 		TlsAwareLdapContext ctx = null;
@@ -259,7 +260,7 @@ public class LdapService {
 		} finally {
 			closeContext(ctx);
 		}
-		return new ArrayList<>();
+		return Collections.emptyList();
 	}
 
 	private List<String> getUserGroups(LdapContext ctx, String username, Site site, SubjectImpl subject,
@@ -314,7 +315,7 @@ public class LdapService {
 	 */
 	public List<SubjectImpl> getMembersOfGroup(Site site, String groupName) {
 		if (isLdapDisabled(site)) {
-			return new ArrayList<>();
+			return Collections.emptyList();
 		}
 		List<SubjectImpl> subjects = new ArrayList<>();
 
