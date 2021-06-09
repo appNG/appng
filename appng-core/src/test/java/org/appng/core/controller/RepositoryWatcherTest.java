@@ -102,14 +102,15 @@ public class RepositoryWatcherTest {
 		Assert.assertTrue(repositoryWatcher.forwardsUpdatedAt > forwardsUpdatedAt);
 		Assert.assertEquals(3, repositoryWatcher.numEvents.get());
 
-		for (int i = 1; i <= 2000; i++) {
-			File file = new File(rootDir, "de/foo" + i + ".txt");
+		int i = 0;
+		while (repositoryWatcher.numOverflows.get() < 2L) {
+			File file = new File(rootDir, "de/foo" + (i++) + ".txt");
 			Files.createFile(file.toPath());
 			FileUtils.touch(file);
 			Files.delete(file.toPath());
 		}
-		Thread.sleep(2000);
-		Assert.assertTrue(repositoryWatcher.numOverflows.get() > 0L);
+		Thread.sleep(1000);
+		executor.shutdown();
 	}
 
 	private int getCacheSize(Cache<String, CachedResponse> cache) {

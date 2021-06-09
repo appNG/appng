@@ -129,12 +129,12 @@ public class RepositoryWatcher implements Runnable {
 				return;
 			}
 			for (WatchEvent<?> event : key.pollEvents()) {
-				numEvents.incrementAndGet();
+				long processed = numEvents.incrementAndGet();
 				long start = System.currentTimeMillis();
 				Path eventPath = (Path) key.watchable();
 				if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
 					numOverflows.incrementAndGet();
-					LOGGER.warn("events for {} overflowed", eventPath);
+					LOGGER.warn("events for {} overflowed after {} events", eventPath, processed);
 				} else {
 					File absoluteFile = new File(eventPath.toFile(), String.valueOf(event.context()));
 					LOGGER.info("({}) received {} for {}", key.watchable(), event.kind(), event.context());
@@ -160,7 +160,6 @@ public class RepositoryWatcher implements Runnable {
 				LOGGER.warn("key could not be reset: {}", key);
 			}
 		}
-
 	}
 
 	private int removeFromCache(String relativePathName) {
