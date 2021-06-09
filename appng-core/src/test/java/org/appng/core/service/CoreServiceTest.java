@@ -411,7 +411,7 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	@Test(timeout = 40000)
+	@Test
 	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -444,15 +444,8 @@ public class CoreServiceTest {
 			Thread.sleep(100);
 		}
 		LOGGER.info("Processed {} events", receiver.getProcessed().size());
-
-		synchronized (stateMap) {
-			SiteState state;
-			while (null != (state = stateMap.get(realSite.getName()))) {
-				LOGGER.info("state for site {} is {}", realSite.getName(), state);
-				Thread.sleep(100);
-			}
-		}
-
+		Thread.sleep(1000);
+		Assert.assertNull(stateMap.get(realSite.getName()));
 		receiver.close();
 	}
 
