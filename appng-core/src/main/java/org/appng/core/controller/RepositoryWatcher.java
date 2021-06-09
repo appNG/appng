@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,12 +45,15 @@ import net.sf.ehcache.Ehcache;
 
 /**
  * <p>
- * A service that watches for modified/deleted files in a {@link Site}'s www-directory (see
- * {@link SiteProperties#WWW_DIR}) using a {@link WatchService}.
+ * A service that watches for modified/deleted files in a {@link Site}'s
+ * www-directory (see {@link SiteProperties#WWW_DIR}) using a
+ * {@link WatchService}.
  * </p>
- * If caching for the site is active (see {@link SiteProperties#EHCACHE_ENABLED}), cache entries for the
- * modified/deleted files are removed from the cache. Since there could be some forwarding rules defined in the site's
- * {@code urlrewrite.xml}, it is also necessary to parse these rules and remove the 'aliases' from the cache.
+ * If caching for the site is active (see
+ * {@link SiteProperties#EHCACHE_ENABLED}), cache entries for the
+ * modified/deleted files are removed from the cache. Since there could be some
+ * forwarding rules defined in the site's {@code urlrewrite.xml}, it is also
+ * necessary to parse these rules and remove the 'aliases' from the cache.
  * 
  * @author Matthias Müller
  *
@@ -65,6 +69,8 @@ public class RepositoryWatcher implements Runnable {
 	private boolean needsToBeWatched = false;
 	private Map<String, List<String>> forwardMap;
 	protected Long forwardsUpdatedAt = null;
+	protected AtomicLong numEvents = new AtomicLong(0);
+	protected AtomicLong numOverflows = new AtomicLong(0);
 
 	private String wwwDir;
 
@@ -117,7 +123,7 @@ public class RepositoryWatcher implements Runnable {
 
 	public void run() {
 		LOGGER.info("start watching...");
-		for (;;) {
+		while (true) {
 			WatchKey key;
 			try {
 				key = watcher.take();
@@ -125,35 +131,35 @@ public class RepositoryWatcher implements Runnable {
 				return;
 			}
 			for (WatchEvent<?> event : key.pollEvents()) {
+				numEvents.incrementAndGet();
 				long start = System.currentTimeMillis();
 				Path eventPath = (Path) key.watchable();
-				File absoluteFile = new File(eventPath.toFile(), ((Path) event.context()).toString());
 				if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-					LOGGER.warn("events for {} overflowed", absoluteFile);
-					continue;
-				}
-				LOGGER.debug("received event {} for {}", event.kind(), absoluteFile);
-				if (absoluteFile.equals(configFile)) {
-					readUrlRewrites(absoluteFile);
+					numOverflows.incrementAndGet();
+					LOGGER.warn("events for {} overflowed", eventPath);
 				} else {
-					String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
-					String relativePathName = absolutePath.substring(wwwDir.length());
-					if (relativePathName.endsWith(jspExtension)) {
-						relativePathName = relativePathName.substring(0,
-								relativePathName.length() - jspExtension.length());
+					File absoluteFile = new File(eventPath.toFile(), String.valueOf(event.context()));
+					LOGGER.info("({}) received {} for {}", key.watchable(), event.kind(), event.context());
+					if (absoluteFile.equals(configFile)) {
+						readUrlRewrites(absoluteFile);
+					} else {
+						String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
+						String relativePathName = absolutePath.substring(wwwDir.length());
+						if (relativePathName.endsWith(jspExtension)) {
+							relativePathName = relativePathName.substring(0,
+									relativePathName.length() - jspExtension.length());
+						}
+						removeFromCache(relativePathName);
+						if (forwardMap.containsKey(relativePathName)) {
+							forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
+						}
+						LOGGER.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
+								System.currentTimeMillis() - start);
 					}
-					removeFromCache(relativePathName);
-					if (forwardMap.containsKey(relativePathName)) {
-						forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
-					}
-					LOGGER.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
-							System.currentTimeMillis() - start);
 				}
 			}
-			boolean valid = key.reset();
-			if (!valid) {
-				LOGGER.warn("key could not be reset");
-				break;
+			if (!key.reset()) {
+				LOGGER.warn("key could not be reset: {}", key);
 			}
 		}
 

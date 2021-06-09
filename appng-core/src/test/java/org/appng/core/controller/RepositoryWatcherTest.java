@@ -17,6 +17,7 @@ package org.appng.core.controller;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,5 +81,15 @@ public class RepositoryWatcherTest {
 		Assert.assertNull(ehcache.get("GET/de/fault"));
 		Assert.assertEquals(0, ehcache.getSize());
 		Assert.assertTrue(repositoryWatcher.forwardsUpdatedAt > forwardsUpdatedAt);
+		Assert.assertEquals(3, repositoryWatcher.numEvents.get());
+
+		for (int i = 1; i <= 2000; i++) {
+			File file = new File(rootDir, "de/foo" + i + ".txt");
+			Files.createFile(file.toPath());
+			FileUtils.touch(file);
+			Files.delete(file.toPath());
+		}
+		Thread.sleep(2000);
+		Assert.assertTrue(repositoryWatcher.numOverflows.get() > 0L);
 	}
 }
