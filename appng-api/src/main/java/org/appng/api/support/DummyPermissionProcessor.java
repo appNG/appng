@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.appng.api.model.Subject;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link PermissionProcessor} that always returns {@code true} for
  * <ul>
  * <li>{@link #hasPermission(String)}
@@ -32,22 +31,23 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class DummyPermissionProcessor extends DefaultPermissionProcessor {
 
 	public DummyPermissionProcessor(Subject subject, Site site, Application application) {
 		super(subject, site, application);
-		LOGGER.debug("creating instance for subject {}, site {}, application {}", subject.getAuthName(),
-				site.getName(), application.getName());
+		LOGGER.debug("creating instance for subject {}, site {}, application {}", subject.getAuthName(), site.getName(),
+				application.getName());
 	}
 
+	@Override
 	public boolean hasPermissions(PermissionOwner permissionOwner) {
 		LOGGER.debug("granting permission for {}", permissionOwner.getName());
 		return true;
 	}
 
+	@Override
 	public boolean hasPermission(String reference) {
 		LOGGER.debug("granting permission {}", reference);
 		return true;

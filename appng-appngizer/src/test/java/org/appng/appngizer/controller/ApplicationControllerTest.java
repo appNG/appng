@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,18 +26,18 @@ public class ApplicationControllerTest extends ControllerTest {
 		differenceListener.ignoreDifference("/properties/property/description/text()");
 		installApplication();
 		getAndVerify("/application", "xml/application-list.xml", HttpStatus.OK);
-		
+
 		getAndVerify("/application/demo-application", "xml/application-show.xml", HttpStatus.OK);
-		Application app=new Application();
+		Application app = new Application();
 		app.setName("this has no effect");
 		app.setDisplayName("ACME app");
 		app.setPrivileged(true);
 		app.setHidden(true);
 		app.setFileBased(false);
 		app.setVersion("this has no effect");
-		
-		putAndVerify("/application/demo-application","xml/application-update.xml" ,app, HttpStatus.OK);
-		
+
+		putAndVerify("/application/demo-application", "xml/application-update.xml", app, HttpStatus.OK);
+
 		deleteAndVerify("/application/demo-application", null, HttpStatus.NO_CONTENT);
 	}
 }

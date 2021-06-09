@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.springframework.http.HttpStatus;
  * Consider using a {@link RequestDataBinder} for binding {@link Request} parameters to a target object.
  * 
  * @author Matthias Müller
+ * 
  * @see AttachmentWebservice
  * @see RequestDataBinder
  * @see SoapService
@@ -56,16 +57,18 @@ public interface Webservice {
 	 * Processes the current {@link Request} and return some data.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                    the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                    the current {@link Application}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                    the current {@link Environment}
 	 * @param request
-	 *            the current {@link Request}
+	 *                    the current {@link Request}
+	 * 
 	 * @return some bytes
+	 * 
 	 * @throws BusinessException
-	 *             if an error occures during retrieving the data
+	 *                           if an error occures during retrieving the data
 	 */
 	byte[] processRequest(Site site, Application application, Environment environment, Request request)
 			throws BusinessException;

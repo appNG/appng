@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class SiteApplicationControllerTest extends ControllerTest {
 
 		MockHttpServletResponse response = postAndVerify("/site/localhost/application/demo-application", null, null,
 				HttpStatus.SEE_OTHER);
-		assertLocation("http://localhost/site/localhost/application/demo-application", response);
+		assertLocation("http://localhost/appNGizer/site/localhost/application/demo-application", response);
 
 		postAndVerify("/site/localhost/application/demo-application", null, null, HttpStatus.METHOD_NOT_ALLOWED);
 
@@ -77,7 +77,8 @@ public class SiteApplicationControllerTest extends ControllerTest {
 		anotherGrant.setSite("anotherSite");
 		grants.getGrant().add(anotherGrant);
 
-		putAndVerify("/site/localhost/application/demo-application/grants", "xml/site-application-grants.xml", grants, HttpStatus.OK);
+		putAndVerify("/site/localhost/application/demo-application/grants", "xml/site-application-grants.xml", grants,
+				HttpStatus.OK);
 
 		String propertyPath = "/site/localhost/application/demo-application/property";
 
@@ -102,7 +103,7 @@ public class SiteApplicationControllerTest extends ControllerTest {
 		MockHttpServletResponse deleteResp = deleteAndVerify("/site/localhost/application/demo-application", null,
 				HttpStatus.SEE_OTHER);
 
-		assertLocation("http://localhost/site/localhost/application", deleteResp);
+		assertLocation("http://localhost/appNGizer/site/localhost/application", deleteResp);
 
 		deleteAndVerify("/site/localhost/application/demo-application", null, HttpStatus.NOT_FOUND);
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ package org.appng.forms;
  * @see FormUpload#isValid(Class)
  * 
  * @author Matthias Müller
- * 
  */
 public interface FormUploadValidator {
 
@@ -31,7 +30,8 @@ public interface FormUploadValidator {
 	 * Validates the given {@link FormUpload}.
 	 * 
 	 * @param formUpload
-	 *            the {@link FormUpload} to validate
+	 *                   the {@link FormUpload} to validate
+	 * 
 	 * @return {@code true} if the given {@link FormUpload} is valid, {@code false} otherwise.
 	 */
 	boolean isValid(FormUpload formUpload);

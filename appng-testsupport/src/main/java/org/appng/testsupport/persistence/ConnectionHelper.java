@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import org.dbunit.ext.mysql.MySqlConnection;
  * Utility class that helps retrieving a {@link ConnectionInfo}.
  * 
  * @author Matthias Müller
- * 
  */
 public class ConnectionHelper {
 
@@ -49,9 +48,9 @@ public class ConnectionHelper {
 
 	public static ConnectionInfo getMySqlConnectionInfo(String database, String persistenceUnit, String user,
 			String password) {
-		ConnectionInfo connectionInfo = new ConnectionInfo("jdbc:mysql://localhost:" + MYSQL_DEFAULT_PORT + "/"
-				+ database, MYSQL_DEFAULT_PORT, user, password, "com.mysql.jdbc.Driver", persistenceUnit,
-				MySqlConnection.class);
+		ConnectionInfo connectionInfo = new ConnectionInfo(
+				"jdbc:mysql://localhost:" + MYSQL_DEFAULT_PORT + "/" + database, MYSQL_DEFAULT_PORT, user, password,
+				"com.mysql.jdbc.Driver", persistenceUnit, MySqlConnection.class);
 		return connectionInfo;
 	}
 

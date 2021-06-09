@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,15 @@ import org.appng.api.FileUpload;
 import org.appng.forms.FormUpload;
 
 /**
- * 
  * Checks that a {@link Collection} of {@link FormUpload}s matches the restrictions given by a {@link FileUpload}.
  * 
  * @author Matthias Müller
- * 
  */
 public class FileUploadListValidator implements ConstraintValidator<FileUpload, Collection<FormUpload>> {
 
 	private FileUploadValidator fileValidator;
 
+	@Override
 	public void initialize(FileUpload constraintAnnotation) {
 		this.fileValidator = new FileUploadValidator();
 		fileValidator.initialize(constraintAnnotation);

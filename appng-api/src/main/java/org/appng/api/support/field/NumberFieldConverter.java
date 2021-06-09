@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,10 @@ import org.springframework.beans.PropertyAccessException;
 import org.springframework.context.MessageSource;
 
 /**
- * 
  * Base {@link FieldConverter} for {@link FieldDef}initions of type {@link FieldType#INT} and {@link FieldType#DECIMAL}
  * .
  * 
  * @author Matthias Müller
- * 
  */
 abstract class NumberFieldConverter extends ConverterBase {
 
@@ -58,9 +56,9 @@ abstract class NumberFieldConverter extends ConverterBase {
 		setFormat(field);
 		if (null != object) {
 			if (!(object instanceof Number)) {
-				throw new IllegalArgumentException("error getting String from field '" + field.getName()
-						+ "', expected instance of " + Number.class.getName() + " but was "
-						+ object.getClass().getName());
+				throw new IllegalArgumentException(
+						"error getting String from field '" + field.getName() + "', expected instance of "
+								+ Number.class.getName() + " but was " + object.getClass().getName());
 			}
 			String number = getNumberFormat(field).format(object);
 			field.setStringValue(number);

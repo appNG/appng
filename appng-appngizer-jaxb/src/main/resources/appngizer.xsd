@@ -243,6 +243,11 @@
 						<xs:element name="digest" type="stringNotBlank" minOccurs="0" />
 						<xs:element name="timeZone" type="xs:string" minOccurs="0" />
 						<xs:element name="language" type="stringNotBlank" minOccurs="0" />
+						<xs:element name="lastLogin" type="xs:dateTime" minOccurs="0" />
+						<xs:element name="locked" type="xs:boolean" minOccurs="0" />
+						<xs:element name="expiryDate" type="xs:dateTime" minOccurs="0" />
+						<xs:element name="failedLoginAttempts" type="xs:int" minOccurs="0" />
+						<xs:element name="passwordChangePolicy" type="passwordChangePolicy" minOccurs="0" />
 						<xs:element name="type" type="userType" />
 						<xs:element ref="groups" minOccurs="0" />
 					</xs:sequence>
@@ -250,6 +255,15 @@
 			</xs:complexContent>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:simpleType name="passwordChangePolicy">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="MAY" />
+			<xs:enumeration value="MUST" />
+			<xs:enumeration value="MUST_NOT" />
+			<xs:enumeration value="MUST_RECOVER" />
+		</xs:restriction>
+	</xs:simpleType>
 
 	<xs:simpleType name="userType">
 		<xs:restriction base="xs:string">
@@ -359,6 +373,8 @@
 						<xs:element name="snapshot" type="xs:string" minOccurs="0" />
 						<xs:element name="installed" type="xs:boolean" />
 						<xs:element name="type" type="packageType" />
+						<xs:element name="privileged" type="xs:boolean" minOccurs="0" />
+						<xs:element name="hidden" type="xs:boolean" minOccurs="0" />
 					</xs:sequence>
 				</xs:extension>
 			</xs:complexContent>

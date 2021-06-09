@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.appng.api.Environment;
  * {@value org.appng.api.model.ResourceType#BEANS_XML_NAME}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface Application extends Identifier {
 
@@ -73,9 +72,10 @@ public interface Application extends Identifier {
 	 * {@link org.springframework.context.ApplicationContext}, if any.
 	 * 
 	 * @param name
-	 *            the name of the bean to retrieve
+	 *             the name of the bean to retrieve
 	 * @param type
-	 *            the type of the bean to retrieve
+	 *             the type of the bean to retrieve
+	 * 
 	 * @return the bean with the given name of the given type, if any.
 	 */
 	<T> T getBean(String name, Class<T> type);
@@ -84,7 +84,8 @@ public interface Application extends Identifier {
 	 * Returns the names for all beans of the given type.
 	 * 
 	 * @param type
-	 *            the type to get the bean names for
+	 *             the type to get the bean names for
+	 * 
 	 * @return the bean names
 	 */
 	String[] getBeanNames(Class<?> type);
@@ -93,7 +94,8 @@ public interface Application extends Identifier {
 	 * Returns the single bean of the given type, if any.
 	 * 
 	 * @param type
-	 *            the type of the bean
+	 *             the type of the bean
+	 * 
 	 * @return the bean of the given type, or {@code null} if no such bean exists.
 	 */
 	<T> T getBean(Class<T> type);
@@ -102,7 +104,8 @@ public interface Application extends Identifier {
 	 * Returns the single bean with the given name, if any.
 	 * 
 	 * @param beanName
-	 *            the name of the bean
+	 *                 the name of the bean
+	 * 
 	 * @return the bean with the given name, or {@code null} if no such bean exists.
 	 */
 	Object getBean(String beanName);
@@ -111,7 +114,8 @@ public interface Application extends Identifier {
 	 * Checks whether a bean with the given name exists for this {@link Application}.
 	 * 
 	 * @param beanName
-	 *            the name of the bean to check existence
+	 *                 the name of the bean to check existence
+	 * 
 	 * @return {@code true} if such a bean exists, {@code false} otherwise
 	 */
 	boolean containsBean(String beanName);
@@ -155,12 +159,14 @@ public interface Application extends Identifier {
 	 * Retrieves a message from the underlying {@link org.springframework.context.MessageSource}.
 	 * 
 	 * @param locale
-	 *            the {@link Locale} for the message
+	 *               the {@link Locale} for the message
 	 * @param key
-	 *            the message-key
+	 *               the message-key
 	 * @param args
-	 *            the arguments for the message
+	 *               the arguments for the message
+	 * 
 	 * @return the message
+	 * 
 	 * @see ResourceType#DICTIONARY
 	 */
 	String getMessage(Locale locale, String key, Object... args);
@@ -170,7 +176,8 @@ public interface Application extends Identifier {
 	 * from an {@link Environment}.
 	 * 
 	 * @param site
-	 *            the {@link Site} to retrieve the key for
+	 *             the {@link Site} to retrieve the key for
+	 * 
 	 * @return the key to retrieve the session-parameters
 	 * 
 	 * @see #getSessionParams(Site, Environment)
@@ -182,10 +189,12 @@ public interface Application extends Identifier {
 	 * {@link Environment}.
 	 * 
 	 * @param site
-	 *            the {@link Site} to retrieve the session parameters for
+	 *                    the {@link Site} to retrieve the session parameters for
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                    the current {@link Environment}
+	 * 
 	 * @return the session-parameters for this {@code Application} within the given {@link Site}
+	 * 
 	 * @see #getSessionParamKey(Site)
 	 */
 	Map<String, String> getSessionParams(Site site, Environment environment);

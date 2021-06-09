@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package org.appng.appngizer.controller;
 
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.appng.appngizer.model.Utils;
 import org.appng.appngizer.model.xml.Group;
 import org.appng.appngizer.model.xml.Groups;
+import org.appng.appngizer.model.xml.PasswordChangePolicy;
 import org.appng.appngizer.model.xml.Subject;
 import org.appng.appngizer.model.xml.UserType;
 import org.junit.FixMethodOrder;
@@ -26,6 +29,33 @@ import org.springframework.http.HttpStatus;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SubjectControllerTest extends ControllerTest {
+
+	@Test
+	public void testInvalidName() throws Exception {
+		Subject subject = new Subject();
+		subject.setName("john doe");
+		subject.setRealName("John Doe");
+		subject.setEmail("admin@appng.org");
+		subject.setTimeZone("Europe/London");
+		subject.setLanguage("en");
+		subject.setType(UserType.GLOBAL_USER);
+		postAndVerify("/subject", "", subject, HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void testDotInName() throws Exception {
+		Subject subject = new Subject();
+		subject.setName("john.doe");
+		subject.setRealName("John Doe");
+		subject.setEmail("admin@appng.org");
+		subject.setTimeZone("Europe/London");
+		subject.setLanguage("en");
+		subject.setType(UserType.GLOBAL_USER);
+		postAndVerify("/subject", "", subject, HttpStatus.CREATED);
+		subject.setTimeZone("Europe/Paris");
+		putAndVerify("/subject/john.doe", "", subject, HttpStatus.OK);
+		deleteAndVerify("/subject/john.doe", "", HttpStatus.NO_CONTENT);
+	}
 
 	@Test
 	public void testCreateRetrieveAndUpdate() throws Exception {
@@ -53,8 +83,14 @@ public class SubjectControllerTest extends ControllerTest {
 		subject.setTimeZone("Europe/Madrid");
 		subject.setLanguage("es");
 		subject.getGroups().getGroup().clear();
+		subject.setPasswordChangePolicy(PasswordChangePolicy.MUST_NOT);
+		subject.setLocked(true);
+		subject.setExpiryDate(Utils.getCal(FastDateFormat.getInstance("yy-MM-dd HH:mm").parse("20-01-01 16:15")));
 		putAndVerify("/subject/Admin", "xml/subject-update.xml", subject, HttpStatus.OK);
 
+		subject.setLocked(false);
+		subject.setExpiryDate(null);
+		putAndVerify("/subject/Admin", "xml/subject-update-unlock.xml", subject, HttpStatus.OK);
 	}
 
 	@Test

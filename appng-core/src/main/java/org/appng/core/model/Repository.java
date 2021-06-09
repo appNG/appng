@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import org.appng.xml.application.PackageInfo;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- * 
  */
 public interface Repository extends Named<Integer>, Versionable<Date> {
 
@@ -78,6 +77,7 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * as an remote repository
 	 * 
 	 * @return {@code true} if this repository is published, {@code false} otherwise
+	 * 
 	 * @see #getRepositoryType()
 	 */
 	boolean isPublished();
@@ -86,6 +86,7 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * The digest for this repository, used for local published repositories to grant remote accesss
 	 * 
 	 * @return the digest
+	 * 
 	 * @see #isPublished()
 	 */
 	String getDigest();
@@ -109,10 +110,12 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * Returns a list of {@link InstallablePackage}s for the given list of package {@link Identifier}s
 	 * 
 	 * @param provisionedPackages
-	 *            the list of package identifiers
+	 *                            the list of package identifiers
+	 * 
 	 * @return a list of {@link InstallablePackage}s for the given package identifiers
+	 * 
 	 * @throws BusinessException
-	 *             if an error occurs while retrieving the packages
+	 *                           if an error occurs while retrieving the packages
 	 */
 	List<InstallablePackage> getInstallablePackages(List<Identifier> provisionedPackages) throws BusinessException;
 
@@ -120,14 +123,16 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * Returns the {@link PackageArchive} with the given name, version and timestamp
 	 * 
 	 * @param packageName
-	 *            the name of the archive
+	 *                         the name of the archive
 	 * @param packageVersion
-	 *            the version of the archive
+	 *                         the version of the archive
 	 * @param packageTimestamp
-	 *            the timestamp of the archive, only used if {@link #isStrict()} returns {@code true}.
+	 *                         the timestamp of the archive, only used if {@link #isStrict()} returns {@code true}.
+	 * 
 	 * @return the {@link PackageArchive}
+	 * 
 	 * @throws BusinessException
-	 *             if no such {@link PackageArchive} exists or if this repository is not active
+	 *                           if no such {@link PackageArchive} exists or if this repository is not active
 	 * 
 	 * @see #isStrict()
 	 * @see #isActive()
@@ -139,8 +144,9 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * Returns the {@link Packages} offered by this repository, containing a list of all available {@link Package}s
 	 * 
 	 * @return the {@link Packages} offered by this repository
+	 * 
 	 * @throws BusinessException
-	 *             if an error occurs while reading the package informations
+	 *                           if an error occurs while reading the package informations
 	 */
 	Packages getPackages() throws BusinessException;
 
@@ -148,10 +154,12 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * Returns the {@link Packages} offered by this repository, containing a list of all available {@link Package}s
 	 * 
 	 * @param packageName
-	 *            an optional search-string for the package's name, supporting {@code *} as a placeholder
+	 *                    an optional search-string for the package's name, supporting {@code *} as a placeholder
+	 * 
 	 * @return the {@link Packages} offered by this repository
+	 * 
 	 * @throws BusinessException
-	 *             if an error occurs while reading the package informations
+	 *                           if an error occurs while reading the package informations
 	 */
 	Packages getPackages(String packageName) throws BusinessException;
 
@@ -159,6 +167,7 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * Returns the {@link Certification}
 	 * 
 	 * @return
+	 * 
 	 * @throws BusinessException
 	 */
 	Certification getCertification() throws BusinessException;
@@ -168,10 +177,12 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * rmations
 	 * 
 	 * @param packageName
-	 *            the name of the package to get the versions for
+	 *                    the name of the package to get the versions for
+	 * 
 	 * @return the {@link PackageVersions}
+	 * 
 	 * @throws BusinessException
-	 *             if an error occurs while retrieving the {@link PackageVersions}
+	 *                           if an error occurs while retrieving the {@link PackageVersions}
 	 */
 	PackageVersions getPackageVersions(String packageName) throws BusinessException;
 
@@ -180,8 +191,9 @@ public interface Repository extends Named<Integer>, Versionable<Date> {
 	 * defined
 	 * 
 	 * @return the immutable certificate chain, or {@code null}
+	 * 
 	 * @throws SigningException
-	 *             if an error occurs while reading the certificate chain
+	 *                          if an error occurs while reading the certificate chain
 	 */
 	Collection<X509Certificate> getTrustedCertChain() throws SigningException;
 }

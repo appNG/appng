@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.appng.core.model;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.appng.api.model.Application;
@@ -26,7 +27,6 @@ import org.appng.xml.application.PackageInfo;
  * are obtained from the {@link Application}'s ZIP-file.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface PackageArchive {
 
@@ -51,26 +51,36 @@ public interface PackageArchive {
 	 * Processes the {@link PackageArchive}'s ZIP-file with the given {@link ZipFileProcessor}.
 	 * 
 	 * @param processor
-	 *            a {@link ZipFileProcessor}
+	 *                  a {@link ZipFileProcessor}
 	 * @param <T>
-	 *            the return type of the {@link ZipFileProcessor}
+	 *                  the return type of the {@link ZipFileProcessor}
+	 * 
 	 * @return an object of type {@code <T>}
+	 * 
 	 * @throws IOException
-	 *             <ul>
-	 *             <li>if {@link ZipFileProcessor#process(org.apache.commons.compress.archivers.zip.ZipFile)} throws an
-	 *             {@link IOException}
-	 *             <li>if the ZIP-file could not be read
-	 *             </ul>
+	 *                     <ul>
+	 *                     <li>if {@link ZipFileProcessor#process(org.apache.commons.compress.archivers.zip.ZipFile)}
+	 *                     throws an {@link IOException}
+	 *                     <li>if the ZIP-file could not be read
+	 *                     </ul>
 	 */
 	<T> T processZipFile(ZipFileProcessor<T> processor) throws IOException;
+
+	/**
+	 * Returns the archive's ZIP-file.
+	 * 
+	 * @return the file
+	 */
+	File getFile();
 
 	/**
 	 * Returns the binary data of the archive's ZIP-file. Should only be called if {@link #isValid()} returns
 	 * {@code true}.
 	 * 
 	 * @return the binary data
+	 * 
 	 * @throws IOException
-	 *             if the ZIP-file could not be read
+	 *                     if the ZIP-file could not be read
 	 */
 	byte[] getBytes() throws IOException;
 

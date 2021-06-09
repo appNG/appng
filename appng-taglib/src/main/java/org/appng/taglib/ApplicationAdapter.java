@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,8 +226,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 			org.appng.xml.platform.Platform platform = processor.processPlatform(executingSite);
 
 			String requestURI = servletRequest.getRequestURI();
-			String baseUrl = getBaseUrl(executingSite, defaultBaseUrl, urlParameters, jspExtension, repositoryPath,
-					requestURI);
+			String baseUrl = getBaseUrl(defaultBaseUrl, urlParameters, jspExtension, repositoryPath, requestURI);
 
 			String location = servletResponse.getHeader(HttpHeaders.LOCATION);
 			if (processor.isRedirect()) {
@@ -243,7 +242,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 				}
 
 			} else if (null != location) {
-				String redirectTarget = normalizeUrl(executingSite, jspExtension, location, baseUrl);
+				String redirectTarget = normalizeUrl(executingSite, location, baseUrl);
 				state = doRedirect(servletResponse, location, redirectTarget);
 			} else {
 				String result = "";
@@ -289,8 +288,8 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 		return SKIP_PAGE;
 	}
 
-	protected String getBaseUrl(SiteImpl executingSite, String defaultBaseUrl, List<String> urlParameters,
-			String jspExtension, String repositoryPath, String requestURI) {
+	protected String getBaseUrl(String defaultBaseUrl, List<String> urlParameters, String jspExtension,
+			String repositoryPath, String requestURI) {
 		String urlParams = StringUtils.join(urlParameters, "/");
 		LOGGER.info("requestURI: {}", requestURI);
 		LOGGER.info("urlParams: {}", urlParams);
@@ -331,7 +330,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 				guiPath, servicePath, blobDirectories, documentDirectories, repoPath, extension);
 	}
 
-	protected String normalizeUrl(Site executingSite, String jspExtension, String location, String baseUrl) {
+	protected String normalizeUrl(Site executingSite, String location, String baseUrl) {
 		String managerPath = executingSite.getProperties().getString(SiteProperties.MANAGER_PATH);
 		String siteName = executingSite.getName();
 		String managerUrl = managerPath + "/" + siteName + "/" + application;

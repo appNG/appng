@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,10 @@ import org.appng.xml.platform.SelectionType;
  * A builder for {@link org.appng.xml.platform.Selection}s, providing a fluent API.<br/>
  * Example:
  * 
- * <pre>Selection persons = new SelectionBuilder<Person>("persons")
- * 	.title("persons")
- * 	.options(Arrays.asList(a, b, c))
- * 	.select(b)
- * 	.disable(c)
- * 	.type(SelectionType.SELECT_MULTIPLE)
- * .build();</pre>
+ * <pre>
+ * Selection persons = new SelectionBuilder<Person>("persons").title("persons").options(Arrays.asList(a, b, c))
+ * 		.select(b).disable(c).type(SelectionType.SELECT_MULTIPLE).build();
+ * </pre>
  * 
  * @param <T>
  *            the type to create {@link Option}s from
@@ -70,7 +67,8 @@ public class SelectionBuilder<T> extends OptionsBuilder<T, SelectionBuilder<T>.S
 	 * Sets the title for the selection
 	 * 
 	 * @param title
-	 *            the title
+	 *              the title
+	 * 
 	 * @return this builder
 	 */
 	public SelectionBuilder<T> title(String title) {
@@ -84,7 +82,8 @@ public class SelectionBuilder<T> extends OptionsBuilder<T, SelectionBuilder<T>.S
 	 * Sets the {@link SelectionType} for the selection
 	 * 
 	 * @param type
-	 *            the type
+	 *             the type
+	 * 
 	 * @return this builder
 	 */
 	public SelectionBuilder<T> type(SelectionType type) {
@@ -96,7 +95,8 @@ public class SelectionBuilder<T> extends OptionsBuilder<T, SelectionBuilder<T>.S
 	 * Adds a {@link OptionGroup} to the selection
 	 * 
 	 * @param group
-	 *            the group
+	 *              the group
+	 * 
 	 * @return this builder
 	 */
 	public SelectionBuilder<T> addGroup(OptionGroup group) {
@@ -104,51 +104,61 @@ public class SelectionBuilder<T> extends OptionsBuilder<T, SelectionBuilder<T>.S
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> options(Iterable<T> values) {
 		super.options(values);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> name(NameProvider<T> nameProvider) {
 		super.name(nameProvider);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> selector(Selector selector) {
 		super.selector(selector);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> select(Collection<T> selected) {
 		super.select(selected);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> select(T selected) {
 		super.select(selected);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> disable(Collection<T> disabled) {
 		super.disable(disabled);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> disable(T disabled) {
 		super.disable(disabled);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> defaultOption(String name, String value) {
 		super.defaultOption(name, value);
 		return this;
 	}
 
+	@Override
 	public SelectionBuilder<T> hitCounter(HitCounter<T> counter) {
 		super.hitCounter(counter);
 		return this;
 	}
 
+	@Override
 	public Selection build() {
 		super.build();
 		return selection;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.Set;
 import org.appng.xml.application.ApplicationInfo;
 
 /**
- * 
  * A container providing easy access to the a {@link Application}s multiple {@link Resource}s.
  * 
  * @author Matthias Müller
@@ -36,7 +35,8 @@ public interface Resources extends Closeable {
 	 * Returns all {@link Resource}s of the given {@link ResourceType}.
 	 * 
 	 * @param type
-	 *            the ResourceType
+	 *             the ResourceType
+	 * 
 	 * @return the {@link Resource}s of the given {@link ResourceType}
 	 */
 	Set<Resource> getResources(ResourceType type);
@@ -45,7 +45,8 @@ public interface Resources extends Closeable {
 	 * Writes all {@link Resource}s to the local caching location.
 	 * 
 	 * @param types
-	 *            the types to write the cachefiles for
+	 *              the types to write the cachefiles for
+	 * 
 	 * @see Resource#getCachedFile()
 	 */
 	void dumpToCache(ResourceType... types);
@@ -54,9 +55,10 @@ public interface Resources extends Closeable {
 	 * Returns the {@link Resource} of the given type with the given name, if any.
 	 * 
 	 * @param type
-	 *            the {@link ResourceType} of the {@link Resource}
+	 *                 the {@link ResourceType} of the {@link Resource}
 	 * @param fileName
-	 *            the name of the {@link Resource}
+	 *                 the name of the {@link Resource}
+	 * 
 	 * @return the {@link Resource}, or {@code null} if no such {@link Resource} exists.
 	 */
 	Resource getResource(ResourceType type, String fileName);
@@ -72,7 +74,8 @@ public interface Resources extends Closeable {
 	 * Returns the {@link Resource} with the given ID.
 	 * 
 	 * @param id
-	 *            the ID of the {@link Resource}
+	 *           the ID of the {@link Resource}
+	 * 
 	 * @return the {@link Resource}, or {@code null} if no such resource exists.
 	 */
 	Resource getResource(Integer id);

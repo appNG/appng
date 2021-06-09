@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.appng.core.domain;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -34,6 +33,7 @@ import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.model.Subject;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.core.controller.PlatformStartup;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +41,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -77,49 +75,42 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		PlatformEventListener.context = applicationContext;
-		LOGGER.info("Using application context {}", applicationContext);
+		if (null == context || PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())) {
+			PlatformEventListener.context = applicationContext;
+			LOGGER.info("Using application context {}", applicationContext);
+		}
 	}
 
 	@PrePersist
 	public void beforeCreate(Auditable<?> o) {
-		createEvent(o, PlatformEvent.Type.CREATE);
+		createEvent(PlatformEvent.Type.CREATE, o);
 	}
 
 	@PostUpdate
 	public void onUpdate(Auditable<?> o) {
-		createEvent(o, PlatformEvent.Type.UPDATE);
+		createEvent(PlatformEvent.Type.UPDATE, o);
 	}
 
 	@PostRemove
 	public void onDelete(Auditable<?> o) {
-		createEvent(o, PlatformEvent.Type.DELETE);
+		createEvent(PlatformEvent.Type.DELETE, o);
 	}
 
-	private void createEvent(Auditable<?> auditable, Type type) {
-		String message = String.format(auditable.getAuditName());
-		createEvent(auditable, type, message);
-	}
-
-	private void createEvent(Auditable<?> auditable, Type type, String message) {
-		createEvent(type, message, auditable.getVersion());
+	private void createEvent(Type type, Auditable<?> auditable) {
+		createEvent(type, String.format(auditable.getAuditName()));
 	}
 
 	public void createEvent(Type type, String message) {
-		createEvent(type, message, new Date());
-	}
-
-	private void createEvent(Type type, String message, Date version) {
 		HttpServletRequest servletRequest = getServletRequest();
 		HttpSession session = null == servletRequest ? null : servletRequest.getSession();
-		createEvent(type, message, version, session, servletRequest);
+		createEvent(type, message, session, servletRequest);
 	}
 
 	public void createEvent(Type type, String message, HttpSession session) {
-		createEvent(type, message, new Date(), session, null);
+		createEvent(type, message, session, null);
 	}
 
-	private void createEvent(Type type, String message, Date created, HttpSession session, HttpServletRequest request) {
+	private void createEvent(Type type, String message, HttpSession session, HttpServletRequest request) {
 		PlatformEvent event = getEventProvider().provide(type, message, session, request);
 		if (persist) {
 			if (null == entityManager) {
@@ -128,11 +119,9 @@ public class PlatformEventListener implements ApplicationContextAware {
 			PlatformTransactionManager ptam = context.getBean(PlatformTransactionManager.class);
 			TransactionTemplate transactionTemplate = new TransactionTemplate(ptam);
 			transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-			transactionTemplate.execute(new TransactionCallback<Void>() {
-				public Void doInTransaction(TransactionStatus status) {
-					entityManager.persist(event);
-					return null;
-				}
+			transactionTemplate.execute(status -> {
+				entityManager.persist(event);
+				return null;
 			});
 		}
 		LOGGER.info("Created entry {}", event);

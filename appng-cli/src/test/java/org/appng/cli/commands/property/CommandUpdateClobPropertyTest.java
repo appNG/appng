@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.appng.api.SiteProperties;
+import org.appng.api.model.Property;
 import org.appng.cli.ExecutableCliCommand;
 import org.appng.cli.commands.AbstractCommandTest;
 import org.appng.cli.commands.site.CommandCreateSiteTest;
@@ -30,12 +31,11 @@ import org.junit.Assert;
  * Test for {@link UpdateProperty}.
  * 
  * @author Matthias Müller
- * 
  */
 public class CommandUpdateClobPropertyTest extends AbstractCommandTest {
 
 	private static final String FILE = "target/test-classes/clob.properties";
-	private static final String PROP = "platform.site.appng." + SiteProperties.EHCACHE_EXCEPTIONS;
+	private static final String PROP = "platform.site.appng." + SiteProperties.CACHE_EXCEPTIONS;
 	private String expected;
 
 	public ExecutableCliCommand getCommand() {
@@ -52,6 +52,7 @@ public class CommandUpdateClobPropertyTest extends AbstractCommandTest {
 	public void validate() {
 		PropertyImpl property = cliEnv.getCoreService().getProperty(PROP);
 		Assert.assertEquals(expected, property.getClob());
+		Assert.assertEquals(Property.Type.MULTILINE, property.getType());
 	}
 
 }

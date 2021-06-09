@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,11 @@ import org.thymeleaf.model.IProcessableElementTag;
 import org.thymeleaf.processor.element.IElementTagStructureHandler;
 
 /**
- * This interface is implemented by custom tag processors supporting
- * interceptors. If an interceptor replaces the target or context of a tag
- * processing it has to call the original processing of the functionality with
- * its customized context or attributes.
+ * This interface is implemented by custom tag processors supporting interceptors. If an interceptor replaces the target
+ * or context of a tag processing it has to call the original processing of the functionality with its customized
+ * context or attributes.
  * 
  * @author Claus Stümke
- *
  */
 public interface ThymeleafStandardReplaceTagProcessorCaller {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.springframework.validation.DataBinder;
  * public void onFormSuccess(Environment environment, Site site, Application application, Writer writer, Form form,
  * 		Map<String, Object> properties) {
  * 	FormDataBinder<Person> formDataBinder = new FormDataBinder<Person>(new Person(), form);
- *  formDataBinder.setExternalParams(properties);
+ * 	formDataBinder.setExternalParams(properties);
  * 	Person person = formDataBinder.bind();
  * 	// proceed with person
  * }
@@ -61,9 +61,9 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 	 * Constructs a new {@link FormDataBinder} using a {@link DefaultConversionService}
 	 * 
 	 * @param target
-	 *            the target object
+	 *               the target object
 	 * @param form
-	 *            the {@link Form}
+	 *               the {@link Form}
 	 */
 	public FormDataBinder(T target, Form form) {
 		this(target, form, new DefaultConversionService());
@@ -73,11 +73,11 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 	 * * Constructs a new {@link FormDataBinder} using the given {@link ConversionService}
 	 * 
 	 * @param target
-	 *            the target object
+	 *                          the target object
 	 * @param form
-	 *            the {@link Form}
+	 *                          the {@link Form}
 	 * @param conversionService
-	 *            the {@link ConversionService} to use
+	 *                          the {@link ConversionService} to use
 	 */
 	public FormDataBinder(T target, Form form, ConversionService conversionService) {
 		super(target);
@@ -94,6 +94,7 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 	 * @see #setBindAdditionalParams(boolean)
 	 * @see #setExternalParams(Map)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public T bind() {
 		MutablePropertyValues mpvs = new MutablePropertyValues();
@@ -131,7 +132,7 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 	 * {@link FormElement} of the given {@link Form}
 	 * 
 	 * @param bindAdditionalParams
-	 *            whether to use all request parameters for binding
+	 *                             whether to use all request parameters for binding
 	 */
 	public void setBindAdditionalParams(boolean bindAdditionalParams) {
 		this.bindAdditionalParams = bindAdditionalParams;
@@ -141,7 +142,7 @@ public class FormDataBinder<T> extends RequestDataBinder<T> {
 	 * Sets some additional external parameters used for binding
 	 * 
 	 * @param externalParams
-	 *            the external parameters
+	 *                       the external parameters
 	 */
 	public void setExternalParams(Map<String, Object> externalParams) {
 		this.externalParams = externalParams;

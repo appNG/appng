@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.appng.core.service;
 
-import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
@@ -30,8 +29,8 @@ import org.junit.Test;
 
 public class HsqlStarterTest {
 
-	@Test
-	public void testStartStop() throws IOException {
+	@Test(timeout = 20000)
+	public void testStartStop() throws Exception {
 		Properties platformProperties = new Properties();
 		int port = ConnectionHelper.getHsqlPort();
 		platformProperties.put("database.port", String.valueOf(port));
@@ -45,6 +44,7 @@ public class HsqlStarterTest {
 			Assert.fail(e.getMessage());
 		}
 
+		List<String> hsqlThreads = getHsqlThreads();
 		HsqlStarter.shutdown(server);
 
 		try {
@@ -53,10 +53,17 @@ public class HsqlStarterTest {
 		} catch (SQLException e) {
 		}
 
-		List<Thread> timerThreads = Thread.getAllStackTraces().keySet().parallelStream()
-				.filter(t -> t.getName().startsWith("HSQLDB Timer")).collect(Collectors.toList());
-		Assert.assertTrue("Timer Threads should be empty, but there are " + timerThreads.size(),
-				timerThreads.isEmpty());
+		while (hsqlThreads.size() > 0) {
+			Thread.sleep(1000);
+			hsqlThreads = getHsqlThreads();
+		}
+
+		Assert.assertTrue("HSQL Threads should be empty, but there are " + hsqlThreads.size(), hsqlThreads.isEmpty());
+	}
+
+	private List<String> getHsqlThreads() {
+		return Thread.getAllStackTraces().keySet().stream().filter(t -> t.getName().startsWith("HSQLDB"))
+				.map(Thread::getName).collect(Collectors.toList());
 	}
 
 }

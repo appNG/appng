@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<groups xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/group">
-    <group name="Administrators" self="http://localhost/group/Administrators">
+<groups xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/appNGizer/group">
+    <group name="Administrators" self="http://localhost/appNGizer/group/Administrators">
         <description>appNG Administrators group</description>
     </group>
-    <group name="Administrator" self="http://localhost/group/Administrator">
+    <group name="Administrator" self="http://localhost/appNGizer/group/Administrator">
         <description>a group for administrators</description>
     </group>
 </groups>

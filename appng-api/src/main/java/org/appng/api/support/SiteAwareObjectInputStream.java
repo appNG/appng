@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,12 @@ public class SiteAwareObjectInputStream extends ObjectInputStream {
 	 * <code>org.appng.api.model.Site</code>s from the given {@link ServletContext}
 	 * 
 	 * @param is
-	 *            an {@link InputStream}
+	 *                an {@link InputStream}
 	 * @param context
-	 *            the {@link ServletContext}
+	 *                the {@link ServletContext}
+	 * 
 	 * @throws IOException
-	 *             if reading from the {@link InputStream} fails
+	 *                     if reading from the {@link InputStream} fails
 	 */
 	public SiteAwareObjectInputStream(InputStream is, ServletContext context) throws IOException {
 		this(is, DefaultEnvironment.get(context));
@@ -71,7 +72,8 @@ public class SiteAwareObjectInputStream extends ObjectInputStream {
 	 * Retrieves the <code>org.appng.api.model.Site</code> with the given name
 	 * 
 	 * @param siteName
-	 *            the name of the site
+	 *                 the name of the site
+	 * 
 	 * @return the <code>org.appng.api.model.Site</code>
 	 */
 	@SuppressWarnings("unchecked")

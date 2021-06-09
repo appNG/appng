@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,20 @@ package org.appng.appngizer.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
+import org.appng.api.RequestUtil;
 import org.appng.api.SiteProperties;
 import org.appng.api.messaging.Messaging;
 import org.appng.api.messaging.Sender;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.appngizer.model.Link;
@@ -80,6 +85,18 @@ public class SiteController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
+	public static class ReloadSiteFromAppNGizer extends ReloadSiteEvent implements Serializable {
+
+		public ReloadSiteFromAppNGizer(String siteName) {
+			super(siteName);
+		}
+
+		@Override
+		protected void setNodeId(String nodeId) {
+			super.setNodeId(nodeId + "_appNGizer");
+		}
+	}
+
 	@PutMapping(value = "/site/{name}/reload")
 	public ResponseEntity<Void> reloadSite(@PathVariable("name") String name) throws BusinessException {
 		SiteImpl site = getSiteByName(name);
@@ -89,7 +106,7 @@ public class SiteController extends ControllerBase {
 		Sender sender = getSender(DefaultEnvironment.get(context));
 		if (null != sender) {
 			LOGGER.debug("messaging is active, sending ReloadSiteEvent");
-			sender.send(new ReloadSiteEvent(name));
+			sender.send(new ReloadSiteFromAppNGizer(name));
 		} else if (supportsReloadFile(site)) {
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			File reloadFile = new File(rootDir, ".reload");
@@ -139,10 +156,17 @@ public class SiteController extends ControllerBase {
 	}
 
 	@DeleteMapping(value = "/site/{name}")
-	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name) throws BusinessException {
+	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name)
+			throws BusinessException {
 		SiteImpl currentSite = getSiteByName(name);
 		if (null == currentSite) {
 			return notFound();
+		}
+		Environment environment = DefaultEnvironment.get(context);
+		org.appng.api.model.Site site = RequestUtil.getSiteByName(environment, name);
+		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED
+				|| site.getState() == SiteState.STOPPING)) {
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		getCoreService().deleteSite(name, new FieldProcessorImpl("delete-site"));
 		HttpHeaders headers = new HttpHeaders();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public interface Receiver extends Closeable {
 	 * Registers a new {@link EventHandler}
 	 * 
 	 * @param handler
-	 *            the {@link EventHandler} to register
+	 *                the {@link EventHandler} to register
 	 */
 	void registerHandler(EventHandler<?> handler);
 
@@ -41,7 +41,7 @@ public interface Receiver extends Closeable {
 	 * Sets the default {@link EventHandler}, used when no other handler is registered for a certain event type
 	 * 
 	 * @param defaultHandler
-	 *            the default {@link EventHandler} to use
+	 *                       the default {@link EventHandler} to use
 	 */
 	void setDefaultHandler(EventHandler<?> defaultHandler);
 
@@ -49,7 +49,8 @@ public interface Receiver extends Closeable {
 	 * Configures the receiver
 	 * 
 	 * @param eventDeserializer
-	 *            the {@link Serializer} for this receiver
+	 *                          the {@link Serializer} for this receiver
+	 * 
 	 * @return the configured receiver
 	 */
 	Receiver configure(Serializer eventDeserializer);
@@ -66,7 +67,7 @@ public interface Receiver extends Closeable {
 	 * Since a receiver runs as a thread, the given {@link ExecutorService} should be used to run this thread.
 	 * 
 	 * @param executorService
-	 *            the {@link ExecutorService} to run this receiver with
+	 *                        the {@link ExecutorService} to run this receiver with
 	 */
 	void runWith(ExecutorService executorService);
 

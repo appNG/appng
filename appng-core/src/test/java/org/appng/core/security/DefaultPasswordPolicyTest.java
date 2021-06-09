@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,60 @@ public class DefaultPasswordPolicyTest {
 			String password = passwordPolicy.generatePassword();
 			assertValid(password);
 		}
+	}
+
+	@Test
+	public void testComplexRegex() {
+		// use ASCII hex ranges
+		String expression = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" //
+				+ "(?=.*[" // use positive lookahead
+				+ "\\x21-\\x2f" // "!" to "/" (char code 33 - 47)
+				+ "\\x3A-\\x40" // ":" to "@" (char code 58 - 64)
+				+ "\\x5b-\\x60" // "[" to "`" (char code 91 - 96)
+				+ "\\x7b-\\x7e" // "{" to "~" (char code 123 - 126)
+				+ "])" // end lookahead
+				+ "[\\x21-\\x7e]" // "!" to "~" (char code 33 - 126)
+				+ "{8,}$"; // 8 or more
+		PasswordPolicy policy = new DefaultPasswordPolicy(expression, "dummy");
+
+		// only 1 of 4 character groups
+		Assert.assertFalse(policy.isValidPassword("testtest".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("TESTTEST".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("12345678".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("!!!!!!!!".toCharArray()));
+
+		// only 2 of 4 character groups
+		Assert.assertFalse(policy.isValidPassword("testTEST".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("test1234".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("test!!!!".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("TEST1234".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("TEST!!!!".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("1234!!!!".toCharArray()));
+
+		// only 3 of 4 character groups
+		Assert.assertFalse(policy.isValidPassword("testTEST12".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("testTEST!!".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("test1234!!".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("TEST1234!!".toCharArray()));
+
+		// to short
+		Assert.assertFalse(policy.isValidPassword("Test!12".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("Test12!".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("12Test!".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("12!Test".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("!Test12".toCharArray()));
+		Assert.assertFalse(policy.isValidPassword("!12Test".toCharArray()));
+
+		// OK
+		Assert.assertTrue(policy.isValidPassword("teST12!!".toCharArray()));
+		Assert.assertTrue(policy.isValidPassword("teST!!12".toCharArray()));
+		Assert.assertTrue(policy.isValidPassword("TEst!!12".toCharArray()));
+		Assert.assertTrue(policy.isValidPassword("TEst12!!".toCharArray()));
+		Assert.assertTrue(policy.isValidPassword("12!!teST".toCharArray()));
+		Assert.assertTrue(policy.isValidPassword("12!!TEst".toCharArray()));
+		Assert.assertTrue(policy.isValidPassword("!!12teST".toCharArray()));
+		Assert.assertTrue(policy.isValidPassword("!!12TEst".toCharArray()));
+
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.appng.xml.platform.Permission;
  * Checks the {@link Permission}s owned by a {@link PermissionOwner}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface PermissionProcessor {
 
@@ -32,7 +31,8 @@ public interface PermissionProcessor {
 	 * Checks whether all of the {@link PermissionOwner}s {@link Permission}s are present.
 	 * 
 	 * @param permissionOwner
-	 *            the {@link PermissionOwner}
+	 *                        the {@link PermissionOwner}
+	 * 
 	 * @return {@code true} if all permissions are present, {@code false} otherwise
 	 */
 	boolean hasPermissions(PermissionOwner permissionOwner);
@@ -41,8 +41,10 @@ public interface PermissionProcessor {
 	 * Checks whether the {@link Permission} identified by the given {@code reference} is present.
 	 * 
 	 * @param reference
-	 *            the name of the {@link Permission} to check
+	 *                  the name of the {@link Permission} to check
+	 * 
 	 * @return {@code true} if the permission is present, {@code false} otherwise
+	 * 
 	 * @see Permission#getRef()
 	 */
 	boolean hasPermission(String reference);
@@ -51,7 +53,8 @@ public interface PermissionProcessor {
 	 * Checks whether the {@link Permission}s to write the value for the given {@link FieldDef} are present.
 	 * 
 	 * @param fieldDefinition
-	 *            the {@link FieldDef} to check the write-permission for
+	 *                        the {@link FieldDef} to check the write-permission for
+	 * 
 	 * @return {@code true} if the permissions are present and the {@link FieldDef} isn't readonly, {@code false}
 	 *         otherwise
 	 * 
@@ -65,7 +68,8 @@ public interface PermissionProcessor {
 	 * Checks whether the {@link Permission}s to read the value for the given {@link FieldDef} are present.
 	 * 
 	 * @param fieldDefinition
-	 *            the {@link FieldDef} to check the read-permission for
+	 *                        the {@link FieldDef} to check the read-permission for
+	 * 
 	 * @return {@code true} if the permissions are present, {@code false} otherwise
 	 * 
 	 * @see FieldPermissions

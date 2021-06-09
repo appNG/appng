@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,36 @@ package org.appng.cli.commands.subject;
 
 import org.appng.api.BusinessException;
 import org.appng.cli.commands.AbstractCommandTest;
-import org.appng.cli.commands.subject.HashPassword.PasswordSubject;
+import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class HashPasswordTest extends AbstractCommandTest {
 
-	private static final String SUPERSECRET = "supersecret";
+	private static final String SUPERSECRET = "Supers3cr3t!";
 
 	public HashPassword getCommand() {
 		return new HashPassword(SUPERSECRET);
 	}
 
 	public void validate() {
-		PasswordSubject authSubject = new PasswordSubject();
+		SubjectImpl authSubject = new SubjectImpl();
 		authSubject.setDigest(cliEnv.getResult());
 		BCryptPasswordHandler passwordHandler = new BCryptPasswordHandler(authSubject);
 		passwordHandler.isValidPassword(SUPERSECRET);
 	}
-	
+
+	@Test(expected = BusinessException.class)
+	public void testInvalid() throws BusinessException {
+		new HashPassword("").execute(cliEnv);
+	}
+
 	@Ignore("only for local usage")
-	public void testInteractive() throws BusinessException{
+	public void testInteractive() throws BusinessException {
 		new HashPassword(true).execute(cliEnv);
 	}
 

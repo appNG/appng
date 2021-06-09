@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.springframework.http.MediaType;
  * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.html">RFC 2616</a>.
  * 
  * @author Matthias Müller
- * 
  */
 public class HttpHeaders extends org.springframework.http.HttpHeaders {
 
@@ -79,7 +78,8 @@ public class HttpHeaders extends org.springframework.http.HttpHeaders {
 	 * has the value {@value #PROTO_HTTPS}.
 	 * 
 	 * @param httpServletRequest
-	 *            the {@link HttpServletRequest}
+	 *                           the {@link HttpServletRequest}
+	 * 
 	 * @return {@code true} if the given request is secure, {@code false} otherwise
 	 */
 	public static boolean isRequestSecure(HttpServletRequest httpServletRequest) {
@@ -92,7 +92,7 @@ public class HttpHeaders extends org.springframework.http.HttpHeaders {
 	 * headers.
 	 * 
 	 * @param httpServletResponse
-	 *            the HttpServletResponse
+	 *                            the HttpServletResponse
 	 */
 	public static void setNoCache(HttpServletResponse httpServletResponse) {
 		httpServletResponse.setHeader(CACHE_CONTROL, "no-cache,no-store,max-age=0");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,8 +66,8 @@ public class PathInfoTest {
 
 	@Test
 	public void testRepository() {
-		Path pathInfo = new PathInfo(HOST, DOMAIN, CURRENT_SITE, "/repository", MANAGER_PATH, SERVICE_PATH,
-				ASSETS_DIRS, DOCUMENT_DIRS, REPOSITORY, JSP);
+		Path pathInfo = new PathInfo(HOST, DOMAIN, CURRENT_SITE, "/repository", MANAGER_PATH, SERVICE_PATH, ASSETS_DIRS,
+				DOCUMENT_DIRS, REPOSITORY, JSP);
 		Assert.assertTrue(pathInfo.isRepository());
 	}
 
@@ -250,8 +250,8 @@ public class PathInfoTest {
 
 	@Test
 	public void testOutputFormat() {
-		Path pathInfo = new PathInfo(HOST, DOMAIN, CURRENT_SITE, "/manager/_format/admin/someapplication",
-				MANAGER_PATH, SERVICE_PATH, ASSETS_DIRS, DOCUMENT_DIRS, REPOSITORY, JSP);
+		Path pathInfo = new PathInfo(HOST, DOMAIN, CURRENT_SITE, "/manager/_format/admin/someapplication", MANAGER_PATH,
+				SERVICE_PATH, ASSETS_DIRS, DOCUMENT_DIRS, REPOSITORY, JSP);
 		Assert.assertEquals("format", pathInfo.getOutputFormat());
 		Assert.assertEquals("/_format", pathInfo.getOutputPrefix());
 		Assert.assertNull(pathInfo.getOutputType());

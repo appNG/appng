@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class RepositoryCacheTest {
 	@Test
 	public void testCache() throws BusinessException {
 		RepositoryImpl repository = new RepositoryImpl();
+		repository.setId(42);
 		repository.setRepositoryType(RepositoryType.LOCAL);
 		repository.setActive(true);
 		repository.setRepositoryMode(RepositoryMode.ALL);
@@ -53,25 +54,25 @@ public class RepositoryCacheTest {
 		Assert.assertEquals(1, cache.getApplications("*emo*").size());
 		Assert.assertEquals(0, cache.getApplications("notfound").size());
 
-		PackageWrapper applicationWrapper = cache.getPublishedApplicationWrapper("demo-application");
+		PackageWrapper applicationWrapper = cache.getPackageWrapper("demo-application");
 		String latest = "1.5.4";
 		Assert.assertEquals(latest, applicationWrapper.getLatestRelease());
 		Assert.assertNull(applicationWrapper.getLatestSnapshot());
 
 		String v1_5_3 = "1.5.3";
-		PackageArchive archive = cache.getApplicationArchive(applicationWrapper.getName(), v1_5_3, null);
+		PackageArchive archive = cache.getPackageArchive(applicationWrapper.getName(), v1_5_3, null);
 		Assert.assertEquals(PackageType.APPLICATION, archive.getType());
 		Assert.assertEquals("2013-01-13-1303", archive.getPackageInfo().getTimestamp());
 		Assert.assertEquals(v1_5_3, archive.getPackageInfo().getVersion());
 
 		String v1_5_2 = "1.5.2";
-		archive = cache.getApplicationArchive(applicationWrapper.getName(), v1_5_2, null);
+		archive = cache.getPackageArchive(applicationWrapper.getName(), v1_5_2, null);
 		Assert.assertEquals(PackageType.APPLICATION, archive.getType());
 		Assert.assertEquals("2012-11-27-1305", archive.getPackageInfo().getTimestamp());
 		Assert.assertEquals(v1_5_2, archive.getPackageInfo().getVersion());
 
 		String v1_5_1 = "1.5.1";
-		archive = cache.getApplicationArchive(applicationWrapper.getName(), v1_5_1, null);
+		archive = cache.getPackageArchive(applicationWrapper.getName(), v1_5_1, null);
 		Assert.assertEquals(PackageType.APPLICATION, archive.getType());
 		Assert.assertEquals("2012-08-03-1408", archive.getPackageInfo().getTimestamp());
 		Assert.assertEquals(v1_5_1, archive.getPackageInfo().getVersion());

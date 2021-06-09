@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.messaging.Event;
 
 /**
- * 
  * A {@link Site} is the highest level entry-point to the platform. Besides a unique name, it needs to have a domain and
  * a host. A site can use any of the several {@link Application}s which have been deployed to the platform.
  * 
@@ -54,7 +53,8 @@ public interface Site extends Named<Integer> {
 	 * {@link Site}.
 	 * 
 	 * @param name
-	 *            the name of the {@link Application}
+	 *             the name of the {@link Application}
+	 * 
 	 * @return the {@link Application}, if such a {@link Application} is assigned to this {@link Site}, {@code null}
 	 *         otherwise
 	 */
@@ -64,7 +64,8 @@ public interface Site extends Named<Integer> {
 	 * Checks whether the {@link Application} with the given name is assigned to this {@link Site}.
 	 * 
 	 * @param name
-	 *            the name of the {@link Application}
+	 *             the name of the {@link Application}
+	 * 
 	 * @return {@code true} if the {@link Application} with the given name is assigned to this {@link Site},
 	 *         {@code false} otherwise
 	 */
@@ -88,15 +89,14 @@ public interface Site extends Named<Integer> {
 	 * Returns the {@link Properties} for this {@link Site}.
 	 * 
 	 * @return the {@link Properties} for this {@link Site}
+	 * 
 	 * @see org.appng.api.SiteProperties
 	 */
 	Properties getProperties();
 
 	/**
 	 * Returns the {@link URLClassLoader} for this {@link Site}, which contains all the jars provided by the
-	 * {@link Application}s that are assigned to this
-	 * 
-	 * {@link Site}.
+	 * {@link Application}s that are assigned to this {@link Site}.
 	 * 
 	 * @return the {@link URLClassLoader}
 	 */
@@ -129,11 +129,11 @@ public interface Site extends Named<Integer> {
 	 * <b>does</b> start with a slash, it is expected to be a target relative to the domain of this site.
 	 * 
 	 * @param env
-	 *            the actual {@link Environment}
+	 *                   the actual {@link Environment}
 	 * @param target
-	 *            the redirect target
+	 *                   the redirect target
 	 * @param statusCode
-	 *            -the HTTP status code to send. Use constants from {@link HttpServletRequest}
+	 *                   -the HTTP status code to send. Use constants from {@link HttpServletRequest}
 	 */
 	void sendRedirect(Environment env, String target, Integer statusCode);
 
@@ -141,7 +141,8 @@ public interface Site extends Named<Integer> {
 	 * Returns the {@link File} defined by the given path, which is located relative to the site's repository-folder.
 	 * 
 	 * @param relativePath
-	 *            the relative path of the file
+	 *                     the relative path of the file
+	 * 
 	 * @return the {@link File}, if such a path exists
 	 */
 	File readFile(String relativePath);
@@ -171,13 +172,14 @@ public interface Site extends Named<Integer> {
 	 * If clustering is enabled, sends an {@link Event} to other appNG nodes
 	 * 
 	 * @param event
-	 *            the event to send
+	 *              the event to send
+	 * 
 	 * @return {@code true} if the event was sent successfully
 	 */
 	boolean sendEvent(Event event);
-	
+
 	SiteState getState();
-	
+
 	boolean hasState(SiteState... states);
 
 }

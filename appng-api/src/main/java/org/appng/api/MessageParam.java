@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,11 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 /**
- * 
  * A {@link MessageParam} provides a message key and optionally some message arguments which can be used when formatting
  * a message with {@link MessageFormat#format(String, Object...)}. The purpose is to make it easier to provide end-user
  * friendly messages.
  * 
  * @author Matthias Müller
- * 
  */
 public interface MessageParam {
 	/**

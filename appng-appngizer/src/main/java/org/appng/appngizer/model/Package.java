@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class Package extends org.appng.appngizer.model.xml.Package implements Ur
 		p.setName(pkg.getName());
 		p.setDisplayName(pkg.getDisplayName());
 		p.setTimestamp(pkg.getTimestamp());
-		p.setVersion(pkg.getVersion());		
+		p.setVersion(pkg.getVersion());
 		p.setInstalled(installed);
 		PackageType type = (pkg instanceof ApplicationInfo) ? PackageType.APPLICATION : PackageType.TEMPLATE;
 		p.setType(type);

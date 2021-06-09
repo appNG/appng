@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Linkpanel;
 
 /**
- * 
  * A {@link FieldConverter} is responsible for converting
  * <ol>
  * <li>a property of an bindclass-instance to its {@code String}-representation inside of a {@link Datafield} (see
@@ -35,12 +34,10 @@ import org.appng.xml.platform.Linkpanel;
  * </ol>
  * 
  * @author Matthias Müller
- * 
  */
 public interface FieldConverter {
 
 	/**
-	 * 
 	 * @param field
 	 */
 	void reset(FieldWrapper field);
@@ -51,7 +48,7 @@ public interface FieldConverter {
 	 * {@link #addField(DatafieldOwner, FieldWrapper)}.
 	 * 
 	 * @param field
-	 *            the {@link FieldWrapper}
+	 *              the {@link FieldWrapper}
 	 * 
 	 * @see FieldWrapper#setStringValue(String)
 	 */
@@ -62,9 +59,9 @@ public interface FieldConverter {
 	 * parameter source.
 	 * 
 	 * @param field
-	 *            the {@link FieldWrapper}
+	 *                the {@link FieldWrapper}
 	 * @param request
-	 *            the {@link RequestContainer}
+	 *                the {@link RequestContainer}
 	 * 
 	 * @see FieldWrapper#setObject(Object)
 	 */
@@ -75,9 +72,10 @@ public interface FieldConverter {
 	 * {@link FieldWrapper#getStringValue()} for the {@link Datafield}'s value.
 	 * 
 	 * @param dataFieldOwner
-	 *            the {@link FieldWrapper}
+	 *                       the {@link FieldWrapper}
 	 * @param fieldWrapper
-	 *            the {@link FieldWrapper}
+	 *                       the {@link FieldWrapper}
+	 * 
 	 * @return the {@link Datafield} which has been added, if any
 	 */
 	Datafield addField(DatafieldOwner dataFieldOwner, FieldWrapper fieldWrapper);
@@ -86,7 +84,6 @@ public interface FieldConverter {
 	 * /** A {@code DatafieldOwner} owns several {@link FieldDef}s and also {@link Linkpanel}s.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public static abstract class FieldDefOwner {
 
@@ -110,7 +107,6 @@ public interface FieldConverter {
 	 * A {@code DatafieldOwner} owns several {@link Datafield}s and also {@link Linkpanel}s.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public static abstract class DatafieldOwner {
 
@@ -132,7 +128,8 @@ public interface FieldConverter {
 		 * Returns the {@link Datafield} with the given name
 		 * 
 		 * @param name
-		 *            the name of the {@link Datafield} to got
+		 *             the name of the {@link Datafield} to got
+		 * 
 		 * @return the {@link Datafield}, if any
 		 */
 		Datafield getField(String name) {

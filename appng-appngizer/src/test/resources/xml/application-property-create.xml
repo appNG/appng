@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <property xmlns="http://www.appng.org/schema/appngizer" name="myNewProp"
-	self="http://localhost/application/demo-application/property/myNewProp">
+	self="http://localhost/appNGizer/application/demo-application/property/myNewProp">
 	<value>foo</value>
 	<defaultValue>foo</defaultValue>
 	<description>this is foo, bar!</description>

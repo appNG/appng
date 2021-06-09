@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.appng.api.auth.AuthTools;
  * The {@code <hash>} is a MD5 hash of {@code <user>|<timestamp>|<utc-offset>|<shared-secret>} , where
  * {@code <shared-secret>} comes from the platform property {@value Platform.Property#SHARED_SECRET}.
  * 
- * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
  *
@@ -39,9 +38,10 @@ public class DigestUtil {
 	 * Creates and returns a digest.
 	 * 
 	 * @param username
-	 *            the username
+	 *                     the username
 	 * @param sharedSecret
-	 *            the shared secret
+	 *                     the shared secret
+	 * 
 	 * @return the digest
 	 */
 	public static String getDigest(String username, String sharedSecret) {

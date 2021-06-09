@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -267,7 +267,7 @@ abstract class RestDataSourceBase extends RestOperation {
 			Optional<FieldDef> fieldDef = metaData.getFields().stream().filter(mf -> mf.getName().equals(f.getName()))
 					.findFirst();
 			BeanWrapper beanWrapper = getBeanWrapper(metaData);
-			FieldValue fieldValue = getFieldValue(f, fieldDef, beanWrapper, 0);
+			FieldValue fieldValue = getFieldValue(f, fieldDef, beanWrapper);
 			if (null != fieldValue && isSelectionType(fieldDef.get().getType()) && null != selections) {
 				Selection selection = selections.parallelStream()
 						.filter(s -> s.getId().equals(fieldDef.get().getName())).findFirst().orElse(null);
@@ -303,8 +303,7 @@ abstract class RestDataSourceBase extends RestOperation {
 		}).collect(Collectors.toList());
 	}
 
-	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper,
-			int index) {
+	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper) {
 		if (fieldDef.isPresent()) {
 			FieldValue fv = getFieldValue(data, fieldDef.get(),
 					beanWrapper.getPropertyType(fieldDef.get().getBinding()));
@@ -313,7 +312,7 @@ abstract class RestDataSourceBase extends RestOperation {
 				final AtomicInteger i = new AtomicInteger(0);
 				for (Datafield childData : childDataFields) {
 					Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
-					FieldValue childValue = getFieldValue(childData, childField, beanWrapper, i.get());
+					FieldValue childValue = getFieldValue(childData, childField, beanWrapper);
 					fv.addValuesItem(childValue);
 					i.incrementAndGet();
 				}

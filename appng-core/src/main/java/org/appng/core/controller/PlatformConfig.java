@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 
 import org.appng.api.support.environment.EnvironmentFactoryBean;
@@ -35,10 +36,12 @@ import org.appng.core.repository.config.DataSourceFactory;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.service.CoreService;
 import org.appng.core.service.DatabaseService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.LdapService;
 import org.appng.core.service.TemplateService;
 import org.appng.persistence.repository.SearchRepositoryImpl;
+import org.appng.xml.BuilderFactory;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.transformation.StyleSheetProvider;
@@ -46,6 +49,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -60,6 +64,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.annotation.RequestScope;
+
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 
 /**
  * Central {@link Configuration} for appNG's platform context.
@@ -79,9 +85,9 @@ public class PlatformConfig {
 		return pel;
 	}
 
-	@Bean(destroyMethod = "destroy")
+	@Bean
 	public DataSourceFactory dataSource(
-			// @formatter:off
+	// @formatter:off
 			@Value("${hibernate.connection.url}") String jdbcUrl,
 			@Value("${hibernate.connection.username}") String userName,
 			@Value("${hibernate.connection.password}") String password,
@@ -89,8 +95,11 @@ public class PlatformConfig {
 			@Value("${database.type}") String type,
 			@Value("${database.minConnections:3}") Integer minConnections,
 			@Value("${database.maxConnections:10}") Integer maxConnections,
+			@Value("${database.maxLifetime:90000}") Integer maxLifetime,
 			@Value("${database.validationQuery}") String validationQuery,
 			@Value("${database.validationPeriod}") Integer validationPeriod,
+			@Value("${database.validationTimeout:5000}") Integer validationTimeout,
+			@Value("${database.connectionTimeout:5000}") Integer connectionTimeout,
 			@Value("${database.logPerformance:false}") boolean logPerformance
 	// @formatter:on
 	) {
@@ -101,6 +110,9 @@ public class PlatformConfig {
 		connection.setValidationPeriod(validationPeriod);
 		connection.setName("appNG ROOT connection");
 		HikariCPConfigurer configurer = new HikariCPConfigurer(connection, logPerformance);
+		configurer.setMaxLifetime(maxLifetime);
+		configurer.setValidationTimeout(validationTimeout);
+		configurer.setConnectionTimeout(connectionTimeout);
 		return new DataSourceFactory(configurer);
 	}
 
@@ -112,7 +124,6 @@ public class PlatformConfig {
 		lcemfb.setPersistenceUnitName("appNG");
 		lcemfb.setDataSource(dataSource);
 		Properties jpaProperties = new Properties();
-		jpaProperties.put(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS, false);
 		jpaProperties.put(AvailableSettings.DIALECT, dialect);
 		lcemfb.setJpaProperties(jpaProperties);
 		lcemfb.setPackagesToScan("org.appng.core.domain");
@@ -134,14 +145,14 @@ public class PlatformConfig {
 
 	@Bean
 	public DocumentBuilderFactory documentBuilderFactory() {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = BuilderFactory.documentBuilderFactory();
 		dbf.setNamespaceAware(true);
 		return dbf;
 	}
 
 	@Bean
-	public TransformerFactory transformerFactory() {
-		return TransformerFactory.newInstance();
+	public TransformerFactory transformerFactory() throws TransformerConfigurationException {
+		return BuilderFactory.transformerFactory();
 	}
 
 	@Bean(initMethod = "init")
@@ -163,7 +174,7 @@ public class PlatformConfig {
 		marshallService.setUseSchema(false);
 		marshallService.setPrettyPrint(true);
 		marshallService.setSchemaLocation("http://www.appng.org/schema/platform/appng-platform.xsd");
-		marshallService.setCdataElements(Arrays.asList("title", "description", "label", "value", "message"));
+		marshallService.setCdataElements(Arrays.asList("title", "description", "label", "tooltip", "value", "message"));
 		return marshallService;
 	}
 
@@ -239,6 +250,12 @@ public class PlatformConfig {
 		platformProcessor.setMarshallService(marshallService);
 		platformProcessor.setPlatformTransformer(platformTransformer);
 		return platformProcessor;
+	}
+
+	@Bean
+	@Lazy
+	public CacheManager platformCacheManager() {
+		return new HazelcastCacheManager(HazelcastConfigurer.getInstance(null));
 	}
 
 }

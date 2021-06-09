@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Lists all subjects.")
 public class ListSubjects extends CommandList implements ExecutableCliCommand {
@@ -58,10 +57,16 @@ public class ListSubjects extends CommandList implements ExecutableCliCommand {
 			prettyTable.addColumn(TableConstants.REAL_NAME);
 			prettyTable.addColumn(TableConstants.EMAIL);
 			prettyTable.addColumn(TableConstants.LANGUAGE, true);
+			prettyTable.addColumn(TableConstants.LAST_LOGIN);
+			prettyTable.addColumn(TableConstants.LOCKED);
+			prettyTable.addColumn(TableConstants.EXPIRY_DATE);
+			prettyTable.addColumn(TableConstants.PASSWORD_CHANGE_POLICY);
+			prettyTable.addColumn(TableConstants.FAILED_LOGIN_ATTEMPTS);
 
 			for (Subject subject : subjects) {
 				prettyTable.addRow(subject.getId(), subject.getName(), subject.getRealname(), subject.getEmail(),
-						subject.getLanguage());
+						subject.getLanguage(), subject.getLastLogin(), subject.isLocked(), subject.getExpiryDate(),
+						subject.getPasswordChangePolicy().name(), subject.getFailedLoginAttempts());
 			}
 
 			cle.setResult(renderTable());

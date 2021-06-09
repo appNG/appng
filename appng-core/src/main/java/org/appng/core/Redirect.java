@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import org.appng.core.controller.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Utility class for sending HTTP redirects to a {@link HttpServletResponse}.
- * See <a href="https://tools.ietf.org/html/rfc2616#section-10.3">RFC 2616</a> for further details.
+ * Utility class for sending HTTP redirects to a {@link HttpServletResponse}. See
+ * <a href="https://tools.ietf.org/html/rfc2616#section-10.3">RFC 2616</a> for further details.
  * 
  * @author Matthias Müller
  * @author Matthias Herlitzius
@@ -41,11 +41,11 @@ public class Redirect {
 	 * Sends a redirect with the given {@code statusCode} and {@code target} to a {@link HttpServletResponse}.
 	 * 
 	 * @param response
-	 *            the response
+	 *                   the response
 	 * @param statusCode
-	 *            the HTTP status-code
+	 *                   the HTTP status-code
 	 * @param target
-	 *            the redirect target
+	 *                   the redirect target
 	 */
 	public static void to(HttpServletResponse response, Integer statusCode, String target) {
 		to(response, statusCode, "", target);
@@ -55,13 +55,13 @@ public class Redirect {
 	 * Sends a redirect with the given {@code statusCode} and {@code target} to a {@link HttpServletResponse}.
 	 * 
 	 * @param response
-	 *            the response
+	 *                   the response
 	 * @param statusCode
-	 *            the HTTP status-code
+	 *                   the HTTP status-code
 	 * @param origin
-	 *            the (optional) origin of the request, only used for logging
+	 *                   the (optional) origin of the request, only used for logging
 	 * @param target
-	 *            the redirect target
+	 *                   the redirect target
 	 */
 	public static void to(HttpServletResponse response, Integer statusCode, String origin, String target) {
 		if (StringUtils.isNotBlank(origin)) {

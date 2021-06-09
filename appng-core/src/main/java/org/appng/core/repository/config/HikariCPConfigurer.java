@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import ch.sla.jdbcperflogger.driver.WrappingDriver;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link DatasourceConfigurer} using <a href="http://brettwooldridge.github.io/HikariCP/">HikariCP</a>. Also supports
  * <a href="https://github.com/sylvainlaurent/JDBC-Performance-Logger">JDBC-Performance-Logger</a> for measuring
  * performance of SQL statements.
@@ -39,7 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	private HikariDataSource hikariDataSource;
-	private boolean logPerformance = false;
+	private @Setter boolean logPerformance = false;
+	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
+	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
+	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
 
 	public HikariCPConfigurer() {
 
@@ -57,7 +60,11 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 	public void configure(DatabaseConnection connection) {
 		HikariConfig configuration = new HikariConfig();
 
+		configuration.setMinimumIdle(connection.getMinConnections());
 		configuration.setMaximumPoolSize(connection.getMaxConnections());
+		configuration.setConnectionTimeout(connectionTimeout);
+		configuration.setValidationTimeout(validationTimeout);
+		configuration.setMaxLifetime(maxLifetime);
 		if (StringUtils.isNotBlank(connection.getValidationQuery())) {
 			configuration.setConnectionTestQuery(connection.getValidationQuery());
 		}
@@ -96,14 +103,6 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	public DataSource getDataSource() {
 		return hikariDataSource;
-	}
-
-	public boolean isLogPerformance() {
-		return logPerformance;
-	}
-
-	public void setLogPerformance(boolean logPerformance) {
-		this.logPerformance = logPerformance;
 	}
 
 }

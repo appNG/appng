@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,9 +51,9 @@ public class Serializer {
 	 * Creates a new serializer
 	 * 
 	 * @param environment
-	 *            the {@link Environment} to use
+	 *                    the {@link Environment} to use
 	 * @param nodeId
-	 *            the node id to use
+	 *                    the node id to use
 	 */
 	Serializer(Environment environment, String nodeId) {
 		this.environment = environment;
@@ -64,11 +64,12 @@ public class Serializer {
 	 * Serializes the given {@link Event} into the given {@link OutputStream}.
 	 * 
 	 * @param out
-	 *            the {@link OutputStream} to serialized the {@link Event} into
+	 *              the {@link OutputStream} to serialized the {@link Event} into
 	 * @param event
-	 *            the {@link Event} to be serialized
+	 *              the {@link Event} to be serialized
+	 * 
 	 * @throws IOException
-	 *             if an error occurs during serialization
+	 *                     if an error occurs during serialization
 	 */
 	public void serialize(OutputStream out, Event event) throws IOException {
 		try (ObjectOutputStream oos = new ObjectOutputStream(out)) {
@@ -83,7 +84,8 @@ public class Serializer {
 	 * Deserializes an {@link Event} from the given data.
 	 * 
 	 * @param data
-	 *            the bytes representing the serialized {@link Event}
+	 *             the bytes representing the serialized {@link Event}
+	 * 
 	 * @return the {@link Event}, or {@code null} if no event could be deserialized from the given data
 	 */
 	public Event deserialize(byte[] data) {
@@ -94,7 +96,8 @@ public class Serializer {
 	 * Deserializes an {@link Event} from the given data.
 	 * 
 	 * @param data
-	 *            the {@link InputStream} containing the serialized {@link Event}
+	 *             the {@link InputStream} containing the serialized {@link Event}
+	 * 
 	 * @return the {@link Event}, or {@code null} if no event could be deserialized from the given data
 	 */
 	public Event deserialize(InputStream data) {
@@ -127,7 +130,8 @@ public class Serializer {
 	 * Returns the {@link Site} with the given name
 	 * 
 	 * @param siteName
-	 *            the name of the site to retrieve
+	 *                 the name of the site to retrieve
+	 * 
 	 * @return the {@link Site}
 	 */
 	public Site getSite(String siteName) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,7 +179,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			ILinkBuilder globalLinkBuilder = getGlobalLinkBuilder(templatePrefix);
 			templateEngine.addLinkBuilder(globalLinkBuilder);
 
-			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(templateName, charset, devMode);
+			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(charset, devMode);
 			templateEngine.addTemplateResolver(globalTemplateResolver);
 
 			if (null != context) {
@@ -191,19 +191,18 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 				sw.stop();
 				sw.start("write debug files");
 				writeDebugFile(debugFolder, PLATFORM_XML, platformXML);
-				writeTemplateFiles(debugFolder, templatePrefix, templateEngine);
+				writeTemplateFiles(debugFolder, templateEngine);
 			}
 
 			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 				sw.stop();
 				sw.start("build context");
-				Context ctx = getContext(platform, platformXML, applicationProvider);
+				Context ctx = getContext(platform, applicationProvider);
 				sw.stop();
 				sw.start("process template");
 				String templateFile = PLATFORM_HTML;
-				for (Template template : outputType.getTemplates()) {
-					templateFile = template.getPath();
-					break;
+				if (outputType.getTemplates().size() > 0) {
+					templateFile = outputType.getTemplates().get(0).getPath();
 				}
 				result = templateEngine.process(templateFile, ctx);
 				result = BLANK_LINES.matcher(result).replaceAll(System.lineSeparator());
@@ -247,8 +246,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		writeDebugFile(LOGGER, outfolder, name, content);
 	}
 
-	protected void writeTemplateFiles(File outfolder, String templatePrefix, ThymeleafTemplateEngine templateEngine)
-			throws IOException {
+	protected void writeTemplateFiles(File outfolder, ThymeleafTemplateEngine templateEngine) throws IOException {
 		Set<String> templateNames = new HashSet<>();
 		for (ITemplateResolver tplRes : templateEngine.getTemplateResolvers()) {
 			String prefix = ((FileTemplateResolver) tplRes).getPrefix();
@@ -286,8 +284,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return appTplResolver;
 	}
 
-	protected Context getContext(org.appng.xml.platform.Platform platform, String platformXml,
-			ApplicationProvider applicationProvider) throws InvalidConfigurationException {
+	protected Context getContext(org.appng.xml.platform.Platform platform, ApplicationProvider applicationProvider)
+			throws InvalidConfigurationException {
 		Context ctx = new Context(Locale.ENGLISH);
 		ctx.setVariable("platform", platform);
 		try {
@@ -363,7 +361,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return templateEngine;
 	}
 
-	protected ITemplateResolver getGlobalTemplateResolver(String templateName, Charset charset, Boolean devMode) {
+	protected ITemplateResolver getGlobalTemplateResolver(Charset charset, Boolean devMode) {
 		FileTemplateResolver globalTemplateResolver = new FileTemplateResolver();
 		globalTemplateResolver.setName("Global Template Resolver");
 		globalTemplateResolver.setResolvablePatterns(Collections.singleton("*"));
@@ -788,6 +786,16 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 					if (Boolean.parseBoolean(l.getDefault())) {
 						return l;
 					}
+				}
+			}
+			return null;
+		}
+
+		public Link defaultLink(List<Linkpanel> panels) {
+			for (Linkpanel panel : panels) {
+				Link defaultLink = defaultLink(panel);
+				if (null != defaultLink) {
+					return defaultLink;
 				}
 			}
 			return null;

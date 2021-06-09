@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 
 /**
- * 
  * Utility-class providing constants for the names of a {@link Site}'s {@link Properties}.
  * 
  * @author Matthias Müller
@@ -29,7 +28,10 @@ import org.appng.api.model.Site;
  */
 public class SiteProperties {
 
-	/** Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of {@link Taglet}s. */
+	/**
+	 * Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of
+	 * {@link Taglet}s.
+	 */
 	public static final String ALLOW_SKIP_RENDER = "allowSkipRender";
 
 	/**
@@ -93,26 +95,35 @@ public class SiteProperties {
 	 * resources like CSS or JavaScript files
 	 */
 	public static final String DOCUMENT_DIR = "documentDir";
-	/** Set to true to enable Ehcache for this site */
-	public static final String EHCACHE_ENABLED = "ehcacheEnabled";
-	/** URL path prefixes which are never cached. Contains one prefix per line (CLOB value). */
-	public static final String EHCACHE_EXCEPTIONS = "ehcacheExceptions";
+	/** Set to true to enable caching for this site */
+	public static final String CACHE_ENABLED = "cacheEnabled";
 	/**
-	 * The time, in milliseconds, to wait for the filter before a
-	 * {@code net.sf.ehcache.constructs.blocking.LockTimeoutException} is thrown
+	 * URL path prefixes which are never cached. Contains one prefix per line (multiline value).
 	 */
-	public static final String EHCACHE_BLOCKING_TIMEOUT = "ehcacheBlockingTimeout";
-	/** Set to true to enable Ehcache statistics */
-	public static final String EHCACHE_STATISTICS = "ehcacheStatistics";
+	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
+	/** @deprecated no more used */
+	@Deprecated
+	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
+	/** The cache timeouts as a multiline property, key=value */
+	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
+	/** Use Ant-style path matching for {@link #CACHE_TIMEOUTS}? */
+	public static final String CACHE_TIMEOUTS_ANT_STYLE = "cacheTimeoutsAntStyle";
+	/** The default TTL for a cache entry in seconds, if there's no matching path defined in {@link #CACHE_TIMEOUTS}. */
+	public static final String CACHE_TIME_TO_LIVE = "cacheTimeToLive";
+	/** Set to true to enable caching statistics */
+	public static final String CACHE_STATISTICS = "cacheStatistics";
 	/**
 	 * The suffix to be removed from a <rule><from> element when parsing the rules from urlrewrite.xml for the
 	 * repository watchers
 	 */
-	public static final String EHCACHE_WATCHER_RULE_SOURCE_SUFFIX = "ehcacheWatcherRuleSourceSuffix";
-	/** Whether or not to watch the repository folder for changes and invalidate cache elements, if necessary */
-	public static final String EHCACHE_WATCH_REPOSITORY = "ehcacheWatchRepository";
-	/** Whether or not the Ehcache is cleared on a site shutdown/reload */
-	public static final String EHCACHE_CLEAR_ON_SHUTDOWN = "ehcacheClearOnShutdown";
+	public static final String CACHE_WATCHER_RULE_SOURCE_SUFFIX = "cacheWatcherRuleSourceSuffix";
+	/**
+	 * Whether or not to watch the repository folder for changes and invalidate cache elements, if necessary
+	 */
+	public static final String CACHE_WATCH_REPOSITORY = "cacheWatchRepository";
+	/** Whether or not the cache is cleared on a site shutdown/reload */
+	public static final String CACHE_CLEAR_ON_SHUTDOWN = "cacheClearOnShutdown";
+
 	/** Set to true to enforce the protocol used by the site (http or https) */
 	public static final String ENFORCE_PRIMARY_DOMAIN = "enforcePrimaryDomain";
 	/** The name of the default error-page (without extension) relative to {@link #WWW_DIR} */
@@ -135,8 +146,16 @@ public class SiteProperties {
 	public static final String INDEX_CONFIG = "indexConfig";
 	/** The folder containing the Lucene-Index, relative to {@link #WWW_DIR} */
 	public static final String INDEX_DIR = "indexDir";
+	/** The maximum number of milliseconds that a client will wait for a connection from the connection pool. */
+	public static final String JDBC_CONNECTION_TIMEOUT = "jdbcConnectionTimeout";
 	/** Set to {@code true} to enable JDBC Performance Logger */
-	public static final String LOG_JDBC_PERFORMANCE = "logJdbcPerformance";
+	public static final String JDBC_LOG_PERFORMANCE = "jdbcLogPerformance";
+	/** The maximum lifetime in milliseconds for a connection in the pool. */
+	public static final String JDBC_MAX_LIFETIME = "jdbcMaxLifetime";
+	/**
+	 * The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive.
+	 */
+	public static final String JDBC_VALIDATION_TIMEOUT = "jdbcValidationTimeout";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
 	/** the queue size used per directory when indexing the file system **/
@@ -167,6 +186,8 @@ public class SiteProperties {
 	 * {@link ActionProvider}s and {@link DataProvider}s)
 	 */
 	public static final String SERVICE_PATH = "service-path";
+	/** Track usage of HTTP sessions? **/
+	public static final String SESSION_TRACKING_ENABLED = "sessionTrackingEnabled";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
 	/**
@@ -187,7 +208,7 @@ public class SiteProperties {
 	public static final String WWW_DIR = "wwwDir";
 
 	/**
-	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (CLOB value). Supports blank
+	 * URL path prefixes where XSS protection is omitted. Contains one prefix per line (multiline value). Supports blank
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";

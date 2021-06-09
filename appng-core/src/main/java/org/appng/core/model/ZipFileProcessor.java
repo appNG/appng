@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
  * SPI for processing a {@link ZipFile}.
  * 
  * @param T
- *            the type returned by {@link #process(ZipFile)}
+ *          the type returned by {@link #process(ZipFile)}
+ * 
  * @author Matthias Herlitzius
  */
 
@@ -33,10 +34,12 @@ public interface ZipFileProcessor<T> {
 	 * Processes the {@link ZipFile}.
 	 * 
 	 * @param zipFile
-	 *            the ZipFile to process
+	 *                the ZipFile to process
+	 * 
 	 * @return an object of type {@code T}
+	 * 
 	 * @throws IOException
-	 *             if an error occurred while processing
+	 *                     if an error occurred while processing
 	 */
 	T process(ZipFile zipFile) throws IOException;
 

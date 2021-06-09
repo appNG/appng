@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,17 +33,13 @@ import org.apache.catalina.tribes.membership.McastService;
 import org.apache.catalina.tribes.transport.ReplicationTransmitter;
 import org.apache.catalina.tribes.transport.nio.NioReceiver;
 import org.apache.catalina.tribes.transport.nio.PooledParallelSender;
-import org.appng.api.BusinessException;
-import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
-import org.appng.api.messaging.Event;
 import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.EventRegistry;
 import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Sender;
 import org.appng.api.messaging.Serializer;
 import org.appng.api.model.Properties;
-import org.appng.api.model.Site;
 import org.springframework.util.ClassUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -123,18 +119,7 @@ public class TribesReceiver extends MessageHandler implements Receiver, Runnable
 
 	public void messageReceived(Serializable msg, Member sender) {
 		if (msg instanceof ByteMessage) {
-			try {
-				Event event = eventSerializer.deserialize(((ByteMessage) msg).getMessage());
-				if (null != event) {
-					LOGGER.debug("about to perform {}", event);
-					Site site = eventSerializer.getSite(event.getSiteName());
-					for (EventHandler<Event> eventHandler : eventRegistry.getHandlers(event)) {
-						eventHandler.onEvent(event, eventSerializer.getEnvironment(), site);
-					}
-				}
-			} catch (InvalidConfigurationException | BusinessException e) {
-				LOGGER.error(String.format("error performing event %s", msg), e);
-			}
+			Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, ((ByteMessage) msg).getMessage());
 		}
 	}
 

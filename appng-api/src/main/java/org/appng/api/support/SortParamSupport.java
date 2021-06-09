@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 
 /**
- * 
  * Supports converting a {@link Pageable} to its {@link String}-representation and vice versa.<br/>
  * The following example illustrates how this works:
  * 
@@ -41,7 +40,6 @@ import org.springframework.data.domain.Sort.Order;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 public class SortParamSupport {
 
@@ -64,8 +62,8 @@ public class SortParamSupport {
 	private boolean isPageSizeSet = false;
 	private List<String> removedProperties = new ArrayList<>();
 
-	private Pattern paramPattern = Pattern.compile("((" + ALPHA_NUM + "+(\\." + ALPHA_NUM + "+)*)(" + ASSIGN
-			+ "(asc|desc))?)" + SEPARATOR + "?");
+	private Pattern paramPattern = Pattern
+			.compile("((" + ALPHA_NUM + "+(\\." + ALPHA_NUM + "+)*)(" + ASSIGN + "(asc|desc))?)" + SEPARATOR + "?");
 	private Pattern pagePattern = Pattern.compile("(" + PARAM_PAGE + ASSIGN + ")(" + DIGIT + ")");
 	private Pattern pageSizePattern = Pattern.compile("(" + PARAM_PAGE_SIZE + ASSIGN + ")(" + DIGIT + ")");
 

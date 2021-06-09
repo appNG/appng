@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,8 +111,7 @@ public class ResultServiceTest {
 		Person p = new Person();
 		p.setName("John");
 		p.setBirthDate(new SimpleDateFormat(pattern).parse("2012.12.12 13:14:15"));
-		Mockito.when(request.getExpressionEvaluator())
-				.thenReturn(new ExpressionEvaluator(new HashMap<>()));
+		Mockito.when(request.getExpressionEvaluator()).thenReturn(new ExpressionEvaluator(new HashMap<>()));
 		Mockito.when(env.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT+3"));
 		Result result = rss.getResult(fp, p);
 		XmlValidator.validate(result);

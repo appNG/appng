@@ -1,7 +1,7 @@
 image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
-:snapshot: 1.20.4-SNAPSHOT
-:stable: 1.20.3
-:current: {stable}
+:snapshot: 1.23.0-SNAPSHOT
+:stable: 1.22.1
+:current: {snapshot}
 ifdef::env-github[]
 :caution-caption: :fire:
 :important-caption: :exclamation:
@@ -29,14 +29,14 @@ appNG is very well suited to create and operate your own application platform as
 * Writing business logic by implementing a *handful of interfaces*
 * Automatic *parameter-binding* and type conversion
 * Built-in support for *paging, filtering sorting*
-* Out-of-the-box support for *JPA* and http://projects.spring.io/spring-data/[Spring Data^]
+* Out-of-the-box support for *JPA* and http://projects.spring.io/spring-data[Spring Data^]
 * Built-In *connection pooling* using https://github.com/brettwooldridge/HikariCP[HikariCP^]
-* Database *schema migrations* powered by https://flywaydb.org/[Flyway^]
+* Database *schema migrations* powered by https://flywaydb.org[Flyway^]
 * Built-In *role based access control*, which allows using field-based access
 * Easily provide your own *SOAP* or *REST* based webservices
 * Fully supports *internationalization* (i18n)
 * *Easy deployment* by providing a repository mechanism
-* Configurable caching powered by http://www.ehcache.org/[Ehcache^]
+* Configurable caching powered by https://hazelcast.org[Hazelcast^]
 * Cluster support and *horizontal scaling*
 * Powerful *administration tools*, including a graphical user interface (GUI), but also a command line interface (CLI) and a REST-client
 * Supports the *Bean Validation API*
@@ -45,8 +45,8 @@ appNG is very well suited to create and operate your own application platform as
 * Configurable and extendable *authentication mechanism* (local, LDAP etc.)
 * Provides *job scheduling* powered by http://www.quartz-scheduler.org/[Quartz^]
 * Provides *tooling for common tasks* like resizing images, sending emails, geo-locating, report generation etc.
-* Provides a large set of commonly used *libraries* such as https://commons.apache.org/[Apache Commons^] or https://github.com/FasterXML/jackson[Jackson^]
-* *Workflow* and *business process management* support by embedding the https://camunda.org/[Camunda BPMN Process Engine^]
+* Provides a large set of commonly used *libraries* such as https://commons.apache.org[Apache Commons^] or https://github.com/FasterXML/jackson[Jackson^]
+* *Workflow* and *business process management* support by embedding the https://camunda.org[Camunda BPMN Process Engine^]
 * Can serve *JSP*-content that can make use of the appNG *tag library*
 * *Multi-tenancy* allows to separate or group applications
 * *Rapid protoyping* enables you to design your user interface without writing one line of Java code
@@ -87,7 +87,7 @@ When running under Windows, use `appng.bat`.
 
 Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
 
-Sign-in with the username `admin` and the password `s3cr3t`.
+Sign-in with the username `admin` and the password `@ppNG$42`.
 
 [NOTE]
 ====
@@ -223,10 +223,6 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |https://appng.org/appng/docs/{current}/reference/html/developerguide.html[HTML^], https://appng.org/appng/docs/{current}/reference/pdf/developerguide.pdf[PDF^]
 
 |appNGizer
-|Setup Guide
-|https://appng.org/appng/docs/{current}/appngizer/html/appngizer-setup-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-setup-guide.pdf[PDF^]
-
-|appNGizer
 |Platform installation guide
 |https://appng.org/appng/docs/{current}/appngizer/html/appngizer-platform-installation-guide.html[HTML^], https://appng.org/appng/docs/{current}/appngizer/pdf/appngizer-platform-installation-guide.pdf[PDF^]
 
@@ -250,10 +246,6 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |{stable}
 |https://appng.org/appng/builds/stable/appng-application-camunda-{stable}.war[WAR^]
 
-|appNGizer
-|{stable}
-|https://appng.org/appng/builds/stable/appng-appngizer-{stable}.war[WAR^]
-
 |Standalone
 |{stable}
 |https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip[ZIP^]
@@ -274,10 +266,6 @@ NOTE: The appNG and appNGizer web applications run in Apache Tomcat, while appNG
 |appNG with https://camunda.org/[Camunda BPMN^]
 |{snapshot}
 |https://appng.org/appng/builds/snapshot/appng-application-camunda-{snapshot}.war[WAR^]
-
-|appNGizer
-|{snapshot}
-|https://appng.org/appng/builds/snapshot/appng-appngizer-{snapshot}.war[WAR^]
 
 |Standalone
 |{snapshot}

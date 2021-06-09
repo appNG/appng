@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -213,7 +213,9 @@ public class ElementHelper {
 	 * 
 	 * @param beanOptions
 	 *                    some {@link BeanOption}s
+	 * 
 	 * @return the {@link Options}
+	 * 
 	 * @see #initOptions(List)
 	 */
 	Options getOptions(List<BeanOption> beanOptions) {
@@ -309,6 +311,7 @@ public class ElementHelper {
 				if (hasPermission) {
 					if (!write) {
 						request.setLabel(fieldDef.getLabel());
+						request.setLabel(fieldDef.getTooltip());
 					}
 					Condition condition = fieldDef.getCondition();
 					boolean isValid = expressionMatchesOrContainsCurrent(condition, expressionEvaluator);
@@ -342,10 +345,8 @@ public class ElementHelper {
 		if (null != referenceParams) {
 			for (Param p : referenceParams.getParam()) {
 				String newValue = parameterSupport.replaceParameters(p.getValue());
-				if (StringUtils.isEmpty(newValue)) {
-					if (StringUtils.isNotEmpty(p.getDefault())) {
-						newValue = p.getDefault();
-					}
+				if (StringUtils.isEmpty(newValue) && StringUtils.isNotEmpty(p.getDefault())) {
+					newValue = p.getDefault();
 				}
 				p.setValue(newValue);
 				if (null != newValue) {
@@ -402,6 +403,7 @@ public class ElementHelper {
 	 *                    the current {@link Environment}
 	 * @param messages
 	 *                    the {@link Messages} to add
+	 * 
 	 * @return the messages for the current session
 	 */
 	public static Messages addMessages(Environment environment, Messages messages) {
@@ -424,6 +426,7 @@ public class ElementHelper {
 	 * 
 	 * @param environment
 	 *                    the current {@link Environment}
+	 * 
 	 * @return the messages removed from the current session, if any
 	 */
 	public Messages removeMessages(Environment environment) {
@@ -439,6 +442,7 @@ public class ElementHelper {
 	 * 
 	 * @param environment
 	 *                    the current {@link Environment}
+	 * 
 	 * @return the messages for the current session, if any
 	 */
 	public Messages getMessages(Environment environment) {

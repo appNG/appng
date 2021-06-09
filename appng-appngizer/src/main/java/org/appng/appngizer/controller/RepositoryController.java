@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.appng.appngizer.model.xml.PackageType;
 import org.appng.core.domain.RepositoryImpl;
 import org.appng.core.model.InstallablePackage;
 import org.appng.core.model.PackageArchive;
+import org.appng.core.model.RepositoryCache;
 import org.appng.core.model.RepositoryCacheFactory;
 import org.appng.core.model.RepositoryMode;
 import org.appng.core.model.RepositoryType;
@@ -111,10 +112,10 @@ public class RepositoryController extends ControllerBase {
 		try {
 			PackageVersions packageVersions = r.getPackageVersions(packageName);
 			Identifier installedApp = getApplicationByName(packageName);
-			Identifier installedTemplate = templateService.getTemplateByName(packageName);
+			Identifier installedTemplate = getTemplateByName(packageName);
 			Packages packages = new Packages();
 			for (PackageInfo pkg : packageVersions.getPackage()) {
-				Package p = getPackage(installedApp, installedTemplate, pkg);
+				Package p = getPackage(name, installedApp, installedTemplate, pkg);
 				packages.getPackage().add(p);
 			}
 			Comparator<org.appng.appngizer.model.xml.Package> propertyComparator = new PropertyComparator<org.appng.appngizer.model.xml.Package>(
@@ -128,13 +129,14 @@ public class RepositoryController extends ControllerBase {
 		}
 	}
 
-	protected Package getPackage(Identifier installedApp, Identifier installedTemplate, PackageInfo pkg) {
+	protected Package getPackage(String repository, Identifier installedApp, Identifier installedTemplate,
+			PackageInfo pkg) {
 		Package p = Package.fromDomain(pkg, false);
-		if (PackageType.APPLICATION.equals(p.getType())) {
-			p.setInstalled(isInstalled(installedApp, pkg));
-		} else {
-			p.setInstalled(isInstalled(installedTemplate, pkg));
-		}
+		Identifier identifier = PackageType.APPLICATION.equals(p.getType()) ? installedApp : installedTemplate;
+		p.setInstalled(isInstalled(identifier, pkg));
+		URI uri = getUriBuilder().path("/repository/{name}/{package}/{version}/{timestamp}")
+				.buildAndExpand(repository, pkg.getName(), pkg.getVersion(), pkg.getTimestamp()).toUri();
+		p.setSelf(uri.toString());
 		return p;
 	}
 
@@ -152,11 +154,8 @@ public class RepositoryController extends ControllerBase {
 				return notFound();
 			}
 			Identifier installedApp = getApplicationByName(packageName);
-			Identifier installedTemplate = templateService.getTemplateByName(packageName);
-			Package pkg = getPackage(installedApp, installedTemplate, packageArchive.getPackageInfo());
-			URI uri = getUriBuilder().path("/repository/{name}/{package}/{version}/{timestamp}")
-					.buildAndExpand(name, pkg.getName(), pkg.getVersion(), pkg.getTimestamp()).toUri();
-			pkg.setSelf(uri.toString());
+			Identifier installedTemplate = getTemplateByName(packageName);
+			Package pkg = getPackage(name, installedApp, installedTemplate, packageArchive.getPackageInfo());
 			return ok(pkg);
 		} catch (BusinessException e) {
 			return notFound();
@@ -244,8 +243,10 @@ public class RepositoryController extends ControllerBase {
 		}
 		Properties platformCfg = getCoreService().getPlatformProperties();
 		boolean isFileBased = platformCfg.getBoolean(Platform.Property.FILEBASED_DEPLOYMENT);
+		boolean privileged = Boolean.TRUE.equals(pkg.isPrivileged());
+		boolean hidden = Boolean.TRUE.equals(pkg.isHidden());
 		PackageInfo installedPackage = getCoreService().installPackage(r.getId(), pkg.getName(), pkg.getVersion(),
-				pkg.getTimestamp(), false, false, isFileBased);
+				pkg.getTimestamp(), privileged, hidden, isFileBased, null, true);
 		if (null == installedPackage) {
 			return notFound();
 		}
@@ -254,8 +255,15 @@ public class RepositoryController extends ControllerBase {
 	}
 
 	@PostMapping(value = "/repository/{name}/upload")
-	public ResponseEntity<Package> uploadPackage(@PathVariable("name") String name,
-			@RequestParam("file") MultipartFile file) throws BusinessException {
+	public ResponseEntity<Package> uploadPackage(
+	// @formatter:off
+			@PathVariable("name") String name,
+			@RequestParam("file") MultipartFile file,
+			@RequestParam(required = false, defaultValue = "false") boolean install,
+			@RequestParam(required = false, defaultValue = "false") boolean privileged,
+			@RequestParam(required = false, defaultValue = "false") boolean hidden
+	// @formatter:on
+	) throws BusinessException {
 		org.appng.core.model.Repository r = getCoreService().getApplicationRepositoryByName(name);
 		if (null == r) {
 			return notFound();
@@ -268,10 +276,25 @@ public class RepositoryController extends ControllerBase {
 			FileUtils.writeByteArrayToFile(outFile, file.getBytes());
 			PackageArchive packageArchive = RepositoryUtils.getPackage(r, outFile, file.getOriginalFilename());
 			if (null != packageArchive) {
-				RepositoryCacheFactory.instance().getCache(r).reload();
-				PackageInfo packageInfo = packageArchive.getPackageInfo();
-				return getRepositoryPackage(name, packageInfo.getName(), packageInfo.getVersion(),
-						packageInfo.getTimestamp());
+				Identifier installedApp = getApplicationByName(packageArchive.getPackageInfo().getName());
+				Identifier installedTemplate = getTemplateByName(packageArchive.getPackageInfo().getName());
+				Package pkg = getPackage(name, installedApp, installedTemplate, packageArchive.getPackageInfo());
+
+				RepositoryCache cache = RepositoryCacheFactory.instance().getCache(r);
+				boolean packageAvailable = cache.add(packageArchive);
+				if (!packageAvailable) {
+					cache.getPackageArchive(pkg.getName(), pkg.getVersion(), pkg.getTimestamp());
+					packageAvailable = true;
+				}
+				if (!packageAvailable) {
+					return reply(HttpStatus.BAD_REQUEST);
+				}
+				if (install) {
+					pkg.setPrivileged(privileged);
+					pkg.setHidden(hidden);
+					return installPackage(name, pkg);
+				}
+				return ok(pkg);
 			} else {
 				FileUtils.deleteQuietly(outFile);
 				return reply(HttpStatus.BAD_REQUEST);
@@ -279,6 +302,10 @@ public class RepositoryController extends ControllerBase {
 		} catch (Exception e) {
 			throw new BusinessException(e);
 		}
+	}
+
+	private Identifier getTemplateByName(String name) {
+		return templateService.getTemplateByName(name);
 	}
 
 	@DeleteMapping(value = "/repository/{name}")

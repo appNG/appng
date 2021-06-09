@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,12 @@ public interface Properties {
 	 * name (if present) or from the default-value.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                     the name of the {@link Property}
 	 * @param defaultValue
-	 *            the default-string to parse the list from
+	 *                     the default-string to parse the list from
 	 * @param delimiter
-	 *            the delimiter to split the (default-)value by
+	 *                     the delimiter to split the (default-)value by
+	 * 
 	 * @return a (possibly empty) {@link List}, never {@code null}
 	 */
 	List<String> getList(String name, String defaultValue, String delimiter);
@@ -49,9 +50,10 @@ public interface Properties {
 	 * name (if present).
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                  the name of the {@link Property}
 	 * @param delimiter
-	 *            the delimiter to split the value by
+	 *                  the delimiter to split the value by
+	 * 
 	 * @return {@link List} of {@link String}s which is parsed from the value of the {@link Property} with the given
 	 *         name (if present)
 	 */
@@ -61,7 +63,8 @@ public interface Properties {
 	 * Returns the string-value of the given {@link Property}.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return the string-value of the given {@link Property}, or {@code null} if no such property exists.
 	 */
 	String getString(String name);
@@ -70,9 +73,10 @@ public interface Properties {
 	 * Returns the string-value of the given {@link Property} (if existing), or the default-value.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                     the name of the {@link Property}
 	 * @param defaultValue
-	 *            the default-value
+	 *                     the default-value
+	 * 
 	 * @return the string-value of the given {@link Property} (if existing), or the default-value
 	 */
 	String getString(String name, String defaultValue);
@@ -81,17 +85,18 @@ public interface Properties {
 	 * Returns a {@link Boolean} parsed from the given {@link Property} (if existing).
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return a {@link Boolean}, or {@code null} if no such {@link Property} exists.
 	 */
 	Boolean getBoolean(String name);
 
 	/**
-	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                     the name of the {@link Property}
 	 * @param defaultValue
-	 *            the default-value
+	 *                     the default-value
+	 * 
 	 * @return a {@link Boolean}, or the default-value if no such {@link Property} exists.
 	 */
 	Boolean getBoolean(String name, Boolean defaultValue);
@@ -100,7 +105,8 @@ public interface Properties {
 	 * Returns an {@link Integer} parsed from the given {@link Property} (if existing).
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return an {@link Integer}, or {@code null} if no such {@link Property} exists.
 	 */
 	Integer getInteger(String name);
@@ -109,9 +115,10 @@ public interface Properties {
 	 * Returns an {@link Integer} parsed from the given {@link Property} (if existing), or the default-value.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                     the name of the {@link Property}
 	 * @param defaultValue
-	 *            the default-value
+	 *                     the default-value
+	 * 
 	 * @return an {@link Integer}, or the default-value if no such {@link Property} exists.
 	 */
 	Integer getInteger(String name, Integer defaultValue);
@@ -120,7 +127,8 @@ public interface Properties {
 	 * Returns an {@link Float} parsed from the given {@link Property} (if existing).
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return an {@link Float}, or {@code null} if no such {@link Property} exists.
 	 */
 	Float getFloat(String name);
@@ -129,9 +137,10 @@ public interface Properties {
 	 * Returns a {@link Float} parsed from the given {@link Property} (if existing), or the default-value.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                     the name of the {@link Property}
 	 * @param defaultValue
-	 *            the default-value
+	 *                     the default-value
+	 * 
 	 * @return an {@link Float}, or the default-value if no such {@link Property} exists.
 	 */
 	Float getFloat(String name, Float defaultValue);
@@ -140,7 +149,8 @@ public interface Properties {
 	 * Returns an {@link Double} parsed from the given {@link Property} (if existing).
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return an {@link Double}, or {@code null} if no such {@link Property} exists.
 	 */
 	Double getDouble(String name);
@@ -149,9 +159,10 @@ public interface Properties {
 	 * Returns a {@link Double} parsed from the given {@link Property} (if existing), or the default-value.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                     the name of the {@link Property}
 	 * @param defaultValue
-	 *            the default-value
+	 *                     the default-value
+	 * 
 	 * @return a {@link Double}, or the default-value if no such {@link Property} exists.
 	 */
 	Double getDouble(String name, Double defaultValue);
@@ -160,7 +171,8 @@ public interface Properties {
 	 * Returns the string-value of the given {@link Property}.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return the string-value of the given {@link Property}, or {@code null} if no such {@link Property} exists.
 	 */
 	String getClob(String name);
@@ -169,9 +181,10 @@ public interface Properties {
 	 * Returns the string-value of the given {@link Property} (if existing), or the default-value.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *                     the name of the {@link Property}
 	 * @param defaultValue
-	 *            the default-value
+	 *                     the default-value
+	 * 
 	 * @return the string-value of the given {@link Property} (if existing), or the default-value
 	 */
 	String getClob(String name, String defaultValue);
@@ -180,7 +193,8 @@ public interface Properties {
 	 * Returns the byte-value of the given {@link Property}.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return the byte-value of the given {@link Property}, or {@code null} if no such {@link Property} exists.
 	 */
 	byte[] getBlob(String name);
@@ -196,7 +210,8 @@ public interface Properties {
 	 * Checks whether the {@link Property} with the given name exists.
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return {@code true} if the {@link Property} exists, {@code false} otherwise
 	 */
 	boolean propertyExists(String name);
@@ -212,7 +227,8 @@ public interface Properties {
 	 * Returns some {@link java.util.Properties} parsed from the given {@link Property} (if existing).
 	 * 
 	 * @param name
-	 *            the name of the {@link Property}
+	 *             the name of the {@link Property}
+	 * 
 	 * @return some {@link java.util.Properties}, or {@code null} if no such {@link Property} exists.
 	 */
 	java.util.Properties getProperties(String name);
@@ -221,7 +237,8 @@ public interface Properties {
 	 * Returns the description for the {@link Property} with the given name, if any
 	 * 
 	 * @param name
-	 *            the name of the property
+	 *             the name of the property
+	 * 
 	 * @return the description, if any
 	 */
 	String getDescriptionFor(String name);

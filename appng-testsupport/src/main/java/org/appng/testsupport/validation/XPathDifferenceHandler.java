@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,8 +71,8 @@ public class XPathDifferenceHandler extends DifferenceHandler {
 	 * </p>
 	 * 
 	 * @param stripPositions
-	 *            whether or not to strip the positions from the actual XPath of the {@link Difference} before checking
-	 *            the registry for an appropriate {@link DifferenceListener}
+	 *                       whether or not to strip the positions from the actual XPath of the {@link Difference}
+	 *                       before checking the registry for an appropriate {@link DifferenceListener}
 	 */
 	public XPathDifferenceHandler(boolean stripPositions) {
 		this.stripPositions = stripPositions;
@@ -91,9 +91,8 @@ public class XPathDifferenceHandler extends DifferenceHandler {
 	 * Ignore the {@link Difference} with the given XPath expression
 	 * 
 	 * @param xpath
-	 *            the XPath expression. Note that this must be the complete absolute XPath location starting from the
-	 *            document root.
-	 * 
+	 *              the XPath expression. Note that this must be the complete absolute XPath location starting from the
+	 *              document root.
 	 */
 	public void ignoreDifference(String xpath) {
 		addDifferenceListener(xpath, new DifferenceHandler() {
@@ -108,10 +107,10 @@ public class XPathDifferenceHandler extends DifferenceHandler {
 	 * Registers a custom {@link DifferenceListener} for the given XPath expression
 	 * 
 	 * @param xpath
-	 *            the XPath expression. Note that this must be the complete absolute XPath location starting from the
-	 *            document root.
+	 *                           the XPath expression. Note that this must be the complete absolute XPath location
+	 *                           starting from the document root.
 	 * @param differenceListener
-	 *            the {@link DifferenceListener} to register
+	 *                           the {@link DifferenceListener} to register
 	 */
 	public void addDifferenceListener(String xpath, DifferenceListener differenceListener) {
 		handlers.put(xpath, differenceListener);

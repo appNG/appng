@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,6 @@ import lombok.extern.slf4j.Slf4j;
  * &lt;a href="http://example.com/index.jsp">Example&lt;/a>
  * </pre>
  * 
- * </pre>
- * 
  * After, assuming the site's domain is 'http://foobar.org':
  * 
  * <pre>
@@ -70,7 +68,6 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Herlitzius
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class JspExtensionFilter implements Filter {
@@ -138,6 +135,8 @@ public class JspExtensionFilter implements Filter {
 					}
 				}
 			}
+		} else {
+			chain.doFilter(request, response);
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -43,6 +41,7 @@ import org.appng.api.DataProvider;
 import org.appng.api.model.Identifiable;
 import org.appng.api.model.Versionable;
 import org.appng.tools.locator.Coordinate;
+import org.appng.xml.BuilderFactory;
 import org.appng.xml.MarshallService;
 import org.appng.xml.MarshallService.AppNGSchema;
 import org.appng.xml.platform.Action;
@@ -106,7 +105,6 @@ import org.springframework.beans.BeanWrapperImpl;
  * </p>
  * 
  * @author Matthias Müller
- *
  */
 public class XmlGenerator {
 
@@ -147,9 +145,9 @@ public class XmlGenerator {
 		 * Creates a new entity
 		 * 
 		 * @param type
-		 *            the type of the entity to create
+		 *                   the type of the entity to create
 		 * @param properties
-		 *            the properties to map when generating XML
+		 *                   the properties to map when generating XML
 		 */
 		public Entity(Class<?> type, String[] properties) {
 			this.type = type;
@@ -209,15 +207,16 @@ public class XmlGenerator {
 	 * </ul>
 	 * 
 	 * @param outPath
-	 *            the target folder for the files to be generated
+	 *                       the target folder for the files to be generated
 	 * @param name
-	 *            the name for the {@link ApplicationRootConfig}-file to be created
+	 *                       the name for the {@link ApplicationRootConfig}-file to be created
 	 * @param dictionaryName
-	 *            the name for the dictionary file to be created (&lt;dictionaryName>.properties)
+	 *                       the name for the dictionary file to be created (&lt;dictionaryName>.properties)
 	 * @param entities
-	 *            the list of {@link Entity}s to generate the source XML for
+	 *                       the list of {@link Entity}s to generate the source XML for
+	 * 
 	 * @throws Exception
-	 *             if something goes really wrong ;-)
+	 *                   if something goes really wrong ;-)
 	 */
 	public void generate(String outPath, String name, String dictionaryName, Entity... entities) throws Exception {
 		ApplicationRootConfig rootConfig = generateRootConfig(name);
@@ -247,11 +246,12 @@ public class XmlGenerator {
 	 * Creates a new XmlGenerator
 	 * 
 	 * @param addPermissions
-	 *            if {@link Permissions} should be generated and used when referencing {@link Action}s
+	 *                       if {@link Permissions} should be generated and used when referencing {@link Action}s
+	 * 
 	 * @throws JAXBException
-	 *             if creating a {@link MarshallService} fails
+	 *                                           if creating a {@link MarshallService} fails
 	 * @throws TransformerConfigurationException
-	 *             if an error occurs while configuring the {@link TransformerFactory}
+	 *                                           if an error occurs while configuring the {@link TransformerFactory}
 	 */
 	public XmlGenerator(boolean addPermissions) throws JAXBException, TransformerConfigurationException {
 		this.addPermissions = addPermissions;
@@ -261,10 +261,8 @@ public class XmlGenerator {
 		marshallService.setSchemaLocation("http://www.appng.org/schema/platform/appng-platform.xsd");
 		marshallService.setUseSchema(true);
 		marshallService.setCdataElements(new ArrayList<>());
-		marshallService.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-		TransformerFactory tf = TransformerFactory.newInstance();
-		tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		marshallService.setTransformerFactory(tf);
+		marshallService.setDocumentBuilderFactory(BuilderFactory.documentBuilderFactory());
+		marshallService.setTransformerFactory(BuilderFactory.transformerFactory());
 		marshallService.init();
 	}
 

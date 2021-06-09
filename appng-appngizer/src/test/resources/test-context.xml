@@ -1,97 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 		http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/aop 
-       	http://www.springframework.org/schema/aop/spring-aop.xsd
-       	http://www.springframework.org/schema/tx
-       	http://www.springframework.org/schema/tx/spring-tx.xsd
        	http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/oxm
-        http://www.springframework.org/schema/oxm/spring-oxm.xsd
-        http://www.springframework.org/schema/data/jpa
-        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
-		http://www.springframework.org/schema/mvc
-        http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/jdbc
         http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
-
-	<bean id="configurer" class="org.appng.appngizer.controller.AppNGizerConfigurer">
-		<property name="location" value="classpath:/test-context.properties" />
-	</bean>
-
-	<bean class="org.appng.core.domain.PlatformEventListener">
-		<property name="auditUser" value="appNGizer" />
-		<property name="persist" value="false" />
-	</bean>
+	<context:component-scan base-package="org.appng.appngizer" />
 
 	<jdbc:embedded-database id="datasource" type="HSQL" database-name="${database.name}" />
 
+	<bean id="configurer" class="org.appng.appngizer.controller.AppNGizerConfigurer" primary="true">
+		<property name="location" value="classpath:/test-context.properties" />
+	</bean>
+
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
-		<property name="locations" value="classpath:/db/migration/hsql" />
-		<property name="dataSource" ref="datasource" />
-	</bean>
-
-	<context:component-scan base-package="org.appng.appngizer" />
-	<mvc:annotation-driven>
-		<mvc:message-converters>
-			<bean class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
-				<property name="marshaller" ref="jaxb2Marshaller" />
-				<property name="unmarshaller" ref="jaxb2Marshaller" />
+		<constructor-arg>
+			<bean class="org.flywaydb.core.api.configuration.ClassicConfiguration">
+				<property name="table" value="schema_version" />
+				<property name="locations" value="classpath:/db/migration/hsql" />
+				<property name="dataSource" ref="datasource" />
 			</bean>
-		</mvc:message-converters>
-	</mvc:annotation-driven>
-
-	<bean id="jaxb2Marshaller" class="org.appng.appngizer.controller.Jaxb2Marshaller">
-		<property name="checkForXmlRootElement" value="false" />
-		<property name="supportJaxbElementClass" value="true" />
-		<property name="packagesToScan" value="org.appng.appngizer.model.xml" />
-		<property name="schema" value="classpath:appngizer.xsd" />
+		</constructor-arg>
 	</bean>
-
-	<jpa:repositories base-package="org.appng.core.repository" entity-manager-factory-ref="entityManagerFactory"
-		base-class="org.appng.persistence.repository.SearchRepositoryImpl" transaction-manager-ref="transactionManager" />
-
-	<tx:annotation-driven transaction-manager="transactionManager" />
-
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-
-	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="persistenceUnitName" value="appng" />
-		<property name="persistenceProviderClass" value="org.hibernate.jpa.HibernatePersistenceProvider" />
-		<property name="dataSource" ref="datasource" />
-		<property name="jpaProperties">
-			<props>
-				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
-				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
-				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
-				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
-				<prop key="hibernate.id.new_generator_mappings">false</prop>
-			</props>
-		</property>
-		<property name="packagesToScan" value="org.appng.core.domain" />
-	</bean>
-
-	<bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-		<property name="basename" value="messages-core" />
-		<property name="fallbackToSystemLocale" value="false" />
-	</bean>
-	<bean id="marshallService" class="org.appng.xml.MarshallService" factory-method="getMarshallService" />
-	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean" />
-	<bean id="databaseService" class="org.appng.core.service.DatabaseService" />
-	<bean id="ldapService" class="org.appng.core.service.LdapService" />
-	<bean id="coreService" class="org.appng.core.service.CoreService" />
-	<bean id="templateService" class="org.appng.core.service.TemplateService" />
 
 </beans>

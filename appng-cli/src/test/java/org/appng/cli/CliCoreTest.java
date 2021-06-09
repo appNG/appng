@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
 import org.appng.cli.commands.AbstractCommandTest;
+import org.appng.core.controller.PlatformStartup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -32,7 +33,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -41,7 +42,7 @@ import com.beust.jcommander.Parameters;
 @ContextConfiguration(initializers = CliCoreTest.class, inheritInitializers = false, inheritLocations = true)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CliCoreTest extends AbstractCommandTest
-		implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+		implements ApplicationContextInitializer<AbstractApplicationContext> {
 
 	private CliCore cliCore = new CliCore();
 	private Properties cliConfig;
@@ -49,12 +50,13 @@ public class CliCoreTest extends AbstractCommandTest
 	private String message;
 	private int status;
 
-	public void initialize(ConfigurableApplicationContext applicationContext) {
+	public void initialize(AbstractApplicationContext applicationContext) {
 		Properties properties = CommandTestInitializer.getProperties(getClass());
 		properties.remove("hibernate.hbm2ddl.auto");
 		PropertyResourceConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		configurer.setProperties(properties);
 		applicationContext.addBeanFactoryPostProcessor(configurer);
+		applicationContext.setDisplayName(PlatformStartup.APPNG_CONTEXT);
 	}
 
 	@Override

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<subject xmlns="http://www.appng.org/schema/appngizer" name="Admin" self="http://localhost/appNGizer/subject/Admin">
+	<realName>Admin Istrator</realName>
+	<email>admin@appng.com</email>
+	<description>a subject for administrators</description>
+	<digest>$2a$13$4r/t9xYlTLbrOYZy67My3eE9/QacQgSqRFCgvhbzi7TQAE5AYptpO</digest>
+	<timeZone>Europe/Madrid</timeZone>
+	<language>es</language>
+	<locked>false</locked>
+	<failedLoginAttempts>0</failedLoginAttempts>
+	<passwordChangePolicy>MUST_NOT</passwordChangePolicy>
+	<type>LOCAL_USER</type>
+	<groups />
+</subject>

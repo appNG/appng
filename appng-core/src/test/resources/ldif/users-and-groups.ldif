@@ -1,0 +1,84 @@
+dn: ou=Users,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: Users
+
+dn: ou=Groups,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: Groups
+
+dn: ou=Marvel,ou=Groups,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: Marvel
+
+dn: ou=DC,ou=Groups,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: DC
+
+dn: ou=ACME,ou=Groups,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: ACME
+
+dn: cn=Joe Bloggs,ou=Users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: Joe Bloggs
+sn: Bloggs
+ou: Author
+givenName: Joe
+mail: joe@example.com
+uid: jbloggs
+userPassword:: c2VjcmV0
+
+dn: cn=Jane Doe,ou=Users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: Jane Doe
+sn: Doe
+ou: Admin
+givenName: Jane
+mail: jane@example.com
+uid: jdoe
+userPassword:: c2VjcmV0
+
+dn: cn=John Wick,ou=Users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: John Wick
+sn: Wick
+ou: Reviewer
+givenName: John
+mail: john@example.com
+uid: jwick
+userPassword:: c2VjcmV0
+
+dn: cn=SHIELD,ou=Marvel,ou=Groups,dc=example,dc=com
+objectClass: groupOfNames
+objectClass: top
+cn: SHIELD
+member: cn=John Wick,ou=Users,dc=example,dc=com
+
+dn: cn=Heroes,ou=DC,ou=Groups,dc=example,dc=com
+objectClass: groupOfNames
+objectClass: top
+cn: Heroes
+member: cn=Jane Doe,ou=Users,dc=example,dc=com
+member: cn=John Wick,ou=Users,dc=example,dc=com
+
+dn: cn=Looney Tunes,ou=ACME,ou=Groups,dc=example,dc=com
+objectClass: groupOfNames
+objectClass: top
+cn: Looney Tunes
+member: cn=Jane Doe,ou=Users,dc=example,dc=com
+member: cn=Joe Bloggs,ou=Users,dc=example,dc=com
+member: cn=John Wick,ou=Users,dc=example,dc=com

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ public interface Observer<T extends Observable<T>> {
 	 * Method to be called when an {@link Event} is fired from an {@link Observable}.
 	 * 
 	 * @param observable
-	 *            the {@link Observable}
+	 *                   the {@link Observable}
 	 * @param event
-	 *            the {@link Event}
+	 *                   the {@link Event}
 	 */
 	void onEvent(T observable, Event event);
 

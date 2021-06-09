@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.appng.mail;
  * SPI for sending e-mails.
  * 
  * @author Matthias Müller
- * 
  */
 public interface MailTransport {
 
@@ -34,9 +33,10 @@ public interface MailTransport {
 	 * Send the given {@link Mail}.
 	 * 
 	 * @param mail
-	 *            the {@link Mail} to send
+	 *             the {@link Mail} to send
+	 * 
 	 * @throws MailException
-	 *             if an error occurs while sending the {@link Mail}
+	 *                       if an error occurs while sending the {@link Mail}
 	 */
 	void send(Mail mail) throws MailException;
 
@@ -45,7 +45,8 @@ public interface MailTransport {
 	 * <b>Attention:</b> The {@link Mail} may contain sensitive informations like passwords!
 	 * 
 	 * @param mail
-	 *            the {@link Mail} to get the string-representation for
+	 *             the {@link Mail} to get the string-representation for
+	 * 
 	 * @return a {@link String} representation the {@link Mail}
 	 */
 	String getMailAsString(Mail mail);

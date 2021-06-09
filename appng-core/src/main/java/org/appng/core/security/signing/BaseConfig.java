@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,13 +80,11 @@ public abstract class BaseConfig {
 
 	protected void setSigningCerts(byte[] cert, ErrorType errorType) throws SigningException {
 		try {
-			signingCertChain = CertTools.addCerts(cert,  new ArrayList<>());
+			signingCertChain = CertTools.addCerts(cert, new ArrayList<>());
 		} catch (CertificateException ce) {
-			throw new SigningException(errorType,
-					String.format(
-							"Error while loading signing certificate. You may want to check it with OpenSSL: 'openssl x509 -in %s -text -noout'",
-							"<cert>.pem"),
-					ce);
+			throw new SigningException(errorType, String.format(
+					"Error while loading signing certificate. You may want to check it with OpenSSL: 'openssl x509 -in %s -text -noout'",
+					"<cert>.pem"), ce);
 		}
 	}
 

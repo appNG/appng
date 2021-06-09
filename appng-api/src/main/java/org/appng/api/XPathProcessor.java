@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.appng.xml.BuilderFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -53,13 +54,12 @@ import org.xml.sax.SAXException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * An {@code XPathProcessor} is used the create a {@link Document} from an {@link URL} or {@link InputStream} and then
- * to extract {@link NodeList}s, {@link Node}s, {@link Element}s, {@link Attr}ibutes etc. from this {@link Document}.<br/>
+ * to extract {@link NodeList}s, {@link Node}s, {@link Element}s, {@link Attr}ibutes etc. from this
+ * {@link Document}.<br/>
  * It also allows to create new {@link Element}s, {@link Attr}ibutes, {@link CDATASection}s and {@link Text}s.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class XPathProcessor {
@@ -73,8 +73,9 @@ public class XPathProcessor {
 	 * 
 	 * @param url
 	 *            the URL
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while reading the XML-document from the URL
+	 *                     if an error occurs while reading the XML-document from the URL
 	 */
 	public XPathProcessor(String url) throws IOException {
 		this(new URL(url));
@@ -85,8 +86,9 @@ public class XPathProcessor {
 	 * 
 	 * @param url
 	 *            the URL
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while reading the XML-document from the {@link URL}
+	 *                     if an error occurs while reading the XML-document from the {@link URL}
 	 */
 	public XPathProcessor(URL url) throws IOException {
 		this(url.openConnection().getInputStream());
@@ -96,18 +98,17 @@ public class XPathProcessor {
 	 * Create a new {@code XPathProcessor} from the given {@link InputStream}.
 	 * 
 	 * @param is
-	 *            the {@link InputStream}
+	 *           the {@link InputStream}
+	 * 
 	 * @throws IOException
-	 *             if an error occurs while reading the XML-document from the {@link InputStream}
+	 *                     if an error occurs while reading the XML-document from the {@link InputStream}
 	 */
 	public XPathProcessor(InputStream is) throws IOException {
 		try {
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilder builder = BuilderFactory.documentBuilderFactory().newDocumentBuilder();
 			this.document = builder.parse(is);
 			this.xpath = XPathFactory.newInstance().newXPath();
-			TransformerFactory tf = TransformerFactory.newInstance();
-			tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			this.transformer = tf.newTransformer();
+			this.transformer = BuilderFactory.transformerFactory().newTransformer();
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e);
 		} catch (SAXException e) {
@@ -144,9 +145,9 @@ public class XPathProcessor {
 	 * </pre>
 	 * 
 	 * @param prefix
-	 *            the prefix
+	 *                  the prefix
 	 * @param namespace
-	 *            the namespace
+	 *                  the namespace
 	 */
 	public void setNamespace(String prefix, String namespace) {
 		xpath.setNamespaceContext(new NamespaceContext() {
@@ -164,12 +165,13 @@ public class XPathProcessor {
 			}
 		});
 	}
-	
+
 	/**
 	 * Returns the XML-fragment represented by the given {@link Node}.
 	 * 
 	 * @param node
-	 *            the {@link Node}
+	 *             the {@link Node}
+	 * 
 	 * @return the XML-fragment
 	 */
 	public String getXml(Node node) {
@@ -182,9 +184,9 @@ public class XPathProcessor {
 	 * Writes XML-fragment represented by the given {@link Node} into the given {@link OutputStream}.
 	 * 
 	 * @param node
-	 *            the {@link Node}
+	 *                     the {@link Node}
 	 * @param outputStream
-	 *            the {@link OutputStream}
+	 *                     the {@link OutputStream}
 	 */
 	public void getXml(Node node, OutputStream outputStream) {
 		try {
@@ -208,7 +210,7 @@ public class XPathProcessor {
 	 * {@link OutputStream}.
 	 * 
 	 * @param outputStream
-	 *            the {@link OutputStream}.
+	 *                     the {@link OutputStream}.
 	 */
 	public void getXml(OutputStream outputStream) {
 		getXml(document, outputStream);
@@ -218,7 +220,8 @@ public class XPathProcessor {
 	 * Returns the XML-fragment represented by the given {@link NodeList}.
 	 * 
 	 * @param nodes
-	 *            the {@link NodeList}
+	 *              the {@link NodeList}
+	 * 
 	 * @return the XML-fragment
 	 */
 	public String getXml(NodeList nodes) {
@@ -234,11 +237,10 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link String}.
 	 * 
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link String} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public String getString(String xpathExpression) {
 		return (String) evaluate(document, xpathExpression, XPathConstants.STRING);
@@ -248,13 +250,12 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link String}.
 	 * 
 	 * @param node
-	 *            the {@link Node} to apply the expression to
+	 *                        the {@link Node} to apply the expression to
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link String} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public String getString(Node node, String xpathExpression) {
 		return (String) evaluate(node, xpathExpression, XPathConstants.STRING);
@@ -264,11 +265,10 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link Boolean}.
 	 * 
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Boolean} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public Boolean getBoolean(String xpathExpression) {
 		return (Boolean) evaluate(document, xpathExpression, XPathConstants.BOOLEAN);
@@ -278,14 +278,12 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link Boolean}.
 	 * 
 	 * @param node
-	 *            the {@link Node} to apply the expression to
-	 * 
+	 *                        the {@link Node} to apply the expression to
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Boolean} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public Boolean getBoolean(Node node, String xpathExpression) {
 		return (Boolean) evaluate(node, xpathExpression, XPathConstants.BOOLEAN);
@@ -295,11 +293,10 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link Number}.
 	 * 
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Number} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public Number getNumber(String xpathExpression) {
 		return (Number) evaluate(document, xpathExpression, XPathConstants.NUMBER);
@@ -309,13 +306,12 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link Number}.
 	 * 
 	 * @param node
-	 *            the {@link Node} to apply the expression to
+	 *                        the {@link Node} to apply the expression to
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Number} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public Number getNumber(Node node, String xpathExpression) {
 		return (Number) evaluate(node, xpathExpression, XPathConstants.NUMBER);
@@ -325,11 +321,10 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link Node}.
 	 * 
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Node} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if the
 	 *         expression could not be parsed.
-	 * 
 	 */
 	public Node getNode(String xpathExpression) {
 		return (Node) evaluate(document, xpathExpression, XPathConstants.NODE);
@@ -339,14 +334,12 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link Node}.
 	 * 
 	 * @param node
-	 *            the {@link Node} to apply the expression to
-	 * 
+	 *                        the {@link Node} to apply the expression to
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Node} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if the
 	 *         expression could not be parsed.
-	 * 
 	 */
 	public Node getNode(Node node, String xpathExpression) {
 		return (Node) evaluate(node, xpathExpression, XPathConstants.NODE);
@@ -356,11 +349,10 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve an {@link Element}.
 	 * 
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Element} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public Element getElement(String xpathExpression) {
 		return (Element) evaluate(document, xpathExpression, XPathConstants.NODE);
@@ -370,13 +362,12 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve an {@link Element}.
 	 * 
 	 * @param node
-	 *            the {@link Node} to apply the expression to
+	 *                        the {@link Node} to apply the expression to
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link Element} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public Element getElement(Node node, String xpathExpression) {
 		return (Element) evaluate(node, xpathExpression, XPathConstants.NODE);
@@ -386,11 +377,10 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link NodeList}.
 	 * 
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link NodeList} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public NodeList getNodes(String xpathExpression) {
 		return (NodeList) evaluate(document, xpathExpression, XPathConstants.NODESET);
@@ -400,13 +390,12 @@ public class XPathProcessor {
 	 * Parses the given {@code xpathExpression} to retrieve a {@link NodeList}.
 	 * 
 	 * @param node
-	 *            the {@link Node} to apply the expression to
+	 *                        the {@link Node} to apply the expression to
 	 * @param xpathExpression
-	 *            the xpath-expression
+	 *                        the xpath-expression
 	 * 
 	 * @return the {@link NodeList} retrieved from the {@code xpathExpression} (may be {@code null}), or {@code null} if
 	 *         the expression could not be parsed.
-	 * 
 	 */
 	public NodeList getNodes(Node node, String xpathExpression) {
 		return (NodeList) evaluate(node, xpathExpression, XPathConstants.NODESET);
@@ -416,9 +405,10 @@ public class XPathProcessor {
 	 * Creates a new {@link Attr}ibute.
 	 * 
 	 * @param name
-	 *            the name of the attribute
+	 *              the name of the attribute
 	 * @param value
-	 *            the value of the attribute
+	 *              the value of the attribute
+	 * 
 	 * @return the new {@link Attr}ibute.
 	 */
 	public Attr newAttribute(String name, String value) {
@@ -431,7 +421,8 @@ public class XPathProcessor {
 	 * Creates a new {@link Element}.
 	 * 
 	 * @param tagName
-	 *            the tag-name for the element
+	 *                the tag-name for the element
+	 * 
 	 * @return the new {@link Element}
 	 */
 	public Element newElement(String tagName) {
@@ -443,7 +434,8 @@ public class XPathProcessor {
 	 * Creates a new {@link CDATASection}.
 	 * 
 	 * @param tagName
-	 *            the tag-name for the CDATA-section
+	 *                the tag-name for the CDATA-section
+	 * 
 	 * @return the new {@link CDATASection}
 	 */
 	public CDATASection newCDATA(String tagName) {
@@ -455,7 +447,8 @@ public class XPathProcessor {
 	 * Creates a new {@link Text}.
 	 * 
 	 * @param tagName
-	 *            the tag-name for the text
+	 *                the tag-name for the text
+	 * 
 	 * @return the new {@link Text}
 	 */
 	public Text newText(String tagName) {
@@ -467,11 +460,11 @@ public class XPathProcessor {
 	 * Adds a new {@link Attr}ibute to the given {@link Node}.
 	 * 
 	 * @param node
-	 *            the Node to add the {@link Attr}ibute to
+	 *              the Node to add the {@link Attr}ibute to
 	 * @param name
-	 *            the name of the {@link Attr}ibute to add
+	 *              the name of the {@link Attr}ibute to add
 	 * @param value
-	 *            the value of the {@link Attr}ibute to add
+	 *              the value of the {@link Attr}ibute to add
 	 * 
 	 * @return the {@code node} with the added {@link Attr}ibute
 	 * 

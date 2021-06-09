@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,11 @@ package org.appng.api.model;
 import java.util.List;
 
 /**
- * A {@link ApplicationSubject} is an {@link Account} which owns several {@link Role}s. The {@link ApplicationSubject}s of a
- * {@link Application} can be retrieved by calling {@link Application#getApplicationSubjects()}.
+ * A {@link ApplicationSubject} is an {@link Account} which owns several {@link Role}s. The {@link ApplicationSubject}s
+ * of a {@link Application} can be retrieved by calling {@link Application#getApplicationSubjects()}.
  * 
  * @author Matthias Müller
+ * 
  * @see Application#getApplicationSubjects()
  */
 public interface ApplicationSubject extends Account {

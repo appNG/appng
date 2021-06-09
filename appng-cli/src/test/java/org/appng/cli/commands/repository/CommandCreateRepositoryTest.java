@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,7 @@ public class CommandCreateRepositoryTest extends AbstractCommandTest {
 	public void testCreateRemote() throws BusinessException {
 		String remoteUrl = "https://appng.org/service/manager/appng-manager/soap/repositoryService";
 		String[] args = new String[] { "-n", "remoterepo", "-d", "a remote repository", "-g", "digest", "-t",
-				RepositoryType.REMOTE.name(), "-r", "appNG-Stable", "-m", RepositoryMode.ALL.name(), "-u",
-				remoteUrl };
+				RepositoryType.REMOTE.name(), "-r", "appNG-Stable", "-m", RepositoryMode.ALL.name(), "-u", remoteUrl };
 		parse(new CreateRepository(), args).execute(cliEnv);
 
 		Repository repo = cliEnv.getCoreService().getApplicationRepositoryByName("remoterepo");

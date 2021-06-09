@@ -59,7 +59,11 @@ There are some built-in features an application can use by utilizing pre-defined
 If set to `true`, the application can add documents to the site's search index. See the chapter about  <<indexing-and-searching, indexing and searching>> for details.
 
 * `featureImageProcessing (boolean)` +
-If set to `true`, the application can obtain a pre configured {appng}/org/appng/tools/image/ImageProcessor.html[org.appng.tools.image.ImageProcessor^]. See {appng}/org/appng/api/model/Application.html#getFeatureProvider--[Application#getFeatureProvider()^] and  {appng}/org/appng/api/model/FeatureProvider.html#getImageProcessor-java.io.File-java.lang.String-[FeatureProvider#getImageProcessor(File sourceFile, String targetFile)^] for details.
+If set to `true`, the application can obtain a pre-configured {appng}/org/appng/tools/image/ImageProcessor.html[org.appng.tools.image.ImageProcessor^]. See {appng}/org/appng/api/model/Application.html#getFeatureProvider--[Application#getFeatureProvider()^] and  {appng}/org/appng/api/model/FeatureProvider.html#getImageProcessor-java.io.File-java.lang.String-[FeatureProvider#getImageProcessor(File sourceFile, String targetFile)^] for details.
+
+[[prop-flywayMigrationPackage]]
+* `flywayMigrationPackage (String)` +
+The path to the package where Flyway's Java-based migrations can be found, for example `com/example/db/migration`.
 
 [[prop-activeProfiles]]
 * `activeProfiles (String)` +
@@ -115,6 +119,8 @@ At runtime, the `<label>` would be resolved to
 In order to make it possible to retrieve values from the dictionary through an <<Expressions, expression>>, a variable named `i18n` of type {appng}/org/appng/api/support/I18n.html[org.appng.api.support.I18n^] is added to the expression evaluation context. This is especially useful if different date- and number-formats should be used for different locales. Check out the description of the format-attribute <<i18n-format, here>> to see an example.
 
 include::jpa.adoc[]
+
+include::caching.adoc[]
 
 === Custom XSL stylesheets
 In every non-trivial application, you will reach the point where the standard rendering of the used template is not sufficient. At that point, you will need to write some custom XSL stylesheets.

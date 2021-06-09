@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class ObservableDelegate<T extends Observable<T>> implements Observable<T
 	 * Creates a new {@link ObservableDelegate} which delegates to the given {@link Observable}.
 	 * 
 	 * @param observable
-	 *            the {@link Observable} to delegate to.
+	 *                   the {@link Observable} to delegate to.
 	 */
 	public ObservableDelegate(T observable) {
 		this.observable = observable;

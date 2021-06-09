@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,10 @@ package org.appng.api.search;
 import org.appng.api.observe.Observable.Event;
 
 /**
- * 
  * A {@link DocumentEvent} encapsulates a {@link Document} and an {@link Event} associated with this {@link Document}.
- * 
  * TODO appng-search is the better place for this
  * 
  * @author Matthias Müller
- * 
  */
 public class DocumentEvent {
 	private final Document document;

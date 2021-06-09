@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,27 @@ public class ApplicationProperties {
 	public static final String PROP_ACTIVE_PROFILES = "activeProfiles";
 
 	/**
+	 * Name for the application property that contains a multiline value for configuring application caches.<br/>
+	 * Format:
+	 * 
+	 * <pre>
+	 * mycache.ttl = 3600
+	 * mycache.maxIdle = 3600
+	 * </pre>
+	 */
+	public static final String PROP_CACHE_CONFIG = "cacheConfig";
+
+	/**
 	 * An array containing the names of all available {@link Application} features.
 	 * 
 	 * @see FeatureProvider
 	 */
 	public static final String[] FEATURES = { FEATURE_IMAGE_PROCESSING, FEATURE_INDEXING };
+
+	/**
+	 * Optional property describing the package where Flyway Java migration reside
+	 */
+	public static final String FLYWAY_MIGRATION_PACKAGE = "flywayMigrationPackage";
 
 	private ApplicationProperties() {
 

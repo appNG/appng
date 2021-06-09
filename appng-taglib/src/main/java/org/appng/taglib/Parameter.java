@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,13 @@ import org.apache.commons.text.StringEscapeUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link Parameter} can be added to any {@link ParameterOwner}. 
- * 
+ * A {@link Parameter} can be added to any {@link ParameterOwner}.
  * <p/>
  * <b>Usage:</b>
  * 
  * <pre>
  * &lt;appNG:param name="foo">bar&lt;/appNG:param>
  * </pre>
- * 
  * 
  * @author Matthias Müller
  * 
@@ -41,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see org.appng.taglib.search.Search
  * @see org.appng.taglib.search.SearchPart
  * @see TagletAdapter
- *
  */
 @Slf4j
 public class Parameter extends BodyTagSupport {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,24 @@ package org.appng.cli.commands.subject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
+import org.appng.api.auth.PasswordPolicy;
+import org.appng.api.auth.PasswordPolicy.ValidationResult;
 import org.appng.api.model.AuthSubject;
 import org.appng.cli.CliEnvironment;
 import org.appng.cli.ExecutableCliCommand;
-import org.appng.core.security.DefaultPasswordPolicy;
+import org.appng.core.domain.SubjectImpl;
+import org.appng.core.security.ConfigurablePasswordPolicy;
 import org.appng.core.security.PasswordHandler;
+import org.springframework.context.support.ResourceBundleMessageSource;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -75,7 +83,7 @@ public class HashPassword implements ExecutableCliCommand {
 			runInteractive(cle);
 			return;
 		}
-		String digest = savePasswordForSubject(cle, new PasswordSubject(), password);
+		String digest = savePasswordForSubject(cle, new SubjectImpl(), password);
 		cle.setResult(digest);
 	}
 
@@ -83,12 +91,12 @@ public class HashPassword implements ExecutableCliCommand {
 		try (BufferedReader console = new BufferedReader(new InputStreamReader(System.in));) {
 			try {
 				CliEnvironment.out.println("Hashes a password. Type CTRL + C to quit.");
-				while (true) {
+				while (!Thread.currentThread().isInterrupted()) {
 					try {
 						CliEnvironment.out.print("password: ");
 						String commandLine = console.readLine();
 						if (null != StringUtils.trimToNull(commandLine)) {
-							String digest = savePasswordForSubject(cle, new PasswordSubject(), commandLine);
+							String digest = savePasswordForSubject(cle, new SubjectImpl(), commandLine);
 							CliEnvironment.out.print("hash: ");
 							CliEnvironment.out.println(digest);
 						}
@@ -107,57 +115,30 @@ public class HashPassword implements ExecutableCliCommand {
 
 	static String savePasswordForSubject(CliEnvironment cle, AuthSubject subject, String password)
 			throws BusinessException {
-		String regEx = cle.getPlatformConfig().getString(Platform.Property.PASSWORD_POLICY_REGEX);
-		String errorMessageKey = cle.getPlatformConfig().getString(Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY);
+		try {
+			String passwordPolicyClass = cle.getPlatformConfig().getString(Platform.Property.PASSWORD_POLICY,
+					ConfigurablePasswordPolicy.class.getName());
+			PasswordPolicy passwordPolicy = (PasswordPolicy) PasswordPolicy.class.getClassLoader()
+					.loadClass(passwordPolicyClass).newInstance();
+			passwordPolicy.configure(cle.getPlatformConfig());
 
-		if (!new DefaultPasswordPolicy(regEx, errorMessageKey).isValidPassword(password.toCharArray())) {
-			String errorMessage = cle.getMessageSource().getMessage(errorMessageKey, null, Locale.ENGLISH);
-			throw new BusinessException(errorMessage);
+			ValidationResult validationResult = passwordPolicy.validatePassword(subject.getAuthName(), null,
+					password.toCharArray());
+			if (!validationResult.isValid()) {
+				ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+				messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
+				messageSource.setBasenames("messages-core");
+				messageSource.setFallbackToSystemLocale(false);
+				List<String> messages = Arrays.asList(validationResult.getMessages()).stream()
+						.map(p -> messageSource.getMessage(p.getMessageKey(), p.getMessageArgs(), Locale.ENGLISH))
+						.collect(Collectors.toList());
+				throw new BusinessException(StringUtils.join(messages, System.lineSeparator()));
+			}
+			PasswordHandler passwordHandler = cle.getCoreService().getDefaultPasswordHandler(subject);
+			passwordHandler.applyPassword(password);
+			return subject.getDigest();
+		} catch (ReflectiveOperationException e) {
+			throw new BusinessException(e);
 		}
-		PasswordHandler passwordHandler = cle.getCoreService().getDefaultPasswordHandler(subject);
-		passwordHandler.savePassword(password);
-		return subject.getDigest();
-	}
-
-	static class PasswordSubject implements AuthSubject {
-
-		private String digest;
-
-		public String getDigest() {
-			return digest;
-		}
-
-		public void setDigest(String digest) {
-			this.digest = digest;
-		}
-
-		// dummy methods
-		public String getAuthName() {
-			return null;
-		}
-
-		public String getRealname() {
-			return null;
-		}
-
-		public String getLanguage() {
-			return null;
-		}
-
-		public String getTimeZone() {
-			return null;
-		}
-
-		public String getEmail() {
-			return null;
-		}
-
-		public String getSalt() {
-			return null;
-		}
-
-		public void setSalt(String salt) {
-		}
-
 	}
 }

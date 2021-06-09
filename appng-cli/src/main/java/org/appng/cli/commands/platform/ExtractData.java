@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,6 @@ import com.beust.jcommander.converters.FileConverter;
  * <li>{@code /repository} to {@code $appngData/repository}</li>
  * </ul>
  * .
- * 
  * <p>
  * Additionally, a <a href="http://tomcat.apache.org/tomcat-8.5-doc/config/resources.html">&lt;Resources&gt;</a> element
  * is being added to {@code $APPNG_HOME/META-INF/context.xml}, referencing the {@code appngData} directory.
@@ -78,7 +77,6 @@ import com.beust.jcommander.converters.FileConverter;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Parameters(commandDescription = "Extracts the data from $APPNG_HOME to the given folder.")
 public class ExtractData implements ExecutableCliCommand {
@@ -173,16 +171,16 @@ public class ExtractData implements ExecutableCliCommand {
 	}
 
 	protected void setCacheConfig(CliEnvironment cle) {
-		PropertyImpl ehcacheConfig = cle.getCoreService()
-				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.EHCACHE_CONFIG);
-		String defaultValue = "conf/ehcache.xml";
+		PropertyImpl cacheConfig = cle.getCoreService()
+				.getProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.CACHE_CONFIG);
+		String defaultValue = "conf/hazelcast.xml";
 		if (revert) {
 			defaultValue = WEB_INF + "/" + defaultValue;
 		}
-		ehcacheConfig.setString(defaultValue);
+		cacheConfig.setString(defaultValue);
 		CliEnvironment.out
-				.println(String.format("Setting default value for %s: %s", ehcacheConfig.getName(), defaultValue));
-		cle.getCoreService().saveProperty(ehcacheConfig);
+				.println(String.format("Setting default value for %s: %s", cacheConfig.getName(), defaultValue));
+		cle.getCoreService().saveProperty(cacheConfig);
 	}
 
 	private File move(Path source, Path target) throws IOException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,11 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Label;
 
 /**
- * 
  * Utility class used for formatting {@link String}s, {@link Date}s and {@link Number}s. Additionally, a message can be
  * retrieved by delegating to {@link Request#getMessage(String, Object...)}.<br/>
  * Since an instance of {@link I18n} is being added to each {@link ExpressionEvaluator} returned by
  * {@link Request#getExpressionEvaluator()}, you can easily use the methods provided by {@link I18n} in your
  * expressions.<br/>
- * 
  * <h3>Examples</h3><br/>
  * Consider a {@link ResourceBundle} containing the following entries:
  * 
@@ -68,7 +66,6 @@ import org.appng.xml.platform.Label;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 public class I18n {
 
@@ -79,7 +76,7 @@ public class I18n {
 	 * Creates a new {@link I18n} which uses the messages and the {@link Locale} provided by the given {@link Request}.
 	 * 
 	 * @param request
-	 *            a {@link Request}
+	 *                a {@link Request}
 	 */
 	public I18n(Request request) {
 		this.request = request;
@@ -92,6 +89,7 @@ public class I18n {
 	 * 
 	 * @param key
 	 *            the message key
+	 * 
 	 * @return the message
 	 * 
 	 * @see Request#getMessage(String, Object...)
@@ -105,9 +103,10 @@ public class I18n {
 	 * {@link Locale} provided by {@link Request#getLocale()}.
 	 * 
 	 * @param key
-	 *            the message key
+	 *             the message key
 	 * @param args
-	 *            the message arguments
+	 *             the message arguments
+	 * 
 	 * @return the message
 	 * 
 	 * @see Request#getMessage(String, Object...)
@@ -122,9 +121,10 @@ public class I18n {
 	 * {@link Request#getLocale()}.
 	 * 
 	 * @param format
-	 *            the {@link String} to format
+	 *               the {@link String} to format
 	 * @param args
-	 *            the arguments passed to
+	 *               the arguments passed to
+	 * 
 	 * @return a formatted String
 	 * 
 	 * @see String#format(Locale, String, Object...)
@@ -138,9 +138,10 @@ public class I18n {
 	 * used. Applies the {@link Locale} provided by {@link Request#getLocale()}.
 	 * 
 	 * @param date
-	 *            the {@link Date} to format
+	 *               the {@link Date} to format
 	 * @param format
-	 *            the the format
+	 *               the the format
+	 * 
 	 * @return the formatted {@link Number}
 	 * 
 	 * @see SimpleDateFormat#SimpleDateFormat(String, Locale)
@@ -155,10 +156,12 @@ public class I18n {
 	 * used, which applies the {@link Locale} provided by {@link Request#getLocale()}.
 	 * 
 	 * @param number
-	 *            the {@link Number} to format
+	 *               the {@link Number} to format
 	 * @param format
-	 *            the the format
+	 *               the the format
+	 * 
 	 * @return the formatted {@link Number}
+	 * 
 	 * @see NumberFormat#getNumberInstance(Locale)
 	 */
 	public String formatNumber(Number number, String format) {

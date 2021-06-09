@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,10 @@ public class ImageProcessor {
 	 * Checks whether the ImageMagick convert-command is available.
 	 * 
 	 * @param imageMagickPath
-	 *            the path to the convert-command, if {@code null} the system path is being used
+	 *                        the path to the convert-command, if {@code null} the system path is being used
+	 * 
 	 * @return {@code true} if the convert-command is available, {@code false} otherwise
+	 * 
 	 * @see #setGlobalSearchPath(File)
 	 */
 	public static boolean isImageMagickPresent(File imageMagickPath) {
@@ -81,11 +83,11 @@ public class ImageProcessor {
 	 * Creates a new {@link ImageProcessor}
 	 * 
 	 * @param imageMagickPath
-	 *            the path to the convert-command, if {@code null} the system path is being used
+	 *                        the path to the convert-command, if {@code null} the system path is being used
 	 * @param sourceFile
-	 *            the source file
+	 *                        the source file
 	 * @param targetFile
-	 *            the target file
+	 *                        the target file
 	 */
 	public ImageProcessor(File imageMagickPath, File sourceFile, File targetFile) {
 		if (null != imageMagickPath) {
@@ -102,17 +104,18 @@ public class ImageProcessor {
 	 * Creates a new {@link ImageProcessor}
 	 * 
 	 * @param imageMagickPath
-	 *            the path to the convert-command, if {@code null} the system path is being used
+	 *                        the path to the convert-command, if {@code null} the system path is being used
 	 * @param sourceFile
-	 *            the source file
+	 *                        the source file
 	 * @param targetFile
-	 *            the target file
+	 *                        the target file
 	 * @param checkMagicBytes
-	 *            whether or not it should be checked that the source file's extension matches it's content type, using
-	 *            magic byte detection
+	 *                        whether or not it should be checked that the source file's extension matches it's content
+	 *                        type, using magic byte detection
+	 * 
 	 * @throws IOException
-	 *             if {@code checkMagicBytes} is {@code true} and the source file's extension does not match it's
-	 *             content type determined by magic byte detection
+	 *                     if {@code checkMagicBytes} is {@code true} and the source file's extension does not match
+	 *                     it's content type determined by magic byte detection
 	 */
 	public ImageProcessor(File imageMagickPath, File sourceFile, File targetFile, boolean checkMagicBytes)
 			throws IOException {
@@ -123,9 +126,9 @@ public class ImageProcessor {
 	 * Creates a new {@link ImageProcessor}
 	 * 
 	 * @param sourceFile
-	 *            the source file
+	 *                   the source file
 	 * @param targetFile
-	 *            the target file
+	 *                   the target file
 	 */
 	public ImageProcessor(File sourceFile, File targetFile) {
 		this(null, sourceFile, targetFile);
@@ -135,15 +138,16 @@ public class ImageProcessor {
 	 * Creates a new {@link ImageProcessor}
 	 * 
 	 * @param sourceFile
-	 *            the source file
+	 *                        the source file
 	 * @param targetFile
-	 *            the target file
+	 *                        the target file
 	 * @param checkMagicBytes
-	 *            whether or not it should be checked that the source file's extension matches it's content type, using
-	 *            magic byte detection
+	 *                        whether or not it should be checked that the source file's extension matches it's content
+	 *                        type, using magic byte detection
+	 * 
 	 * @throws IOException
-	 *             if {@code checkMagicBytes} is {@code true} and the source file's extension does not match it's
-	 *             content type determined by magic byte detection
+	 *                     if {@code checkMagicBytes} is {@code true} and the source file's extension does not match
+	 *                     it's content type determined by magic byte detection
 	 */
 	public ImageProcessor(File sourceFile, File targetFile, boolean checkMagicBytes) throws IOException {
 		this(null, sourceFile, targetFile, false, checkMagicBytes);
@@ -182,7 +186,7 @@ public class ImageProcessor {
 	 * Sets the global search path to the convert-command
 	 * 
 	 * @param imageMagickPath
-	 *            the path to the convert-command, may not be null
+	 *                        the path to the convert-command, may not be null
 	 */
 	public static void setGlobalSearchPath(File imageMagickPath) {
 		ProcessStarter.setGlobalSearchPath(imageMagickPath.getAbsolutePath());
@@ -192,8 +196,9 @@ public class ImageProcessor {
 	 * Retrieves the {@link ImageMetaData} for the source-file.
 	 * 
 	 * @return the {@link ImageMetaData}
+	 * 
 	 * @throws IOException
-	 *             if the source-file could not be read
+	 *                     if the source-file could not be read
 	 */
 	public ImageMetaData getMetaData() throws IOException {
 		ImageInputStream input = new FileImageInputStream(sourceFile);
@@ -215,7 +220,8 @@ public class ImageProcessor {
 	 * convert-command.
 	 * 
 	 * @param degrees
-	 *            the degrees
+	 *                the degrees
+	 * 
 	 * @return this {@link ImageProcessor}
 	 */
 	public ImageProcessor rotate(int degrees) {
@@ -228,13 +234,15 @@ public class ImageProcessor {
 	 * convert-command. Aspect ratio may get lost, the image may be upscaled.
 	 * 
 	 * @param targetWidth
-	 *            the target width, must be greater 0
+	 *                     the target width, must be greater 0
 	 * @param targetHeight
-	 *            the target height, must be greater 0
+	 *                     the target height, must be greater 0
 	 * @param scaleUp
-	 *            set to {@code true} if the image should be scaled up (in case its dimensions are smaller than the
-	 *            desired ones).
+	 *                     set to {@code true} if the image should be scaled up (in case its dimensions are smaller than
+	 *                     the desired ones).
+	 * 
 	 * @return this {@link ImageProcessor}
+	 * 
 	 * @see #resize(int, int)
 	 */
 	public ImageProcessor resize(int targetWidth, int targetHeight, boolean scaleUp) {
@@ -261,9 +269,10 @@ public class ImageProcessor {
 	 * convert-command. Aspect ratio may get lost, the image may be upscaled.
 	 * 
 	 * @param targetWidth
-	 *            the target width, must be greater 0
+	 *                     the target width, must be greater 0
 	 * @param targetHeight
-	 *            the target height, must be greater 0
+	 *                     the target height, must be greater 0
+	 * 
 	 * @return this {@link ImageProcessor}
 	 */
 	public ImageProcessor resize(int targetWidth, int targetHeight) {
@@ -278,7 +287,8 @@ public class ImageProcessor {
 	 * convert-command.
 	 * 
 	 * @param quality
-	 *            the quality
+	 *                the quality
+	 * 
 	 * @return this {@link ImageProcessor}
 	 */
 	public ImageProcessor quality(double quality) {
@@ -298,53 +308,101 @@ public class ImageProcessor {
 	}
 
 	/**
-	 * TODO doc
+	 * Automatically crops the original image to the required size.
 	 * 
-	 * @param positionWidth
-	 * @param positionHeight
-	 * @param sourceWidth
-	 * @param sourceHeight
+	 * @param croppingWidth
+	 *                       The target width of the image section.
+	 * @param croppingHeight
+	 *                       The target height of the image section.
+	 * @param originalWidth
+	 *                       The original width of the image.
+	 * @param originalHeight
+	 *                       The original height of the image.
+	 * 
 	 * @return this {@link ImageProcessor}
+	 * 
+	 * @see ImageProcessor#autoCrop(int, int, int, int, int, int)
 	 */
-	public ImageProcessor autoCrop(int positionWidth, int positionHeight, int sourceWidth, int sourceHeight) {
-		return autoCrop(positionWidth, positionHeight, sourceWidth, sourceHeight, 0, 0);
+	public ImageProcessor autoCrop(int croppingWidth, int croppingHeight, int originalWidth, int originalHeight) {
+		return autoCrop(croppingWidth, croppingHeight, originalWidth, originalHeight, 0, 0);
 	}
 
 	/**
-	 * TODO doc
+	 * <p>
+	 * Automatically crops the original image to the required size.
+	 * </p>
+	 * This is done in two steps. First, a section with the desired aspect ratio is being cropped from the original
+	 * image. Second, this image section is resized to the desired size.
+	 * <p>
+	 * Example: {@code autoCrop(50, 50, 100, 200, 0, 0)} will first crop a squared section from 0,50 to 100,150 and the
+	 * resize this section to 50x50.
 	 * 
-	 * @param positionWidth
-	 * @param positionHeight
-	 * @param variantWidth
-	 * @param variantHeight
-	 * @param variantOffsetWidth
-	 * @param variantOffsetHeight
+	 * <pre>
+	 * 0,0   _________ 100,0
+	 *      |         |
+	 *      |         |
+	 *      |         |
+	 *      |         |
+	 * 0,50 |_________|100,50
+	 *      |         |
+	 *      | cropped |
+	 *      |         |
+	 *      | section |
+	 *      |_________|
+	 * 0,150|         |100,150
+	 *      |         |
+	 *      |         |
+	 *      |         |
+	 *      |_________| 
+	 * 0,200           100,200
+	 * </pre>
+	 * </p>
+	 * <p>
+	 * Note that the original aspect ratio of the original image might get lost.
+	 * </p>
+	 * 
+	 * @param croppingWidth
+	 *                        The target width of the image section.
+	 * @param croppingHeight
+	 *                        The target height of the image section.
+	 * @param originalWidth
+	 *                        The original width of the image.
+	 * @param originalHeight
+	 *                        The original height of the image.
+	 * @param croppingOffsetX
+	 *                        The X offset for the image section based on the original image.
+	 * @param croppingOffsetY
+	 *                        The Y offset for the image section based on the original image.
+	 * 
 	 * @return this {@link ImageProcessor}
+	 * 
+	 * @see #crop(int, int, int, int)
+	 * @see #resize(int, int)
 	 */
-	public ImageProcessor autoCrop(int positionWidth, int positionHeight, int variantWidth, int variantHeight,
-			int variantOffsetWidth, int variantOffsetHeight) {
-		int offsetWidth;
-		int offsetHeight;
-		int uncroppedPositionWidth;
-		int uncroppedPositionHeight;
+	public ImageProcessor autoCrop(int croppingWidth, int croppingHeight, int originalWidth, int originalHeight,
+			int croppingOffsetX, int croppingOffsetY) {
+		int offsetX;
+		int offsetY;
+		int targetWidth;
+		int targetHeight;
 
-		double variantFactor = variantWidth / (double) variantHeight;
-		double positionFactor = positionWidth / (double) positionHeight;
+		double originalRatio = originalWidth / (double) originalHeight;
+		double croppingRatio = croppingWidth / (double) croppingHeight;
 
-		if (variantFactor > positionFactor) {
-			uncroppedPositionWidth = Math.round(variantHeight * positionWidth / (float) positionHeight);
-			uncroppedPositionHeight = variantHeight;
-			offsetWidth = variantOffsetWidth + Math.round((variantWidth - uncroppedPositionWidth) / (float) 2);
-			offsetHeight = variantOffsetHeight;
+		if (originalRatio > croppingRatio) {
+			targetWidth = Math.round(originalHeight * croppingWidth / (float) croppingHeight);
+			targetHeight = originalHeight;
+			offsetX = croppingOffsetX + Math.round((originalWidth - targetWidth) / (float) 2);
+			offsetY = croppingOffsetY;
 		} else {
-			uncroppedPositionWidth = variantWidth;
-			uncroppedPositionHeight = Math.round(positionHeight * variantWidth / (float) positionWidth);
-			offsetWidth = variantOffsetWidth;
-			offsetHeight = variantOffsetHeight + Math.round((variantHeight - uncroppedPositionHeight) / (float) 2);
+			targetWidth = originalWidth;
+			targetHeight = Math.round(croppingHeight * originalWidth / (float) croppingWidth);
+			offsetX = croppingOffsetX;
+			offsetY = croppingOffsetY + Math.round((originalHeight - targetHeight) / (float) 2);
 		}
 
-		crop(uncroppedPositionWidth, uncroppedPositionHeight, offsetWidth, offsetHeight);
-		return resize(positionWidth, positionHeight);
+		crop(targetWidth, targetHeight, offsetX, offsetY);
+		return resize(croppingWidth, croppingHeight);
 	}
 
 	/**
@@ -352,13 +410,14 @@ public class ImageProcessor {
 	 * convert-command.
 	 * 
 	 * @param targetWidth
-	 *            the width of the cutting
+	 *                     the width of the cutting
 	 * @param targetHeight
-	 *            the height of the cutting
+	 *                     the height of the cutting
 	 * @param offsetWidth
-	 *            the width-offset to start cropping at.
+	 *                     the width-offset to start cropping at.
 	 * @param offsetHeight
-	 *            the height-offset to start cropping at.
+	 *                     the height-offset to start cropping at.
+	 * 
 	 * @return this {@link ImageProcessor}
 	 */
 	public ImageProcessor crop(int targetWidth, int targetHeight, int offsetWidth, int offsetHeight) {
@@ -371,8 +430,9 @@ public class ImageProcessor {
 	 * {@link ImageProcessor} was created with.
 	 * 
 	 * @return the target-file this {@link ImageProcessor} was created with
+	 * 
 	 * @throws IOException
-	 *             if something goes wrong while executing the convert-command
+	 *                     if something goes wrong while executing the convert-command
 	 */
 	public File getImage() throws IOException {
 		op.interlace("Plane");
@@ -380,6 +440,7 @@ public class ImageProcessor {
 		try {
 			cmd.run(op, sourceFile.getAbsolutePath(), targetFile.getAbsolutePath());
 		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
 			throw new IOException(ex);
 		} catch (IM4JavaException ex) {
 			throw new IOException(ex);
@@ -392,12 +453,14 @@ public class ImageProcessor {
 	 * the aspect ratio is being kept.
 	 * 
 	 * @param maxwidth
-	 *            the maximum width of the image
+	 *                  the maximum width of the image
 	 * @param maxHeight
-	 *            the maximum height of the image
+	 *                  the maximum height of the image
+	 * 
 	 * @return this {@link ImageProcessor}
+	 * 
 	 * @throws IOException
-	 *             if no {@link ImageMetaData} could be obtained from the source file
+	 *                     if no {@link ImageMetaData} could be obtained from the source file
 	 * 
 	 * @see #resize(int, int)
 	 */
@@ -418,10 +481,13 @@ public class ImageProcessor {
 	 * ratio is being kept.
 	 * 
 	 * @param maxWidth
-	 *            the maximum width of the image
+	 *                 the maximum width of the image
+	 * 
 	 * @return this {@link ImageProcessor}
+	 * 
 	 * @throws IOException
-	 *             if no {@link ImageMetaData} could be obtained from the source file
+	 *                     if no {@link ImageMetaData} could be obtained from the source file
+	 * 
 	 * @see #resize(int, int)
 	 */
 	public ImageProcessor fitToWidth(Integer maxWidth) throws IOException {
@@ -440,10 +506,13 @@ public class ImageProcessor {
 	 * ratio is being kept.
 	 * 
 	 * @param maxHeight
-	 *            the maximum height of the image
+	 *                  the maximum height of the image
+	 * 
 	 * @return this {@link ImageProcessor}
+	 * 
 	 * @throws IOException
-	 *             if no {@link ImageMetaData} could be obtained from the source file
+	 *                     if no {@link ImageMetaData} could be obtained from the source file
+	 * 
 	 * @see #resize(int, int)
 	 */
 	public ImageProcessor fitToHeight(Integer maxHeight) throws IOException {

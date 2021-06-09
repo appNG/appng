@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
  * A utility class helping importing/exporting data and retrieving connection information.
  * 
  * @author Matthias Müller
- *
  */
 
 @Slf4j
@@ -59,7 +58,6 @@ public class DatabaseUtil {
 	private final FlatXmlDataSetBuilder XML_BUILDER = new FlatXmlDataSetBuilder();
 	private IDatabaseConnection connection;
 	private Connection jdbcConnection;
-	private final String SCHEMA = null;
 
 	private static volatile boolean imported = false;
 
@@ -256,7 +254,7 @@ public class DatabaseUtil {
 			for (int i = connectionInfo.getTableNames().size(); i > 0; i--) {
 				String table = connectionInfo.getTableNames().get(i - 1);
 				try (Statement statement = jdbcConnection.createStatement()) {
-					String stmt = "delete from " + ((null != SCHEMA) ? SCHEMA + "." : "") + table;
+					String stmt = "delete from " + table;
 					int rows = statement.executeUpdate(stmt);
 					LOGGER.debug(".....clearing {} ({} rows deleted)", table, rows);
 				}
@@ -366,8 +364,10 @@ public class DatabaseUtil {
 	 * {@value org.appng.testsupport.persistence.ConnectionHelper#HIBERNATE_CONNECTION_URL} = <jdbcUrl-with-hsqlPort>
 	 * 
 	 * @param class1
+	 * 
 	 * @return a {@link Map} containing the
 	 *         {@value org.appng.testsupport.persistence.ConnectionHelper#HIBERNATE_CONNECTION_URL}-property
+	 * 
 	 * @throws Exception
 	 */
 	public static Map<String, String> importTestData(Class<? extends TestDataProvider> class1) throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ import lombok.extern.slf4j.Slf4j;
  * within the given timeout, the producer is being discarded and the next one is taken.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> implements Runnable {
@@ -71,10 +70,10 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 	 * Creates a new {@code DocumentIndexer}.
 	 * 
 	 * @param indexDir
-	 *            the directory to read/save the Lucene index from/to
+	 *                 the directory to read/save the Lucene index from/to
 	 * @param timeout
-	 *            the timeout in milliseconds when retrieving the next {@link DocumentEvent} from a
-	 *            {@link DocumentProducer}
+	 *                 the timeout in milliseconds when retrieving the next {@link DocumentEvent} from a
+	 *                 {@link DocumentProducer}
 	 */
 	public DocumentIndexer(int queueSize, File indexDir, Long timeout) {
 		super(queueSize);
@@ -98,7 +97,7 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 		Analyzer analyzer = null;
 		boolean needsRollback = false;
 		try {
-			while (true) {
+			while (!Thread.currentThread().isInterrupted()) {
 				DocumentProducer producer = get();
 				Constructor<? extends Analyzer> constructor = producer.getAnalyzerClass().getConstructor();
 				analyzer = constructor.newInstance();
@@ -172,6 +171,7 @@ public class DocumentIndexer extends Consumer<DocumentEvent, DocumentProducer> i
 			LOGGER.error("an I/O error occured", ioe);
 		} catch (InterruptedException ie) {
 			LOGGER.error("thread was interrupted", ie);
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			LOGGER.error("unexpected error", e);
 		} finally {

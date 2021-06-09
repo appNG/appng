@@ -772,6 +772,7 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="config" type="dataConfig" />
+			<xs:element name="messages" type="messages" minOccurs="0" />
 			<xs:choice>
 				<xs:element name="bean" type="bean" />
 				<xs:element name="data" type="data" />
@@ -790,12 +791,12 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 		<xs:attribute name="mode" type="xs:string" use="optional">
 			<xs:annotation>
 				<xs:documentation>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
@@ -991,6 +992,20 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>The URI to forward to after successfully performing the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
 			</xs:annotation>
@@ -1718,12 +1733,12 @@ Note that only those POST-parameters which are being used in a {@link Condition}
 		<xs:attribute name="mode" type="xs:string" use="optional">
 			<xs:annotation>
 				<xs:documentation>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
@@ -1792,6 +1807,20 @@ Note that only those POST-parameters which are being used in a {@link Condition}
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>The URI to forward to after successfully performing the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
 			</xs:annotation>
@@ -2717,6 +2746,7 @@ If empty, the template is being applied to any output-type.]]>
 		<xs:sequence>
 			<xs:element name="sort" type="sort" minOccurs="0" />
 			<xs:element name="label" type="label" minOccurs="0" />
+			<xs:element name="tooltip" type="label" minOccurs="0"/>
 			<xs:element name="icon" type="icon" minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="condition" type="condition" minOccurs="0" />
 			<xs:element name="permissions" type="fieldPermissions" minOccurs="0" maxOccurs="2" />

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,22 @@ import org.springframework.mock.web.MockHttpServletResponse;
 public class GroupControllerTest extends ControllerTest {
 
 	@Test
+	public void testInvalidName() throws Exception {
+		Group group = new Group();
+		group.setName("john doe!");
+		postAndVerify("/group", "", group, HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void testDotInName() throws Exception {
+		Group group = new Group();
+		group.setName("with.dot");
+		postAndVerify("/group", "", group, HttpStatus.CREATED);
+		putAndVerify("/group/with.dot", "", group, HttpStatus.OK);
+		deleteAndVerify("/group/with.dot", "", HttpStatus.NO_CONTENT);
+	}
+
+	@Test
 	public void testCreateRetrieveAndUpdate() throws Exception {
 		installApplication();
 
@@ -47,7 +63,7 @@ public class GroupControllerTest extends ControllerTest {
 		updated.setName("Administrator");
 		updated.setDescription("a group for administrators");
 		MockHttpServletResponse response = putAndVerify("/group/Admin", null, updated, HttpStatus.SEE_OTHER);
-		assertLocation("http://localhost/group/Administrator", response);
+		assertLocation("http://localhost/appNGizer/group/Administrator", response);
 
 		getAndVerify("/group/Administrator", "xml/group-update.xml", HttpStatus.OK);
 	}

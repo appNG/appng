@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class GroupController extends ControllerBase {
 		return ok(groups);
 	}
 
-	@GetMapping(value = "/group/{name}")
+	@GetMapping(value = "/group/{name:.+}")
 	public ResponseEntity<Group> getGroup(@PathVariable("name") String name) {
 		GroupImpl group = getCoreService().getGroupByName(name, true);
 		if (null == group) {
@@ -83,7 +83,7 @@ public class GroupController extends ControllerBase {
 		return created(getGroup(group.getName()).getBody());
 	}
 
-	@PutMapping(value = "/group/{name}")
+	@PutMapping(value = "/group/{name:.+}")
 	public ResponseEntity<Group> updateGroup(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Group group) {
 		boolean nameChanged = nameChanged(group, name);
@@ -111,7 +111,7 @@ public class GroupController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	public void updateRoles(org.appng.appngizer.model.xml.Roles roles, GroupImpl group) {
+	private void updateRoles(org.appng.appngizer.model.xml.Roles roles, GroupImpl group) {
 		if (null != roles) {
 			group.getRoles().clear();
 			if (null != roles.getRole()) {
@@ -126,7 +126,7 @@ public class GroupController extends ControllerBase {
 		}
 	}
 
-	@DeleteMapping(value = "/group/{name}")
+	@DeleteMapping(value = "/group/{name:.+}")
 	public ResponseEntity<Void> deleteGroup(@PathVariable("name") String name) {
 		GroupImpl currentGroup = getCoreService().getGroupByName(name);
 		if (null == currentGroup) {

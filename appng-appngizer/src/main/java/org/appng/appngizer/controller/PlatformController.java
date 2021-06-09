@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@ package org.appng.appngizer.controller;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Host;
-import org.apache.catalina.LifecycleState;
 import org.appng.appngizer.model.Platform;
 import org.appng.appngizer.model.Properties;
 import org.slf4j.Logger;
@@ -65,20 +67,17 @@ public class PlatformController extends ControllerBase {
 	}
 
 	@PostMapping(value = "/platform/reload")
-	public ResponseEntity<Platform> reloadPlatform() {
+	public ResponseEntity<Void> reloadPlatform() {
 		Context appNGContext = getAppNGContext();
-		if (null == appNGContext) {
-			logger().info("no appNG context found!");
-			return notFound();
-		} else {
-			logger().info("reloading {}", appNGContext);
+		logger().info("reloading {}", appNGContext);
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+		FutureTask<Void> futureTask = new FutureTask<Void>(() -> {
 			appNGContext.reload();
-			if (LifecycleState.STARTED.equals(appNGContext.getState())) {
-				return showPlatform();
-			} else {
-				return internalServerError();
-			}
-		}
+			return null;
+		});
+		executor.execute(futureTask);
+		executor.shutdown();
+		return seeOther(getUriBuilder().path("/platform").build().toUri());
 	}
 
 	protected Context getAppNGContext() {

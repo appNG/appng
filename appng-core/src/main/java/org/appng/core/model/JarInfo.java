@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,9 +117,10 @@ public final class JarInfo implements Comparable<JarInfo> {
 
 	private enum JarInfoResource {
 
-		IMPLEMENTATION_TITLE("Implementation-Title", "Title"), IMPLEMENTATION_VERSION("Implementation-Version",
-				"Version"), IMPLEMENTATION_VENDOR_ID("Implementation-Vendor-Id",
-						"Vendor-ID"), IMPLEMENTATION_VENDOR("Implementation-Vendor", "Vendor");
+		IMPLEMENTATION_TITLE("Implementation-Title", "Title"),
+		IMPLEMENTATION_VERSION("Implementation-Version", "Version"),
+		IMPLEMENTATION_VENDOR_ID("Implementation-Vendor-Id", "Vendor-ID"),
+		IMPLEMENTATION_VENDOR("Implementation-Vendor", "Vendor");
 
 		private final String name;
 		private final String acronym;
@@ -159,8 +160,7 @@ public final class JarInfo implements Comparable<JarInfo> {
 				throw new IOException("File not exists or is not a file");
 			}
 			Attributes mainAttributes = null;
-			try (
-					InputStream is = new FileInputStream(jarFile);
+			try (InputStream is = new FileInputStream(jarFile);
 					JarInputStream jarInputStream = new JarInputStream(is)) {
 				Manifest manifest = jarInputStream.getManifest();
 				if (null != manifest) {

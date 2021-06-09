@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public interface OptionOwner {
 		 * Selects or de-selects an option by calling {@link Option#setSelected(Boolean)}.
 		 * 
 		 * @param o
-		 *            the {@link Option} which might be selected
+		 *          the {@link Option} which might be selected
 		 */
 		void select(Option o);
 
@@ -52,6 +52,7 @@ public interface OptionOwner {
 	 * 
 	 * @param <T>
 	 *            the type of the elements to count
+	 * 
 	 * @see Option#getHits()
 	 */
 	public interface HitCounter<T> {
@@ -59,7 +60,8 @@ public interface OptionOwner {
 		 * Counts the hits for the option created from the given element.
 		 * 
 		 * @param element
-		 *            the element to count the hits for
+		 *                the element to count the hits for
+		 * 
 		 * @return the number of hits for this option
 		 */
 		Integer count(T element);

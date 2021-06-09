@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Subject;
 import org.springframework.context.ApplicationContext;
 
 /**
- * 
  * Utility class providing platform-wide used constants.
  * 
  * @author Matthias Müller
- * 
  */
 public final class Platform {
 
@@ -78,7 +78,6 @@ public final class Platform {
 	public static final String SERVICE_TYPE_ACTION = "action";
 
 	/**
-	 * 
 	 * Constants used for the global platform-configuration. Those get wrapped into a {@link Properties}-object and can
 	 * be accessed via the {@link org.appng.api.Environment} as follows:
 	 * 
@@ -92,7 +91,6 @@ public final class Platform {
 	 * {@link Application#isPrivileged()} returns {@code true}.</b>
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public final class Property {
 		/** The absolute root-path of the platform */
@@ -122,6 +120,12 @@ public final class Platform {
 		 */
 		public static final String CONSTRAINTS_AS_RULE = "constraintsAsRule";
 		/**
+		 * The global configuration for configuring caching. This property either contains the platform-relative path to
+		 * a config file (e.g. {@code WEB-INF/conf/hazelcast.xml}) or the XML configuration itself in XML format (stored
+		 * as multiline value).
+		 */
+		public static final String CACHE_CONFIG = "cacheConfig";
+		/**
 		 * Set to {@code true} to enable a filter preventing CSRF-attacks
 		 */
 		public static final String CSRF_FILTER_ENABLED = "csrfFilterEnabled";
@@ -144,19 +148,21 @@ public final class Platform {
 		public static final String DEV_MODE = "devMode";
 		/** The charset/encoding used for http-responses. */
 		public static final String ENCODING = "encoding";
-		/**
-		 * The global page cache configuration using the Ehcache XML configuration format. This cache is used to cache
-		 * HTTP responses.
-		 */
-		public static final String EHCACHE_CONFIG = "ehcacheConfig";
 		/** Set to 'true' if applications should be deployed to the local filesystem, 'false' otherwise. */
 		public static final String FILEBASED_DEPLOYMENT = "filebasedDeployment";
+		/**
+		 * Should users be forced to change their password if it hasn't changed for more than
+		 * {@link #PASSWORD_MAX_VALIDITY} days?
+		 */
+		public static final String FORCE_CHANGE_PASSWORD = "forceChangePassword";
 		/** Disable for production use. If enabled, debugging is easier, but Textarea values are formatted wrong. */
 		public static final String FORMAT_OUTPUT = "formatOutput";
 		/** The folder used for caching images, within the {@link #APPLICATION_CACHE_FOLDER} */
 		public static final String IMAGE_CACHE_FOLDER = "cacheImageFolder";
 		/** The path to the ImageMagick executables */
 		public static final String IMAGEMAGICK_PATH = "imageMagickPath";
+		/** The number of days after a {@link Subject} get's locked if the user did not log in. */
+		public static final String INACTIVE_LOCK_PERIOD = "inactiveLockPeriod";
 		/** The file-extension for JSP-files. */
 		public static final String JSP_FILE_TYPE = "jspFileType";
 		/** The default {@link Locale}. Use one of {@link java.util.Locale#getAvailableLocales()} */
@@ -178,7 +184,7 @@ public final class Platform {
 		public static final String MDC_ENABLED = "mdcEnabled";
 		/** Set to true to enable cluster messaging */
 		public static final String MESSAGING_ENABLED = "messagingEnabled";
-		/** Class name of the desired messaging Receiver implementation. Default is multicast **/
+		/** Class name of the desired messaging Receiver implementation. **/
 		public static final String MESSAGING_RECEIVER = "messagingReceiver";
 		/** The multicast address used for messaging */
 		public static final String MESSAGING_GROUP_ADDRESS = "messagingGroupAddress";
@@ -188,6 +194,10 @@ public final class Platform {
 		public static final String MAX_UPLOAD_SIZE = "maxUploadSize";
 		/** Set to true to enable performance monitoring for the target XML */
 		public static final String MONITOR_PERFORMANCE = "monitorPerformance";
+		/** The maximum number of days a password is valid, where -1 means forever */
+		public static final String PASSWORD_MAX_VALIDITY = "passwordMaxValidity";
+		/** The fully qualified name of the {@link PasswordPolicy} to use. */
+		public static final String PASSWORD_POLICY = "passwordPolicy";
 		/**
 		 * The resource-bundle key (for messages-core) for the message which is being displayed when the password does
 		 * not match the policy.
@@ -241,7 +251,10 @@ public final class Platform {
 		 * truststore.
 		 */
 		public static final String REPOSITORY_VERIFY_SIGNATURE = "repositoryVerifySignature";
-
+		/**
+		 * The regular expressions to match against the user-agent header for immediate discard of the session.
+		 */
+		public static final String SESSION_FILTER = "sessionFilter";
 		/** Set to {@code true} to enable XSS protection */
 		public static final String XSS_PROTECT = "xssProtect";
 		/**
@@ -272,14 +285,18 @@ public final class Platform {
 		 * (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
+
+		/** The maximum number of failed login attempts before a {@link Subject} gets locked. */
+		public static final String MAX_LOGIN_ATTEMPTS = "maxLoginAttempts";
+
+		/** The path to appNG's health monitoring */
+		public static final String MONITORING_PATH = "monitoringPath";
 	}
 
 	/**
-	 * 
 	 * Constants used for accessing an {@link Environment}-attribute with {@link Scope#PLATFORM}.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public final class Environment {
 

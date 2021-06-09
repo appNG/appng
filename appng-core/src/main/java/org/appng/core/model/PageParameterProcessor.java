@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,8 +49,7 @@ class PageParameterProcessor {
 	private Set<String> sessionParamNames;
 	private String sessionParamKey;
 
-	PageParameterProcessor(String sessionParamKey, Set<String> sessionParamNames, Environment env, Request request,
-			String page) {
+	PageParameterProcessor(String sessionParamKey, Set<String> sessionParamNames, Environment env, Request request) {
 		this.env = env;
 		this.sessionParamKey = sessionParamKey;
 		this.request = request;
@@ -69,6 +68,7 @@ class PageParameterProcessor {
 	 * 
 	 * @param applicationParameter
 	 * @param urlSchema
+	 * 
 	 * @return
 	 */
 	boolean processPageParams(List<String> applicationUrlParameters, UrlSchema urlSchema) {

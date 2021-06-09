@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,15 @@
  */
 package org.appng.appngizer.controller;
 
+import javax.servlet.annotation.MultipartConfig;
+
 import org.apache.catalina.ContainerServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.Host;
 import org.apache.catalina.Wrapper;
 import org.springframework.web.servlet.DispatcherServlet;
 
+@MultipartConfig
 public class AppNGizerServlet extends DispatcherServlet implements ContainerServlet {
 
 	public static final String HOST = "host";

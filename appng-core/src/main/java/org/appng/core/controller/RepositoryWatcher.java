@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.cache.Cache;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.SiteProperties;
@@ -36,12 +38,10 @@ import org.appng.api.XPathProcessor;
 import org.appng.api.model.Site;
 import org.appng.core.controller.filter.RedirectFilter;
 import org.appng.core.service.CacheService;
-import org.springframework.http.HttpMethod;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.Ehcache;
 
 /**
  * <p>
@@ -49,14 +49,11 @@ import net.sf.ehcache.Ehcache;
  * www-directory (see {@link SiteProperties#WWW_DIR}) using a
  * {@link WatchService}.
  * </p>
- * If caching for the site is active (see
- * {@link SiteProperties#EHCACHE_ENABLED}), cache entries for the
- * modified/deleted files are removed from the cache. Since there could be some
- * forwarding rules defined in the site's {@code urlrewrite.xml}, it is also
- * necessary to parse these rules and remove the 'aliases' from the cache.
+ * If caching for the site is active (see {@link SiteProperties#CACHE_ENABLED}), cache entries for the modified/deleted
+ * files are removed from the cache. Since there could be some forwarding rules defined in the site's
+ * {@code urlrewrite.xml}, it is also necessary to parse these rules and remove the 'aliases' from the cache.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class RepositoryWatcher implements Runnable {
@@ -74,7 +71,7 @@ public class RepositoryWatcher implements Runnable {
 
 	private String wwwDir;
 
-	private Ehcache cache;
+	private Cache<String, CachedResponse> cache;
 
 	private File configFile;
 
@@ -85,7 +82,7 @@ public class RepositoryWatcher implements Runnable {
 			this.jspExtension = "." + jspExtension;
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			String wwwdir = site.getProperties().getString(SiteProperties.WWW_DIR);
-			Ehcache cache = CacheService.getBlockingCache(site);
+			Cache<String, CachedResponse> cache = CacheService.getCache(site);
 			String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
 			List<String> documentsDirs = site.getProperties().getList(SiteProperties.DOCUMENT_DIR, ";");
 			init(cache, rootDir + wwwdir, site.readFile(rewriteConfig), ruleSourceSuffix, documentsDirs);
@@ -98,8 +95,8 @@ public class RepositoryWatcher implements Runnable {
 
 	}
 
-	void init(Ehcache cache, String wwwDir, File configFile, String ruleSourceSuffix, List<String> documentDirs)
-			throws Exception {
+	void init(Cache<String, CachedResponse> cache, String wwwDir, File configFile, String ruleSourceSuffix,
+			List<String> documentDirs) throws Exception {
 		this.cache = cache;
 		this.watcher = FileSystems.getDefault().newWatchService();
 		this.wwwDir = FilenameUtils.normalize(wwwDir, true);
@@ -123,11 +120,12 @@ public class RepositoryWatcher implements Runnable {
 
 	public void run() {
 		LOGGER.info("start watching...");
-		while (true) {
+		while (!Thread.currentThread().isInterrupted()) {
 			WatchKey key;
 			try {
 				key = watcher.take();
 			} catch (InterruptedException x) {
+				Thread.currentThread().interrupt();
 				return;
 			}
 			for (WatchEvent<?> event : key.pollEvents()) {
@@ -166,19 +164,7 @@ public class RepositoryWatcher implements Runnable {
 	}
 
 	private int removeFromCache(String relativePathName) {
-		int count = 0;
-		@SuppressWarnings("unchecked")
-		List<String> keys = cache.getKeys();
-		for (String cacheKey : keys) {
-			if (cacheKey.startsWith(HttpMethod.GET.name() + relativePathName)) {
-				if (cache.remove(cacheKey)) {
-					LOGGER.debug("removed from cache: {}", cacheKey);
-					count++;
-				}
-			}
-		}
-		LOGGER.info("removed {} cache elements for {} (cache size: {})", count, relativePathName, keys.size());
-		return count;
+		return CacheService.expireCacheElementsStartingWith(cache, relativePathName);
 	}
 
 	public boolean needsToBeWatched() {

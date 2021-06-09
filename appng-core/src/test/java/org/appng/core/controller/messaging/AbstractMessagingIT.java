@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * Abstract base class for integration tests of messaging {@link Sender}s and {@link Receiver}s
  * 
  * @author Matthias Müller
- *
  */
 public abstract class AbstractMessagingIT {
 
@@ -81,8 +80,7 @@ public abstract class AbstractMessagingIT {
 		}
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(props);
-		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES))
-				.thenReturn(new HashMap<>());
+		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES)).thenReturn(new HashMap<>());
 
 		final BeanWrapperImpl wrapper = new BeanWrapperImpl();
 
@@ -100,7 +98,7 @@ public abstract class AbstractMessagingIT {
 				Mockito.any(receiverClass));
 		Mockito.verify(env).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.eq(Platform.Environment.MESSAGE_SENDER),
 				Mockito.any(senderClass));
-		Assert.assertTrue(sender.send(new MessagingTest()));
+		Assert.assertTrue(sender.send(new MessagingTest.TestEvent("foobar")));
 
 		while (!processedHandler.processed) {
 			Thread.sleep(1000);

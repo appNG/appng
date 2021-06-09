@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,25 @@
  */
 package org.appng.core.security;
 
-import org.appng.api.BusinessException;
+import java.util.Date;
+
 import org.appng.api.model.AuthSubject;
-import org.appng.core.domain.SubjectImpl;
 import org.appng.core.service.CoreService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides methods to hash and validate passwords usings the bcrypt algorithm.
  * 
- * @see <a href="http://static.usenix.org/events/usenix99/provos/provos_html/">Provos, Niels; Talan Jason
- *      Sutton (1999). A Future-Adaptable Password Scheme</a>
- * @see <a href="http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#core-services-password-encoding">Spring Security Reference</a>
- * @see <a href="https://docs.spring.io/spring-security/site/docs/current/apidocs/org/springframework/security/crypto/bcrypt/BCrypt.html">jBCrypt JavaDoc</a>
+ * @see <a href="http://static.usenix.org/events/usenix99/provos/provos_html/">Provos, Niels; Talan Jason Sutton (1999).
+ *      A Future-Adaptable Password Scheme</a>
+ * @see <a href=
+ *      "http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#core-services-password-encoding">Spring
+ *      Security Reference</a>
+ * @see <a href=
+ *      "https://docs.spring.io/spring-security/site/docs/current/apidocs/org/springframework/security/crypto/bcrypt/BCrypt.html">jBCrypt
+ *      JavaDoc</a>
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class BCryptPasswordHandler implements PasswordHandler {
 
@@ -49,10 +51,11 @@ public class BCryptPasswordHandler implements PasswordHandler {
 		this.authSubject = authSubject;
 	}
 
-	public void savePassword(String password) {
+	public void applyPassword(String password) {
 		String hashed = BCrypt.hashpw(password, BCrypt.gensalt(LOG_ROUNDS));
 		authSubject.setDigest(hashed);
 		authSubject.setSalt(null);
+		authSubject.setPasswordLastChanged(new Date());
 	}
 
 	public boolean isValidPassword(String password) {
@@ -60,27 +63,16 @@ public class BCryptPasswordHandler implements PasswordHandler {
 		return isValid;
 	}
 
-	public String getPasswordResetDigest() {
+	public String calculatePasswordResetDigest() {
 		SaltedDigest saltedDigest = new SaltedDigestSha1();
 		String salt = saltedDigest.getSalt();
 		authSubject.setSalt(salt);
-		String digest = saltedDigest.getDigest(authSubject.getEmail(), salt);
-		return digest;
+		return saltedDigest.getDigest(authSubject.getEmail(), salt);
 	}
 
 	public boolean isValidPasswordResetDigest(String digest) {
-		SaltedDigest saltedDigest = new SaltedDigestSha1();
-		String expectedDigest = saltedDigest.getDigest(authSubject.getEmail(), authSubject.getSalt());
-		return (expectedDigest.equals(digest));
-	}
-
-	@Transactional
-	public void updateSubject(CoreService service) throws BusinessException {
-		if (null != ((SubjectImpl) authSubject).getVersion()) {
-			service.updateSubject((SubjectImpl) authSubject);
-		} else {
-			throw new BusinessException("Unable to update subject.");
-		}
+		String expectedDigest = new SaltedDigestSha1().getDigest(authSubject.getEmail(), authSubject.getSalt());
+		return expectedDigest.equals(digest);
 	}
 
 	public void migrate(CoreService service, String password) {

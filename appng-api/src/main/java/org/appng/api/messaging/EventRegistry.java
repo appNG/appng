@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class EventRegistry {
 	 * Registers the given {@link EventHandler}
 	 * 
 	 * @param handler
-	 *            the {@link EventHandler} to be registered
+	 *                the {@link EventHandler} to be registered
 	 */
 	public <E extends Event, H extends EventHandler<E>> void register(H handler) {
 		if (!handlers.containsKey(handler.getEventClass())) {
@@ -57,8 +57,10 @@ public class EventRegistry {
 	 * such handlers have been registered, the list will only contain the default handler.
 	 * 
 	 * @param event
-	 *            the {@link Event} to retrieve the {@link EventHandler}s for
+	 *              the {@link Event} to retrieve the {@link EventHandler}s for
+	 * 
 	 * @return a list of {@link EventHandler}s
+	 * 
 	 * @see #setDefaultHandler(EventHandler)
 	 */
 	@SuppressWarnings("unchecked")
@@ -74,7 +76,7 @@ public class EventRegistry {
 	 * Set the default {@link EventHandler}
 	 * 
 	 * @param defaultHandler
-	 *            the default {@link EventHandler}
+	 *                       the default {@link EventHandler}
 	 */
 	public void setDefaultHandler(EventHandler<? extends Event> defaultHandler) {
 		this.defaultHandler = defaultHandler;

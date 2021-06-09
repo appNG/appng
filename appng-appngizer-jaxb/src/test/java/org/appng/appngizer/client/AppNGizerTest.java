@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 
 import org.appng.appngizer.client.AppNGizerClient.Config.Format;
@@ -83,22 +82,22 @@ public class AppNGizerTest {
 		testPlatform("config/platform.json", Format.JSON, "target/platform.json");
 	}
 
-	private void testPlatform(String source, Format format, String output) throws Exception {
-		InputStream in = getClass().getClassLoader().getResourceAsStream(source);
+	private void testPlatform(String controlSource, Format format, String output) throws Exception {
+		InputStream in = getClass().getClassLoader().getResourceAsStream(controlSource);
 		Map<String, PropertyWrapper> platform = AppNGizer.Config.read(in, format);
 		Assert.assertEquals(1, platform.size());
 		Assert.assertEquals("appNG", platform.keySet().iterator().next());
 		PropertyWrapper config = platform.get("appNG");
 		Assert.assertEquals(51, config.getProperties().size());
-		File controlfile = new File(output);
-		AppNGizer.Config.write("appNG", new FileOutputStream(controlfile), format, config);
-		validate(source, controlfile);
+		File actualFile = new File(output);
+		AppNGizer.Config.write("appNG", new FileOutputStream(actualFile), format, config);
+		validate(controlSource, actualFile);
 	}
 
-	private void validate(String source, File controlfile) throws IOException {
-		List<String> expected = Files.readAllLines(controlfile.toPath());
-		List<String> actual = Files
-				.readAllLines(new File(getClass().getClassLoader().getResource(source).getPath()).toPath());
+	private void validate(String controlSource, File actualFile) throws IOException {
+		String actual = new String(Files.readAllBytes(actualFile.toPath()));
+		String expected = new String(Files
+				.readAllBytes(new File(getClass().getClassLoader().getResource(controlSource).getPath()).toPath()));
 		Assert.assertEquals(expected, actual);
 	}
 

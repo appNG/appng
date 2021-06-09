@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ import redis.clients.jedis.Jedis;
  * </ul>
  * 
  * @author Claus Stuemke, aiticon GmbH, 2015
- *
  */
 @Slf4j
 public class JedisReceiver extends JedisBase implements Receiver, Runnable {
@@ -74,17 +73,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 		BinaryJedisPubSub pubSub = new BinaryJedisPubSub() {
 
 			public void onMessage(byte[] channel, byte[] message) {
-				Event event = eventSerializer.deserialize(message);
-				if (null != event) {
-					try {
-						LOGGER.debug("Received event {}", event);
-						onEvent(eventSerializer.getSite(event.getSiteName()), event);
-					} catch (Exception e) {
-						LOGGER.error(String.format("error while performing event %s", event), e);
-					}
-				} else {
-					LOGGER.debug("could not read event {}", message);
-				}
+				Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, message);
 			}
 		};
 		jedis.subscribe(pubSub, this.channel.getBytes());
@@ -122,7 +111,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 
 	/**
 	 * @param host
-	 *            the host to set
+	 *             the host to set
 	 */
 	public void setHost(String host) {
 		this.host = host;
@@ -137,7 +126,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 
 	/**
 	 * @param port
-	 *            the port to set
+	 *             the port to set
 	 */
 	public void setPort(int port) {
 		this.port = port;
@@ -152,7 +141,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 
 	/**
 	 * @param timeout
-	 *            the timeout to set
+	 *                the timeout to set
 	 */
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;

@@ -7,7 +7,7 @@ Version {project-version} created on {localdate}
 :homepage: http://appng.org
 
 :appng: https://appng.org/appng/docs/{project-version}/javadoc
-:lucene: http://lucene.apache.org/core/6_6_2/core
+:lucene: http://lucene.apache.org/core/8_5_0/core/index.html
 :spring: https://docs.spring.io/spring/docs/{spring-version}
 :spring-data: https://docs.spring.io/spring-data/commons/docs/{spring-data-version}
 :spring-data-jpa: https://docs.spring.io/spring-data/jpa/docs/{spring-data-jpa-version}

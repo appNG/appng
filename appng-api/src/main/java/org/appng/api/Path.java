@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,11 @@ import org.appng.xml.platform.OutputType;
 import org.appng.xml.platform.UrlParams;
 
 /**
- * 
  * A {@code Path} provides informations about the {@link Site} to which the current {@link HttpServletRequest} belongs
  * to. Therefore, the servlet-path returned by {@link HttpServletRequest#getServletPath()} is split into path-elements
  * using {@code /} as a separator.
  * 
  * @author Matthias Müller
- * 
  */
 public interface Path {
 
@@ -47,6 +45,7 @@ public interface Path {
 	 * 
 	 * @param idx
 	 *            the zero-based index to check
+	 * 
 	 * @return {@code true} if there is such a path element,{@code false} otherwise
 	 */
 	boolean hasElementAt(int idx);
@@ -63,6 +62,7 @@ public interface Path {
 	 * 
 	 * @param idx
 	 *            the zero-based index
+	 * 
 	 * @return the element at the given index, or {@code null} if no such element exists
 	 */
 	String getElementAt(int idx);
@@ -72,9 +72,10 @@ public interface Path {
 	 * otherwise
 	 * 
 	 * @param minLength
-	 *            the minimum length to check
+	 *                  the minimum length to check
+	 * 
 	 * @throws IOException
-	 *             if this {@code Path} does not have the required minimum length
+	 *                     if this {@code Path} does not have the required minimum length
 	 */
 	void checkPathLength(int minLength) throws IOException;
 
@@ -82,6 +83,7 @@ public interface Path {
 	 * Checks whether this {@code Path} represents a static resource from a blob-directory
 	 * 
 	 * @return {@code true} if this {@code Path} represents a static resource, {@code false} otherwise
+	 * 
 	 * @see #getBlobDirectories()
 	 */
 	boolean isStaticContent();
@@ -90,6 +92,7 @@ public interface Path {
 	 * Checks whether this {@code Path} represents a document from a document-folder.
 	 * 
 	 * @return {@code true} if this {@code Path} represents a JSP file from a document-folder, {@code false} otherwise
+	 * 
 	 * @see #getDocumentDirectories()
 	 */
 	boolean isDocument();
@@ -99,6 +102,7 @@ public interface Path {
 	 * 
 	 * @return {@code true} if this {@code Path} represents a call to the appNG webapplication GUI, {@code false}
 	 *         otherwise
+	 * 
 	 * @see #getGuiPath()
 	 */
 	boolean isGui();
@@ -125,6 +129,7 @@ public interface Path {
 	 * Returns the name of the {@link Site} which is being addressed by this {@code Path}
 	 * 
 	 * @return the site name, if present
+	 * 
 	 * @see #hasSite()
 	 */
 	String getSiteName();
@@ -141,6 +146,7 @@ public interface Path {
 	 * Returns the name of the {@link Application} which is being addressed by this {@code Path}
 	 * 
 	 * @return the application name, if present
+	 * 
 	 * @see #hasApplication()
 	 */
 	String getApplicationName();
@@ -157,6 +163,7 @@ public interface Path {
 	 * Returns the name of the currently selected page, if present
 	 * 
 	 * @return the name of the page, or {@code null} if no page is selected
+	 * 
 	 * @see #isGui()
 	 */
 	String getPage();
@@ -224,6 +231,7 @@ public interface Path {
 	 * Returns the host of the currently selected {@link Site}, if present
 	 * 
 	 * @return the host of the {@link Site}
+	 * 
 	 * @see #hasSite()
 	 * @see Site#getHost()
 	 */
@@ -233,6 +241,7 @@ public interface Path {
 	 * Returns the domain of the currently selected {@link Site}, if present
 	 * 
 	 * @return the domain of the {@link Site}
+	 * 
 	 * @see #hasSite()
 	 * @see Site#getDomain()
 	 */
@@ -256,6 +265,7 @@ public interface Path {
 	 * Checks whether this {@code Path} represents the root-path
 	 * 
 	 * @return {@code true} if this {@code Path} represents the root-path, {@code false} otherwise
+	 * 
 	 * @see #getRootPath()
 	 */
 	boolean isRoot();
@@ -268,16 +278,28 @@ public interface Path {
 	boolean isRepository();
 
 	/**
+	 * Checks whether this {@code Path} represents a monitoring path
+	 * 
+	 * @return {@code true} if this {@code Path} represents a monitoring path, {@code false} otherwise
+	 * 
+	 * @since 1.21.0
+	 */
+	default boolean isMonitoring() {
+		return false;
+	}
+
+	/**
 	 * Returns the path to the appNG webapplication.
 	 * 
 	 * @return the path to the appNG webapplication
+	 * 
 	 * @see #isGui()
 	 */
 	String getGuiPath();
 
 	/**
-	 * Returns a {@link List} of all directories which are being used to store <a
-	 * href="http://en.wikipedia.org/wiki/Binary_large_object">BLOBs</a>
+	 * Returns a {@link List} of all directories which are being used to store
+	 * <a href="http://en.wikipedia.org/wiki/Binary_large_object">BLOBs</a>
 	 * 
 	 * @return a {@link List} of all blob directories
 	 */
@@ -287,6 +309,7 @@ public interface Path {
 	 * Returns a {@link List} of all document directories, which contain the JSP-files
 	 * 
 	 * @return a {@link List} of all document directories
+	 * 
 	 * @see #isDocument()
 	 * @see #isJsp()
 	 */
@@ -297,6 +320,7 @@ public interface Path {
 	 * servlet-path
 	 * 
 	 * @return the complete URL
+	 * 
 	 * @see #getDomain()
 	 * @see #getServletPath()
 	 */
@@ -308,6 +332,7 @@ public interface Path {
 	 * {@code /ws/_html/site/application/page}.
 	 * 
 	 * @return the ID of the {@link OutputFormat}, if present
+	 * 
 	 * @see #isGui()
 	 */
 	String getOutputFormat();
@@ -318,6 +343,7 @@ public interface Path {
 	 * {@code /ws/_html/_minimal/site/application/page}.
 	 * 
 	 * @return the ID of the {@link OutputType}, if present
+	 * 
 	 * @see #isGui()
 	 * @see #getOutputFormat()
 	 */
@@ -327,6 +353,7 @@ public interface Path {
 	 * Checks whether this {@code Path} has an {@link OutputFormat} set.
 	 * 
 	 * @return {@code true} if this {@code Path} has an {@link OutputFormat} set, {@code false} otherwise
+	 * 
 	 * @see #getOutputFormat()
 	 */
 	boolean hasOutputFormat();
@@ -335,6 +362,7 @@ public interface Path {
 	 * Checks whether this {@code Path} has an {@link OutputType} set.
 	 * 
 	 * @return {@code true} if this {@code Path} has an {@link OutputType} set, {@code false} otherwise
+	 * 
 	 * @see #getOutputType()
 	 */
 	boolean hasOutputType();
@@ -353,6 +381,7 @@ public interface Path {
 	 * Returns the path element that addresses a service
 	 * 
 	 * @return the path element that addresses a service, if present
+	 * 
 	 * @see #isService()
 	 * @see #getService()
 	 */
@@ -363,8 +392,10 @@ public interface Path {
 	 * servlet-path represented by this {@code Path} must start with the given {@code servletPath}.
 	 * 
 	 * @param servletPath
-	 *            the servlet-path to check
+	 *                    the servlet-path to check
+	 * 
 	 * @return {@code true} if this {@code Path} , {@code false} otherwise
+	 * 
 	 * @see Path#getServletPath()
 	 */
 	boolean isPathSelected(String servletPath);
@@ -383,6 +414,7 @@ public interface Path {
 	 * Returns the file-extension for JSP-files
 	 * 
 	 * @return the file-extension
+	 * 
 	 * @see #isJsp()
 	 */
 	String getExtension();
@@ -391,6 +423,7 @@ public interface Path {
 	 * Return the index of the element representing the {@link Application} name
 	 * 
 	 * @return The index of the element representing the {@link Application} name
+	 * 
 	 * @see #getApplicationName()
 	 * @see #hasApplication()
 	 * @see #getElementAt(int)

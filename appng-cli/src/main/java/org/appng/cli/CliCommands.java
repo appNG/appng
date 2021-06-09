@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import com.beust.jcommander.ParameterException;
  * A container class for registering/retrieving {@link ExecutableCliCommand}s by name.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class CliCommands {
 
@@ -42,9 +41,9 @@ public class CliCommands {
 	 * Registers the given {@link ExecutableCliCommand} under the given name.
 	 * 
 	 * @param cliName
-	 *            the name used for registering
+	 *                the name used for registering
 	 * @param command
-	 *            the {@link ExecutableCliCommand} to register
+	 *                the {@link ExecutableCliCommand} to register
 	 */
 	public void add(String cliName, ExecutableCliCommand command) {
 		commands.put(cliName, command);
@@ -55,10 +54,12 @@ public class CliCommands {
 	 * Retrieves the {@link ExecutableCliCommand} registered under the given name.
 	 * 
 	 * @param parsedCommand
-	 *            the name of the registered {@link ExecutableCliCommand}
+	 *                      the name of the registered {@link ExecutableCliCommand}
+	 * 
 	 * @return the non-{@code null} {@link ExecutableCliCommand}
+	 * 
 	 * @throws ParameterException
-	 *             if no {@link ExecutableCliCommand} was registered under the given name
+	 *                            if no {@link ExecutableCliCommand} was registered under the given name
 	 */
 	public ExecutableCliCommand getCommand(String parsedCommand) throws ParameterException {
 		if (null == parsedCommand) {

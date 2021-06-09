@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ public class BCryptPasswordHandlerTest extends PasswordHandlerTest {
 	@Test
 	public void testSavePassword() {
 		PasswordHandler handler = new BCryptPasswordHandler(subject);
-		handler.savePassword(PASSWORD);
+		handler.applyPassword(PASSWORD);
 		Assert.assertNotNull(subject.getDigest());
 		Assert.assertTrue(subject.getDigest().startsWith(BCryptPasswordHandler.getPrefix()));
 		Assert.assertNull(subject.getSalt());
@@ -53,7 +53,7 @@ public class BCryptPasswordHandlerTest extends PasswordHandlerTest {
 		subject.setSalt(null);
 		subject.setEmail(EMAIL);
 		PasswordHandler handler = new BCryptPasswordHandler(subject);
-		String digest = handler.getPasswordResetDigest();
+		String digest = handler.calculatePasswordResetDigest();
 		Assert.assertNotNull(subject.getSalt());
 		assertTrue(!digest.startsWith(BCryptPasswordHandler.getPrefix()));
 	}
@@ -63,7 +63,7 @@ public class BCryptPasswordHandlerTest extends PasswordHandlerTest {
 		testIsValidPasswordResetDigest(new BCryptPasswordHandler(subject));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testIsInvalidPasswordResetDigest() {
 		testIsInvalidPasswordResetDigest(new BCryptPasswordHandler(subject));
 	}

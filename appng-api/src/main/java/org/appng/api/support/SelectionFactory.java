@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,11 +60,12 @@ public class SelectionFactory extends OptionFactory<SelectionFactory.Selection> 
 	 * given id as its name and the given value.
 	 * 
 	 * @param id
-	 *            the id for the {@link Selection} and also the name of the single {@link Option}
+	 *              the id for the {@link Selection} and also the name of the single {@link Option}
 	 * @param title
-	 *            the title for the {@link Section}
+	 *              the title for the {@link Section}
 	 * @param value
-	 *            the {@link Option}'s value
+	 *              the {@link Option}'s value
+	 * 
 	 * @return a {@link Selection} of the given type with one {@link Option}
 	 */
 	public Selection getTextSelection(String id, String title, String value) {
@@ -76,13 +77,14 @@ public class SelectionFactory extends OptionFactory<SelectionFactory.Selection> 
 	 * given id as its name and the given value.
 	 * 
 	 * @param id
-	 *            the id for the {@link Selection} and also the name of the single {@link Option}
+	 *                   the id for the {@link Selection} and also the name of the single {@link Option}
 	 * @param title
-	 *            the title for the {@link Section}
+	 *                   the title for the {@link Section}
 	 * @param value
-	 *            the {@link Option}'s value
+	 *                   the {@link Option}'s value
 	 * @param dateFormat
-	 *            the date format pattern to be used
+	 *                   the date format pattern to be used
+	 * 
 	 * @return a {@link Selection} of the given type with one {@link Option}
 	 */
 	public Selection getDateSelection(String id, String title, String value, String dateFormat) {
@@ -97,12 +99,13 @@ public class SelectionFactory extends OptionFactory<SelectionFactory.Selection> 
 	 * for {@link Selection#setFormat(String)}.
 	 * 
 	 * @param id
-	 *            the id for the {@link Selection} and also the name of the single {@link Option}
+	 *                   the id for the {@link Selection} and also the name of the single {@link Option}
 	 * @param title
-	 *            the title for the {@link Section}
+	 *                   the title for the {@link Section}
 	 * @param value
-	 *            the {@link Option}'s value as a {@link Date}
+	 *                   the {@link Option}'s value as a {@link Date}
 	 * @param dateFormat
+	 * 
 	 * @return a {@link Selection} of type {@link SelectionType#DATE} with one {@link Option}
 	 */
 	public Selection getDateSelection(String id, String title, Date value, FastDateFormat dateFormat) {
@@ -114,11 +117,12 @@ public class SelectionFactory extends OptionFactory<SelectionFactory.Selection> 
 	 * given id as its name and the given value.
 	 * 
 	 * @param id
-	 *            the id for the {@link Selection} and also the name of the single {@link Option}
+	 *              the id for the {@link Selection} and also the name of the single {@link Option}
 	 * @param title
-	 *            the title for the {@link Section}
+	 *              the title for the {@link Section}
 	 * @param value
-	 *            the {@link Option}'s value
+	 *              the {@link Option}'s value
+	 * 
 	 * @return a {@link Selection} of the given {@link SelectionType} with one {@link Option}
 	 */
 	public Selection getSimpleSelection(String id, String title, String value, SelectionType type) {

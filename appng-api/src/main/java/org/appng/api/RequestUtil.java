@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 package org.appng.api;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletRequest;
 
@@ -29,12 +31,10 @@ import org.appng.api.model.Site.SiteState;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * Utility-class for retrieving {@link Site}s by name,host or {@link ServletRequest} and also creating a {@link Path}
  * -object based on a {@link ServletRequest}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class RequestUtil {
@@ -45,9 +45,10 @@ public class RequestUtil {
 	 * Retrieves a {@link Site} by its host-identifier.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                       the current {@link Environment}
 	 * @param servletRequest
-	 *            the current {@link ServletRequest}
+	 *                       the current {@link ServletRequest}
+	 * 
 	 * @return the {@link Site}, if any
 	 * 
 	 * @see #getHostIdentifier(ServletRequest, Environment)
@@ -65,51 +66,43 @@ public class RequestUtil {
 	 * Retrieves a {@link Site} by its host.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *             the current {@link Environment}
 	 * @param host
-	 *            the host of the {@link Site}
+	 *             the host of the {@link Site}
+	 * 
 	 * @return the {@link Site}, if any
 	 * 
 	 * @see Site#getHost()
 	 */
 	public static Site getSiteByHost(Environment env, String host) {
-		Map<String, Site> sites = getSiteMap(env);
-		if (null != sites) {
-			for (Site site : sites.values()) {
-				if (host.equals(site.getHost())) {
-					return site;
-				}
-			}
-		}
-		return null;
+		return getSiteMap(env).values().stream().filter(s -> host.equals(s.getHost())).findFirst().orElse(null);
 	}
 
 	/**
 	 * Retrieves a {@link Site} by its name.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *             the current {@link Environment}
 	 * @param name
-	 *            the name of the {@link Site}
+	 *             the name of the {@link Site}
+	 * 
 	 * @return the {@link Site}, if any
 	 * 
 	 * @see Site#getName()
 	 */
 	public static Site getSiteByName(Environment env, String name) {
-		Map<String, Site> sites = getSiteMap(env);
-		Site site = null;
-		if (null != sites) {
-			site = sites.get(name);
-		}
-		return site;
+		return getSiteMap(env).get(name);
 	}
 
 	/**
-	 * Retrieves a {@link Site} by its name, waiting up to
-	 * {@code Platform.Property#MAX_WAIT_TIME} milliseconds until it's state is {@code SiteState#STARTED}.
+	 * Retrieves a {@link Site} by its name, waiting up to {@code Platform.Property#MAX_WAIT_TIME} milliseconds until
+	 * it's state is {@code SiteState#STARTED}.
 	 * 
-	 * @param env  the current {@link Environment}
-	 * @param name the name of the {@link Site}
+	 * @param env
+	 *             the current {@link Environment}
+	 * @param name
+	 *             the name of the {@link Site}
+	 * 
 	 * @return the {@link Site}, if any
 	 * 
 	 * @see #getSiteByName(Environment, String)
@@ -121,37 +114,28 @@ public class RequestUtil {
 			return site;
 		}
 
-		long waited = 0;
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		int waitTime = platformProperties.getInteger(Platform.Property.WAIT_TIME, 1000);
 		int maxWaitTime = platformProperties.getInteger(Platform.Property.MAX_WAIT_TIME, 30000);
 
-		while (waited < maxWaitTime
-				&& (site = getSiteByName(env, name)).hasState(SiteState.STOPPING, SiteState.STOPPED)) {
+		long waited = 0;
+		while ((site = getSiteByName(env, name)) != null && waited < maxWaitTime && !site.hasState(SiteState.STARTED)) {
 			try {
-				Thread.sleep(waitTime);
+				TimeUnit.MILLISECONDS.sleep(waitTime);
 				waited += waitTime;
 			} catch (InterruptedException e) {
-				LOGGER.error("error while waiting for site to be started", e);
+				LOGGER.error("error while waiting for site " + name, e);
+				Thread.currentThread().interrupt();
 			}
-			LOGGER.info("site '{}' is currently in state {}, waited {}ms", site, site.getState(), waited);
+			LOGGER.info("site '{}' is currently in state {}, waited {}ms", name, site.getState(), waited);
 		}
 
-		while (waited < maxWaitTime && (site = getSiteByName(env, name)).hasState(SiteState.STARTING)) {
-			try {
-				Thread.sleep(waitTime);
-				waited += waitTime;
-			} catch (InterruptedException e) {
-				LOGGER.error("error while waiting for site to be started", e);
-			}
-			LOGGER.info("site '{}' is currently being started, waited {}ms", site, waited);
-		}
 		return getSiteByName(env, name);
 	}
 
 	private static Map<String, Site> getSiteMap(Environment env) {
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		return Collections.unmodifiableMap(siteMap);
+		return Collections.unmodifiableMap(siteMap == null ? new HashMap<>() : siteMap);
 	}
 
 	/**
@@ -159,25 +143,23 @@ public class RequestUtil {
 	 * 
 	 * @param env
 	 *            the current {@link Environment}
+	 * 
 	 * @return the {@link Site} names
 	 */
 	public static Set<String> getSiteNames(Environment env) {
-		Map<String, Site> sites = getSiteMap(env);
-		if (null != sites) {
-			return Collections.unmodifiableSet(sites.keySet());
-		}
-		return Collections.emptySet();
+		return Collections.unmodifiableSet(getSiteMap(env).keySet());
 	}
 
 	/**
 	 * Creates and returns a {@link PathInfo}-object based upon the given parameters.
 	 * 
 	 * @param env
-	 *            the current {@link Environment}
+	 *                    the current {@link Environment}
 	 * @param site
-	 *            the current {@link Site}
+	 *                    the current {@link Site}
 	 * @param servletPath
-	 *            the current servlet-path
+	 *                    the current servlet-path
+	 * 
 	 * @return a {@link PathInfo}-object
 	 */
 	public static PathInfo getPathInfo(Environment env, Site site, String servletPath) {
@@ -187,6 +169,7 @@ public class RequestUtil {
 		LOGGER.trace("found site '{}' for request '{}'", site.getName(), servletPath);
 
 		String repoPath = platformProperties.getString(Platform.Property.REPOSITORY_PATH);
+		String monitoringPath = platformProperties.getString(Platform.Property.MONITORING_PATH);
 		String extension = platformProperties.getString(Platform.Property.JSP_FILE_TYPE);
 
 		Properties siteProperties = site.getProperties();
@@ -203,7 +186,7 @@ public class RequestUtil {
 		}
 
 		return new PathInfo(site.getHost(), site.getDomain(), site.getName(), servletPath, guiPath, servicePath,
-				blobDirectories, documentDirectories, repoPath, extension);
+				blobDirectories, documentDirectories, repoPath, monitoringPath, extension);
 	}
 
 	/**
@@ -211,9 +194,10 @@ public class RequestUtil {
 	 * retrieve the {@link VHostMode} used by appNG.
 	 * 
 	 * @param request
-	 *            the {@link ServletRequest}
+	 *                the {@link ServletRequest}
 	 * @param env
-	 *            an {@link Environment}
+	 *                an {@link Environment}
+	 * 
 	 * @return
 	 *         <ul>
 	 *         <li>the IP-address, if {@link VHostMode#IP_BASED} is used (see {@link ServletRequest#getLocalAddr()})

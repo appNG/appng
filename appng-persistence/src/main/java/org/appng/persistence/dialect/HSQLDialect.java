@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,9 @@
  */
 package org.appng.persistence.dialect;
 
-import java.sql.Types;
-
-import org.hibernate.HibernateException;
-
 /**
- * A {@link HSQLDialect} which converts varchar-fields with a length of >=1024 to hsql-type 'LONGVARCHAR'
- * 
- * @author Matthias Müller
- * 
+ * @deprecated Use {@link org.appng.persistence.hibernate.dialect.HSQLDialect} instead.
  */
-public class HSQLDialect extends org.hibernate.dialect.HSQLDialect {
-
-	private static final String LONGVARCHAR = "LONGVARCHAR";
-
-	private static final long MAX_LENGHT = 1024;
-
-	@Override
-	public String getTypeName(int code, long length, int precision, int scale) throws HibernateException {
-		if (Types.VARCHAR == code && length >= MAX_LENGHT) {
-			return LONGVARCHAR;
-		}
-		return super.getTypeName(code, length, precision, scale);
-	}
-
+@Deprecated
+public class HSQLDialect extends org.appng.persistence.hibernate.dialect.HSQLDialect {
 }

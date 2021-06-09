@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,12 +38,13 @@ public interface DocumentProvider {
 	 * Returns some {@link DocumentProducer}s to take into account when building the {@link Site}'s global lucene index.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                    the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                    the current {@link Application}
+	 * 
 	 * @return some {@link DocumentProducer}s
 	 */
-	Iterable<DocumentProducer> getDocumentProducers(Site site, Application application) throws InterruptedException,
-			TimeoutException;
+	Iterable<DocumentProducer> getDocumentProducers(Site site, Application application)
+			throws InterruptedException, TimeoutException;
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
+import org.appng.api.model.AuthSubject.PasswordChangePolicy;
 import org.appng.api.model.UserType;
 import org.appng.appngizer.model.Group;
 import org.appng.appngizer.model.Groups;
 import org.appng.appngizer.model.Subject;
 import org.appng.appngizer.model.Subjects;
+import org.appng.appngizer.model.Utils;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.slf4j.Logger;
@@ -55,7 +57,7 @@ public class SubjectController extends ControllerBase {
 		return ok(entity);
 	}
 
-	@GetMapping(value = "/subject/{name}")
+	@GetMapping(value = "/subject/{name:.+}")
 	public ResponseEntity<Subject> getSubject(@PathVariable("name") String name) {
 		SubjectImpl subject = getCoreService().getSubjectByName(name, true);
 		if (null == subject) {
@@ -87,14 +89,14 @@ public class SubjectController extends ControllerBase {
 			return conflict();
 		}
 		SubjectImpl newSubject = Subject.toDomain(subject);
-		setDigest(subject.getDigest(), newSubject);
+		setOptionalFieldsForDomain(subject, newSubject, subject.getDigest());
 
 		getCoreService().createSubject(newSubject);
 		assignGroups(subject.getName(), subject);
 		return created(getSubject(subject.getName()).getBody());
 	}
 
-	@PutMapping(value = "/subject/{name}")
+	@PutMapping(value = "/subject/{name:.+}")
 	public ResponseEntity<Subject> updateSubject(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Subject subject) throws BusinessException {
 		SubjectImpl subjectByName = getCoreService().getSubjectByName(name, true);
@@ -107,7 +109,7 @@ public class SubjectController extends ControllerBase {
 		subjectByName.setTimeZone(subject.getTimeZone());
 		subjectByName.setLanguage(subject.getLanguage());
 		subjectByName.setUserType(UserType.valueOf(subject.getType().name()));
-		setDigest(subject.getDigest(), subjectByName);
+		setOptionalFieldsForDomain(subject, subjectByName, subject.getDigest());
 		getCoreService().updateSubject(subjectByName);
 		assignGroups(name, subject);
 
@@ -117,12 +119,23 @@ public class SubjectController extends ControllerBase {
 		return ok(fromDomain);
 	}
 
-	void setDigest(String digest, SubjectImpl domainSubject) {
+	void setOptionalFieldsForDomain(org.appng.appngizer.model.xml.Subject subject, SubjectImpl subjectByName,
+			String digest) {
+		if (null != subject.isLocked()) {
+			subjectByName.setLocked(subject.isLocked());
+		}
+		subjectByName.setExpiryDate(Utils.getDate(subject.getExpiryDate()));
+
+		if (null != subject.getPasswordChangePolicy()) {
+			PasswordChangePolicy passwordChangePolicy = org.appng.api.model.AuthSubject.PasswordChangePolicy
+					.valueOf(subject.getPasswordChangePolicy().name());
+			subjectByName.setPasswordChangePolicy(passwordChangePolicy);
+		}
 		if (StringUtils.isNotBlank(digest)) {
 			if (digest.startsWith(BCryptPasswordHandler.getPrefix())) {
-				domainSubject.setDigest(digest);
+				subjectByName.setDigest(digest);
 			} else {
-				new BCryptPasswordHandler(domainSubject).savePassword(digest);
+				new BCryptPasswordHandler(subjectByName).applyPassword(digest);
 			}
 		}
 	}
@@ -137,7 +150,7 @@ public class SubjectController extends ControllerBase {
 		getCoreService().addGroupsToSubject(name, groupNames, true);
 	}
 
-	@DeleteMapping(value = "/subject/{name}")
+	@DeleteMapping(value = "/subject/{name:.+}")
 	public ResponseEntity<Void> deleteSubject(@PathVariable("name") String name) {
 		SubjectImpl currentSubject = getCoreService().getSubjectByName(name, false);
 		if (null == currentSubject) {

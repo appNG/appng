@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class DigestValidator {
 	 * Validate the digest, assuming a maximum age of 3 minutes.
 	 * 
 	 * @param digest
-	 *            the digest to validate
+	 *               the digest to validate
 	 */
 	public DigestValidator(String digest) {
 		this(digest, 3);
@@ -63,9 +63,9 @@ public class DigestValidator {
 	 * Validate the digest.
 	 * 
 	 * @param digest
-	 *            the digest to validate
+	 *                         the digest to validate
 	 * @param maxOffsetMinutes
-	 *            the maximum age of the digest in minutes
+	 *                         the maximum age of the digest in minutes
 	 */
 	public DigestValidator(String digest, int maxOffsetMinutes) {
 		this.maxOffsetMinutes = maxOffsetMinutes;
@@ -138,7 +138,8 @@ public class DigestValidator {
 	 * Validates the digest using the given shared secret.
 	 * 
 	 * @param sharedSecret
-	 *            the shared secret
+	 *                     the shared secret
+	 * 
 	 * @return
 	 *         <ul>
 	 *         <li>{@code true} if the digest is syntactically and semantically correct, i.e. if it not exceeds the
@@ -147,15 +148,9 @@ public class DigestValidator {
 	 *         </ul>
 	 */
 	public boolean validate(String sharedSecret) {
-		if (!errors) {
-			if (setClientDate()) {
-				if (validateTimestamp()) {
-					if (validateHashedPart(sharedSecret)) {
-						LOGGER.info("Digest successfully validated.");
-						return true;
-					}
-				}
-			}
+		if (!errors && setClientDate() && validateTimestamp() && validateHashedPart(sharedSecret)) {
+			LOGGER.info("Digest successfully validated.");
+			return true;
 		}
 		LOGGER.error("Digest validation failed.");
 		return false;

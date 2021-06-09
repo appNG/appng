@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public class GuiHandler implements RequestHandler {
 			String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
 			String templateDir = siteRoot + siteWwwDir + templatePrefix;
 
-			processGui(servletRequest, servletResponse, environment, site, platformProperties, pathInfo, templateDir);
+			processGui(servletRequest, servletResponse, environment, site, pathInfo, templateDir);
 		} catch (InvalidConfigurationException e) {
 			Site errorSite = e.getSite();
 			if (null != errorSite && !errorSite.equals(site)) {
@@ -97,8 +97,7 @@ public class GuiHandler implements RequestHandler {
 	}
 
 	private void processGui(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment env,
-			Site site, Properties platformProperties, PathInfo pathInfo, String templateDir)
-			throws IOException, InvalidConfigurationException {
+			Site site, PathInfo pathInfo, String templateDir) throws IOException, InvalidConfigurationException {
 		Subject subject = env.getSubject();
 		if (env.isSubjectAuthenticated()) {
 

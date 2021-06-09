@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,27 @@ package org.appng.core.repository.config;
 import javax.sql.DataSource;
 
 import org.appng.core.domain.DatabaseConnection;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FactoryBean} for {@link DataSource}s, using a {@link DatasourceConfigurer}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
-public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceConfigurer {
+public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBean, DatasourceConfigurer {
 
 	private DatasourceConfigurer configurer;
 
-	private String configurerClass;
-	private boolean logPerformance = false;
+	private @Setter String configurerClass;
+	private @Setter boolean logPerformance = false;
+	private @Setter long connectionTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
+	private @Setter long validationTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
+	private @Setter long maxLifetime = DatasourceConfigurer.DEFAULT_LIFE_TIME;
 
 	public DataSourceFactory() {
 
@@ -58,6 +61,9 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceCon
 			Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(configurerClass);
 			this.configurer = (DatasourceConfigurer) loadClass.newInstance();
 			this.configurer.setLogPerformance(logPerformance);
+			this.configurer.setConnectionTimeout(connectionTimeout);
+			this.configurer.setValidationTimeout(validationTimeout);
+			this.configurer.setMaxLifetime(maxLifetime);
 		} catch (Exception e) {
 			LOGGER.error(String.format("error creating instance of '%s'", configurerClass), e);
 		}
@@ -89,16 +95,12 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DatasourceCon
 		return configurerClass;
 	}
 
-	public void setConfigurerClass(String configurerClass) {
-		this.configurerClass = configurerClass;
-	}
-
 	public boolean isLogPerformance() {
 		return logPerformance;
 	}
 
-	public void setLogPerformance(boolean logPerformance) {
-		this.logPerformance = logPerformance;
+	public long getConnectionTimeout() {
+		return connectionTimeout;
 	}
 
 }

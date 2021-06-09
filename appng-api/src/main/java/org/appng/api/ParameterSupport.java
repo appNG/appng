@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.appng.el.ExpressionEvaluator;
  * so they can be found.
  * 
  * @author Matthias Müller
- * 
  */
 public interface ParameterSupport {
 
@@ -34,7 +33,8 @@ public interface ParameterSupport {
 	 * Replaces all parameters in the given {@code String} and returns a new one containing the replacements.
 	 * 
 	 * @param source
-	 *            the {@code String} to replace the parameters in
+	 *               the {@code String} to replace the parameters in
+	 * 
 	 * @return a new {@code String} with the parameters replaced
 	 */
 	String replaceParameters(String source);
@@ -43,7 +43,8 @@ public interface ParameterSupport {
 	 * Returns the names of all parameters used in the given {@code String}, without affixes.
 	 * 
 	 * @param source
-	 *            the {@code String} to search the parameters for
+	 *               the {@code String} to search the parameters for
+	 * 
 	 * @return the names of all parameters used in the given {@code String}, without affixes.
 	 */
 	List<String> getParameters(String source);

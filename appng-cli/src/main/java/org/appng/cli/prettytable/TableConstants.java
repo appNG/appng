@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.appng.cli.prettytable;
  * Some constant values used when dealing with {@link PrettyTable}s.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class TableConstants {
 
@@ -28,6 +27,11 @@ public class TableConstants {
 	public static final String USER_NAME = "User name";
 	public static final String REAL_NAME = "Real name";
 	public static final String EMAIL = "E-Mail";
+	public static final String LAST_LOGIN = "Last Login";
+	public static final String LOCKED = "Locked";
+	public static final String EXPIRY_DATE = "Expiry Date";
+	public static final String FAILED_LOGIN_ATTEMPTS = "Failed Login Attempts";
+	public static final String PASSWORD_CHANGE_POLICY = "Password Change Policy";
 	public static final String DESCRIPTION = "Description";
 	public static final String LANGUAGE = "Language";
 	public static final String TYPE = "Type";

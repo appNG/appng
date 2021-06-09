@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,6 @@ import lombok.extern.slf4j.Slf4j;
  * Default {@link ValidationProvider} implementation.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class DefaultValidationProvider implements ValidationProvider {
@@ -99,11 +98,11 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 * Creates a new {@link DefaultValidationProvider}.
 	 * 
 	 * @param messageInterpolator
-	 *            the {@link MessageInterpolator} used when adding validation messages
+	 *                            the {@link MessageInterpolator} used when adding validation messages
 	 * @param messageSource
-	 *            the {@link MessageSource} used when adding validation messages
+	 *                            the {@link MessageSource} used when adding validation messages
 	 * @param locale
-	 *            the {@link Locale} used when adding validation messages
+	 *                            the {@link Locale} used when adding validation messages
 	 */
 	public DefaultValidationProvider(MessageInterpolator messageInterpolator, MessageSource messageSource,
 			Locale locale) {
@@ -114,14 +113,14 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 * Creates a new {@link DefaultValidationProvider}.
 	 * 
 	 * @param messageInterpolator
-	 *            the {@link MessageInterpolator} used when adding validation messages
+	 *                            the {@link MessageInterpolator} used when adding validation messages
 	 * @param messageSource
-	 *            the {@link MessageSource} used when adding validation messages
+	 *                            the {@link MessageSource} used when adding validation messages
 	 * @param locale
-	 *            the {@link Locale} used when adding validation messages
+	 *                            the {@link Locale} used when adding validation messages
 	 * @param contraintsAsRule
-	 *            whether validation constraints should be added as a {@link Rule} to the {@link FieldDef}s
-	 *            {@link Validation}
+	 *                            whether validation constraints should be added as a {@link Rule} to the
+	 *                            {@link FieldDef}s {@link Validation}
 	 */
 	public DefaultValidationProvider(MessageInterpolator messageInterpolator, MessageSource messageSource,
 			Locale locale, boolean contraintsAsRule) {

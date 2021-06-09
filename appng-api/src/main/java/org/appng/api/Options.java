@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ public interface Options {
 	 * Checks whether there is an {@link Option} with the given name.
 	 * 
 	 * @param name
-	 *            the name of the {@link Option} to check
+	 *             the name of the {@link Option} to check
+	 * 
 	 * @return {@code true} there is an {@link Option} with the given name, {@code false} otherwise
 	 */
 	boolean hasOption(String name);
@@ -54,7 +55,8 @@ public interface Options {
 	 * Returns the {@link Option} with the given name, if present.
 	 * 
 	 * @param name
-	 *            the name of the {@link Option} to get
+	 *             the name of the {@link Option} to get
+	 * 
 	 * @return the {@link Option} with the given name, if present, {@code null} otherwise
 	 */
 	Option getOption(String name);
@@ -63,9 +65,10 @@ public interface Options {
 	 * Returns the attribute with the given name for the {@link Option} with the given name.
 	 * 
 	 * @param name
-	 *            the name of the {@link Option} to get the attribute from
+	 *                  the name of the {@link Option} to get the attribute from
 	 * @param attribute
-	 *            the name of the attribute of the {@link Option}
+	 *                  the name of the attribute of the {@link Option}
+	 * 
 	 * @return the attribute with the given name, or {@code null} if either the {@link Option} or the attribute does not
 	 *         exist
 	 */
@@ -75,9 +78,10 @@ public interface Options {
 	 * Returns the attribute with the given name for the {@link Option} with the given name.
 	 * 
 	 * @param name
-	 *            the name of the {@link Option} to get the attribute from
+	 *                  the name of the {@link Option} to get the attribute from
 	 * @param attribute
-	 *            the name of the attribute of the {@link Option}
+	 *                  the name of the attribute of the {@link Option}
+	 * 
 	 * @return the attribute with the given name, or {@code null} if either the {@link Option} or the attribute does not
 	 *         exist
 	 */
@@ -88,9 +92,10 @@ public interface Options {
 	 * name.
 	 * 
 	 * @param name
-	 *            the name of the {@link Option} to get the attribute from
+	 *                  the name of the {@link Option} to get the attribute from
 	 * @param attribute
-	 *            the name of the attribute of the {@link Option}
+	 *                  the name of the attribute of the {@link Option}
+	 * 
 	 * @return the integer value, or {@code null} if either the {@link Option} or the attribute does not exist or the or
 	 *         the value can not be parsed to an integer
 	 */
@@ -101,9 +106,10 @@ public interface Options {
 	 * name.
 	 * 
 	 * @param name
-	 *            the name of the {@link Option} to get the attribute from
+	 *                  the name of the {@link Option} to get the attribute from
 	 * @param attribute
-	 *            the name of the attribute of the {@link Option}
+	 *                  the name of the attribute of the {@link Option}
+	 * 
 	 * @return {@link Boolean#TRUE} if the value of the attribute equals to (ignoring case) {@code true},
 	 *         {@link Boolean#FALSE} otherwise (also if no such {@link Option} exists)
 	 */
@@ -114,9 +120,10 @@ public interface Options {
 	 * {@link Option} with the given name.
 	 * 
 	 * @param name
-	 *            the name of the {@link Option} to get the attribute from
+	 *                  the name of the {@link Option} to get the attribute from
 	 * @param attribute
-	 *            the name of the attribute of the {@link Option}
+	 *                  the name of the attribute of the {@link Option}
+	 * 
 	 * @return the enum constant, if the (upper-case) attribute value represents a valid enum of the given type,
 	 *         {@code null} otherwise (also if no such {@link Option} exists)
 	 */

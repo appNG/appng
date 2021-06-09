@@ -2,4 +2,5 @@
 .project
 .settings
 target
-**/versioneye.properties
+**/.factorypath
+**/.sts4-cache

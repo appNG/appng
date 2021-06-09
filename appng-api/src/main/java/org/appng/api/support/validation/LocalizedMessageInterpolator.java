@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,14 +52,15 @@ public class LocalizedMessageInterpolator extends ResourceBundleMessageInterpola
 	 * Creates a new {@code LocalizedMessageInterpolator} using the given {@link Locale} .
 	 * 
 	 * @param locale
-	 *            The {@link Locale} to use.
+	 *                      The {@link Locale} to use.
 	 * @param messageSource
-	 *            An additional {@link MessageSource} to use. If this is an instance of
-	 *            {@link AbstractResourceBasedMessageSource},
-	 *            {@link AbstractResourceBasedMessageSource#getBasenameSet()} is being used to create a new
-	 *            {@link ResourceBundleMessageSource} with these base names. This is necessary because a the
-	 *            {@code messageSource} might use {@link MessageSourceSupport#setAlwaysUseMessageFormat(boolean)}, which
-	 *            can't properly be handled by {@link javax.validation.MessageInterpolator}.
+	 *                      An additional {@link MessageSource} to use. If this is an instance of
+	 *                      {@link AbstractResourceBasedMessageSource},
+	 *                      {@link AbstractResourceBasedMessageSource#getBasenameSet()} is being used to create a new
+	 *                      {@link ResourceBundleMessageSource} with these base names. This is necessary because a the
+	 *                      {@code messageSource} might use
+	 *                      {@link MessageSourceSupport#setAlwaysUseMessageFormat(boolean)}, which can't properly be
+	 *                      handled by {@link javax.validation.MessageInterpolator}.
 	 */
 	public LocalizedMessageInterpolator(Locale locale, final MessageSource messageSource) {
 		super(getResourceBundleLocator(messageSource));

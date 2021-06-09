@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,8 +117,8 @@ public class SearchTest extends Search {
 		platformEnv.put("sites", siteMap);
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);
 
-		Mockito.when(siteProperties.getString(SiteProperties.INDEX_CONFIG)).thenReturn(
-				"/de;de;GermanAnalyzer|/en;en;EnglishAnalyzer");
+		Mockito.when(siteProperties.getString(SiteProperties.INDEX_CONFIG))
+				.thenReturn("/de;de;GermanAnalyzer|/en;en;EnglishAnalyzer");
 		Mockito.when(site.getHost()).thenReturn(LOCALHOST);
 		Mockito.when(servletRequest.getParameter("xsl")).thenReturn("false");
 
@@ -157,15 +157,17 @@ public class SearchTest extends Search {
 		IndexWriter indexWriter = new IndexWriter(directory, conf);
 
 		indexWriter.deleteDocuments(new MatchAllDocsQuery());
-		List<? extends IndexableField> doc1 = Arrays.asList(new TextField(Document.FIELD_TITLE, "A Hitchhiker",
-				Store.YES), new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
+		List<? extends IndexableField> doc1 = Arrays.asList(
+				new TextField(Document.FIELD_TITLE, "A Hitchhiker", Store.YES),
+				new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
 		indexWriter.addDocument(doc1);
-		List<? extends IndexableField> doc2 = Arrays.asList(new TextField(Document.FIELD_TITLE,
-				"The Hitchhiker's Guide to the Galaxy", Store.YES), new StringField(Document.FIELD_LANGUAGE, "de",
-				Store.YES));
+		List<? extends IndexableField> doc2 = Arrays.asList(
+				new TextField(Document.FIELD_TITLE, "The Hitchhiker's Guide to the Galaxy", Store.YES),
+				new StringField(Document.FIELD_LANGUAGE, "de", Store.YES));
 		indexWriter.addDocument(doc2);
-		List<? extends IndexableField> doc3 = Arrays.asList(new StringField(Document.FIELD_TYPE, "com.foo.Bar",
-				Store.YES), new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
+		List<? extends IndexableField> doc3 = Arrays.asList(
+				new StringField(Document.FIELD_TYPE, "com.foo.Bar", Store.YES),
+				new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
 		indexWriter.addDocument(doc3);
 		indexWriter.commit();
 		indexWriter.close();
@@ -176,7 +178,8 @@ public class SearchTest extends Search {
 		platformEnv.put(Platform.Environment.CORE_PLATFORM_CONTEXT, ctx);
 
 		doEndTag();
-		Assert.assertEquals("[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.31782177,\"fields\":[]}]}]",
+		Assert.assertEquals(
+				"[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.31782177,\"fields\":[]}]}]",
 				result.get(0));
 		Assert.assertNull(getFormat());
 		Assert.assertNull(getHighlight());

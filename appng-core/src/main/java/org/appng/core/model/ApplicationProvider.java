@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see CallableDataSource#perform(String, boolean, boolean)
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ApplicationProvider extends SiteApplication implements AccessibleApplication {
@@ -158,13 +157,14 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	 * {@link CallableDataSource}s.
 	 * 
 	 * @param applicationRequest
-	 *            the {@link ApplicationRequest} to process
+	 *                           the {@link ApplicationRequest} to process
 	 * @param marshallService
-	 *            a {@link MarshallService}
+	 *                           a {@link MarshallService}
 	 * @param pathInfo
-	 *            the current {@link Path}
+	 *                           the current {@link Path}
 	 * @param platformConfig
-	 *            the current {@link PlatformConfig}
+	 *                           the current {@link PlatformConfig}
+	 * 
 	 * @return the {@link ApplicationReference} to be used for the {@link Content} of the {@link Platform}
 	 */
 	public ApplicationReference process(ApplicationRequest applicationRequest, MarshallService marshallService,
@@ -246,7 +246,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		}
 
 		PageParameterProcessor pageParameterProcessor = new PageParameterProcessor(getSessionParamKey(site),
-				sessionParamNames, env, applicationRequest, page.getId());
+				sessionParamNames, env, applicationRequest);
 		boolean urlParamsAdded = pageParameterProcessor.processPageParams(applicationUrlParameters, urlSchema);
 		Map<String, String> pageParams = pageParameterProcessor.getParameters();
 		initSession(applicationConfig, env, getSessionParamKey(site));
@@ -406,8 +406,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			applicationRequest.setLabel(sectionelement.getTitle());
 
 			if (null != sectionelement.getDatasource()) {
-				DataSourceElement datasourceElement = getDataSourceSectionElement(applicationRequest, applicationConfig,
-						sectionelement, pageReference.getId());
+				DataSourceElement datasourceElement = getDataSourceSectionElement(applicationRequest, sectionelement);
 				if (null != datasourceElement) {
 					datasourceElement.setTitle(sectionelement.getTitle());
 					dataSourceWrappers.add(datasourceElement);
@@ -507,8 +506,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private DataSourceElement getDataSourceSectionElement(ApplicationRequest applicationRequest,
-			ApplicationConfig applicationConfig, SectionelementDef sectionelement, String pageId)
-			throws ProcessingException {
+			SectionelementDef sectionelement) throws ProcessingException {
 		DatasourceRef datasourceRef = sectionelement.getDatasource();
 		if (null != datasourceRef) {
 			DataSourceElement wrapper = new DataSourceElement(site, application, applicationRequest,
@@ -713,7 +711,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	public List<JarInfo> getJarInfos() {
-		if (null == jarInfos) {
+		if (jarInfos.isEmpty()) {
 			for (Resource resource : application.getResources().getResources(ResourceType.JAR)) {
 				JarInfo jarInfo = JarInfoBuilder.getJarInfo(resource.getCachedFile(), application.getName());
 				jarInfos.add(jarInfo);
@@ -824,8 +822,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			throw new IllegalStateException("environment can not be null!");
 		}
 		if (!env.isInitialized()) {
-			env.init(servletRequest.getServletContext(), servletRequest.getSession(), servletRequest, servletResponse,
-					site.getHost());
+			env.init(servletRequest.getServletContext(), servletRequest, servletResponse, site.getHost());
 			for (Application application : site.getApplications()) {
 				String sessionParamName = application.getSessionParamKey(site);
 				if (null == env.getAttribute(SESSION, sessionParamName)) {
@@ -843,8 +840,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Action action = applicationConfigProvider.getAction(eventId, actionId);
 		if (null == action) {
-			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
-					site.getName());
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
+					application.getName(), site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return null;
 		}
@@ -925,13 +922,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
 					parameterSupport, datasourceRef);
 			if (callableDataSource.doInclude()) {
-				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId, application.getName(),
-						site.getName());
+				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
+						application.getName(), site.getName());
 				callableDataSource.perform("service");
 				return callableDataSource.getDatasource();
 			}
-			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.", dataSourceId,
-					application.getName(), site.getName());
+			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
+					dataSourceId, application.getName(), site.getName());
 		}
 		Subject subject = environment.getSubject();
 		LOGGER.debug(
@@ -947,6 +944,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	 * this means direct access is forbidden.
 	 * 
 	 * @param config
+	 * 
 	 * @return
 	 */
 	private boolean permissionsPresent(Config config) {
