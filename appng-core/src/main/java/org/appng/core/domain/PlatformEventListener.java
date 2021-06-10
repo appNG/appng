@@ -39,6 +39,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -75,7 +76,8 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		if (null == context || PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())) {
+		if (null == context || PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())
+				|| !ConfigurableApplicationContext.class.cast(context).isActive()) {
 			PlatformEventListener.context = applicationContext;
 			LOGGER.info("Using application context {}", applicationContext);
 		}
