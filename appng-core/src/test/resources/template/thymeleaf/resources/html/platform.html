@@ -11,7 +11,7 @@
 	<div th:text="${param.debug}  ">debug</div>
 	<div th:text="${#ctx.SESSION['timezone'].displayName}">session</div>
 	<div th:text="${#ctx.getVariableNames()}"></div>
-	<div th:text="${#ctx.subject.name}"></div>
+	<div th:text="${#ctx.SESSION['SESSION.currentSubject'].name}"></div>
 	<div th:text="${#ctx.SITE.getString('template')}"></div>
 	<div th:text="${#ctx.APP.getString('activeProfiles')}"></div>
 	<div th:text="${#ctx.PLATFORM.getString('encoding')}"></div>

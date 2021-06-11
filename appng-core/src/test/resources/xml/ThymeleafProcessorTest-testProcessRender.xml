@@ -10,7 +10,7 @@
 	<div>true</div>
 	<div>true</div>
 	<div>Mitteleuropäische Zeit</div>
-	<div>[PLATFORM, APP, SITE, appNG, thymeleaf::EvaluationContext, REQUEST, subject, SESSION, platform]</div>
+	<div>[PLATFORM, APP, SITE, appNG, thymeleaf::EvaluationContext, REQUEST, SESSION, platform]</div>
 	<div>John Doe</div>
 	<div>thymeleaf</div>
 	<div>all</div>
