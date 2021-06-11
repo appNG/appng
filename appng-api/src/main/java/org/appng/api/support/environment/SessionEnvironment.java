@@ -15,9 +15,13 @@
  */
 package org.appng.api.support.environment;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -40,6 +44,11 @@ class SessionEnvironment extends AbstractEnvironment {
 		this.session = session;
 		this.valid = true;
 		this.siteName = siteName;
+	}
+
+	Map<String, Object> getAttributes() {
+		return Collections.unmodifiableMap(
+				getContainer().keySet().stream().collect(Collectors.toMap(Function.identity(), this::getAttribute)));
 	}
 
 	@SuppressWarnings("unchecked")

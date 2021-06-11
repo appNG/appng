@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -46,6 +45,7 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.XPathProcessor;
+import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.ResourceType;
 import org.appng.api.model.Site;
@@ -98,8 +98,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.util.StopWatch;
 import org.thymeleaf.cache.StandardCacheManager;
-import org.thymeleaf.context.Context;
+import org.thymeleaf.context.IContext;
 import org.thymeleaf.context.IExpressionContext;
+import org.thymeleaf.context.IWebContext;
+import org.thymeleaf.context.WebContext;
 import org.thymeleaf.exceptions.TemplateProcessingException;
 import org.thymeleaf.linkbuilder.AbstractLinkBuilder;
 import org.thymeleaf.linkbuilder.ILinkBuilder;
@@ -114,6 +116,51 @@ import org.w3c.dom.Node;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * A {@link RequestProcessor} using <a href="https://www.thymeleaf.org/">Thymeleaf</a> as a rendering engine.<br/>
+ * Processing uses an {@link IWebContext}, with some additional context variables:
+ * <ul>
+ * <li>{@code SESSION}<br/>
+ * Provides a {@code Map<String,Object>} containing the current appNG session.<br/>
+ * Example:
+ * 
+ * <pre>
+ * &lt;div th:text="${#ctx.SESSION['subject'].name}"&gt;&lt;/div&gt;
+ * </pre>
+ * 
+ * </li>
+ * <li>{@code APP}<br/>
+ * Provides the {@link Application}s properties as {@link Properties} <br/>
+ * Example:
+ * 
+ * <pre>
+ * &lt;div th:text="${#ctx.APP.getString('myProp')"&gt;&lt;/div&gt;
+ * </pre>
+ * 
+ * </li>
+ * <li>{@code SITE}<br/>
+ * Provides the {@link Site}s properties as {@link Properties}. See {@link SiteProperties} for a list of available
+ * properties.<br/>
+ * Example:
+ * 
+ * <pre>
+ * &lt;div th:text="${#ctx.SITE.getString('timeZone')"&gt;&lt;/div&gt;
+ * </pre>
+ * 
+ * </li>
+ * <li>{@code PLATFORM}<br/>
+ * Provides the platform properties as {@link Properties}. See {@link Platform.Property} for a list of available properties.<br/>
+ * Example:
+ * 
+ * <pre>
+ * &lt;div th:text="${#ctx.PLATFORM.getBoolean('debugMode')"&gt;&lt;/div&gt;
+ * </pre>
+ * 
+ * </li>
+ * </ul>
+ * 
+ * @author Matthias Müller
+ */
 @Slf4j
 public class ThymeleafProcessor extends AbstractRequestProcessor {
 
@@ -197,7 +244,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			if (render || !applicationSite.getProperties().getBoolean(SiteProperties.ALLOW_SKIP_RENDER)) {
 				sw.stop();
 				sw.start("build context");
-				Context ctx = getContext(platform, applicationProvider);
+				IContext ctx = getContext(platform, applicationProvider);
 				sw.stop();
 				sw.start("process template");
 				String templateFile = PLATFORM_HTML;
@@ -284,20 +331,25 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return appTplResolver;
 	}
 
-	protected Context getContext(org.appng.xml.platform.Platform platform, ApplicationProvider applicationProvider)
+	protected IWebContext getContext(org.appng.xml.platform.Platform platform, ApplicationProvider applicationProvider)
 			throws InvalidConfigurationException {
-		Context ctx = new Context(Locale.ENGLISH);
-		ctx.setVariable("platform", platform);
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("platform", platform);
+		variables.put("SESSION", env.getSession());
+		variables.put("APP", applicationProvider.getProperties());
+		variables.put("SITE", applicationProvider.getSite().getProperties());
+		variables.put("PLATFORM", env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG));
 		try {
 			Document doc = dbf.newDocumentBuilder().newDocument();
 			AppNGSchema.PLATFORM.getContext().createMarshaller().marshal(platform, doc);
 			XPathProcessor xpath = new XPathProcessor(doc);
 			xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
-			ctx.setVariable("appNG", new AppNG(platform, xpath));
+			variables.put("appNG", new AppNG(platform, xpath));
 		} catch (Exception e) {
 			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
 		}
-		return ctx;
+		return new WebContext(env.getServletRequest(), env.getServletResponse(), env.getServletContext(),
+				env.getLocale(), variables);
 	}
 
 	protected ILinkBuilder getGlobalLinkBuilder(String templatePrefix) {

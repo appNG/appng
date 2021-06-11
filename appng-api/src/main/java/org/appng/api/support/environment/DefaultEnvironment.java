@@ -363,6 +363,10 @@ public class DefaultEnvironment implements Environment {
 		return null;
 	}
 
+	public Map<String, Object> getSession() {
+		return session.getAttributes();
+	}
+
 	public boolean isSubjectAuthenticated() {
 		Subject subject = getSubject();
 		return subject != null && subject.isAuthenticated();
