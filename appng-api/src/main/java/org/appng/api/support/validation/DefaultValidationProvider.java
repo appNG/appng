@@ -81,14 +81,16 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultValidationProvider implements ValidationProvider {
 
 	private static final String INVALID_DIGIT = "invalid.digit";
-
 	private static final String INVALID_INTEGER = "invalid.integer";
-
 	private static final String INDEXED = "[]";
 	private static final String INDEX_PATTERN = "\\[\\d*\\]";
 
-	private Validator validator;
+	private static final Comparator<? super Message> MESSAGE_SORTER = (m1, m2) -> {
+		int byRef = StringUtils.compare(m1.getRef(), m2.getRef());
+		return 0 != byRef ? byRef : StringUtils.compare(m1.getCode(), m2.getCode());
+	};
 
+	private Validator validator;
 	private MessageInterpolator messageInterpolator;
 	private MessageSource messageSource;
 	private Locale locale;
@@ -498,6 +500,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 			}
 			LOGGER.debug("Added {} messages for field {}", count, absolutePropertyPath);
 		}
+		sortFieldMessages(fieldDef);
 	}
 
 	private Collection<ConstraintViolation<Object>> getSortedViolations(Set<ConstraintViolation<Object>> violations) {
@@ -542,6 +545,11 @@ public class DefaultValidationProvider implements ValidationProvider {
 		for (ConstraintViolation<Object> cv : violations) {
 			addFieldMessage(field, field.getBinding(), cv);
 		}
+		sortFieldMessages(field);
+	}
+
+	private void sortFieldMessages(FieldDef field) {
+		field.getMessages().getMessageList().sort(MESSAGE_SORTER);
 	}
 
 	private Message addFieldMessage(FieldDef field, String reference, ConstraintViolation<?> cv) {
