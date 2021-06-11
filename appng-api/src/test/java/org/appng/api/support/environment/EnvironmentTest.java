@@ -132,7 +132,6 @@ public class EnvironmentTest extends AbstractTest {
 		DefaultEnvironment env = DefaultEnvironment.get(ctx, httpServletRequest);
 		toggleScope(env, Scope.PLATFORM);
 		toggleScope(env, Scope.SESSION);
-		toggleScope(env, Scope.SITE);
 		toggleScope(env, Scope.REQUEST);
 	}
 

@@ -487,7 +487,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 		environment = context.getBean("environment", Environment.class);
 		if (!((DefaultEnvironment) environment).isInitialized()) {
-			environment.init(servletContext, servletRequest, servletResponse, site.getHost());
+			environment.init(servletContext, servletRequest.getSession(), servletRequest, servletResponse,
+					site.getHost());
 		}
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, path);
 		Mockito.when(path.getServicePath()).thenReturn(SITE_SERVICE_PATH);
