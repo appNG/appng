@@ -79,22 +79,23 @@ public class DefaultEnvironment implements Environment {
 				disable(Scope.PLATFORM);
 			}
 
+			Site currentSite = null;
+			if (null != servletRequest) {
+				currentSite = RequestUtil.getSite(this, servletRequest);
+				request = new RequestEnvironment(servletRequest, servletResponse);
+				enable(Scope.REQUEST);
+				if (null == site) {
+					initSiteScope(servletContext, null == currentSite ? null : currentSite.getHost());
+				}
+			} else {
+				disable(Scope.REQUEST);
+			}
+
 			if (null != httpSession) {
-				Site currentSite = RequestUtil.getSite(this, servletRequest);
 				session = new SessionEnvironment(httpSession, null == currentSite ? null : currentSite.getName());
 				enable(Scope.SESSION);
 			} else {
 				disable(Scope.SESSION);
-			}
-
-			if (null != servletRequest) {
-				request = new RequestEnvironment(servletRequest, servletResponse);
-				enable(Scope.REQUEST);
-				if (null == site) {
-					initSiteScope(servletContext, host);
-				}
-			} else {
-				disable(Scope.REQUEST);
 			}
 
 			initialized = true;
@@ -108,7 +109,7 @@ public class DefaultEnvironment implements Environment {
 		if (null != host) {
 			site = new SiteEnvironment(servletContext, host);
 			enable(Scope.SITE);
-		} else {
+		} else if (null == scopeEnabled.get(Scope.SITE)) {
 			disable(Scope.SITE);
 		}
 	}
