@@ -88,7 +88,7 @@ public class ControllerTest extends Controller {
 		ApplicationRequest applicationRequest = Mockito.mock(ApplicationRequest.class);
 		Mockito.when(applicationRequest.getEnvironment()).thenReturn(Mockito.mock(DefaultEnvironment.class));
 		base.provider.registerBean("request", applicationRequest);
-		env = Mockito.spy(new DefaultEnvironment(base.ctx, host));
+		env = Mockito.spy(DefaultEnvironment.get(base.ctx));
 		base.provider.registerBean("environment", env);
 		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
 	}

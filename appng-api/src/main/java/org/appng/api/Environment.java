@@ -154,7 +154,10 @@ public interface Environment {
 	 * 
 	 * @throws IllegalStateException
 	 *                               if this {@link Environment} already has been initialized
+	 * 
+	 * @deprecated no replacement
 	 */
+	@Deprecated
 	void init(ServletContext context, HttpSession session, ServletRequest request, ServletResponse response,
 			String host);
 

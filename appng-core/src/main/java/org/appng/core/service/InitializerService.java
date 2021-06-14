@@ -472,7 +472,7 @@ public class InitializerService {
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(siteToLoad, new DefaultEnvironment(servletContext, siteToLoad.getHost()), true, fp);
+		loadSite(siteToLoad, new DefaultEnvironment(servletContext), true, fp);
 	}
 
 	/**

@@ -37,13 +37,22 @@ import org.appng.api.Scope;
 class SessionEnvironment extends AbstractEnvironment {
 
 	private static final String CHANGED = "__changed__";
-	private HttpServletRequest request;
-	private String siteName;
+	private final HttpServletRequest request;
+	private final HttpSession session;
+	private final String siteName;
 
 	SessionEnvironment(HttpServletRequest request, String siteName) {
 		super(Scope.SESSION);
 		this.request = request;
 		this.siteName = siteName;
+		this.session = null;
+	}
+
+	SessionEnvironment(HttpSession session, String siteName) {
+		super(Scope.SESSION);
+		this.session = session;
+		this.siteName = siteName;
+		this.request = null;
 	}
 
 	Map<String, Object> getAttributes() {
@@ -102,7 +111,7 @@ class SessionEnvironment extends AbstractEnvironment {
 	}
 
 	public HttpSession getHttpSession() {
-		return request.getSession();
+		return null == session ? request.getSession() : session;
 	}
 
 	String getSiteName() {

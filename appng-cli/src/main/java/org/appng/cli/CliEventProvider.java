@@ -16,14 +16,13 @@
 package org.appng.cli;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.appng.core.domain.PlatformEventListener.EventProvider;
 
 public class CliEventProvider extends EventProvider {
 
 	@Override
-	protected String getUser(HttpSession session) {
+	protected String getUser(HttpServletRequest request) {
 		return System.getProperty("user.name");
 	}
 

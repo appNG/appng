@@ -103,17 +103,11 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void createEvent(Type type, String message) {
-		HttpServletRequest servletRequest = getServletRequest();
-		HttpSession session = null == servletRequest ? null : servletRequest.getSession();
-		createEvent(type, message, session, servletRequest);
+		createEvent(type, message, getServletRequest());
 	}
 
-	public void createEvent(Type type, String message, HttpSession session) {
-		createEvent(type, message, session, null);
-	}
-
-	private void createEvent(Type type, String message, HttpSession session, HttpServletRequest request) {
-		PlatformEvent event = getEventProvider().provide(type, message, session, request);
+	public void createEvent(Type type, String message, HttpServletRequest request) {
+		PlatformEvent event = getEventProvider().provide(type, message, request);
 		if (persist) {
 			if (null == entityManager) {
 				context.getAutowireCapableBeanFactory().autowireBean(this);
@@ -164,13 +158,13 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return UUID.randomUUID().toString();
 		}
 
-		PlatformEvent provide(Type type, String message, HttpSession session, HttpServletRequest request) {
+		PlatformEvent provide(Type type, String message, HttpServletRequest request) {
 			PlatformEvent event = new PlatformEvent();
 			event.setType(type);
 			event.setEvent(message);
-			event.setUser(getUser(session));
+			event.setUser(getUser(request));
 			event.setRequestId(getExecutionId(request));
-			event.setSessionId(getSessionId(session));
+			event.setSessionId(getSessionId(request));
 			event.setApplication(getApplication());
 			event.setContext(getContext(request));
 			try {
@@ -185,17 +179,17 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return event;
 		}
 
-		private String getSessionId(HttpSession session) {
-			if (null != session) {
-				return StringUtils.substring(session.getId(), 0, 8);
+		private String getSessionId(HttpServletRequest request) {
+			if (null != request) {
+				return StringUtils.substring(request.getSession().getId(), 0, 8);
 			}
 			return null;
 		}
 
-		protected String getUser(HttpSession session) {
+		protected String getUser(HttpServletRequest request) {
 			Subject s = null;
-			if (null != session) {
-				s = DefaultEnvironment.get(session).getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
+			if (null != request) {
+				s = DefaultEnvironment.get(request, null).getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
 			}
 			return s == null ? auditUser : s.getRealname();
 		}

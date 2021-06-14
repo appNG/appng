@@ -24,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 
-import org.appng.api.support.environment.EnvironmentFactoryBean;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.PlatformEventListener;
@@ -73,7 +72,8 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
  * @author Matthias Müller
  */
 @Configuration
-@ComponentScan(basePackages = "org.appng.core", excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
+@ComponentScan(basePackages = { "org.appng.core",
+		"org.appng.taglib.config" }, excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
 @EnableTransactionManagement
 @EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "org.appng.core.repository", entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "coreTxManager")
 public class PlatformConfig {
@@ -214,24 +214,6 @@ public class PlatformConfig {
 		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf);
 		thymeleafProcessor.setMarshallService(marshallService);
 		return thymeleafProcessor;
-	}
-
-	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public Object tagletProcessor(MarshallService marshallService, StyleSheetProvider styleSheetProvider)
-			throws ReflectiveOperationException {
-		Object instance = getClass().getClassLoader().loadClass("org.appng.taglib.TagletProcessor").newInstance();
-		instance.getClass().getDeclaredMethod("setMarshallService", MarshallService.class).invoke(instance,
-				marshallService);
-		instance.getClass().getDeclaredMethod("setStyleSheetProvider", StyleSheetProvider.class).invoke(instance,
-				styleSheetProvider);
-		return instance;
-	}
-
-	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public EnvironmentFactoryBean environment() {
-		return new EnvironmentFactoryBean();
 	}
 
 	@Bean

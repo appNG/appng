@@ -55,19 +55,14 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestFactoryBean implements FactoryBean<Request>, InitializingBean {
 
 	private Environment environment;
-
 	private MessageSource messageSource;
-
 	private ConversionService conversionService;
-
 	private HttpServletRequest httpServletRequest;
-
 	private ApplicationRequest request;
 
 	RequestFactoryBean() {
 	}
 
-	@Autowired
 	public RequestFactoryBean(HttpServletRequest httpServletRequest, Environment environment,
 			ConversionService conversionService, MessageSource messageSource) {
 		this.request = new ApplicationRequest();

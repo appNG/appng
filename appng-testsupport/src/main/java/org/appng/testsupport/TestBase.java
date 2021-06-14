@@ -133,6 +133,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
@@ -222,7 +224,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	@Autowired
 	protected MockHttpServletRequest servletRequest;
 
-	protected MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+	@Autowired
+	protected MockHttpServletResponse servletResponse;
 
 	@Autowired
 	protected ConfigurableApplicationContext context;
@@ -486,13 +489,11 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformEnv);
 
 		environment = context.getBean("environment", Environment.class);
-		if (!((DefaultEnvironment) environment).isInitialized()) {
-			environment.init(servletContext, servletRequest.getSession(), servletRequest, servletResponse,
-					site.getHost());
-		}
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, path);
 		Mockito.when(path.getServicePath()).thenReturn(SITE_SERVICE_PATH);
 		Mockito.when(path.getGuiPath()).thenReturn(SITE_MANAGER_PATH);
+		
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest, servletResponse));
 	}
 
 	protected List<Property> getSiteProperties(String prefix) {

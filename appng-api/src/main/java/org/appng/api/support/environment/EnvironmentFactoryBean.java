@@ -16,8 +16,13 @@
 package org.appng.api.support.environment;
 
 import org.appng.api.Environment;
+import org.appng.api.config.ApplicationConfig;
 import org.springframework.beans.factory.FactoryBean;
 
+/**
+ * @deprecated no more needed since {@link ApplicationConfig} creates the {@link Environment}
+ */
+@Deprecated
 public class EnvironmentFactoryBean implements FactoryBean<Environment> {
 
 	Environment environment;

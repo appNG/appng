@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -2141,8 +2140,8 @@ public class CoreService {
 		return siteApplication;
 	}
 
-	public void createEvent(Type type, String message, HttpSession session) {
-		auditableListener.createEvent(type, message, session);
+	public void createEvent(Type type, String message, HttpServletRequest request) {
+		auditableListener.createEvent(type, message, request);
 	}
 
 	public void createEvent(Type type, String message, Object... args) {
