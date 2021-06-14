@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -47,9 +48,8 @@ import org.springframework.context.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of
- * creation/destruction and usage of {@link HttpSession}s by putting a
- * {@link Session} object, which is updated on each request, into the
+ * A (ServletContext/HttpSession/ServletRequest) listener that keeps track of creation/destruction and usage of
+ * {@link HttpSession}s by putting a {@link Session} object, which is updated on each request, into the
  * {@link HttpSession}
  * 
  * @author Matthias Herlitzius
@@ -65,8 +65,10 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	private static final Class<org.apache.catalina.connector.Request> CATALINA_REQUEST = org.apache.catalina.connector.Request.class;
 	private static final String HTTPS = "https";
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+	private static DefaultEnvironment GLOBAL_ENV;
 
 	public void contextInitialized(ServletContextEvent sce) {
+		GLOBAL_ENV = DefaultEnvironment.get(sce.getServletContext());
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
@@ -105,9 +107,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void sessionDestroyed(HttpSessionEvent event) {
 		HttpSession httpSession = event.getSession();
-		Environment env = DefaultEnvironment.get(httpSession);
-		if (env.isSubjectAuthenticated()) {
-			ApplicationContext ctx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
+		if (DefaultEnvironment.get(httpSession).isSubjectAuthenticated()) {
+			ApplicationContext ctx = GLOBAL_ENV.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
 			ctx.getBean(CoreService.class).createEvent(Type.INFO, "session expired", httpSession);
 		}
 		Session session = getSession(httpSession);
@@ -130,9 +131,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void requestInitialized(ServletRequestEvent sre) {
 		ServletRequest request = sre.getServletRequest();
-		DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext());
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		Site site = RequestUtil.getSite(env, request);
+		Site site = RequestUtil.getSite(GLOBAL_ENV, request);
+		DefaultEnvironment env = DefaultEnvironment.get(httpServletRequest, null);
 		setSecureFlag(httpServletRequest, site);
 		setDiagnosticContext(env, httpServletRequest, site);
 		if (null != site && site.getProperties().getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)) {
@@ -164,7 +165,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	protected void setDiagnosticContext(Environment env, HttpServletRequest httpServletRequest, Site site) {
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		Properties platformConfig = GLOBAL_ENV.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		if (platformConfig.getBoolean(Platform.Property.MDC_ENABLED)) {
 			MDC.put("path", httpServletRequest.getServletPath());
 			String queryString = httpServletRequest.getQueryString();
@@ -206,17 +207,17 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void requestDestroyed(ServletRequestEvent sre) {
 		MDC.clear();
-		ServletRequest request = sre.getServletRequest();
-		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+		HttpServletRequest httpServletRequest = (HttpServletRequest) sre.getServletRequest();
 		HttpSession httpSession = httpServletRequest.getSession(false);
 		if (null != httpSession && httpSession.isNew()) {
-			DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext());
-			Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-			List<String> patterns = platformConfig.getList(Platform.Property.SESSION_FILTER, "\n");
-			String userAgent = httpServletRequest.getHeader(HttpHeaders.USER_AGENT);
-			if (null != patterns && null != userAgent && patterns.stream().anyMatch(userAgent::matches)) {
+			String userAgent = StringUtils.trimToEmpty(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
+			Properties platformConfig = GLOBAL_ENV.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+			List<String> userAgentPatterns = Arrays
+					.asList(platformConfig.getClob(Platform.Property.SESSION_FILTER).split(StringUtils.LF));
+			if (userAgentPatterns.stream().anyMatch(userAgent::matches)) {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Session automatically discarded: {} (user-agent: {})", httpSession.getId(), userAgent);
+					LOGGER.debug("Session automatically discarded: {} (user-agent: {})", httpSession.getId(),
+							userAgent);
 				}
 				httpSession.invalidate();
 			}
