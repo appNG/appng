@@ -23,26 +23,26 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.appng.api.Scope;
 
 /**
- * A {@link ScopedEnvironment} for {@link Scope#SESSION}. Uses a {@link HttpSession} for storing its attributes.
+ * A {@link ScopedEnvironment} for {@link Scope#SESSION}. Uses a {@link HttpServletRequest}'s {@link HttpSession} for
+ * storing its attributes.
  * 
  * @author Matthias Müller
  */
 class SessionEnvironment extends AbstractEnvironment {
 
 	private static final String CHANGED = "__changed__";
-	private HttpSession session;
-	private boolean valid;
+	private HttpServletRequest request;
 	private String siteName;
 
-	SessionEnvironment(HttpSession session, String siteName) {
+	SessionEnvironment(HttpServletRequest request, String siteName) {
 		super(Scope.SESSION);
-		this.session = session;
-		this.valid = true;
+		this.request = request;
 		this.siteName = siteName;
 	}
 
@@ -53,10 +53,10 @@ class SessionEnvironment extends AbstractEnvironment {
 
 	@SuppressWarnings("unchecked")
 	public ConcurrentMap<String, Object> getContainer() {
-		Object container = session.getAttribute(getIdentifier());
+		Object container = getHttpSession().getAttribute(getIdentifier());
 		if (null == container) {
 			container = new ConcurrentHashMap<>();
-			session.setAttribute(getIdentifier(), container);
+			getHttpSession().setAttribute(getIdentifier(), container);
 		}
 		return (ConcurrentMap<String, Object>) container;
 	}
@@ -98,17 +98,11 @@ class SessionEnvironment extends AbstractEnvironment {
 	}
 
 	public void logout() {
-		session.invalidate();
-		session = null;
-		valid = false;
+		getHttpSession().invalidate();
 	}
 
 	public HttpSession getHttpSession() {
-		return session;
-	}
-
-	public boolean isValid() {
-		return valid;
+		return request.getSession();
 	}
 
 	String getSiteName() {
