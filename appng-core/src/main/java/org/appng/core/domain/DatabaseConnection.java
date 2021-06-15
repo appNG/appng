@@ -72,12 +72,14 @@ import lombok.extern.slf4j.Slf4j;
 public class DatabaseConnection implements Auditable<Integer> {
 
 	public static final String DB_PLACEHOLDER = "<name>";
-	private static final String DATABASE_NAME = "databaseName=";
 
 	private static final String MARIADB_DATASOURCE = "org.mariadb.jdbc.MariaDbDataSource";
 	private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
-	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
-	private static final String MYSQL_LEGACY_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String MARIADB_URL = "jdbc:mariadb://localhost:%s/%s";
+
+	private static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
+	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
+	private static String MYSQL_URL = "jdbc:mysql://localhost:%s/%s";
 
 	private static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
@@ -87,10 +89,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 		if (ClassUtils.isPresent(MARIADB_DATASOURCE, null)) {
 			MYSQL_DATASOURCE = MARIADB_DATASOURCE;
 			MYSQL_DRIVER = MARIADB_DRIVER;
-			MYSQL_URL = "jdbc:mariadb://localhost:%s/%s";
-		} else if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
-			MYSQL_DATASOURCE = MYSQL_LEGACY_DATASOURCE;
-			MYSQL_DRIVER = MYSQL_LEGACY_DRIVER;
+			MYSQL_URL = MARIADB_URL;
 		}
 	}
 
@@ -103,10 +102,6 @@ public class DatabaseConnection implements Auditable<Integer> {
 		/** Microsoft SQL Server */
 		MSSQL("com.microsoft.sqlserver.jdbc.SQLServerDriver", 1433, "com.microsoft.sqlserver.jdbc.SQLServerDataSource",
 				"jdbc:sqlserver://localhost:%s;databaseName=%s", "select 1"),
-
-		/** PostgreSQL */
-		POSTGRESQL("org.postgresql.Driver", 5432, "org.postgresql.ds.PGSimpleDataSource",
-				"jdbc:postgresql://localhost:%s/%s", "select 1"),
 
 		/** HSQL DB */
 		HSQL("org.hsqldb.jdbc.JDBCDriver", 9001, "org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:hsql://localhost:%s/%s",

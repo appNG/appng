@@ -124,8 +124,11 @@ public class MigrationService {
 		String driverClass = properties.getProperty(HIBERNATE_CONNECTION_DRIVER_CLASS);
 		String username = properties.getProperty(HIBERNATE_CONNECTION_USERNAME);
 		String password = properties.getProperty(HIBERNATE_CONNECTION_PASSWORD);
+
+		Integer minConnections = Integer.valueOf((String) properties.getOrDefault(DATABASE_MIN_CONNECTIONS, "5"));
+		Integer maxConnections = Integer.valueOf((String) properties.getOrDefault(DATABASE_MAX_CONNECTIONS, "20"));
 		String validationQuery = properties.getProperty(DATABASE_VALIDATION_QUERY);
-		Integer validationPeriod = Integer.parseInt(properties.getProperty(DATABASE_VALIDATION_PERIOD));
+		Integer validationPeriod = Integer.valueOf(properties.getProperty(DATABASE_VALIDATION_PERIOD));
 
 		DatabaseConnection conn = new DatabaseConnection(databaseType, jdbcUrl, driverClass, username,
 				password.getBytes(), validationQuery);
@@ -134,6 +137,8 @@ public class MigrationService {
 		conn.setValidationPeriod(validationPeriod);
 		conn.registerDriver(true);
 		conn.setMigrationInfoService(statusComplete(conn));
+		conn.setMinConnections(minConnections);
+		conn.setMaxConnections(maxConnections);
 		return conn;
 	}
 

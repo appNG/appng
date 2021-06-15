@@ -60,6 +60,7 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 	public void configure(DatabaseConnection connection) {
 		HikariConfig configuration = new HikariConfig();
 
+		configuration.setMinimumIdle(connection.getMinConnections());
 		configuration.setMaximumPoolSize(connection.getMaxConnections());
 		configuration.setConnectionTimeout(connectionTimeout);
 		configuration.setValidationTimeout(validationTimeout);

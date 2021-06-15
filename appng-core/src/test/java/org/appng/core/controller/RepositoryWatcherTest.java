@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.core.controller;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -99,6 +100,17 @@ public class RepositoryWatcherTest {
 		Assert.assertNull(cache.get("GET/de/fault"));
 		Assert.assertEquals(0, getCacheSize(cache));
 		Assert.assertTrue(repositoryWatcher.forwardsUpdatedAt > forwardsUpdatedAt);
+		Assert.assertEquals(3, repositoryWatcher.numEvents.get());
+
+		int i = 0;
+		while (repositoryWatcher.numOverflows.get() < 2L) {
+			File file = new File(rootDir, "de/foo" + (i++) + ".txt");
+			Files.createFile(file.toPath());
+			FileUtils.touch(file);
+			Files.delete(file.toPath());
+		}
+		Thread.sleep(1000);
+		executor.shutdown();
 	}
 
 	private int getCacheSize(Cache<String, CachedResponse> cache) {
