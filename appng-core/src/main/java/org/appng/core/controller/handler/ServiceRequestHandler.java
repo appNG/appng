@@ -263,7 +263,7 @@ public class ServiceRequestHandler implements RequestHandler {
 					handleSoap(siteToUse, application, environment, servletRequest, servletResponse);
 				} else if (SERVICE_TYPE_REST.equals(serviceType)) {
 					path.checkPathLength(6);
-					handleRest(siteToUse, application, environment, servletRequest, servletResponse);
+					handleRest(application, servletRequest, servletResponse);
 				} else {
 					LOGGER.warn("unknown service type: {}", serviceType);
 				}
@@ -372,9 +372,9 @@ public class ServiceRequestHandler implements RequestHandler {
 		new SoapService(site, application, environment).handle(servletRequest, servletResponse);
 	}
 
-	protected void handleRest(Site site, AccessibleApplication application, Environment environment,
-			HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
-		new RestService(site, application, environment).handle(servletRequest, servletResponse);
+	protected void handleRest(AccessibleApplication application, HttpServletRequest servletRequest,
+			HttpServletResponse servletResponse) throws Exception {
+		new RestService(application).handle(servletRequest, servletResponse);
 	}
 
 	protected void callWebservice(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
