@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-application-parent</artifactId>
-	<version>1.20.5</version>
+	<version>1.20.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>appNG application parent</name>
 	<description>Parent pom for appNG applications</description>
