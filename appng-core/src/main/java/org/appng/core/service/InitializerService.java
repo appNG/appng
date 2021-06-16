@@ -306,7 +306,7 @@ public class InitializerService {
 				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
 				String inactiveSite = site.getName();
-				site.setState(SiteState.INACTIVE);
+				site.setState(SiteState.INACTIVE, env);
 				if (siteMap.containsKey(inactiveSite)) {
 					getCoreService().shutdownSite(env, inactiveSite, false);
 				} else {
@@ -514,7 +514,7 @@ public class InitializerService {
 		List<? extends Group> groups = getCoreService().getGroups();
 		site.setGroups(new HashSet<>(groups));
 
-		site.setState(SiteState.STARTING);
+		site.setState(SiteState.STARTING, env);
 		siteMap.put(site.getName(), site);
 
 		File siteRootDirectory = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
@@ -806,7 +806,7 @@ public class InitializerService {
 		}
 
 		LOGGER.info("loading site {} completed", site.getName());
-		site.setState(SiteState.STARTED);
+		site.setState(SiteState.STARTED, env);
 		siteMap.put(site.getName(), site);
 		debugPlatformContext(platformContext);
 		auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());

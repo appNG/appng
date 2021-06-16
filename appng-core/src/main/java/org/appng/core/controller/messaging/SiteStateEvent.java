@@ -42,13 +42,17 @@ public class SiteStateEvent extends Event {
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
+		handleSiteState(environment);
+		new RequestNodeState(getSiteName()).perform(environment, site);
+	}
+
+	public void handleSiteState(Environment environment) {
 		Map<String, SiteState> stateMap = getStateMap(environment);
 		if (SiteState.DELETED.equals(this.state)) {
 			stateMap.remove(getSiteName());
 		} else {
 			stateMap.put(getSiteName(), this.state);
 		}
-		new RequestNodeState(getSiteName()).perform(environment, site);
 	}
 
 	public SiteState getState() {

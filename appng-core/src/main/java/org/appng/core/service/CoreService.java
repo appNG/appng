@@ -1385,7 +1385,7 @@ public class CoreService {
 			}
 			CacheProvider cacheProvider = new CacheProvider(platformConfig);
 			cacheProvider.clearCache(site);
-			site.setState(SiteState.DELETED);
+			site.setState(SiteState.DELETED, env);
 
 			Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 			siteMap.remove(site.getName());
@@ -1833,7 +1833,7 @@ public class CoreService {
 
 				LOGGER.info("destroying site {}", shutdownSite);
 				if (SiteState.STARTED.equals(shutdownSite.getState())) {
-					shutdownSite.setState(SiteState.STOPPING);
+					shutdownSite.setState(SiteState.STOPPING, env);
 					for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
 						shutdownApplication(siteApplication, env);
 					}
@@ -1846,7 +1846,7 @@ public class CoreService {
 						CacheService.clearCache(shutdownSite);
 					}
 				}
-				shutdownSite.setState(shutdownSite.isActive() ? SiteState.STOPPED : SiteState.INACTIVE);
+				shutdownSite.setState(shutdownSite.isActive() ? SiteState.STOPPED : SiteState.INACTIVE, env);
 				auditableListener.createEvent(Type.INFO, "Shut down site " + shutdownSite.getName());
 				if (removeFromSiteMap) {
 					siteMap.remove(siteName);
