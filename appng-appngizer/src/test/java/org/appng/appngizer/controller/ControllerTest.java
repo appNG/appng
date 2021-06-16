@@ -133,7 +133,9 @@ public abstract class ControllerTest {
 			Map<Object, Object> platformEnv = new ConcurrentHashMap<>();
 			platformEnv.put(Platform.Environment.APPNG_VERSION, "1.21.x");
 			List<? extends Property> properties = Arrays.asList(
-					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.SHARED_SECRET, "4711"));
+					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.SHARED_SECRET, "4711"),
+					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.VHOST_MODE,
+							VHostMode.NAME_BASED.name()));
 			platformEnv.put(Platform.Environment.PLATFORM_CONFIG,
 					new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties));
 			this.wac.getServletContext().setAttribute(Scope.PLATFORM.name(), platformEnv);
