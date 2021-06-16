@@ -39,8 +39,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
 
-import sun.print.resources.serviceui_it;
-
 public class SessionListenerTest {
 
 	private static ServletContext servletContext = new MockServletContext();
