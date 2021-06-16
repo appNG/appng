@@ -86,7 +86,7 @@ public class DefaultEnvironment implements Environment {
 	 * @param host
 	 *                the host for the site-{@link Scope}
 	 * 
-	 * @deprecated use {@link #DefaultEnvironment(ServletContext)} instead
+	 * @deprecated use {@link DefaultEnvironment#get(ServletContext)} instead
 	 */
 	@Deprecated
 	public DefaultEnvironment(ServletContext context, String host) {
@@ -100,7 +100,7 @@ public class DefaultEnvironment implements Environment {
 	/**
 	 * Initializes the environment
 	 * 
-	 * @deprecated use {@link #init(ServletRequest, ServletResponse)} instead.
+	 * @deprecated use {@link #init(ServletContext, ServletRequest, ServletResponse)} instead.
 	 */
 	@Override
 	@Deprecated
@@ -181,7 +181,6 @@ public class DefaultEnvironment implements Environment {
 	 *                a {@link HttpSession}
 	 * 
 	 * @return a new {@link DefaultEnvironment}
-	 * 
 	 */
 	public static DefaultEnvironment get(HttpSession session) {
 		DefaultEnvironment env = new DefaultEnvironment();
