@@ -66,7 +66,7 @@ public class RestConfig {
 	}
 
 	@AllArgsConstructor
-	class SiteAwareHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
+	public static class SiteAwareHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 		private final Site site;
 		private final Environment environment;

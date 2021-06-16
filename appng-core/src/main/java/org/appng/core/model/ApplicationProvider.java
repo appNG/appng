@@ -817,7 +817,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private Environment initEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
-		Environment env = getBean(Environment.class);
+		Environment env = getBean("environment", Environment.class);
 		for (Application application : site.getApplications()) {
 			String sessionParamName = application.getSessionParamKey(site);
 			if (null == env.getAttribute(SESSION, sessionParamName)) {
