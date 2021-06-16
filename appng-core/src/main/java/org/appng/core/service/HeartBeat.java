@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class HeartBeat implements Runnable {
 
-	private final long heartBeatSleepTime;
+	private final long heartBeatInterval;
 	private final ServletContext servletContext;
 
 	@Override
@@ -47,7 +47,7 @@ public class HeartBeat implements Runnable {
 					LOGGER.warn("NodeEvent could not be sent, please check messaging configuration.");
 				}
 				try {
-					Thread.sleep(heartBeatSleepTime);
+					Thread.sleep(heartBeatInterval);
 				} catch (InterruptedException e) {
 					LOGGER.error("error in heartbeat", e);
 					Thread.currentThread().interrupt();
