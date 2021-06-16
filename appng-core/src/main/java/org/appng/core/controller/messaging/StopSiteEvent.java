@@ -16,37 +16,31 @@
 package org.appng.core.controller.messaging;
 
 import org.appng.api.Environment;
-import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.model.Site;
-import org.appng.api.support.FieldProcessorImpl;
-import org.appng.core.domain.SiteImpl;
-import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReloadSiteEvent extends SiteEvent {
+public class StopSiteEvent extends SiteEvent {
 
 	private static final long serialVersionUID = 8053808333634879840L;
 
-	public ReloadSiteEvent(String siteName) {
+	public StopSiteEvent(String siteName) {
 		super(siteName);
 	}
 
-	public ReloadSiteEvent(String siteName, String targetNode) {
+	public StopSiteEvent(String siteName, String targetNode) {
 		super(siteName, targetNode);
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
-		Logger logger = LoggerFactory.getLogger(ReloadSiteEvent.class);
+		Logger logger = LoggerFactory.getLogger(StopSiteEvent.class);
 		if (isTargetNode(environment)) {
-			logger.info("about to start site: {}", getSiteName());
-			SiteImpl siteByName = getPlatformContext(environment).getBean(CoreService.class)
-					.getSiteByName(getSiteName());
-			FieldProcessor fp = new FieldProcessorImpl("start");
-			getInitializerService(environment).loadSite(siteByName, environment, false, fp);
+			logger.info("about to stop site: {}", getSiteName());
+			getInitializerService(environment).shutDownSite(environment, site, false);
 		} else {
 			logIgnoreMessage(logger);
 		}
 	}
+
 }
