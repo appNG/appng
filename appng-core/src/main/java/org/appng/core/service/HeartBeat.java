@@ -49,7 +49,7 @@ public class HeartBeat implements Runnable {
 				try {
 					Thread.sleep(heartBeatInterval);
 				} catch (InterruptedException e) {
-					LOGGER.error("error in heartbeat", e);
+					LOGGER.error("Thread was interrupted!");
 					Thread.currentThread().interrupt();
 				}
 			}
