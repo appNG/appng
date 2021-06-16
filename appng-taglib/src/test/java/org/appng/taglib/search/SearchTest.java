@@ -35,9 +35,9 @@ import javax.xml.transform.TransformerFactory;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -108,26 +108,32 @@ public class SearchTest extends Search {
 		};
 		Mockito.doAnswer(mockWriter).when(jspWriter).print(Mockito.anyString());
 		Mockito.doAnswer(mockWriter).when(jspWriter).write(Mockito.anyString());
-		Mockito.when(servletRequest.getServerName()).thenReturn(LOCALHOST);
 		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		Mockito.when(servletContext.getAttribute(Scope.PLATFORM.name())).thenReturn(platformEnv);
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.name());
 		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
+
 		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(LOCALHOST, site);
 		platformEnv.put("sites", siteMap);
+		
+		Mockito.when(site.getHost()).thenReturn(LOCALHOST);
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);
 
-		Mockito.when(siteProperties.getString(SiteProperties.INDEX_CONFIG))
-				.thenReturn("/de;de;GermanAnalyzer|/en;en;EnglishAnalyzer");
-		Mockito.when(site.getHost()).thenReturn(LOCALHOST);
+		Mockito.when(servletRequest.getServerName()).thenReturn(LOCALHOST);
+		Mockito.when(servletRequest.getServletContext()).thenReturn(servletContext);
+		Mockito.when(servletRequest.getSession()).thenReturn(session);
 		Mockito.when(servletRequest.getParameter("xsl")).thenReturn("false");
-
 		Mockito.when(servletRequest.getParameter("q")).thenReturn("Hitchhiker");
+		Mockito.when(servletRequest.getServletPath()).thenReturn("/repository/site/www/de/index.jsp");
+
+		
+		Mockito.when(siteProperties.getString(SiteProperties.INDEX_CONFIG))
+		.thenReturn("/de;de;GermanAnalyzer|/en;en;EnglishAnalyzer");
 		Mockito.when(siteProperties.getString(SiteProperties.SITE_ROOT_DIR)).thenReturn("");
 		Mockito.when(siteProperties.getString(SiteProperties.INDEX_DIR)).thenReturn("target/index");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
-				.thenReturn(VHostMode.NAME_BASED.name());
-		Mockito.when(servletRequest.getServletPath()).thenReturn("/repository/site/www/de/index.jsp");
+		
 		setPageContext(pageContext);
 		setFormat("json");
 		setParts(true);
