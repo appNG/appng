@@ -157,6 +157,8 @@ public final class Platform {
 		public static final String FORCE_CHANGE_PASSWORD = "forceChangePassword";
 		/** Disable for production use. If enabled, debugging is easier, but Textarea values are formatted wrong. */
 		public static final String FORMAT_OUTPUT = "formatOutput";
+		/** The interval in which the heartbeat is sent (seconds) */
+		public static final String HEART_BEAT_INTERVAL = "heartNeatInterval";
 		/** The folder used for caching images, within the {@link #APPLICATION_CACHE_FOLDER} */
 		public static final String IMAGE_CACHE_FOLDER = "cacheImageFolder";
 		/** The path to the ImageMagick executables */
@@ -291,6 +293,7 @@ public final class Platform {
 
 		/** The path to appNG's health monitoring */
 		public static final String MONITORING_PATH = "monitoringPath";
+
 	}
 
 	/**

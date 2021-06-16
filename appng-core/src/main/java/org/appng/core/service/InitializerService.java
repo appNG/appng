@@ -291,6 +291,10 @@ public class InitializerService {
 			siteMap = new ConcurrentHashMap<>();
 			env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 		}
+
+		final int heartBeatSleepTime = platformConfig.getInteger(Platform.Property.HEART_BEAT_INTERVAL, 60) * 1000;
+		executor.submit(new HeartBeat(heartBeatSleepTime, ((DefaultEnvironment) env).getServletContext()));
+
 		int activeSites = 0;
 		FieldProcessor platformMessages = new FieldProcessorImpl("load-platform");
 		for (Integer id : sites) {

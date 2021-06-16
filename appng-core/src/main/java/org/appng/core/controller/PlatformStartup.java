@@ -116,8 +116,8 @@ public class PlatformStartup implements ServletContextListener {
 			initPlatformContext(ctx, env, config, platformConnection);
 			InitializerService service = getService(env);
 			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
-			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging").build();
-			executor = Executors.newSingleThreadExecutor(threadFactory);
+			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging-%d").build();
+			executor = Executors.newFixedThreadPool(2, threadFactory);
 
 			final PlatformProperties platformProperties = service.loadPlatformProperties(config, env);
 

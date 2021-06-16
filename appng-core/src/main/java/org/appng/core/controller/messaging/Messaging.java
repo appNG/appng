@@ -46,7 +46,7 @@ class Messaging {
 				Site site = serializer.getSite(event.getSiteName());
 				String currentNode = serializer.getNodeId();
 				String originNode = event.getNodeId();
-				logger.debug("current node: {}, originNode node: {}", currentNode, originNode);
+				logger.trace("current node: {}, originNode node: {}", currentNode, originNode);
 				boolean sameNode = StringUtils.equals(currentNode, originNode);
 				if (!sameNode || alternativeCondition) {
 					logger.info("about to execute {} ", event);
@@ -54,7 +54,7 @@ class Messaging {
 						eventHandler.onEvent(event, serializer.getEnvironment(), site);
 					}
 				} else {
-					logger.debug("message is from myself and can be ignored");
+					logger.debug("event {} is from myself ({}) and can be ignored", event, currentNode);
 				}
 
 			} catch (Exception e) {
