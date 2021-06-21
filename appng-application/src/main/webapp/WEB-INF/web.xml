@@ -28,12 +28,18 @@
 		<listener-class>org.appng.core.controller.PlatformStartup</listener-class>
 	</listener>
 
-	<!-- support Spring request-scope -->
-	<listener>
-		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-	</listener>
-
 	<!-- ##################### Filter definitions ##################### -->
+
+	<!-- support Spring's request-scope -->
+	<filter>
+		<filter-name>RequestContextFilter</filter-name>
+		<filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>RequestContextFilter</filter-name>
+		<servlet-name>controller</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
 
 	<!-- XSS Filter -->
 	<filter>
