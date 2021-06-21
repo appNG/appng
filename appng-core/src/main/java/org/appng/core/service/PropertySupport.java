@@ -63,6 +63,7 @@ public class PropertySupport {
 	static final String PREFIX_SITE = "site.";
 	private static final String PREFIX_APPLICATION = "application.";
 	private static final String DOT = ".";
+	static final String PREFIX_NODE = "platform.node.";
 
 	public static final String PROP_PATTERN = "[a-zA-Z0-9\\-_]+";
 
@@ -443,6 +444,41 @@ public class PropertySupport {
 			return Paths.get(segment, pathelements).normalize().toString();
 		}
 		return StringUtils.EMPTY;
+	}
+
+	/**
+	 * Returns the dot-separated property-prefix for a node-property.
+	 * 
+	 * @param nodeId
+	 *             the node id as returned by {@link org.appng.api.messaging.Messaging#getNodeId()}
+	 * 
+	 * @return the dot-separated property-prefix
+	 */
+	public static String getNodePrefix(String nodeId) {
+		return PREFIX_NODE + nodeId + DOT;
+	}
+
+	/**
+	 * Initializes the node configuration with the default values. The properties are added to the
+	 * {@link PropertyHolder} this {@link PropertySupport} was created with.
+	 * 
+	 * @param finalize
+	 *                           whether or not to call {@link PropertyHolder#setFinal()}
+	 * 
+	 * @see #PropertySupport(PropertyHolder)
+	 */
+	public void initNodeConfig(boolean finalize) {
+		if (finalize) {
+			propertyHolder.setFinal();
+		}
+	}
+
+	private String addNodeProperty(String name, Object defaultValue) {
+		return addNodeProperty(name, defaultValue, Type.forObject(defaultValue));
+	}
+
+	private String addNodeProperty(String name, Object defaultValue, Type type) {
+		return addProperty(name, defaultValue, PREFIX_NODE, type);
 	}
 
 	static List<String> getSiteRelevantPlatformProps() {

@@ -51,6 +51,7 @@ import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.auth.PasswordPolicy;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
 import org.appng.api.model.AuthSubject;
@@ -225,6 +226,15 @@ public class CoreService {
 		return PlatformProperties.get(platformConfig);
 	}
 
+	public Properties initNodeConfig(Environment env) {
+		String nodeId = Messaging.getNodeId(env);
+		String prefix = PropertySupport.getNodePrefix(nodeId);
+		PropertyHolder nodeConfig = new PersistentPropertyHolder(prefix, getNodeProperties(nodeId, null));
+		new PropertySupport(nodeConfig).initNodeConfig(true);
+		saveProperties(nodeConfig);
+		return nodeConfig;
+	}
+
 	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
 			String name) {
 		if (defaultOverrides.containsKey(name)) {
@@ -235,6 +245,10 @@ public class CoreService {
 
 	private Page<PropertyImpl> getPlatformPropertiesList(Pageable pageable) {
 		return getProperties(PropertySupport.PREFIX_PLATFORM, pageable);
+	}
+
+	private Page<PropertyImpl> getNodeProperties(String nodeId, Pageable pageable) {
+		return getProperties(PropertySupport.getNodePrefix(nodeId));
 	}
 
 	private Page<PropertyImpl> getSiteProperties(Integer siteId, Pageable pageable) {

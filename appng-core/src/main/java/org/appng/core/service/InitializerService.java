@@ -338,6 +338,12 @@ public class InitializerService {
 		return platformConfig;
 	}
 
+	public Properties loadNodeProperties(Environment env) {
+		Properties nodeConfig = getCoreService().initNodeConfig(env);
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG, nodeConfig);
+		return nodeConfig;
+	}
+
 	class SiteReloadWatcher implements Runnable {
 
 		private static final String RELOAD_FILE = ".reload";

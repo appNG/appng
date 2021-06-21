@@ -120,6 +120,7 @@ public class PlatformStartup implements ServletContextListener {
 			executor = Executors.newFixedThreadPool(2, threadFactory);
 
 			final PlatformProperties platformProperties = service.loadPlatformProperties(config, env);
+			service.loadNodeProperties(env);
 
 			Runnable startUp = () -> {
 				try {

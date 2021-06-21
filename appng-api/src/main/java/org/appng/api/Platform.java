@@ -316,6 +316,12 @@ public final class Platform {
 		public static final String PLATFORM_CONFIG = "platformConfig";
 
 		/**
+		 * Key for the node config. The return type of
+		 * {@link org.appng.api.Environment#getAttribute(Scope, String)} is {@link Properties}.
+		 */
+		public static final String NODE_CONFIG = "nodeConfig";
+
+		/**
 		 * Key for the appNG version. The return type of {@link org.appng.api.Environment#getAttribute(Scope, String)}
 		 * is {@link String} .
 		 */
