@@ -257,8 +257,8 @@ public class CoreService {
 	}
 
 	protected Page<PropertyImpl> getProperties(Integer siteId, Integer applicationId, Pageable pageable) {
-		Site site = siteRepository.findOne(siteId);
-		Application application = applicationRepository.findOne(applicationId);
+		Site site = siteId == null ? null : siteRepository.findOne(siteId);
+		Application application = applicationId == null ? null : applicationRepository.findOne(applicationId);
 		return getProperties(site, application, pageable);
 	}
 
