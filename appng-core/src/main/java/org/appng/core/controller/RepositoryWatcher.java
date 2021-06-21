@@ -53,7 +53,6 @@ import net.sf.ehcache.Ehcache;
  * {@code urlrewrite.xml}, it is also necessary to parse these rules and remove the 'aliases' from the cache.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class RepositoryWatcher implements Runnable {
@@ -70,11 +69,8 @@ public class RepositoryWatcher implements Runnable {
 	protected AtomicLong numOverflows = new AtomicLong(0);
 
 	private String wwwDir;
-
 	private Ehcache cache;
-
 	private File configFile;
-
 	private String ruleSourceSuffix;
 
 	public RepositoryWatcher(Site site, String jspExtension, String ruleSourceSuffix) {
@@ -114,7 +110,8 @@ public class RepositoryWatcher implements Runnable {
 	private void watch(File file) throws IOException {
 		if (file.exists() && file.isDirectory()) {
 			LOGGER.info("watching {}", file.toString());
-			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE,
+					StandardWatchEventKinds.ENTRY_MODIFY);
 		}
 	}
 
