@@ -24,7 +24,7 @@
 			</url-schema>
 		</config>
 		<structure>
-			<section>
+			<section id="42">
 				<element passive="true">
 					<action id="update" eventId="events">
 						<condition expression="${action eq 'update' and not empty entityId}" />

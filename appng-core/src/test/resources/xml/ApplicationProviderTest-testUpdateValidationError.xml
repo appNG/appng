@@ -51,7 +51,7 @@
 				</linkpanel>
 			</config>
 			<structure>
-				<section>
+				<section id="42">
 					<element passive="true">
 						<action id="update" eventId="events">
 							<config>

@@ -51,7 +51,7 @@
 				</linkpanel>
 			</config>
 			<structure>
-				<section>
+				<section id="42">
 					<element>
 						<action id="create" eventId="events" onSuccess="demo-application/index/create">
 							<config>
