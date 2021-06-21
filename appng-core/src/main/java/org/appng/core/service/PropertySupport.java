@@ -455,7 +455,7 @@ public class PropertySupport {
 	 * @return the dot-separated property-prefix
 	 */
 	public static String getNodePrefix(String nodeId) {
-		return PREFIX_NODE + nodeId.replace('.', '-') + DOT;
+		return PREFIX_NODE + nodeId.replace('.', '_') + DOT;
 	}
 
 	/**
