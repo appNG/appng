@@ -341,7 +341,12 @@ public class CoreService {
 		}
 		LOGGER.debug(logMssg);
 		return property;
+	}
 
+	public PropertyImpl createNodeProperty(String nodeId, PropertyImpl property) {
+		PropertyImpl created = createProperty(PropertySupport.getNodePrefix(nodeId), property);
+		LOGGER.debug("createed node property '%s' for node '%s'", property.getName(), nodeId);
+		return created;
 	}
 
 	private PropertyImpl createProperty(String prefix, PropertyImpl property) {
