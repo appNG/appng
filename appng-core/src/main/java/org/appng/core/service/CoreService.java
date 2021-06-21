@@ -51,6 +51,7 @@ import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.auth.PasswordPolicy;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
 import org.appng.api.model.AuthSubject;
@@ -201,11 +202,7 @@ public class CoreService {
 	}
 
 	protected PropertyHolder getPlatform(boolean finalize, boolean detached) {
-		Iterable<PropertyImpl> properties = getPlatformPropertiesList(null);
-		if (detached) {
-			properties.forEach(p -> propertyRepository.detach(p));
-		}
-		PropertyHolder propertyHolder = new PersistentPropertyHolder(PropertySupport.PREFIX_PLATFORM, properties);
+		PropertyHolder propertyHolder = getProperties(PropertySupport.PREFIX_PLATFORM, detached);
 		if (finalize) {
 			propertyHolder.setFinal();
 		}
@@ -225,6 +222,14 @@ public class CoreService {
 		return PlatformProperties.get(platformConfig);
 	}
 
+	public Properties initNodeConfig(Environment env) {
+		String nodeId = Messaging.getNodeId(env);
+		PropertyHolder nodeConfig = getNodeProperties(nodeId);
+		new PropertySupport(nodeConfig).initNodeConfig(true);
+		saveProperties(nodeConfig);
+		return nodeConfig;
+	}
+
 	private void addPropertyIfExists(PropertyHolder platformConfig, java.util.Properties defaultOverrides,
 			String name) {
 		if (defaultOverrides.containsKey(name)) {
@@ -233,25 +238,75 @@ public class CoreService {
 		}
 	}
 
-	private Page<PropertyImpl> getPlatformPropertiesList(Pageable pageable) {
-		return getProperties(PropertySupport.PREFIX_PLATFORM, pageable);
+	private PropertyHolder getNodeProperties(String nodeId) {
+		String prefix = PropertySupport.getNodePrefix(nodeId);
+		return getProperties(prefix);
 	}
 
-	private Page<PropertyImpl> getSiteProperties(Integer siteId, Pageable pageable) {
-		SiteImpl site = siteRepository.findOne(siteId);
-		return getProperties(PropertySupport.getSitePrefix(site), pageable);
+	public Page<PropertyImpl> getNodeProperties(String nodeId, Pageable pageable) {
+		return getProperties(PropertySupport.getNodePrefix(nodeId), pageable);
 	}
 
-	private PropertyHolder getSiteProperties(Site site) {
-		String prefix = PropertySupport.getSitePrefix(site);
-		Iterable<PropertyImpl> properties = getProperties(prefix);
-		return new PersistentPropertyHolder(prefix, properties);
-	}
-
-	private PropertyHolder getApplicationProperties(Site site, Application application) {
+	private PropertyHolder getProperties(Site site, Application application) {
 		String prefix = PropertySupport.getPropertyPrefix(site, application);
-		Iterable<PropertyImpl> properties = getProperties(prefix);
+		return getProperties(prefix);
+	}
+
+	protected Iterable<PropertyImpl> getPropertiesList(Integer siteId, Integer applicationId) {
+		return getProperties(siteId, applicationId, null);
+	}
+
+	protected Page<PropertyImpl> getProperties(Integer siteId, Integer applicationId, Pageable pageable) {
+		Site site = siteId == null ? null : siteRepository.findOne(siteId);
+		Application application = applicationId == null ? null : applicationRepository.findOne(applicationId);
+		return getProperties(site, application, pageable);
+	}
+
+	public Iterable<PropertyImpl> getPropertiesList(String siteName, String applicationName) {
+		Site site;
+		if (null != siteName) {
+			site = siteRepository.findByName(siteName);
+			if (null == site) {
+				throw new IllegalArgumentException("No such site: '" + siteName + "'");
+			}
+		} else {
+			site = null;
+		}
+		Application application;
+		if (null != applicationName) {
+			application = applicationRepository.findByName(applicationName);
+			if (null == application) {
+				throw new IllegalArgumentException("No such application: '" + applicationName + "'");
+			}
+		} else {
+			application = null;
+		}
+		return getPropertiesList(site, application);
+	}
+
+	public Iterable<PropertyImpl> getPropertiesList(Site site, Application application) {
+		return getProperties(site, application, null);
+	}
+
+	public Page<PropertyImpl> getProperties(Site site, Application application, Pageable pageable) {
+		String prefix = PropertySupport.getPropertyPrefix(site, application);
+		return getProperties(prefix, pageable);
+	}
+
+	private PropertyHolder getProperties(String prefix) {
+		return getProperties(prefix, false);
+	}
+
+	private PropertyHolder getProperties(String prefix, boolean detached) {
+		Iterable<PropertyImpl> properties = getPropertiesList(prefix);
+		if (detached) {
+			properties.forEach(propertyRepository::detach);
+		}
 		return new PersistentPropertyHolder(prefix, properties);
+	}
+
+	private Iterable<PropertyImpl> getPropertiesList(String prefix) {
+		return getProperties(prefix, (Pageable) null);
 	}
 
 	private Page<PropertyImpl> getProperties(String prefix, Pageable pageable) {
@@ -260,67 +315,6 @@ public class CoreService {
 		query.notLike("name", prefix + "%.%");
 		Page<PropertyImpl> page = propertyRepository.search(query, pageable);
 		return page;
-	}
-
-	private Page<PropertyImpl> getProperties(String prefix) {
-		return getProperties(prefix, (Pageable) null);
-	}
-
-	private Page<PropertyImpl> getApplicationPropertiesList(Integer siteId, Integer applicationId, Pageable pageable) {
-		String prefix = getPropertyPrefix(siteId, applicationId);
-		return getProperties(prefix, pageable);
-	}
-
-	private Page<PropertyImpl> getApplicationPropertiesList(Integer siteId, Integer applicationId) {
-		String prefix = getPropertyPrefix(siteId, applicationId);
-		return getProperties(prefix);
-	}
-
-	private String getPropertyPrefix(Integer siteId, Integer applicationId) {
-		Site site = null == siteId ? null : siteRepository.findOne(siteId);
-		Application application = null == applicationId ? null : applicationRepository.findOne(applicationId);
-		String prefix = PropertySupport.getPropertyPrefix(site, application);
-		return prefix;
-	}
-
-	public Page<PropertyImpl> getProperties(String siteName, String applicationName) {
-		return getProperties(siteName, applicationName, null);
-	}
-
-	public Page<PropertyImpl> getProperties(String siteName, String applicationName, Pageable pageable) {
-		Integer siteId = null;
-		Integer applicationId = null;
-		if (null != siteName) {
-			Site site = siteRepository.findByName(siteName);
-			if (null == site) {
-				throw new IllegalArgumentException("No such site: '" + siteName + "'");
-			}
-			siteId = site.getId();
-		}
-		if (null != applicationName) {
-			Application application = applicationRepository.findByName(applicationName);
-			if (null == application) {
-				throw new IllegalArgumentException("No such application: '" + applicationName + "'");
-			}
-			applicationId = application.getId();
-		}
-		return getProperties(siteId, applicationId, pageable);
-	}
-
-	protected Page<PropertyImpl> getProperties(Integer siteId, Integer applicationId) {
-		return getProperties(siteId, applicationId, null);
-	}
-
-	protected Page<PropertyImpl> getProperties(Integer siteId, Integer applicationId, Pageable pageable) {
-		Page<PropertyImpl> properties;
-		if (null != applicationId) {
-			properties = getApplicationPropertiesList(siteId, applicationId, pageable);
-		} else if (null != siteId) {
-			properties = getSiteProperties(siteId, pageable);
-		} else {
-			properties = getPlatformPropertiesList(pageable);
-		}
-		return properties;
 	}
 
 	public PropertyImpl createProperty(Integer siteId, Integer applicationId, PropertyImpl property) {
@@ -332,11 +326,12 @@ public class CoreService {
 		if (null != applicationId) {
 			application = applicationRepository.findOne(applicationId);
 		}
+		return createProperty(site, application, property);
+	}
+
+	public PropertyImpl createProperty(Site site, Application application, PropertyImpl property) {
 		String propertyPrefix = PropertySupport.getPropertyPrefix(site, application);
-		String currentName = property.getName();
-		property.setName(propertyPrefix + currentName);
-		property.determineType();
-		saveProperty(property);
+		property = createProperty(propertyPrefix, property);
 		String logMssg = "created property '" + property.getName();
 		if (null != application) {
 			logMssg += "' for application '" + application.getName() + "'";
@@ -348,8 +343,24 @@ public class CoreService {
 		return property;
 	}
 
+	public PropertyImpl createNodeProperty(String nodeId, PropertyImpl property) {
+		PropertyImpl created = createProperty(PropertySupport.getNodePrefix(nodeId), property);
+		LOGGER.debug("createed node property '%s' for node '%s'", property.getName(), nodeId);
+		return created;
+	}
+
+	private PropertyImpl createProperty(String prefix, PropertyImpl property) {
+		String currentName = property.getName();
+		property.setName(prefix + currentName);
+		property.determineType();
+		return propertyRepository.save(property);
+	}
+
 	protected boolean checkPropertyExists(Integer siteId, Integer applicationId, PropertyImpl property) {
-		String propertyPrefix = getPropertyPrefix(siteId, applicationId);
+		Site site = null == siteId ? null : siteRepository.findOne(siteId);
+		Application application = null == applicationId ? null : applicationRepository.findOne(applicationId);
+		String prefix = PropertySupport.getPropertyPrefix(site, application);
+		String propertyPrefix = prefix;
 		String propertyName = propertyPrefix + property.getName();
 		Property findById = propertyRepository.findByName(propertyName);
 		return findById != null;
@@ -717,7 +728,7 @@ public class CoreService {
 	}
 
 	protected void initSiteProperties(SiteImpl site, boolean doSave) {
-		PropertyHolder siteProperties = getSiteProperties(site);
+		PropertyHolder siteProperties = getProperties(site, null);
 		List<String> platformProps = PropertySupport.getSiteRelevantPlatformProps();
 		SearchQuery<PropertyImpl> query = propertyRepository.createSearchQuery().in("name", platformProps);
 		Page<PropertyImpl> properties = propertyRepository.search(query, new PageRequest(0, platformProps.size()));
@@ -778,9 +789,9 @@ public class CoreService {
 				for (org.appng.xml.application.Property prop : applicationInfo.getProperties().getProperty()) {
 					PropertyImpl property = new PropertyImpl(prop.getId(), null, null);
 					setPropertyValue(prop, property, true);
-					createProperty(null, application.getId(), property);
+					createProperty(null, application, property);
 				}
-				final Properties applicationProperties = getApplicationProperties(null, application);
+				final Properties applicationProperties = getProperties(null, application);
 				application.setProperties(applicationProperties);
 			}
 		}
@@ -832,11 +843,11 @@ public class CoreService {
 			}
 			if (createProperties) {
 				String prefix = PropertySupport.getPropertyPrefix(site, application);
-				Iterable<PropertyImpl> properties = getProperties(prefix);
+				Iterable<PropertyImpl> properties = getPropertiesList(prefix);
 				for (PropertyImpl property : properties) {
 					propertyRepository.delete(property);
 				}
-				PropertyHolder originalProperties = getApplicationProperties(null, application);
+				PropertyHolder originalProperties = getProperties(null, application);
 				if (null != originalProperties) {
 					for (String name : originalProperties.getPropertyNames()) {
 						Property platformApplicationProperty = originalProperties.getProperty(name);
@@ -850,7 +861,7 @@ public class CoreService {
 						} else {
 							property.setDefaultString(platformApplicationProperty.getDefaultString());
 						}
-						createProperty(site.getId(), application.getId(), property);
+						createProperty(site, application, property);
 					}
 				}
 			}
@@ -888,7 +899,7 @@ public class CoreService {
 			resources.dumpToCache(ResourceType.APPLICATION, ResourceType.SQL);
 			File sqlFolder = new File(platformCache, ResourceType.SQL.getFolder());
 			String databasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
-			PropertyHolder applicationProperties = getApplicationProperties(null, siteApplication.getApplication());
+			PropertyHolder applicationProperties = getProperties(null, siteApplication.getApplication());
 			((AccessibleApplication) application).setProperties(applicationProperties);
 			if (null == application.getResources()) {
 				((AccessibleApplication) application).setResources(resources);
@@ -1096,7 +1107,7 @@ public class CoreService {
 				PropertyImpl property = propertyRepository.findOne(propName);
 				if (null == property) {
 					property = new PropertyImpl(prop.getId(), null, null);
-					createProperty(null, application.getId(), property);
+					createProperty(null, application, property);
 				}
 				setPropertyValue(prop, property, true);
 
@@ -1106,13 +1117,13 @@ public class CoreService {
 					boolean forceValue = null == siteProperty;
 					if (forceValue) {
 						siteProperty = new PropertyImpl(prop.getId(), null, null);
-						createProperty(site.getId(), application.getId(), siteProperty);
+						createProperty(site, application, siteProperty);
 					}
 					setPropertyValue(prop, siteProperty, forceValue);
 				}
 			}
 		}
-		final Properties applicationProperties = getApplicationProperties(null, application);
+		final Properties applicationProperties = getProperties(null, application);
 		application.setProperties(applicationProperties);
 	}
 
@@ -1359,7 +1370,7 @@ public class CoreService {
 		}
 		detachApplications(site);
 
-		Iterable<PropertyImpl> siteProperties = getSiteProperties(site.getId(), null);
+		Iterable<PropertyImpl> siteProperties = getPropertiesList(site, null);
 		deleteProperties(siteProperties);
 
 		SiteImpl shutdownSite = shutdownSite(env, site.getName(), false);
@@ -1413,7 +1424,7 @@ public class CoreService {
 	}
 
 	private void deleteProperties(Integer siteId, Integer applicationId) throws BusinessException {
-		Iterable<PropertyImpl> properties = getApplicationPropertiesList(siteId, applicationId);
+		Iterable<PropertyImpl> properties = getPropertiesList(siteId, applicationId);
 		deleteProperties(properties);
 	}
 
@@ -1585,7 +1596,7 @@ public class CoreService {
 
 	private void deleteApplicationPropertiesFromSite(Site site, Application application) {
 		String propertyPrefix = PropertySupport.getPropertyPrefix(site, application);
-		Iterable<PropertyImpl> properties = getProperties(propertyPrefix);
+		Iterable<PropertyImpl> properties = getPropertiesList(propertyPrefix);
 		try {
 			deleteProperties(properties);
 		} catch (BusinessException e) {
@@ -1723,7 +1734,7 @@ public class CoreService {
 
 	protected void initApplicationProperties(Site site, AccessibleApplication application) {
 		LOGGER.info("loading properties for application '{}' of site '{}'", application.getName(), site.getName());
-		PropertyHolder applicationProperties = getApplicationProperties(site, application);
+		PropertyHolder applicationProperties = getProperties(site, application);
 		setFeatures(applicationProperties);
 		applicationProperties.setFinal();
 		application.setProperties(applicationProperties);
@@ -1734,7 +1745,7 @@ public class CoreService {
 
 	protected void initApplicationProperties(AccessibleApplication application) {
 		LOGGER.info("loading properties for application {}", application.getName());
-		PropertyHolder applicationProperties = getApplicationProperties(null, application);
+		PropertyHolder applicationProperties = getProperties(null, application);
 		setFeatures(applicationProperties);
 		applicationProperties.setFinal();
 		LOGGER.debug("initialized properties for application {}: {}", application.getName(),

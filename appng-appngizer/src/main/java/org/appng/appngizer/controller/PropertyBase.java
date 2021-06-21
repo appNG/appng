@@ -30,7 +30,7 @@ abstract class PropertyBase extends ControllerBase {
 		List<Property> propsList = new ArrayList<>();
 		String siteName = null == site ? null : site.getName();
 		String applicationName = null == app ? null : app.getName();
-		for (PropertyImpl prop : getCoreService().getProperties(siteName, applicationName)) {
+		for (PropertyImpl prop : getCoreService().getPropertiesList(site, app)) {
 			propsList.add(Property.fromDomain(prop, site, app));
 		}
 		Properties properties = new Properties(propsList, siteName, applicationName);
@@ -56,9 +56,7 @@ abstract class PropertyBase extends ControllerBase {
 			return conflict();
 		}
 		PropertyImpl propertyImpl = Property.toDomain(property);
-		Integer siteId = site == null ? null : site.getId();
-		Integer applicationId = application == null ? null : application.getId();
-		getCoreService().createProperty(siteId, applicationId, propertyImpl);
+		getCoreService().createProperty(site, application, propertyImpl);
 		return created(getPropertyResponse(property.getName(), site, application).getBody());
 	}
 
