@@ -70,11 +70,8 @@ public class RepositoryWatcher implements Runnable {
 	protected AtomicLong numOverflows = new AtomicLong(0);
 
 	private String wwwDir;
-
 	private Cache<String, CachedResponse> cache;
-
 	private File configFile;
-
 	private String ruleSourceSuffix;
 
 	public RepositoryWatcher(Site site, String jspExtension, String ruleSourceSuffix) {
@@ -114,7 +111,8 @@ public class RepositoryWatcher implements Runnable {
 	private void watch(File file) throws IOException {
 		if (file.exists() && file.isDirectory()) {
 			LOGGER.info("watching {}", file.toString());
-			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE,
+					StandardWatchEventKinds.ENTRY_MODIFY);
 		}
 	}
 
