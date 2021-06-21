@@ -77,7 +77,7 @@ public class ListProperties extends CommandList implements ExecutableCliCommand 
 
 	public void execute(CliEnvironment cle) throws BusinessException {
 
-		Iterable<? extends Property> properties = cle.getCoreService().getProperties(siteName, applicationName);
+		Iterable<? extends Property> properties = cle.getCoreService().getPropertiesList(siteName, applicationName);
 
 		if (null != properties) {
 
