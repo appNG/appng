@@ -173,7 +173,7 @@ public class PlatformTransformer {
 		}
 		try {
 			ErrorCollector errorCollector = new ErrorCollector();
-			if (!devMode && STYLESHEETS.containsKey(styleId)) {
+			if (!devMode && STYLESHEETS.get(siteName).containsKey(styleId)) {
 				sourceAwareTemplate = STYLESHEETS.get(siteName).get(styleId);
 				styleSheetProvider.cleanup();
 				LOGGER.debug("reading templates from cache (id: {})", styleId);
