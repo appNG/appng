@@ -215,11 +215,22 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			List<String> userAgentPatterns = Arrays
 					.asList(platformConfig.getClob(Platform.Property.SESSION_FILTER).split(StringUtils.LF));
 			if (userAgentPatterns.stream().anyMatch(userAgent::matches)) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Session automatically discarded: {} (user-agent: {})", httpSession.getId(),
-							userAgent);
+				Site site = RequestUtil.getSite(GLOBAL_ENV, httpServletRequest);
+				if (null != site
+						&& RequestUtil.getPathInfo(GLOBAL_ENV, site, httpServletRequest.getServletPath()).isGui()) {
+					httpSession.setMaxInactiveInterval(60);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Setting session lifetime for {} to 30s (user-agent: {})", httpSession.getId(),
+								userAgent);
+					}
+				} else {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Session automatically discarded: {} (user-agent: {})", httpSession.getId(),
+								userAgent);
+					}
+					httpSession.invalidate();
 				}
-				httpSession.invalidate();
+
 			}
 		}
 	}
