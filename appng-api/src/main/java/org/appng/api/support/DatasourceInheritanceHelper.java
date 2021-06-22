@@ -106,7 +106,7 @@ public class DatasourceInheritanceHelper {
 	 */
 	public static Datasource inherit(Datasource descendantDefinition, Datasource ancestor,
 			MarshallService marshallService) {
-		LOGGER.info("process inheritance for {}", descendantDefinition.getId());
+		LOGGER.debug("process inheritance for {}", descendantDefinition.getId());
 
 		String marshalledAncestor;
 		Datasource descendant = null;
@@ -128,7 +128,7 @@ public class DatasourceInheritanceHelper {
 		if (null != descendantDefConfig.getTitle()) {
 			if (StringUtils.isNotBlank(descendantDefConfig.getTitle().getId())
 					|| StringUtils.isNotBlank(descendantDefConfig.getTitle().getValue())) {
-				LOGGER.info("override title");
+				LOGGER.debug("override title");
 				descendantConfig.setTitle(descendantDefConfig.getTitle());
 			}
 		}
@@ -136,7 +136,7 @@ public class DatasourceInheritanceHelper {
 		// description
 		if (null != descendantDefConfig.getDescription()) {
 			descendantConfig.setDescription(descendantDefConfig.getDescription());
-			LOGGER.info("override description");
+			LOGGER.debug("override description");
 		}
 		// labels are merged
 		if (null != descendantDefConfig.getLabels()) {
@@ -145,17 +145,17 @@ public class DatasourceInheritanceHelper {
 				Label orig = findLabel(inheritedLabels, l.getId());
 				if (null != orig) {
 					inheritedLabels.remove(orig);
-					LOGGER.info("remove label with id {}", orig.getId());
+					LOGGER.debug("remove label with id {}", orig.getId());
 				}
 				inheritedLabels.add(l);
-				LOGGER.info("add label with id {}", l.getId());
+				LOGGER.debug("add label with id {}", l.getId());
 			}
 		}
 
 		// permissions are not merged.
 		if (null != descendantDefConfig.getPermissions()) {
 			descendantConfig.setPermissions(descendantDefConfig.getPermissions());
-			LOGGER.info("override permissions");
+			LOGGER.debug("override permissions");
 		}
 
 		// parameter
@@ -165,10 +165,10 @@ public class DatasourceInheritanceHelper {
 				Param origP = getParam(inheritedParams, p.getName());
 				if (null != origP) {
 					inheritedParams.remove(origP);
-					LOGGER.info("remove original parameter {}", p.getName());
+					LOGGER.debug("remove original parameter {}", p.getName());
 				}
 				inheritedParams.add(p);
-				LOGGER.info("add parameter {}", p.getName());
+				LOGGER.debug("add parameter {}", p.getName());
 			}
 		}
 
@@ -189,18 +189,18 @@ public class DatasourceInheritanceHelper {
 				int index = inheritedFields.indexOf(origF);
 				inheritedFields.remove(origF);
 				inheritedFields.add(index, field);
-				LOGGER.info("override field {} at position {}", field.getName(), index);
+				LOGGER.debug("override field {} at position {}", field.getName(), index);
 			} else {
 				// place it before "action" field if there is a action field. If not,
 				// put it in front of the field list
 				FieldDef linkpanelField = getFirstFieldOfType(inheritedFields, FieldType.LINKPANEL);
 				if (null == linkpanelField) {
 					inheritedFields.add(0, field);
-					LOGGER.info("add new field {} at position 0", field.getName());
+					LOGGER.debug("add new field {} at position 0", field.getName());
 				} else {
 					int index = inheritedFields.indexOf(linkpanelField);
 					inheritedFields.add(index, field);
-					LOGGER.info("add new field {} before linkpanel field at position {}", field.getName(), index);
+					LOGGER.debug("add new field {} before linkpanel field at position {}", field.getName(), index);
 				}
 			}
 		}
@@ -208,7 +208,7 @@ public class DatasourceInheritanceHelper {
 		// bean-id
 		if (StringUtils.isNotBlank(descendantDefinition.getBean().getId())) {
 			descendant.getBean().setId(descendantDefinition.getBean().getId());
-			LOGGER.info("override bean id {}", descendantDefinition.getBean().getId());
+			LOGGER.debug("override bean id {}", descendantDefinition.getBean().getId());
 
 			// it does not make sense to keep the old bean options if the bean id has been overwritten
 			descendant.getBean().getOptions().clear();
@@ -220,10 +220,10 @@ public class DatasourceInheritanceHelper {
 			BeanOption origB = getBeanOption(inheritedOptions, b.getName());
 			if (null != origB) {
 				inheritedOptions.remove(origB);
-				LOGGER.info("remove original bean option {}", origB.getName());
+				LOGGER.debug("remove original bean option {}", origB.getName());
 			}
 			inheritedOptions.add(b);
-			LOGGER.info("add bean option {}", b.getName());
+			LOGGER.debug("add bean option {}", b.getName());
 		}
 
 		// linkpanel
@@ -235,11 +235,11 @@ public class DatasourceInheritanceHelper {
 				int index = inheritedLinkPanels.indexOf(origLp);
 				inheritedLinkPanels.remove(origLp);
 				inheritedLinkPanels.add(index, lp);
-				LOGGER.info("override linkpanel with id {}", origLp.getId());
+				LOGGER.debug("override linkpanel with id {}", origLp.getId());
 			} else {
 				// add the complete panel if it does not exist
 				inheritedLinkPanels.add(lp);
-				LOGGER.info("add linkpanel with id {}", lp.getId());
+				LOGGER.debug("add linkpanel with id {}", lp.getId());
 			}
 		}
 		return descendant;
