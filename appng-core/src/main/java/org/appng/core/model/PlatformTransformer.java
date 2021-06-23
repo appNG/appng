@@ -416,7 +416,7 @@ public class PlatformTransformer {
 	 * Clears the internal template-cache, which must be done if a {@link Site} is being reloaded.
 	 */
 	public static synchronized void clearCache(Site site) {
-		if (STYLESHEETS.containsKey(site.getName())) {
+		if (null != site && STYLESHEETS.containsKey(site.getName())) {
 			STYLESHEETS.get(site.getName()).clear();
 		}
 	}
