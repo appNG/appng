@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.cache.Cache;
 
@@ -69,8 +68,6 @@ public class RepositoryWatcher implements Runnable {
 	private boolean needsToBeWatched = false;
 	private Map<String, List<String>> forwardMap;
 	protected Long forwardsUpdatedAt = null;
-	protected AtomicLong numEvents = new AtomicLong(0);
-	protected AtomicLong numOverflows = new AtomicLong(0);
 
 	private String wwwDir;
 
@@ -132,37 +129,36 @@ public class RepositoryWatcher implements Runnable {
 				return;
 			}
 			for (WatchEvent<?> event : key.pollEvents()) {
-				long processed = numEvents.incrementAndGet();
 				long start = System.currentTimeMillis();
-				Path eventPath = (Path) key.watchable();
 				if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-					numOverflows.incrementAndGet();
-					LOGGER.warn("events for {} overflowed after {} events", eventPath, processed);
+					continue;
+				}
+				Path eventPath = (Path) key.watchable();
+				File absoluteFile = new File(eventPath.toFile(), ((Path) event.context()).toString());
+				LOGGER.debug("received event {} for {}", event.kind(), absoluteFile);
+				if (absoluteFile.equals(configFile)) {
+					readUrlRewrites(absoluteFile);
 				} else {
-					File absoluteFile = new File(eventPath.toFile(), String.valueOf(event.context()));
-					LOGGER.info("({}) received {} for {}", key.watchable(), event.kind(), event.context());
-					if (absoluteFile.equals(configFile)) {
-						readUrlRewrites(absoluteFile);
-					} else {
-						String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
-						String relativePathName = absolutePath.substring(wwwDir.length());
-						if (relativePathName.endsWith(jspExtension)) {
-							relativePathName = relativePathName.substring(0,
-									relativePathName.length() - jspExtension.length());
-						}
-						removeFromCache(relativePathName);
-						if (forwardMap.containsKey(relativePathName)) {
-							forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
-						}
-						LOGGER.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
-								System.currentTimeMillis() - start);
+					String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
+					String relativePathName = absolutePath.substring(wwwDir.length());
+					if (relativePathName.endsWith(jspExtension)) {
+						relativePathName = relativePathName.substring(0,
+								relativePathName.length() - jspExtension.length());
 					}
+					removeFromCache(relativePathName);
+					if (forwardMap.containsKey(relativePathName)) {
+						forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
+					}
+					LOGGER.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
+							System.currentTimeMillis() - start);
 				}
 			}
-			if (!key.reset()) {
-				LOGGER.warn("key could not be reset: {}", key);
+			boolean valid = key.reset();
+			if (!valid) {
+				break;
 			}
 		}
+
 	}
 
 	private int removeFromCache(String relativePathName) {

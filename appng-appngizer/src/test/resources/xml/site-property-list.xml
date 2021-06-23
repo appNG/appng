@@ -194,29 +194,29 @@
 		<defaultValue>5000</defaultValue>
 		<description>The timeout in milliseconds for indexing</description>
 	</property>
-	<property name="jdbcConnectionTimeout" self="http://localhost/site/localhost/property/jdbcConnectionTimeout">
+	<property name="jdbcConnectionTimeout" self="http://localhost/appNGizer/site/localhost/property/jdbcConnectionTimeout">
 		<value>5000</value>
 		<defaultValue>5000</defaultValue>
 		<description>The maximum number of milliseconds that a client will wait for a connection from the connection pool
 		</description>
 	</property>
-	<property name="jdbcLogPerformance" self="http://localhost/site/localhost/property/jdbcLogPerformance">
+	<property name="jdbcLogPerformance" self="http://localhost/appNGizer/site/localhost/property/jdbcLogPerformance">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
 		<description>Set to 'true' to enable JDBC Performance Logger</description>
 	</property>
-	<property name="jdbcMaxLifetime" self="http://localhost/site/localhost/property/jdbcMaxLifetime">
+	<property name="jdbcMaxLifetime" self="http://localhost/appNGizer/site/localhost/property/jdbcMaxLifetime">
 		<value>900000</value>
 		<defaultValue>900000</defaultValue>
 		<description>The maximum lifetime in milliseconds for a connection in the pool.</description>
 	</property>
-	<property name="jdbcValidationTimeout" self="http://localhost/site/localhost/property/jdbcValidationTimeout">
+	<property name="jdbcValidationTimeout" self="http://localhost/appNGizer/site/localhost/property/jdbcValidationTimeout">
 		<value>5000</value>
 		<defaultValue>5000</defaultValue>
 		<description>The maximum number of milliseconds that the connection pool will wait for a connection to be validated as
 			alive.</description>
 	</property>
-	<property name="ldapDomain" self="http://localhost/site/localhost/property/ldapDomain">
+	<property name="ldapDomain" self="http://localhost/appNGizer/site/localhost/property/ldapDomain">
 		<value>EXAMPLE</value>
 		<defaultValue>EXAMPLE</defaultValue>
 		<description>The Domain for the LDAP authentication</description>
@@ -379,3 +379,4 @@
 			Supports blank lines and comments (#).</description>
 	</property>
 </properties>
+

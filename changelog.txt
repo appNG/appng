@@ -1,13 +1,4 @@
-Release Notes - appNG - Version 1.22.1 (2020-11-23)
----------------------------------------------------
-* [APPNG-2361] - Release appNG 1.22.1
-* [APPNG-2360] - Missing nested fields when same name and different condition is used
-* [APPNG-2357] - Improve YAML output of AppNGizer
-* [APPNG-2356] - On a page, an action should support a mode-attribute
-* [APPNG-2355] - @FileUpload should support @Target({ FIELD })
-* [APPNG-2354] - Possible NPE in SubjectImpl#hasApplication when site has been stopped
-
-Release Notes - appNG - Version 1.22.0 (2020-10-05)
+Release Notes - appNG - Version 1.21.1 (2020-07-22)
 ---------------------------------------------------
 * [APPNG-2353] - Release 1.22.0
 * [APPNG-2352] - Provide a tooltip for metadata fields
