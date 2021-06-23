@@ -49,12 +49,14 @@ import org.appng.api.Webservice;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.handler.JspHandler;
 import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
+import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
 import org.appng.tools.os.OperatingSystem;
@@ -272,8 +274,8 @@ public class ControllerTest extends Controller {
 		when(base.request.getServletPath()).thenReturn("/test.txt");
 		try {
 			doGet(base.request, base.response);
-			String actual = new String(base.out.toByteArray());
-			Assert.assertEquals("/test.txt", actual);
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
 			fail(e);
 		}
@@ -426,7 +428,8 @@ public class ControllerTest extends Controller {
 		when(base.request.getServletPath()).thenReturn("/de");
 		try {
 			doGet(base.request, base.response);
-			verify(base.response).getStatus();
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
@@ -463,8 +466,9 @@ public class ControllerTest extends Controller {
 		when(base.request.getServletPath()).thenReturn("/repository/manager/www/de/test.txt");
 		try {
 			doGet(base.request, base.response);
-			Assert.assertEquals("/repository/manager/www/de/test.txt", new String(base.out.toByteArray()));
-		} catch (Exception e) {
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
+		} catch (Exception e) {			
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -520,8 +524,7 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testLoadingPage() {
-		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(false);
-		when(base.request.getServletPath()).thenReturn("/dummy");
+		((SiteImpl) base.siteMap.get("manager")).setState(SiteState.STARTING);
 		try {
 			doGet(base.request, base.response);
 			String actual = new String(base.out.toByteArray());

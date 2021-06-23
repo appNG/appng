@@ -164,7 +164,6 @@ public class RequestUtil {
 	 */
 	public static PathInfo getPathInfo(Environment env, Site site, String servletPath) {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		Properties activeSiteProperties = site.getProperties();
 
 		LOGGER.trace("found site '{}' for request '{}'", site.getName(), servletPath);
 
@@ -175,8 +174,8 @@ public class RequestUtil {
 		Properties siteProperties = site.getProperties();
 		String guiPath = siteProperties.getString(SiteProperties.MANAGER_PATH);
 		String servicePath = siteProperties.getString(SiteProperties.SERVICE_PATH);
-		List<String> blobDirectories = activeSiteProperties.getList(SiteProperties.ASSETS_DIR, ";");
-		List<String> documentDirectories = activeSiteProperties.getList(SiteProperties.DOCUMENT_DIR, ";");
+		List<String> blobDirectories = siteProperties.getList(SiteProperties.ASSETS_DIR, ";");
+		List<String> documentDirectories = siteProperties.getList(SiteProperties.DOCUMENT_DIR, ";");
 
 		if (blobDirectories.isEmpty()) {
 			blobDirectories = siteProperties.getList(SiteProperties.ASSETS_DIR, ";");
