@@ -116,6 +116,10 @@ public class PlatformStartup implements ServletContextListener {
 			InitializerService service = getService(env);
 			final PlatformProperties platformProperties = service.loadPlatformProperties(config, env);
 			service.loadNodeProperties(env);
+			File debugFolder = new File(appngData, "debug").getAbsoluteFile();
+			if (!(debugFolder.exists() || debugFolder.mkdirs())) {
+				LOGGER.warn("Failed to create debig folder at {}", debugFolder.getPath());
+			}
 
 			messagingExecutor = Executors.newSingleThreadExecutor(
 					new ThreadFactoryBuilder().setDaemon(true).setNameFormat(Messaging.getNodeId(env)).build());

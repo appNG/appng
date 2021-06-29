@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.apache.catalina.Globals;
+import org.apache.catalina.WebResourceRoot;
 import org.apache.commons.io.output.NullOutputStream;
 import org.appng.api.AttachmentWebservice;
 import org.appng.api.BusinessException;
@@ -68,6 +70,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockServletConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -93,6 +96,8 @@ public class ControllerTest extends Controller {
 		env = Mockito.spy(DefaultEnvironment.get(base.ctx));
 		base.provider.registerBean("environment", (Environment) env);
 		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
+		Mockito.when(base.ctx.getAttribute(Globals.RESOURCES_ATTR)).thenReturn(Mockito.mock(WebResourceRoot.class));
+		init(new MockServletConfig(base.ctx));
 	}
 
 	@Test
@@ -468,7 +473,8 @@ public class ControllerTest extends Controller {
 			doGet(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
 			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
-		} catch (Exception e) {			
+		} catch (Exception e) {
+			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -534,10 +540,6 @@ public class ControllerTest extends Controller {
 		} finally {
 			Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
 		}
-	}
-
-	@Override
-	public void init() throws ServletException {
 	}
 
 	public HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response) {
