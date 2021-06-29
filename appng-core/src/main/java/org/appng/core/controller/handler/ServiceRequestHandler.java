@@ -69,6 +69,7 @@ import org.appng.xml.platform.OutputFormat;
 import org.appng.xml.platform.OutputType;
 import org.appng.xml.platform.PageReference;
 import org.appng.xml.platform.PagesReference;
+import org.appng.xml.platform.PlatformConfig;
 import org.appng.xml.platform.Section;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.Structure;
@@ -196,6 +197,13 @@ public class ServiceRequestHandler implements RequestHandler {
 				boolean applyPermissionsOnServiceRef = site.getProperties().getBoolean("applyPermissionsOnServiceRef",
 						true);
 
+				if ("page".equals(serviceType)) {
+					String page = path.getElementAt(path.getApplicationIndex() + 2);
+					path.setPage(page);
+					ApplicationReference applicationReference = application.process(applicationRequest, marshallService, path, new PlatformConfig());
+					result = new ObjectMapper().writeValueAsString(applicationReference.getPages().getPage().get(0));
+					contenttype = MediaType.APPLICATION_JSON_VALUE;
+				}
 				if (SERVICE_TYPE_ACTION.equals(serviceType)) {
 					path.checkPathLength(8);
 					String format = path.getElementAt(path.getApplicationIndex() + 2);
@@ -288,9 +296,12 @@ public class ServiceRequestHandler implements RequestHandler {
 
 	private boolean addMessagesToDatasource(Environment environment, Site site, ApplicationProvider application,
 			Datasource datasource) {
-		// Messages added to the FieldProcessor during processing of the datasource are normally not added
-		// to the Datasource if it is called with the GuiHandler. Those messages are added to the page. When a
-		// datasource is called as a service, we have to put them into the datasource and remove them from session.
+		// Messages added to the FieldProcessor during processing of the datasource are
+		// normally not added
+		// to the Datasource if it is called with the GuiHandler. Those messages are
+		// added to the page. When a
+		// datasource is called as a service, we have to put them into the datasource
+		// and remove them from session.
 		ElementHelper elementHelper = new ElementHelper(site, application);
 		Messages messages = elementHelper.removeMessages(environment);
 		if (null != messages) {

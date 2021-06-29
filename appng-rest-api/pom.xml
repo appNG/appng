@@ -17,35 +17,34 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>io.swagger</groupId>
-				<artifactId>swagger-codegen-maven-plugin</artifactId>
-				<version>2.4.7</version>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>5.1.1</version>
 				<executions>
 					<execution>
-						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<language>java</language>
-							<inputSpec>${basedir}/src/main/resources/org/appng/api/rest/appng-rest.yaml</inputSpec>
-							<generateModels>true</generateModels>
-							<modelPackage>org.appng.api.rest.model</modelPackage>
-							<generateModelDocumentation>true</generateModelDocumentation>
-							<generateApis>false</generateApis>
-							<library>resttemplate</library>
+							<inputSpec>${project.basedir}/src/main/resources/org/appng/api/rest/appng-rest-openapi3.yaml</inputSpec>
+							<generatorName>java</generatorName>
 							<configOptions>
-								<dateLibrary>legacy</dateLibrary>
+								<generateApis>false</generateApis>
+								<generateModels>true</generateModels>
+								<java8>true</java8>
+								<library>resttemplate</library>
+								<modelPackage>org.appng.api.rest.model</modelPackage>
 								<serializableModel>true</serializableModel>
+								<dateLibrary>legacy</dateLibrary>
 							</configOptions>
 						</configuration>
 					</execution>
 				</executions>
 				<dependencies>
 					<dependency>
-						<groupId>io.swagger</groupId>
-						<artifactId>swagger-codegen</artifactId>
-						<version>2.4.7</version>
+						<groupId>org.openapitools</groupId>
+						<artifactId>openapi-generator-maven-plugin</artifactId>
+						<version>5.1.1</version>
 					</dependency>
 				</dependencies>
 			</plugin>
