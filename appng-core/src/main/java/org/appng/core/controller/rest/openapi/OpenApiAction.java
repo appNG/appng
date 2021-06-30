@@ -74,12 +74,13 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -108,7 +109,8 @@ public class OpenApiAction extends OpenApiOperation {
 			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}",
 			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
 			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
-		}
+		},
+		produces =  MediaType.APPLICATION_JSON_UTF8_VALUE
 	)
 	// @formatter:on
 	public ResponseEntity<Action> getAction(@PathVariable(name = "event-id") String eventId,
@@ -148,14 +150,13 @@ public class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null);
-		
-		
+
 		postProcessAction(action, site, application, env);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
 	// @formatter:off
-	@RequestMapping(
+	@PostMapping(
 		path = {
 			ACTION_PATH,
 			ACTION_PATH + "/{pathVar1:.+}",
@@ -164,15 +165,51 @@ public class OpenApiAction extends OpenApiOperation {
 			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
 			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
 		},
-		method = { RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE }
+		consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+		produces =  MediaType.APPLICATION_JSON_VALUE
 	)
 	// @formatter:on
-	public ResponseEntity<Action> performAction(@PathVariable(name = "event-id") String eventId,
+	public ResponseEntity<Action> performActionMultiPart(
+	// @formatter:off
+ 			@PathVariable(name = "event-id") String eventId,
 			@PathVariable(name = "id") String actionId,
-			@PathVariable(required = false) Map<String, String> pathVariables, @RequestBody Action receivedData,
-			Environment env, HttpServletRequest servletReq, HttpServletResponse servletResp) throws ProcessingException,
-			JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
+			@PathVariable(required = false) Map<String, String> pathVariables,
+			@RequestPart("body") Action receivedData,
+			Environment env,
+			HttpServletRequest servletReq,
+			HttpServletResponse servletResp
+		// @formatter:on
+	) throws ProcessingException, JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
 
+		return performAction(eventId, actionId, pathVariables, receivedData, env, servletReq, servletResp);
+	}
+
+	// @formatter:off
+	@PostMapping(
+		path = {
+			ACTION_PATH,
+			ACTION_PATH + "/{pathVar1:.+}",
+			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}",
+			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}",
+			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
+			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
+		},
+		consumes = MediaType.APPLICATION_JSON_VALUE,
+		produces =  MediaType.APPLICATION_JSON_VALUE
+	)
+	// @formatter:on
+	protected ResponseEntity<Action> performAction(
+	// @formatter:off
+ 			@PathVariable(name = "event-id") String eventId,
+			@PathVariable(name = "id") String actionId,
+			@PathVariable(required = false) Map<String, String> pathVariables,
+			@RequestBody Action receivedData,
+			Environment env,
+			HttpServletRequest servletReq,
+			HttpServletResponse servletResp
+		// @formatter:on
+	)
+			throws JAXBException, InvalidConfigurationException, ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
 				actionId);

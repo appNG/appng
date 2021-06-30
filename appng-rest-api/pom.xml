@@ -64,11 +64,13 @@
 				</executions>
 				<configuration>
 					<inputSpec>${basedir}/src/main/resources/org/appng/api/rest/appng-openapi.yaml</inputSpec>
+					<templateDirectory>${project.basedir}/openapi/templates</templateDirectory>
 					<generatorName>java</generatorName>
 					<generateApis>true</generateApis>
 					<generateModels>true</generateModels>
 					<generateSupportingFiles>true</generateSupportingFiles>
 					<configOptions>
+						<useAbstractionForFiles>true</useAbstractionForFiles>
 						<apiPackage>org.appng.openapi</apiPackage>
 						<invokerPackage>org.appng.openapi.invoke</invokerPackage>
 						<modelPackage>org.appng.openapi.model</modelPackage>
