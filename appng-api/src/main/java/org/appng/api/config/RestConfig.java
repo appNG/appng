@@ -19,6 +19,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.UrlPathHelper;
 
 import lombok.AllArgsConstructor;
 
@@ -29,6 +30,9 @@ public class RestConfig {
 	public RequestMappingHandlerMapping requestMappingHandlerMapping(ApplicationContext context) {
 		RequestMappingHandlerMapping requestMappingHandlerMapping = new RequestMappingHandlerMapping();
 		requestMappingHandlerMapping.setApplicationContext(context);
+		UrlPathHelper urlPathHelper = new UrlPathHelper();
+		urlPathHelper.setRemoveSemicolonContent(false);
+		requestMappingHandlerMapping.setUrlPathHelper(urlPathHelper);
 		requestMappingHandlerMapping.afterPropertiesSet();
 		return requestMappingHandlerMapping;
 	}

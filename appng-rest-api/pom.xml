@@ -22,6 +22,7 @@
 				<version>2.4.7</version>
 				<executions>
 					<execution>
+						<id>v1</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate</goal>
@@ -50,6 +51,34 @@
 				</dependencies>
 			</plugin>
 			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>5.1.1</version>
+				<executions>
+					<execution>
+						<id>rest-api</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<inputSpec>${basedir}/src/main/resources/org/appng/api/rest/appng-openapi.yaml</inputSpec>
+					<generatorName>java</generatorName>
+					<generateApis>true</generateApis>
+					<generateModels>true</generateModels>
+					<generateSupportingFiles>true</generateSupportingFiles>
+					<configOptions>
+						<apiPackage>org.appng.openapi</apiPackage>
+						<invokerPackage>org.appng.openapi.invoke</invokerPackage>
+						<modelPackage>org.appng.openapi.model</modelPackage>
+						<library>resttemplate</library>
+						<java8>true</java8>
+						<dateLibrary>java8</dateLibrary>
+					</configOptions>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<executions>
@@ -61,6 +90,7 @@
 						<configuration>
 							<sources>
 								<source>target/generated-sources/swagger/src/main/java</source>
+								<source>target/generated-sources/openapi/src/main/java</source>
 							</sources>
 						</configuration>
 					</execution>
@@ -140,6 +170,11 @@
 			<artifactId>mockito-core</artifactId>
 			<version>1.10.19</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

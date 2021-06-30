@@ -82,6 +82,7 @@ import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
 import org.appng.core.controller.rest.RestPostProcessor;
+import org.appng.core.controller.rest.openapi.OpenApiPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
@@ -759,9 +760,11 @@ public class InitializerService {
 						platformCacheManager, dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
-				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
+				Boolean enableRest = application.getProperties().getBoolean("enableRest", false);
 				if (enableRest) {
 					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
+					applicationContext
+							.addBeanFactoryPostProcessor(new OpenApiPostProcessor(application.getProperties()));
 				}
 
 				applicationContext.refresh();
