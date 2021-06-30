@@ -70,6 +70,7 @@ import org.appng.core.controller.filter.CsrfSetupFilter;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.model.JarInfo.JarInfoBuilder;
+import org.appng.el.ExpressionEvaluator;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ActionRef;
@@ -451,12 +452,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		boolean hasRedirect = false;
 		List<DataSourceWrapper> dataSourceWrappers = new ArrayList<>();
 
-		int sectionId = 0;
+		int sectionIdx = 0;
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
 			section.setId(sectionDef.getId());
-			if (null == section.getId()) {
-				section.setId("_sect" + (sectionId++));
+
+			if (null == section.getId() && null != sectionDef.getTitle()) {
+				section.setId(sectionDef.getTitle().getId());
 			}
 
 			String hidden = applicationRequest.getExpressionEvaluator().getString(sectionDef.getHidden());
@@ -464,7 +466,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			List<SectionelementDef> elements = sectionDef.getElement();
 
 			boolean mustPerform = perform
-					|| (1 == sectionId || (null != sectionIds && sectionIds.contains(section.getId())));
+					|| ((0 == sectionIdx && sectionIds.isEmpty()) || sectionIds.contains(section.getId()));
 			hasRedirect |= addElements(applicationRequest, applicationConfig, section, elements, pageReference,
 					dataSourceWrappers, mustPerform);
 
@@ -473,6 +475,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 				applicationRequest.setLabel(section.getTitle());
 				structure.getSection().add(section);
 			}
+			sectionIdx++;
 		}
 		if (!hasRedirect) {
 			Messages messagesFromSession = elementHelper.removeMessages(applicationRequest.getEnvironment());
@@ -526,11 +529,15 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			List<DataSourceWrapper> dataSourceWrappers, boolean perform) throws ProcessingException {
 		boolean hasRedirect = false;
 		boolean isSectionHidden = Boolean.parseBoolean(section.getHidden());
+		ExpressionEvaluator expressionEvaluator = applicationRequest.getExpressionEvaluator();
 
 		for (final SectionelementDef sectionelement : elements) {
 
-			String folded = applicationRequest.getExpressionEvaluator().getString(sectionelement.getFolded());
-			String passive = applicationRequest.getExpressionEvaluator().getString(sectionelement.getPassive());
+			String folded = expressionEvaluator.getString(sectionelement.getFolded());
+			String passive = expressionEvaluator.getString(sectionelement.getPassive());
+
+			boolean mustSetId = null == section.getId() && !Boolean.valueOf(passive);
+
 			sectionelement.setFolded(folded);
 			sectionelement.setPassive(passive);
 			applicationRequest.setLabel(sectionelement.getTitle());
@@ -542,6 +549,10 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					datasourceElement.mustPerform = perform;
 					dataSourceWrappers.add(datasourceElement);
 					section.getElement().add(datasourceElement);
+					if (mustSetId) {
+						section.setId(datasourceElement.getDatasource().getId());
+						mustSetId = false;
+					}
 				}
 			} else if (null != sectionelement.getAction()) {
 
@@ -571,6 +582,10 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 						section.getElement().add(actionElement);
 						if (monitorPerformance) {
 							actionElement.setExecutionTime(time);
+						}
+						if (mustSetId) {
+							section.setId(actionElement.getAction().getId());
+							mustSetId = false;
 						}
 					}
 				}

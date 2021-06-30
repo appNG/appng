@@ -148,6 +148,8 @@ public class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null);
+		
+		
 		postProcessAction(action, site, application, env);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
@@ -232,6 +234,7 @@ public class OpenApiAction extends OpenApiOperation {
 
 	protected Action getAction(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
 			Environment environment, Action receivedData) {
+		addValidationRules(processedAction.getConfig().getMetaData());
 		Action action = new Action();
 		action.setId(processedAction.getId());
 		action.setEventId(processedAction.getEventId());
@@ -241,7 +244,6 @@ public class OpenApiAction extends OpenApiOperation {
 		action.setSelf("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi/action/"
 				+ processedAction.getEventId() + "/" + processedAction.getId());
 
-		action.setFields(new HashMap<>());
 		Data data = processedAction.getData();
 		if (null != data && null != data.getResult()) {
 			data.getResult().getFields().forEach(fieldData -> {
@@ -251,13 +253,16 @@ public class OpenApiAction extends OpenApiOperation {
 				BeanWrapper beanWrapper = getBeanWrapper(metaData);
 				ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
 						beanWrapper);
-				action.getFields().put(actionField.getName(), actionField);
+				action.addFieldsItem(actionField);
 			});
 		}
 
 		action.setMessages(getMessages(processedAction.getMessages()));
-		action.setSelf("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi/action/"
-				+ action.getEventId() + "/" + action.getId());
+
+		StringBuilder self = getSelf("/action/" + action.getEventId() + "/" + action.getId());
+		appendParams(processedAction.getConfig().getParams(), self);
+		action.setSelf(self.toString());
+
 		return action;
 	}
 
@@ -311,8 +316,8 @@ public class OpenApiAction extends OpenApiOperation {
 			if (null != receivedData && !isPassword) {
 				// a successfully executed action does not contain UserData, so we have to take the data originally
 				// submitted by the user
-				Optional<ActionField> receivedField = Optional
-						.ofNullable(receivedData.getFields().get(fieldDef.getBinding()));
+				Optional<ActionField> receivedField = receivedData.getFields().stream()
+						.filter(af -> af.getName().equals(fieldDef.getBinding())).findFirst();
 				if (receivedField.isPresent()) {
 					Object objectValue = receivedField.get().getValue();
 					actionField.setValue(objectValue);
@@ -359,7 +364,7 @@ public class OpenApiAction extends OpenApiOperation {
 								childData);
 						ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
 								childField, beanWrapper);
-						actionField.getFields().put(childActionField.getName(), childActionField);
+						actionField.getFields().add(childActionField);
 						if (childField.isPresent()) {
 							applyValidationRules(request, childActionField, childField.get());
 						}
@@ -389,7 +394,7 @@ public class OpenApiAction extends OpenApiOperation {
 							actionField.getRules().size());
 				}
 			});
-			Map<String, ActionField> childFields = actionField.getFields();
+			Map<String, ActionField> childFields = getActionFieldMap(actionField.getFields());
 			if (null != childFields) {
 				for (ActionField childField : childFields.values()) {
 					Optional<FieldDef> childDef = originalDef.getFields().stream()
@@ -434,11 +439,19 @@ public class OpenApiAction extends OpenApiOperation {
 			}
 
 			MetaData metaData = original.getConfig().getMetaData();
-			Map<String, ActionField> actionFields = receivedData.getFields();
 			for (FieldDef field : metaData.getFields()) {
-				extractRequestParameter(StringUtils.EMPTY, field, actionFields, formRequest);
+				extractRequestParameter(StringUtils.EMPTY, field, getActionFieldMap(receivedData.getFields()),
+						formRequest);
 			}
 		}
+	}
+
+	private Map<String, ActionField> getActionFieldMap(List<ActionField> receivedData) {
+		Map<String, ActionField> actionFields = new HashMap<>();
+		if (null != receivedData) {
+			receivedData.forEach(f -> actionFields.put(f.getName(), f));
+		}
+		return actionFields;
 	}
 
 	private void extractRequestParameter(String pathPrefix, FieldDef field, Map<String, ActionField> actionFields,
@@ -451,7 +464,8 @@ public class OpenApiAction extends OpenApiOperation {
 				boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(field.getType());
 				if (isObjectList) {
 					for (FieldDef child : field.getFields()) {
-						extractRequestParameter(pathPrefix, child, actionField.getFields(), formRequest);
+						extractRequestParameter(pathPrefix, child, getActionFieldMap(actionField.getFields()),
+								formRequest);
 					}
 				} else if (isObject) {
 					boolean isArray = field.getBinding().endsWith(INDEXED);
@@ -461,15 +475,15 @@ public class OpenApiAction extends OpenApiOperation {
 						while (null != (nested = actionFields
 								.get(field.getName().replace(INDEXED, String.format("[%s]", i++))))) {
 							for (FieldDef child : field.getFields()) {
-								Map<String, ActionField> nestedFields = nested.getFields();
+								Map<String, ActionField> nestedFields = getActionFieldMap(nested.getFields());
 								String objectPrefix = pathPrefix + nested.getName() + ".";
 								extractRequestParameter(objectPrefix, child, nestedFields, formRequest);
 							}
 						}
 					} else {
 						for (FieldDef child : field.getFields()) {
-							extractRequestParameter(field.getBinding() + ".", child, actionField.getFields(),
-									formRequest);
+							extractRequestParameter(field.getBinding() + ".", child,
+									getActionFieldMap(actionField.getFields()), formRequest);
 						}
 					}
 				} else if (isSelectionType(field.getType())) {

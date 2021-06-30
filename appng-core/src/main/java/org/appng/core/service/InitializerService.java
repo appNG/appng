@@ -105,6 +105,7 @@ import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Messages;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -760,12 +761,13 @@ public class InitializerService {
 						platformCacheManager, dictionaryNames);
 				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
-				Boolean enableRest = application.getProperties().getBoolean("enableRest", false);
-				if (enableRest) {
-					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
-					applicationContext
-							.addBeanFactoryPostProcessor(new OpenApiPostProcessor(application.getProperties()));
+				BeanFactoryPostProcessor restProcessor;
+				if (application.getProperties().getBoolean("enableRest", false)) {
+					restProcessor = new RestPostProcessor(application.getProperties());
+				} else {
+					restProcessor = new OpenApiPostProcessor(application.getProperties());
 				}
+				applicationContext.addBeanFactoryPostProcessor(restProcessor);
 
 				applicationContext.refresh();
 

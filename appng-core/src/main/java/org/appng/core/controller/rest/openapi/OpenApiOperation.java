@@ -17,6 +17,9 @@ package org.appng.core.controller.rest.openapi;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -24,20 +27,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.MessageInterpolator;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Request;
+import org.appng.api.ValidationProvider;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.validation.DefaultValidationProvider;
+import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.openapi.model.ErrorModel;
 import org.appng.openapi.model.FieldType;
 import org.appng.openapi.model.Message;
@@ -58,6 +66,8 @@ import org.appng.xml.platform.Param;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Permissions;
 import org.appng.xml.platform.Rule;
+import org.appng.xml.platform.ValidationGroups;
+import org.appng.xml.platform.ValidationGroups.Group;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -321,5 +331,43 @@ abstract class OpenApiOperation {
 			});
 		}
 		return rule;
+	}
+
+	protected void addValidationRules(MetaData metaData) {
+		List<Class<?>> validationGroups = new ArrayList<>();
+		try {
+			ValidationGroups validation = metaData.getValidation();
+			if (null != validation) {
+				for (Group g : validation.getGroups()) {
+					Class<?> group = site.getSiteClassLoader().loadClass(g.getClazz());
+					validationGroups.add(group);
+				}
+			}
+			Locale locale = request.getLocale();
+			MessageInterpolator messageInterpolator = new LocalizedMessageInterpolator(locale, messageSource);
+			ValidationProvider validationProvider = new DefaultValidationProvider(messageInterpolator, messageSource,
+					locale, true);
+			validationProvider.addValidationMetaData(metaData, site.getSiteClassLoader(),
+					validationGroups.toArray(new Class[0]));
+		} catch (ClassNotFoundException e) {
+			getLogger().error("error retrieving validation group", e);
+		}
+	}
+
+	protected StringBuilder getSelf(String suffix) {
+		return new StringBuilder("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi" + suffix);
+	}
+
+	protected void appendParams(Params params, StringBuilder self) {
+		params.getParam().forEach(p -> {
+			try {
+				self.append(params.getParam().indexOf(p) == 0 ? "?" : "&");
+				self.append(URLEncoder.encode(p.getName(), StandardCharsets.UTF_8.name()));
+				self.append("=");
+				self.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
+			} catch (UnsupportedEncodingException e) {
+				// will not happen
+			}
+		});
 	}
 }

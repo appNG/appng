@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +45,7 @@ import org.appng.openapi.model.Section;
 import org.appng.openapi.model.SectionElement;
 import org.appng.openapi.model.User;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Param;
 import org.appng.xml.platform.SectionConfig;
 import org.appng.xml.platform.UrlSchema;
 import org.slf4j.Logger;
@@ -56,7 +56,6 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,12 +81,12 @@ public class OpenApiPage extends OpenApiOperation {
 		this.openApiAction = openApiAction;
 	}
 
-	@GetMapping(path = { "/openapi/page/{id}", "/openapi/page/{id}/", "/openapi/page/{id}/{urlParams}" })
+	@GetMapping(path = "/openapi/page/{id}")
 	public ResponseEntity<PageDefinition> getPage(
 	// @formatter:off
 		@PathVariable(name = "id") String pageId,
-		@RequestParam(required = false) String[] _sect,
-		@MatrixVariable(required = false) Map<String, String> urlParams,
+		@RequestParam(required = false, name = "_sect") String[] sections,
+		@RequestParam(required = false, name = "_urlPath") String path,
 		Environment env,
 		HttpServletRequest servletReq,
 		HttpServletResponse servletResp
@@ -109,29 +108,43 @@ public class OpenApiPage extends OpenApiOperation {
 
 		MarshallService marshallService = MarshallService.getMarshallService();
 		Path pathInfo = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
-		request.addParameters(urlParams);
+
+		List<Parameter> currentUrlParams = new ArrayList<>();
+		if (StringUtils.isNotBlank(path)) {
+			String[] pathSegments = path.substring(1).split("/");
+			UrlSchema urlSchema = originalPage.getConfig().getUrlSchema();
+			List<Param> paramList = urlSchema.getUrlParams().getParamList();
+			int i = 0;
+			for (String paramValue : pathSegments) {
+				if (i < paramList.size()) {
+					String paramName = paramList.get(i).getName();
+					request.addParameter(paramName, paramValue);
+					Parameter param = new Parameter();
+					param.setName(paramName);
+					param.setValue(paramValue);
+					currentUrlParams.add(param);
+					i++;
+				}
+			}
+		}
+
 		org.appng.xml.platform.PageReference pageReference = applicationProvider.processPage(marshallService, pathInfo,
-				pageId, null == _sect ? Collections.emptyList() : Arrays.asList(_sect));
+				pageId, null == sections ? Collections.emptyList() : Arrays.asList(sections));
 
 		pageDefinition.setId(pageId);
-		String basePath = "/manager/" + site.getName() + "/" + application.getName() + "/" + pageId;
-		pageDefinition.setSelf(basePath + "/" + StringUtils.join(urlParams.values(), "/"));
-		List<Parameter> currentUrlParams = new ArrayList<>();
-		StringBuilder templatePath = new StringBuilder(basePath);
+		pageDefinition.setSelf(getSelf("/page/" + pageId).toString());
+		pageDefinition.setUserUrl("/manager/" + site.getName() + "/" + application.getName() + "/" + pageId);
+
+		StringBuilder templatePath = getSelf("/page/" + pageId);
 
 		UrlSchema urlSchema = pageReference.getConfig().getUrlSchema();
 		urlSchema.getUrlParams().getParamList().forEach(p -> {
-			Parameter param = new Parameter();
-			param.setName(p.getName());
-			param.setValue(urlParams.get(p.getName()));
 			templatePath.append("/{" + p.getName() + "}");
-			currentUrlParams.add(param);
 		});
 
-		pageDefinition.setPathTemplate(templatePath.toString());
+		pageDefinition.setUrlTemplate(templatePath.toString());
+		pageDefinition.setUrlPath(path);
 		pageDefinition.setUrlParameters(currentUrlParams);
-
-		pageDefinition.setSections(new ArrayList<>());
 
 		pageReference.getStructure().getSection().forEach(s -> {
 			Section section = new Section();
@@ -149,9 +162,10 @@ public class OpenApiPage extends OpenApiOperation {
 				section.getTitle().setValue(config.getTitle().getValue());
 			}
 
-			pageDefinition.getSections().add(section);
+			pageDefinition.addSectionsItem(section);
 
 			s.getElement().forEach(e -> {
+
 				SectionElement element = new SectionElement();
 				element.setCollapsed(Boolean.valueOf(e.getFolded()));
 
@@ -163,15 +177,11 @@ public class OpenApiPage extends OpenApiOperation {
 				}
 				org.appng.xml.platform.Datasource d = e.getDatasource();
 				if (null != d) {
-					try {
-						Datasource datasource = openApiDataSource
-								.transformDataSource(env, servletResp, applicationProvider, d).getBody();
-						datasource.setUser(null);
-						element.setDatasource(datasource);
-					} catch (JAXBException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					Datasource datasource = openApiDataSource.transformDataSource(env, servletResp, applicationProvider,
+							d);
+					datasource.setUser(null);
+					element.setDatasource(datasource);
+
 				}
 				section.getElements().add(element);
 			});

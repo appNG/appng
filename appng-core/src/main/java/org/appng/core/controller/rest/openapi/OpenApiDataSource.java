@@ -134,34 +134,25 @@ public class OpenApiDataSource extends OpenApiOperation {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		return transformDataSource(environment, httpServletResponse, applicationProvider, processedDataSource);
-	}
-
-	/**
-	 * @param dataSourceId
-	 * @param environment
-	 * @param httpServletResponse
-	 * @param applicationProvider
-	 * @param processedDataSource
-	 * 
-	 * @return
-	 * 
-	 * @throws JAXBException
-	 */
-	protected ResponseEntity<Datasource> transformDataSource(Environment environment,
-			HttpServletResponse httpServletResponse, ApplicationProvider applicationProvider,
-			org.appng.xml.platform.Datasource processedDataSource) throws JAXBException {
-		MetaData metaData = processedDataSource.getConfig().getMetaData();
-		addValidationRules(metaData);
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processed datasource: {}", marshallService.marshallNonRoot(processedDataSource));
-		}
 		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
 			LOGGER.debug("Datasource {} on application {} of site {} returned status {}", processedDataSource.getId(),
 					application.getName(), site.getName(), httpServletResponse.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed datasource: {}", marshallService.marshallNonRoot(processedDataSource));
+		}
+
+		Datasource datasource = transformDataSource(environment, httpServletResponse, applicationProvider,
+				processedDataSource);
+		return new ResponseEntity<Datasource>(datasource, HttpStatus.OK);
+	}
+
+	protected Datasource transformDataSource(Environment environment, HttpServletResponse httpServletResponse,
+			ApplicationProvider applicationProvider, org.appng.xml.platform.Datasource processedDataSource) {
+		MetaData metaData = processedDataSource.getConfig().getMetaData();
+		addValidationRules(metaData);
 
 		Datasource datasource = new Datasource();
 		datasource.setId(processedDataSource.getId());
@@ -169,8 +160,10 @@ public class OpenApiDataSource extends OpenApiOperation {
 		datasource.setUser(user);
 		datasource.setParameters(getParameters(processedDataSource.getConfig().getParams()));
 		datasource.setPermissions(getPermissions(processedDataSource.getConfig().getPermissions()));
-		datasource.setSelf("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi/datasource/"
-				+ processedDataSource.getId());
+
+		StringBuilder self = getSelf("/datasource/" + processedDataSource.getId());
+		appendParams(processedDataSource.getConfig().getParams(), self);
+		datasource.setSelf(self.toString());
 
 		processedDataSource.getConfig().getLinkpanel().stream()
 				.filter(lp -> !lp.getLocation().equals(PanelLocation.INLINE)).forEach(lp -> {
@@ -179,11 +172,9 @@ public class OpenApiDataSource extends OpenApiOperation {
 					});
 				});
 
-		datasource.setFields(new ArrayList<>());
 		processedDataSource.getConfig().getMetaData().getFields().forEach(f -> {
 			if (!org.appng.xml.platform.FieldType.LINKPANEL.equals(f.getType())) {
-				Field field = getField(f);
-				datasource.getFields().add(field);
+				datasource.addFieldsItem(getField(f));
 			}
 		});
 
@@ -201,7 +192,7 @@ public class OpenApiDataSource extends OpenApiOperation {
 				page.setTotalItems(resultset.getHits());
 				page.setTotalPages(resultset.getLastchunk() + 1);
 				resultset.getResults().forEach(r -> {
-					page.addItemsItem(getItem(null, r, metaData));
+					datasource.addItemsItem(getItem(null, r, metaData));
 				});
 				datasource.setPage(page);
 			} else {
@@ -211,11 +202,9 @@ public class OpenApiDataSource extends OpenApiOperation {
 
 		Messages messages = environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 		datasource.setMessages(getMessages(messages));
-		datasource.setSelf("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi/datasource/"
-				+ datasource.getId());
 
 		postProcessDataSource(datasource, site, applicationProvider, environment);
-		return new ResponseEntity<Datasource>(datasource, HttpStatus.OK);
+		return datasource;
 	}
 
 	private void addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource) {
@@ -236,29 +225,6 @@ public class OpenApiDataSource extends OpenApiOperation {
 					datasource.addFiltersItem(filter);
 				});
 			});
-		}
-	}
-
-	private void addValidationRules(MetaData metaData) {
-		List<Class<?>> validationGroups = new ArrayList<>();
-		if (site.getProperties().getBoolean("restDatasourceAddValidationRules", true)) {
-			try {
-				ValidationGroups validation = metaData.getValidation();
-				if (null != validation) {
-					for (Group g : validation.getGroups()) {
-						Class<?> group = site.getSiteClassLoader().loadClass(g.getClazz());
-						validationGroups.add(group);
-					}
-				}
-				Locale locale = request.getLocale();
-				MessageInterpolator messageInterpolator = new LocalizedMessageInterpolator(locale, messageSource);
-				ValidationProvider validationProvider = new DefaultValidationProvider(messageInterpolator,
-						messageSource, locale, true);
-				validationProvider.addValidationMetaData(metaData, site.getSiteClassLoader(),
-						validationGroups.toArray(new Class[0]));
-			} catch (ClassNotFoundException e) {
-				getLogger().error("error retrieving validation group", e);
-			}
 		}
 	}
 
