@@ -15,10 +15,13 @@
  */
 package org.appng.core.controller.rest.openapi;
 
+import static org.appng.api.Scope.PLATFORM;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,25 +29,33 @@ import javax.ws.rs.ext.ParamConverter.Lazy;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.appng.api.ApplicationConfigProvider;
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
+import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.support.ResourceBundleMessageSource;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.openapi.model.Action;
 import org.appng.openapi.model.Datasource;
 import org.appng.openapi.model.Label;
+import org.appng.openapi.model.Navigation;
+import org.appng.openapi.model.NavigationItem;
 import org.appng.openapi.model.PageDefinition;
 import org.appng.openapi.model.Parameter;
 import org.appng.openapi.model.Section;
 import org.appng.openapi.model.SectionElement;
 import org.appng.openapi.model.User;
 import org.appng.xml.MarshallService;
+import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.SectionConfig;
 import org.appng.xml.platform.UrlSchema;
@@ -54,6 +65,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,7 +93,88 @@ public class OpenApiPage extends OpenApiOperation {
 		this.openApiAction = openApiAction;
 	}
 
-	@GetMapping(path = "/openapi/page/{id}")
+	@GetMapping(path = "/openapi/navigation")
+	public ResponseEntity<Navigation> getNavigation(HttpServletRequest servletReq, HttpServletResponse servletResp)
+			throws JAXBException, InvalidConfigurationException, ProcessingException {
+		Navigation navigation = new Navigation();
+		Environment env = request.getEnvironment();
+		org.appng.api.model.Subject subject = env.getSubject();
+
+		Map<String, Site> sites = env.getAttribute(PLATFORM, Platform.Environment.SITES);
+		Properties properties = site.getProperties();
+		Application authApp = site.getApplication(properties.getString(SiteProperties.AUTH_APPLICATION));
+		String managerPrefix = properties.getString(SiteProperties.MANAGER_PATH) + "/";
+		String authAppPath = managerPrefix + site.getName() + "/" + authApp.getName() + "/";
+
+		if (null != subject && subject.isAuthenticated()) {
+			for (String siteName : sites.keySet()) {
+				Site navSite = sites.get(siteName);
+				NavigationItem siteNavigation = new NavigationItem();
+				siteNavigation.setType(NavigationItem.TypeEnum.SITE);
+				siteNavigation.setName(navSite.getName());
+				for (Application app : navSite.getApplications()) {
+					if (!app.isHidden() && subject.hasApplication(app)) {
+						NavigationItem applicationItem = new NavigationItem();
+						applicationItem.setType(NavigationItem.TypeEnum.APP);
+						applicationItem.setName(app.getDisplayName());
+						siteNavigation.addItemsItem(applicationItem);
+
+						applicationItem.setPath(managerPrefix + navSite.getName() + "/" + app.getName());
+
+						if (site.getName().equals(navSite.getName()) && app.getName().equals(application.getName())) {
+							applicationItem.setActive(true);
+							siteNavigation.setActive(true);
+
+							ApplicationConfigProvider applicationConfig = ((ApplicationProvider) application)
+									.getApplicationConfig();
+							Linkpanel topNav = applicationConfig.getApplicationRootConfig().getNavigation();
+							for (org.appng.xml.platform.Link link : topNav.getLinks()) {
+								NavigationItem topNavItem = new NavigationItem();
+								topNavItem.setType(NavigationItem.TypeEnum.PAGE);
+								String labelId = link.getLabel().getId();
+								ResourceBundleMessageSource messages = application
+										.getBean(ResourceBundleMessageSource.class);
+								topNavItem.setName(messages.getMessage(labelId, new Object[0], env.getLocale()));
+								topNavItem.setPath(applicationItem.getPath() + link.getTarget());
+								applicationItem.addItemsItem(topNavItem);
+							}
+						}
+
+					}
+					sortItems(siteNavigation.getItems());
+				}
+				if (null != siteNavigation.getItems()) {
+					navigation.addItemsItem(siteNavigation);
+					sortItems(navigation.getItems());
+				}
+			}
+			String logoutRef = properties.getString(SiteProperties.AUTH_LOGOUT_REF);
+			NavigationItem logoutItem = new NavigationItem();
+			logoutItem.setName("Logout");
+			logoutItem.setType(NavigationItem.TypeEnum.PAGE);
+			logoutItem.setPath(managerPrefix + logoutRef);
+			navigation.addItemsItem(logoutItem);
+
+		} else {
+			String loginPage = properties.getList(SiteProperties.AUTH_LOGIN_PAGE, ",").get(0);
+			String loginRef = properties.getString(SiteProperties.AUTH_LOGIN_REF);
+			NavigationItem loginItem = new NavigationItem();
+			loginItem.setName("Login");
+			loginItem.setType(NavigationItem.TypeEnum.PAGE);
+			loginItem.setPath(authAppPath + loginPage + "/" + loginRef);
+			navigation.addItemsItem(loginItem);
+		}
+		navigation.setUser(getUser(env));
+		return new ResponseEntity<Navigation>(navigation, HttpStatus.OK);
+	}
+
+	private void sortItems(List<NavigationItem> items) {
+		if (null != items) {
+			Collections.sort(items, (i1, i2) -> i1.getName().compareTo(i2.getName()));
+		}
+	}
+
+	@GetMapping(path = "/openapi/page/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PageDefinition> getPage(
 	// @formatter:off
 		@PathVariable(name = "id") String pageId,

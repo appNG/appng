@@ -112,6 +112,9 @@ abstract class OpenApiOperation {
 		if (null != subject) {
 			user.setEmail(subject.getEmail());
 			user.setName(subject.getRealname());
+			user.setAuthenticated(subject.isAuthenticated());
+		} else {
+			user.setAuthenticated(false);
 		}
 		user.setLocale(environment.getLocale().toString());
 		user.setTimezone(environment.getTimeZone().getID());

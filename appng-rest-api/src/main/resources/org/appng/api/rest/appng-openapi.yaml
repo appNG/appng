@@ -11,6 +11,41 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
 paths:
+  "/service/{site}/{application}/rest/openapi/navigation":
+    get:
+      tags:
+        - appNG
+      operationId: getNavigation
+      parameters:
+        - in: path 
+          name: site
+          description: the site to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: application
+          description: the application to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: id
+          description: the ID of the page
+          required: true
+          schema:
+            type: string
+        - in: cookie
+          name: JSESSIONID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: datasource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/navigation"
   "/service/{site}/{application}/rest/openapi/page/{id}":
     get:
       tags:
@@ -49,6 +84,10 @@ paths:
             type: array
             items:
               type: string
+        - in: cookie
+          name: JSESSIONID
+          schema:
+            type: string
       responses:
         "200":
           description: datasource response
@@ -79,6 +118,10 @@ paths:
           name: id
           description: ID of the datasource
           required: true
+          schema:
+            type: string
+        - in: cookie
+          name: JSESSIONID
           schema:
             type: string
       responses:
@@ -123,6 +166,10 @@ paths:
           name: id
           description: ID of the action
           required: true
+          schema:
+            type: string
+        - in: cookie
+          name: JSESSIONID
           schema:
             type: string
       responses:
@@ -172,6 +219,10 @@ paths:
           name: id
           description: ID of the action
           required: true
+          schema:
+            type: string
+        - in: cookie
+          name: JSESSIONID
           schema:
             type: string
       requestBody:
@@ -227,6 +278,10 @@ paths:
           name: id
           description: ID of the action
           required: true
+          schema:
+            type: string
+        - in: cookie
+          name: JSESSIONID
           schema:
             type: string
       requestBody:
@@ -732,6 +787,8 @@ components:
         name:
           type: string
           description: ""
+        authenticated:
+          type: boolean
         email:
           type: string
           description: The email address of the user.
@@ -803,3 +860,34 @@ components:
       properties:
         value:
           type: string
+    navigation:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/user"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/navigationItem"
+        loginAction:
+          $ref: "#/components/schemas/action"
+    navigationItem:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        active:
+          type: boolean
+        type:
+          type: string
+          enum:
+            - SITE
+            - APP
+            - PAGE
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/navigationItem"
+          

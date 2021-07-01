@@ -26,7 +26,7 @@ import lombok.AllArgsConstructor;
 @Configuration
 public class RestConfig {
 
-	@Bean
+	//@Bean
 	public RequestMappingHandlerMapping requestMappingHandlerMapping(ApplicationContext context) {
 		RequestMappingHandlerMapping requestMappingHandlerMapping = new RequestMappingHandlerMapping();
 		requestMappingHandlerMapping.setApplicationContext(context);
