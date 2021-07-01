@@ -224,7 +224,7 @@ public class RequestUtil {
 				siteName = StringUtils.trimToNull(((HttpServletRequest) request).getHeader(X_APPNG_SITE));
 			}
 			if (null == siteName) {
-				siteName = request.getServerName().toLowerCase();
+				siteName = request.getServerName();
 			}
 		} else {
 			siteName = request.getLocalAddr();
