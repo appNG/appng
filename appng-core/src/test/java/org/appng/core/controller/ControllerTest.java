@@ -72,7 +72,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ControllerTest extends Controller {
 
-	private static final String host = "foo.example.com";
 	TestSupport base;
 	DefaultEnvironment env;
 
@@ -512,9 +511,9 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testServerLocalName() {
-		Mockito.when(base.request.getAttribute("SERVER_LOCAL_NAME")).thenReturn(host);
+		Mockito.when(base.request.getAttribute("SERVER_LOCAL_NAME")).thenReturn(base.host);
 		String siteName = RequestUtil.getSiteName(base.environment, base.request);
-		Assert.assertEquals(host, siteName);
+		Assert.assertEquals(base.host, siteName);
 		Assert.assertEquals(base.host, base.request.getServerName());
 	}
 
