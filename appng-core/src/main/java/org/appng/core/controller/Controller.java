@@ -166,7 +166,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	private boolean isServiceRequest(HttpServletRequest servletRequest) {
 		Environment env = DefaultEnvironment.get(getServletContext());
-		Site site = RequestUtil.getSiteByHost(env, RequestUtil.getHostIdentifier(servletRequest, env));
+		Site site = RequestUtil.getSite(env, servletRequest);
 		return RequestUtil.getPathInfo(env, site, servletRequest.getServletPath()).isService();
 	}
 
@@ -186,8 +186,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 		Environment env = getEnvironment(servletRequest, servletResponse);
 
-		String hostIdentifier = RequestUtil.getHostIdentifier(servletRequest, env);
-		Site site = RequestUtil.getSiteByHost(env, hostIdentifier);
+		Site site = RequestUtil.getSite(env, servletRequest);
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, true);
 

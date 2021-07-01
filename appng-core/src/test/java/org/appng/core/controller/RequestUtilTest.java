@@ -62,7 +62,7 @@ public class RequestUtilTest {
 		Assert.assertEquals("site-2", site2.getName());
 		Assert.assertEquals("host-2", site2.getHost());
 
-		Site siteByHost = RequestUtil.getSiteByHost(environment, "host-2");
+		Site siteByHost = RequestUtil.getSiteByName(environment, "host-2");
 		Assert.assertEquals("site-2", siteByHost.getName());
 		Assert.assertEquals("host-2", siteByHost.getHost());
 
