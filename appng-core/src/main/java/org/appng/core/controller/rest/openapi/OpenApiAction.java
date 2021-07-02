@@ -212,6 +212,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		MarshallService marshallService = MarshallService.getMarshallService();
 
 		RestRequest initialRequest = getInitialRequest(site, application, env, servletReq, applicationProvider);
+		initialRequest.addParameter(FORM_ACTION, actionId);
 
 		if (supportPathParameters) {
 			applyPathParameters(pathVariables, originalAction.getConfig(), initialRequest);

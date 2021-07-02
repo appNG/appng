@@ -177,16 +177,8 @@ abstract class OpenApiPage extends OpenApiOperation {
 		HttpServletResponse servletResp
 	// @formatter:on
 	) throws JAXBException, InvalidConfigurationException, ProcessingException {
+
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
-
-		String pageUrlParams = (String) ((HttpServletRequest) servletReq)
-				.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		pageUrlParams = pageUrlParams.substring(("/openapi/page/" + pageId).length() + 1);
-
-		PageDefinition pageDefinition = new PageDefinition();
-		User user = getUser(env);
-		pageDefinition.setUser(user);
-
 		org.appng.xml.platform.PageDefinition originalPage = applicationProvider.getApplicationConfig().getPage(pageId);
 
 		if (null == originalPage) {
@@ -195,8 +187,14 @@ abstract class OpenApiPage extends OpenApiOperation {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		MarshallService marshallService = MarshallService.getMarshallService();
-		Path pathInfo = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+		String pageUrlParams = (String) ((HttpServletRequest) servletReq)
+				.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		int pathLength = ("/openapi/page/" + pageId).length();
+		if (pageUrlParams.length() > pathLength) {
+			pageUrlParams = pageUrlParams.substring(pathLength + 1);
+		} else {
+			pageUrlParams = null;
+		}
 
 		List<Parameter> currentUrlParams = new ArrayList<>();
 		if (StringUtils.isNotBlank(pageUrlParams)) {
@@ -217,8 +215,14 @@ abstract class OpenApiPage extends OpenApiOperation {
 			}
 		}
 
+		MarshallService marshallService = MarshallService.getMarshallService();
+		Path pathInfo = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
 		org.appng.xml.platform.PageReference pageReference = applicationProvider.processPage(marshallService, pathInfo,
 				pageId, null == sections ? Collections.emptyList() : Arrays.asList(sections));
+
+		PageDefinition pageDefinition = new PageDefinition();
+		User user = getUser(env);
+		pageDefinition.setUser(user);
 
 		pageDefinition.setId(pageId);
 		pageDefinition.setSelf(getSelf("/page/" + pageId).toString());
@@ -235,6 +239,24 @@ abstract class OpenApiPage extends OpenApiOperation {
 		pageDefinition.setUrlPath(pageUrlParams);
 		pageDefinition.setUrlParameters(currentUrlParams);
 
+		processSections(env, servletResp, applicationProvider, pageReference, pageDefinition);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed page: {}", marshallService.marshallNonRoot(pageReference));
+		}
+
+		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+			LOGGER.debug("Page {} on application {} of site {} returned status {}", pageId, application.getName(),
+					site.getName(), servletResp.getStatus());
+			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
+		}
+
+		return new ResponseEntity<PageDefinition>(pageDefinition, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
+	}
+
+	protected void processSections(Environment env, HttpServletResponse servletResp,
+			ApplicationProvider applicationProvider, org.appng.xml.platform.PageReference pageReference,
+			PageDefinition pageDefinition) {
 		pageReference.getStructure().getSection().forEach(s -> {
 			Section section = new Section();
 			section.setElements(new ArrayList<>());
@@ -251,10 +273,7 @@ abstract class OpenApiPage extends OpenApiOperation {
 				section.getTitle().setValue(config.getTitle().getValue());
 			}
 
-			pageDefinition.addSectionsItem(section);
-
 			s.getElement().forEach(e -> {
-
 				SectionElement element = new SectionElement();
 				element.setCollapsed(Boolean.valueOf(e.getFolded()));
 
@@ -270,23 +289,12 @@ abstract class OpenApiPage extends OpenApiOperation {
 							d);
 					datasource.setUser(null);
 					element.setDatasource(datasource);
-
 				}
+
 				section.getElements().add(element);
 			});
+			pageDefinition.addSectionsItem(section);
 		});
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processed page: {}", marshallService.marshallNonRoot(pageReference));
-		}
-
-		if (servletResp.getStatus() != HttpStatus.OK.value()) {
-			LOGGER.debug("Page {} on application {} of site {} returned status {}", pageId, application.getName(),
-					site.getName(), servletResp.getStatus());
-			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
-		}
-
-		return new ResponseEntity<PageDefinition>(pageDefinition, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
 	Logger getLogger() {

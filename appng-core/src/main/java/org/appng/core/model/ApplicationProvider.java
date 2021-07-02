@@ -65,6 +65,7 @@ import org.appng.api.support.DefaultPermissionProcessor;
 import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.ElementHelper;
 import org.appng.api.support.RequestFactoryBean;
+import org.appng.api.support.ApplicationRequest.ApplicationPath;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.filter.CsrfSetupFilter;
 import org.appng.core.domain.DatabaseConnection;
@@ -96,6 +97,7 @@ import org.appng.xml.platform.Permissions;
 import org.appng.xml.platform.Platform;
 import org.appng.xml.platform.PlatformConfig;
 import org.appng.xml.platform.Section;
+import org.appng.xml.platform.SectionConfig;
 import org.appng.xml.platform.SectionDef;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.SectionelementDef;
@@ -277,7 +279,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		Structure structure = null;
 		boolean debugPermission = permissionProcessor.hasPermission("debug");
 		try {
-			structure = buildStructure(applicationRequest, applicationConfig, pageReference, page, true, null);
+			structure = buildStructure(applicationRequest, applicationConfig, pageReference, page, true,
+					Collections.emptyList());
 		} catch (ProcessingException e) {
 			FieldProcessor fieldProcessor = e.getFieldProcessor();
 			structure = handleException(applicationRequest, pageReference, e, fieldProcessor, debugPermission);
@@ -291,6 +294,79 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			pageReference.setExecutionTime(performPage.getTotalTimeMillis());
 		}
 		return applicationReference;
+	}
+
+	protected void checkConditionsAndPermissions(ApplicationRequest applicationRequest, PageDefinition page) {
+		Map<String, Object> conditionParams = new HashMap<>(applicationRequest.getParameters());
+		conditionParams.put(ApplicationPath.PATH_VAR, applicationRequest.applicationPath());
+		ExpressionEvaluator conditionEvaluator = new ExpressionEvaluator(conditionParams);
+
+		Map<SectionDef, List<SectionelementDef>> nonAccessibleElements = new HashMap<>();
+		List<SectionDef> sections = page.getStructure().getSection();
+		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
+		for (SectionDef sectionDef : sections) {
+			nonAccessibleElements.put(sectionDef, new ArrayList<>());
+			for (SectionelementDef element : sectionDef.getElement()) {
+				boolean conditionMatches = true;
+				boolean hasPermission = true;
+				ActionRef action = element.getAction();
+				if (null != action && null != action.getCondition()) {
+					conditionMatches = conditionEvaluator.evaluate(action.getCondition().getExpression());
+					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(action));
+					if (!conditionMatches) {
+						LOGGER.info("include condition for action '{}' of event '{}' did not match - {}",
+								action.getId(), action.getEventId(), action.getCondition().getExpression());
+					}
+					if (!hasPermission) {
+						LOGGER.info("missing permissions for action '{}' of event '{}'", action.getId(),
+								action.getEventId());
+					}
+				}
+				DatasourceRef datasource = element.getDatasource();
+				if (null != datasource && null != datasource.getCondition()) {
+					conditionMatches = conditionEvaluator.evaluate(datasource.getCondition().getExpression());
+					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(datasource));
+					if (!conditionMatches) {
+						LOGGER.info("include condition for datasource '{}' did not match - {}", datasource.getId(),
+								datasource.getCondition().getExpression());
+					}
+					if (!hasPermission) {
+						LOGGER.info("missing permissions for datasource '{}' ", datasource.getId());
+					}
+				}
+
+				if (!(conditionMatches && hasPermission)) {
+					nonAccessibleElements.get(sectionDef).add(element);
+				}
+			}
+		}
+
+		for (SectionDef sectionDef : sections) {
+			List<SectionelementDef> toBeRemoved = nonAccessibleElements.get(sectionDef);
+			sectionDef.getElement().removeAll(toBeRemoved);
+
+			if (null == sectionDef.getId()) {
+				Label title = sectionDef.getTitle();
+				SectionConfig config = sectionDef.getConfig();
+				if (null != title && null != title.getId()) {
+					sectionDef.setId(title.getId());
+					break;
+				} else if (null != config && null != config.getTitle().getId()) {
+					sectionDef.setId(config.getTitle().getId());
+					break;
+				} else {
+					for (SectionelementDef element : sectionDef.getElement()) {
+						if (StringUtils.isBlank(element.getPassive())
+								|| !Boolean.TRUE.equals(conditionEvaluator.evaluate(element.getPassive()))) {
+							String sectionId = null == element.getDatasource() ? element.getAction().getId()
+									: element.getDatasource().getId();
+							sectionDef.setId(sectionId);
+							break;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public PageReference processPage(MarshallService marshallService, Path pathInfo, String pageId,
@@ -446,6 +522,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	private Structure buildStructure(ApplicationRequest applicationRequest, ApplicationConfig applicationConfig,
 			final PageReference pageReference, PageDefinition page, boolean perform, List<String> sectionIds)
 			throws ProcessingException {
+		checkConditionsAndPermissions(applicationRequest, page);
+
 		Structure structure = new Structure();
 
 		List<SectionDef> sectionDefs = page.getStructure().getSection();
@@ -456,10 +534,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
 			section.setId(sectionDef.getId());
-
-			if (null == section.getId() && null != sectionDef.getTitle()) {
-				section.setId(sectionDef.getTitle().getId());
-			}
 
 			String hidden = applicationRequest.getExpressionEvaluator().getString(sectionDef.getHidden());
 			section.setHidden(hidden);
@@ -536,8 +610,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			String folded = expressionEvaluator.getString(sectionelement.getFolded());
 			String passive = expressionEvaluator.getString(sectionelement.getPassive());
 
-			boolean mustSetId = null == section.getId() && !Boolean.valueOf(passive);
-
 			sectionelement.setFolded(folded);
 			sectionelement.setPassive(passive);
 			applicationRequest.setLabel(sectionelement.getTitle());
@@ -549,10 +621,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					datasourceElement.mustPerform = perform;
 					dataSourceWrappers.add(datasourceElement);
 					section.getElement().add(datasourceElement);
-					if (mustSetId) {
-						section.setId(datasourceElement.getDatasource().getId());
-						mustSetId = false;
-					}
 				}
 			} else if (null != sectionelement.getAction()) {
 
@@ -582,10 +650,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 						section.getElement().add(actionElement);
 						if (monitorPerformance) {
 							actionElement.setExecutionTime(time);
-						}
-						if (mustSetId) {
-							section.setId(actionElement.getAction().getId());
-							mustSetId = false;
 						}
 					}
 				}
