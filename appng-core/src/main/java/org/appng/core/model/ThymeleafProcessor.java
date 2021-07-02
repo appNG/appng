@@ -117,11 +117,15 @@ import org.w3c.dom.Node;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link RequestProcessor} using <a href="https://www.thymeleaf.org/">Thymeleaf</a> as a rendering engine.<br/>
- * Processing uses an {@link IWebContext}, with some additional context variables:
+ * A {@link RequestProcessor} using
+ * <a href="https://www.thymeleaf.org/">Thymeleaf</a> as a rendering
+ * engine.<br/>
+ * Processing uses an {@link IWebContext}, with some additional context
+ * variables:
  * <ul>
  * <li>{@code SESSION}<br/>
- * Provides a {@code Map<String,Object>} containing the current appNG session.<br/>
+ * Provides a {@code Map<String,Object>} containing the current appNG
+ * session.<br/>
  * Example:
  * 
  * <pre>
@@ -139,8 +143,8 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * </li>
  * <li>{@code SITE}<br/>
- * Provides the {@link Site}s properties as {@link Properties}. See {@link SiteProperties} for a list of available
- * properties.<br/>
+ * Provides the {@link Site}s properties as {@link Properties}. See
+ * {@link SiteProperties} for a list of available properties.<br/>
  * Example:
  * 
  * <pre>
@@ -149,7 +153,8 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * </li>
  * <li>{@code PLATFORM}<br/>
- * Provides the platform properties as {@link Properties}. See {@link Platform.Property} for a list of available properties.<br/>
+ * Provides the platform properties as {@link Properties}. See
+ * {@link Platform.Property} for a list of available properties.<br/>
  * Example:
  * 
  * <pre>
@@ -344,7 +349,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			AppNGSchema.PLATFORM.getContext().createMarshaller().marshal(platform, doc);
 			XPathProcessor xpath = new XPathProcessor(doc);
 			xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
-			variables.put("appNG", new AppNG(platform, xpath));
+			variables.put("appNG", new AppNG(platform, xpath, applicationProvider.getSite().getName(),
+					applicationProvider.getApplication().getName()));
 		} catch (Exception e) {
 			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
 		}
@@ -477,8 +483,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	/**
-	 * This is a helper class to make it easier for the thymeleaf template to interact with appNG's
-	 * {@link org.appng.xml.platform.Platform} object.
+	 * This is a helper class to make it easier for the thymeleaf template to
+	 * interact with appNG's {@link org.appng.xml.platform.Platform} object.
 	 * 
 	 * @author Matthias Müller
 	 */
@@ -492,25 +498,16 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		private String applicationName;
 		private XPathProcessor xpath;
 
-		public AppNG(org.appng.xml.platform.Platform platform, XPathProcessor xpath) {
+		public AppNG(org.appng.xml.platform.Platform platform, XPathProcessor xpath, String siteName,
+				String applicationName) {
 			this.platform = platform;
 			this.xpath = xpath;
+			this.siteName = siteName;
+			this.applicationName = applicationName;
 			parse();
 		}
 
 		private void parse() {
-			List<NavigationItem> siteNavigation = getSiteNavigation();
-			for (NavigationItem site : siteNavigation) {
-				if (Boolean.TRUE.equals(site.isSelected())) {
-					siteName = site.getLabel();
-					for (NavigationItem app : site.getItem()) {
-						if (Boolean.TRUE.equals(app.isSelected())) {
-							applicationName = app.getLabel();
-						}
-					}
-				}
-			}
-
 			ApplicationReference application = platform.getContent().getApplication();
 			if (null != application) {
 				PagesReference pages = application.getPages();
@@ -606,6 +603,10 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		public List<NavigationItem> getSiteNavigation() {
 			return platform.getNavigation().getItem().stream()
 					.filter(n -> org.appng.xml.platform.ItemType.SITE.equals(n.getType())).collect(Collectors.toList());
+		}
+
+		public String getSiteId() {
+			return siteName;
 		}
 
 		public String getSiteName() {
