@@ -10,6 +10,8 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
+security:
+  - appNGCookie: []
 paths:
   "/service/{site}/{application}/rest/openapi/navigation":
     get:
@@ -33,10 +35,6 @@ paths:
           name: id
           description: the ID of the page
           required: true
-          schema:
-            type: string
-        - in: cookie
-          name: JSESSIONID
           schema:
             type: string
       responses:
@@ -71,9 +69,48 @@ paths:
           schema:
             type: string
         - in: query
-          name: _urlPath
-          description: the path to parametrize the page with
+          name: _sect
+          description: a list of section IDs to fill
           required: false         
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: datasource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pageDefinition"
+  "/service/{site}/{application}/rest/openapi/page/{id}/{pageUrlParams}":
+    get:
+      tags:
+        - appNG
+      operationId: getPageWithUrlParams
+      parameters:
+        - in: path 
+          name: site
+          description: the site to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: application
+          description: the application to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: id
+          description: the ID of the page
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pageUrlParams
+          description: the URL path to parametrize the page with.
+          required: true         
           schema:
             type: string
         - in: query
@@ -84,10 +121,6 @@ paths:
             type: array
             items:
               type: string
-        - in: cookie
-          name: JSESSIONID
-          schema:
-            type: string
       responses:
         "200":
           description: datasource response
@@ -118,10 +151,6 @@ paths:
           name: id
           description: ID of the datasource
           required: true
-          schema:
-            type: string
-        - in: cookie
-          name: JSESSIONID
           schema:
             type: string
       responses:
@@ -166,10 +195,6 @@ paths:
           name: id
           description: ID of the action
           required: true
-          schema:
-            type: string
-        - in: cookie
-          name: JSESSIONID
           schema:
             type: string
       responses:
@@ -219,10 +244,6 @@ paths:
           name: id
           description: ID of the action
           required: true
-          schema:
-            type: string
-        - in: cookie
-          name: JSESSIONID
           schema:
             type: string
       requestBody:
@@ -280,10 +301,6 @@ paths:
           required: true
           schema:
             type: string
-        - in: cookie
-          name: JSESSIONID
-          schema:
-            type: string
       requestBody:
         content: 
           multipart/form-data:
@@ -317,6 +334,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/errorModel"
 components:
+  securitySchemes:
+    appNGCookie:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
   schemas:
     pageDefinition:
       type: object
@@ -464,6 +486,9 @@ components:
           description: A list of filters.
           items:
             $ref: "#/components/schemas/filter"
+        filterResetPath:
+          type: string
+          description: the path to be called to reset the filter
         page:
           $ref: "#/components/schemas/page"
         item:
@@ -580,6 +605,21 @@ components:
         isLast:
           type: boolean
           description: If this is the last page.
+        pageSizes:  
+          type: array
+          items:
+            $ref: "#/components/schemas/pageSize"
+    pageSize:
+      type: object
+      description: describes the size and path for setting a page size
+      properties:
+        size:
+          type: integer
+          format: int32
+          description: the number of items to show
+        path:
+          type: string
+          description: the path
     sort:
       type: object
       description: Marks a field as sortable, properties are filled only when sorting has

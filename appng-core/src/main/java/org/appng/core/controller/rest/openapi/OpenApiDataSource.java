@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,7 @@ import org.appng.openapi.model.Link;
 import org.appng.openapi.model.OptionType;
 import org.appng.openapi.model.Options;
 import org.appng.openapi.model.Page;
+import org.appng.openapi.model.PageSize;
 import org.appng.openapi.model.Sort.OrderEnum;
 import org.appng.openapi.model.User;
 import org.appng.xml.platform.Data;
@@ -107,6 +109,11 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		if (supportPathParameters) {
 			org.appng.xml.platform.Datasource originalDatasource = applicationProvider.getApplicationConfig()
 					.getDatasource(dataSourceId);
+			if (null == originalDatasource) {
+				LOGGER.debug("Datasource {} not found on application {} of site {}", dataSourceId,
+						application.getName(), site.getName());
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
 			applyPathParameters(pathVariables, originalDatasource.getConfig(), request);
 		}
 
@@ -148,7 +155,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		datasource.setPermissions(getPermissions(processedDataSource.getConfig().getPermissions()));
 
 		StringBuilder self = getSelf("/datasource/" + id);
-		appendParams(processedDataSource.getConfig().getParams(), self);
+		boolean hasQueryParams = appendParams(processedDataSource.getConfig().getParams(), self);
 		datasource.setSelf(self.toString());
 
 		processedDataSource.getConfig().getLinkpanel().stream()
@@ -166,7 +173,8 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 
 		Data data = processedDataSource.getData();
 		if (null != data) {
-			addFilters(processedDataSource, datasource);
+			String filterResetLink = addFilters(processedDataSource, datasource, hasQueryParams);
+			datasource.setFilterResetPath(self.toString() + filterResetLink);
 
 			Resultset resultset = data.getResultset();
 			if (null != resultset) {
@@ -179,17 +187,29 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				page.setTotalPages(resultset.getLastchunk() + 1);
 
 				if (!Boolean.TRUE.equals(page.getIsFirst())) {
-					page.setFirst(getPageLink(self.toString(), id, page.getSize(), 0));
-					page.setPrevious(getPageLink(self.toString(), id, page.getSize(), page.getNumber() - 1));
+					page.setFirst(getPageLink(hasQueryParams, self.toString(), id, page.getSize(), 0));
+					page.setPrevious(
+							getPageLink(hasQueryParams, self.toString(), id, page.getSize(), page.getNumber() - 1));
 				}
 				if (!Boolean.TRUE.equals(page.getIsLast())) {
-					page.setNext(getPageLink(self.toString(), id, page.getSize(), page.getNumber() + 1));
-					page.setLast(getPageLink(self.toString(), id, page.getSize(), resultset.getLastchunk()));
+					page.setNext(
+							getPageLink(hasQueryParams, self.toString(), id, page.getSize(), page.getNumber() + 1));
+					page.setLast(
+							getPageLink(hasQueryParams, self.toString(), id, page.getSize(), resultset.getLastchunk()));
 				}
 
 				resultset.getResults().forEach(r -> {
 					datasource.addItemsItem(getItem(null, r, metaData));
 				});
+
+				int[] pageSizes = { 5, 10, 25, 50 };
+				for (int size : pageSizes) {
+					PageSize pageSize = new PageSize();
+					pageSize.setSize(size);
+					pageSize.setPath(getPageLink(hasQueryParams, self.toString(), id, size));
+					page.addPageSizesItem(pageSize);
+				}
+
 				datasource.setPage(page);
 			} else {
 				datasource.setItem(getItem(data.getSelections(), data.getResult(), metaData));
@@ -202,14 +222,22 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		return datasource;
 	}
 
-	protected String getPageLink(String self, String id, int pageSize, int page) {
-		return self.toString() + "?sort" + StringUtils.capitalize(id) + "=pageSize:" + pageSize + ";page:" + page;
+	protected String getPageLink(boolean hasQueryParams, String self, String id, int pageSize, int page) {
+		return getPageLink(hasQueryParams, self, id, pageSize) + ";page:" + page;
 	}
 
-	private void addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource) {
+	protected String getPageLink(boolean hasQueryParams, String self, String id, int pageSize) {
+		return self.toString() + (hasQueryParams ? "&" : "?") + "sort" + StringUtils.capitalize(id) + "=pageSize:"
+				+ pageSize;
+	}
+
+	private String addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource,
+			boolean hasQueryParams) {
+		StringBuilder filterResetLink = new StringBuilder(hasQueryParams ? "&" : "?");
 		List<SelectionGroup> selectionGroups = processedDataSource.getData().getSelectionGroups();
 		if (null != selectionGroups) {
 			selectionGroups.forEach(sg -> {
+				AtomicBoolean istFirst = new AtomicBoolean(!hasQueryParams);
 				sg.getSelections().forEach(s -> {
 					Filter filter = new Filter();
 					filter.setLabel(s.getTitle().getValue());
@@ -222,9 +250,11 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 						filter.getOptions().addEntriesItem(getOption(s.getId(), o, Collections.emptyList()));
 					});
 					datasource.addFiltersItem(filter);
+					filterResetLink.append((istFirst.getAndSet(false) ? "?" : "&") + s.getId() + "=");
 				});
 			});
 		}
+		return filterResetLink.toString();
 	}
 
 	protected Field getField(String self, String dataSourceId, FieldDef f) {

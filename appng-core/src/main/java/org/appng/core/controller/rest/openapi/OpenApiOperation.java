@@ -361,16 +361,20 @@ abstract class OpenApiOperation {
 		return new StringBuilder("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi" + suffix);
 	}
 
-	protected void appendParams(Params params, StringBuilder self) {
-		params.getParam().forEach(p -> {
-			try {
-				self.append(params.getParam().indexOf(p) == 0 ? "?" : "&");
-				self.append(URLEncoder.encode(p.getName(), StandardCharsets.UTF_8.name()));
-				self.append("=");
-				self.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
-			} catch (UnsupportedEncodingException e) {
-				// will not happen
-			}
-		});
+	protected boolean appendParams(Params params, StringBuilder self) {
+		if (null != params) {
+			params.getParam().forEach(p -> {
+				try {
+					self.append(params.getParam().indexOf(p) == 0 ? "?" : "&");
+					self.append(URLEncoder.encode(p.getName(), StandardCharsets.UTF_8.name()));
+					self.append("=");
+					self.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
+				} catch (UnsupportedEncodingException e) {
+					// will not happen
+				}
+			});
+			return true;
+		}
+		return false;
 	}
 }

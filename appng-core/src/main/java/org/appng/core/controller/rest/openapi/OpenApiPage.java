@@ -67,6 +67,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.HandlerMapping;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -166,18 +167,21 @@ abstract class OpenApiPage extends OpenApiOperation {
 		}
 	}
 
-	@GetMapping(path = "/openapi/page/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(path = "/openapi/page/{id}/**", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PageDefinition> getPage(
 	// @formatter:off
 		@PathVariable(name = "id") String pageId,
 		@RequestParam(required = false, name = "_sect") String[] sections,
-		@RequestParam(required = false, name = "_urlPath") String path,
 		Environment env,
 		HttpServletRequest servletReq,
 		HttpServletResponse servletResp
 	// @formatter:on
 	) throws JAXBException, InvalidConfigurationException, ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
+
+		String pageUrlParams = (String) ((HttpServletRequest) servletReq)
+				.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		pageUrlParams = pageUrlParams.substring(("/openapi/page/" + pageId).length() + 1);
 
 		PageDefinition pageDefinition = new PageDefinition();
 		User user = getUser(env);
@@ -195,8 +199,8 @@ abstract class OpenApiPage extends OpenApiOperation {
 		Path pathInfo = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
 
 		List<Parameter> currentUrlParams = new ArrayList<>();
-		if (StringUtils.isNotBlank(path)) {
-			String[] pathSegments = path.substring(1).split("/");
+		if (StringUtils.isNotBlank(pageUrlParams)) {
+			String[] pathSegments = pageUrlParams.split("/");
 			UrlSchema urlSchema = originalPage.getConfig().getUrlSchema();
 			List<Param> paramList = urlSchema.getUrlParams().getParamList();
 			int i = 0;
@@ -228,7 +232,7 @@ abstract class OpenApiPage extends OpenApiOperation {
 		});
 
 		pageDefinition.setUrlTemplate(templatePath.toString());
-		pageDefinition.setUrlPath(path);
+		pageDefinition.setUrlPath(pageUrlParams);
 		pageDefinition.setUrlParameters(currentUrlParams);
 
 		pageReference.getStructure().getSection().forEach(s -> {
