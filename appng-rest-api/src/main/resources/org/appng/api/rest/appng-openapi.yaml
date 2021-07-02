@@ -546,6 +546,18 @@ components:
       type: object
       description: A page that contains paging information an a list of elements.
       properties:
+        _first:
+          type: string
+          description: path to the first page
+        _previous:
+          type: string
+          description: path to the previous page
+        _next:
+          type: string
+          description: path to the next page
+        _last:
+          type: string
+          description: path to the last page
         number:
           type: integer
           format: int32
@@ -583,6 +595,12 @@ components:
             - asc
             - desc
           description: The order for this sort (ascending or descending).
+        pathAsc:
+          type: string
+          description: the path to sort ascending
+        pathDesc:
+          type: string
+          description: the path to sort descending
     item:
       type: object
       description: A single item of a page.

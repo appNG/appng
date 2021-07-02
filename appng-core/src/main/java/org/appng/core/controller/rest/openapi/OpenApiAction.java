@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.MessageInterpolator;
-import javax.ws.rs.ext.ParamConverter.Lazy;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -67,10 +66,7 @@ import org.appng.xml.platform.UserInputField;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -82,21 +78,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.annotation.RequestScope;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Lazy
 @RestController
-@RequestScope(proxyMode = ScopedProxyMode.NO)
-public class OpenApiAction extends OpenApiOperation {
+abstract class OpenApiAction extends OpenApiOperation {
 
 	private static final String ACTION_PATH = "/openapi/action/{event-id}/{id}";
 
-	@Autowired
 	public OpenApiAction(Site site, Application application, Request request, MessageSource messageSource,
-			@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
+			boolean supportPathParameters) throws JAXBException {
 		super(site, application, request, messageSource, supportPathParameters);
 	}
 
@@ -150,8 +142,6 @@ public class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null);
-
-		postProcessAction(action, site, application, env);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -208,8 +198,7 @@ public class OpenApiAction extends OpenApiOperation {
 			HttpServletRequest servletReq,
 			HttpServletResponse servletResp
 		// @formatter:on
-	)
-			throws JAXBException, InvalidConfigurationException, ProcessingException {
+	) throws JAXBException, InvalidConfigurationException, ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
 				actionId);
@@ -252,7 +241,6 @@ public class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);
-		postProcessAction(action, site, application, env);
 		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -640,10 +628,6 @@ public class OpenApiAction extends OpenApiOperation {
 		public String toString() {
 			return getClass().getName() + ": " + getWrappedRequest().getParametersList();
 		}
-	}
-
-	protected void postProcessAction(Action action, Site site, Application application, Environment environment) {
-		// optionally implemented by subclass
 	}
 
 	Logger getLogger() {

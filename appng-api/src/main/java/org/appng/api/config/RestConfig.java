@@ -11,9 +11,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
@@ -21,24 +24,27 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.AllArgsConstructor;
 
 @Configuration
 public class RestConfig {
 
-	//@Bean
+	@Bean
 	public RequestMappingHandlerMapping requestMappingHandlerMapping(ApplicationContext context) {
 		RequestMappingHandlerMapping requestMappingHandlerMapping = new RequestMappingHandlerMapping();
 		requestMappingHandlerMapping.setApplicationContext(context);
 		UrlPathHelper urlPathHelper = new UrlPathHelper();
 		urlPathHelper.setRemoveSemicolonContent(false);
 		requestMappingHandlerMapping.setUrlPathHelper(urlPathHelper);
-		requestMappingHandlerMapping.afterPropertiesSet();
 		return requestMappingHandlerMapping;
 	}
 
-	@Lazy
 	@Bean
+	@Lazy
+	@RequestScope
 	public RequestMappingHandlerAdapter RequestMappingHandlerAdapter(ApplicationContext context, Site site,
 			Application application, Environment environment) {
 		RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
@@ -49,7 +55,6 @@ public class RestConfig {
 			rmha.setMessageConverters(messageConverters);
 		}
 		rmha.setCustomArgumentResolvers(getArgumentResolvers(context));
-		rmha.afterPropertiesSet();
 		return rmha;
 	}
 
@@ -59,7 +64,19 @@ public class RestConfig {
 	}
 
 	@Bean
+	@Primary
+	public MappingJackson2HttpMessageConverter defaultJsonConverter() {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
+		MappingJackson2HttpMessageConverter defaultJsonConverter = new MappingJackson2HttpMessageConverter(
+				objectMapper);
+		defaultJsonConverter.setPrettyPrint(true);
+		return defaultJsonConverter;
+	}
+
+	@Bean
 	@Lazy
+	@RequestScope
 	public SiteAwareHandlerMethodArgumentResolver siteAwareHandlerMethodArgumentResolver(Site site,
 			Application application, Environment environment) {
 		return new SiteAwareHandlerMethodArgumentResolver(site, environment, application);

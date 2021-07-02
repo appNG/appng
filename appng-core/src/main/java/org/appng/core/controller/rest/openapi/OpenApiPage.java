@@ -25,7 +25,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.ext.ParamConverter.Lazy;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,10 +59,7 @@ import org.appng.xml.platform.Param;
 import org.appng.xml.platform.SectionConfig;
 import org.appng.xml.platform.UrlSchema;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -71,23 +67,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.annotation.RequestScope;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Lazy
 @RestController
-@RequestScope(proxyMode = ScopedProxyMode.NO)
-public class OpenApiPage extends OpenApiOperation {
+abstract class OpenApiPage extends OpenApiOperation {
 
 	private OpenApiDataSource openApiDataSource;
 	private OpenApiAction openApiAction;
 
-	@Autowired
 	public OpenApiPage(Site site, Application application, Request request, MessageSource messageSource,
-			@Value("${restUsePathParameters:true}") boolean supportPathParameters, OpenApiDataSource openApiDataSource,
-			OpenApiAction openApiAction) throws JAXBException {
+			boolean supportPathParameters, OpenApiDataSource openApiDataSource, OpenApiAction openApiAction)
+			throws JAXBException {
 		super(site, application, request, messageSource, supportPathParameters);
 		this.openApiDataSource = openApiDataSource;
 		this.openApiAction = openApiAction;

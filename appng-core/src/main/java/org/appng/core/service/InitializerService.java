@@ -765,7 +765,7 @@ public class InitializerService {
 				if (application.getProperties().getBoolean("enableRest", false)) {
 					restProcessor = new RestPostProcessor(application.getProperties());
 				} else {
-					restProcessor = new OpenApiPostProcessor(application.getProperties());
+					restProcessor = new OpenApiPostProcessor();
 				}
 				applicationContext.addBeanFactoryPostProcessor(restProcessor);
 

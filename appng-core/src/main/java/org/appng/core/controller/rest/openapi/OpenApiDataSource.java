@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.ext.ParamConverter.Lazy;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -69,28 +68,21 @@ import org.appng.xml.platform.Sort;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.annotation.RequestScope;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Lazy
 @RestController
-@RequestScope(proxyMode = ScopedProxyMode.NO)
-public class OpenApiDataSource extends OpenApiOperation {
+abstract class OpenApiDataSource extends OpenApiOperation {
 
-	@Autowired
 	public OpenApiDataSource(Site site, Application application, Request request, MessageSource messageSource,
-			@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
+			boolean supportPathParameters) throws JAXBException {
 		super(site, application, request, messageSource, supportPathParameters);
 	}
 
@@ -148,13 +140,14 @@ public class OpenApiDataSource extends OpenApiOperation {
 		addValidationRules(metaData);
 
 		Datasource datasource = new Datasource();
-		datasource.setId(processedDataSource.getId());
+		String id = processedDataSource.getId();
+		datasource.setId(id);
 		User user = getUser(environment);
 		datasource.setUser(user);
 		datasource.setParameters(getParameters(processedDataSource.getConfig().getParams()));
 		datasource.setPermissions(getPermissions(processedDataSource.getConfig().getPermissions()));
 
-		StringBuilder self = getSelf("/datasource/" + processedDataSource.getId());
+		StringBuilder self = getSelf("/datasource/" + id);
 		appendParams(processedDataSource.getConfig().getParams(), self);
 		datasource.setSelf(self.toString());
 
@@ -167,7 +160,7 @@ public class OpenApiDataSource extends OpenApiOperation {
 
 		processedDataSource.getConfig().getMetaData().getFields().forEach(f -> {
 			if (!org.appng.xml.platform.FieldType.LINKPANEL.equals(f.getType())) {
-				datasource.addFieldsItem(getField(f));
+				datasource.addFieldsItem(getField(self.toString(), id, f));
 			}
 		});
 
@@ -178,12 +171,22 @@ public class OpenApiDataSource extends OpenApiOperation {
 			Resultset resultset = data.getResultset();
 			if (null != resultset) {
 				Page page = new Page();
-				page.setIsFirst(resultset.getChunk() == resultset.getFirstchunk());
-				page.setIsLast(resultset.getChunk() == resultset.getLastchunk());
 				page.setNumber(resultset.getChunk());
+				page.setIsFirst(page.getNumber() == resultset.getFirstchunk());
+				page.setIsLast(page.getNumber() == resultset.getLastchunk());
 				page.setSize(resultset.getChunksize());
 				page.setTotalItems(resultset.getHits());
 				page.setTotalPages(resultset.getLastchunk() + 1);
+
+				if (!Boolean.TRUE.equals(page.getIsFirst())) {
+					page.setFirst(getPageLink(self.toString(), id, page.getSize(), 0));
+					page.setPrevious(getPageLink(self.toString(), id, page.getSize(), page.getNumber() - 1));
+				}
+				if (!Boolean.TRUE.equals(page.getIsLast())) {
+					page.setNext(getPageLink(self.toString(), id, page.getSize(), page.getNumber() + 1));
+					page.setLast(getPageLink(self.toString(), id, page.getSize(), resultset.getLastchunk()));
+				}
+
 				resultset.getResults().forEach(r -> {
 					datasource.addItemsItem(getItem(null, r, metaData));
 				});
@@ -196,8 +199,11 @@ public class OpenApiDataSource extends OpenApiOperation {
 		Messages messages = environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 		datasource.setMessages(getMessages(messages));
 
-		postProcessDataSource(datasource, site, applicationProvider, environment);
 		return datasource;
+	}
+
+	protected String getPageLink(String self, String id, int pageSize, int page) {
+		return self.toString() + "?sort" + StringUtils.capitalize(id) + "=pageSize:" + pageSize + ";page:" + page;
 	}
 
 	private void addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource) {
@@ -221,7 +227,7 @@ public class OpenApiDataSource extends OpenApiOperation {
 		}
 	}
 
-	protected Field getField(FieldDef f) {
+	protected Field getField(String self, String dataSourceId, FieldDef f) {
 		Field field = new Field();
 		field.setName(f.getName());
 		if (null != f.getLabel()) {
@@ -238,12 +244,15 @@ public class OpenApiDataSource extends OpenApiOperation {
 			if (null != s.getOrder()) {
 				sort.setOrder(OrderEnum.fromValue(s.getOrder().name().toLowerCase()));
 			}
+			String sortParam = "?sort" + StringUtils.capitalize(dataSourceId) + "=" + f.getBinding();
+			sort.setPathDesc(self + sortParam + ":desc");
+			sort.setPathAsc(self + sortParam + ":asc");
 			field.setSort(sort);
 		}
 		List<FieldDef> childFields = f.getFields();
 		if (null != childFields) {
 			for (FieldDef fieldDef : childFields) {
-				Field child = getField(fieldDef);
+				Field child = getField(self, dataSourceId, fieldDef);
 				field.getFields().put(child.getName(), child);
 			}
 		}
@@ -352,11 +361,6 @@ public class OpenApiDataSource extends OpenApiOperation {
 			link.setTarget(l.getTarget());
 		}
 		return link;
-	}
-
-	protected void postProcessDataSource(Datasource datasource, Site site, Application application,
-			Environment environment) {
-		// optionally implemented by subclass
 	}
 
 	Logger getLogger() {

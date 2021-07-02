@@ -15,68 +15,72 @@
  */
 package org.appng.core.controller.rest.openapi;
 
-import org.appng.api.model.Properties;
+import javax.xml.bind.JAXBException;
+
+import org.appng.api.Request;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.core.controller.rest.openapi.OpenApiOperation.RestErrorHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.StandardAnnotationMetadata;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.context.WebApplicationContext;
 
 public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor, Ordered {
 
-	private Properties properties;
-
-	public OpenApiPostProcessor(Properties properties) {
-		this.properties = properties;
-	}
-
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		StandardAnnotationMetadata restActionMetaData = new StandardAnnotationMetadata(OpenApiAction.class);
-		AnnotatedGenericBeanDefinition restAction = new AnnotatedGenericBeanDefinition(restActionMetaData);
-		restAction.setScope("request");
-		restAction.setLazyInit(true);
-		registry.registerBeanDefinition(OpenApiAction.class.getSimpleName(), restAction);
-
-		StandardAnnotationMetadata restDataSourcesMetaData = new StandardAnnotationMetadata(OpenApiDataSource.class);
-		AnnotatedGenericBeanDefinition restDataSource = new AnnotatedGenericBeanDefinition(restDataSourcesMetaData);
-		restDataSource.setScope("request");
-		restDataSource.setLazyInit(true);
-		registry.registerBeanDefinition(OpenApiDataSource.class.getSimpleName(), restDataSource);
-		
-		
-		StandardAnnotationMetadata restPageMetaData = new StandardAnnotationMetadata(OpenApiPage.class);
-		AnnotatedGenericBeanDefinition restPage = new AnnotatedGenericBeanDefinition(restPageMetaData);
-		restPage.setScope("request");
-		restPage.setLazyInit(true);
-		registry.registerBeanDefinition(OpenApiPage.class.getSimpleName(), restPage);
-
-		StandardAnnotationMetadata restErrorHandlerMetaData = new StandardAnnotationMetadata(RestErrorHandler.class);
-		AnnotatedGenericBeanDefinition restErrorHandler = new AnnotatedGenericBeanDefinition(restErrorHandlerMetaData);
-		registry.registerBeanDefinition(RestErrorHandler.class.getSimpleName(), restErrorHandler);
+		registerRequestScoped(registry, OpenApiActionImpl.class);
+		registerRequestScoped(registry, OpenApiDataSourceImpl.class);
+		registerRequestScoped(registry, OpenApiPageImpl.class);
+		registry.registerBeanDefinition(RestErrorHandler.class.getSimpleName(),
+				new AnnotatedGenericBeanDefinition(new StandardAnnotationMetadata(RestErrorHandler.class)));
 	}
 
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		Boolean restRegisterJacksonMapper = properties.getBoolean("restRegisterJsonConverter", false);
-		if (restRegisterJacksonMapper
-				&& beanFactory.getBeansOfType(MappingJackson2HttpMessageConverter.class).isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
-			MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(
-					objectMapper);
-			mappingJackson2HttpMessageConverter.setPrettyPrint(true);
-			beanFactory.registerSingleton("mappingJackson2HttpMessageConverter", mappingJackson2HttpMessageConverter);
+	private void registerRequestScoped(BeanDefinitionRegistry registry, Class<?> beanClass) {
+		BeanDefinition bean = new AnnotatedGenericBeanDefinition(new StandardAnnotationMetadata(beanClass));
+		bean.setScope(WebApplicationContext.SCOPE_REQUEST);
+		registry.registerBeanDefinition(beanClass.getSimpleName(), bean);
+	}
+
+	static class OpenApiActionImpl extends OpenApiAction {
+		@Autowired
+		public OpenApiActionImpl(Site site, Application application, Request request, MessageSource messageSource,
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
+			super(site, application, request, messageSource, supportPathParameters);
+		}
+	}
+
+	static class OpenApiDataSourceImpl extends OpenApiDataSource {
+		@Autowired
+		public OpenApiDataSourceImpl(Site site, Application application, Request request, MessageSource messageSource,
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
+			super(site, application, request, messageSource, supportPathParameters);
+		}
+	}
+
+	static class OpenApiPageImpl extends OpenApiPage {
+		@Autowired
+		public OpenApiPageImpl(Site site, Application application, Request request, MessageSource messageSource,
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters, OpenApiAction openApiAction,
+				OpenApiDataSource openApiDataSource) throws JAXBException {
+			super(site, application, request, messageSource, supportPathParameters, openApiDataSource, openApiAction);
 		}
 	}
 
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;
+	}
+
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		// nothing to do
 	}
 
 }
