@@ -67,7 +67,7 @@
 		<jackson.version>2.12.3</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
 		<lucene.version>8.8.2</lucene.version>
-		<pdfBox.version>2.0.20</pdfBox.version>
+		<pdfBox.version>2.0.24</pdfBox.version>
 		<poi.version>3.17</poi.version>
 		<queryDsl.version>4.4.0</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
