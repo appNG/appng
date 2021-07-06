@@ -40,6 +40,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.support.DollarParameterSupport;
 import org.appng.api.support.ResourceBundleMessageSource;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.model.ApplicationProvider;
@@ -124,10 +125,10 @@ abstract class OpenApiPage extends OpenApiOperation {
 							for (org.appng.xml.platform.Link link : topNav.getLinks()) {
 								NavigationItem topNavItem = new NavigationItem();
 								topNavItem.setType(NavigationItem.TypeEnum.PAGE);
-								String labelId = link.getLabel().getId();
 								ResourceBundleMessageSource messages = application
 										.getBean(ResourceBundleMessageSource.class);
-								topNavItem.setName(messages.getMessage(labelId, new Object[0], env.getLocale()));
+								topNavItem.setName(getLabelMessage(link.getLabel(), messages, env.getLocale(),
+										new DollarParameterSupport()));
 								topNavItem.setPath(applicationItem.getPath() + link.getTarget());
 								applicationItem.addItemsItem(topNavItem);
 							}

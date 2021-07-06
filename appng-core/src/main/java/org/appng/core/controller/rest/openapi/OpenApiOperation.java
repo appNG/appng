@@ -44,6 +44,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.DollarParameterSupport;
 import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.openapi.model.ErrorModel;
@@ -59,6 +60,7 @@ import org.appng.xml.MarshallService;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.Label;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
@@ -376,5 +378,22 @@ abstract class OpenApiOperation {
 			return true;
 		}
 		return false;
+	}
+
+	protected String getLabelMessage(Label label, MessageSource messages, Locale locale,
+			DollarParameterSupport parameterSupport) {
+		String code;
+		if (null != label.getId()) {
+			code = label.getId();
+		} else {
+			code = label.getValue();
+		}
+		Object[] params = null;
+		if (null != label.getParams()) {
+			params = Arrays.stream(label.getParams().split(",")) //
+					.map(parameterSupport::replaceParameters) //
+					.toArray();
+		}
+		return messages.getMessage(code, params, code, locale);
 	}
 }
