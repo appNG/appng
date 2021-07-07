@@ -65,7 +65,7 @@ import org.appng.xml.platform.SelectionType;
 import org.appng.xml.platform.UserInputField;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
-import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpMethod;
@@ -276,9 +276,9 @@ abstract class OpenApiAction extends OpenApiOperation {
 				MetaData metaData = processedAction.getConfig().getMetaData();
 				Optional<FieldDef> originalDef = metaData.getFields().stream()
 						.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
-				BeanWrapper beanWrapper = getBeanWrapper(metaData);
+
 				ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
-						beanWrapper);
+						getBindClass(metaData));
 				action.addFieldsItem(actionField);
 			});
 		}
@@ -293,7 +293,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 	}
 
 	protected ActionField getActionField(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
-			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef, BeanWrapper beanWrapper) {
+			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef, Class<?> bindClass) {
 		ActionField actionField = new ActionField();
 		actionField.setName(fieldData.getName());
 
@@ -327,8 +327,8 @@ abstract class OpenApiAction extends OpenApiOperation {
 					parameterList = Collections.emptyList();
 				}
 				Object objectValue = null;
-				objectValue = getObjectValue(fieldData, fieldDef, beanWrapper.getPropertyType(fieldDef.getBinding()),
-						parameterList);
+				objectValue = getObjectValue(fieldData, fieldDef,
+						BeanUtils.findPropertyType(fieldDef.getBinding(), bindClass), parameterList);
 				actionField.setValue(objectValue);
 				if (hasFormat) {
 					String formattedValue = getStringValue(actionField);
@@ -389,7 +389,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 						Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.getAndIncrement(),
 								childData);
 						ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
-								childField, beanWrapper);
+								childField, bindClass);
 						actionField.getFields().add(childActionField);
 						if (childField.isPresent()) {
 							applyValidationRules(request, childActionField, childField.get());

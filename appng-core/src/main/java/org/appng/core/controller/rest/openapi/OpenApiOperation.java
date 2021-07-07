@@ -71,8 +71,6 @@ import org.appng.xml.platform.Rule;
 import org.appng.xml.platform.ValidationGroups;
 import org.appng.xml.platform.ValidationGroups.Group;
 import org.slf4j.Logger;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -285,15 +283,13 @@ abstract class OpenApiOperation {
 		return value;
 	}
 
-	protected BeanWrapper getBeanWrapper(MetaData metaData) {
-		BeanWrapper beanWrapper = null;
+	protected Class<?> getBindClass(MetaData metaData) {
 		try {
-			beanWrapper = new BeanWrapperImpl(site.getSiteClassLoader().loadClass(metaData.getBindClass()));
-			beanWrapper.setAutoGrowNestedPaths(true);
+			return site.getSiteClassLoader().loadClass(metaData.getBindClass());
 		} catch (ClassNotFoundException e) {
-			getLogger().warn("error creating BeanWrapper for class {}", metaData.getBindClass());
+			getLogger().error("bindClass not found", e);
+			return null;
 		}
-		return beanWrapper;
 	}
 
 	protected DecimalFormat getDecimalFormat(String format) {

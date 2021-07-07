@@ -69,7 +69,7 @@ import org.appng.xml.platform.SelectionGroup;
 import org.appng.xml.platform.Sort;
 import org.appng.xml.platform.Validation;
 import org.slf4j.Logger;
-import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -199,7 +199,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				}
 
 				resultset.getResults().forEach(r -> {
-					datasource.addItemsItem(getItem(null, r, metaData));
+					datasource.addItemsItem(getItem(null, r, metaData, getBindClass(metaData)));
 				});
 
 				int[] pageSizes = { 5, 10, 25, 50 };
@@ -212,7 +212,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 
 				datasource.setPage(page);
 			} else {
-				datasource.setItem(getItem(data.getSelections(), data.getResult(), metaData));
+				datasource.setItem(getItem(data.getSelections(), data.getResult(), metaData, getBindClass(metaData)));
 			}
 		}
 
@@ -293,7 +293,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		return field;
 	}
 
-	protected Item getItem(List<Selection> selections, Result r, MetaData metaData) {
+	protected Item getItem(List<Selection> selections, Result r, MetaData metaData, Class<?> bindClass) {
 		Item item = new Item();
 		item.setFields(new HashMap<>());
 		item.setSelected(Boolean.TRUE.equals(r.isSelected()));
@@ -301,8 +301,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 
 			Optional<FieldDef> fieldDef = metaData.getFields().stream().filter(mf -> mf.getName().equals(f.getName()))
 					.findFirst();
-			BeanWrapper beanWrapper = getBeanWrapper(metaData);
-			FieldValue fieldValue = getFieldValue(f, fieldDef, beanWrapper);
+			FieldValue fieldValue = getFieldValue(f, fieldDef, bindClass);
 			if (null != fieldValue && isSelectionType(fieldDef.get().getType()) && null != selections) {
 				Selection selection = selections.parallelStream()
 						.filter(s -> s.getId().equals(fieldDef.get().getName())).findFirst().orElse(null);
@@ -340,16 +339,16 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		}).collect(Collectors.toList());
 	}
 
-	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, BeanWrapper beanWrapper) {
+	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, Class<?> bindClass) {
 		if (fieldDef.isPresent()) {
 			FieldValue fv = getFieldValue(data, fieldDef.get(),
-					beanWrapper.getPropertyType(fieldDef.get().getBinding()));
+					BeanUtils.findPropertyType(fieldDef.get().getBinding(), bindClass));
 			List<Datafield> childDataFields = data.getFields();
 			if (null != childDataFields) {
 				final AtomicInteger i = new AtomicInteger(0);
 				for (Datafield childData : childDataFields) {
 					Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
-					FieldValue childValue = getFieldValue(childData, childField, beanWrapper);
+					FieldValue childValue = getFieldValue(childData, childField, bindClass);
 					fv.getValues().put(childValue.getName(), childValue);
 					i.incrementAndGet();
 				}
