@@ -362,13 +362,15 @@ abstract class OpenApiOperation {
 	protected boolean appendParams(Params params, StringBuilder self) {
 		if (null != params) {
 			params.getParam().forEach(p -> {
-				try {
-					self.append(params.getParam().indexOf(p) == 0 ? "?" : "&");
-					self.append(URLEncoder.encode(p.getName(), StandardCharsets.UTF_8.name()));
-					self.append("=");
-					self.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
-				} catch (UnsupportedEncodingException e) {
-					// will not happen
+				if (null != p.getValue()) {
+					try {
+						self.append(params.getParam().indexOf(p) == 0 ? "?" : "&");
+						self.append(URLEncoder.encode(p.getName(), StandardCharsets.UTF_8.name()));
+						self.append("=");
+						self.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
+					} catch (UnsupportedEncodingException e) {
+						// will not happen
+					}
 				}
 			});
 			return true;
