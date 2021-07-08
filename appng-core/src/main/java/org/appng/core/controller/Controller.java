@@ -165,8 +165,9 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	private boolean isServiceRequest(HttpServletRequest servletRequest) {
-		Site site = RequestUtil.getSiteByHost(globalEnv, RequestUtil.getHostIdentifier(servletRequest, globalEnv));
-		return RequestUtil.getPathInfo(globalEnv, site, servletRequest.getServletPath()).isService();
+		Environment env = DefaultEnvironment.get(getServletContext());
+		Site site = RequestUtil.getSite(env, servletRequest);
+		return RequestUtil.getPathInfo(env, site, servletRequest.getServletPath()).isService();
 	}
 
 	@Override

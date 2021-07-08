@@ -66,6 +66,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	private static final String HTTPS = "https";
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 	private static DefaultEnvironment GLOBAL_ENV;
+	private static final int ONE_MINUTE = 60;
 
 	public void contextInitialized(ServletContextEvent sce) {
 		GLOBAL_ENV = DefaultEnvironment.get(sce.getServletContext());
@@ -108,7 +109,8 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	public void sessionDestroyed(HttpSessionEvent event) {
 		HttpSession httpSession = event.getSession();
 		if (DefaultEnvironment.get(httpSession).isSubjectAuthenticated()) {
-			ApplicationContext ctx = GLOBAL_ENV.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
+			ApplicationContext ctx = GLOBAL_ENV.getAttribute(Scope.PLATFORM,
+					Platform.Environment.CORE_PLATFORM_CONTEXT);
 			ctx.getBean(CoreService.class).createEvent(Type.INFO, "session expired", httpSession);
 		}
 		Session session = getSession(httpSession);
@@ -218,10 +220,10 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 				Site site = RequestUtil.getSite(GLOBAL_ENV, httpServletRequest);
 				if (null != site
 						&& RequestUtil.getPathInfo(GLOBAL_ENV, site, httpServletRequest.getServletPath()).isGui()) {
-					httpSession.setMaxInactiveInterval(60);
+					httpSession.setMaxInactiveInterval(ONE_MINUTE);
 					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Setting session lifetime for {} to 30s (user-agent: {})", httpSession.getId(),
-								userAgent);
+						LOGGER.debug("Setting session lifetime for {} to {}s (user-agent: {})", httpSession.getId(),
+								ONE_MINUTE, userAgent);
 					}
 				} else {
 					if (LOGGER.isDebugEnabled()) {

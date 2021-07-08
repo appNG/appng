@@ -450,7 +450,7 @@ public class PropertySupport {
 	 * Returns the dot-separated property-prefix for a node-property.
 	 * 
 	 * @param nodeId
-	 *             the node id as returned by {@link org.appng.api.messaging.Messaging#getNodeId()}
+	 *             the node id as returned by {@link org.appng.api.messaging.Messaging#getNodeId(org.appng.api.Environment)}
 	 * 
 	 * @return the dot-separated property-prefix
 	 */
