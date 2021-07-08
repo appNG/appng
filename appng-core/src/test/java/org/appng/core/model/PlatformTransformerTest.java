@@ -31,9 +31,10 @@ import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Path;
 import org.appng.api.model.Properties;
+import org.appng.api.model.Site;
 import org.appng.core.controller.HttpHeaders;
-import org.appng.core.service.PlatformTestConfig;
 import org.appng.core.model.PlatformTransformer.PlatformTransformerException;
+import org.appng.core.service.PlatformTestConfig;
 import org.appng.core.service.TestInitializer;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.OutputFormat;
@@ -66,6 +67,10 @@ public class PlatformTransformerTest {
 	@Autowired
 	private MarshallService marshallService;
 
+	@Mock
+	private Site site;
+
+	@Mock
 	private ApplicationProvider applicationProvider;
 
 	@Mock
@@ -86,6 +91,8 @@ public class PlatformTransformerTest {
 	public void setup() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)).thenReturn(Boolean.FALSE);
+		Mockito.when(applicationProvider.getSite()).thenReturn(site);
+		Mockito.when(site.getName()).thenReturn("localhost");
 		setFormatAndType(platformTransformer, true);
 	}
 
@@ -134,7 +141,7 @@ public class PlatformTransformerTest {
 
 	private void runErrornousTest(String template, Class<? extends TransformerException> exceptionType)
 			throws Exception {
-		PlatformTransformer.clearCache();
+		PlatformTransformer.clearCache(applicationProvider.getSite());
 		PlatformTransformer errorTransformer = new PlatformTransformer() {
 			@Override
 			protected String getDebugFilePrefix(Date now) {

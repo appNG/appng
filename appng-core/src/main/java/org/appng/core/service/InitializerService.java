@@ -17,9 +17,11 @@ package org.appng.core.service;
 
 import static org.appng.api.support.environment.EnvironmentKeys.JAR_INFO_MAP;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -111,6 +113,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.hazelcast.core.HazelcastInstance;
@@ -150,19 +153,28 @@ public class InitializerService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
+	@Transactional
+	@Deprecated
+	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
+			ServletContext ctx, ExecutorService executor) throws InvalidConfigurationException {
+		initPlatform(platformConfig, env, rootConnection, ctx, executor, null);
+	}
+
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
 	 * @param platformConfig
-	 *                       the current {@link PlatformProperties}
+	 *                          the current {@link PlatformProperties}
 	 * @param env
-	 *                       the current {@link Environment}
+	 *                          the current {@link Environment}
 	 * @param rootConnection
-	 *                       the root {@link DatabaseConnection}
+	 *                          the root {@link DatabaseConnection}
 	 * @param ctx
-	 *                       the current {@link ServletContext}
-	 * @param executor
-	 *                       an {@link ExecutorService} used by the cluster messaging
+	 *                          the current {@link ServletContext}
+	 * @param messagingExecutor
+	 *                          an {@link ExecutorService} used for cluster communication threads
+	 * @param startupExecutor
+	 *                          an {@link ExecutorService} used for starting sites in parallel
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -171,33 +183,30 @@ public class InitializerService {
 	 */
 	@Transactional
 	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
-			ServletContext ctx, ExecutorService executor) throws InvalidConfigurationException {
+			ServletContext ctx, ExecutorService messagingExecutor, ExecutorService startupExecutor)
+			throws InvalidConfigurationException {
 		logEnvironment();
-		loadPlatform(platformConfig, env, null, null, executor);
+		loadPlatform(platformConfig, env, null, null, messagingExecutor, startupExecutor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
 		coreService.createEvent(Type.INFO, "Started platform");
 	}
 
 	/**
-	 * Reloads the platform with all of it's {@link Site}s.
-	 * 
+	 * @param config
 	 * @param env
-	 *                 the current {@link Environment}
 	 * @param siteName
-	 *                 the (optional) name of the {@link Site} that caused the platform reload
 	 * @param target
-	 *                 an (optional) target to redirect to after platform reload
+	 * @param messagingExecutor
+	 * 
+	 * @deprecated will be removed with no replacement
 	 * 
 	 * @throws InvalidConfigurationException
-	 *                                       if an configuration error occurred
 	 */
+	@Deprecated
 	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
-			ExecutorService executor) throws InvalidConfigurationException {
-		LOGGER.info(StringUtils.leftPad("Reloading appNG", 100, "="));
-		PlatformProperties platformConfig = loadPlatformProperties(config, env);
-		loadPlatform(platformConfig, env, siteName, target, executor);
-		LOGGER.info(StringUtils.leftPad("appNG reloaded", 100, "="));
+			ExecutorService messagingExecutor) throws InvalidConfigurationException {
+		throw new UnsupportedOperationException();
 	}
 
 	public InitializerService() {
@@ -230,23 +239,33 @@ public class InitializerService {
 		LOGGER.info("started site thread [{}] with runnable of type {}", threadName, runnable.getClass().getName());
 	}
 
+	@Deprecated
+	public void loadPlatform(PlatformProperties platformConfig, Environment env, String siteName, String target,
+			ExecutorService messagingExecutor) throws InvalidConfigurationException {
+		loadPlatform(platformConfig, env, siteName, target, messagingExecutor, null);
+	}
+
 	/**
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
 	 * @param platformConfig
-	 *                       the current {@link PlatformProperties}
+	 *                          the current {@link PlatformProperties}
 	 * @param env
-	 *                       the current {@link Environment}
+	 *                          the current {@link Environment}
 	 * @param siteName
-	 *                       the (optional) name of the {@link Site} that caused the platform reload
+	 *                          the (optional) name of the {@link Site} that caused the platform reload
 	 * @param target
-	 *                       an (optional) target to redirect to after platform reload
+	 *                          an (optional) target to redirect to after platform reload
+	 * @param messagingExecutor
+	 *                          an {@link ExecutorService} used for cluster communication threads
+	 * @param startupExecutor
+	 *                          an {@link ExecutorService} used for starting sites in parallel
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
 	public void loadPlatform(PlatformProperties platformConfig, Environment env, String siteName, String target,
-			ExecutorService executor) throws InvalidConfigurationException {
+			ExecutorService messagingExecutor, ExecutorService startupExecutor) throws InvalidConfigurationException {
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -275,7 +294,7 @@ public class InitializerService {
 			}
 		}
 
-		Messaging.createMessageSender(env, executor);
+		Sender sender = Messaging.createMessageSender(env, messagingExecutor);
 
 		File applicationRootFolder = platformConfig.getApplicationDir();
 		if (!applicationRootFolder.exists()) {
@@ -284,26 +303,31 @@ public class InitializerService {
 			return;
 		}
 		LOGGER.info("applications are located at {} or in the database", applicationRootFolder);
-		List<Integer> sites = getCoreService().getSiteIds();
-		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-		if (null == siteMap) {
-			siteMap = new ConcurrentHashMap<>();
-			env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
-		}
+		Map<String, Site> siteMap = new ConcurrentHashMap<>();
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, siteMap);
 
 		final int heartBeatSleepTime = platformConfig.getInteger(Platform.Property.HEART_BEAT_INTERVAL, 60) * 1000;
-		executor.submit(new HeartBeat(heartBeatSleepTime, ((DefaultEnvironment) env).getServletContext()));
+		if (null != sender) {
+			new HeartBeat(heartBeatSleepTime, ((DefaultEnvironment) env).getServletContext()).start();
+		}
 
 		int activeSites = 0;
 		FieldProcessor platformMessages = new FieldProcessorImpl("load-platform");
+		env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages.getMessages());
+		List<Integer> sites = getCoreService().getSiteIds();
 		for (Integer id : sites) {
 			SiteImpl site = getCoreService().getSite(id);
 			if (site.isActive()) {
-				LOGGER.info(StringUtils.leftPad("", 90, "="));
-				loadSite(site, env, false, platformMessages);
+				Runnable siteloader = getSiteLoader(site, env, false, platformMessages);
+				Boolean parallelSiteStarts = platformConfig.getBoolean(Platform.Property.PARALLEL_SITE_STARTS, true);
+				if (null != startupExecutor && parallelSiteStarts) {
+					startupExecutor.submit(siteloader);
+				} else {
+					LOGGER.info(StringUtils.leftPad("", 90, "="));
+					siteloader.run();
+					LOGGER.info(StringUtils.leftPad("", 90, "="));
+				}
 				activeSites++;
-				LOGGER.info(StringUtils.leftPad("", 90, "="));
 			} else {
 				String inactiveSite = site.getName();
 				site.setState(SiteState.INACTIVE, env);
@@ -315,9 +339,7 @@ public class InitializerService {
 				}
 				LOGGER.info("site {} is inactive and will not be loaded", site);
 			}
-			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}
-		env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages.getMessages());
 
 		if (0 == activeSites) {
 			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
@@ -485,8 +507,13 @@ public class InitializerService {
 		loadSite(siteToLoad, DefaultEnvironment.get(servletContext), true, fp);
 	}
 
+	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp)
+			throws InvalidConfigurationException {
+		getSiteLoader(siteToLoad, env, sendReloadEvent, fp).run();
+	}
+
 	/**
-	 * Loads the given {@link Site}.
+	 * Returns a {@link Runnable} that loads the given {@link Site}.
 	 * 
 	 * @param siteToLoad
 	 *                        the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
@@ -498,331 +525,361 @@ public class InitializerService {
 	 * @param fp
 	 *                        a {@link FieldProcessor} to attach messages to
 	 * 
-	 * @throws InvalidConfigurationException
-	 *                                       if an configuration error occurred
+	 * @return the {@link Runnable}
 	 */
-	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp)
-			throws InvalidConfigurationException {
-		ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
-		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
-
-		SiteImpl site = siteToLoad;
-		Site currentSite = siteMap.get(site.getName());
-		boolean isReload = null != currentSite;
-		if (isReload) {
-			LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
-			shutDownSite(env, currentSite, false);
-			site.setReloadCount(site.getReloadCount() + 1);
-		}
-
-		Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
-		site.setSender(sender);
-		List<? extends Group> groups = getCoreService().getGroups();
-		site.setGroups(new HashSet<>(groups));
-
-		site.setState(SiteState.STARTING, env);
-		siteMap.put(site.getName(), site);
-
-		File siteRootDirectory = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
-		site.setRootDirectory(siteRootDirectory);
-
-		String host = site.getHost();
-		org.springframework.context.ApplicationContext platformContext = env.getAttribute(Scope.PLATFORM,
-				Platform.Environment.CORE_PLATFORM_CONTEXT);
-
-		debugPlatformContext(platformContext);
-
-		LOGGER.info("loading site {} ({})", site.getName(), host);
-		LOGGER.info("loading applications for site {}", site.getName());
-
-		SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
-		Set<ApplicationProvider> applications = new HashSet<>();
-
-		PlatformProperties platformConfig = PlatformProperties.get(env);
-		// platform and application cache
-		CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
-		cacheProvider.clearCache(site);
-
-		// cache
-		Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
-		if (cacheEnabled) {
-			CacheService.createCache(site);
-		}
-
-		Properties siteProps = site.getProperties();
-		String siteRoot = siteProps.getString(SiteProperties.SITE_ROOT_DIR);
-		String indexdir = siteProps.getString(SiteProperties.INDEX_DIR);
-		Integer indexQueueSize = siteProps.getInteger(SiteProperties.INDEX_QUEUE_SIZE);
-		Long indexTimeout = siteProps.getInteger(SiteProperties.INDEX_TIMEOUT).longValue();
-		DocumentIndexer documentIndexer = new DocumentIndexer(indexQueueSize, new File(siteRoot, indexdir),
-				indexTimeout);
-
-		Boolean devMode = platformConfig.getBoolean(Platform.Property.DEV_MODE);
-		Boolean monitorPerformance = platformConfig.getBoolean(Platform.Property.MONITOR_PERFORMANCE);
-
-		File applicationRootFolder = platformConfig.getApplicationDir();
-		File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
-
-		String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);
-		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
-		if (null == template) {
-			String templateRealPath = servletContext.getRealPath(templateFolder);
-			TemplateService.copyTemplate(platformConfig, siteProps, templateRealPath);
-		} else {
-			TemplateService.materializeTemplate(template, platformConfig, siteProps);
-		}
-		Integer validationPeriod = platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD);
-
-		// Step 1: Load applications for the current site,
-		// prepare for further initialization
-		for (SiteApplication siteApplication : site.getSiteApplications()) {
-			if (siteApplication.isMarkedForDeletion()) {
-				coreService.unlinkApplicationFromSite(site.getId(), siteApplication.getApplication().getId());
-			} else if (!siteApplication.isActive()) {
-				String message = String.format("[%s] Application '%s' is inactive.", site.getName(),
-						siteApplication.getApplication().getName());
-				LOGGER.info(message);
-				fp.addNoticeMessage(message);
-			} else {
-				if (siteApplication.isReloadRequired()) {
-					coreService.unsetReloadRequired(siteApplication);
-				}
-				Application application = siteApplication.getApplication();
-
-				try {
-					DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
-					if (null != databaseConnection) {
-						boolean isActive = databaseConnection.isActive();
-						boolean isWorking = databaseConnection.testConnection(null);
-						if (isWorking ^ isActive) {
-							databaseConnection.setActive(isWorking);
-							databaseService.save(databaseConnection);
-							siteApplication = coreService.getSiteApplication(siteApplication.getSite().getName(),
-									siteApplication.getApplication().getName());
-							databaseConnection = siteApplication.getDatabaseConnection();
-						}
-						if (isWorking) {
-							databaseConnection.setValidationPeriod(validationPeriod);
-						} else {
-							throw new InvalidConfigurationException(site, application.getName(),
-									String.format("Connection %s for application %s of site %s is not working!",
-											databaseConnection, application.getName(), site.getName()));
-						}
-					}
-
-					File applicationCacheFolder = cacheProvider.getPlatformCache(site, application);
-
-					Resources applicationResources = getCoreService().getResources(application, applicationCacheFolder,
-							applicationRootFolder);
-
-					Resource beanSource = applicationResources.getResource(ResourceType.BEANS_XML,
-							ResourceType.BEANS_XML_NAME);
-					if (null == beanSource) {
-						throw new InvalidConfigurationException(site, application.getName(),
-								String.format("application '%s' does not contain a resource named '%s'",
-										application.getName(), ResourceType.BEANS_XML_NAME));
-					}
-					ApplicationProvider applicationProvider = new ApplicationProvider(site, application,
-							monitorPerformance);
-					getCoreService().initApplicationProperties(site, applicationProvider);
-					applicationProvider.setResources(applicationResources);
-					applicationProvider.setDatabaseConnection(siteApplication.getDatabaseConnection());
-
-					List<ResourceType> resourceTypes = Arrays.asList(ResourceType.BEANS_XML, ResourceType.JAR,
-							ResourceType.SQL, ResourceType.DICTIONARY, ResourceType.RESOURCE, ResourceType.TPL);
-					if (devMode) {
-						resourceTypes = new ArrayList<>(resourceTypes);
-						resourceTypes.add(ResourceType.XSL);
-						resourceTypes.add(ResourceType.XML);
-					}
-					applicationResources.dumpToCache(resourceTypes.toArray(new ResourceType[0]));
-
-					ApplicationConfigProvider applicationConfig = new ApplicationConfigProviderImpl(marshallService,
-							application.getName(), applicationResources, devMode);
-					applicationProvider.setApplicationConfig(applicationConfig);
-
-					Collection<Resource> messageSources = applicationResources.getResources(ResourceType.DICTIONARY);
-					if (messageSources.size() > 0) {
-						File cachedFile = messageSources.iterator().next().getCachedFile();
-						siteClassPath.addFolder(cachedFile.getParentFile().toPath(), application.getName());
-					}
-
-					Collection<Resource> jars = applicationResources.getResources(ResourceType.JAR);
-					for (Resource applicationResource : jars) {
-						File cachedFile = applicationResource.getCachedFile();
-						String origin = siteClassPath.addJar(cachedFile.toPath(), application.getName());
-						if (!application.getName().equals(origin)) {
-							LOGGER.warn(
-									"{} from application {} has not been added to the site's classpath, since this jar has already been added by application {}",
-									cachedFile.getName(), application.getName(), origin);
-						}
-					}
-
-					FeatureProviderImpl featureProvider = new FeatureProviderImpl(applicationProvider.getProperties());
-					featureProvider.initImageProcessor(imageMagickPath, cacheProvider.getImageCache(site, application));
-					featureProvider.setIndexer(documentIndexer);
-					applicationProvider.setFeatureProvider(featureProvider);
-
-					applications.add(applicationProvider);
-
-				} catch (InvalidConfigurationException ice) {
-					String errorMessage = String.format("[%s] Error while loading application '%s'.", site.getName(),
-							application.getName());
-					fp.addErrorMessage(errorMessage);
-					LOGGER.error(errorMessage, ice);
-					auditableListener.createEvent(Type.ERROR, errorMessage);
-				}
+	public Runnable getSiteLoader(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp) {
+		return () -> {
+			StopWatch sw = new StopWatch("Loading site " + siteToLoad.getName());
+			sw.start("Setup");
+			if (!"main".equals(Thread.currentThread().getName())) {
+				Thread.currentThread().setName("siteloader-" + siteToLoad.getName());
 			}
-		}
-
-		site.getSiteApplications().clear();
-
-		SiteClassLoader siteClassLoader = siteClassPath.build(getClass().getClassLoader(), site.getName());
-		Thread.currentThread().setContextClassLoader(siteClassLoader);
-
-		LOGGER.info(siteClassLoader.toString());
-		site.setSiteClassLoader(siteClassLoader);
-		if (LOGGER.isDebugEnabled()) {
-			List<URL> urlList = Arrays.asList(siteClassLoader.getURLs());
-			urlList.sort((a, b) -> StringUtils.compare(a.toString(), b.toString()));
-			LOGGER.debug("Classloader for site {} contains the following URLs: {}", site.getName(),
-					StringUtils.join(urlList, ','));
-		}
-
-		startIndexThread(site, documentIndexer);
-		startRepositoryWatcher(site, cacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
-
-		String datasourceConfigurerName = siteProps.getString(SiteProperties.DATASOURCE_CONFIGURER);
-		try {
-			siteClassLoader.loadClass(datasourceConfigurerName);
-		} catch (ClassNotFoundException e) {
-			throw new InvalidConfigurationException(site, null,
-					"error while loading class " + datasourceConfigurerName);
-		}
-
-		org.springframework.cache.CacheManager platformCacheManager = platformContext
-				.getBean(org.springframework.cache.CacheManager.class);
-
-		// Step 2: Build application context
-		String dataBasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
-		Set<ApplicationProvider> validApplications = new HashSet<>();
-		for (ApplicationProvider application : applications) {
+			SiteImpl site = siteToLoad;
 			try {
-				File applicationCacheFolder = cacheProvider.getPlatformCache(site, application);
-				File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
-				SiteApplication siteApplication = coreService.getSiteApplication(site.getName(), application.getName());
-				MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, application,
-						dataBasePrefix);
-				DatabaseConnection dbc = application.getDatabaseConnection();
-				siteApplication.setDatabaseConnection(dbc);
+				ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
+				Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 
-				if (migrationStatus.isErroneous()) {
-					String errorMessage = String.format(
-							"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
-							site.getName(), dbc.getDatabaseName(), application.getName());
-					fp.addErrorMessage(errorMessage);
+				Site currentSite = siteMap.get(site.getName());
+				boolean isReload = null != currentSite;
+				if (isReload) {
+					LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
+					shutDownSite(env, currentSite, false);
+					site.setReloadCount(site.getReloadCount() + 1);
 				}
 
-				String beansXmlLocation = cacheProvider.getRelativePlatformCache(site, application) + File.separator
-						+ ResourceType.BEANS_XML_NAME;
-				// this is required to support testing of InitializerService
-				List<String> configLocations = new ArrayList<>(
-						siteProps.getList(CONFIG_LOCATIONS, ApplicationContext.CONTEXT_CLASSPATH, ","));
-				configLocations.add(beansXmlLocation);
-				ApplicationContext applicationContext = new ApplicationContext(application, platformContext,
-						site.getSiteClassLoader(), servletContext,
-						configLocations.toArray(new String[configLocations.size()]));
+				Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
+				site.setSender(sender);
+				List<? extends Group> groups = coreService.getGroups();
+				site.setGroups(new HashSet<>(groups));
 
-				Set<Resource> resources = application.getResources().getResources(ResourceType.DICTIONARY);
-				List<String> dictionaryNames = new ArrayList<>();
-				for (Resource applicationResource : resources) {
-					String name = FilenameUtils.getBaseName(applicationResource.getName()).replaceAll("_(.)*", "");
-					if (!dictionaryNames.contains(name)) {
-						dictionaryNames.add(name);
+				site.setState(SiteState.STARTING, env);
+				siteMap.put(site.getName(), site);
+
+				File siteRootDirectory = new File(site.getProperties().getString(SiteProperties.SITE_ROOT_DIR));
+				site.setRootDirectory(siteRootDirectory);
+
+				String host = site.getHost();
+				org.springframework.context.ApplicationContext platformContext = env.getAttribute(Scope.PLATFORM,
+						Platform.Environment.CORE_PLATFORM_CONTEXT);
+
+				debugPlatformContext(platformContext);
+
+				LOGGER.info("loading site {} ({})", site.getName(), host);
+				LOGGER.info("loading applications for site {}", site.getName());
+
+				SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
+				Set<ApplicationProvider> applications = new HashSet<>();
+
+				PlatformProperties platformConfig = PlatformProperties.get(env);
+				// platform and application cache
+				CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
+				cacheProvider.clearCache(site);
+
+				// cache
+				Boolean cacheEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_ENABLED);
+				if (cacheEnabled) {
+					CacheService.createCache(site);
+				}
+
+				Properties siteProps = site.getProperties();
+				String siteRoot = siteProps.getString(SiteProperties.SITE_ROOT_DIR);
+				String indexdir = siteProps.getString(SiteProperties.INDEX_DIR);
+				Integer indexQueueSize = siteProps.getInteger(SiteProperties.INDEX_QUEUE_SIZE);
+				Long indexTimeout = siteProps.getInteger(SiteProperties.INDEX_TIMEOUT).longValue();
+				DocumentIndexer documentIndexer = new DocumentIndexer(indexQueueSize, new File(siteRoot, indexdir),
+						indexTimeout);
+
+				Boolean devMode = platformConfig.getBoolean(Platform.Property.DEV_MODE);
+				Boolean monitorPerformance = platformConfig.getBoolean(Platform.Property.MONITOR_PERFORMANCE);
+
+				File applicationRootFolder = platformConfig.getApplicationDir();
+				File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
+
+				String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);
+				Template template = templateService
+						.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
+				if (null == template) {
+					String templateRealPath = servletContext.getRealPath(templateFolder);
+					TemplateService.copyTemplate(platformConfig, siteProps, templateRealPath);
+				} else {
+					TemplateService.materializeTemplate(template, platformConfig, siteProps);
+				}
+				Integer validationPeriod = platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD);
+
+				// Step 1: Load applications for the current site,
+				// prepare for further initialization
+				for (SiteApplication siteApplication : site.getSiteApplications()) {
+					sw.stop();
+					sw.start("Phase 1: Initialize application " + siteApplication.getApplication().getName());
+					if (siteApplication.isMarkedForDeletion()) {
+						coreService.unlinkApplicationFromSite(site.getId(), siteApplication.getApplication().getId());
+					} else if (!siteApplication.isActive()) {
+						String message = String.format("[%s] Application '%s' is inactive.", site.getName(),
+								siteApplication.getApplication().getName());
+						LOGGER.info(message);
+						fp.addNoticeMessage(message);
+					} else {
+						if (siteApplication.isReloadRequired()) {
+							coreService.unsetReloadRequired(siteApplication);
+						}
+						Application application = siteApplication.getApplication();
+
+						try {
+							DatabaseConnection databaseConnection = siteApplication.getDatabaseConnection();
+							if (null != databaseConnection) {
+								boolean isActive = databaseConnection.isActive();
+								boolean isWorking = databaseConnection.testConnection(null);
+								if (isWorking ^ isActive) {
+									databaseConnection.setActive(isWorking);
+									databaseService.save(databaseConnection);
+									siteApplication = coreService.getSiteApplication(
+											siteApplication.getSite().getName(),
+											siteApplication.getApplication().getName());
+									databaseConnection = siteApplication.getDatabaseConnection();
+								}
+								if (isWorking) {
+									databaseConnection.setValidationPeriod(validationPeriod);
+								} else {
+									throw new InvalidConfigurationException(site, application.getName(),
+											String.format("Connection %s for application %s of site %s is not working!",
+													databaseConnection, application.getName(), site.getName()));
+								}
+							}
+
+							File applicationCacheFolder = cacheProvider.getPlatformCache(site, application);
+
+							Resources applicationResources = getCoreService().getResources(application,
+									applicationCacheFolder, applicationRootFolder);
+
+							Resource beanSource = applicationResources.getResource(ResourceType.BEANS_XML,
+									ResourceType.BEANS_XML_NAME);
+							if (null == beanSource) {
+								throw new InvalidConfigurationException(site, application.getName(),
+										String.format("application '%s' does not contain a resource named '%s'",
+												application.getName(), ResourceType.BEANS_XML_NAME));
+							}
+							ApplicationProvider applicationProvider = new ApplicationProvider(site, application,
+									monitorPerformance);
+							getCoreService().initApplicationProperties(site, applicationProvider);
+							applicationProvider.setResources(applicationResources);
+							applicationProvider.setDatabaseConnection(siteApplication.getDatabaseConnection());
+
+							List<ResourceType> resourceTypes = Arrays.asList(ResourceType.BEANS_XML, ResourceType.JAR,
+									ResourceType.SQL, ResourceType.DICTIONARY, ResourceType.RESOURCE, ResourceType.TPL);
+							if (devMode) {
+								resourceTypes = new ArrayList<>(resourceTypes);
+								resourceTypes.add(ResourceType.XSL);
+								resourceTypes.add(ResourceType.XML);
+							}
+							applicationResources.dumpToCache(resourceTypes.toArray(new ResourceType[0]));
+
+							ApplicationConfigProvider applicationConfig = new ApplicationConfigProviderImpl(
+									marshallService, application.getName(), applicationResources, devMode);
+							applicationProvider.setApplicationConfig(applicationConfig);
+
+							Collection<Resource> messageSources = applicationResources
+									.getResources(ResourceType.DICTIONARY);
+							if (messageSources.size() > 0) {
+								File cachedFile = messageSources.iterator().next().getCachedFile();
+								siteClassPath.addFolder(cachedFile.getParentFile().toPath(), application.getName());
+							}
+
+							Collection<Resource> jars = applicationResources.getResources(ResourceType.JAR);
+							for (Resource applicationResource : jars) {
+								File cachedFile = applicationResource.getCachedFile();
+								String origin = siteClassPath.addJar(cachedFile.toPath(), application.getName());
+								if (!application.getName().equals(origin)) {
+									LOGGER.warn(
+											"{} from application {} has not been added to the site's classpath, since this jar has already been added by application {}",
+											cachedFile.getName(), application.getName(), origin);
+								}
+							}
+
+							FeatureProviderImpl featureProvider = new FeatureProviderImpl(
+									applicationProvider.getProperties());
+							featureProvider.initImageProcessor(imageMagickPath,
+									cacheProvider.getImageCache(site, application));
+							featureProvider.setIndexer(documentIndexer);
+							applicationProvider.setFeatureProvider(featureProvider);
+
+							applications.add(applicationProvider);
+
+						} catch (InvalidConfigurationException ice) {
+							String errorMessage = String.format("[%s] Error while loading application '%s'.",
+									site.getName(), application.getName());
+							fp.addErrorMessage(errorMessage);
+							LOGGER.error(errorMessage, ice);
+							auditableListener.createEvent(Type.ERROR, errorMessage);
+						}
 					}
 				}
 
-				java.util.Properties props = PropertySupport.getProperties(platformConfig, site, application,
-						application.isPrivileged());
+				site.getSiteApplications().clear();
 
-				PropertySourcesPlaceholderConfigurer configurer = getPlaceholderConfigurer(props);
-				applicationContext.addBeanFactoryPostProcessor(configurer);
-				ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
-				Properties appProps = application.getProperties();
-				List<String> profiles = appProps.getList(ApplicationProperties.PROP_ACTIVE_PROFILES, ",");
-				if (!profiles.isEmpty()) {
-					environment.setActiveProfiles(profiles.toArray(new String[profiles.size()]));
-				}
-				environment.getPropertySources().addFirst(new PropertiesPropertySource("appngEnvironment", props));
+				SiteClassLoader siteClassLoader = siteClassPath.build(getClass().getClassLoader(), site.getName());
+				Thread.currentThread().setContextClassLoader(siteClassLoader);
 
-				ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application, dbc,
-						platformCacheManager, dictionaryNames);
-				applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
-
-				Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
-				if (enableRest) {
-					applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
+				LOGGER.info(siteClassLoader.toString());
+				site.setSiteClassLoader(siteClassLoader);
+				if (LOGGER.isDebugEnabled()) {
+					List<URL> urlList = Arrays.asList(siteClassLoader.getURLs());
+					urlList.sort((a, b) -> StringUtils.compare(a.toString(), b.toString()));
+					LOGGER.debug("Classloader for site {} contains the following URLs: {}", site.getName(),
+							StringUtils.join(urlList, ','));
 				}
 
-				applicationContext.refresh();
+				startIndexThread(site, documentIndexer);
+				startRepositoryWatcher(site, cacheEnabled, platformConfig.getString(Platform.Property.JSP_FILE_TYPE));
 
-				application.setContext(applicationContext);
-				ConfigValidator configValidator = new ConfigValidator(application.getApplicationConfig());
-				configValidator.validateMetaData(siteClassLoader);
-				configValidator.validate(application.getName(), site.getSiteClassLoader());
-				configValidator.processErrors(application.getName());
+				String datasourceConfigurerName = siteProps.getString(SiteProperties.DATASOURCE_CONFIGURER);
+				siteClassLoader.loadClass(datasourceConfigurerName);
 
-				Collection<ApplicationSubject> applicationSubjects = coreService
-						.getApplicationSubjects(application.getId(), site);
-				application.getApplicationSubjects().addAll(applicationSubjects);
-				validApplications.add(application);
+				org.springframework.cache.CacheManager platformCacheManager = platformContext
+						.getBean(org.springframework.cache.CacheManager.class);
+
+				// Step 2: Build application context
+				String dataBasePrefix = platformConfig.getString(Platform.Property.DATABASE_PREFIX);
+				Set<ApplicationProvider> validApplications = new HashSet<>();
+				for (ApplicationProvider application : applications) {
+					sw.stop();
+					sw.start("Phase 2: Load application " + application.getName());
+					try {
+						File applicationCacheFolder = cacheProvider.getPlatformCache(site, application);
+						File sqlFolder = new File(applicationCacheFolder, ResourceType.SQL.getFolder());
+						SiteApplication siteApplication = coreService.getSiteApplication(site.getName(),
+								application.getName());
+						MigrationStatus migrationStatus = databaseService.migrateApplication(sqlFolder, application,
+								dataBasePrefix);
+						DatabaseConnection dbc = application.getDatabaseConnection();
+						siteApplication.setDatabaseConnection(dbc);
+
+						if (migrationStatus.isErroneous()) {
+							String errorMessage = String.format(
+									"[%s] Database '%s' for application '%s' is in an errorneous state, please check the connection and the migration state!",
+									site.getName(), dbc.getDatabaseName(), application.getName());
+							fp.addErrorMessage(errorMessage);
+						}
+
+						String beansXmlLocation = cacheProvider.getRelativePlatformCache(site, application)
+								+ File.separator + ResourceType.BEANS_XML_NAME;
+						// this is required to support testing of InitializerService
+						List<String> configLocations = new ArrayList<>(
+								siteProps.getList(CONFIG_LOCATIONS, ApplicationContext.CONTEXT_CLASSPATH, ","));
+						configLocations.add(beansXmlLocation);
+						ApplicationContext applicationContext = new ApplicationContext(application, platformContext,
+								site.getSiteClassLoader(), servletContext,
+								configLocations.toArray(new String[configLocations.size()]));
+
+						Set<Resource> resources = application.getResources().getResources(ResourceType.DICTIONARY);
+						List<String> dictionaryNames = new ArrayList<>();
+						for (Resource applicationResource : resources) {
+							String name = FilenameUtils.getBaseName(applicationResource.getName()).replaceAll("_(.)*",
+									"");
+							if (!dictionaryNames.contains(name)) {
+								dictionaryNames.add(name);
+							}
+						}
+
+						java.util.Properties props = PropertySupport.getProperties(platformConfig, site, application,
+								application.isPrivileged());
+
+						PropertySourcesPlaceholderConfigurer configurer = getPlaceholderConfigurer(props);
+						applicationContext.addBeanFactoryPostProcessor(configurer);
+						ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext
+								.getEnvironment();
+						Properties appProps = application.getProperties();
+						List<String> profiles = appProps.getList(ApplicationProperties.PROP_ACTIVE_PROFILES, ",");
+						if (!profiles.isEmpty()) {
+							environment.setActiveProfiles(profiles.toArray(new String[profiles.size()]));
+						}
+						environment.getPropertySources()
+								.addFirst(new PropertiesPropertySource("appngEnvironment", props));
+
+						ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site,
+								application, dbc, platformCacheManager, dictionaryNames);
+						applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
+
+						Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
+						if (enableRest) {
+							applicationContext
+									.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
+						}
+
+						applicationContext.refresh();
+
+						application.setContext(applicationContext);
+						ConfigValidator configValidator = new ConfigValidator(application.getApplicationConfig());
+						configValidator.validateMetaData(siteClassLoader);
+						configValidator.validate(application.getName(), site.getSiteClassLoader());
+						configValidator.processErrors(application.getName());
+
+						Collection<ApplicationSubject> applicationSubjects = coreService
+								.getApplicationSubjects(application.getId(), site);
+						application.getApplicationSubjects().addAll(applicationSubjects);
+						validApplications.add(application);
+					} catch (Throwable e) {
+						String message = String.format("[%s] Error while loading application '%s'.", site.getName(),
+								application.getName());
+						fp.addErrorMessage(message);
+						LOGGER.error(message, e);
+						auditableListener.createEvent(Type.ERROR, message);
+					}
+				}
+				site.getSiteApplications().clear();
+				site.getSiteApplications().addAll(validApplications);
+
+				sw.stop();
+				sw.start("Phase 3: Initialize applications");
+
+				List<JarInfo> jarInfos = new ArrayList<>();
+
+				// Step 3: Execute application-specific initialization,
+				// read JAR info, cleanup on errors
+				for (ApplicationProvider application : validApplications) {
+					if (startApplication(env, site, application)) {
+						jarInfos.addAll(application.getJarInfos());
+						LOGGER.info("Initialized application: {}", application.getName());
+						for (JarInfo jarInfo : application.getJarInfos()) {
+							LOGGER.info(jarInfo.toString());
+						}
+					}
+				}
+
+				env.setAttribute(Scope.PLATFORM, site.getName() + "." + EnvironmentKeys.JAR_INFO_MAP, jarInfos);
+
+				PlatformTransformer.clearCache(site);
+				coreService.setSiteStartUpTime(site, new Date());
+
+				if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
+					startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
+							new SiteReloadWatcher(env, site));
+				}
+				sw.stop();
+				LOGGER.info("loading site {} completed in {}ms", site.getName(), sw.getTotalTimeMillis());
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info(sw.prettyPrint());
+
+				}
+				site.setState(SiteState.STARTED, env);
+				siteMap.put(site.getName(), site);
+				debugPlatformContext(platformContext);
+				auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
+
+				if (sendReloadEvent) {
+					site.sendEvent(new ReloadSiteEvent(site.getName()));
+					if (isReload) {
+						getCoreService().setSiteReloadCount(site);
+					}
+				}
 			} catch (Throwable e) {
-				String message = String.format("[%s] Error while loading application '%s'.", site.getName(),
-						application.getName());
-				fp.addErrorMessage(message);
-				LOGGER.error(message, e);
-				auditableListener.createEvent(Type.ERROR, message);
-			}
-		}
-		site.getSiteApplications().clear();
-		site.getSiteApplications().addAll(validApplications);
-
-		List<JarInfo> jarInfos = new ArrayList<>();
-
-		// Step 3: Execute application-specific initialization,
-		// read JAR info, cleanup on errors
-		for (ApplicationProvider application : validApplications) {
-			if (startApplication(env, site, application)) {
-				jarInfos.addAll(application.getJarInfos());
-				LOGGER.info("Initialized application: {}", application.getName());
-				for (JarInfo jarInfo : application.getJarInfos()) {
-					LOGGER.info(jarInfo.toString());
+				LOGGER.error("Error while loading site " + siteToLoad.getName(), e);
+				site.setState(SiteState.INACTIVE);
+			} finally {
+				if (sw.isRunning()) {
+					sw.stop();
 				}
 			}
-		}
-
-		env.setAttribute(Scope.PLATFORM, site.getName() + "." + EnvironmentKeys.JAR_INFO_MAP, jarInfos);
-
-		PlatformTransformer.clearCache();
-		coreService.setSiteStartUpTime(site, new Date());
-
-		if (site.getProperties().getBoolean(SiteProperties.SUPPORT_RELOAD_FILE)) {
-			startSiteThread(site, "appng-sitereload-" + site.getName(), THREAD_PRIORITY_LOW,
-					new SiteReloadWatcher(env, site));
-		}
-
-		LOGGER.info("loading site {} completed", site.getName());
-		site.setState(SiteState.STARTED, env);
-		siteMap.put(site.getName(), site);
-		debugPlatformContext(platformContext);
-		auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
-
-		if (sendReloadEvent) {
-			site.sendEvent(new ReloadSiteEvent(site.getName()));
-			if (isReload) {
-				getCoreService().setSiteReloadCount(site);
-			}
-		}
+		};
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {

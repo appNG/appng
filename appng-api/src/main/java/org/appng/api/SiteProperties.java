@@ -199,6 +199,8 @@ public class SiteProperties {
 	public static final String TAG_PREFIX = "tagPrefix";
 	/** The name of the template to use */
 	public static final String TEMPLATE = "template";
+	/** A multilined property containing a loading screen */
+	public static final String LOADING_SCREEN = "loadingScreen";
 	/** The path-suffix for the appNG-Webapplication */
 	public static final String MANAGER_PATH = "manager-path";
 	/**

@@ -116,7 +116,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	private Messages messages = null;
 
 	public ServiceRequestHandlerTest() throws JAXBException {
-		super(MarshallService.getMarshallService(), new PlatformTransformer(), null);
+		super(MarshallService.getMarshallService());
 	}
 
 	@Test

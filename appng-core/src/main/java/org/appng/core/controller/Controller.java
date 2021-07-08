@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
@@ -40,6 +41,7 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.servlets.DefaultServlet;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Path;
 import org.appng.api.PathInfo;
@@ -79,7 +81,6 @@ import lombok.extern.slf4j.Slf4j;
 @WebServlet(name = "controller", urlPatterns = { "/", "*.jsp" }, loadOnStartup = 1)
 public class Controller extends DefaultServlet implements ContainerServlet {
 
-	private static final String ALLOW_PLAIN_REQUESTS = "allowPlainRequests";
 	private static final String ERRORPAGE = "/errorpage";
 	private static final String SLASH = "/";
 
@@ -87,11 +88,14 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private static final String SCHEME_HTTP = "http://";
 
 	protected JspHandler jspHandler;
-
 	protected MonitoringHandler monitoringHandler;
+	private GuiHandler guiHandler;
+	private ErrorPageHandler errorHandler;
+	private StaticContentHandler staticContentHandler;
+	private ServiceRequestHandler serviceRequestHandler;
 
+	private Environment globalEnv;
 	private Manager manager;
-
 	protected final byte[] loadingScreen;
 
 	public Controller() {
@@ -138,10 +142,6 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		serveResource(request, response, true, null);
 	}
 
-	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
-		return DefaultEnvironment.get(getServletContext(), servletRequest, servletResponse);
-	}
-
 	@Override
 	protected void doPut(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws ServletException, IOException {
@@ -173,126 +173,117 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	@Override
 	protected void doGet(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws ServletException, IOException {
-		if (!Boolean.TRUE.equals(servletRequest.getServletContext().getAttribute(PlatformStartup.APPNG_STARTED))) {
-			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
-			servletResponse.setContentType(MediaType.TEXT_HTML_VALUE);
-			servletResponse.setContentLength(loadingScreen.length);
-			servletResponse.getOutputStream().write(loadingScreen);
+
+		Properties platformProperties = globalEnv.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		String hostIdentifier = RequestUtil.getHostIdentifier(servletRequest, globalEnv);
+		Site site = RequestUtil.getSiteByHost(globalEnv, hostIdentifier);
+
+		if (null == site) {
+			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+			return;
+		}
+		String servletPath = servletRequest.getServletPath();
+		PathInfo pathInfo = RequestUtil.getPathInfo(globalEnv, site, servletPath);
+		if (pathInfo.isMonitoring()) {
+			monitoringHandler.handle(servletRequest, servletResponse, globalEnv, site, pathInfo);
 			return;
 		}
 
-		String servletPath = servletRequest.getServletPath();
-		String serverName = servletRequest.getServerName();
+		if (SiteState.STARTING.equals(site.getState())) {
+			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+			servletResponse.setContentType(MediaType.TEXT_HTML_VALUE);
+			String siteLoadingScreen = site.getProperties().getClob(SiteProperties.LOADING_SCREEN);
+			if (StringUtils.isNotBlank(siteLoadingScreen)) {
+				servletResponse.setContentLength(siteLoadingScreen.getBytes(StandardCharsets.UTF_8).length);
+				servletResponse.getWriter().write(siteLoadingScreen);
+			} else {
+				servletResponse.setContentLength(loadingScreen.length);
+				servletResponse.getOutputStream().write(loadingScreen);
+			}
+			return;
+		}
 
-		Environment env = getEnvironment(servletRequest, servletResponse);
+		if (!SiteState.STARTED.equals(site.getState())) {
+			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+			String maintenanceScreen = site.getProperties().getClob(Platform.Property.MAINTENANCE_SCREEN,
+					platformProperties.getClob(Platform.Property.MAINTENANCE_SCREEN));
+			if (StringUtils.isNotBlank(maintenanceScreen)) {
+				servletResponse.setContentLength(maintenanceScreen.getBytes(StandardCharsets.UTF_8).length);
+				servletResponse.getWriter().write(maintenanceScreen);
+			}
+			return;
+		}
 
-		Site site = RequestUtil.getSite(env, servletRequest);
-		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		Boolean allowPlainRequests = platformProperties.getBoolean(ALLOW_PLAIN_REQUESTS, true);
+		boolean enforcePrimaryDomain = site.getProperties().getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
+		if (enforcePrimaryDomain) {
+			String primaryDomain = site.getDomain();
+			String serverName = servletRequest.getServerName();
+			if (!(primaryDomain.startsWith(SCHEME_HTTP + serverName))
+					|| (primaryDomain.startsWith(SCHEME_HTTPS + serverName))) {
+				Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, primaryDomain);
+				return;
+			}
+		}
 
-		if (site != null) {
-			try {
-				int requests = ((SiteImpl) site).addRequest();
-				LOGGER.debug("site {} currently handles {} requests", site, requests);
+		if ((Path.SEPARATOR.equals(servletPath)) || StringUtils.isBlank(servletPath)) {
+			if (!pathInfo.getDocumentDirectories().isEmpty()) {
+				String defaultPage = site.getProperties().getString(SiteProperties.DEFAULT_PAGE);
+				String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
+				Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
+			} else {
+				LOGGER.warn("{} is empty for site {}, can not process request!", SiteProperties.DOCUMENT_DIR,
+						site.getName());
+			}
+			return;
+		}
 
-				PathInfo pathInfo = RequestUtil.getPathInfo(env, site, servletPath);
-				if (pathInfo.isMonitoring()) {
-					monitoringHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
-				} else {
-					site = RequestUtil.waitForSite(env, site.getName());
-					if (site.hasState(SiteState.STARTED)) {
-						boolean enforcePrimaryDomain = site.getProperties()
-								.getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
-						if (enforcePrimaryDomain) {
-							String primaryDomain = site.getDomain();
-							if (!(primaryDomain.startsWith(SCHEME_HTTP + serverName))
-									|| (primaryDomain.startsWith(SCHEME_HTTPS + serverName))) {
-								Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, primaryDomain);
-							}
-						}
+		try {
+			int requests = ((SiteImpl) site).addRequest();
+			LOGGER.debug("site {} currently handles {} requests", site, requests);
 
-						setRequestAttributes(servletRequest, env, pathInfo);
-						String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
+			RequestHandler requestHandler = null;
+			String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
+			if (pathInfo.isDocument() || pathInfo.isStaticContent()
+					|| pathInfo.getServletPath().startsWith(templatePrefix)) {
+				requestHandler = staticContentHandler;
+			} else if (pathInfo.isGui()) {
+				requestHandler = guiHandler;
+			} else if (pathInfo.isService()) {
+				requestHandler = serviceRequestHandler;
+			} else if (pathInfo.isJsp()) {
+				requestHandler = jspHandler;
+			} else if (ERRORPAGE.equals(servletPath)) {
+				requestHandler = errorHandler;
+			} else {
+				servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				LOGGER.debug("was not an internal request, rejecting {}", servletPath);
+			}
 
-						RequestHandler requestHandler = null;
-						String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
-						File debugFolder = new File(appngData, "debug").getAbsoluteFile();
-						if (!(debugFolder.exists() || debugFolder.mkdirs())) {
-							LOGGER.warn("Failed to create {}", debugFolder.getPath());
-						}
-
-						if (("/".equals(servletPath)) || ("".equals(servletPath)) || (null == servletPath)) {
-							if (!pathInfo.getDocumentDirectories().isEmpty()) {
-								String defaultPage = site.getProperties().getString(SiteProperties.DEFAULT_PAGE);
-								String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
-								Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
-							} else {
-								LOGGER.warn("{} is empty for site {}, can not process request!",
-										SiteProperties.DOCUMENT_DIR, site.getName());
-							}
-						} else if (pathInfo.isStaticContent() || pathInfo.getServletPath().startsWith(templatePrefix)
-								|| pathInfo.isDocument()) {
-							requestHandler = new StaticContentHandler(this);
-						} else if (pathInfo.isGui()) {
-							requestHandler = new GuiHandler(debugFolder);
-						} else if (pathInfo.isService()) {
-							ApplicationContext ctx = env.getAttribute(Scope.PLATFORM,
-									Platform.Environment.CORE_PLATFORM_CONTEXT);
-							MarshallService marshallService = ctx.getBean(MarshallService.class);
-							PlatformTransformer platformTransformer = ctx.getBean(PlatformTransformer.class);
-							requestHandler = new ServiceRequestHandler(marshallService, platformTransformer,
-									debugFolder);
-						} else if (pathInfo.isJsp()) {
-							requestHandler = jspHandler;
-						} else if (pathInfo.isMonitoring()) {
-							requestHandler = monitoringHandler;
-						} else if (ERRORPAGE.equals(servletPath)) {
-							requestHandler = new ErrorPageHandler();
-						} else {
-							if (allowPlainRequests && !pathInfo.isRepository()) {
-								super.doGet(servletRequest, servletResponse);
-								int status = servletResponse.getStatus();
-								LOGGER.debug("returned {} for request {}", status, servletPath);
-							} else {
-								servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-								LOGGER.debug("was not an internal request, rejecting {}", servletPath);
-							}
-						}
-						if (null != requestHandler) {
-							if (site.hasState(SiteState.STARTED)) {
-								requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
-								if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
-									getEnvironment(servletRequest, servletResponse).setAttribute(SESSION,
-											EnvironmentKeys.PREVIOUS_PATH, servletPath);
-								}
-							} else {
-								LOGGER.error("site {} should be STARTED.", site);
-								servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-							}
-						}
-
-					} else {
-						LOGGER.error("timeout while waiting for site {}", site);
-						servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+			if (null != requestHandler) {
+				if (site.hasState(SiteState.STARTED)) {
+					Environment env = getEnvironment(servletRequest, servletResponse);
+					setRequestAttributes(servletRequest, env, pathInfo);
+					requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
+					if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
+						env.setAttribute(SESSION, EnvironmentKeys.PREVIOUS_PATH, servletPath);
 					}
-				}
-			} finally {
-				if (null != site) {
-					int requests = ((SiteImpl) site).removeRequest();
-					LOGGER.debug("site {} currently handles {} requests", site, requests);
+				} else {
+					LOGGER.error("site {} should be STARTED.", site);
+					servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 				}
 			}
 
-		} else if (allowPlainRequests) {
-			LOGGER.debug("no site found for request '{}'", servletPath);
-			super.doGet(servletRequest, servletResponse);
-			int status = servletResponse.getStatus();
-			LOGGER.debug("returned {} for request '{}'", status, servletPath);
-		} else {
-			LOGGER.debug("access to '{}' not allowed", servletPath);
-			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+		} finally {
+			if (null != site) {
+				int requests = ((SiteImpl) site).removeRequest();
+				LOGGER.debug("site {} currently handles {} requests", site, requests);
+			}
 		}
 
+	}
+
+	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+		return DefaultEnvironment.get(servletRequest, servletResponse);
 	}
 
 	private void setRequestAttributes(HttpServletRequest request, Environment env, Path pathInfo) {
@@ -314,8 +305,17 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
+		globalEnv = DefaultEnvironment.get(getServletContext());
+		Properties platformProperties = globalEnv.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
+		File debugFolder = new File(appngData, "debug").getAbsoluteFile();
 		jspHandler = new JspHandler(getServletConfig());
 		monitoringHandler = new MonitoringHandler();
+		guiHandler = new GuiHandler(debugFolder);
+		errorHandler = new ErrorPageHandler();
+		staticContentHandler = new StaticContentHandler(this);
+		ApplicationContext ctx = globalEnv.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
+		serviceRequestHandler = new ServiceRequestHandler(ctx.getBean(MarshallService.class));
 	}
 
 	public Wrapper getWrapper() {

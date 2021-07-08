@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.apache.catalina.Globals;
+import org.apache.catalina.WebResourceRoot;
 import org.apache.commons.io.output.NullOutputStream;
 import org.appng.api.AttachmentWebservice;
 import org.appng.api.BusinessException;
@@ -49,12 +51,14 @@ import org.appng.api.Webservice;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.handler.JspHandler;
 import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
+import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
 import org.appng.tools.os.OperatingSystem;
@@ -66,6 +70,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockServletConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -90,6 +95,8 @@ public class ControllerTest extends Controller {
 		env = Mockito.spy(DefaultEnvironment.get(base.ctx));
 		base.provider.registerBean("environment", (Environment) env);
 		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
+		Mockito.when(base.ctx.getAttribute(Globals.RESOURCES_ATTR)).thenReturn(Mockito.mock(WebResourceRoot.class));
+		init(new MockServletConfig(base.ctx));
 	}
 
 	@Test
@@ -271,8 +278,8 @@ public class ControllerTest extends Controller {
 		when(base.request.getServletPath()).thenReturn("/test.txt");
 		try {
 			doGet(base.request, base.response);
-			String actual = new String(base.out.toByteArray());
-			Assert.assertEquals("/test.txt", actual);
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
 			fail(e);
 		}
@@ -425,7 +432,8 @@ public class ControllerTest extends Controller {
 		when(base.request.getServletPath()).thenReturn("/de");
 		try {
 			doGet(base.request, base.response);
-			verify(base.response).getStatus();
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
@@ -462,8 +470,10 @@ public class ControllerTest extends Controller {
 		when(base.request.getServletPath()).thenReturn("/repository/manager/www/de/test.txt");
 		try {
 			doGet(base.request, base.response);
-			Assert.assertEquals("/repository/manager/www/de/test.txt", new String(base.out.toByteArray()));
+			Assert.assertEquals(0, base.out.toByteArray().length);
+			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
+			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -519,8 +529,7 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testLoadingPage() {
-		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(false);
-		when(base.request.getServletPath()).thenReturn("/dummy");
+		((SiteImpl) base.siteMap.get("manager")).setState(SiteState.STARTING);
 		try {
 			doGet(base.request, base.response);
 			String actual = new String(base.out.toByteArray());
@@ -530,10 +539,6 @@ public class ControllerTest extends Controller {
 		} finally {
 			Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
 		}
-	}
-
-	@Override
-	public void init() throws ServletException {
 	}
 
 	public HttpServletResponse wrapResponseForHeadRequest(HttpServletResponse response) {
