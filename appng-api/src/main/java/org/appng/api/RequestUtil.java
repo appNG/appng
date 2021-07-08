@@ -180,9 +180,9 @@ public class RequestUtil {
 		String guiPath = siteProperties.getString(SiteProperties.MANAGER_PATH);
 		String servicePath = siteProperties.getString(SiteProperties.SERVICE_PATH);
 		List<String> blobDirectories = siteProperties.getList(SiteProperties.ASSETS_DIR, ";");
-		List<String> documentDirectories = siteProperties.getList(SiteProperties.DOCUMENT_DIR, ";"
+		List<String> documentDirectories = siteProperties.getList(SiteProperties.DOCUMENT_DIR, ";");
 
-    return new PathInfo(site.getHost(), site.getDomain(), site.getName(), servletPath, guiPath, servicePath,
+		return new PathInfo(site.getHost(), site.getDomain(), site.getName(), servletPath, guiPath, servicePath,
 				blobDirectories, documentDirectories, repoPath, monitoringPath, extension);
 	}
 
