@@ -370,7 +370,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	public PageReference processPage(MarshallService marshallService, Path pathInfo, String pageId,
-			List<String> sectionIds) {
+			List<String> sectionIds, List<String> applicationUrlParameters) {
 		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
 		Environment env = applicationRequest.getEnvironment();
 
@@ -382,7 +382,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			error("error while (re)loading configuration!", e);
 		}
 
-		List<String> applicationUrlParameters = pathInfo.getApplicationUrlParameters();
 		trace("Processing application \"" + pathInfo.getApplicationName() + "\" with url-parameters \""
 				+ applicationUrlParameters + "\"");
 
@@ -441,6 +440,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 		PageParameterProcessor pageParameterProcessor = new PageParameterProcessor(getSessionParamKey(site),
 				sessionParamNames, env, applicationRequest);
+		pageParameterProcessor.processPageParams(applicationUrlParameters, pageConfig.getUrlSchema());
 		Map<String, String> pageParams = pageParameterProcessor.getParameters();
 		initSession(applicationConfig, env, getSessionParamKey(site));
 

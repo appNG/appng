@@ -360,11 +360,13 @@ abstract class OpenApiOperation {
 	}
 
 	protected boolean appendParams(Params params, StringBuilder self) {
+		boolean first = true;
 		if (null != params) {
-			params.getParam().forEach(p -> {
+			for (Param p : params.getParam()) {
 				if (null != p.getValue()) {
 					try {
-						self.append(params.getParam().indexOf(p) == 0 ? "?" : "&");
+						self.append(first ? "?" : "&");
+						first = false;
 						self.append(URLEncoder.encode(p.getName(), StandardCharsets.UTF_8.name()));
 						self.append("=");
 						self.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
@@ -372,7 +374,7 @@ abstract class OpenApiOperation {
 						// will not happen
 					}
 				}
-			});
+			}
 			return true;
 		}
 		return false;

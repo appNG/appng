@@ -219,7 +219,8 @@ abstract class OpenApiPage extends OpenApiOperation {
 		MarshallService marshallService = MarshallService.getMarshallService();
 		Path pathInfo = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
 		org.appng.xml.platform.PageReference pageReference = applicationProvider.processPage(marshallService, pathInfo,
-				pageId, null == sections ? Collections.emptyList() : Arrays.asList(sections));
+				pageId, null == sections ? Collections.emptyList() : Arrays.asList(sections),
+				null == pageUrlParams ? Collections.emptyList() : Arrays.asList(pageUrlParams.split("/")));
 
 		PageDefinition pageDefinition = new PageDefinition();
 		User user = getUser(env);
