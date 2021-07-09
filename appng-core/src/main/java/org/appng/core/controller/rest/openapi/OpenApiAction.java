@@ -212,7 +212,6 @@ abstract class OpenApiAction extends OpenApiOperation {
 		MarshallService marshallService = MarshallService.getMarshallService();
 
 		RestRequest initialRequest = getInitialRequest(site, application, env, servletReq, applicationProvider);
-		initialRequest.addParameter(FORM_ACTION, actionId);
 
 		if (supportPathParameters) {
 			applyPathParameters(pathVariables, originalAction.getConfig(), initialRequest);
@@ -227,6 +226,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		}
 
 		RestRequest executingRequest = new RestRequest(servletReq, initialAction, receivedData);
+		executingRequest.addParameter(FORM_ACTION, actionId);
 		initRequest(site, application, env, applicationProvider, executingRequest);
 		if (supportPathParameters) {
 			applyPathParameters(pathVariables, initialAction.getConfig(), executingRequest);
@@ -295,10 +295,11 @@ abstract class OpenApiAction extends OpenApiOperation {
 	protected ActionField getActionField(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
 			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef, Class<?> bindClass) {
 		ActionField actionField = new ActionField();
-		actionField.setName(fieldData.getName());
 
 		if (originalDef.isPresent()) {
 			FieldDef fieldDef = originalDef.get();
+
+			actionField.setName(fieldDef.getBinding());
 
 			boolean isPassword = org.appng.xml.platform.FieldType.PASSWORD.equals(fieldDef.getType());
 			boolean isDate = org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType());
@@ -347,7 +348,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 				if (receivedField.isPresent()) {
 					Object objectValue = receivedField.get().getValue();
 					actionField.setValue(objectValue);
-					LOGGER.debug("Setting value {} for field {}", objectValue, actionField.getName());
+				LOGGER.debug("Setting value {} for field {}", objectValue, actionField.getName());
 				}
 			}
 			applyValidationRules(request, actionField, originalDef.get());
@@ -485,7 +486,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		if (!Boolean.TRUE.toString().equalsIgnoreCase(field.getReadonly())) {
 			Condition condition = field.getCondition();
 			if (null == condition || Boolean.TRUE.toString().equalsIgnoreCase(condition.getExpression())) {
-				ActionField actionField = actionFields.get(field.getName());
+				ActionField actionField = actionFields.get(field.getBinding());
 				boolean isObject = org.appng.xml.platform.FieldType.OBJECT.equals(field.getType());
 				boolean isObjectList = org.appng.xml.platform.FieldType.LIST_OBJECT.equals(field.getType());
 				if (isObjectList) {
