@@ -264,6 +264,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		Action action = new Action();
 		action.setId(processedAction.getId());
 		action.setEventId(processedAction.getEventId());
+		action.setOnSuccess("/manager" + site.getName() + "/" + processedAction.getOnSuccess());
 		action.setUser(getUser(environment));
 		action.setParameters(getParameters(processedAction.getConfig().getParams()));
 		action.setPermissions(getPermissions(processedAction.getConfig().getPermissions()));
@@ -341,14 +342,15 @@ abstract class OpenApiAction extends OpenApiOperation {
 			}
 
 			if (null != receivedData && !isPassword) {
-				// a successfully executed action does not contain UserData, so we have to take the data originally
+				// a successfully executed action does not contain UserData, so we have to take
+				// the data originally
 				// submitted by the user
 				Optional<ActionField> receivedField = receivedData.getFields().stream()
 						.filter(af -> af.getName().equals(fieldDef.getBinding())).findFirst();
 				if (receivedField.isPresent()) {
 					Object objectValue = receivedField.get().getValue();
 					actionField.setValue(objectValue);
-				LOGGER.debug("Setting value {} for field {}", objectValue, actionField.getName());
+					LOGGER.debug("Setting value {} for field {}", objectValue, actionField.getName());
 				}
 			}
 			applyValidationRules(request, actionField, originalDef.get());

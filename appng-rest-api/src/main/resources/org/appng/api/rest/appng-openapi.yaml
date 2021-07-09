@@ -446,6 +446,8 @@ components:
           description: The permissions for this action.
           items:
             $ref: "#/components/schemas/permission"
+        onSuccess:
+          type: string
     datasource:
       type: object
       description: A datasource, represented by either a page (of elements) or a single
