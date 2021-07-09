@@ -264,7 +264,6 @@ abstract class OpenApiAction extends OpenApiOperation {
 		Action action = new Action();
 		action.setId(processedAction.getId());
 		action.setEventId(processedAction.getEventId());
-		action.setOnSuccess("/manager" + site.getName() + "/" + processedAction.getOnSuccess());
 		action.setUser(getUser(environment));
 		action.setParameters(getParameters(processedAction.getConfig().getParams()));
 		action.setPermissions(getPermissions(processedAction.getConfig().getPermissions()));

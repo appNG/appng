@@ -282,6 +282,9 @@ abstract class OpenApiPage extends OpenApiOperation {
 				org.appng.xml.platform.Action a = e.getAction();
 				if (null != a) {
 					Action action = openApiAction.getAction(request, a, env, null);
+					if (null != a.getOnSuccess()) {
+						action.setOnSuccess("/manager/" + site.getName() + "/" + a.getOnSuccess());
+					}
 					action.setUser(null);
 					element.setAction(action);
 				}
