@@ -261,12 +261,6 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 	protected Field getField(String self, String dataSourceId, FieldDef f, boolean hasQueryParams) {
 		Field field = new Field();
 		field.setName(f.getName());
-		f.getIcons().forEach(i -> {
-			Icon icon = new Icon();
-			icon.setName(i.getContent());
-			icon.setLabel(i.getLabel());
-			field.addIconItem(icon);
-		});
 		if (null != f.getLabel()) {
 			field.setLabel(f.getLabel().getValue());
 		}
@@ -371,6 +365,12 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 	protected FieldValue getFieldValue(Datafield data, FieldDef field, Class<?> type) {
 		FieldValue fv = new FieldValue();
 		fv.setName(data.getName());
+		data.getIcons().forEach(i -> {
+			Icon icon = new Icon();
+			icon.setName(i.getContent());
+			icon.setLabel(i.getLabel());
+			fv.addIconsItem(icon);
+		});
 		fv.setValue(getObjectValue(data, field, type, Collections.emptyList()));
 		if (null != fv.getValue() && !org.appng.xml.platform.FieldType.DATE.equals(field.getType())
 				&& StringUtils.isNotBlank(field.getFormat())) {

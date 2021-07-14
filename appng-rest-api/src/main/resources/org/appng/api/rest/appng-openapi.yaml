@@ -344,6 +344,7 @@ components:
       type: object
       required:
         - id
+        - _self
       properties:
         _self:
           type: string
@@ -414,6 +415,10 @@ components:
     action:
       type: object
       description: An action, representing an executable operation.
+      required:
+        - _self
+        - id
+        - event-id
       properties:
         _self:
           type: string
@@ -454,6 +459,7 @@ components:
         element.
       required:
         - id
+        - _self
       properties:
         _self:
           type: string
@@ -549,6 +555,14 @@ components:
           description: The child fields of this field.
           additionalProperties:
             $ref: "#/components/schemas/field"
+    icon:
+      type: object
+      description: an icon
+      properties:
+        name:
+          type: string
+        label:
+          type: string
     fieldValue:
       type: object
       description: The value of a field within a datasource.
@@ -564,6 +578,10 @@ components:
         formattedValue:
           type: string
           description: The formatted value of the field.
+        icons:
+          type: array
+          items:
+            $ref: "#/components/schemas/icon"
         values:
           type: object
           description: The child values of this fieldValue.
@@ -572,6 +590,17 @@ components:
     page:
       type: object
       description: A page that contains paging information an a list of elements.
+      required:
+        - _first
+        - _previous
+        - _next
+        - _last
+        - number
+        - size
+        - totalPages
+        - totalItems
+        - isFirst
+        - isLast
       properties:
         _first:
           type: string
