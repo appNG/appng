@@ -357,7 +357,8 @@ abstract class OpenApiAction extends OpenApiOperation {
 			actionField.setMessages(getMessages(fieldDef.getMessages()));
 			if (isSelection) {
 				Optional<Selection> selection = processedAction.getData().getSelections().parallelStream()
-						.filter(s -> s.getId().equals(actionField.getName())).findFirst();
+						.filter(s -> s.getId().equals(actionField.getName()) || s.getId().equals(fieldDef.getName()))
+						.findFirst();
 				if (selection.isPresent()) {
 					Options options = new Options();
 					options.setMultiple(selection.get().getType().equals(SelectionType.CHECKBOX)

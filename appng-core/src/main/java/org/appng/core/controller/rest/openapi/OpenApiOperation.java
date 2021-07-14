@@ -375,7 +375,7 @@ abstract class OpenApiOperation {
 					}
 				}
 			}
-			return true;
+			return !first;
 		}
 		return false;
 	}

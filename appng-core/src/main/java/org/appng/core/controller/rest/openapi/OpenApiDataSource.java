@@ -46,6 +46,7 @@ import org.appng.openapi.model.Field;
 import org.appng.openapi.model.FieldType;
 import org.appng.openapi.model.FieldValue;
 import org.appng.openapi.model.Filter;
+import org.appng.openapi.model.Icon;
 import org.appng.openapi.model.Item;
 import org.appng.openapi.model.Link;
 import org.appng.openapi.model.OptionType;
@@ -167,7 +168,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 
 		processedDataSource.getConfig().getMetaData().getFields().forEach(f -> {
 			if (!org.appng.xml.platform.FieldType.LINKPANEL.equals(f.getType())) {
-				datasource.addFieldsItem(getField(self.toString(), id, f));
+				datasource.addFieldsItem(getField(self.toString(), id, f, hasQueryParams));
 			}
 		});
 
@@ -185,19 +186,19 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				page.setSize(resultset.getChunksize());
 				page.setTotalItems(resultset.getHits());
 				page.setTotalPages(resultset.getLastchunk() + 1);
+				page.setFirst(getPageLink(hasQueryParams, self.toString(), id, page.getSize(), 0));
 
 				if (!Boolean.TRUE.equals(page.getIsFirst())) {
-					page.setFirst(getPageLink(hasQueryParams, self.toString(), id, page.getSize(), 0));
 					page.setPrevious(
 							getPageLink(hasQueryParams, self.toString(), id, page.getSize(), page.getNumber() - 1));
 				}
 				if (!Boolean.TRUE.equals(page.getIsLast())) {
 					page.setNext(
 							getPageLink(hasQueryParams, self.toString(), id, page.getSize(), page.getNumber() + 1));
-					page.setLast(
-							getPageLink(hasQueryParams, self.toString(), id, page.getSize(), resultset.getLastchunk()));
 				}
 
+				page.setLast(
+						getPageLink(hasQueryParams, self.toString(), id, page.getSize(), resultset.getLastchunk()));
 				resultset.getResults().forEach(r -> {
 					datasource.addItemsItem(getItem(null, r, metaData, getBindClass(metaData)));
 				});
@@ -257,9 +258,15 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		return filterResetLink.toString();
 	}
 
-	protected Field getField(String self, String dataSourceId, FieldDef f) {
+	protected Field getField(String self, String dataSourceId, FieldDef f, boolean hasQueryParams) {
 		Field field = new Field();
 		field.setName(f.getName());
+		f.getIcons().forEach(i -> {
+			Icon icon = new Icon();
+			icon.setName(i.getContent());
+			icon.setLabel(i.getLabel());
+			field.addIconItem(icon);
+		});
 		if (null != f.getLabel()) {
 			field.setLabel(f.getLabel().getValue());
 		}
@@ -274,7 +281,8 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			if (null != s.getOrder()) {
 				sort.setOrder(OrderEnum.fromValue(s.getOrder().name().toLowerCase()));
 			}
-			String sortParam = "?sort" + StringUtils.capitalize(dataSourceId) + "=" + f.getBinding();
+			String sortParam = (hasQueryParams ? "&" : "?") + "sort" + StringUtils.capitalize(dataSourceId) + "="
+					+ f.getBinding();
 			sort.setPathDesc(self + sortParam + ":desc");
 			sort.setPathAsc(self + sortParam + ":asc");
 			field.setSort(sort);
@@ -282,7 +290,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		List<FieldDef> childFields = f.getFields();
 		if (null != childFields) {
 			for (FieldDef fieldDef : childFields) {
-				Field child = getField(self, dataSourceId, fieldDef);
+				Field child = getField(self, dataSourceId, fieldDef, hasQueryParams);
 				field.getFields().put(child.getName(), child);
 			}
 		}
