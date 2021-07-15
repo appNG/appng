@@ -89,7 +89,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 public class TestSupport {
 
-	protected String host = "host.example.com";
+	protected String host = "manager";
 
 	protected String manager = "manager";
 

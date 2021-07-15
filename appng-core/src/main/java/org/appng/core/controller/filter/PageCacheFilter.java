@@ -73,13 +73,13 @@ import lombok.extern.slf4j.Slf4j;
 public class PageCacheFilter implements javax.servlet.Filter {
 
 	private static final String GZIP = "gzip";
-	private FilterConfig filterConfig;
 	private static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
+	private Environment env;
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-		this.filterConfig = filterConfig;
+		this.env = DefaultEnvironment.get(filterConfig.getServletContext());
 	}
 
 	public void destroy() {
@@ -101,9 +101,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		ExpiryPolicy expiryPolicy = null;
 
 		if (isCacheableRequest) {
-			Environment env = DefaultEnvironment.get(filterConfig.getServletContext());
-			String hostIdentifier = RequestUtil.getHostIdentifier(request, env);
-			site = RequestUtil.getSiteByHost(env, hostIdentifier);
+			site = RequestUtil.getSite(env, request);
 			if (null != site) {
 				org.appng.api.model.Properties siteProps = site.getProperties();
 				cacheEnabled = siteProps.getBoolean(SiteProperties.CACHE_ENABLED);
@@ -118,7 +116,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, expireAfterSeconds));
 				}
 			} else {
-				LOGGER.info("no site found for path {} and host {}", servletPath, hostIdentifier);
+				LOGGER.info("no site found for path {} and host {}", servletPath, request.getServerName());
 			}
 		}
 		if (cacheEnabled && isCacheableRequest && !isException) {

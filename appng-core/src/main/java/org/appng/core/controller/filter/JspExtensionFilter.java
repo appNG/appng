@@ -76,7 +76,7 @@ public class JspExtensionFilter implements Filter {
 	private static final String PLATFORM_JSP_FILTER_SKIPPED_SERVICE_NAMES = "jspFilterSkippedServiceNames";
 	private static final ConcurrentMap<String, Pattern> PATTERNS = new ConcurrentHashMap<>();
 	private static final String DELIMITER = ",";
-	private FilterConfig filterConfig;
+	private Environment env;
 	private String defaultServiceFilterTypes;
 	// if prefix is '<site-domain>/' -> replace
 	// if prefix is quote (") or singlequote (') -> replace
@@ -97,10 +97,7 @@ public class JspExtensionFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		ServletContext servletContext = filterConfig.getServletContext();
-		Environment env = DefaultEnvironment.get(servletContext);
-		String hostIdentifier = RequestUtil.getHostIdentifier(request, env);
-		Site site = RequestUtil.getSiteByHost(env, hostIdentifier);
+		Site site = RequestUtil.getSite(env, request);
 		String servletPath = ((HttpServletRequest) request).getServletPath();
 		if (null != site) {
 			Path pathInfo = RequestUtil.getPathInfo(env, site, servletPath);
@@ -211,7 +208,7 @@ public class JspExtensionFilter implements Filter {
 	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-		this.filterConfig = filterConfig;
+		this.env = DefaultEnvironment.get(filterConfig.getServletContext());
 	}
 
 	public void destroy() {
