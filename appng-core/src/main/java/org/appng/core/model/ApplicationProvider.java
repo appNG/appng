@@ -462,6 +462,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		elementHelper.initNavigation(applicationRequest, pathInfo, pageConfig);
 		Structure structure = null;
 		boolean debugPermission = permissionProcessor.hasPermission("debug");
+
 		try {
 			structure = buildStructure(applicationRequest, applicationConfig, pageReference, page, false, sectionIds);
 		} catch (ProcessingException e) {
@@ -520,7 +521,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private Structure buildStructure(ApplicationRequest applicationRequest, ApplicationConfig applicationConfig,
-			final PageReference pageReference, PageDefinition page, boolean perform, List<String> sectionIds)
+			final PageReference pageReference, PageDefinition page, boolean includeElements, List<String> sectionIds)
 			throws ProcessingException {
 		checkConditionsAndPermissions(applicationRequest, page);
 
@@ -534,19 +535,19 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
 			section.setId(sectionDef.getId());
+			section.setTitle(sectionDef.getTitle());
+			applicationRequest.setLabel(section.getTitle());
 
 			String hidden = applicationRequest.getExpressionEvaluator().getString(sectionDef.getHidden());
 			section.setHidden(hidden);
 			List<SectionelementDef> elements = sectionDef.getElement();
 
-			boolean mustPerform = perform
+			boolean include = includeElements
 					|| ((0 == sectionIdx && sectionIds.isEmpty()) || sectionIds.contains(section.getId()));
 			hasRedirect |= addElements(applicationRequest, applicationConfig, section, elements, pageReference,
-					dataSourceWrappers, mustPerform);
+					dataSourceWrappers, include);
 
 			if (!section.getElement().isEmpty()) {
-				section.setTitle(sectionDef.getTitle());
-				applicationRequest.setLabel(section.getTitle());
 				structure.getSection().add(section);
 			}
 			sectionIdx++;
@@ -600,7 +601,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 	private boolean addElements(final ApplicationRequest applicationRequest, final ApplicationConfig applicationConfig,
 			Section section, List<SectionelementDef> elements, final PageReference pageReference,
-			List<DataSourceWrapper> dataSourceWrappers, boolean perform) throws ProcessingException {
+			List<DataSourceWrapper> dataSourceWrappers, boolean include) throws ProcessingException {
 		boolean hasRedirect = false;
 		boolean isSectionHidden = Boolean.parseBoolean(section.getHidden());
 		ExpressionEvaluator expressionEvaluator = applicationRequest.getExpressionEvaluator();
@@ -609,6 +610,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 			String folded = expressionEvaluator.getString(sectionelement.getFolded());
 			String passive = expressionEvaluator.getString(sectionelement.getPassive());
+			boolean mustSetTitle = !Boolean.valueOf(passive) && null == section.getTitle();
 
 			sectionelement.setFolded(folded);
 			sectionelement.setPassive(passive);
@@ -617,8 +619,10 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			if (null != sectionelement.getDatasource()) {
 				DataSourceWrapper datasourceElement = getDataSourceSectionElement(applicationRequest, sectionelement);
 				if (null != datasourceElement) {
-					datasourceElement.setTitle(sectionelement.getTitle());
-					datasourceElement.mustPerform = perform;
+					if (mustSetTitle) {
+						setSectionTitle(section, datasourceElement, datasourceElement.getDatasource().getConfig().getTitle());
+					}
+					datasourceElement.mustPerform = include;
 					dataSourceWrappers.add(datasourceElement);
 					section.getElement().add(datasourceElement);
 				}
@@ -630,7 +634,10 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 					public void perform() throws ProcessingException {
 						this.result = getActionSectionElement(applicationRequest, applicationConfig, sectionelement,
-								pageReference, isSectionHidden, perform);
+								pageReference, isSectionHidden, include || mustSetTitle);
+						if (mustSetTitle) {
+							setSectionTitle(section, result, result.getAction().getConfig().getTitle());
+						}
 					}
 
 					public ActionElement getResult() {
@@ -646,7 +653,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 								&& (!actionElement.hasErrors() || sectionelement.getAction().isForceForward());
 					}
 					if (actionElement.doInclude()) {
-						actionElement.setTitle(sectionelement.getTitle());
 						section.getElement().add(actionElement);
 						if (monitorPerformance) {
 							actionElement.setExecutionTime(time);
@@ -657,6 +663,14 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 		}
 		return hasRedirect;
+	}
+
+	protected void setSectionTitle(Section section, Sectionelement sectionelement, Label title) {
+		Label sectionTitle = new Label();
+		sectionTitle.setId(title.getId());
+		sectionTitle.setValue(title.getValue());
+		section.setTitle(sectionTitle);
+		sectionelement.setTitle(sectionTitle);
 	}
 
 	private interface Callback<T> {

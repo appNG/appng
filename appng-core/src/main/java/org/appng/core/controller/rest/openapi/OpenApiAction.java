@@ -311,7 +311,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 				actionField.setFormattedValue(fieldData.getValue());
 			}
 			if (null != fieldDef.getLabel()) {
-				actionField.setLabel(fieldDef.getLabel().getId());
+				actionField.setLabel(fieldDef.getLabel().getValue());
 			}
 			actionField.setReadonly(Boolean.TRUE.toString().equals(fieldDef.getReadonly()));
 			actionField.setVisible(!Boolean.TRUE.toString().equals(fieldDef.getHidden()));
