@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,6 +48,7 @@ import org.appng.api.support.RequestSupportImpl;
 import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.core.model.ApplicationProvider;
+import org.appng.el.ExpressionEvaluator;
 import org.appng.forms.impl.RequestBean;
 import org.appng.openapi.model.Action;
 import org.appng.openapi.model.ActionField;
@@ -141,7 +143,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
 		}
 
-		Action action = getAction(initialRequest, initialAction, env, null);
+		Action action = getAction(initialRequest, initialAction, env, null, false, null);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -241,7 +243,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
 		}
 
-		Action action = getAction(executingRequest, processedAction, env, receivedData);
+		Action action = getAction(executingRequest, processedAction, env, receivedData, false, null);
 		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -259,13 +261,22 @@ abstract class OpenApiAction extends OpenApiOperation {
 	}
 
 	protected Action getAction(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
-			Environment environment, Action receivedData) {
+			Environment environment, Action receivedData, boolean allParams, AtomicBoolean mustExecute) {
+
+		Map<String, String> actionParams = getParameters(processedAction.getConfig().getParams(), allParams);
+
+		if (null != mustExecute) {
+			ExpressionEvaluator executeEvaluator = new ExpressionEvaluator(actionParams);
+			Condition condition = processedAction.getCondition();
+			mustExecute.set(null == condition || executeEvaluator.evaluate(condition.getExpression()));
+		}
+
 		addValidationRules(processedAction.getConfig().getMetaData());
 		Action action = new Action();
 		action.setId(processedAction.getId());
 		action.setEventId(processedAction.getEventId());
 		action.setUser(getUser(environment));
-		action.setParameters(getParameters(processedAction.getConfig().getParams()));
+		action.setParameters(actionParams);
 		action.setPermissions(getPermissions(processedAction.getConfig().getPermissions()));
 		action.setSelf("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi/action/"
 				+ processedAction.getEventId() + "/" + processedAction.getId());
@@ -571,7 +582,13 @@ abstract class OpenApiAction extends OpenApiOperation {
 	}
 
 	class RestRequest extends ApplicationRequest {
-		RestRequest(HttpServletRequest servletRequest, org.appng.xml.platform.Action original, Action receivedData) {
+
+		private RestRequest(HttpServletRequest servletRequest) {
+			initWrappedRequest(servletRequest);
+		}
+
+		private RestRequest(HttpServletRequest servletRequest, org.appng.xml.platform.Action original,
+				Action receivedData) {
 			RequestBean wrappedRequest = initWrappedRequest(servletRequest);
 			extractRequestParameters(original, receivedData, wrappedRequest);
 			if (LOGGER.isDebugEnabled()) {
@@ -579,18 +596,14 @@ abstract class OpenApiAction extends OpenApiOperation {
 			}
 		}
 
-		private RestRequest(HttpServletRequest servletRequest) {
-			initWrappedRequest(servletRequest);
-		}
-
 		private RequestBean initWrappedRequest(final HttpServletRequest servletRequest) {
 			RequestBean wrappedRequest = new RequestBean() {
+
 				@Override
 				public void addParameter(String key, String value) {
-					if (!parameters.containsKey(key)) {
-						parameters.put(key, new ArrayList<>());
+					if (!(FORM_ACTION.equals(key) && StringUtils.isBlank(value))) {
+						super.addParameter(key, value);
 					}
-					parameters.get(key).add(value);
 				}
 
 				@Override

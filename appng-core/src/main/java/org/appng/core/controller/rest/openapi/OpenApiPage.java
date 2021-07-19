@@ -16,12 +16,15 @@
 package org.appng.core.controller.rest.openapi;
 
 import static org.appng.api.Scope.PLATFORM;
+import static org.appng.api.Scope.SESSION;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +39,7 @@ import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
 import org.appng.api.Request;
 import org.appng.api.Scope;
+import org.appng.api.Session;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
@@ -47,6 +51,7 @@ import org.appng.core.model.ApplicationProvider;
 import org.appng.openapi.model.Action;
 import org.appng.openapi.model.Datasource;
 import org.appng.openapi.model.Label;
+import org.appng.openapi.model.Message;
 import org.appng.openapi.model.Navigation;
 import org.appng.openapi.model.NavigationItem;
 import org.appng.openapi.model.PageDefinition;
@@ -56,11 +61,13 @@ import org.appng.openapi.model.SectionElement;
 import org.appng.openapi.model.User;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Linkpanel;
+import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.SectionConfig;
 import org.appng.xml.platform.UrlSchema;
 import org.slf4j.Logger;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -218,9 +225,11 @@ abstract class OpenApiPage extends OpenApiOperation {
 
 		MarshallService marshallService = MarshallService.getMarshallService();
 		Path pathInfo = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+		List<String> sectionIds = null == sections ? Collections.emptyList() : Arrays.asList(sections);
+		List<String> urlParameters = null == pageUrlParams ? Collections.emptyList()
+				: Arrays.asList(pageUrlParams.split("/"));
 		org.appng.xml.platform.PageReference pageReference = applicationProvider.processPage(marshallService, pathInfo,
-				pageId, null == sections ? Collections.emptyList() : Arrays.asList(sections),
-				null == pageUrlParams ? Collections.emptyList() : Arrays.asList(pageUrlParams.split("/")));
+				pageId, sectionIds, urlParameters);
 
 		PageDefinition pageDefinition = new PageDefinition();
 		User user = getUser(env);
@@ -243,14 +252,22 @@ abstract class OpenApiPage extends OpenApiOperation {
 
 		processSections(env, servletResp, applicationProvider, pageReference, pageDefinition);
 
+		Messages messages = env.removeAttribute(SESSION, Session.Environment.MESSAGES);
+		if (null != messages) {
+			pageDefinition.setMessages(getMessages(messages));
+		} else if (null != pageReference.getMessages()) {
+			pageDefinition.setMessages(getMessages(pageReference.getMessages()));
+		}
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processed page: {}", marshallService.marshallNonRoot(pageReference));
 		}
 
-		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+		HttpStatus httpStatus = HttpStatus.valueOf(servletResp.getStatus());
+		if (httpStatus.is5xxServerError()) {
 			LOGGER.debug("Page {} on application {} of site {} returned status {}", pageId, application.getName(),
 					site.getName(), servletResp.getStatus());
-			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
+			return new ResponseEntity<>(httpStatus);
 		}
 
 		return new ResponseEntity<PageDefinition>(pageDefinition, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
@@ -280,12 +297,30 @@ abstract class OpenApiPage extends OpenApiOperation {
 				element.setCollapsed(Boolean.valueOf(e.getFolded()));
 
 				org.appng.xml.platform.Action a = e.getAction();
+				org.appng.xml.platform.Label sectionTitle = e.getTitle();
 				if (null != a) {
-					Action action = openApiAction.getAction(request, a, env, null);
+					AtomicBoolean mustExecute = new AtomicBoolean(false);
+					Action action = openApiAction.getAction(request, a, env, null, true, mustExecute);
+
+//					if (mustExecute.get()) {
+//					TODO
+//						try {
+//							ResponseEntity<Action> performedAction = openApiAction.performAction(a.getEventId(),
+//									a.getId(), null, action, env, servletReq, servletResp);
+//							action = performedAction.getBody();
+//						} catch (JAXBException | InvalidConfigurationException | ProcessingException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						}
+//					}
+
 					if (null != a.getOnSuccess()) {
 						action.setOnSuccess("/manager/" + site.getName() + "/" + a.getOnSuccess());
 					}
 					action.setUser(null);
+					if (null != sectionTitle) {
+						element.setTitle(sectionTitle.getValue());
+					}
 					element.setAction(action);
 				}
 				org.appng.xml.platform.Datasource d = e.getDatasource();
@@ -293,6 +328,9 @@ abstract class OpenApiPage extends OpenApiOperation {
 					Datasource datasource = openApiDataSource.transformDataSource(env, servletResp, applicationProvider,
 							d);
 					datasource.setUser(null);
+					if (null != sectionTitle) {
+						element.setTitle(sectionTitle.getValue());
+					}
 					element.setDatasource(datasource);
 				}
 

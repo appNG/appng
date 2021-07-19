@@ -139,10 +139,10 @@ abstract class OpenApiOperation {
 		return permissionList;
 	}
 
-	protected Map<String, String> getParameters(Params params) {
+	protected Map<String, String> getParameters(Params params, boolean allParams) {
 		Map<String, String> parameters = new HashMap<>();
 		if (null != params) {
-			params.getParam().stream().filter(p -> !p.getName().equals(FORM_ACTION)).forEach(p -> {
+			params.getParam().stream().filter(p -> allParams || !p.getName().equals(FORM_ACTION)).forEach(p -> {
 				parameters.put(p.getName(), p.getValue());
 			});
 		}
@@ -200,7 +200,7 @@ abstract class OpenApiOperation {
 	protected void applyPathParameters(Map<String, String> pathVariables, DataConfig config,
 			ApplicationRequest applicationRequest) {
 		Params params = config.getParams();
-		if (null != params) {
+		if (null != params && null != pathVariables) {
 			List<Param> paramList = params.getParam();
 			int maxParams = 5;
 			int paramNo = 1;

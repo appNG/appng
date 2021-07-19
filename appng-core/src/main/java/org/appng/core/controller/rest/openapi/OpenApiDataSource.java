@@ -152,7 +152,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		datasource.setId(id);
 		User user = getUser(environment);
 		datasource.setUser(user);
-		datasource.setParameters(getParameters(processedDataSource.getConfig().getParams()));
+		datasource.setParameters(getParameters(processedDataSource.getConfig().getParams(), false));
 		datasource.setPermissions(getPermissions(processedDataSource.getConfig().getPermissions()));
 
 		StringBuilder self = getSelf("/datasource/" + id);
@@ -216,9 +216,6 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				datasource.setItem(getItem(data.getSelections(), data.getResult(), metaData, getBindClass(metaData)));
 			}
 		}
-
-		Messages messages = environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
-		datasource.setMessages(getMessages(messages));
 
 		return datasource;
 	}

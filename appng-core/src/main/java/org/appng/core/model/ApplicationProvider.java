@@ -59,13 +59,13 @@ import org.appng.api.model.Role;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.ApplicationRequest.ApplicationPath;
 import org.appng.api.support.CallableAction;
 import org.appng.api.support.CallableDataSource;
 import org.appng.api.support.DefaultPermissionProcessor;
 import org.appng.api.support.DummyPermissionProcessor;
 import org.appng.api.support.ElementHelper;
 import org.appng.api.support.RequestFactoryBean;
-import org.appng.api.support.ApplicationRequest.ApplicationPath;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.filter.CsrfSetupFilter;
 import org.appng.core.domain.DatabaseConnection;
@@ -535,7 +535,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
 			section.setId(sectionDef.getId());
-			section.setTitle(sectionDef.getTitle());
 			applicationRequest.setLabel(section.getTitle());
 
 			String hidden = applicationRequest.getExpressionEvaluator().getString(sectionDef.getHidden());
@@ -620,7 +619,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 				DataSourceWrapper datasourceElement = getDataSourceSectionElement(applicationRequest, sectionelement);
 				if (null != datasourceElement) {
 					if (mustSetTitle) {
-						setSectionTitle(section, datasourceElement, datasourceElement.getDatasource().getConfig().getTitle());
+						setSectionTitle(section, datasourceElement.getDatasource().getConfig().getTitle());
 					}
 					datasourceElement.mustPerform = include;
 					dataSourceWrappers.add(datasourceElement);
@@ -633,10 +632,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					private ActionElement result;
 
 					public void perform() throws ProcessingException {
+						boolean perform = include || mustSetTitle || Boolean.valueOf(section.getHidden());
 						this.result = getActionSectionElement(applicationRequest, applicationConfig, sectionelement,
-								pageReference, isSectionHidden, include || mustSetTitle);
+								pageReference, isSectionHidden, perform);
 						if (mustSetTitle) {
-							setSectionTitle(section, result, result.getAction().getConfig().getTitle());
+							setSectionTitle(section, result.getAction().getConfig().getTitle());
 						}
 					}
 
@@ -665,12 +665,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		return hasRedirect;
 	}
 
-	protected void setSectionTitle(Section section, Sectionelement sectionelement, Label title) {
+	protected void setSectionTitle(Section section, Label title) {
 		Label sectionTitle = new Label();
 		sectionTitle.setId(title.getId());
 		sectionTitle.setValue(title.getValue());
 		section.setTitle(sectionTitle);
-		sectionelement.setTitle(sectionTitle);
 	}
 
 	private interface Callback<T> {
@@ -735,6 +734,10 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		if (null != datasourceRef) {
 			DataSourceWrapper wrapper = new DataSourceWrapper(site, application, applicationRequest,
 					applicationRequest.getParameterSupportDollar(), datasourceRef);
+			if (null != wrapper.getDatasource()) {
+				DataConfig config = wrapper.getDatasource().getConfig();
+				wrapper.setTitle(null == config ? null : config.getTitle());
+			}
 			if (wrapper.doInclude()) {
 				wrapper.setFolded(sectionelement.getFolded());
 				wrapper.setMode(sectionelement.getMode());
@@ -754,6 +757,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			if (perform) {
 				actionElement.perform(sectionelement, isSectionHidden);
 			}
+			DataConfig config = actionElement.getAction().getConfig();
+			actionElement.setTitle(null == config ? null : config.getTitle());
 			return actionElement;
 		}
 		return null;
