@@ -356,6 +356,10 @@ components:
           $ref: "#/components/schemas/user"
         id:
           type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/message"
         urlPath:
           type: string
           description: the current URL path 
@@ -467,6 +471,9 @@ components:
         id:
           type: string
           description: The unique ID of the datasource.
+        title:
+          type: string
+          description: The title of the datasource.
         parameters:
           type: object
           description: The parameters for the datasource.
