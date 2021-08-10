@@ -632,9 +632,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					private ActionElement result;
 
 					public void perform() throws ProcessingException {
-						boolean perform = include || mustSetTitle || Boolean.valueOf(section.getHidden());
 						this.result = getActionSectionElement(applicationRequest, applicationConfig, sectionelement,
-								pageReference, isSectionHidden, perform);
+								pageReference, isSectionHidden, true);
 						if (mustSetTitle) {
 							setSectionTitle(section, result.getAction().getConfig().getTitle());
 						}
