@@ -69,6 +69,7 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 			configuration.setConnectionTestQuery(connection.getValidationQuery());
 		}
 		configuration.setPoolName(connection.getName());
+		configuration.setAutoCommit(false);
 
 		DatabaseType type = connection.getType();
 		configuration.setRegisterMbeans(true);
