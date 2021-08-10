@@ -67,7 +67,7 @@
 		<jackson.version>2.12.3</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
 		<lucene.version>8.8.2</lucene.version>
-		<pdfBox.version>2.0.20</pdfBox.version>
+		<pdfBox.version>2.0.24</pdfBox.version>
 		<poi.version>3.17</poi.version>
 		<queryDsl.version>4.4.0</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
@@ -104,37 +104,6 @@
 			<url>https://appng.org/nexus/repository/appng-snapshot/</url>
 		</snapshotRepository>
 	</distributionManagement>
-
-	<modules>
-		<module>appng-tools</module>
-		<module>appng-mail</module>
-		<module>appng-forms</module>
-		<module>appng-formtags</module>
-		<module>appng-xmlapi</module>
-		<module>appng-testsupport</module>
-		<module>appng-api</module>
-		<module>appng-rest-api</module>
-		<module>appng-persistence</module>
-		<module>appng-search</module>
-		<module>appng-core</module>
-		<module>appng-cli</module>
-		<module>appng-taglib</module>
-		<module>appng-application</module>
-		<module>appng-application-bom</module>
-		<module>appng-documentation</module>
-		<module>appng-template-assembly</module>
-		<module>appng-template-parent</module>
-		<module>appng-application-assembly</module>
-		<module>appng-application-parent</module>
-		<module>appng-archetype-application</module>
-		<module>appng-appngizer-jaxb</module>
-		<module>appng-appngizer</module>
-		<module>appng-appngizer-maven-plugin</module>
-		<module>appng-camunda</module>
-		<module>appng-application-camunda</module>
-		<module>appng-maven-plugin</module>
-		<module>appng-upngizr</module>
-	</modules>
 
 	<profiles>
 		<profile>
@@ -267,13 +236,14 @@
 				<module>appng-forms</module>
 				<module>appng-formtags</module>
 				<module>appng-xmlapi</module>
-				<module>appng-testsupport</module>
 				<module>appng-api</module>
+				<module>appng-rest-api</module>
 				<module>appng-persistence</module>
 				<module>appng-search</module>
 				<module>appng-core</module>
 				<module>appng-cli</module>
 				<module>appng-taglib</module>
+				<module>appng-appngizer-jaxb</module>
 				<module>appng-appngizer</module>
 			</modules>
 			<build>
@@ -309,6 +279,42 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>appng-tools</module>
+				<module>appng-mail</module>
+				<module>appng-forms</module>
+				<module>appng-formtags</module>
+				<module>appng-xmlapi</module>
+				<module>appng-testsupport</module>
+				<module>appng-api</module>
+				<module>appng-rest-api</module>
+				<module>appng-persistence</module>
+				<module>appng-search</module>
+				<module>appng-core</module>
+				<module>appng-cli</module>
+				<module>appng-taglib</module>
+				<module>appng-application</module>
+				<module>appng-application-bom</module>
+				<module>appng-documentation</module>
+				<module>appng-template-assembly</module>
+				<module>appng-template-parent</module>
+				<module>appng-application-assembly</module>
+				<module>appng-application-parent</module>
+				<module>appng-archetype-application</module>
+				<module>appng-appngizer-jaxb</module>
+				<module>appng-appngizer</module>
+				<module>appng-appngizer-maven-plugin</module>
+				<module>appng-camunda</module>
+				<module>appng-application-camunda</module>
+				<module>appng-maven-plugin</module>
+				<module>appng-upngizr</module>
+			</modules>
 		</profile>
 	</profiles>
 
@@ -923,7 +929,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.20</version>
+				<version>1.21</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-collections</groupId>
