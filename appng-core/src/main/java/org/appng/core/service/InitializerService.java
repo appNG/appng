@@ -563,7 +563,7 @@ public class InitializerService {
 		File applicationRootFolder = platformConfig.getApplicationDir();
 		File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
 
-		coreService.refreshTemplate(currentSite, platformConfig);		
+		coreService.refreshTemplate(siteProps, platformConfig);		
 		Integer validationPeriod = platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD);
 
 		// Step 1: Load applications for the current site,

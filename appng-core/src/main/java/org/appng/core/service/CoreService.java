@@ -2163,8 +2163,7 @@ public class CoreService {
 		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
 	}
 
-	public void refreshTemplate(Site site, PlatformProperties platformConfig) {
-		Properties siteProps = site.getProperties();
+	public void refreshTemplate(Properties siteProps, PlatformProperties platformConfig) {
 		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
 		if (null == template) {
 			String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
