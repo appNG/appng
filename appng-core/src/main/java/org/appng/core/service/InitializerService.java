@@ -563,14 +563,7 @@ public class InitializerService {
 		File applicationRootFolder = platformConfig.getApplicationDir();
 		File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
 
-		String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);
-		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
-		if (null == template) {
-			String templateRealPath = servletContext.getRealPath(templateFolder);
-			TemplateService.copyTemplate(platformConfig, siteProps, templateRealPath);
-		} else {
-			TemplateService.materializeTemplate(template, platformConfig, siteProps);
-		}
+		coreService.refreshTemplate(currentSite, platformConfig);		
 		Integer validationPeriod = platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD);
 
 		// Step 1: Load applications for the current site,
