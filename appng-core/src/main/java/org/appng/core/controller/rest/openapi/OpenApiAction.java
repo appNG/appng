@@ -78,7 +78,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -149,14 +148,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 	// @formatter:off
 	@PostMapping(
-		path = {
-			ACTION_PATH,
-			ACTION_PATH + "/{pathVar1:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
-		},
+		path = ACTION_PATH,
 		consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
 		produces =  MediaType.APPLICATION_JSON_VALUE
 	)
@@ -165,16 +157,38 @@ abstract class OpenApiAction extends OpenApiOperation {
 	// @formatter:off
  			@PathVariable(name = "event-id") String eventId,
 			@PathVariable(name = "id") String actionId,
-			@PathVariable(required = false) Map<String, String> pathVariables,
-			@RequestPart("body") Action receivedData,
-			Environment env,
-			HttpServletRequest servletReq,
-			HttpServletResponse servletResp
+			Environment environment,
+			HttpServletRequest servletRequest,
+			HttpServletResponse servletResponse
 		// @formatter:on
 	) throws ProcessingException, JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
+		ApplicationProvider applicationProvider = (ApplicationProvider) application;
+		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
+				actionId);
 
-		return performAction(eventId, actionId, pathVariables, receivedData, env, servletReq, servletResp);
+		if (null == originalAction) {
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
+					application.getName(), site.getName());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		request.addParameter(FORM_ACTION, actionId);
+		for (Map.Entry<String, String[]> entry : servletRequest.getParameterMap().entrySet()) {
+			request.addParameter(entry.getKey(), entry.getValue()[0]);
+		}
+
+		MarshallService marshallService = MarshallService.getMarshallService();
+		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(servletResponse, false,
+				request, actionId, eventId, marshallService);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
+		}
+
+		Action action = getAction(request, processedAction, environment, null, false, null);
+		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
+
 
 	// @formatter:off
 	@PostMapping(
