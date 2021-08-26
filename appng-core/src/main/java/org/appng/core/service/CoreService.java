@@ -2163,4 +2163,17 @@ public class CoreService {
 		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
 	}
 
+	public void refreshTemplate(Site site, PlatformProperties platformConfig) {
+		Properties siteProps = site.getProperties();
+		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
+		if (null == template) {
+			String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
+			String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);
+			String templateRealPath = new File(rootPath, templateFolder).getAbsolutePath();
+			TemplateService.copyTemplate(platformConfig, siteProps, templateRealPath);
+		} else {
+			TemplateService.materializeTemplate(template, platformConfig, siteProps);
+		}
+		CacheService.expireCacheElementsStartingWith(site, "/template");
+	}
 }
