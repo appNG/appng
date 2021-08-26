@@ -17,11 +17,9 @@ package org.appng.core.service;
 
 import static org.appng.api.support.environment.EnvironmentKeys.JAR_INFO_MAP;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -317,7 +315,7 @@ public class InitializerService {
 			SiteImpl site = getCoreService().getSite(id);
 			if (site.isActive()) {
 				Runnable siteloader = getSiteLoader(site, env, false, platformMessages);
-				Boolean parallelSiteStarts = platformConfig.getBoolean(Platform.Property.PARALLEL_SITE_STARTS, true);
+				Boolean parallelSiteStarts = platformConfig.getBoolean(Platform.Property.PARALLEL_SITE_STARTS, false);
 				if (null != startupExecutor && parallelSiteStarts) {
 					startupExecutor.submit(siteloader);
 				} else {
@@ -845,8 +843,8 @@ public class InitializerService {
 				}
 				sw.stop();
 				LOGGER.info("loading site {} completed in {}ms", site.getName(), sw.getTotalTimeMillis());
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info(sw.prettyPrint());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug(sw.prettyPrint());
 
 				}
 				site.setState(SiteState.STARTED, env);
