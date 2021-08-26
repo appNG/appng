@@ -137,10 +137,13 @@ public class PlatformProperties implements Properties {
 			return new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8));
 		} else {
 			File cacheConfigFile = getAbsoluteFile(Platform.Property.CACHE_CONFIG);
-			LOGGER.info("Reading caching config from {}", cacheConfigFile);
-			return new FileInputStream(cacheConfigFile);
+			if (cacheConfigFile.exists()) {
+				LOGGER.info("Reading caching config from {}", cacheConfigFile);
+				return new FileInputStream(cacheConfigFile);
+			}
+			LOGGER.warn("Cache config file does not exist: {}", cacheConfigFile.getAbsoluteFile());
 		}
-
+		return null;
 	}
 
 	public File getUploadDir() {

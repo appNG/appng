@@ -94,8 +94,9 @@ public class HazelcastConfigurer {
 			LOGGER.info("Using existing client '{}' for ID '{}'", instance.getName(), clientId);
 		}
 		if (null == instance) {
+			LOGGER.warn("No Hazelcast configuration could be found, using default!");
 			instance = Hazelcast.newHazelcastInstance();
-			LOGGER.info("Created default instance {}", instance.getName());
+			LOGGER.info("Created default instance {}", instance);
 		}
 		return instance;
 	}

@@ -236,16 +236,21 @@ public class CacheService {
 	}
 
 	public static int expireCacheElementsStartingWith(Cache<String, CachedResponse> cache, String cacheElementPrefix) {
-		int count = 0;
 		int removed = 0;
-		for (Entry<String, CachedResponse> entry : cache) {
-			count++;
-			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix) && cache.remove(entry.getKey())) {
-				LOGGER.debug("removed from cache: {}", entry.getKey());
-				removed++;
+		if (null == cache) {
+			LOGGER.info("No cache found, can not remove elements starting with {}", cacheElementPrefix);
+		} else {
+			int count = 0;
+			for (Entry<String, CachedResponse> entry : cache) {
+				count++;
+				if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)
+						&& cache.remove(entry.getKey())) {
+					LOGGER.debug("removed from cache: {}", entry.getKey());
+					removed++;
+				}
 			}
+			LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
 		}
-		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
 		return removed;
 	}
 

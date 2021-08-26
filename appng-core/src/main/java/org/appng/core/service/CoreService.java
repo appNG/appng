@@ -1897,7 +1897,7 @@ public class CoreService {
 		String siteTimeZone = site.getProperties().getString(Platform.Property.TIME_ZONE);
 		for (SubjectImpl subject : subjects) {
 			initializeSubject(subject);
-			subject.getApplicationroles(application);
+			subject.getApplicationRoles(application);
 			if (UserType.GLOBAL_GROUP.equals(subject.getUserType())) {
 				List<SubjectImpl> membersOfGroup = ldapService.getMembersOfGroup(site, subject.getAuthName());
 				for (SubjectImpl ldapSubject : membersOfGroup) {
@@ -1922,7 +1922,7 @@ public class CoreService {
 	private ApplicationSubject getApplicationSubject(ApplicationImpl application, SubjectImpl subject) {
 		ApplicationSubject ps = new ApplicationSubjectImpl(subject.getAuthName(), subject.getRealname(),
 				subject.getEmail(), subject.getLanguage(), subject.getTimeZone());
-		ps.getRoles().addAll(subject.getApplicationroles(application));
+		ps.getRoles().addAll(subject.getApplicationRoles(application));
 		return ps;
 	}
 
@@ -2163,7 +2163,8 @@ public class CoreService {
 		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
 	}
 
-	public void refreshTemplate(Properties siteProps, PlatformProperties platformConfig) {
+	public void refreshTemplate(Site  site, PlatformProperties platformConfig) {
+		Properties siteProps = site.getProperties();
 		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
 		if (null == template) {
 			String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
@@ -2173,6 +2174,7 @@ public class CoreService {
 		} else {
 			TemplateService.materializeTemplate(template, platformConfig, siteProps);
 		}
+		CacheService.expireCacheElementsStartingWith(site, "/template");
 	}
 
 }
