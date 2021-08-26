@@ -2176,5 +2176,5 @@ public class CoreService {
 		}
 		CacheService.expireCacheElementsStartingWith(site, "/template");
 	}
-  
+
 }
