@@ -161,6 +161,15 @@ public class InitializerServiceTest extends TestSupport
 		Assert.assertFalse(new File(templateRoot, "template.xml").exists());
 	}
 
+	@Override
+	protected Properties getPlatformPropertyOverrides() {
+		Properties overrides = super.getPlatformPropertyOverrides();
+		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.PLATFORM_ROOT_PATH,
+				new File("target/test-classes").getAbsolutePath());
+		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.TEMPLATE_FOLDER, "template");
+		return overrides;
+	}
+
 	@Test
 	@Ignore("causes CoreServiceTest to fail")
 	public void testLoadSite() throws InvalidConfigurationException, IOException {

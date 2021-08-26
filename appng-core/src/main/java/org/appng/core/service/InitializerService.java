@@ -48,7 +48,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
-import javax.cache.CacheManager;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.io.FileUtils;
@@ -89,7 +88,6 @@ import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.domain.SiteImpl;
-import org.appng.core.domain.Template;
 import org.appng.core.model.ApplicationContext;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.core.model.CacheProvider;
@@ -116,6 +114,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.hazelcast.cache.HazelcastCacheManager;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -277,10 +276,12 @@ public class InitializerService {
 		}
 
 		RepositoryCacheFactory.init(platformConfig);
+
 		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
 		CacheService.createCacheManager(hazelcast, HazelcastConfigurer.isClient());
-
-		CacheManager cacheManager = CacheService.getCacheManager();
+		HazelcastInstance hazelcastInstance = ((HazelcastCacheManager) CacheService.getCacheManager())
+				.getHazelcastInstance();
+		LOGGER.info("Caching uses {}", hazelcastInstance);
 
 		File uploadDir = platformConfig.getUploadDir();
 		if (!uploadDir.exists()) {
@@ -341,7 +342,6 @@ public class InitializerService {
 		if (0 == activeSites) {
 			LOGGER.error("none of {} sites is active, instance will not work!", sites.size());
 		}
-		LOGGER.info("Current cache configuration:\n{}", cacheManager.getProperties());
 
 		if (null != siteName && null != target) {
 			RequestUtil.getSiteByName(env, siteName).sendRedirect(env, target);

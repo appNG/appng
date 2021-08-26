@@ -1897,7 +1897,7 @@ public class CoreService {
 		String siteTimeZone = site.getProperties().getString(Platform.Property.TIME_ZONE);
 		for (SubjectImpl subject : subjects) {
 			initializeSubject(subject);
-			subject.getApplicationroles(application);
+			subject.getApplicationRoles(application);
 			if (UserType.GLOBAL_GROUP.equals(subject.getUserType())) {
 				List<SubjectImpl> membersOfGroup = ldapService.getMembersOfGroup(site, subject.getAuthName());
 				for (SubjectImpl ldapSubject : membersOfGroup) {
@@ -1922,7 +1922,7 @@ public class CoreService {
 	private ApplicationSubject getApplicationSubject(ApplicationImpl application, SubjectImpl subject) {
 		ApplicationSubject ps = new ApplicationSubjectImpl(subject.getAuthName(), subject.getRealname(),
 				subject.getEmail(), subject.getLanguage(), subject.getTimeZone());
-		ps.getRoles().addAll(subject.getApplicationroles(application));
+		ps.getRoles().addAll(subject.getApplicationRoles(application));
 		return ps;
 	}
 
@@ -2176,4 +2176,5 @@ public class CoreService {
 		}
 		CacheService.expireCacheElementsStartingWith(site, "/template");
 	}
+  
 }
