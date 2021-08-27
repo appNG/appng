@@ -83,9 +83,13 @@ public class AppNGizer implements AppNGizerClient {
 	private String sharedSecret;
 
 	public AppNGizer(String endpoint, String sharedSecret) {
+		this(endpoint, sharedSecret, new RestTemplate());
+	}
+
+	public AppNGizer(String endpoint, String sharedSecret, RestTemplate restTemplate) {
 		this.endpoint = endpoint;
 		this.sharedSecret = sharedSecret;
-		restTemplate = new RestTemplate();
+		this.restTemplate = restTemplate;
 	}
 
 	private <REQ, RES> RES exchange(String path, REQ body, HttpMethod method, Class<RES> returnType) {
