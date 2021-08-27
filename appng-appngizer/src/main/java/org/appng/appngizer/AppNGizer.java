@@ -87,7 +87,7 @@ public class AppNGizer extends WebMvcConfigurationSupport {
 	}
 
 	@Bean
-	public AppNGizerConfigurer configurer(ResourceLoader loader) {
+	public static AppNGizerConfigurer configurer(ResourceLoader loader) {
 		AppNGizerConfigurer appNGizerConfigurer = new AppNGizerConfigurer();
 		appNGizerConfigurer.setLocation(loader.getResource("/WEB-INF/conf/appNG.properties"));
 		return appNGizerConfigurer;
