@@ -36,6 +36,7 @@ import org.appng.appngizer.model.xml.Groups;
 import org.appng.appngizer.model.xml.Home;
 import org.appng.appngizer.model.xml.Nameable;
 import org.appng.appngizer.model.xml.Package;
+import org.appng.appngizer.model.xml.Packages;
 import org.appng.appngizer.model.xml.Permission;
 import org.appng.appngizer.model.xml.Permissions;
 import org.appng.appngizer.model.xml.Properties;
@@ -188,6 +189,10 @@ public interface AppNGizerClient {
 	void deleteRepository(String name);
 
 	Package installPackage(String name, Package packageToInstall);
+
+	Package getPackage(String name, String packageName, String version, String timeStamp);
+
+	Packages getPackages(String name, String packageName);
 
 	Package uploadPackage(String name, File archive) throws IOException;
 
