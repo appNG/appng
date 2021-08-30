@@ -141,7 +141,6 @@ abstract class RestActionBase extends RestOperation {
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null);
-		postProcessAction(action, site, application, env);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -206,7 +205,6 @@ abstract class RestActionBase extends RestOperation {
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);
-		postProcessAction(action, site, application, env);
 		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
