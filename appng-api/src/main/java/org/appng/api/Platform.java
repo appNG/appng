@@ -182,6 +182,8 @@ public final class Platform {
 		 * {@link Application}s.
 		 */
 		public static final String MANAGE_DATABASES = "manageDatabases";
+		/** A multilined property containing a maintenance screen */
+		public static final String MAINTENANCE_SCREEN ="maintenanceScreen";
 		/** set to {@code true} to enable support for Mapped Diagnostic Context (MDC) Logging. */
 		public static final String MDC_ENABLED = "mdcEnabled";
 		/** Set to true to enable cluster messaging */
@@ -196,6 +198,8 @@ public final class Platform {
 		public static final String MAX_UPLOAD_SIZE = "maxUploadSize";
 		/** Set to true to enable performance monitoring for the target XML */
 		public static final String MONITOR_PERFORMANCE = "monitorPerformance";
+		/** Start sites in parallel {@code true|false} ? */
+		public static final String PARALLEL_SITE_STARTS = "parallelSiteStarts";
 		/** The maximum number of days a password is valid, where -1 means forever */
 		public static final String PASSWORD_MAX_VALIDITY = "passwordMaxValidity";
 		/** The fully qualified name of the {@link PasswordPolicy} to use. */

@@ -21,57 +21,34 @@ import static org.appng.api.Platform.SERVICE_TYPE_REST;
 import static org.appng.api.Platform.SERVICE_TYPE_SOAP;
 import static org.appng.api.Platform.SERVICE_TYPE_WEBSERVICE;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URLClassLoader;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.appng.api.AttachmentWebservice;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
-import org.appng.api.InvalidConfigurationException;
-import org.appng.api.Path;
 import org.appng.api.PathInfo;
-import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
-import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.Webservice;
 import org.appng.api.model.Application;
-import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.ElementHelper;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.core.domain.SiteImpl;
-import org.appng.core.model.AbstractRequestProcessor;
 import org.appng.core.model.AccessibleApplication;
 import org.appng.core.model.ApplicationProvider;
-import org.appng.core.model.PlatformTransformer;
-import org.appng.core.service.TemplateService;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
-import org.appng.xml.platform.ApplicationReference;
-import org.appng.xml.platform.Content;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
-import org.appng.xml.platform.Output;
-import org.appng.xml.platform.OutputFormat;
-import org.appng.xml.platform.OutputType;
-import org.appng.xml.platform.PageReference;
-import org.appng.xml.platform.PagesReference;
-import org.appng.xml.platform.Section;
-import org.appng.xml.platform.Sectionelement;
-import org.appng.xml.platform.Structure;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -85,7 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link RequestHandler} which handles {@link HttpServletRequest}s for different types of services.<br/>
- * The schema for a complate path to a service is
+ * The schema for a complete path to a service is
  * <p>
  * {@code <site-domain>/<service-path>/<site-name>/<application-name>/<service-type/<service-name>/<additional-params>}
  * </p>
@@ -105,7 +82,6 @@ import lombok.extern.slf4j.Slf4j;
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-manager/datasource/xml/sites
  * <li>http://localhost:8080/service/manager/appng-manager/datasource/json/sites
- * <li>http://localhost:8080/service/manager/appng-manager/datasource/html/sites
  * </ul>
  * <li><b>action</b><br/>
  * Used for calling an action provided by a {@link Application}.<br/>
@@ -114,7 +90,6 @@ import lombok.extern.slf4j.Slf4j;
  * <ul>
  * <li>http://localhost:8080/service/manager/appng-manager/action/xml/siteEvent/create?form_action=create
  * <li>http://localhost:8080/service/manager/appng-manager/action/json/siteEvent/create?form_action=create
- * <li>http://localhost:8080/service/manager/appng-manager/action/html/siteEvent/create?form_action=create
  * </ul>
  * <li><b>soap</b><br/>
  * Used for calling a {@link org.appng.api.SoapService} provided by a {@link Application}.<br/>
@@ -142,16 +117,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ServiceRequestHandler implements RequestHandler {
 
 	protected static final String FORMAT_JSON = "json";
-	protected static final String FORMAT_HTML = "html";
 	protected static final String FORMAT_XML = "xml";
 	private MarshallService marshallService;
-	private PlatformTransformer transformer;
-	private final File debugFolder;
 
-	public ServiceRequestHandler(MarshallService marshallService, PlatformTransformer transformer, File debugFolder) {
+	public ServiceRequestHandler(MarshallService marshallService) {
 		this.marshallService = marshallService;
-		this.transformer = transformer;
-		this.debugFolder = debugFolder;
 	}
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
@@ -209,9 +179,6 @@ public class ServiceRequestHandler implements RequestHandler {
 						if (FORMAT_XML.equals(format)) {
 							result = marshallService.marshallNonRoot(action);
 							contenttype = MediaType.TEXT_XML_VALUE;
-						} else if (FORMAT_HTML.equals(format)) {
-							result = processPlatform(environment, path, siteToUse, application, action);
-							contenttype = MediaType.TEXT_HTML_VALUE;
 						} else if (FORMAT_JSON.equals(format)) {
 							result = writeJson(new JsonWrapper(action));
 							contenttype = MediaType.APPLICATION_JSON_VALUE;
@@ -240,9 +207,6 @@ public class ServiceRequestHandler implements RequestHandler {
 						if (FORMAT_XML.equals(format)) {
 							result = marshallService.marshallNonRoot(datasource);
 							contenttype = MediaType.TEXT_XML_VALUE;
-						} else if (FORMAT_HTML.equals(format)) {
-							result = processPlatform(environment, path, siteToUse, application, datasource);
-							contenttype = MediaType.TEXT_HTML_VALUE;
 						} else if (FORMAT_JSON.equals(format)) {
 							result = writeJson(new JsonWrapper(datasource));
 							contenttype = MediaType.APPLICATION_JSON_VALUE;
@@ -299,65 +263,6 @@ public class ServiceRequestHandler implements RequestHandler {
 					.isPresent();
 		}
 		return false;
-	}
-
-	protected String processPlatform(Environment environment, Path path, Site siteToUse,
-			ApplicationProvider application, Object element) throws InvalidConfigurationException,
-			ParserConfigurationException, JAXBException, TransformerException, FileNotFoundException, IOException {
-		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String charsetName = platformProperties.getString(Platform.Property.ENCODING);
-		String platformXml = retrievePlatform(environment, path, siteToUse, element, platformProperties);
-		return transformer.transform(application, platformProperties, platformXml, charsetName, debugFolder);
-	}
-
-	protected String retrievePlatform(Environment environment, Path path, Site siteToUse, Object element,
-			Properties platformProperties)
-			throws InvalidConfigurationException, ParserConfigurationException, JAXBException, TransformerException {
-		transformer.setEnvironment(environment);
-		Properties siteProperties = siteToUse.getProperties();
-		File templateRepoFolder = TemplateService.getTemplateRepoFolder(platformProperties, siteProperties);
-
-		transformer.setTemplatePath(templateRepoFolder.getAbsolutePath());
-		org.appng.xml.platform.Platform platform = transformer.getPlatform(marshallService, path);
-		AbstractRequestProcessor.initPlatform(platform, environment, path);
-		String format = siteProperties.getString(SiteProperties.SERVICE_OUTPUT_FORMAT);
-		String type = siteProperties.getString(SiteProperties.SERVICE_OUTPUT_TYPE);
-
-		Output output = new Output();
-		output.setFormat(format);
-		output.setType(type);
-		platform.getConfig().setOutput(output);
-
-		outer: for (OutputFormat of : platform.getConfig().getOutputFormat()) {
-			if (format.equals(of.getId())) {
-				for (OutputType ot : of.getOutputType()) {
-					if (type.equals(ot.getId())) {
-						transformer.setOutputType(ot);
-						break outer;
-					}
-				}
-			}
-		}
-
-		Content content = new Content();
-		platform.setContent(content);
-		content.setApplication(new ApplicationReference());
-		PagesReference pagesRef = new PagesReference();
-		content.getApplication().setPages(pagesRef);
-		PageReference pageRef = new PageReference();
-		pagesRef.getPage().add(pageRef);
-		Structure struct = new Structure();
-		pageRef.setStructure(struct);
-		Section sect = new Section();
-		struct.getSection().add(sect);
-		Sectionelement sel = new Sectionelement();
-		sect.getElement().add(sel);
-		if (element instanceof Datasource) {
-			sel.setDatasource((Datasource) element);
-		} else if (element instanceof Action) {
-			sel.setAction((Action) element);
-		}
-		return marshallService.marshal(platform);
 	}
 
 	protected String writeJson(Object data) throws IOException, JsonGenerationException, JsonMappingException {
