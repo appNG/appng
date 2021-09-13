@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2018 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,14 +45,15 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * A {@link Filter} that looks for a {@link KeycloakPrincipal} (respectively an {@link AccessToken}) in the current
- * {@link HttpServletRequest}.<p>
+ * {@link HttpServletRequest}.
+ * <p>
  * <strong>Prerequisites</strong>
  * <ul>
- * <li>The <a href="https://www.keycloak.org/docs/6.0/securing_apps/index.html#_tomcat_adapter">Keycloak Tomcat
+ * <li>The <a href="https://www.keycloak.org/docs/latest/securing_apps/index.html#_tomcat_adapter">Keycloak Tomcat
  * Adapter</a> must be installed and set up, defining the {@code KeycloakAuthenticatorValve} in the server's
  * {@code context.xml}
  * <li>A Keycloak client must be set up, the corresponding {@code keycloak.json} must be present in {@code WEB-INF}
- * <li>Keycloak must be enable in {@code WEB-INF/web.xml} by removing the comments from the Keycloak related elements.
+ * <li>Keycloak must be enabled in {@code WEB-INF/web.xml} by removing the comments from the Keycloak related elements.
  * <li>For the Keycloak client, a role named 'appNG Keycloak User' must exist, since this role is used in the
  * {@code <security-constraint>}. The name of that role can be configured using
  * {@link Platform.Property#KEYCLOAK_SECURITY_ROLE}.
@@ -78,12 +79,10 @@ import org.springframework.context.ApplicationContext;
  * </ul>
  * </li>
  * </ul>
- *
  * </li>
  * </ol>
  * 
  * @author Matthias Müller
- *
  */
 public class KeycloakLoginFilter implements Filter {
 
@@ -95,7 +94,7 @@ public class KeycloakLoginFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		Environment env = DefaultEnvironment.get(request, response);
+		Environment env = DefaultEnvironment.get(((HttpServletRequest) request).getSession());
 		Principal principal = ((HttpServletRequest) request).getUserPrincipal();
 		if (!env.isSubjectAuthenticated() && null != principal) {
 			if (KeycloakPrincipal.class.isAssignableFrom(principal.getClass())) {

@@ -671,7 +671,7 @@ public class CoreService {
 	}
 
 	public boolean loginByUserName(Environment env, String username) {
-		Subject subject = getSubjectByName(username, true);
+		SubjectImpl subject = getSubjectByName(username, true);
 		if (null != subject && UserType.LOCAL_USER.equals(subject.getUserType())) {
 			return login(env, subject);
 		} else {
