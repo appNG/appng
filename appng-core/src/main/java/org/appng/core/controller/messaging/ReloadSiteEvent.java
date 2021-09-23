@@ -44,7 +44,7 @@ public class ReloadSiteEvent extends SiteEvent {
 			SiteImpl siteByName = getPlatformContext(environment).getBean(CoreService.class)
 					.getSiteByName(getSiteName());
 			FieldProcessor fp = new FieldProcessorImpl("start");
-			getInitializerService(environment).loadSite(siteByName, environment, false, fp);
+			getInitializerService(environment).loadSite(siteByName, environment, false, fp, false);
 		} else {
 			logIgnoreMessage(logger);
 		}
