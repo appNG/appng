@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.persistence.EntityManager;
@@ -148,7 +149,8 @@ public class InitializerServiceTest extends TestSupport
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);
 		PlatformProperties platformProperties = service.loadPlatformProperties(new Properties(), env);
-		service.loadPlatform(platformProperties, env, null, null, Executors.newSingleThreadExecutor(), null);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		service.loadPlatform(platformProperties, env, null, null, null, executor);
 
 		Mockito.verify(ctx, Mockito.atLeastOnce()).getRealPath(Mockito.anyString());
 		Mockito.verify(env, VerificationModeFactory.atLeast(1)).setAttribute(Mockito.eq(Scope.PLATFORM),
@@ -159,6 +161,7 @@ public class InitializerServiceTest extends TestSupport
 		Assert.assertFalse(new File(templateRoot, "xsl").exists());
 		Assert.assertFalse(new File(templateRoot, "conf").exists());
 		Assert.assertFalse(new File(templateRoot, "template.xml").exists());
+		executor.shutdown();
 	}
 
 	@Override
