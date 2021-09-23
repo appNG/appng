@@ -41,8 +41,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
@@ -314,16 +316,18 @@ public class InitializerService {
 		for (Integer id : sites) {
 			SiteImpl site = getCoreService().getSite(id);
 			if (site.isActive()) {
-				Runnable siteloader = getSiteLoader(site, env, false, platformMessages);
-				Boolean parallelSiteStarts = platformConfig.getBoolean(Platform.Property.PARALLEL_SITE_STARTS, false);
-				if (null != startupExecutor && parallelSiteStarts) {
-					startupExecutor.submit(siteloader);
-				} else {
-					LOGGER.info(StringUtils.leftPad("", 90, "="));
-					siteloader.run();
-					LOGGER.info(StringUtils.leftPad("", 90, "="));
+				Runnable siteloader = getSiteLoader(site, env, false, platformMessages, true);
+				Future<?> siteStart = startupExecutor.submit(siteloader);
+				if (!platformConfig.getBoolean(Platform.Property.PARALLEL_SITE_STARTS, false)) {
+					try {
+						LOGGER.info(StringUtils.leftPad("", 90, "="));
+						siteStart.get();
+						LOGGER.info(StringUtils.leftPad("", 90, "="));
+						activeSites++;
+					} catch (InterruptedException | ExecutionException e) {
+						LOGGER.error("Failed loading site", e);
+					}
 				}
-				activeSites++;
 			} else {
 				String inactiveSite = site.getName();
 				site.setState(SiteState.INACTIVE, env);
@@ -483,7 +487,7 @@ public class InitializerService {
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(siteToLoad, env, sendReloadEvent, fp);
+		loadSite(siteToLoad, env, sendReloadEvent, fp, false);
 	}
 
 	/**
@@ -499,12 +503,12 @@ public class InitializerService {
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(siteToLoad, DefaultEnvironment.get(servletContext), true, fp);
+		loadSite(siteToLoad, DefaultEnvironment.get(servletContext), true, fp, false);
 	}
 
-	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp)
-			throws InvalidConfigurationException {
-		getSiteLoader(siteToLoad, env, sendReloadEvent, fp).run();
+	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp,
+			boolean setThreadName) throws InvalidConfigurationException {
+		getSiteLoader(siteToLoad, env, sendReloadEvent, fp, setThreadName).run();
 	}
 
 	/**
@@ -519,14 +523,16 @@ public class InitializerService {
 	 *                        whether or not a {@link ReloadSiteEvent} should be sent
 	 * @param fp
 	 *                        a {@link FieldProcessor} to attach messages to
+	 * @param setThreadName
 	 * 
 	 * @return the {@link Runnable}
 	 */
-	public Runnable getSiteLoader(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp) {
+	public Runnable getSiteLoader(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp,
+			boolean setThreadName) {
 		return () -> {
 			StopWatch sw = new StopWatch("Loading site " + siteToLoad.getName());
 			sw.start("Setup");
-			if (!"main".equals(Thread.currentThread().getName())) {
+			if (setThreadName) {
 				Thread.currentThread().setName("siteloader-" + siteToLoad.getName());
 			}
 			SiteImpl site = siteToLoad;
@@ -858,9 +864,9 @@ public class InitializerService {
 						getCoreService().setSiteReloadCount(site);
 					}
 				}
-			} catch (Throwable e) {
-				LOGGER.error("Error while loading site " + siteToLoad.getName(), e);
+			} catch (Throwable t) {
 				site.setState(SiteState.INACTIVE);
+				throw new SiteLoadingException("Error while loading site " + siteToLoad.getName(), t);
 			} finally {
 				if (sw.isRunning()) {
 					sw.stop();
