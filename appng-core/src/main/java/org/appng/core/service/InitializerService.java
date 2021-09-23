@@ -41,10 +41,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
@@ -313,31 +311,33 @@ public class InitializerService {
 		FieldProcessor platformMessages = new FieldProcessorImpl("load-platform");
 		env.setAttribute(Scope.PLATFORM, GuiHandler.PLATFORM_MESSAGES, platformMessages.getMessages());
 		List<Integer> sites = getCoreService().getSiteIds();
+		Boolean parallelSiteStarts = platformConfig.getBoolean(Platform.Property.PARALLEL_SITE_STARTS, false);
 		for (Integer id : sites) {
-			SiteImpl site = getCoreService().getSite(id);
-			if (site.isActive()) {
-				Runnable siteloader = getSiteLoader(site, env, false, platformMessages, true);
-				Future<?> siteStart = startupExecutor.submit(siteloader);
-				if (!platformConfig.getBoolean(Platform.Property.PARALLEL_SITE_STARTS, false)) {
-					try {
+			try {
+				SiteImpl site = getCoreService().getSite(id);
+				if (site.isActive()) {
+					Runnable siteLoader = getSiteLoader(site, env, false, platformMessages, parallelSiteStarts);
+					if (parallelSiteStarts) {
+						startupExecutor.execute(siteLoader);
+					} else {
 						LOGGER.info(StringUtils.leftPad("", 90, "="));
-						siteStart.get();
+						siteLoader.run();
 						LOGGER.info(StringUtils.leftPad("", 90, "="));
-						activeSites++;
-					} catch (InterruptedException | ExecutionException e) {
-						LOGGER.error("Failed loading site", e);
 					}
-				}
-			} else {
-				String inactiveSite = site.getName();
-				site.setState(SiteState.INACTIVE, env);
-				if (siteMap.containsKey(inactiveSite)) {
-					getCoreService().shutdownSite(env, inactiveSite, false);
+					activeSites++;
 				} else {
-					siteMap.put(inactiveSite, site);
-					getCoreService().setSiteStartUpTime(site, null);
+					String inactiveSite = site.getName();
+					site.setState(SiteState.INACTIVE, env);
+					if (siteMap.containsKey(inactiveSite)) {
+						getCoreService().shutdownSite(env, inactiveSite, false);
+					} else {
+						siteMap.put(inactiveSite, site);
+						getCoreService().setSiteStartUpTime(site, null);
+					}
+					LOGGER.info("site {} is inactive and will not be loaded", site);
 				}
-				LOGGER.info("site {} is inactive and will not be loaded", site);
+			} catch (Throwable e) {
+				LOGGER.error("Failed loading site", e);
 			}
 		}
 
