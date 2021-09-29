@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<metaData xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.support.validation.model.Person">
+	<field name="lastname" type="text" binding="lastname">
+		<validation>
+			<notNull>
+				<message ref="lastname" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+			</notNull>
+		</validation>
+	</field>
+	<field name="name" type="text" binding="name">
+		<validation>
+			<notNull>
+				<message ref="name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+			</notNull>
+		</validation>
+	</field>
+	<field name="addresses" type="list:object" binding="addresses">
+		<field name="addresses[]" type="object" binding="addresses[]">
+			<field name="addressId" type="text" binding="addresses[].addressId">
+				<validation>
+					<notNull>
+						<message ref="addresses[].addressId" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+					</notNull>
+				</validation>
+			</field>
+			<field name="location" type="object" binding="addresses[].location">
+				<field name="zip" type="text" binding="addresses[].location.zip">
+					<validation>
+						<notNull>
+							<message ref="addresses[].location.zip" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+						</notNull>
+					</validation>
+				</field>
+				<field name="city" type="text" binding="addresses[].location.city">
+					<validation>
+						<notNull>
+							<message ref="addresses[].location.city" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+						</notNull>
+					</validation>
+				</field>
+			</field>
+		</field>
+	</field>
+</metaData>
