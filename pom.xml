@@ -313,7 +313,6 @@
 				<module>appng-camunda</module>
 				<module>appng-application-camunda</module>
 				<module>appng-maven-plugin</module>
-				<module>appng-upngizr</module>
 			</modules>
 		</profile>
 	</profiles>
