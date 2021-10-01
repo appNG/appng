@@ -74,6 +74,7 @@ public class CacheService {
 	public static final String STATS_AVG_REMOVAL_TIME = "avgRemovalTime";
 
 	private static CacheManager cacheManager;
+	private static final int MICROS_PER_MILLI = 1000;
 
 	public static CacheManager createCacheManager(HazelcastInstance instance, boolean isClient) {
 		Properties properties = new Properties();
@@ -185,11 +186,11 @@ public class CacheService {
 					stats.put(STATS_MISSES, String.valueOf(cacheStatistics.getCacheMisses()));
 					stats.put(STATS_MISSES_PERCENT, String.valueOf(cacheStatistics.getCacheMissPercentage()));
 					stats.put(STATS_PUTS, String.valueOf(cacheStatistics.getCachePuts()));
-					stats.put(STATS_AVG_PUT_TIME, String.valueOf(cacheStatistics.getAveragePutTime()));
+					stats.put(STATS_AVG_PUT_TIME, String.valueOf(cacheStatistics.getAveragePutTime() / MICROS_PER_MILLI));
 					stats.put(STATS_GETS, String.valueOf(cacheStatistics.getCacheGets()));
-					stats.put(STATS_AVG_GET_TIME, String.valueOf(cacheStatistics.getAverageGetTime()));
+					stats.put(STATS_AVG_GET_TIME, String.valueOf(cacheStatistics.getAverageGetTime()/ MICROS_PER_MILLI));
 					stats.put(STATS_REMOVALS, String.valueOf(cacheStatistics.getCacheRemovals()));
-					stats.put(STATS_AVG_REMOVAL_TIME, String.valueOf(cacheStatistics.getAverageRemoveTime()));
+					stats.put(STATS_AVG_REMOVAL_TIME, String.valueOf(cacheStatistics.getAverageRemoveTime()/ MICROS_PER_MILLI));
 				} else {
 					stats.put("Status",
 							String.format("Failed to retrieve caching statistics for site %s", site.getName()));
