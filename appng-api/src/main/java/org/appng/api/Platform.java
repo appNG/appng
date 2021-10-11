@@ -292,6 +292,15 @@ public final class Platform {
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
 
+		/** The 'Token Claim Name' configured in the 'User Client Role'-mapper of the Keycloak client */
+		public static final String KEYCLOAK_GROUP_CLAIM_NAME = "keycloakGroupClaimName";
+
+		/** The 'Client Role prefix' configured in the 'User Client Role'-mapper of the Keycloak client */
+		public static final String KEYCLOAK_GROUP_PREFIX = "keycloakGroupPrefix";
+
+		/** The role configured in the Keycloak client, used as a security-role in web.xml */
+		public static final String KEYCLOAK_SECURITY_ROLE = "keycloakSecurityRole";
+
 		/** The maximum number of failed login attempts before a {@link Subject} gets locked. */
 		public static final String MAX_LOGIN_ATTEMPTS = "maxLoginAttempts";
 
