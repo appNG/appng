@@ -51,7 +51,7 @@
 				</linkpanel>
 			</config>
 			<structure>
-				<section executionTime="16">
+				<section executionTime="16" id="42">
 					<element passive="true" executionTime="16">
 						<action id="update" eventId="events" async="false">
 							<config>

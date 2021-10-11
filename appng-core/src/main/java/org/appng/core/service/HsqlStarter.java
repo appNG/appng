@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,15 @@ public class HsqlStarter {
 	 * Starts a HSQL {@link Server}, but only if {@link DatabaseType#HSQL} is the configured type.
 	 * 
 	 * @param platformProperties
-	 *            the properties read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 *                           the properties read from
+	 *                           {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
 	 * @param appngHome
-	 *            the home folder of appNG
+	 *                           the home folder of appNG
+	 * 
 	 * @return a {@link Server}-instance, if {@link DatabaseType#HSQL} is the configured type.
+	 * 
 	 * @throws IOException
-	 *             in case the database folder or hsql logfiles could not be accessed
+	 *                     in case the database folder or hsql logfiles could not be accessed
 	 */
 	public static Server startHsql(Properties platformProperties, String appngHome) throws IOException {
 		if (DatabaseType.HSQL.name().equalsIgnoreCase(platformProperties.getProperty(DatabaseService.DATABASE_TYPE))) {
@@ -91,15 +94,14 @@ public class HsqlStarter {
 	 * Shuts down the given {@link Server}, if non-null.
 	 * 
 	 * @param server
-	 *            the {@link Server} to shut down, may be {@code null}
+	 *               the {@link Server} to shut down, may be {@code null}
 	 */
 	public static void shutdown(Server server) {
 		if (null != server) {
 			LOGGER.info("shutting down HSQL Server {} at {} on port {}", server.getProductVersion(),
 					server.getDatabasePath(0, false), server.getPort());
 			String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", server.getPort(), DATABASE_NAME);
-			try (
-					Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+			try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
 					Statement statement = connection.createStatement()) {
 				statement.execute("SHUTDOWN");
 			} catch (SQLException e) {

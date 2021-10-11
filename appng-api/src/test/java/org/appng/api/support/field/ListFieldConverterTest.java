@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.appng.api.support.field;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.appng.api.FieldConverter.DatafieldOwner;
 import org.appng.api.FieldWrapper;
 import org.appng.api.Person;
@@ -168,14 +168,20 @@ public class ListFieldConverterTest extends AbstractFieldConverterTest {
 		String resultXml = marshallService.marshallNonRoot(result);
 		ClassPathResource controlSource = new ClassPathResource(
 				"xml/ListFieldConverterTest-testAddNestedFields-result.xml");
-		String expected = new String(
-				IOUtils.readFully(controlSource.getInputStream(), (int) controlSource.contentLength()));
+		String expected = new String(Files.readAllBytes(controlSource.getFile().toPath()));
 		Assert.assertEquals(expected, resultXml);
 
 		result.getFields().clear();
 		fieldConverter.addField(dataFieldOwner, fieldWrapper);
 		resultXml = marshallService.marshallNonRoot(result);
 		Assert.assertEquals(expected, resultXml);
+
+		ClassPathResource metaDataCtrl = new ClassPathResource(
+				"xml/ListFieldConverterTest-testAddNestedFields-metadata.xml");
+		String expectedMetadata = new String(Files.readAllBytes(metaDataCtrl.getFile().toPath()));
+		MetaData metaData2 = new MetaData();
+		metaData2.getFields().addAll(fieldWrapper.getFields());
+		Assert.assertEquals(expectedMetadata, marshallService.marshallNonRoot(metaData2));
 	}
 
 	@Override

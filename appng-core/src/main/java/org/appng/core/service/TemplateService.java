@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,8 +94,7 @@ public class TemplateService {
 						String path = entry.getName();
 						path = path.substring(path.indexOf('/') + 1);
 						if (!entry.isDirectory()) {
-							try (
-									InputStream in = zipFile.getInputStream(entry);
+							try (InputStream in = zipFile.getInputStream(entry);
 									ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 								try {
 									IOUtils.copy(in, out);
@@ -139,7 +138,8 @@ public class TemplateService {
 	 * contains a valid template.
 	 * 
 	 * @param originalFilename
-	 *            the original file name of the {@link ZipFile}
+	 *                         the original file name of the {@link ZipFile}
+	 * 
 	 * @return the {@link ZipFileProcessor}
 	 */
 	public static ZipFileProcessor<org.appng.xml.application.Template> getTemplateInfo(final String originalFilename) {
@@ -271,11 +271,11 @@ public class TemplateService {
 	 * Materializes the given template into the filesystem.
 	 * 
 	 * @param template
-	 *            the {@link Template} to materialize
+	 *                       the {@link Template} to materialize
 	 * @param platformConfig
-	 *            the platform configuration
+	 *                       the platform configuration
 	 * @param siteProps
-	 *            the {@link Site}'s {@link Properties}
+	 *                       the {@link Site}'s {@link Properties}
 	 */
 	public static void materializeTemplate(Template template, Properties platformConfig, Properties siteProps) {
 		File templateTargetDir = getTemplateRepoFolder(platformConfig, siteProps);
@@ -283,8 +283,7 @@ public class TemplateService {
 		for (TemplateResource resource : template.getResources()) {
 			File targetFile = new File(templateTargetDir, resource.getName());
 			targetFile.getParentFile().mkdirs();
-			try (
-					ByteArrayInputStream in = new ByteArrayInputStream(resource.getBytes());
+			try (ByteArrayInputStream in = new ByteArrayInputStream(resource.getBytes());
 					FileOutputStream out = new FileOutputStream(targetFile)) {
 				LOGGER.trace("writing {}", targetFile);
 				IOUtils.copy(in, out);
@@ -303,11 +302,11 @@ public class TemplateService {
 	 * </pre>
 	 * 
 	 * @param platformConfig
-	 *            the platform configuration
+	 *                         the platform configuration
 	 * @param siteProps
-	 *            the {@link Site}'s {@link Properties}
+	 *                         the {@link Site}'s {@link Properties}
 	 * @param templateRealPath
-	 *            the root path to the platform's template directory
+	 *                         the root path to the platform's template directory
 	 */
 	public static void copyTemplate(Properties platformConfig, Properties siteProps, String templateRealPath) {
 		String template = siteProps.getString(SiteProperties.TEMPLATE);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,8 @@ import lombok.extern.slf4j.Slf4j;
  * {@link SiteApplication}.
  * 
  * @author Matthias Müller
- * @see    SiteApplication#getDatabaseConnection()
+ * 
+ * @see SiteApplication#getDatabaseConnection()
  */
 @Slf4j
 @Entity
@@ -76,8 +77,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 
 	private static final String MARIADB_DATASOURCE = "org.mariadb.jdbc.MariaDbDataSource";
 	private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
-	private static final String MYSQL_LEGACY_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
-	private static final String MYSQL_LEGACY_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String MARIADB_URL = "jdbc:mariadb://localhost:%s/%s";
 
 	private static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static String MYSQL_DATASOURCE = "com.mysql.cj.jdbc.MysqlDataSource";
@@ -87,10 +87,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 		if (ClassUtils.isPresent(MARIADB_DATASOURCE, null)) {
 			MYSQL_DATASOURCE = MARIADB_DATASOURCE;
 			MYSQL_DRIVER = MARIADB_DRIVER;
-			MYSQL_URL = "jdbc:mariadb://localhost:%s/%s";
-		} else if (ClassUtils.isPresent(MYSQL_LEGACY_DATASOURCE, null)) {
-			MYSQL_DATASOURCE = MYSQL_LEGACY_DATASOURCE;
-			MYSQL_DRIVER = MYSQL_LEGACY_DRIVER;
+			MYSQL_URL = MARIADB_URL;
 		}
 	}
 

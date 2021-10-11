@@ -51,7 +51,7 @@
 				</linkpanel>
 			</config>
 			<structure>
-				<section executionTime="20">
+				<section executionTime="20" id="42">
 					<element executionTime="20">
 						<datasource id="entities">
 							<config>

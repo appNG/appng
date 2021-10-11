@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 public class TestSupport {
 
-	protected String host = "host.example.com";
+	protected String host = "manager";
 
 	protected String manager = "manager";
 
@@ -324,9 +324,9 @@ public class TestSupport {
 		siteMap.put(site.getName(), site);
 
 		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
-		java.util.Properties overrides = new java.util.Properties();
-		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
-		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true, overrides, true);
+		java.util.Properties overrides = getPlatformPropertyOverrides();
+		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true, overrides,
+				true);
 		platformMap = new ConcurrentHashMap<>();
 		platformMap.put(Platform.Environment.SITES, siteMap);
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
@@ -360,6 +360,12 @@ public class TestSupport {
 		site.getSiteApplications().add(provider);
 
 		Mockito.when(ctx.getAttribute(Scope.PLATFORM.name())).thenReturn(platformMap);
+	}
+
+	protected java.util.Properties getPlatformPropertyOverrides() {
+		java.util.Properties overrides = new java.util.Properties();
+		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
+		return overrides;
 	}
 
 	protected Subject getSubject() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 
@@ -147,7 +150,10 @@ public class InitializerServiceTest extends TestSupport
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
 				.thenReturn(platformProperties);
 		PlatformProperties platformProperties = service.loadPlatformProperties(new Properties(), env);
-		service.loadPlatform(platformProperties, env, null, null, null);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		service.loadPlatform(platformProperties, env, null, null, null, executor);
+		executor.awaitTermination(5, TimeUnit. SECONDS);
+
 		Mockito.verify(ctx, Mockito.atLeastOnce()).getRealPath(Mockito.anyString());
 		Mockito.verify(env, VerificationModeFactory.atLeast(1)).setAttribute(Mockito.eq(Scope.PLATFORM),
 				Mockito.anyString(), Mockito.any());
@@ -157,6 +163,16 @@ public class InitializerServiceTest extends TestSupport
 		Assert.assertFalse(new File(templateRoot, "xsl").exists());
 		Assert.assertFalse(new File(templateRoot, "conf").exists());
 		Assert.assertFalse(new File(templateRoot, "template.xml").exists());
+
+	}
+
+	@Override
+	protected Properties getPlatformPropertyOverrides() {
+		Properties overrides = super.getPlatformPropertyOverrides();
+		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.PLATFORM_ROOT_PATH,
+				new File("target/test-classes").getAbsolutePath());
+		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.TEMPLATE_FOLDER, "template");
+		return overrides;
 	}
 
 	@Test

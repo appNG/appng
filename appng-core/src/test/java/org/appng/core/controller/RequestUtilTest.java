@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import org.appng.api.Environment;
 import org.appng.api.Platform;
@@ -43,32 +43,32 @@ public class RequestUtilTest {
 	private Environment environment;
 
 	@Mock
-	private ServletRequest servletRequest;
+	private HttpServletRequest servletRequest;
 
 	@Test
 	public void testGetSite() {
 		MockitoAnnotations.initMocks(this);
 		PropertyHolder propertyHolder = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
 		new PropertySupport(propertyHolder).initPlatformConfig("target/root", true);
-		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(
-				propertyHolder);
+		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.PLATFORM_CONFIG))
+				.thenReturn(propertyHolder);
 
-		Mockito.when(servletRequest.getServerName()).thenReturn("host-2");
+		Mockito.when(servletRequest.getServerName()).thenReturn("site-2");
 		Map<String, Site> sites = new HashMap<>();
 		sites.put("site-1", getSite(1));
 		sites.put("site-2", getSite(2));
 		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.SITES)).thenReturn(sites);
 		Site site2 = RequestUtil.getSite(environment, servletRequest);
 		Assert.assertEquals("site-2", site2.getName());
-		Assert.assertEquals("host-2", site2.getHost());
+		Assert.assertEquals("site-2", site2.getHost());
 
-		Site siteByHost = RequestUtil.getSiteByHost(environment, "host-2");
+		Site siteByHost = RequestUtil.getSiteByName(environment, "site-2");
 		Assert.assertEquals("site-2", siteByHost.getName());
-		Assert.assertEquals("host-2", siteByHost.getHost());
+		Assert.assertEquals("site-2", siteByHost.getHost());
 
 		Site siteBySite = RequestUtil.getSiteByName(environment, "site-2");
 		Assert.assertEquals("site-2", siteBySite.getName());
-		Assert.assertEquals("host-2", siteBySite.getHost());
+		Assert.assertEquals("site-2", siteBySite.getHost());
 
 	}
 
@@ -76,7 +76,7 @@ public class RequestUtilTest {
 		SiteImpl site = new SiteImpl();
 		site.setActive(true);
 		site.setDescription("Site description-" + i);
-		site.setHost("host-" + i);
+		site.setHost("site-" + i);
 		site.setName("site-" + i);
 		site.setDomain("http://www.localhost.de:808" + i);
 		site.setVersion(new Date());

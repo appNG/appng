@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,9 @@ public interface RepositoryCache {
 	/**
 	 * Adds a single {@link PackageArchive}
 	 * 
-	 * @param  packagearchive
-	 *                           the archive to add
+	 * @param packagearchive
+	 *                       the archive to add
+	 * 
 	 * @throws BusinessException
 	 */
 	boolean add(PackageArchive packagearchive) throws BusinessException;
@@ -45,7 +46,8 @@ public interface RepositoryCache {
 	/**
 	 * Returns all packages found in the repository.
 	 * 
-	 * @return                   The package list.
+	 * @return The package list.
+	 * 
 	 * @throws BusinessException
 	 */
 	List<PackageWrapper> getApplications() throws BusinessException;
@@ -53,9 +55,11 @@ public interface RepositoryCache {
 	/**
 	 * Returns all packages that match the given name in the repository.
 	 * 
-	 * @param  packageName
-	 *                           an optional search-string for the package's name, supporting {@code *} as a placeholder
-	 * @return                   The package list.
+	 * @param packageName
+	 *                    an optional search-string for the package's name, supporting {@code *} as a placeholder
+	 * 
+	 * @return The package list.
+	 * 
 	 * @throws BusinessException
 	 */
 	List<PackageWrapper> getApplications(String packageName) throws BusinessException;
@@ -63,18 +67,21 @@ public interface RepositoryCache {
 	/**
 	 * Returns the {@link PackageWrapper} for the a package.
 	 * 
-	 * @param  name
-	 *              The name of the package.
-	 * @return      the {@link PackageWrapper}
+	 * @param name
+	 *             The name of the package.
+	 * 
+	 * @return the {@link PackageWrapper}
 	 */
 	PackageWrapper getPackageWrapper(String name);
 
 	/**
 	 * Returns all available versions of a package.
 	 * 
-	 * @param  name
-	 *                           The name of the application.
-	 * @return                   The {@link PackageInfo}s.
+	 * @param name
+	 *             The name of the application.
+	 * 
+	 * @return The {@link PackageInfo}s.
+	 * 
 	 * @throws BusinessException
 	 *                           if such a package does not exist
 	 */
@@ -83,12 +90,13 @@ public interface RepositoryCache {
 	/**
 	 * Deletes the specified application version from the repository.
 	 * 
-	 * @param  packageName
-	 *                           The package name.
-	 * @param  packageVersion
-	 *                           The package version.
-	 * @param  packageTimestamp
-	 *                           The package timestamp.
+	 * @param packageName
+	 *                         The package name.
+	 * @param packageVersion
+	 *                         The package version.
+	 * @param packageTimestamp
+	 *                         The package timestamp.
+	 * 
 	 * @throws BusinessException
 	 *                           if such a package does not exist
 	 */
@@ -98,13 +106,15 @@ public interface RepositoryCache {
 	/**
 	 * Returns a {@link PackageArchive } for the specified package.
 	 * 
-	 * @param  packageName
-	 *                           The package name.
-	 * @param  packageVersion
-	 *                           The package version.
-	 * @param  packageTimestamp
-	 *                           The package timestamp.
-	 * @return                   The {@link PackageArchive }.
+	 * @param packageName
+	 *                         The package name.
+	 * @param packageVersion
+	 *                         The package version.
+	 * @param packageTimestamp
+	 *                         The package timestamp.
+	 * 
+	 * @return The {@link PackageArchive }.
+	 * 
 	 * @throws BusinessException
 	 *                           if the archive was not found or is invalid
 	 */
@@ -114,7 +124,8 @@ public interface RepositoryCache {
 	/**
 	 * Returns the {@link Certification} for the cached repository, if any
 	 * 
-	 * @return                   the {@link Certification}
+	 * @return the {@link Certification}
+	 * 
 	 * @throws BusinessException
 	 *                           if an error occurred while building the certification
 	 */

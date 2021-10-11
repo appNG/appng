@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.appng.api.model.Site;
  * {@link org.springframework.ws.server.endpoint.annotation.Endpoint}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface SoapService {
 
@@ -35,6 +34,7 @@ public interface SoapService {
 	 * separated by a colon (':').
 	 * 
 	 * @return the contextpath
+	 * 
 	 * @see JAXBContext#newInstance(String, ClassLoader)
 	 */
 	String getContextPath();
@@ -50,7 +50,7 @@ public interface SoapService {
 	 * Sets the {@link Application} to use when processing the request
 	 * 
 	 * @param application
-	 *            the {@link Application}
+	 *                    the {@link Application}
 	 */
 	void setApplication(Application application);
 
@@ -58,7 +58,7 @@ public interface SoapService {
 	 * Sets the {@link Site} to use when processing the request
 	 * 
 	 * @param site
-	 *            the {@link Site}
+	 *             the {@link Site}
 	 */
 	void setSite(Site site);
 
@@ -66,7 +66,7 @@ public interface SoapService {
 	 * Sets the {@link Environment} to use when processing the request
 	 * 
 	 * @param environment
-	 *            the {@link Environment}
+	 *                    the {@link Environment}
 	 */
 	void setEnvironment(Environment environment);
 

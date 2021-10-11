@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see CallableDataSource#perform(String, boolean, boolean)
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class ApplicationProvider extends SiteApplication implements AccessibleApplication {
@@ -158,13 +157,14 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	 * {@link CallableDataSource}s.
 	 * 
 	 * @param applicationRequest
-	 *            the {@link ApplicationRequest} to process
+	 *                           the {@link ApplicationRequest} to process
 	 * @param marshallService
-	 *            a {@link MarshallService}
+	 *                           a {@link MarshallService}
 	 * @param pathInfo
-	 *            the current {@link Path}
+	 *                           the current {@link Path}
 	 * @param platformConfig
-	 *            the current {@link PlatformConfig}
+	 *                           the current {@link PlatformConfig}
+	 * 
 	 * @return the {@link ApplicationReference} to be used for the {@link Content} of the {@link Platform}
 	 */
 	public ApplicationReference process(ApplicationRequest applicationRequest, MarshallService marshallService,
@@ -342,6 +342,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
+			section.setId(sectionDef.getId());
 
 			String hidden = applicationRequest.getExpressionEvaluator().getString(sectionDef.getHidden());
 			section.setHidden(hidden);
@@ -817,18 +818,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private Environment initEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
-		DefaultEnvironment env = (DefaultEnvironment) getBean("environment");
-		if (null == env) {
-			throw new IllegalStateException("environment can not be null!");
-		}
-		if (!env.isInitialized()) {
-			env.init(servletRequest.getServletContext(), servletRequest.getSession(), servletRequest, servletResponse,
-					site.getHost());
-			for (Application application : site.getApplications()) {
-				String sessionParamName = application.getSessionParamKey(site);
-				if (null == env.getAttribute(SESSION, sessionParamName)) {
-					env.setAttribute(SESSION, sessionParamName, new HashMap<>());
-				}
+		Environment env = getBean("environment", Environment.class);
+		for (Application application : site.getApplications()) {
+			String sessionParamName = application.getSessionParamKey(site);
+			if (null == env.getAttribute(SESSION, sessionParamName)) {
+				env.setAttribute(SESSION, sessionParamName, new HashMap<>());
 			}
 		}
 		return env;
@@ -841,8 +835,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Action action = applicationConfigProvider.getAction(eventId, actionId);
 		if (null == action) {
-			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId, application.getName(),
-					site.getName());
+			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
+					application.getName(), site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return null;
 		}
@@ -923,13 +917,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
 					parameterSupport, datasourceRef);
 			if (callableDataSource.doInclude()) {
-				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId, application.getName(),
-						site.getName());
+				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
+						application.getName(), site.getName());
 				callableDataSource.perform("service");
 				return callableDataSource.getDatasource();
 			}
-			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.", dataSourceId,
-					application.getName(), site.getName());
+			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
+					dataSourceId, application.getName(), site.getName());
 		}
 		Subject subject = environment.getSubject();
 		LOGGER.debug(
@@ -945,6 +939,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	 * this means direct access is forbidden.
 	 * 
 	 * @param config
+	 * 
 	 * @return
 	 */
 	private boolean permissionsPresent(Config config) {

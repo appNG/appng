@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,25 @@ import org.appng.api.model.Site;
 
 /**
  * Provides methods to startup and shutdown a {@link Application}. A {@link Application} <b>is NOT forced to provide an
- * implementation of this</b>, it's completely optional. {@link Application}s which need to allocate/free some resources on
- * startup/shutdown should use this interface. In each {@link Application} there can only be <b>one</b> bean implementing
- * {@link ApplicationController}.
+ * implementation of this</b>, it's completely optional. {@link Application}s which need to allocate/free some resources
+ * on startup/shutdown should use this interface. In each {@link Application} there can only be <b>one</b> bean
+ * implementing {@link ApplicationController}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface ApplicationController {
 
 	/**
-	 * This method is called when a {@link Site} is being (re)loaded. A {@link Application} is supposed to initialize itself
-	 * within this method.
+	 * This method is called when a {@link Site} is being (re)loaded. A {@link Application} is supposed to initialize
+	 * itself within this method.
 	 * 
 	 * @param site
-	 *            the {@link Site} to which the {@link Application} is assigned to
+	 *                    the {@link Site} to which the {@link Application} is assigned to
 	 * @param application
-	 *            the {@link Application} which is assigned to the {@link Site}
+	 *                    the {@link Application} which is assigned to the {@link Site}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                    the current {@link Environment}
+	 * 
 	 * @return <code>true</code> on success, <code>false</code> otherwise
 	 */
 	boolean start(Site site, Application application, Environment environment);
@@ -48,11 +48,12 @@ public interface ApplicationController {
 	 * within this method (free resources etc.).
 	 * 
 	 * @param site
-	 *            the {@link Site} to which the {@link Application} is assigned to
+	 *                    the {@link Site} to which the {@link Application} is assigned to
 	 * @param application
-	 *            the {@link Application} which is assigned to the {@link Site}
+	 *                    the {@link Application} which is assigned to the {@link Site}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                    the current {@link Environment}
+	 * 
 	 * @return <code>true</code> on success, <code>false</code> otherwise
 	 */
 	boolean shutdown(Site site, Application application, Environment environment);
@@ -63,25 +64,27 @@ public interface ApplicationController {
 	 * resources.
 	 * 
 	 * @param site
-	 *            the {@link Site} from which the {@link Application} is being removed
+	 *                    the {@link Site} from which the {@link Application} is being removed
 	 * @param application
-	 *            the {@link Application} which is being removed from the {@link Site}
+	 *                    the {@link Application} which is being removed from the {@link Site}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                    the current {@link Environment}
+	 * 
 	 * @return <code>true</code> on success, <code>false</code> otherwise
 	 */
 	boolean removeSite(Site site, Application application, Environment environment);
 
 	/**
-	 * This method is called immediately after adding a {@link Application} from a {@link Site}, which has not been reloaded
-	 * at this point.
+	 * This method is called immediately after adding a {@link Application} from a {@link Site}, which has not been
+	 * reloaded at this point.
 	 * 
 	 * @param site
-	 *            the {@link Site} to which the {@link Application} was assigned to
+	 *                    the {@link Site} to which the {@link Application} was assigned to
 	 * @param application
-	 *            the {@link Application} which was assigned to the {@link Site}
+	 *                    the {@link Application} which was assigned to the {@link Site}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                    the current {@link Environment}
+	 * 
 	 * @return <code>true</code> on success, <code>false</code> otherwise
 	 */
 	boolean addSite(Site site, Application application, Environment environment);

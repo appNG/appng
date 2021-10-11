@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ import org.appng.taglib.TagletAdapter;
  * </pre>
  * 
  * As you can see, the {@code <appNG:formConfirmation>} can be parameterized using the syntax {@code 
- * <appNG:param name="name">value</appNG:param>}. For the value, you can access request parameters using the syntax {@code #[param]},
- * for example {@code <appNG:param name="receiver">#[email]</appNG:param>}.
+ * <appNG:param name="name">value</appNG:param>}. For the value, you can access request parameters using the syntax
+ * {@code #[param]}, for example {@code <appNG:param name="receiver">#[email]</appNG:param>}.
  * 
  * @author Matthias Herlitzius
  * 

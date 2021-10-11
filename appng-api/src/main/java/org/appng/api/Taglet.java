@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 
 /**
- * 
  * A {@code Taglet} can be used inside a JSP-Page to embed (static or dynamic) content that is retrieved from a
  * {@link Application}.<br/>
  * A {@code Taglet} is used as follows ({@code method} refers to bean name of the implementing class):
@@ -39,7 +38,6 @@ import org.appng.api.model.Site;
  * @author Matthias Müller
  * 
  * @see XMLTaglet
- * 
  */
 public interface Taglet {
 
@@ -47,13 +45,13 @@ public interface Taglet {
 	 * Executes the {@code Taglet} and returns a {@link String} to be embedded at the calling JSP-page.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                         the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                         the current {@link Application}
 	 * @param request
-	 *            the current {@link Request}
+	 *                         the current {@link Request}
 	 * @param tagletAttributes
-	 *            a {@link Map} containing the attributes for the {@code Taglet}
+	 *                         a {@link Map} containing the attributes for the {@code Taglet}
 	 * 
 	 * @return a String to be embedded into the calling JSP
 	 */

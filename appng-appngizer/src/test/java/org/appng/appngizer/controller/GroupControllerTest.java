@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,22 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupControllerTest extends ControllerTest {
+
+	@Test
+	public void testInvalidName() throws Exception {
+		Group group = new Group();
+		group.setName("john doe!");
+		postAndVerify("/group", "", group, HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void testDotInName() throws Exception {
+		Group group = new Group();
+		group.setName("with.dot");
+		postAndVerify("/group", "", group, HttpStatus.CREATED);
+		putAndVerify("/group/with.dot", "", group, HttpStatus.OK);
+		deleteAndVerify("/group/with.dot", "", HttpStatus.NO_CONTENT);
+	}
 
 	@Test
 	public void testCreateRetrieveAndUpdate() throws Exception {

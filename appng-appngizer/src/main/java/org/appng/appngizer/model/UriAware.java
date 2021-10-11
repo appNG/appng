@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public interface UriAware {
 	}
 
 	Links getLinks();
-	
+
 	void setLinks(Links links);
 
 	default void addLink(org.appng.appngizer.model.xml.Link link) {
@@ -43,7 +43,6 @@ public interface UriAware {
 		}
 		getLinks().getLink().add(link);
 	}
-
 
 	default String encode(String name) {
 		try {

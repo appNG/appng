@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import org.appng.api.model.Properties;
  * The default {@link PasswordPolicy} requiring 6 to 64 non-whitespace characters for a valid password.
  * 
  * @deprecated use {@link ConfigurablePasswordPolicy} instead
- * @author     Matthias Müller
+ * 
+ * @author Matthias Müller
  */
 @Deprecated
 public class DefaultPasswordPolicy implements PasswordPolicy {

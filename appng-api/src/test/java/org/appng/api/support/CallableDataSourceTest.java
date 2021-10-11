@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * Test for {@link CallableDataSource}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class CallableDataSourceTest {
 
@@ -190,7 +189,7 @@ public class CallableDataSourceTest {
 		MetaData metaData = new MetaData();
 		metaData.setBindClass(Person.class.getName());
 		DataContainer dataContainer = new DataContainer(new FieldProcessorImpl("foo", metaData));
-		Page<Person> page = new PageImpl<Person>(Collections.<Person> emptyList(), pageable, total);
+		Page<Person> page = new PageImpl<Person>(Collections.<Person>emptyList(), pageable, total);
 		dataContainer.setPage(page);
 		mockDataProvider(dataContainer);
 	}

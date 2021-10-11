@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,9 @@ import lombok.extern.slf4j.Slf4j;
  * {@link Site} or an {@link Application}.
  * 
  * @author Matthias Müller
- * @see    Properties
- * @see    PropertyHolder
+ * 
+ * @see Properties
+ * @see PropertyHolder
  */
 @Slf4j
 public class PropertySupport {
@@ -62,6 +63,7 @@ public class PropertySupport {
 	static final String PREFIX_SITE = "site.";
 	private static final String PREFIX_APPLICATION = "application.";
 	private static final String DOT = ".";
+	static final String PREFIX_NODE = "platform.node.";
 
 	public static final String PROP_PATTERN = "[a-zA-Z0-9\\-_]+";
 
@@ -84,16 +86,18 @@ public class PropertySupport {
 	 * prefix for a site-property is {@code site.}, for a platform-property it's {@value #PREFIX_PLATFORM}. For an
 	 * {@link Application} property no prefix is used.
 	 * 
-	 * @param  platFormConfig
-	 *                          the platform configuration, only needed if {@code addPlatformScope} is {@code true}.
-	 * @param  site
-	 *                          the {@link Site} to retrieve {@link Properties} from (may be null)
-	 * @param  application
-	 *                          the {@link Application} to retrieve {@link Properties} from (may be null)
-	 * @param  addPlatformScope
-	 *                          set to {@code true} to add the platform properties
-	 * @return                  the aggregated {@link java.util.Properties} with prefixed entries
-	 * @see                     Properties#getPlainProperties()
+	 * @param platFormConfig
+	 *                         the platform configuration, only needed if {@code addPlatformScope} is {@code true}.
+	 * @param site
+	 *                         the {@link Site} to retrieve {@link Properties} from (may be null)
+	 * @param application
+	 *                         the {@link Application} to retrieve {@link Properties} from (may be null)
+	 * @param addPlatformScope
+	 *                         set to {@code true} to add the platform properties
+	 * 
+	 * @return the aggregated {@link java.util.Properties} with prefixed entries
+	 * 
+	 * @see Properties#getPlainProperties()
 	 */
 	public static java.util.Properties getProperties(Properties platFormConfig, Site site, Application application,
 			boolean addPlatformScope) {
@@ -114,13 +118,14 @@ public class PropertySupport {
 	 * Returns the dot-separated full name for a given property, depending on whether a {@link Site} and/or an
 	 * {@link Application} are given.
 	 * 
-	 * @param  site
-	 *                     the {@link Site}, may be {@code null}
-	 * @param  application
-	 *                     the {@link Application}, may be {@code null}
-	 * @param  name
-	 *                     the raw name of the property, without dot-notation
-	 * @return             the full name of the property.
+	 * @param site
+	 *                    the {@link Site}, may be {@code null}
+	 * @param application
+	 *                    the {@link Application}, may be {@code null}
+	 * @param name
+	 *                    the raw name of the property, without dot-notation
+	 * 
+	 * @return the full name of the property.
 	 */
 	public static String getPropertyName(Site site, Application application, String name) {
 		return getPropertyPrefix(site, application) + name;
@@ -149,9 +154,10 @@ public class PropertySupport {
 	/**
 	 * Returns the dot-separated property-prefix for a site-property.
 	 * 
-	 * @param  site
-	 *              the {@link Site}
-	 * @return      the dot-separated property-prefix
+	 * @param site
+	 *             the {@link Site}
+	 * 
+	 * @return the dot-separated property-prefix
 	 */
 	public static String getSitePrefix(Site site) {
 		return getPropertyPrefix(site, null);
@@ -204,8 +210,9 @@ public class PropertySupport {
 	 *                       the {@link Site} to initialize the {@link Properties} for
 	 * @param platformConfig
 	 *                       the platform configuration
-	 * @see                  #PropertySupport(PropertyHolder)
-	 * @see                  SiteProperties
+	 * 
+	 * @see #PropertySupport(PropertyHolder)
+	 * @see SiteProperties
 	 */
 	public void initSiteProperties(SiteImpl site, Properties platformConfig) {
 		bundle = ResourceBundle.getBundle("org/appng/core/site-config");
@@ -235,6 +242,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.SERVICE_OUTPUT_FORMAT, "html");
 		addSiteProperty(SiteProperties.SERVICE_OUTPUT_TYPE, "service");
 		addSiteProperty(SiteProperties.SERVICE_PATH, "/service");
+		addSiteProperty(SiteProperties.SESSION_TRACKING_ENABLED, true);
 		addSiteProperty(SiteProperties.SUPPORTED_LANGUAGES, "en, de");
 		addSiteProperty(SiteProperties.CACHE_CLEAR_ON_SHUTDOWN, true);
 		addSiteProperty(SiteProperties.CACHE_ENABLED, false);
@@ -296,6 +304,7 @@ public class PropertySupport {
 		xssExceptions.append(managerPath + "/" + site.getName() + "/appng-manager" + StringUtils.LF);
 		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), Type.MULTILINE);
 
+		addSiteProperty(LdapService.LDAP_DISABLED, false);
 		addSiteProperty(LdapService.LDAP_HOST, "ldap(s):<host>:<port>");
 		addSiteProperty(LdapService.LDAP_USER_BASE_DN, "OU=Users,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_GROUP_BASE_DN, "OU=Groups,DC=example,DC=com");
@@ -326,8 +335,9 @@ public class PropertySupport {
 	 *                           some {@link java.util.Properties} used to override the default values
 	 * @param finalize
 	 *                           whether or not to call {@link PropertyHolder#setFinal()}
-	 * @see                      #PropertySupport(PropertyHolder)
-	 * @see                      org.appng.api.Platform.Property
+	 * 
+	 * @see #PropertySupport(PropertyHolder)
+	 * @see org.appng.api.Platform.Property
 	 */
 	public void initPlatformConfig(String rootPath, Boolean devMode, java.util.Properties immutableOverrides,
 			boolean finalize) {
@@ -391,6 +401,7 @@ public class PropertySupport {
 				Type.PASSWORD);
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_VERIFY_SIGNATURE, true);
 		addPlatformProperty(defaultOverrides, Platform.Property.SESSION_TIMEOUT, 1800);
+		addPlatformProperty(defaultOverrides, Platform.Property.SESSION_FILTER, StringUtils.EMPTY, Type.MULTILINE);
 
 		String sharedSecretFullName = PREFIX_PLATFORM + Platform.Property.SHARED_SECRET;
 		Property sharedSecret = propertyHolder.getProperty(sharedSecretFullName);
@@ -433,6 +444,41 @@ public class PropertySupport {
 			return Paths.get(segment, pathelements).normalize().toString();
 		}
 		return StringUtils.EMPTY;
+	}
+
+	/**
+	 * Returns the dot-separated property-prefix for a node-property.
+	 * 
+	 * @param nodeId
+	 *             the node id as returned by {@link org.appng.api.messaging.Messaging#getNodeId(org.appng.api.Environment)}
+	 * 
+	 * @return the dot-separated property-prefix
+	 */
+	public static String getNodePrefix(String nodeId) {
+		return PREFIX_NODE + nodeId.replace('.', '_') + DOT;
+	}
+
+	/**
+	 * Initializes the node configuration with the default values. The properties are added to the
+	 * {@link PropertyHolder} this {@link PropertySupport} was created with.
+	 * 
+	 * @param finalize
+	 *                           whether or not to call {@link PropertyHolder#setFinal()}
+	 * 
+	 * @see #PropertySupport(PropertyHolder)
+	 */
+	public void initNodeConfig(boolean finalize) {
+		if (finalize) {
+			propertyHolder.setFinal();
+		}
+	}
+
+	private String addNodeProperty(String name, Object defaultValue) {
+		return addNodeProperty(name, defaultValue, Type.forObject(defaultValue));
+	}
+
+	private String addNodeProperty(String name, Object defaultValue, Type type) {
+		return addProperty(name, defaultValue, PREFIX_NODE, type);
 	}
 
 	static List<String> getSiteRelevantPlatformProps() {

@@ -4,8 +4,17 @@
 <link th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
-  <th:block>
-    <div th:replace="hello.html::sayHello(${appNG.getSubject()})"></div>
-  </th:block>
+	<th:block>
+		<div th:replace="hello.html::sayHello(${appNG.getSubject()})"></div>
+	</th:block>
+	<div th:text="${#request.getParameter('debug')}">debug</div>
+	<div th:text="${param.debug}  ">debug</div>
+	<div th:text="${#ctx.SESSION['timezone'].ID}">session</div>
+	<div th:text="${#ctx.getVariableNames()}"></div>
+	<div th:text="${#ctx.SESSION['SESSION.currentSubject'].name}"></div>
+	<div th:text="${#ctx.SITE.getString('template')}"></div>
+	<div th:text="${#ctx.APP.getString('activeProfiles')}"></div>
+	<div th:text="${#ctx.PLATFORM.getString('encoding')}"></div>
+
 </body>
 </html>

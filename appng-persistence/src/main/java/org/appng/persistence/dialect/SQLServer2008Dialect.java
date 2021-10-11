@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 package org.appng.persistence.dialect;
 
 /**
- * A {@link org.hibernate.dialect.SQLServer2008Dialect}. Just in case we will need this in the future.
- * 
- * @author Matthias Herlitzius
- * 
+ * @deprecated Use {@link org.appng.persistence.hibernate.dialect.SQLServer2008Dialect} instead.
  */
-public class SQLServer2008Dialect extends org.hibernate.dialect.SQLServer2008Dialect {
+@Deprecated
+public class SQLServer2008Dialect extends org.appng.persistence.hibernate.dialect.SQLServer2008Dialect {
 
 }

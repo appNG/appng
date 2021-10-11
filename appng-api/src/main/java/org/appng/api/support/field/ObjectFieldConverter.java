@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,12 @@ import org.springframework.beans.BeanWrapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@link FieldConverter} for {@link FieldDef}initions of type
  * <ul>
  * <li>{@link FieldType#OBJECT}</li>
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 class ObjectFieldConverter extends ConverterBase {

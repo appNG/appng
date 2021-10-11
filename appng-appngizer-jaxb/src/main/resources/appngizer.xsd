@@ -244,10 +244,10 @@
 						<xs:element name="timeZone" type="xs:string" minOccurs="0" />
 						<xs:element name="language" type="stringNotBlank" minOccurs="0" />
 						<xs:element name="lastLogin" type="xs:dateTime" minOccurs="0" />
-						<xs:element name="locked" type="xs:boolean" minOccurs="0"/>
+						<xs:element name="locked" type="xs:boolean" minOccurs="0" />
 						<xs:element name="expiryDate" type="xs:dateTime" minOccurs="0" />
 						<xs:element name="failedLoginAttempts" type="xs:int" minOccurs="0" />
-						<xs:element name="passwordChangePolicy" type="passwordChangePolicy" minOccurs="0"/>
+						<xs:element name="passwordChangePolicy" type="passwordChangePolicy" minOccurs="0" />
 						<xs:element name="type" type="userType" />
 						<xs:element ref="groups" minOccurs="0" />
 					</xs:sequence>

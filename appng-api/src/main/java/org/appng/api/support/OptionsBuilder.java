@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Create a new builder, using the given owner.
 	 * 
 	 * @param owner
-	 *            the owner of the options
+	 *              the owner of the options
 	 */
 	public OptionsBuilder(R owner) {
 		this.owner = owner;
@@ -65,7 +65,7 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Sets the owner for this builder
 	 * 
 	 * @param owner
-	 *            the owner
+	 *              the owner
 	 */
 	protected void setOwner(R owner) {
 		this.owner = owner;
@@ -75,7 +75,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Sets the elements to build options from
 	 * 
 	 * @param elements
-	 *            the elements
+	 *                 the elements
+	 * 
 	 * @return this builder
 	 */
 	public OptionsBuilder<T, R> options(Iterable<T> elements) {
@@ -87,7 +88,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Sets the {@link NameProvider} to use when setting an option's name
 	 * 
 	 * @param nameProvider
-	 *            the provider
+	 *                     the provider
+	 * 
 	 * @return this builder
 	 */
 	public OptionsBuilder<T, R> name(NameProvider<T> nameProvider) {
@@ -99,7 +101,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Sets the {@link Selector} to use when selecting options.
 	 * 
 	 * @param selector
-	 *            the selector
+	 *                 the selector
+	 * 
 	 * @return this builder
 	 * 
 	 * @see #select(Object)
@@ -114,7 +117,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Selects some elements, i.e. the created options will be selected.
 	 * 
 	 * @param selected
-	 *            the selected elements
+	 *                 the selected elements
+	 * 
 	 * @return this builder
 	 * 
 	 * @see #selector
@@ -129,7 +133,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Selects a single elements, i.e. the created option will be selected.
 	 * 
 	 * @param selected
-	 *            the selected element
+	 *                 the selected element
+	 * 
 	 * @return this builder
 	 * 
 	 * @see #selector
@@ -144,7 +149,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Disables a single element, i.e. the created option will be disabled
 	 * 
 	 * @param disabled
-	 *            the disabled element
+	 *                 the disabled element
+	 * 
 	 * @return this builder
 	 * 
 	 * @see #disable(Object)
@@ -158,7 +164,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Disables some elements, i.e. the created options will be disabled
 	 * 
 	 * @param disabled
-	 *            the disabled elements
+	 *                 the disabled elements
+	 * 
 	 * @return this builder
 	 * 
 	 * @see #disable(Collection)
@@ -172,9 +179,10 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Adds an option at the very first position
 	 * 
 	 * @param name
-	 *            the name for the option to be added
+	 *              the name for the option to be added
 	 * @param value
-	 *            the value for the option to be added
+	 *              the value for the option to be added
+	 * 
 	 * @return this builder
 	 */
 	public OptionsBuilder<T, R> defaultOption(String name, String value) {
@@ -188,7 +196,8 @@ public class OptionsBuilder<T, R extends OptionOwner> {
 	 * Sets a {@link HitCounter}
 	 * 
 	 * @param counter
-	 *            the counter
+	 *                the counter
+	 * 
 	 * @return this builder
 	 */
 	public OptionsBuilder<T, R> hitCounter(HitCounter<T> counter) {

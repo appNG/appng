@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 package org.appng.core.controller;
 
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -28,11 +30,13 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
@@ -61,8 +65,11 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	private static final Class<org.apache.catalina.connector.Request> CATALINA_REQUEST = org.apache.catalina.connector.Request.class;
 	private static final String HTTPS = "https";
 	private static final FastDateFormat DATE_PATTERN = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+	private static DefaultEnvironment GLOBAL_ENV;
+	private static final int ONE_MINUTE = 60;
 
 	public void contextInitialized(ServletContextEvent sce) {
+		GLOBAL_ENV = DefaultEnvironment.get(sce.getServletContext());
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
@@ -101,9 +108,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void sessionDestroyed(HttpSessionEvent event) {
 		HttpSession httpSession = event.getSession();
-		Environment env = DefaultEnvironment.get(httpSession);
-		if (env.isSubjectAuthenticated()) {
-			ApplicationContext ctx = env.getAttribute(Scope.PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
+		if (DefaultEnvironment.get(httpSession).isSubjectAuthenticated()) {
+			ApplicationContext ctx = GLOBAL_ENV.getAttribute(Scope.PLATFORM,
+					Platform.Environment.CORE_PLATFORM_CONTEXT);
 			ctx.getBean(CoreService.class).createEvent(Type.INFO, "session expired", httpSession);
 		}
 		Session session = getSession(httpSession);
@@ -126,47 +133,51 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 	public void requestInitialized(ServletRequestEvent sre) {
 		ServletRequest request = sre.getServletRequest();
-		DefaultEnvironment env = DefaultEnvironment.get(sre.getServletContext(), request);
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		HttpSession httpSession = httpServletRequest.getSession();
-		Site site = RequestUtil.getSite(env, request);
+		Site site = RequestUtil.getSite(GLOBAL_ENV, request);
+		DefaultEnvironment env = DefaultEnvironment.get(httpServletRequest, null);
 		setSecureFlag(httpServletRequest, site);
 		setDiagnosticContext(env, httpServletRequest, site);
+		if (null != site && site.getProperties().getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)) {
+			HttpSession httpSession = httpServletRequest.getSession();
+			Session session = (Session) httpSession.getAttribute(META_DATA);
+			if (null == session) {
+				session = createSession(httpSession);
+			}
+			session.update(httpSession.getCreationTime(), httpSession.getLastAccessedTime(),
+					httpSession.getMaxInactiveInterval());
+			session.setSite(null == site ? null : site.getName());
+			session.setDomain(site == null ? null : site.getDomain());
+			session.setUser(env.getSubject() == null ? null : env.getSubject().getAuthName());
+			session.setIp(request.getRemoteAddr());
+			session.setUserAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
+			session.addRequest();
+			setSession(httpSession, session);
 
-		Session session = (Session) httpSession.getAttribute(META_DATA);
-		if (null == session) {
-			session = createSession(httpSession);
-		}
-		session.update(httpSession.getCreationTime(), httpSession.getLastAccessedTime(),
-				httpSession.getMaxInactiveInterval());
-		session.setSite(null == site ? null : site.getName());
-		session.setDomain(site == null ? null : site.getDomain());
-		session.setUser(env.getSubject() == null ? null : env.getSubject().getAuthName());
-		session.setIp(request.getRemoteAddr());
-		session.setUserAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
-		session.addRequest();
-		setSession(httpSession, session);
-
-		if (LOGGER.isTraceEnabled()) {
-			String referer = httpServletRequest.getHeader(HttpHeaders.REFERER);
-			LOGGER.trace(
-					"Session updated: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {}, path: {}, referer: {})",
-					session.getId(), DATE_PATTERN.format(session.getCreationTime()),
-					DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
-					session.getUserAgent(), httpServletRequest.getServletPath(), referer);
+			if (LOGGER.isTraceEnabled()) {
+				String referer = httpServletRequest.getHeader(HttpHeaders.REFERER);
+				LOGGER.trace(
+						"Session updated: {} (created: {}, accessed: {}, requests: {}, domain: {}, user-agent: {}, path: {}, referer: {})",
+						session.getId(), DATE_PATTERN.format(session.getCreationTime()),
+						DATE_PATTERN.format(session.getLastAccessedTime()), session.getRequests(), session.getDomain(),
+						session.getUserAgent(), httpServletRequest.getServletPath(), referer);
+			}
 		}
 
 	}
 
 	protected void setDiagnosticContext(Environment env, HttpServletRequest httpServletRequest, Site site) {
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		Properties platformConfig = GLOBAL_ENV.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		if (platformConfig.getBoolean(Platform.Property.MDC_ENABLED)) {
 			MDC.put("path", httpServletRequest.getServletPath());
 			String queryString = httpServletRequest.getQueryString();
 			if (null != queryString) {
 				MDC.put("query", queryString);
 			}
-			MDC.put(MDC_SESSION_ID, httpServletRequest.getSession().getId());
+			String requestedSessionId = httpServletRequest.getRequestedSessionId();
+			if (StringUtils.isNotBlank(requestedSessionId)) {
+				MDC.put(MDC_SESSION_ID, requestedSessionId);
+			}
 			if (null != site) {
 				MDC.put("site", site.getName());
 			}
@@ -197,6 +208,32 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	public void requestDestroyed(ServletRequestEvent sre) {
+		HttpServletRequest httpServletRequest = (HttpServletRequest) sre.getServletRequest();
+		HttpSession httpSession = httpServletRequest.getSession(false);
+		if (null != httpSession && httpSession.isNew()) {
+			String userAgent = StringUtils.trimToEmpty(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
+			Properties platformConfig = GLOBAL_ENV.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+			List<String> userAgentPatterns = Arrays
+					.asList(platformConfig.getClob(Platform.Property.SESSION_FILTER).split(StringUtils.LF));
+			if (userAgentPatterns.stream().anyMatch(userAgent::matches)) {
+				Site site = RequestUtil.getSite(GLOBAL_ENV, httpServletRequest);
+				if (null != site
+						&& RequestUtil.getPathInfo(GLOBAL_ENV, site, httpServletRequest.getServletPath()).isGui()) {
+					httpSession.setMaxInactiveInterval(ONE_MINUTE);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Setting session lifetime for {} to {}s (user-agent: {})", httpSession.getId(),
+								ONE_MINUTE, userAgent);
+					}
+				} else {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Session automatically discarded: {} (user-agent: {})", httpSession.getId(),
+								userAgent);
+					}
+					httpSession.invalidate();
+				}
+
+			}
+		}
 		MDC.clear();
 	}
 

@@ -5,7 +5,7 @@
 	<artifactId>appng-application-bom</artifactId>
 	<packaging>pom</packaging>
 	<name>appNG application BOM</name>
-	<version>1.22.0-SNAPSHOT</version>
+	<version>1.23.0-SNAPSHOT</version>
 	<description>the bill of materials for an appNG application, defining all provided dependencies</description>
 	<organization>
 		<name>aiticon GmbH</name>
@@ -142,31 +142,31 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>2.11.1</version>
+				<version>2.13.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.11.1</version>
+				<version>2.13.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.11.1</version>
+				<version>2.13.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-jsr310</artifactId>
-				<version>2.11.1</version>
+				<version>2.13.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml</groupId>
 				<artifactId>classmate</artifactId>
-				<version>1.3.4</version>
+				<version>1.5.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -214,7 +214,7 @@
 			<dependency>
 				<groupId>com.google.errorprone</groupId>
 				<artifactId>error_prone_annotations</artifactId>
-				<version>2.3.4</version>
+				<version>2.7.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -226,7 +226,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>29.0-jre</version>
+				<version>31.0.1-jre</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -262,13 +262,13 @@
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast-spring</artifactId>
-				<version>4.0.2</version>
+				<version>5.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
-				<version>4.0.2</version>
+				<version>5.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -281,12 +281,6 @@
 				<groupId>com.healthmarketscience.jackcess</groupId>
 				<artifactId>jackcess</artifactId>
 				<version>2.1.10</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.infradna.tool</groupId>
-				<artifactId>bridge-method-annotation</artifactId>
-				<version>1.13</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -322,19 +316,19 @@
 			<dependency>
 				<groupId>com.querydsl</groupId>
 				<artifactId>querydsl-core</artifactId>
-				<version>4.3.1</version>
+				<version>5.0.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.querydsl</groupId>
 				<artifactId>querydsl-jpa</artifactId>
-				<version>4.3.1</version>
+				<version>5.0.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.rabbitmq</groupId>
 				<artifactId>amqp-client</artifactId>
-				<version>5.9.0</version>
+				<version>5.13.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -350,9 +344,21 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.sun.activation</groupId>
+				<artifactId>jakarta.activation</artifactId>
+				<version>1.2.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.sun.istack</groupId>
 				<artifactId>istack-commons-runtime</artifactId>
 				<version>3.0.7</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>jakarta.mail</artifactId>
+				<version>1.6.5</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -362,9 +368,15 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.sun.xml.messaging.saaj</groupId>
+				<artifactId>saaj-impl</artifactId>
+				<version>1.5.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
-				<version>3.4.5</version>
+				<version>4.0.3</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -376,7 +388,7 @@
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.14</version>
+				<version>1.15</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -400,7 +412,7 @@
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.7</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -435,12 +447,6 @@
 			</dependency>
 			<dependency>
 				<groupId>edu.ucar</groupId>
-				<artifactId>cdm</artifactId>
-				<version>4.5.5</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>edu.ucar</groupId>
 				<artifactId>grib</artifactId>
 				<version>4.5.5</version>
 				<scope>provided</scope>
@@ -458,12 +464,6 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>edu.ucar</groupId>
-				<artifactId>udunits</artifactId>
-				<version>4.5.5</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>edu.usc.ir</groupId>
 				<artifactId>sentiment-analysis-parser</artifactId>
 				<version>0.1</version>
@@ -476,21 +476,45 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>jakarta.activation</groupId>
+				<artifactId>jakarta.activation-api</artifactId>
+				<version>1.2.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>1.3.5</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.inject</groupId>
+				<artifactId>jakarta.inject-api</artifactId>
+				<version>1.0.3</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.persistence</groupId>
+				<artifactId>jakarta.persistence-api</artifactId>
+				<version>2.2.3</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>jakarta.validation</groupId>
 				<artifactId>jakarta.validation-api</artifactId>
 				<version>2.0.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.activation</groupId>
-				<artifactId>javax.activation-api</artifactId>
-				<version>1.2.0</version>
+				<groupId>jakarta.ws.rs</groupId>
+				<artifactId>jakarta.ws.rs-api</artifactId>
+				<version>2.1.6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.annotation</groupId>
-				<artifactId>javax.annotation-api</artifactId>
-				<version>1.2</version>
+				<groupId>jakarta.xml.soap</groupId>
+				<artifactId>jakarta.xml.soap-api</artifactId>
+				<version>1.4.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -500,27 +524,9 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.inject</groupId>
-				<artifactId>javax.inject</artifactId>
-				<version>1</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>javax.mail</groupId>
-				<artifactId>mail</artifactId>
-				<version>1.4.5</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>javax.measure</groupId>
 				<artifactId>unit-api</artifactId>
 				<version>1.0</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>javax.persistence</groupId>
-				<artifactId>javax.persistence-api</artifactId>
-				<version>2.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -536,18 +542,6 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.validation</groupId>
-				<artifactId>validation-api</artifactId>
-				<version>2.0.1.Final</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>javax.ws.rs</groupId>
-				<artifactId>javax.ws.rs-api</artifactId>
-				<version>2.0.1</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>javax.xml.bind</groupId>
 				<artifactId>jaxb-api</artifactId>
 				<version>2.3.1</version>
@@ -556,7 +550,7 @@
 			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
-				<version>2.10.6</version>
+				<version>2.10.11</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -568,7 +562,7 @@
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.10.10</version>
+				<version>1.10.22</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -584,15 +578,9 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>net.sf.ehcache</groupId>
-				<artifactId>ehcache-core</artifactId>
-				<version>2.6.11</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>net.sf.saxon</groupId>
 				<artifactId>Saxon-HE</artifactId>
-				<version>10.1</version>
+				<version>10.6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -616,7 +604,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
-				<version>1.20</version>
+				<version>1.21</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -634,19 +622,19 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.10</version>
+				<version>3.12.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-pool2</artifactId>
-				<version>2.6.2</version>
+				<version>2.9.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.8</version>
+				<version>1.9</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -682,13 +670,13 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.12</version>
+				<version>4.5.13</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.4.13</version>
+				<version>4.4.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -712,49 +700,49 @@
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-analyzers-common</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-core</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-facet</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-highlighter</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-memory</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queries</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queryparser</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-sandbox</artifactId>
-				<version>8.6.0</version>
+				<version>8.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -766,7 +754,7 @@
 			<dependency>
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>fontbox</artifactId>
-				<version>2.0.20</version>
+				<version>2.0.24</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -790,7 +778,7 @@
 			<dependency>
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>pdfbox</artifactId>
-				<version>2.0.20</version>
+				<version>2.0.24</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -892,37 +880,37 @@
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-constants</artifactId>
-				<version>1.13</version>
+				<version>1.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-css</artifactId>
-				<version>1.13</version>
+				<version>1.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-i18n</artifactId>
-				<version>1.13</version>
+				<version>1.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-shared-resources</artifactId>
-				<version>1.13</version>
+				<version>1.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>batik-util</artifactId>
-				<version>1.13</version>
+				<version>1.14</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>
 				<artifactId>xmlgraphics-commons</artifactId>
-				<version>2.4</version>
+				<version>2.6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -970,7 +958,7 @@
 			<dependency>
 				<groupId>org.checkerframework</groupId>
 				<artifactId>checker-qual</artifactId>
-				<version>2.11.1</version>
+				<version>3.12.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1000,13 +988,13 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>5.2.4</version>
+				<version>7.15.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
-				<version>2.3.30</version>
+				<version>2.3.31</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1036,31 +1024,31 @@
 			<dependency>
 				<groupId>org.hibernate.common</groupId>
 				<artifactId>hibernate-commons-annotations</artifactId>
-				<version>5.1.0.Final</version>
+				<version>5.1.2.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate.validator</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>6.1.2.Final</version>
+				<version>6.2.0.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>5.4.18.Final</version>
+				<version>5.4.32.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-entitymanager</artifactId>
-				<version>5.4.18.Final</version>
+				<version>5.4.32.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-envers</artifactId>
-				<version>5.4.18.Final</version>
+				<version>5.4.32.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1084,13 +1072,13 @@
 			<dependency>
 				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
-				<version>3.24.0-GA</version>
+				<version>3.27.0-GA</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.logging</groupId>
 				<artifactId>jboss-logging</artifactId>
-				<version>3.3.2.Final</version>
+				<version>3.4.1.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1102,7 +1090,7 @@
 			<dependency>
 				<groupId>org.jboss</groupId>
 				<artifactId>jandex</artifactId>
-				<version>2.1.3.Final</version>
+				<version>2.2.3.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1120,7 +1108,7 @@
 			<dependency>
 				<groupId>org.jvnet.staxex</groupId>
 				<artifactId>stax-ex</artifactId>
-				<version>1.8</version>
+				<version>1.8.3</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1138,13 +1126,13 @@
 			<dependency>
 				<groupId>org.owasp.antisamy</groupId>
 				<artifactId>antisamy</artifactId>
-				<version>1.5.10</version>
+				<version>1.6.4</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>
 				<artifactId>esapi</artifactId>
-				<version>2.2.1.0</version>
+				<version>2.2.3.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1234,73 +1222,73 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-webmvc</artifactId>
-				<version>4.3.27.RELEASE</version>
+				<version>4.3.30.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1312,13 +1300,13 @@
 			<dependency>
 				<groupId>org.thymeleaf</groupId>
 				<artifactId>thymeleaf-spring4</artifactId>
-				<version>3.0.11.RELEASE</version>
+				<version>3.0.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.thymeleaf</groupId>
 				<artifactId>thymeleaf</artifactId>
-				<version>3.0.11.RELEASE</version>
+				<version>3.0.12.RELEASE</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1342,7 +1330,7 @@
 			<dependency>
 				<groupId>redis.clients</groupId>
 				<artifactId>jedis</artifactId>
-				<version>3.2.0</version>
+				<version>3.6.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

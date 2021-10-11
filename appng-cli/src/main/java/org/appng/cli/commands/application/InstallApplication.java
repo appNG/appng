@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ import com.beust.jcommander.Parameters;
  * </pre>
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Parameters(commandDescription = "Imports a application.")
 public class InstallApplication implements ExecutableCliCommand {
@@ -76,7 +75,7 @@ public class InstallApplication implements ExecutableCliCommand {
 	@Parameter(names = "-r", required = true, description = "The name of the repository.")
 	private String repositoryName;
 
-	@Parameter(names = {"-p", "-c"}, required = false, description = "Install as privileged application.")
+	@Parameter(names = { "-p", "-c" }, required = false, description = "Install as privileged application.")
 	private boolean isPrivileged = false;
 
 	@Parameter(names = "-h", required = false, description = "Application will be hidden.")

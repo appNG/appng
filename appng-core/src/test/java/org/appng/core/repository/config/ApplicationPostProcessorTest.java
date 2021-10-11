@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class ApplicationPostProcessorTest {
 		Application application = Mockito.mock(Application.class);
 		DatasourceConfigurer datasourceConfigurer = Mockito.mock(DatasourceConfigurer.class);
 		DatabaseConnection databaseConnection = new DatabaseConnection();
-		
+
 		ArrayList<String> dictionaryNames = new ArrayList<>();
 		ApplicationPostProcessor applicationPostProcessor = new ApplicationPostProcessor(site, application,
 				databaseConnection, null, dictionaryNames);
@@ -50,7 +50,7 @@ public class ApplicationPostProcessorTest {
 		beanFactory.registerSingleton("additionalMessageSource", new StaticMessageSource());
 
 		applicationPostProcessor.postProcessBeanFactory(beanFactory);
-		
+
 		Mockito.verify(datasourceConfigurer).configure(databaseConnection);
 		Mockito.verify(cacheManager).initialize(site, application, null);
 		Assert.assertEquals(site, beanFactory.getBean("site"));

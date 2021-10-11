@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.appng.cli.prettytable;
  * A table column for a {@link PrettyTable}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 class TableColumn {
 
@@ -32,11 +31,11 @@ class TableColumn {
 	 * Creates a new {@code TableColumn}
 	 * 
 	 * @param name
-	 *            the name of the column
+	 *                  the name of the column
 	 * @param isVerbose
-	 *            whether this column should only be displayed in verbose mode
+	 *                  whether this column should only be displayed in verbose mode
 	 * @param index
-	 *            the index of this column
+	 *                  the index of this column
 	 */
 	TableColumn(String name, boolean isVerbose, int index) {
 		this.name = name;

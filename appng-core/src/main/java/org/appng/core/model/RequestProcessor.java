@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,10 +46,13 @@ public interface RequestProcessor {
 	 * {@link #init(HttpServletRequest, HttpServletResponse, PathInfo, String)} must have been called before.
 	 * 
 	 * @param site
-	 *            the {@link Site} for which the process the request
+	 *             the {@link Site} for which the process the request
+	 * 
 	 * @return the {@link Platform} representing the result of calling the {@link Site}'s {@link Application}
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if something goes wrong while processing the request
+	 *                                       if something goes wrong while processing the request
+	 * 
 	 * @see #processWithTemplate(Site, File)
 	 */
 	Platform processPlatform(Site site) throws InvalidConfigurationException;
@@ -59,13 +62,16 @@ public interface RequestProcessor {
 	 * {@link #init(HttpServletRequest, HttpServletResponse, PathInfo, String)} must have been called before.
 	 * 
 	 * @param site
-	 *            the {@link Site} for which the process the request
+	 *                        the {@link Site} for which the process the request
 	 * @param debugRootFolder
-	 *            the folder to write debug files to
+	 *                        the folder to write debug files to
+	 * 
 	 * @return the result of calling the {@link Application} and applying the {@link Template}. This should then be
 	 *         written to the {@link HttpServletResponse}
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if something goes wrong while processing the request
+	 *                                       if something goes wrong while processing the request
+	 * 
 	 * @see #processPlatform(Site)
 	 */
 	String processWithTemplate(Site site, File debugRootFolder) throws InvalidConfigurationException;
@@ -84,13 +90,13 @@ public interface RequestProcessor {
 	 * Initializes the {@code RequestProcessor}.
 	 * 
 	 * @param servletRequest
-	 *            the current {@link HttpServletRequest}
+	 *                        the current {@link HttpServletRequest}
 	 * @param servletResponse
-	 *            the current {@link HttpServletResponse}
+	 *                        the current {@link HttpServletResponse}
 	 * @param pathInfo
-	 *            the current {@link PathInfo}
+	 *                        the current {@link PathInfo}
 	 * @param templateDir
-	 *            the absolute path to the directory where the active template of the {@link Site} resides
+	 *                        the absolute path to the directory where the active template of the {@link Site} resides
 	 */
 	void init(HttpServletRequest servletRequest, HttpServletResponse servletResponse, PathInfo pathInfo,
 			String templateDir);

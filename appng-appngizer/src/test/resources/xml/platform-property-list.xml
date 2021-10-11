@@ -59,21 +59,17 @@
 	<property name="databaseValidationPeriod" self="http://localhost/appNGizer/platform/property/databaseValidationPeriod">
 		<value>15</value>
 		<defaultValue>15</defaultValue>
-		<description>The idle database connection test period in minutes. If a database connection remains idle for the
-			specified time, the validation query defined in the database connection will be sent to prevent a database connection
-			timeout.</description>
+		<description>The idle database connection test period in minutes. If a database connection remains idle for the specified time, the validation query defined in the database connection will be sent to prevent a database connection timeout.</description>
 	</property>
 	<property name="defaultTemplate" self="http://localhost/appNGizer/platform/property/defaultTemplate">
 		<value>appng</value>
 		<defaultValue>appng</defaultValue>
-		<description>The name of the default template to use (must be a folder located under platform.templateFolder)
-		</description>
+		<description>The name of the default template to use (must be a folder located under platform.templateFolder)</description>
 	</property>
 	<property name="devMode" self="http://localhost/appNGizer/platform/property/devMode">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
-		<description>Disable for production use. If enabled, XML and XSL resources will be written to the cache directory. If
-			disabled, XML and XSL resources will be cached in memory.</description>
+		<description>Disable for production use. If enabled, XML and XSL resources will be written to the cache directory. If disabled, XML and XSL resources will be cached in memory.</description>
 	</property>
 	<property name="encoding" self="http://localhost/appNGizer/platform/property/encoding">
 		<value>UTF-8</value>
@@ -135,8 +131,7 @@
 	<property name="manageDatabases" self="http://localhost/appNGizer/platform/property/manageDatabases">
 		<value>true</value>
 		<defaultValue>true</defaultValue>
-		<description>If set to 'true', appNG will manage the databases (create schemas and users) required by the
-			applications.</description>
+		<description>If set to 'true', appNG will manage the databases (create schemas and users) required by the applications.</description>
 	</property>
 	<property name="maxLoginAttempts" self="http://localhost/appNGizer/platform/property/maxLoginAttempts">
 		<value>20</value>
@@ -231,6 +226,10 @@
 		<value>true</value>
 		<defaultValue>true</defaultValue>
 		<description>When set to 'true', signed remote repositories are validated against the configured (or default) truststore.</description>
+	</property>
+	<property name="sessionFilter" self="http://localhost/appNGizer/platform/property/sessionFilter" clob="true">
+		<value></value>
+		<description>The regular expressions to match against the user-agent header for immediate discard of the session.</description>
 	</property>
 	<property name="sessionTimeout" self="http://localhost/appNGizer/platform/property/sessionTimeout">
 		<value>1800</value>

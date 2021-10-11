@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,8 +226,7 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 			org.appng.xml.platform.Platform platform = processor.processPlatform(executingSite);
 
 			String requestURI = servletRequest.getRequestURI();
-			String baseUrl = getBaseUrl(defaultBaseUrl, urlParameters, jspExtension, repositoryPath,
-					requestURI);
+			String baseUrl = getBaseUrl(defaultBaseUrl, urlParameters, jspExtension, repositoryPath, requestURI);
 
 			String location = servletResponse.getHeader(HttpHeaders.LOCATION);
 			if (processor.isRedirect()) {
@@ -289,8 +288,8 @@ public final class ApplicationAdapter extends BodyTagSupport implements Paramete
 		return SKIP_PAGE;
 	}
 
-	protected String getBaseUrl(String defaultBaseUrl, List<String> urlParameters,
-			String jspExtension, String repositoryPath, String requestURI) {
+	protected String getBaseUrl(String defaultBaseUrl, List<String> urlParameters, String jspExtension,
+			String repositoryPath, String requestURI) {
 		String urlParams = StringUtils.join(urlParameters, "/");
 		LOGGER.info("requestURI: {}", requestURI);
 		LOGGER.info("urlParams: {}", urlParams);

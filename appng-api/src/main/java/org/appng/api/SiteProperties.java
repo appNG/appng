@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 
 /**
- * 
  * Utility-class providing constants for the names of a {@link Site}'s {@link Properties}.
  * 
  * @author Matthias Müller
@@ -29,7 +28,10 @@ import org.appng.api.model.Site;
  */
 public class SiteProperties {
 
-	/** Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of {@link Taglet}s. */
+	/**
+	 * Allow skipping of the render phase using {@code render=false} for the manager GUI or the XSLT based rendering of
+	 * {@link Taglet}s.
+	 */
 	public static final String ALLOW_SKIP_RENDER = "allowSkipRender";
 
 	/**
@@ -111,13 +113,12 @@ public class SiteProperties {
 	/** Set to true to enable caching statistics */
 	public static final String CACHE_STATISTICS = "cacheStatistics";
 	/**
-	 * The suffix to be removed from a <rule><from> element when parsing the rules
-	 * from urlrewrite.xml for the repository watchers
+	 * The suffix to be removed from a <rule><from> element when parsing the rules from urlrewrite.xml for the
+	 * repository watchers
 	 */
 	public static final String CACHE_WATCHER_RULE_SOURCE_SUFFIX = "cacheWatcherRuleSourceSuffix";
 	/**
-	 * Whether or not to watch the repository folder for changes and invalidate
-	 * cache elements, if necessary
+	 * Whether or not to watch the repository folder for changes and invalidate cache elements, if necessary
 	 */
 	public static final String CACHE_WATCH_REPOSITORY = "cacheWatchRepository";
 	/** Whether or not the cache is cleared on a site shutdown/reload */
@@ -150,8 +151,10 @@ public class SiteProperties {
 	/** Set to {@code true} to enable JDBC Performance Logger */
 	public static final String JDBC_LOG_PERFORMANCE = "jdbcLogPerformance";
 	/** The maximum lifetime in milliseconds for a connection in the pool. */
-	public static final String JDBC_MAX_LIFETIME="jdbcMaxLifetime";
-	/** The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive. */
+	public static final String JDBC_MAX_LIFETIME = "jdbcMaxLifetime";
+	/**
+	 * The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive.
+	 */
 	public static final String JDBC_VALIDATION_TIMEOUT = "jdbcValidationTimeout";
 	/** The timeout in milliseconds for indexing */
 	public static final String INDEX_TIMEOUT = "indexTimeout";
@@ -183,6 +186,8 @@ public class SiteProperties {
 	 * {@link ActionProvider}s and {@link DataProvider}s)
 	 */
 	public static final String SERVICE_PATH = "service-path";
+	/** Track usage of HTTP sessions? **/
+	public static final String SESSION_TRACKING_ENABLED = "sessionTrackingEnabled";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
 	/**
@@ -194,6 +199,8 @@ public class SiteProperties {
 	public static final String TAG_PREFIX = "tagPrefix";
 	/** The name of the template to use */
 	public static final String TEMPLATE = "template";
+	/** A multilined property containing a loading screen */
+	public static final String LOADING_SCREEN = "loadingScreen";
 	/** The path-suffix for the appNG-Webapplication */
 	public static final String MANAGER_PATH = "manager-path";
 	/**
@@ -207,7 +214,6 @@ public class SiteProperties {
 	 * lines and comments (#).
 	 */
 	public static final String XSS_EXCEPTIONS = "xssExceptions";
-
 
 	private SiteProperties() {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,13 +42,17 @@ public class SiteStateEvent extends Event {
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
+		handleSiteState(environment);
+		new RequestNodeState(getSiteName()).perform(environment, site);
+	}
+
+	public void handleSiteState(Environment environment) {
 		Map<String, SiteState> stateMap = getStateMap(environment);
 		if (SiteState.DELETED.equals(this.state)) {
 			stateMap.remove(getSiteName());
 		} else {
 			stateMap.put(getSiteName(), this.state);
 		}
-		new RequestNodeState(getSiteName()).perform(environment, site);
 	}
 
 	public SiteState getState() {

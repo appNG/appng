@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
  * calling {@link #process(HttpServletRequest)}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface Request extends RequestContainer {
 
@@ -37,8 +36,7 @@ public interface Request extends RequestContainer {
 	 * Processes the given {@link HttpServletRequest}. Must only be called once per {@link HttpServletRequest}.
 	 * 
 	 * @param httpServletRequest
-	 *            the {@link HttpServletRequest} to process
-	 * 
+	 *                           the {@link HttpServletRequest} to process
 	 */
 	void process(HttpServletRequest httpServletRequest);
 
@@ -60,7 +58,7 @@ public interface Request extends RequestContainer {
 	 * Sets the encoding for this request
 	 * 
 	 * @param encoding
-	 *            the encoding
+	 *                 the encoding
 	 */
 	void setEncoding(String encoding);
 
@@ -98,7 +96,7 @@ public interface Request extends RequestContainer {
 	 * the directory specified by the {@link System} propertey {@code java.io.tmpdir} is used.
 	 * 
 	 * @param tempDir
-	 *            the directory for storing {@link FormUpload}s
+	 *                the directory for storing {@link FormUpload}s
 	 */
 	void setTempDir(File tempDir);
 
@@ -106,7 +104,8 @@ public interface Request extends RequestContainer {
 	 * Sets the maximum size for a {@link FormUpload} within this {@link Request}.
 	 * 
 	 * @param maxSize
-	 *            the maximum size of a {@link FormUpload}
+	 *                the maximum size of a {@link FormUpload}
+	 * 
 	 * @see FormUpload#getMaxSize()
 	 */
 	void setMaxSize(long maxSize);
@@ -116,10 +115,11 @@ public interface Request extends RequestContainer {
 	 * violations should be handled strict.
 	 * 
 	 * @param maxSize
-	 *            the maximum size of a {@link FormUpload}
+	 *                the maximum size of a {@link FormUpload}
 	 * @param strict
-	 *            if set to {@code true}, and a {@link FormUpload} exceeds the given size, the whole {@link Request}
-	 *            will be marked as invalid.
+	 *                if set to {@code true}, and a {@link FormUpload} exceeds the given size, the whole {@link Request}
+	 *                will be marked as invalid.
+	 * 
 	 * @see Request#isValid()
 	 */
 	void setMaxSize(long maxSize, boolean strict);
@@ -128,10 +128,10 @@ public interface Request extends RequestContainer {
 	 * Sets the accepted mime-types or filetype-extensions for the given field
 	 * 
 	 * @param uploadName
-	 *            the name of the input-field (type="file")
+	 *                   the name of the input-field (type="file")
 	 * @param types
-	 *            the accepted mimetypes (e.g. image/jpeg, image/png) or file extensions (e.g jgp,png), those can be
-	 *            used in combination
+	 *                   the accepted mimetypes (e.g. image/jpeg, image/png) or file extensions (e.g jgp,png), those can
+	 *                   be used in combination
 	 */
 	void setAcceptedTypes(String uploadName, String... types);
 
@@ -139,8 +139,10 @@ public interface Request extends RequestContainer {
 	 * Returns the accepted file-extensions/content-types for the input field with the given name.
 	 * 
 	 * @param uploadName
-	 *            the name of the input field
+	 *                   the name of the input field
+	 * 
 	 * @return a list of accepted tyes
+	 * 
 	 * @see FormUpload#getAcceptedTypes()
 	 */
 	List<String> getAcceptedTypes(String uploadName);
@@ -151,7 +153,8 @@ public interface Request extends RequestContainer {
 	 * {@link Map} uses the parameter name as the key and the parameter value as the value.
 	 * 
 	 * @param parameters
-	 *            the parameters to add
+	 *                   the parameters to add
+	 * 
 	 * @see #addParameter(String, String)
 	 * @see Request#getParameter(String)
 	 */
@@ -162,9 +165,9 @@ public interface Request extends RequestContainer {
 	 * overwriting a parameter which is already present in the original {@link HttpServletRequest}.
 	 * 
 	 * @param key
-	 *            the parameter name
+	 *              the parameter name
 	 * @param value
-	 *            the parameter value
+	 *              the parameter value
 	 */
 	void addParameter(String key, String value);
 

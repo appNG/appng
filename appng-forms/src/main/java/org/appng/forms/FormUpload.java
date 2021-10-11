@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import javax.servlet.ServletRequest;
  * {@code <input type="file">}.
  * 
  * @author Matthias Müller
- * 
  */
 public interface FormUpload {
 
@@ -41,6 +40,7 @@ public interface FormUpload {
 	 * name of this file may have nothing to do with the file's original name.
 	 * 
 	 * @return the {@link File}, or {@code null} if no file was uploaded or {@link #isValid()} returns {@code false}
+	 * 
 	 * @see #getOriginalFilename()
 	 */
 	File getFile();
@@ -89,7 +89,8 @@ public interface FormUpload {
 	 * Calls {@link FormUploadValidator#isValid(FormUpload)} using this {@link FormUpload} and returns the result.
 	 * 
 	 * @param validator
-	 *            a {@link FormUploadValidator}
+	 *                  a {@link FormUploadValidator}
+	 * 
 	 * @return the result returned by {@link FormUploadValidator#isValid(FormUpload)}
 	 */
 	boolean isValid(FormUploadValidator validator);
@@ -98,7 +99,8 @@ public interface FormUpload {
 	 * Calls {@link FormUploadValidator#isValid(FormUpload)} using this {@link FormUpload} and returns the result.
 	 * 
 	 * @param validatorClass
-	 *            a type extending {@link FormUploadValidator}
+	 *                       a type extending {@link FormUploadValidator}
+	 * 
 	 * @return the result returned by {@link FormUploadValidator#isValid(FormUpload)}
 	 */
 	boolean isValid(Class<? extends FormUploadValidator> validatorClass);
@@ -108,11 +110,12 @@ public interface FormUpload {
 	 * Delegates to {@link #isValidSize()} and {@link #isValidType()}.
 	 * 
 	 * @param types
-	 *            an array containing the allowed file-extensions (without {@code .}) and content-types
+	 *                an array containing the allowed file-extensions (without {@code .}) and content-types
 	 * @param minSize
-	 *            the minimum size of the file (in bytes)
+	 *                the minimum size of the file (in bytes)
 	 * @param maxSize
-	 *            the maximum size of the file (in bytes)
+	 *                the maximum size of the file (in bytes)
+	 * 
 	 * @return {@code true} if this {@link FormUpload} is valid, {@code false} otherwise.
 	 * 
 	 * @see #isValidSize()
@@ -139,6 +142,7 @@ public interface FormUpload {
 	 * for this {@link FormUpload}. If {@link #getAcceptedTypes()} is {@code null} or empty, all types are allowed.
 	 * 
 	 * @return {@code true} if the uploaded {@link File} has a valid type, {@code false} otherwise.
+	 * 
 	 * @see #getAcceptedTypes()
 	 * @see #getContentType()
 	 */
@@ -148,6 +152,7 @@ public interface FormUpload {
 	 * Returns a {@link List} of accepted file-extensions (without {@code .})/content-types for this {@link FormUpload}.
 	 * 
 	 * @return the list of accepted types
+	 * 
 	 * @see #getContentType()
 	 */
 	List<String> getAcceptedTypes();

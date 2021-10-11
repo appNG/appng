@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,14 @@ public class HashPasswordTest extends AbstractCommandTest {
 		BCryptPasswordHandler passwordHandler = new BCryptPasswordHandler(authSubject);
 		passwordHandler.isValidPassword(SUPERSECRET);
 	}
-	
+
 	@Test(expected = BusinessException.class)
 	public void testInvalid() throws BusinessException {
 		new HashPassword("").execute(cliEnv);
 	}
-	
+
 	@Ignore("only for local usage")
-	public void testInteractive() throws BusinessException{
+	public void testInteractive() throws BusinessException {
 		new HashPassword(true).execute(cliEnv);
 	}
 

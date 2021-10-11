@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@ import org.appng.api.support.CallableDataSource;
 import org.appng.xml.platform.PageReference;
 
 /**
- * 
  * A checked exception that is thrown by {@link CallableAction} and {@link CallableDataSource}, to indicate an error
  * occurred while assembling the {@link PageReference}.
  * 
  * @author Matthias Müller
- * 
  */
 public class ProcessingException extends Exception {
 
@@ -35,10 +33,10 @@ public class ProcessingException extends Exception {
 	 * Creates a new {@code ProcessingException}.
 	 * 
 	 * @param message
-	 *            the error message.
+	 *                       the error message.
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} in charge when the error occurred, used to append some further details
-	 *            about the error via {@link FieldProcessor#addErrorMessage(String)}
+	 *                       the {@link FieldProcessor} in charge when the error occurred, used to append some further
+	 *                       details about the error via {@link FieldProcessor#addErrorMessage(String)}
 	 */
 	public ProcessingException(String message, FieldProcessor fieldProcessor) {
 		super(message);
@@ -49,12 +47,12 @@ public class ProcessingException extends Exception {
 	 * Creates a new {@code ProcessingException}.
 	 * 
 	 * @param message
-	 *            the error message
+	 *                       the error message
 	 * @param cause
-	 *            the cause of the error
+	 *                       the cause of the error
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} in charge when the error occurred, used to append some further details
-	 *            about the error via {@link FieldProcessor#addErrorMessage(String)}
+	 *                       the {@link FieldProcessor} in charge when the error occurred, used to append some further
+	 *                       details about the error via {@link FieldProcessor#addErrorMessage(String)}
 	 */
 	public ProcessingException(String message, Throwable cause, FieldProcessor fieldProcessor) {
 		super(message, cause);

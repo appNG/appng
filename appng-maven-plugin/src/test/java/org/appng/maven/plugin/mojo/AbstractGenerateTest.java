@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,69 +25,68 @@ import org.junit.Rule;
 
 public abstract class AbstractGenerateTest {
 
-    @Rule
-    public MojoRule mojoRule = new MojoRule();
+	@Rule
+	public MojoRule mojoRule = new MojoRule();
 
-    Maven maven() {
-        return new Maven(mojoRule);
-    }
+	Maven maven() {
+		return new Maven(mojoRule);
+	}
 
-    public static class Maven {
+	public static class Maven {
 
-        private final MojoRule mojoRule;
+		private final MojoRule mojoRule;
 
-        private Maven(MojoRule mojoRule) {
-            this.mojoRule = mojoRule;
-        }
+		private Maven(MojoRule mojoRule) {
+			this.mojoRule = mojoRule;
+		}
 
-        private File expectedFile;
-        private File pom;
-        private String goal;
+		private File expectedFile;
+		private File pom;
+		private String goal;
 
-        public Maven withExpectedFile(String file) {
-            expectedFile = new File(file);
-            return this;
-        }
+		public Maven withExpectedFile(String file) {
+			expectedFile = new File(file);
+			return this;
+		}
 
-        public Maven withPomLocation(String location) {
-            pom = new File(location);
-            return this;
-        }
+		public Maven withPomLocation(String location) {
+			pom = new File(location);
+			return this;
+		}
 
-        public Maven withGoal(String goal) {
-            this.goal = goal;
-            return this;
-        }
+		public Maven withGoal(String goal) {
+			this.goal = goal;
+			return this;
+		}
 
-        public void test() throws Exception {
-            testPreconditions();
+		public void test() throws Exception {
+			testPreconditions();
 
-            if (expectedFile.exists()) {
-                expectedFile.delete();
-            }
-            AbstractMojo mojo = (AbstractMojo) mojoRule.lookupConfiguredMojo(
-                    pom, goal);
-            assertThat(mojo).isNotNull();
-            mojo.execute();
-            assertThat(expectedFile.exists()).isTrue();
-        }
+			if (expectedFile.exists()) {
+				expectedFile.delete();
+			}
+			AbstractMojo mojo = (AbstractMojo) mojoRule.lookupConfiguredMojo(pom, goal);
+			assertThat(mojo).isNotNull();
+			mojo.execute();
+			assertThat(expectedFile.exists()).isTrue();
+		}
 
-        private void testPreconditions() {
-            notNull("pom must be given", pom);
-            isTrue("pom must exist", pom.exists());
-            notNull("expected file must be given", expectedFile);
-            notNull("goal must be given", goal);
-            isTrue("goal must not be blank or empty", goal.trim().length() > 0);
-        }
+		private void testPreconditions() {
+			notNull("pom must be given", pom);
+			isTrue("pom must exist", pom.exists());
+			notNull("expected file must be given", expectedFile);
+			notNull("goal must be given", goal);
+			isTrue("goal must not be blank or empty", goal.trim().length() > 0);
+		}
 
-        private void notNull(String message, Object object) {
-            isTrue(message, object != null);
-        }
+		private void notNull(String message, Object object) {
+			isTrue(message, object != null);
+		}
 
-        private void isTrue(String message, boolean condition) {
-            if (!condition) {
-                throw new IllegalArgumentException(message);
-            }
-        }
-    }
+		private void isTrue(String message, boolean condition) {
+			if (!condition) {
+				throw new IllegalArgumentException(message);
+			}
+		}
+	}
 }

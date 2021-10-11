@@ -1,3 +1,33 @@
+Release Notes - appNG - Version 1.22.1 (2020-11-23)
+---------------------------------------------------
+* [APPNG-2361] - Release appNG 1.22.1
+* [APPNG-2360] - Missing nested fields when same name and different condition is used
+* [APPNG-2357] - Improve YAML output of AppNGizer
+* [APPNG-2356] - On a page, an action should support a mode-attribute
+* [APPNG-2355] - @FileUpload should support @Target({ FIELD })
+* [APPNG-2354] - Possible NPE in SubjectImpl#hasApplication when site has been stopped
+
+Release Notes - appNG - Version 1.22.0 (2020-10-05)
+---------------------------------------------------
+* [APPNG-2353] - Release 1.22.0
+* [APPNG-2352] - Provide a tooltip for metadata fields
+* [APPNG-2351] - Missing database connection when datasource is added to appplication.xml
+* [APPNG-2350] - DatasourceConfigurer should support setting the maximum lifetime for a connection
+* [APPNG-2349] - Wrong JDBC-Urls are generated when original URL contains parameters
+* [APPNG-2348] - Support Flyway's JavaMigration
+* [APPNG-2347] - Print version right after startup
+* [APPNG-2346] - Improvements for RequestUtil
+* [APPNG-2345] - MonitoringHandler: Provide details about applications and properties only if requested, use status 503 when site is not startet
+* [APPNG-2344] - Monitoring path /health should be added to Cache Exceptions by default
+* [APPNG-2343] - Possible NPE in MonitoringHandler
+* [APPNG-2342] - Dependency Updates for 1.22.0
+* [APPNG-2340] - AppNG.defaultLink must also accept a List<Linkpanel>
+* [APPNG-2339] - CacheService#expireCacheElementsStartingWith returns cache size instead of the number of deleted entries
+* [APPNG-2338] - o.a.c.r.c.DataSourceFactory should implement DisposableBean
+* [APPNG-2337] - Use latest version of authentication,manager,scheduler
+* [APPNG-2336] - appNGizer should allow to upload and install an artefact in one step
+* [APPNG-2335] - appNGizer should be integrated into appNG
+
 Release Notes - appNG - Version 1.21.1 (2020-06-30)
 ---------------------------------------------------
 * [APPNG-2341] - appNGizer fails to retrieve health status from appNG on certificate mismatch

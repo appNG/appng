@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,8 @@ public class MarshallServiceTest {
 	@Test
 	public void testRoundTrip() throws Exception {
 		MarshallService marshallService = init(true, true, true);
-		InputStream isOriginal = MarshallServiceTest.class.getClassLoader().getResourceAsStream(
-				"xml/platform-original.xml");
+		InputStream isOriginal = MarshallServiceTest.class.getClassLoader()
+				.getResourceAsStream("xml/platform-original.xml");
 		Object masterOriginal = marshallService.unmarshall(isOriginal);
 
 		InputStream isControl = MarshallServiceTest.class.getClassLoader().getResourceAsStream("xml/platform.xml");

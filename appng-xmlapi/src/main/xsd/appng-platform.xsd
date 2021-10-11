@@ -180,6 +180,20 @@
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The ID of the section, must be unique within the page.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The ID of the section, must be unique within the page.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="sectionConfig">
@@ -305,6 +319,20 @@ If evaluating to 'true', the resulting &lt;sectionelement&gt; will not determine
 					<jxb:property>
 						<jxb:javadoc>
 <![CDATA[The time in milliseconds it took to process this {@code Section}.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The ID of the section, must be unique within the page.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The ID of the section, must be unique within the page.]]>
 						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
@@ -791,12 +819,12 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 		<xs:attribute name="mode" type="xs:string" use="optional">
 			<xs:annotation>
 				<xs:documentation>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
@@ -992,6 +1020,20 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>The URI to forward to after successfully performing the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
 			</xs:annotation>
@@ -1719,12 +1761,12 @@ Note that only those POST-parameters which are being used in a {@link Condition}
 		<xs:attribute name="mode" type="xs:string" use="optional">
 			<xs:annotation>
 				<xs:documentation>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 				</xs:documentation>
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>
-<![CDATA[If the appNG-template or the application's custom XSL supports some custom display mode(s), this property can be used to control this custom behavior.]]>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
 						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
@@ -1793,6 +1835,20 @@ Note that only those POST-parameters which are being used in a {@link Condition}
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>The URI to forward to after successfully performing the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mode" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[If the appNG-template or the application's custom templating supports some custom display mode(s), the mode can be used to control this custom behavior.]]>
+						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
 			</xs:annotation>

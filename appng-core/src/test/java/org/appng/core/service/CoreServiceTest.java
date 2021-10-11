@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,7 +237,7 @@ public class CoreServiceTest {
 		Application application = coreService.findApplicationByName("foobar");
 		MigrationStatus state = coreService.assignApplicationToSite(site, application, true);
 		assertEquals(MigrationStatus.NO_DB_SUPPORTED, state);
-		Iterable<PropertyImpl> properties = coreService.getProperties(1, application.getId());
+		Iterable<PropertyImpl> properties = coreService.getPropertiesList(1, application.getId());
 		String prefix = "platform.site." + site.getName() + ".application." + application.getName() + ".";
 		PropertyHolder propertyHolder = new PropertyHolder(prefix, properties);
 		assertEquals("foobaz", propertyHolder.getString("foobar"));
@@ -269,7 +269,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testCreateApplicationProperty() {
-		PropertyImpl property = coreService.createProperty(null, null, new PropertyImpl("foobaz", "foobar"));
+		PropertyImpl property = coreService.createProperty((Integer) null, (Integer) null, new PropertyImpl("foobaz", "foobar"));
 		assertTrue(coreService.checkPropertyExists(null, null, new PropertyImpl("foobaz", "foobar")));
 		assertEquals(Property.Type.TEXT, property.getType());
 	}
@@ -411,7 +411,7 @@ public class CoreServiceTest {
 		assertFalse(fp.hasErrors());
 	}
 
-	@Test(timeout = 40000)
+	@Test
 	public void testDeleteSiteWithEnvironment() throws BusinessException, IOException, InterruptedException {
 		SiteImpl site = coreService.getSite(2);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
@@ -444,15 +444,8 @@ public class CoreServiceTest {
 			Thread.sleep(100);
 		}
 		LOGGER.info("Processed {} events", receiver.getProcessed().size());
-
-		synchronized (stateMap) {
-			SiteState state;
-			while (null != (state = stateMap.get(realSite.getName()))) {
-				LOGGER.info("state for site {} is {}", realSite.getName(), state);
-				Thread.sleep(100);
-			}
-		}
-
+		Thread.sleep(1000);
+		Assert.assertNull(stateMap.get(realSite.getName()));
 		receiver.close();
 	}
 
@@ -549,7 +542,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testGetPropertiesIntegerInteger() {
-		Iterable<PropertyImpl> properties = coreService.getProperties(1, 1);
+		Iterable<PropertyImpl> properties = coreService.getPropertiesList(1, 1);
 		Iterator<PropertyImpl> iterator = properties.iterator();
 		PropertyImpl prop = iterator.next();
 		assertEquals("platform.site.site-1.application.manager.foo", prop.getName());
@@ -560,7 +553,7 @@ public class CoreServiceTest {
 
 	@Test
 	public void testGetPropertiesStringString() {
-		Iterable<PropertyImpl> properties = coreService.getProperties("site-1", "manager");
+		Iterable<PropertyImpl> properties = coreService.getPropertiesList("site-1", "manager");
 		Iterator<PropertyImpl> iterator = properties.iterator();
 		PropertyImpl prop = iterator.next();
 		assertEquals("platform.site.site-1.application.manager.foo", prop.getName());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ abstract class PropertyBase extends ControllerBase {
 		List<Property> propsList = new ArrayList<>();
 		String siteName = null == site ? null : site.getName();
 		String applicationName = null == app ? null : app.getName();
-		for (PropertyImpl prop : getCoreService().getProperties(siteName, applicationName)) {
+		for (PropertyImpl prop : getCoreService().getPropertiesList(site, app)) {
 			propsList.add(Property.fromDomain(prop, site, app));
 		}
 		Properties properties = new Properties(propsList, siteName, applicationName);
@@ -56,9 +56,7 @@ abstract class PropertyBase extends ControllerBase {
 			return conflict();
 		}
 		PropertyImpl propertyImpl = Property.toDomain(property);
-		Integer siteId = site == null ? null : site.getId();
-		Integer applicationId = application == null ? null : application.getId();
-		getCoreService().createProperty(siteId, applicationId, propertyImpl);
+		getCoreService().createProperty(site, application, propertyImpl);
 		return created(getPropertyResponse(property.getName(), site, application).getBody());
 	}
 

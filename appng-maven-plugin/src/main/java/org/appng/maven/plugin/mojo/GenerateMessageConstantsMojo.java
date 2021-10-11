@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,19 +25,19 @@ import org.appng.tools.file.PropertyConstantCreator;
 @Mojo(name = "generateMessageConstants", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
 public class GenerateMessageConstantsMojo extends AbstractGeneratorMojo {
 
-    @Override
-    protected void createConstantClass() throws IOException {
-        PropertyConstantCreator.main(getArgs());
-    }
+	@Override
+	protected void createConstantClass() throws IOException {
+		PropertyConstantCreator.main(getArgs());
+	}
 
-    @Override
-    protected String getMessage() {
-        return "generate message constants";
-    }
+	@Override
+	protected String getMessage() {
+		return "generate message constants";
+	}
 
-    @Override
-    protected String[] getArgs() {
-        return new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() };
-    }
+	@Override
+	protected String[] getArgs() {
+		return new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() };
+	}
 
 }

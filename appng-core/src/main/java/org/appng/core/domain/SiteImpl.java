@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -396,10 +396,18 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	}
 
 	public void setState(SiteState state) {
+		setState(state, null);
+	}
+
+	public void setState(SiteState state, Environment env) {
 		SiteState oldState = getState();
 		this.state.set(state);
 		LOGGER.debug("set state for site {} (was: {})", toString(), oldState);
-		sendEvent(new SiteStateEvent(getName(), state));
+		SiteStateEvent event = new SiteStateEvent(getName(), state);
+		if (null != env) {
+			event.handleSiteState(env);
+		}
+		sendEvent(event);
 	}
 
 	public boolean hasState(SiteState... states) {

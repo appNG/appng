@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,8 +94,8 @@ public class DataContainerTest {
 
 	@Test
 	public void testSetPageSort() {
-		PageRequest newPageable = new PageRequest(5, 10, new Sort(new Order(Direction.ASC, "name"), new Order(
-				Direction.DESC, "firstName")));
+		PageRequest newPageable = new PageRequest(5, 10,
+				new Sort(new Order(Direction.ASC, "name"), new Order(Direction.DESC, "firstName")));
 		List<Person> personList = new ArrayList<>(persons);
 		Person anakin = new Person(3, "Anakin", "Skywalker");
 		Person unknown = new Person(4, null, "Skywalker");

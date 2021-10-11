@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ public interface Option {
 	 * Checks whether this option has an attribute with the given name.
 	 * 
 	 * @param name
-	 *            the name of the attribute to check
+	 *             the name of the attribute to check
+	 * 
 	 * @return {@code true} if this option contains an attribute with the given name, {@code false} otherwise
 	 */
 	boolean containsAttribute(String name);
@@ -50,8 +51,10 @@ public interface Option {
 	 * Returns the attribute with the given name, if present.
 	 * 
 	 * @param name
-	 *            the name of the attribute to get
+	 *             the name of the attribute to get
+	 * 
 	 * @return the attribute, if present, {@code null} otherwise
+	 * 
 	 * @deprecated use {@link #getString(String)} instead
 	 */
 	@Deprecated
@@ -68,7 +71,8 @@ public interface Option {
 	 * Returns the attribute with the given name, if present.
 	 * 
 	 * @param name
-	 *            the name of the attribute to get
+	 *             the name of the attribute to get
+	 * 
 	 * @return the attribute, if present, {@code null} otherwise
 	 */
 	String getString(String name);
@@ -77,7 +81,8 @@ public interface Option {
 	 * Returns an {@link Integer} parsed from the attribute with the given name.
 	 * 
 	 * @param name
-	 *            the name of the attribute to get
+	 *             the name of the attribute to get
+	 * 
 	 * @return the integer value, or {@code null} if no such attribute exists (or the value can not be parsed to an
 	 *         integer)
 	 */
@@ -87,7 +92,8 @@ public interface Option {
 	 * Returns a {@link Boolean} parsed from the attribute with the given name.
 	 * 
 	 * @param name
-	 *            the name of the attribute to get
+	 *             the name of the attribute to get
+	 * 
 	 * @return {@link Boolean#TRUE} if the value of the attribute equals to (ignoring case) {@code true},
 	 *         {@link Boolean#FALSE} otherwise
 	 */
@@ -97,9 +103,10 @@ public interface Option {
 	 * Returns the {@link Enum} constant represented by the attribute with the given name.
 	 * 
 	 * @param name
-	 *            the name of the attribute to get
+	 *             the name of the attribute to get
 	 * @param type
-	 *            the type of the {@link Enum}
+	 *             the type of the {@link Enum}
+	 * 
 	 * @return the enum constant, if the (upper-case) attribute value represents a valid enum of the given type
 	 *         ,{@code null} otherwise
 	 */

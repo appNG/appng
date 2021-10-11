@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
  * <a href="https://jsoup.org/cookbook/cleaning-html/whitelist-sanitizer">JSOUP</a>.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class XSSUtil {
@@ -99,7 +98,8 @@ public class XSSUtil {
 	public void setProcessed(HttpServletRequest request, boolean processed) {
 		request.setAttribute(XSS_STRIPPED, processed);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("setting request attribute '{}' to TRUE for request {}", XSS_STRIPPED, request.getServletPath());
+			LOGGER.debug("setting request attribute '{}' to TRUE for request {}", XSS_STRIPPED,
+					request.getServletPath());
 		}
 	}
 

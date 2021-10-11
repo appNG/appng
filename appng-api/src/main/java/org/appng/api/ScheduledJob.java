@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 
 /**
- * 
  * A {@link ScheduledJob} is a (periodically or manually triggered) task that can be defined by an {@link Application}.
  * The job's {@code jobDataMap} can contain any information that the job needs to be executed. For periodical execution,
  * there are two pre-defined entries for the {@code jobDataMap}:
@@ -44,7 +43,6 @@ import org.appng.api.model.Site;
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 public interface ScheduledJob {
 
@@ -59,7 +57,7 @@ public interface ScheduledJob {
 	 * Sets the description for this job.
 	 * 
 	 * @param description
-	 *            the description
+	 *                    the description
 	 */
 	void setDescription(String description);
 
@@ -82,11 +80,12 @@ public interface ScheduledJob {
 	 * This method actually executes the job.
 	 * 
 	 * @param site
-	 *            the {@link Site} to run within
+	 *                    the {@link Site} to run within
 	 * @param application
-	 *            the {@link Application} to run within
+	 *                    the {@link Application} to run within
+	 * 
 	 * @throws Exception
-	 *             if any error occurs during job execution
+	 *                   if any error occurs during job execution
 	 */
 	void execute(Site site, Application application) throws Exception;
 

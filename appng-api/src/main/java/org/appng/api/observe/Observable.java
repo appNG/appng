@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.appng.api.observe;
 import java.io.Serializable;
 
 /**
- * 
  * An Observable can be observed by multiple {@link Observer}s and notify them of changes by firing an {@link Event} .
  * 
  * @author Matthias Müller
@@ -32,7 +31,6 @@ public interface Observable<T> {
 	 * An {@link Observable} notifies it's {@link Observer}s by firing an {@link Event}.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	class Event implements Serializable {
 		private final String name;
@@ -41,7 +39,7 @@ public interface Observable<T> {
 		 * Creates a new {@link Event}
 		 * 
 		 * @param name
-		 *            the name of the {@link Event}
+		 *             the name of the {@link Event}
 		 */
 		public Event(String name) {
 			this.name = name;
@@ -84,7 +82,8 @@ public interface Observable<T> {
 	 * Adds an {@link Observer}.
 	 * 
 	 * @param observer
-	 *            the {@link Observer} to be added
+	 *                 the {@link Observer} to be added
+	 * 
 	 * @return {@code true} if adding the {@link Observer} was successful, {@code false} otherwise
 	 */
 	boolean addObserver(Observer<? super T> observer);
@@ -93,7 +92,8 @@ public interface Observable<T> {
 	 * Removes an {@link Observer}.
 	 * 
 	 * @param observer
-	 *            the {@link Observer} to be removed
+	 *                 the {@link Observer} to be removed
+	 * 
 	 * @return {@code true} if removing the {@link Observer} was successful, {@code false} otherwise
 	 */
 	boolean removeObserver(Observer<? super T> observer);
@@ -102,7 +102,7 @@ public interface Observable<T> {
 	 * Notifies the {@link Observer}s.
 	 * 
 	 * @param event
-	 *            an {@link Event}
+	 *              an {@link Event}
 	 */
 	void notifyObservers(Event event);
 

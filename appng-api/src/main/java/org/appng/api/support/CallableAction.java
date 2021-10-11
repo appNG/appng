@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,15 +106,17 @@ public class CallableAction {
 	 * , based on {@link Permissions} and {@link Condition}s.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                           the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                           the current {@link Application}
 	 * @param applicationRequest
-	 *            the current {@link ApplicationRequest}
+	 *                           the current {@link ApplicationRequest}
 	 * @param actionRef
-	 *            the {@link ActionRef} as given in the {@link SectionelementDef} of a {@link PageDefinition}.
+	 *                           the {@link ActionRef} as given in the {@link SectionelementDef} of a
+	 *                           {@link PageDefinition}.
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurs while assembling the {@code CallableAction}
+	 *                             if an error occurs while assembling the {@code CallableAction}
 	 */
 	public CallableAction(Site site, Application application, ApplicationRequest applicationRequest,
 			ActionRef actionRef) throws ProcessingException {
@@ -164,6 +166,7 @@ public class CallableAction {
 			this.elementHelper = new ElementHelper(site, application);
 			DataConfig config = getAction().getConfig();
 			getAction().setEventId(eventId);
+			getAction().setMode(actionRef.getMode());
 
 			Map<String, String> actionParameters = elementHelper.initializeParameters(
 					"action '" + actionRef.getId() + "' (" + actionRef.getEventId() + ")", applicationRequest,
@@ -292,8 +295,10 @@ public class CallableAction {
 	 * {@link Site#sendRedirect(Environment, String)}.
 	 * 
 	 * @return a {@link FieldProcessor}, only non-{@code null} if the {@link Action} has been executed successfully
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurred while performing
+	 *                             if an error occurred while performing
+	 * 
 	 * @see #doInclude()
 	 * @see #doExecute()
 	 * @see #doForward()
@@ -310,12 +315,14 @@ public class CallableAction {
 	 * {@link Site#sendRedirect(Environment, String)}.
 	 * 
 	 * @param isSectionHidden
-	 *            whether this action is part of a hidden {@link Section}, meaning no {@link Messages} should be set for
-	 *            the action.
+	 *                        whether this action is part of a hidden {@link Section}, meaning no {@link Messages}
+	 *                        should be set for the action.
 	 * 
 	 * @return a {@link FieldProcessor}, only non-{@code null} if the {@link Action} has been executed successfully
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurred while performing
+	 *                             if an error occurred while performing
+	 * 
 	 * @see #doInclude()
 	 * @see #doExecute()
 	 * @see #doForward()
@@ -457,12 +464,15 @@ public class CallableAction {
 	 * Creates, fills and returns a new bindobject.
 	 * 
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} to use
+	 *                       the {@link FieldProcessor} to use
+	 * 
 	 * @return a new bindobject
+	 * 
 	 * @throws BusinessException
-	 *             if
-	 *             {@link ApplicationRequest#getBindObject(FieldProcessor, org.appng.forms.RequestContainer, ClassLoader)}
-	 *             throws such an exception
+	 *                           if
+	 *                           {@link ApplicationRequest#getBindObject(FieldProcessor, org.appng.forms.RequestContainer, ClassLoader)}
+	 *                           throws such an exception
+	 * 
 	 * @see ApplicationRequest#getBindObject(FieldProcessor, org.appng.forms.RequestContainer, ClassLoader)
 	 */
 	protected Object getBindObject(FieldProcessor fieldProcessor) throws BusinessException {
@@ -499,10 +509,11 @@ public class CallableAction {
 	 * by the user.
 	 * 
 	 * @see #handleSelections()
+	 * 
 	 * @param action
 	 * @param request
 	 * @param writeableFields
-	 *            a list of writeable {@link FieldDef}initions
+	 *                        a list of writeable {@link FieldDef}initions
 	 */
 	private void addUserdata(List<FieldDef> writeableFields) {
 		MetaData metaData = action.getConfig().getMetaData();
@@ -592,8 +603,8 @@ public class CallableAction {
 	 * {@link Action}s {@link UserData}<br/>
 	 * Don't really like this solution...open for improvement
 	 * 
-	 * 
 	 * @see #addUserdata(List)
+	 * 
 	 * @param action
 	 */
 	// XXX MM this is the root of all evil

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public abstract class BlockingQueueAccessor<E> {
 	 * Creates a new {@code BlockingQueueAccessor} with the given queue size.
 	 * 
 	 * @param queueSize
-	 *            the size of the internal {@link BlockingQueue}
+	 *                  the size of the internal {@link BlockingQueue}
 	 */
 	protected BlockingQueueAccessor(int queueSize) {
 		queue = new ArrayBlockingQueue<E>(queueSize);
@@ -58,25 +58,29 @@ public abstract class BlockingQueueAccessor<E> {
 	 * <b>This is a blocking operation!</b>
 	 * 
 	 * @param element
-	 *            the element of type {@code <E>} to put to the queue
+	 *                the element of type {@code <E>} to put to the queue
+	 * 
 	 * @throws InterruptedException
-	 *             if interrupted while waiting
+	 *                              if interrupted while waiting
 	 */
 	public void put(E element) throws InterruptedException {
 		queue.put(element);
 	}
 
 	/**
-	 * Puts the given {@code element} into the queue, waiting up to {@code timeoutMillis} milliseconds if necessary.<br/>
+	 * Puts the given {@code element} into the queue, waiting up to {@code timeoutMillis} milliseconds if
+	 * necessary.<br/>
 	 * <b>This is a blocking operation!</b>
 	 * 
 	 * @param element
-	 *            the element of type {@code <E>} to put into the queue
+	 *                      the element of type {@code <E>} to put into the queue
 	 * @param timeoutMillis
-	 *            the time to wait in milliseconds
+	 *                      the time to wait in milliseconds
+	 * 
 	 * @return {@code true} if the element could be added before the timeout, {@code false} otherwise
+	 * 
 	 * @throws InterruptedException
-	 *             if interrupted while waiting
+	 *                              if interrupted while waiting
 	 */
 	public boolean put(E element, long timeoutMillis) throws InterruptedException {
 		return queue.offer(element, timeoutMillis, TimeUnit.MILLISECONDS);
@@ -88,13 +92,14 @@ public abstract class BlockingQueueAccessor<E> {
 	 * <b>This is a blocking operation!</b>
 	 * 
 	 * @param element
-	 *            the element of type {@code <E>} to put to the queue
+	 *                      the element of type {@code <E>} to put to the queue
 	 * @param timeoutMillis
-	 *            the time to wait in milliseconds
+	 *                      the time to wait in milliseconds
+	 * 
 	 * @throws InterruptedException
-	 *             if interrupted while waiting
+	 *                              if interrupted while waiting
 	 * @throws TimeoutException
-	 *             if a timeout occurred while waiting
+	 *                              if a timeout occurred while waiting
 	 */
 	public void putWithTimeout(E element, long timeoutMillis) throws InterruptedException, TimeoutException {
 		boolean offered = put(element, timeoutMillis);
@@ -109,8 +114,9 @@ public abstract class BlockingQueueAccessor<E> {
 	 * <b>This is a blocking operation!</b>
 	 * 
 	 * @return an element of type {@code <E>}
+	 * 
 	 * @throws InterruptedException
-	 *             if interrupted while waiting
+	 *                              if interrupted while waiting
 	 */
 	public E get() throws InterruptedException {
 		return queue.take();
@@ -122,11 +128,13 @@ public abstract class BlockingQueueAccessor<E> {
 	 * <b>This is a blocking operation!</b>
 	 * 
 	 * @param timeoutMillis
-	 *            the time to wait in milliseconds
+	 *                      the time to wait in milliseconds
+	 * 
 	 * @return an element of type {@code <E>}, or {@code null} if no element could be retrieved in {@code timeoutMillis}
 	 *         milliseconds
+	 * 
 	 * @throws InterruptedException
-	 *             if interrupted while waiting
+	 *                              if interrupted while waiting
 	 */
 	public E get(long timeoutMillis) throws InterruptedException {
 		return queue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
@@ -138,12 +146,14 @@ public abstract class BlockingQueueAccessor<E> {
 	 * <b>This is a blocking operation!</b>
 	 * 
 	 * @param timeoutMillis
-	 *            the time to wait in milliseconds
+	 *                      the time to wait in milliseconds
+	 * 
 	 * @return an element of type {@code <E>}
+	 * 
 	 * @throws InterruptedException
-	 *             if interrupted while waiting
+	 *                              if interrupted while waiting
 	 * @throws TimeoutException
-	 *             if a timeout occurred while waiting
+	 *                              if a timeout occurred while waiting
 	 */
 	public E getWithTimeout(long timeoutMillis) throws InterruptedException, TimeoutException {
 		E element = get(timeoutMillis);

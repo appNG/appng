@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class ParameterTest extends BodyTagSupport implements ParameterOwner {
 		p2.setName("param2");
 		p2.setParent(this);
 		p2.doEndTag();
-		
+
 		Parameter p3 = new Parameter();
 		p3.setName("param3");
 		p3.setParent(this);

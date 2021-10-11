@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package org.appng.core.domain;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.appng.api.model.Application;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,6 +57,53 @@ public class SubjectImplTest {
 
 		Assert.assertTrue(s.isInactive(DateUtils.addMilliseconds(plusTenDays, 1), inactiveLockPeriod));
 		Assert.assertTrue(s.isInactive(DateUtils.addDays(now, 11), inactiveLockPeriod));
+	}
+
+	@Test
+	public void testHasApplication() {
+		SubjectImpl s = new SubjectImpl();
+		Assert.assertFalse(s.hasApplication(null));
+		s.setGroups(null);
+		ApplicationImpl app = new ApplicationImpl();
+		Assert.assertFalse(s.hasApplication(app));
+		GroupImpl group = new GroupImpl();
+		s.setGroups(Arrays.asList(group));
+		Assert.assertFalse(s.hasApplication(app));
+		RoleImpl r = new RoleImpl();
+		r.setId(11);
+		r.setApplication(app);
+		app.getRoles().add(r);
+		group.getRoles().add(r);
+		Assert.assertTrue(s.hasApplication(app));
+		app.setRoles(null);
+		Assert.assertFalse(s.hasApplication(app));
+		group.setRoles(null);
+		Assert.assertFalse(s.hasApplication(app));
+	}
+
+	@Test
+	public void testGetApplicationRoles() {
+		SubjectImpl s = new SubjectImpl();
+		Assert.assertTrue(s.getApplicationRoles(null).isEmpty());
+
+		Application app1 = new ApplicationImpl();
+		Application app2 = new ApplicationImpl();
+		GroupImpl g = new GroupImpl();
+		s.getGroups().add(g);
+		RoleImpl r1 = new RoleImpl();
+		r1.setId(11);
+		r1.setApplication(app1);
+		app1.getRoles().add(r1);
+		RoleImpl r2 = new RoleImpl();
+		r2.setId(12);
+		r2.setApplication(app2);
+		app2.getRoles().add(r2);
+		g.getRoles().addAll(Arrays.asList(r1, r2));
+		Assert.assertTrue(s.getApplicationRoles(app1).contains(r1));
+		Assert.assertTrue(s.getApplicationRoles(app2).contains(r2));
+		Assert.assertFalse(s.getApplicationRoles(app1).contains(r2));
+		Assert.assertFalse(s.getApplicationRoles(app2).contains(r1));
+
 	}
 
 }

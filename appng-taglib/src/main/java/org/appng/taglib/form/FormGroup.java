@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,8 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
  * <li>mandatory - set to {@code true} if the field is mandatory</li>
  * <li>mandatoryMessage - the message to be displayed when no value has been entered for a mandatory field</li>
  * <li>errorMessage - the error message to be displayed when validation fails</li>
- * <li>errorClass - the CSS class to add to enclosing {@code <div>} and the element(s) with the given name when validation fails</li>
+ * <li>errorClass - the CSS class to add to enclosing {@code <div>} and the element(s) with the given name when
+ * validation fails</li>
  * <li>errorElementId - the id of a nested element to append a {@code <span>} with the error message</li>
  * <li>styleClass -a CSS class for the enclosing {@code <div>}</li>
  * </ul>
@@ -61,7 +62,8 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
  * 
  * <b>Output (before submitting):</b>
  * 
- * <pre>Favorite number:&lt;br/>
+ * <pre>
+ * Favorite number:&lt;br/>
  * &lt;div class="group">
  *   &lt;select name="select">
  *     &lt;option value="42">42&lt;/option>
@@ -74,7 +76,8 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
  * 
  * <b>Output (after submitting, nothing selected):</b>
  * 
- * <pre>Favorite number:&lt;br/>
+ * <pre>
+ * Favorite number:&lt;br/>
  * &lt;div class="group error">
  *   &lt;select name="select" class="error">
  *     &lt;option value="42">42&lt;/option>

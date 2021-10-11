@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class DigestValidatorTest {
 	@Test
 	public void test() {
 		String digest = DigestUtil.getDigest(username, sharedSecret);
-		boolean isValid = new DigestValidator(digest,60).validate(sharedSecret);
+		boolean isValid = new DigestValidator(digest, 60).validate(sharedSecret);
 		Assert.assertTrue("digest must be valid", isValid);
 	}
 
@@ -44,7 +44,7 @@ public class DigestValidatorTest {
 		boolean isValid = digestValidator.validate(sharedSecret);
 		Assert.assertTrue("digest must be valid", isValid);
 
-		String timestamp= digestValidator.getTimestamp()+"|"+digestValidator.getUtcOffset().replace('+','-');
+		String timestamp = digestValidator.getTimestamp() + "|" + digestValidator.getUtcOffset().replace('+', '-');
 		String digestNoOffset = DigestUtil.getDigest(username, sharedSecret, timestamp);
 		isValid = new DigestValidator(digestNoOffset, 60).validate(sharedSecret);
 		Assert.assertFalse("digest must be invalid because of utc offset", isValid);

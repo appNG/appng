@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,8 @@ import org.appng.api.Session;
 import org.appng.api.SoapService;
 import org.appng.api.VHostMode;
 import org.appng.api.Webservice;
+import org.appng.api.config.RestConfig;
+import org.appng.api.config.RestConfig.SiteAwareHandlerMethodArgumentResolver;
 import org.appng.api.model.Application;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
@@ -80,6 +82,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -91,6 +94,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 public class ServiceRequestHandlerTest extends ServiceRequestHandler {
@@ -111,7 +116,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	private Messages messages = null;
 
 	public ServiceRequestHandlerTest() throws JAXBException {
-		super(MarshallService.getMarshallService(), new PlatformTransformer(), null);
+		super(MarshallService.getMarshallService());
 	}
 
 	@Test
@@ -162,15 +167,34 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 
 	private void handleRestCall(String content, String contentType, HttpStatus status, String servletPath)
 			throws JAXBException, IOException, UnsupportedEncodingException {
+
+		RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
+		RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
+
 		BeanFactoryPostProcessor beanFactoryPostProcessor = new BeanFactoryPostProcessor() {
 			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 				beanFactory.registerSingleton("foobarRest", new FoobarRest());
 				beanFactory.registerSingleton("jsonConverter", new MappingJackson2HttpMessageConverter());
+				beanFactory.registerSingleton("requestMappingHandlerAdapter", rmha);
+				beanFactory.registerSingleton("requestMappingHandlerMapping", rmhm);
+				beanFactory.registerSingleton("siteAwareHandlerMethodArgumentResolver",
+						new SiteAwareHandlerMethodArgumentResolver(site, environment, application));
 			}
 		};
+
 		ConfigurableApplicationContext ac = new GenericApplicationContext();
 		ac.addBeanFactoryPostProcessor(beanFactoryPostProcessor);
 		ac.refresh();
+
+		rmha.setApplicationContext(ac);
+		List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(ac);
+		if (!messageConverters.isEmpty()) {
+			rmha.setMessageConverters(messageConverters);
+		}
+		rmha.afterPropertiesSet();
+		rmhm.setApplicationContext(ac);
+		rmhm.afterPropertiesSet();
+
 		setup(servletPath, ac);
 		servletRequest.setMethod(HttpMethod.GET.name());
 		List<String> emptyList = new ArrayList<>();
@@ -412,7 +436,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 					.thenReturn(this.messages);
 		}
 		Mockito.when(application.getName()).thenReturn("appng-demoapplication");
-		Mockito.when(application.getBean("environment")).thenReturn(environment);
+		Mockito.when(application.getBean("environment", Environment.class)).thenReturn(environment);
 		Mockito.when(application.getBean(MarshallService.class)).thenReturn(MarshallService.getMarshallService());
 
 		Mockito.when(application.getBean("personService", org.appng.api.SoapService.class))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,6 @@ import org.appng.xml.application.PackageInfo;
  * {@link Repository} implementation.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Entity
 @Table(name = "repository")
@@ -373,10 +372,11 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 	 * Returns the certificate chain, if this is a signed remote repository.
 	 * 
 	 * @return the immutable certificate chain
+	 * 
 	 * @throws SigningException
-	 *             if an error occurs while retrieving the certificate chain
+	 *                           if an error occurs while retrieving the certificate chain
 	 * @throws BusinessException
-	 *             if an the remote repository could not be reached
+	 *                           if an the remote repository could not be reached
 	 */
 	@Transient
 	public Collection<X509Certificate> getRemoteCerts() throws SigningException, BusinessException {
@@ -392,9 +392,11 @@ public class RepositoryImpl implements Repository, Auditable<Integer> {
 	 * Sets the certificate chain to trust for this repository
 	 * 
 	 * @param trustedCerts
-	 *            the certificate chain
+	 *                     the certificate chain
+	 * 
 	 * @throws SigningException
-	 *             if an error occurs while encoding the certificates to their binary form
+	 *                          if an error occurs while encoding the certificates to their binary form
+	 * 
 	 * @see #getTrustedCertChain()
 	 */
 	public void setTrustedCertChain(Collection<X509Certificate> trustedCerts) throws SigningException {

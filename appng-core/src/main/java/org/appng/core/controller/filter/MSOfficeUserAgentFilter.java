@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.appng.core.controller.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * This {@link Filter} is a workaround for a bug in Microsoft Office which causes the http-session to get lost if a link
  * is being opened from inside a Microsoft Office document.<br/>
  * See <a href="http://support.microsoft.com/kb/899927">KB 899927</a> for details.
@@ -53,7 +52,6 @@ import lombok.extern.slf4j.Slf4j;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class MSOfficeUserAgentFilter implements Filter {
@@ -65,8 +63,8 @@ public class MSOfficeUserAgentFilter implements Filter {
 
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-			ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		String userAgent = ((HttpServletRequest) request).getHeader(HttpHeaders.USER_AGENT);
 		if (userAgent.contains(USER_AGENT_MS_OFFICE)) {
 			LOGGER.info("{} was {}, sending meta-refresh", HttpHeaders.USER_AGENT, userAgent);

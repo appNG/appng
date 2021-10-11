@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,10 @@ import org.thymeleaf.processor.element.IElementTagStructureHandler;
 import org.thymeleaf.standard.processor.StandardReplaceTagProcessor;
 
 /**
- * This interface has to be implemented by interceptors to intercept the call of
- * the replace tag to determine if this call has to be replaced by another
- * fragment. The interceptor can also add additional context variables. An
- * interceptor also has to be available as bean in the spring context. Therefore
- * the &#64;{@link Component} annotation might be useful. <br/>
+ * This interface has to be implemented by interceptors to intercept the call of the replace tag to determine if this
+ * call has to be replaced by another fragment. The interceptor can also add additional context variables. An
+ * interceptor also has to be available as bean in the spring context. Therefore the &#64;{@link Component} annotation
+ * might be useful. <br/>
  * <br/>
  * Example:
  * 
@@ -65,26 +64,17 @@ import org.thymeleaf.standard.processor.StandardReplaceTagProcessor;
  * </pre>
  * 
  * @author Claus Stümke
- *
  */
 public interface ThymeleafReplaceInterceptor {
 
 	/**
-	 * This method is called from the {@link ReplaceTagProcessor} before executing
-	 * the ordinary replace logic as implemented by the
-	 * {@link StandardReplaceTagProcessor}. With this method the interceptor can
-	 * decide to overwrite the attribute value of the replace tag to call another
-	 * target fragment instead.
-	 * 
-	 * Probably the interceptor also has to add additional variables to the context
-	 * if the other target fragment has parameters which does not exist in the given
-	 * context
-	 * 
-	 * If the interceptor wants to intercept, it has to modify the attributeValue
-	 * and call the doProcess method of the given tagProcessor. It has to return
-	 * true to indicate that processing was done within this interception to avoid
-	 * another processing by the {@link ReplaceTagProcessor}
-	 * 
+	 * This method is called from the {@link ReplaceTagProcessor} before executing the ordinary replace logic as
+	 * implemented by the {@link StandardReplaceTagProcessor}. With this method the interceptor can decide to overwrite
+	 * the attribute value of the replace tag to call another target fragment instead. Probably the interceptor also has
+	 * to add additional variables to the context if the other target fragment has parameters which does not exist in
+	 * the given context If the interceptor wants to intercept, it has to modify the attributeValue and call the
+	 * doProcess method of the given tagProcessor. It has to return true to indicate that processing was done within
+	 * this interception to avoid another processing by the {@link ReplaceTagProcessor}
 	 * 
 	 * @param context
 	 * @param tag
@@ -92,6 +82,7 @@ public interface ThymeleafReplaceInterceptor {
 	 * @param attributeValue
 	 * @param structureHandler
 	 * @param tagProcessor
+	 * 
 	 * @return
 	 */
 	boolean intercept(final ITemplateContext context, final IProcessableElementTag tag,
@@ -100,19 +91,17 @@ public interface ThymeleafReplaceInterceptor {
 			ThymeleafStandardReplaceTagProcessorCaller tagProcessor);
 
 	/**
-	 * With this method the interceptor can define additional template files which
-	 * should be added to the template engine that custom fragments are available
-	 * during processing
+	 * With this method the interceptor can define additional template files which should be added to the template
+	 * engine that custom fragments are available during processing
 	 * 
 	 * @return
 	 */
 	Collection<String> getAdditionalTemplateResourceNames();
 
 	/**
-	 * In case that an application has different interceptors intercepting on the
-	 * same replace call, the first interceptor will win. The order of interceptors
-	 * can be affected by setting a high priority to interceptors which shall be
-	 * processed first
+	 * In case that an application has different interceptors intercepting on the same replace call, the first
+	 * interceptor will win. The order of interceptors can be affected by setting a high priority to interceptors which
+	 * shall be processed first
 	 * 
 	 * @return
 	 */

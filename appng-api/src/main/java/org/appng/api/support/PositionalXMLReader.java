@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * XML Reader creating a {@link Document} with line information for each node. This has been inspired by the following
  * blog post https://eyalsch.wordpress.com/2010/11/30/xml-dom-2/
  * 
- * 
  * @author Claus Stümke, aiticon GmbH, 2017
- *
  */
 public class PositionalXMLReader {
 	final static String LINE_NUMBER_KEY_NAME = "lineNumber";

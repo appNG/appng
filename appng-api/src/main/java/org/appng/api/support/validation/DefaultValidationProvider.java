@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.validation.Configuration;
@@ -76,20 +77,22 @@ import lombok.extern.slf4j.Slf4j;
  * Default {@link ValidationProvider} implementation.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class DefaultValidationProvider implements ValidationProvider {
 
+	private static final String PATH_SEPARATOR = ".";
 	private static final String INVALID_DIGIT = "invalid.digit";
-
 	private static final String INVALID_INTEGER = "invalid.integer";
-
 	private static final String INDEXED = "[]";
 	private static final String INDEX_PATTERN = "\\[\\d*\\]";
 
-	private Validator validator;
+	private static final Comparator<? super Message> MESSAGE_SORTER = (m1, m2) -> {
+		int byRef = StringUtils.compare(m1.getRef(), m2.getRef());
+		return 0 != byRef ? byRef : StringUtils.compare(m1.getCode(), m2.getCode());
+	};
 
+	private Validator validator;
 	private MessageInterpolator messageInterpolator;
 	private MessageSource messageSource;
 	private Locale locale;
@@ -99,11 +102,11 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 * Creates a new {@link DefaultValidationProvider}.
 	 * 
 	 * @param messageInterpolator
-	 *            the {@link MessageInterpolator} used when adding validation messages
+	 *                            the {@link MessageInterpolator} used when adding validation messages
 	 * @param messageSource
-	 *            the {@link MessageSource} used when adding validation messages
+	 *                            the {@link MessageSource} used when adding validation messages
 	 * @param locale
-	 *            the {@link Locale} used when adding validation messages
+	 *                            the {@link Locale} used when adding validation messages
 	 */
 	public DefaultValidationProvider(MessageInterpolator messageInterpolator, MessageSource messageSource,
 			Locale locale) {
@@ -114,14 +117,14 @@ public class DefaultValidationProvider implements ValidationProvider {
 	 * Creates a new {@link DefaultValidationProvider}.
 	 * 
 	 * @param messageInterpolator
-	 *            the {@link MessageInterpolator} used when adding validation messages
+	 *                            the {@link MessageInterpolator} used when adding validation messages
 	 * @param messageSource
-	 *            the {@link MessageSource} used when adding validation messages
+	 *                            the {@link MessageSource} used when adding validation messages
 	 * @param locale
-	 *            the {@link Locale} used when adding validation messages
+	 *                            the {@link Locale} used when adding validation messages
 	 * @param contraintsAsRule
-	 *            whether validation constraints should be added as a {@link Rule} to the {@link FieldDef}s
-	 *            {@link Validation}
+	 *                            whether validation constraints should be added as a {@link Rule} to the
+	 *                            {@link FieldDef}s {@link Validation}
 	 */
 	public DefaultValidationProvider(MessageInterpolator messageInterpolator, MessageSource messageSource,
 			Locale locale, boolean contraintsAsRule) {
@@ -188,7 +191,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(final Class<?> validationClass,
 			final String propertyPath) {
 		String normalizedPath = propertyPath.replaceAll(INDEX_PATTERN, StringUtils.EMPTY);
-		int separator = normalizedPath.lastIndexOf('.');
+		int separator = normalizedPath.indexOf(PATH_SEPARATOR);
 		String rootPath = separator > 0 ? normalizedPath.substring(0, separator) : normalizedPath;
 		String leafName = separator > 0 ? normalizedPath.substring(separator + 1) : normalizedPath;
 
@@ -198,7 +201,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 		Class<?> concreteType = validationClass;
 		Field ancestor = null;
 		if (!rootPath.equals(leafName)) {
-			for (String segment : rootPath.split("\\.")) {
+			for (String segment : rootPath.split("\\" + PATH_SEPARATOR)) {
 				Field field = ReflectionUtils.findField(propertyType, segment);
 				if (null != field) {
 					if (null != ancestor) {
@@ -228,6 +231,10 @@ public class DefaultValidationProvider implements ValidationProvider {
 			}
 		}
 
+		if (leafName.indexOf(PATH_SEPARATOR) > 0) {
+			return getConstraintsForProperty(concreteType, leafName);
+		}
+
 		BeanDescriptor beanDescriptor = validator.getConstraintsForClass(concreteType);
 		if (null != beanDescriptor) {
 			PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(leafName);
@@ -235,6 +242,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 				constraints = propertyDescriptor.getConstraintDescriptors();
 				LOGGER.debug("Found constraint(s) for path {} on type {}: {}", propertyPath, validationClass,
 						constraints);
+			} else {
+				LOGGER.debug("No constraint(s) found for path {} on type {}", propertyPath, validationClass);
 			}
 		}
 
@@ -491,7 +500,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 			String constraintPath = cv.getPropertyPath().toString();
 			String expectedBinding = constraintPath.replaceAll(INDEX_PATTERN, INDEXED);
 			int count = 0;
-			String absolutePropertyPath = null == propertyRoot ? constraintPath : propertyRoot + "." + constraintPath;
+			String absolutePropertyPath = null == propertyRoot ? constraintPath
+					: propertyRoot + PATH_SEPARATOR + constraintPath;
 			if (constraintPath.equals(relativePropertyPath) || expectedBinding.equals(relativePropertyPath)) {
 				Message errorMessage = addFieldMessage(fieldDef, absolutePropertyPath, cv);
 				LOGGER.debug("Added message '{}' to field {}", errorMessage.getContent(), absolutePropertyPath);
@@ -499,6 +509,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 			}
 			LOGGER.debug("Added {} messages for field {}", count, absolutePropertyPath);
 		}
+		sortFieldMessages(fieldDef);
 	}
 
 	private Collection<ConstraintViolation<Object>> getSortedViolations(Set<ConstraintViolation<Object>> violations) {
@@ -543,6 +554,11 @@ public class DefaultValidationProvider implements ValidationProvider {
 		for (ConstraintViolation<Object> cv : violations) {
 			addFieldMessage(field, field.getBinding(), cv);
 		}
+		sortFieldMessages(field);
+	}
+
+	private void sortFieldMessages(FieldDef field) {
+		Optional.ofNullable(field.getMessages()).orElse(new Messages()).getMessageList().sort(MESSAGE_SORTER);
 	}
 
 	private Message addFieldMessage(FieldDef field, String reference, ConstraintViolation<?> cv) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 package org.appng.cli;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.appng.core.domain.PlatformEventListener.EventProvider;
 
 public class CliEventProvider extends EventProvider {
 
 	@Override
-	protected String getUser(HttpSession session) {
+	protected String getUser(HttpServletRequest request) {
 		return System.getProperty("user.name");
 	}
 

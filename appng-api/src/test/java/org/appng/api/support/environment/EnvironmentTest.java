@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,6 @@ public class EnvironmentTest extends AbstractTest {
 		DefaultEnvironment env = DefaultEnvironment.get(ctx, httpServletRequest);
 		toggleScope(env, Scope.PLATFORM);
 		toggleScope(env, Scope.SESSION);
-		toggleScope(env, Scope.SITE);
 		toggleScope(env, Scope.REQUEST);
 	}
 
@@ -168,7 +167,8 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testSessionEnvironment() {
-		SessionEnvironment sessionEnv = new SessionEnvironment(httpSession, StringUtils.EMPTY);
+		MockHttpServletRequest request = new MockHttpServletRequest(ctx);
+		SessionEnvironment sessionEnv = new SessionEnvironment(request, StringUtils.EMPTY);
 		String attributeName = "localhost";
 		Object attribute = sessionEnv.getAttribute(attributeName);
 		Assert.assertEquals(null, attribute);
@@ -176,9 +176,10 @@ public class EnvironmentTest extends AbstractTest {
 		Assert.assertEquals("foo", attribute = sessionEnv.removeAttribute(attributeName));
 		Assert.assertEquals((Object) null, sessionEnv.getAttribute(attributeName));
 
-		Assert.assertEquals(httpSession, sessionEnv.getHttpSession());
-		Assert.assertTrue(sessionEnv.isValid());
+		Assert.assertEquals(request.getSession(), sessionEnv.getHttpSession());
+		String oldId = sessionEnv.getHttpSession().getId();
 		sessionEnv.logout();
-		Assert.assertFalse(sessionEnv.isValid());
+		String newId = sessionEnv.getHttpSession().getId();
+		Assert.assertNotEquals(oldId, newId);
 	}
 }

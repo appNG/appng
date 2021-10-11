@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<meta-data xmlns="http://www.appng.org/schema/platform" bindClass="org.appng.api.support.validation.model.Person">
+	<field name="lastname" type="text" binding="lastname" />
+	<field name="name" type="text" binding="name" />
+	<field name="addresses" type="list:object" binding="addresses">
+		<field name="addresses[]" type="object" binding="addresses[]">
+			<field name="addressId" type="text" binding="addresses[].addressId" />			
+			<field name="location" type="object" binding="addresses[].location" >
+				<field name="zip" type="text"  binding="addresses[].location.zip" />
+				<field name="city" type="text" binding="addresses[].location.city" />
+			</field>
+		</field>
+	</field>
+</meta-data>

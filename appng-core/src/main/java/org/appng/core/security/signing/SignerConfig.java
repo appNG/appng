@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,23 +91,18 @@ public class SignerConfig extends BaseConfig {
 				break;
 			}
 		} catch (NoSuchAlgorithmException nsae) {
-			throw new SigningException(ErrorType.SIGN,
-					String.format(
-							"Got NoSuchAlgorithmException while loading private key as 'RSA' key. This should not happen with one of the tested Java versions (1.7+)."),
+			throw new SigningException(ErrorType.SIGN, String.format(
+					"Got NoSuchAlgorithmException while loading private key as 'RSA' key. This should not happen with one of the tested Java versions (1.7+)."),
 					nsae);
 		} catch (InvalidKeySpecException ikse) {
 			if (keyFormat == PrivateKeyFormat.DER) {
-				throw new SigningException(ErrorType.SIGN,
-						String.format(
-								"Error while loading private key. You may want to check if the key is valid with OpenSSL: 'openssl pkcs8 -in %s -inform DER -nocrypt'",
-								"<cert>.der"),
-						ikse);
+				throw new SigningException(ErrorType.SIGN, String.format(
+						"Error while loading private key. You may want to check if the key is valid with OpenSSL: 'openssl pkcs8 -in %s -inform DER -nocrypt'",
+						"<cert>.der"), ikse);
 			} else {
-				throw new SigningException(ErrorType.SIGN,
-						String.format(
-								"Error while loading private key. You may want to check if the key is valid with OpenSSL: 'openssl rsa -in %s -inform PEM -text'",
-								"<cert>.pem"),
-						ikse);
+				throw new SigningException(ErrorType.SIGN, String.format(
+						"Error while loading private key. You may want to check if the key is valid with OpenSSL: 'openssl rsa -in %s -inform PEM -text'",
+						"<cert>.pem"), ikse);
 			}
 		}
 
@@ -116,17 +111,13 @@ public class SignerConfig extends BaseConfig {
 			this.signature = Signature.getInstance(sigAlgorithm.toString());
 			this.signature.initSign(this.signingKey);
 		} catch (InvalidKeyException ike) {
-			throw new SigningException(ErrorType.SIGN,
-					String.format(
-							"Private key was successfully loaded, but failed to instantiate at Signature(%s).initSign().",
-							sigAlgorithm),
-					ike);
+			throw new SigningException(ErrorType.SIGN, String.format(
+					"Private key was successfully loaded, but failed to instantiate at Signature(%s).initSign().",
+					sigAlgorithm), ike);
 		} catch (NoSuchAlgorithmException nsae) {
-			throw new SigningException(ErrorType.SIGN,
-					String.format(
-							"Signing algorithm '%s' could not be loaded, but it should. This should not happen with one of the tested Java versions (1.7+).",
-							sigAlgorithm),
-					nsae);
+			throw new SigningException(ErrorType.SIGN, String.format(
+					"Signing algorithm '%s' could not be loaded, but it should. This should not happen with one of the tested Java versions (1.7+).",
+					sigAlgorithm), nsae);
 		}
 	}
 

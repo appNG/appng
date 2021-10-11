@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,10 +51,12 @@ public class RepositoryUtils {
 	/**
 	 * Checks whether {@code versionA} is newer than {@code versionB}
 	 * 
-	 * @param  versionA
-	 * @param  versionB
-	 * @return          {@code true} if {@code versionA} is newer than {@code versionB}, {@code false} otherwise
-	 * @see             #isNewer(PackageInfo, PackageInfo)
+	 * @param versionA
+	 * @param versionB
+	 * 
+	 * @return {@code true} if {@code versionA} is newer than {@code versionB}, {@code false} otherwise
+	 * 
+	 * @see #isNewer(PackageInfo, PackageInfo)
 	 */
 	public static boolean isNewer(PackageVersion versionA, PackageVersion versionB) {
 		if (null == versionB) {
@@ -68,10 +70,12 @@ public class RepositoryUtils {
 	 * Checks whether {@code packageA} is newer than {@code packageB}. Comparison is first done by the version and then
 	 * by the timestamp of the {@link PackageInfo}.
 	 * 
-	 * @param  packageA
-	 * @param  packageB
-	 * @return          {@code true} if {@code packageA} is newer than {@code packageB}, {@code false} otherwise
-	 * @see             #getDate(PackageInfo)
+	 * @param packageA
+	 * @param packageB
+	 * 
+	 * @return {@code true} if {@code packageA} is newer than {@code packageB}, {@code false} otherwise
+	 * 
+	 * @see #getDate(PackageInfo)
 	 */
 	public static boolean isNewer(PackageInfo packageA, PackageInfo packageB) {
 		if (null == packageB) {
@@ -91,7 +95,7 @@ public class RepositoryUtils {
 			if (compared == 0) {
 				compared = StringUtils.compare(p1.getVersion(), p2.getVersion());
 			}
-			if (compared == 0) {				
+			if (compared == 0) {
 				compared = getDate(p1).compareTo(getDate(p2));
 			}
 			// sort descending
@@ -102,9 +106,10 @@ public class RepositoryUtils {
 	/**
 	 * Retrieves the {@link Date} from the given {@link PackageInfo} by parsing its timestamp
 	 * 
-	 * @param  packageInfo
-	 *                     the {@link PackageInfo}
-	 * @return             the date (never {@code null}, in case of a {@link ParseException}, the "zero-time" is used)
+	 * @param packageInfo
+	 *                    the {@link PackageInfo}
+	 * 
+	 * @return the date (never {@code null}, in case of a {@link ParseException}, the "zero-time" is used)
 	 */
 	public static Date getDate(PackageInfo packageInfo) {
 		try {
@@ -117,9 +122,10 @@ public class RepositoryUtils {
 	/**
 	 * Check whether the given name represent a snapshot version
 	 * 
-	 * @param  name
-	 *              the name
-	 * @return      {@code true} if the given name contains {@value #SNAPSHOT}, {@code false} otherwise
+	 * @param name
+	 *             the name
+	 * 
+	 * @return {@code true} if the given name contains {@value #SNAPSHOT}, {@code false} otherwise
 	 */
 	public static boolean isSnapshot(String name) {
 		return name.contains(SNAPSHOT);
@@ -132,14 +138,15 @@ public class RepositoryUtils {
 	 * Checks whether the given file is a valid {@link PackageArchive} and matches to {@link RepositoryMode} of the
 	 * {@link Repository}.
 	 * 
-	 * @param  repo
-	 *                     the {@link Repository}
-	 * @param  file
-	 *                     the file containing the archive
-	 * @param  archiveName
-	 *                     the name of the archive
-	 * @return             the {@link PackageArchive}, if the given file is a valid archive and matches the
-	 *                     {@link RepositoryMode} of the {@link Repository}.
+	 * @param repo
+	 *                    the {@link Repository}
+	 * @param file
+	 *                    the file containing the archive
+	 * @param archiveName
+	 *                    the name of the archive
+	 * 
+	 * @return the {@link PackageArchive}, if the given file is a valid archive and matches the {@link RepositoryMode}
+	 *         of the {@link Repository}.
 	 */
 	public static PackageArchive getPackage(Repository repo, File file, String archiveName) {
 		PackageArchive packageArchive = new PackageArchiveImpl(file, archiveName);

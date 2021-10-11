@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,6 @@ import lombok.extern.slf4j.Slf4j;
  * Responsible for transforming a XML document (retrieved from a {@link Platform}-object) to XHTML.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class PlatformTransformer {
@@ -88,7 +87,8 @@ public class PlatformTransformer {
 	private String prefix;
 
 	@SuppressWarnings("unchecked")
-	private static final Map<String, SourceAwareTemplate> STYLESHEETS = Collections.synchronizedMap(new LRUMap(20));
+	private static final Map<String, Map<String, SourceAwareTemplate>> STYLESHEETS = Collections
+			.synchronizedMap(new LRUMap(20));
 
 	public PlatformTransformer() {
 		this.templates = new HashSet<>();
@@ -100,20 +100,22 @@ public class PlatformTransformer {
 	 * {@link OutputType} matches).
 	 * 
 	 * @param applicationProvider
-	 *            the current {@link ApplicationProvider}
+	 *                            the current {@link ApplicationProvider}
 	 * @param platformProperties
-	 *            the platform-{@link Properties}
+	 *                            the platform-{@link Properties}
 	 * @param platformXML
-	 *            an XML-string retrieved from a {@link Platform}-object
+	 *                            an XML-string retrieved from a {@link Platform}-object
 	 * @param charSet
-	 *            the character-set to used in the returned content-type (see {@link #getContentType()})
+	 *                            the character-set to used in the returned content-type (see {@link #getContentType()})
 	 * @param debugFolder
-	 *            the folder to write debug files to
+	 *                            the folder to write debug files to
+	 * 
 	 * @return the result of the transformation
+	 * 
 	 * @throws FileNotFoundException
-	 *             if a template XSL-file could not be found
+	 *                               if a template XSL-file could not be found
 	 * @throws TransformerException
-	 *             when parsing or applying the XSLT template fails
+	 *                               when parsing or applying the XSLT template fails
 	 */
 	public String transform(ApplicationProvider applicationProvider, Properties platformProperties, String platformXML,
 			String charSet, File debugFolder) throws IOException, TransformerException {
@@ -165,10 +167,14 @@ public class PlatformTransformer {
 		String result = null;
 		TransformerException transformerException = null;
 		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
+		String siteName = applicationProvider.getSite().getName();
+		if (!STYLESHEETS.containsKey(siteName)) {
+			STYLESHEETS.put(siteName, Collections.synchronizedMap(new LRUMap(20)));
+		}
 		try {
 			ErrorCollector errorCollector = new ErrorCollector();
-			if (!devMode && STYLESHEETS.containsKey(styleId)) {
-				sourceAwareTemplate = STYLESHEETS.get(styleId);
+			if (!devMode && STYLESHEETS.get(siteName).containsKey(styleId)) {
+				sourceAwareTemplate = STYLESHEETS.get(siteName).get(styleId);
 				styleSheetProvider.cleanup();
 				LOGGER.debug("reading templates from cache (id: {})", styleId);
 			} else {
@@ -187,7 +193,7 @@ public class PlatformTransformer {
 						LOGGER.error(t.getMessage(), t);
 					}
 					if (!devMode) {
-						STYLESHEETS.put(styleId, sourceAwareTemplate);
+						STYLESHEETS.get(siteName).put(styleId, sourceAwareTemplate);
 					}
 					LOGGER.debug("writing templates to cache (id: {})", styleId);
 				}
@@ -245,8 +251,7 @@ public class PlatformTransformer {
 					outFolder);
 			writeDebugFile(AbstractRequestProcessor.PLATFORM_XML, platformXML, outFolder);
 
-			try (
-					StringWriter debugWriter = new StringWriter();
+			try (StringWriter debugWriter = new StringWriter();
 					PrintWriter debugPrintWriter = new PrintWriter(debugWriter)) {
 				if (null != te) {
 					te.printStackTrace(debugPrintWriter);
@@ -302,14 +307,13 @@ public class PlatformTransformer {
 	 * Adds the given {@link Template}s to the upcoming transformation.
 	 * 
 	 * @param templates
-	 *            a list of {@link Template}s
+	 *                  a list of {@link Template}s
 	 */
 	public void addTemplates(List<Template> templates) {
 		this.templates.addAll(templates);
 	}
 
-	private String transform(Source xmlSource, Templates templates, Boolean formatOutput)
-			throws TransformerException {
+	private String transform(Source xmlSource, Templates templates, Boolean formatOutput) throws TransformerException {
 		StringWriter output = new StringWriter();
 		Transformer transformer = templates.newTransformer();
 		ErrorCollector errorCollector = new ErrorCollector();
@@ -367,13 +371,16 @@ public class PlatformTransformer {
 	 * {@link OutputFormat} for the upcoming transformation.
 	 * 
 	 * @param marshallService
-	 *            the {@link MarshallService} to use for unmarshalling
+	 *                        the {@link MarshallService} to use for unmarshalling
 	 * @param path
-	 *            the current {@link Path}-object
+	 *                        the current {@link Path}-object
+	 * 
 	 * @return the {@link Platform}-object
+	 * 
 	 * @throws InvalidConfigurationException
-	 *             if the {@value org.appng.core.service.TemplateService#PLATFORM_XML}-file could net be found or
-	 *             unmarshalled.
+	 *                                       if the {@value org.appng.core.service.TemplateService#PLATFORM_XML}-file
+	 *                                       could net be found or unmarshalled.
+	 * 
 	 * @see #getOutputFormat()
 	 * @see #getOutputType()
 	 */
@@ -399,7 +406,7 @@ public class PlatformTransformer {
 	 * Sets the path to the active template of the current {@link Site}.
 	 * 
 	 * @param templatePath
-	 *            the absolute path to the directory where template of the {@link Site} resides
+	 *                     the absolute path to the directory where template of the {@link Site} resides
 	 */
 	public void setTemplatePath(String templatePath) {
 		this.templatePath = templatePath;
@@ -408,8 +415,10 @@ public class PlatformTransformer {
 	/**
 	 * Clears the internal template-cache, which must be done if a {@link Site} is being reloaded.
 	 */
-	public static synchronized void clearCache() {
-		STYLESHEETS.clear();
+	public static synchronized void clearCache(Site site) {
+		if (null != site && STYLESHEETS.containsKey(site.getName())) {
+			STYLESHEETS.get(site.getName()).clear();
+		}
 	}
 
 	/**

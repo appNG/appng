@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class SubjectController extends ControllerBase {
 		return ok(entity);
 	}
 
-	@GetMapping(value = "/subject/{name}")
+	@GetMapping(value = "/subject/{name:.+}")
 	public ResponseEntity<Subject> getSubject(@PathVariable("name") String name) {
 		SubjectImpl subject = getCoreService().getSubjectByName(name, true);
 		if (null == subject) {
@@ -96,7 +96,7 @@ public class SubjectController extends ControllerBase {
 		return created(getSubject(subject.getName()).getBody());
 	}
 
-	@PutMapping(value = "/subject/{name}")
+	@PutMapping(value = "/subject/{name:.+}")
 	public ResponseEntity<Subject> updateSubject(@PathVariable("name") String name,
 			@RequestBody org.appng.appngizer.model.xml.Subject subject) throws BusinessException {
 		SubjectImpl subjectByName = getCoreService().getSubjectByName(name, true);
@@ -150,7 +150,7 @@ public class SubjectController extends ControllerBase {
 		getCoreService().addGroupsToSubject(name, groupNames, true);
 	}
 
-	@DeleteMapping(value = "/subject/{name}")
+	@DeleteMapping(value = "/subject/{name:.+}")
 	public ResponseEntity<Void> deleteSubject(@PathVariable("name") String name) {
 		SubjectImpl currentSubject = getCoreService().getSubjectByName(name, false);
 		if (null == currentSubject) {

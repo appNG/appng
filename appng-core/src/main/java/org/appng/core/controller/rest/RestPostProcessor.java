@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -33,8 +34,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,19 +48,18 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	}
 
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		StandardAnnotationMetadata restActionMetaData = new StandardAnnotationMetadata(RestAction.class);
-		AnnotatedGenericBeanDefinition restAction = new AnnotatedGenericBeanDefinition(restActionMetaData);
-		restAction.setScope("request");
-		registry.registerBeanDefinition("restAction", restAction);
-
-		StandardAnnotationMetadata restDataSourcesMetaData = new StandardAnnotationMetadata(RestDataSource.class);
-		AnnotatedGenericBeanDefinition restDataSource = new AnnotatedGenericBeanDefinition(restDataSourcesMetaData);
-		restDataSource.setScope("request");
-		registry.registerBeanDefinition("restDataSource", restDataSource);
+		registerRequestScoped(registry, RestAction.class);
+		registerRequestScoped(registry, RestDataSource.class);
 
 		StandardAnnotationMetadata restErrorHandlerMetaData = new StandardAnnotationMetadata(RestErrorHandler.class);
 		AnnotatedGenericBeanDefinition restErrorHandler = new AnnotatedGenericBeanDefinition(restErrorHandlerMetaData);
 		registry.registerBeanDefinition("restErrorHandler", restErrorHandler);
+	}
+
+	private void registerRequestScoped(BeanDefinitionRegistry registry, Class<?> beanClass) {
+		BeanDefinition bean = new AnnotatedGenericBeanDefinition(new StandardAnnotationMetadata(beanClass));
+		bean.setScope(WebApplicationContext.SCOPE_REQUEST);
+		registry.registerBeanDefinition(beanClass.getSimpleName(), bean);
 	}
 
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -80,8 +79,6 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 		return Ordered.LOWEST_PRECEDENCE;
 	}
 
-	@RestController
-	@RequestScope
 	static class RestAction extends RestActionBase {
 		@Autowired
 		public RestAction(Site site, Application application, Request request, MessageSource messageSource,
@@ -91,8 +88,6 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 
 	}
 
-	@RestController
-	@RequestScope
 	static class RestDataSource extends RestDataSourceBase {
 		@Autowired
 		public RestDataSource(Site site, Application application, Request request, MessageSource messageSource,

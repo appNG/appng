@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -279,8 +279,10 @@ public class FieldWrapper extends FieldDef {
 	}
 
 	public static String toString(FieldDef fieldDef) {
+		String condition = null == fieldDef.getCondition() ? ""
+				: ", condition: " + fieldDef.getCondition().getExpression();
 		return fieldDef.getBinding() + " (type: " + fieldDef.getType() + ", format: " + fieldDef.getFormat()
-				+ ", readonly:" + fieldDef.getReadonly() + ", hidden: " + fieldDef.getHidden() + ")";
+				+ ", readonly:" + fieldDef.getReadonly() + ", hidden: " + fieldDef.getHidden() + condition + ")";
 	}
 
 	public Linkpanel getLinkpanel() {

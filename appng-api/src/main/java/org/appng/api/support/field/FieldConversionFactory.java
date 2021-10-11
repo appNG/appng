@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
  * any {@link FieldType}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class FieldConversionFactory implements FieldConverter, InitializingBean {
@@ -168,8 +167,8 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 		FieldConverter fileConverter = new FileFieldConverter(conversionService);
 		converters.put(FieldType.FILE, fileConverter);
 		converters.put(FieldType.FILE_MULTIPLE, fileConverter);
-		FieldConverter defaultConverter = new DefaultFieldConverter(expressionEvaluator, conversionService,
-				environment, messageSource);
+		FieldConverter defaultConverter = new DefaultFieldConverter(expressionEvaluator, conversionService, environment,
+				messageSource);
 		converters.put(FieldType.TEXT, defaultConverter);
 		converters.put(FieldType.PASSWORD, defaultConverter);
 		converters.put(FieldType.LONGTEXT, defaultConverter);

@@ -17,9 +17,13 @@
 	</bean>
 
 	<bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
-		<property name="table" value="schema_version" />
-		<property name="locations" value="classpath:/db/migration/hsql" />
-		<property name="dataSource" ref="datasource" />
+		<constructor-arg>
+			<bean class="org.flywaydb.core.api.configuration.ClassicConfiguration">
+				<property name="table" value="schema_version" />
+				<property name="locations" value="classpath:/db/migration/hsql" />
+				<property name="dataSource" ref="datasource" />
+			</bean>
+		</constructor-arg>
 	</bean>
 
 </beans>

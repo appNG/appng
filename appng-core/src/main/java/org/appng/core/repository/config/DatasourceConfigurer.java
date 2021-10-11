@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.appng.core.domain.DatabaseConnection;
  * @author Matthias Müller
  */
 public interface DatasourceConfigurer {
-	
+
 	long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(5);
 	long DEFAULT_LIFE_TIME = TimeUnit.MINUTES.toMillis(15);
 

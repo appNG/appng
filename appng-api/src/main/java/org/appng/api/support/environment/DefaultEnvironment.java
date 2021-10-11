@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,45 +60,88 @@ public class DefaultEnvironment implements Environment {
 	private TimeZone timeZone = TimeZone.getDefault();
 	private Map<Scope, Boolean> scopeEnabled = new ConcurrentHashMap<>(4);
 
-	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession, ServletRequest servletRequest,
-			ServletResponse servletResponse) {
-		init(servletContext, httpSession, servletRequest, servletResponse, null);
-	}
-
 	protected DefaultEnvironment() {
 
 	}
 
-	public synchronized void init(ServletContext servletContext, HttpSession httpSession, ServletRequest servletRequest,
-			ServletResponse servletResponse, String host) {
+	@Deprecated
+	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession,
+			ServletRequest servletRequest) {
+		this(servletRequest, null);
+	}
+
+	/**
+	 * @deprecated use {@link #DefaultEnvironment(ServletRequest, ServletResponse)} instead.
+	 */
+	@Deprecated
+	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession, ServletRequest servletRequest,
+			ServletResponse servletResponse) {
+		this(servletRequest, servletResponse);
+	}
+
+	/**
+	 * Returns a fully initialized DefaultEnvironment.
+	 * 
+	 * @param context
+	 *                a {@link ServletContext}
+	 * @param host
+	 *                the host for the site-{@link Scope}
+	 * 
+	 * @deprecated use {@link DefaultEnvironment#get(ServletContext)} instead
+	 */
+	@Deprecated
+	public DefaultEnvironment(ServletContext context, String host) {
+		init(context, null, null);
+	}
+
+	public DefaultEnvironment(ServletRequest servletRequest, ServletResponse servletResponse) {
+		init(servletRequest.getServletContext(), servletRequest, servletResponse);
+	}
+
+	/**
+	 * Initializes the environment
+	 * 
+	 * @deprecated use {@link #init(ServletContext, ServletRequest, ServletResponse)} instead.
+	 */
+	@Override
+	@Deprecated
+	public void init(ServletContext context, HttpSession session, ServletRequest request, ServletResponse response,
+			String host) {
+		init(context, request, response);
+	}
+
+	public synchronized void init(ServletContext servletContext, ServletRequest servletRequest,
+			ServletResponse servletResponse) {
 		if (!initialized) {
-			for (Scope scope : Scope.values()) {
-				disable(scope);
-			}
 			if (null != servletContext) {
 				platform = new PlatformEnvironment(servletContext);
 				enable(Scope.PLATFORM);
-				if (null != host) {
-					site = new SiteEnvironment(servletContext, host);
-					enable(Scope.SITE);
-				}
+			} else {
+				disable(Scope.PLATFORM);
 			}
-			if (null != httpSession) {
-				Site currentSite = RequestUtil.getSite(this, servletRequest);
-				session = new SessionEnvironment(httpSession, null == currentSite ? null : currentSite.getName());
-				enable(Scope.SESSION);
-			}
+
 			if (null != servletRequest) {
+				Site currentSite = RequestUtil.getSite(this, servletRequest);
 				request = new RequestEnvironment(servletRequest, servletResponse);
 				enable(Scope.REQUEST);
-				if (null == site) {
-					site = new SiteEnvironment(servletContext, servletRequest.getServerName());
+
+				String siteName = null == currentSite ? null : currentSite.getName();
+				session = new SessionEnvironment((HttpServletRequest) servletRequest, siteName);
+				enable(Scope.SESSION);
+
+				if (null != currentSite) {
+					site = new SiteEnvironment(servletContext, currentSite.getHost());
 					enable(Scope.SITE);
+				} else if (null == scopeEnabled.get(Scope.SITE)) {
+					disable(Scope.SITE);
 				}
+
+			} else {
+				disable(Scope.REQUEST);
 			}
+
 			initialized = true;
 			initLocation();
-
 		} else {
 			throw new IllegalStateException("environment has already been initialized!");
 		}
@@ -121,32 +164,14 @@ public class DefaultEnvironment implements Environment {
 		}
 	}
 
-	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession,
-			ServletRequest servletRequest) {
-		this(servletContext, httpSession, servletRequest, null);
-	}
-
-	/**
-	 * Returns a fully initialized DefaultEnvironment.
-	 * 
-	 * @param context
-	 *            a {@link ServletContext}
-	 * @param host
-	 *            the host for the site-{@link Scope}
-	 */
-	public DefaultEnvironment(ServletContext context, String host) {
-		init(context, null, null, null, host);
-	}
-
 	/**
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param pageContext
-	 *            a {@link PageContext}
+	 *                    a {@link PageContext}
 	 */
 	public static DefaultEnvironment get(PageContext pageContext) {
-		return new DefaultEnvironment(pageContext.getServletContext(), pageContext.getSession(),
-				pageContext.getRequest(), pageContext.getResponse());
+		return new DefaultEnvironment(pageContext.getRequest(), pageContext.getResponse());
 	}
 
 	/**
@@ -154,54 +179,63 @@ public class DefaultEnvironment implements Environment {
 	 * for the returned instance.
 	 * 
 	 * @param session
-	 *            a {@link HttpSession}
+	 *                a {@link HttpSession}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(HttpSession session) {
-		return new DefaultEnvironment(session.getServletContext(), session, null);
+		DefaultEnvironment env = new DefaultEnvironment();
+		env.session = new SessionEnvironment(session, null);
+		env.platform = new PlatformEnvironment(session.getServletContext());
+		env.enable(Scope.SESSION);
+		env.enable(Scope.PLATFORM);
+		env.initLocation();
+		env.initialized = true;
+		return env;
 	}
 
 	/**
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                a {@link ServletContext}
 	 * @param request
-	 *            a {@link ServletRequest}
+	 *                a {@link ServletRequest}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request) {
-		return new DefaultEnvironment(context, ((HttpServletRequest) request).getSession(), request);
+		return get(request, null);
 	}
 
 	/**
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param request
-	 *            a {@link ServletRequest}
+	 *                 a {@link ServletRequest}
 	 * @param response
-	 *            a {@link ServletResponse}
+	 *                 a {@link ServletResponse}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletRequest request, ServletResponse response) {
-		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		return new DefaultEnvironment(httpServletRequest.getServletContext(), httpServletRequest.getSession(), request,
-				response);
+		return new DefaultEnvironment(request, response);
 	}
 
 	/**
 	 * Returns a fully initialized DefaultEnvironment.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                 a {@link ServletContext}
 	 * @param request
-	 *            a {@link ServletRequest}
+	 *                 a {@link ServletRequest}
 	 * @param response
-	 *            a {@link ServletResponse}
+	 *                 a {@link ServletResponse}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request, ServletResponse response) {
-		return new DefaultEnvironment(context, ((HttpServletRequest) request).getSession(), request, response);
+		return get(request, response);
 	}
 
 	/**
@@ -209,11 +243,14 @@ public class DefaultEnvironment implements Environment {
 	 * instance.
 	 * 
 	 * @param context
-	 *            a {@link ServletContext}
+	 *                a {@link ServletContext}
+	 * 
 	 * @return a new {@link DefaultEnvironment}
 	 */
 	public static DefaultEnvironment get(ServletContext context) {
-		return new DefaultEnvironment(context, null, null, null);
+		DefaultEnvironment environment = new DefaultEnvironment();
+		environment.init(context, null, null);
+		return environment;
 	}
 
 	public void setAttribute(Scope scope, String name, Object value) {
@@ -331,6 +368,10 @@ public class DefaultEnvironment implements Environment {
 		return null;
 	}
 
+	public Map<String, Object> getSession() {
+		return session.getAttributes();
+	}
+
 	public boolean isSubjectAuthenticated() {
 		Subject subject = getSubject();
 		return subject != null && subject.isAuthenticated();
@@ -340,7 +381,7 @@ public class DefaultEnvironment implements Environment {
 	 * Sets the {@link Subject} fur the current {@link HttpSession}.
 	 * 
 	 * @param subject
-	 *            the {@link Subject} to set
+	 *                the {@link Subject} to set
 	 */
 	public void setSubject(Subject subject) {
 		if (null != subject) {
@@ -353,8 +394,8 @@ public class DefaultEnvironment implements Environment {
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.TIMEOUT);
 				removeAttribute(Scope.SESSION, org.appng.api.Session.Environment.STARTTIME);
 				session.logout();
-				HttpSession httpSession = ((HttpServletRequest) request.getServletRequest()).getSession(true);
-				session = new SessionEnvironment(httpSession, session.getSiteName());
+				HttpServletRequest httpServletRequest = (HttpServletRequest) request.getServletRequest();
+				session = new SessionEnvironment(httpServletRequest, session.getSiteName());
 				oldContainer.keySet().forEach(key -> session.getContainer().put(key, oldContainer.get(key)));
 			}
 			setLocationFromSubject(subject);
@@ -445,7 +486,8 @@ public class DefaultEnvironment implements Environment {
 	 * Disables the given {@link Scope} for this environment
 	 * 
 	 * @param scope
-	 *            the {@link Scope} to disable
+	 *              the {@link Scope} to disable
+	 * 
 	 * @see #enable(Scope)
 	 */
 	public void disable(Scope scope) {
@@ -459,7 +501,8 @@ public class DefaultEnvironment implements Environment {
 	 * Enables the given {@link Scope} for this environment
 	 * 
 	 * @param scope
-	 *            the {@link Scope} to enable
+	 *              the {@link Scope} to enable
+	 * 
 	 * @see #disable(Scope)
 	 */
 	public void enable(Scope scope) {
@@ -495,6 +538,7 @@ public class DefaultEnvironment implements Environment {
 	 * Checks whether this {@link Environment} has been initialized.
 	 * 
 	 * @return {@code true} if his {@link Environment} has been initialized, {@code false} otherwise.
+	 * 
 	 * @see #init(ServletContext, HttpSession, ServletRequest, ServletResponse, String)
 	 */
 	public boolean isInitialized() {
@@ -505,7 +549,7 @@ public class DefaultEnvironment implements Environment {
 	 * Clears the site-scoped attributes for the given {@link Site}.
 	 * 
 	 * @param site
-	 *            The {@link Site} to clear the site-scope for.
+	 *             The {@link Site} to clear the site-scope for.
 	 */
 	public void clearSiteScope(Site site) {
 		String identifier = Scope.SITE.forSite(site.getHost());

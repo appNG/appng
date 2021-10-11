@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,6 @@ import org.springframework.beans.BeanWrapperImpl;
  * </p>
  * 
  * @author Matthias Müller
- *
  */
 public class XmlGenerator {
 
@@ -146,9 +145,9 @@ public class XmlGenerator {
 		 * Creates a new entity
 		 * 
 		 * @param type
-		 *            the type of the entity to create
+		 *                   the type of the entity to create
 		 * @param properties
-		 *            the properties to map when generating XML
+		 *                   the properties to map when generating XML
 		 */
 		public Entity(Class<?> type, String[] properties) {
 			this.type = type;
@@ -208,15 +207,16 @@ public class XmlGenerator {
 	 * </ul>
 	 * 
 	 * @param outPath
-	 *            the target folder for the files to be generated
+	 *                       the target folder for the files to be generated
 	 * @param name
-	 *            the name for the {@link ApplicationRootConfig}-file to be created
+	 *                       the name for the {@link ApplicationRootConfig}-file to be created
 	 * @param dictionaryName
-	 *            the name for the dictionary file to be created (&lt;dictionaryName>.properties)
+	 *                       the name for the dictionary file to be created (&lt;dictionaryName>.properties)
 	 * @param entities
-	 *            the list of {@link Entity}s to generate the source XML for
+	 *                       the list of {@link Entity}s to generate the source XML for
+	 * 
 	 * @throws Exception
-	 *             if something goes really wrong ;-)
+	 *                   if something goes really wrong ;-)
 	 */
 	public void generate(String outPath, String name, String dictionaryName, Entity... entities) throws Exception {
 		ApplicationRootConfig rootConfig = generateRootConfig(name);
@@ -246,11 +246,12 @@ public class XmlGenerator {
 	 * Creates a new XmlGenerator
 	 * 
 	 * @param addPermissions
-	 *            if {@link Permissions} should be generated and used when referencing {@link Action}s
+	 *                       if {@link Permissions} should be generated and used when referencing {@link Action}s
+	 * 
 	 * @throws JAXBException
-	 *             if creating a {@link MarshallService} fails
+	 *                                           if creating a {@link MarshallService} fails
 	 * @throws TransformerConfigurationException
-	 *             if an error occurs while configuring the {@link TransformerFactory}
+	 *                                           if an error occurs while configuring the {@link TransformerFactory}
 	 */
 	public XmlGenerator(boolean addPermissions) throws JAXBException, TransformerConfigurationException {
 		this.addPermissions = addPermissions;

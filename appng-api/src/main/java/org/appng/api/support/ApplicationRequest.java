@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -364,7 +364,9 @@ public class ApplicationRequest implements Request {
 	 * Creates a new {@link ApplicationPath} to be used to evaluate include-conditions on a page.
 	 * 
 	 * @return the {@link ApplicationPath}
-	 * @see    Path#getApplicationUrlParameters()
+	 * 
+	 * @see Path#getApplicationUrlParameters()
+	 * 
 	 * @since 1.21
 	 */
 	public ApplicationPath applicationPath() {

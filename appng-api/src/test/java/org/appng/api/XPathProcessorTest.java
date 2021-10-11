@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,8 @@ public class XPathProcessorTest {
 		XPathProcessor xpath = new XPathProcessor(doc);
 		xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
 		Assert.assertEquals("datasource", xpath.getString("//appng:datasource[2]/@id"));
-		Assert.assertEquals("doesNotExist", xpath.getString("//appng:datasource[@id=\"datasource\"]//appng:meta-data/@bindClass"));
+		Assert.assertEquals("doesNotExist",
+				xpath.getString("//appng:datasource[@id=\"datasource\"]//appng:meta-data/@bindClass"));
 	}
 
 	@Test

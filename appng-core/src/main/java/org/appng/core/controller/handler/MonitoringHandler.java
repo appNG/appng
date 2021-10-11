@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,14 +82,16 @@ import lombok.NoArgsConstructor;
  * </ul>
  * </p>
  * 
- * @see    Platform.Property#MONITORING_PATH
+ * @see Platform.Property#MONITORING_PATH
+ * 
  * @author Matthias Müller
  */
 public class MonitoringHandler implements RequestHandler {
 
-	private static final String MONITORING_PASSWORD = "monitoringPassword";
 	private static final String BASIC_REALM = "Basic realm=\"appNG Health Monitoring\"";
 	private static final String MONITORING_USER = "monitoring";
+	private static final String MONITORING_PASSWORD = "monitoringPassword";
+	private static final String MONITORING_BASE_AUTH = "monitoringBaseAuth";
 	private static final String PREFIX_PASSWORD = "password";
 	private ObjectWriter writer;
 
@@ -193,11 +195,14 @@ public class MonitoringHandler implements RequestHandler {
 
 	private boolean isAuthenticated(Environment env, HttpServletRequest servletRequest) {
 		Properties platformCfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String sharedSecret = platformCfg.getString(Platform.Property.SHARED_SECRET);
-		String password = platformCfg.getString(MONITORING_PASSWORD, sharedSecret);
-		String actualAuth = servletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-		String expectedAuth = Base64.getEncoder().encodeToString((MONITORING_USER + ":" + password).getBytes());
-		return null != actualAuth && actualAuth.equals("Basic " + expectedAuth);
+		if (platformCfg.getBoolean(MONITORING_BASE_AUTH, true)) {
+			String sharedSecret = platformCfg.getString(Platform.Property.SHARED_SECRET);
+			String password = platformCfg.getString(MONITORING_PASSWORD, sharedSecret);
+			String actualAuth = servletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+			String expectedAuth = Base64.getEncoder().encodeToString((MONITORING_USER + ":" + password).getBytes());
+			return null != actualAuth && actualAuth.equals("Basic " + expectedAuth);
+		}
+		return true;
 	}
 
 	@Data
