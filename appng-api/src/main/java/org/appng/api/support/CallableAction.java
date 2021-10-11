@@ -72,6 +72,7 @@ import org.appng.xml.platform.UserData;
 import org.appng.xml.platform.UserInputField;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -341,7 +342,7 @@ public class CallableAction {
 						target.append(outputPrefix);
 					}
 					target.append(getOnSuccess());
-					site.sendRedirect(applicationRequest.getEnvironment(), target.toString());
+					site.sendRedirect(applicationRequest.getEnvironment(), target.toString(), HttpStatus.FOUND.value());
 					getAction().setOnSuccess(target.toString());
 					applicationRequest.setRedirectTarget(target.toString());
 				} else if (!isSectionHidden) {
