@@ -61,6 +61,7 @@
 		<appNG.scheduler.version>1.13.0</appNG.scheduler.version>
 		<appNG.authentication.version>1.13.0</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
+		<bouncycastle.version>1.69</bouncycastle.version>
 		<esapi.version>2.2.3.1</esapi.version>
 		<hazelcast.version>5.0</hazelcast.version>
 		<hibernate.version>5.4.32.Final</hibernate.version>
@@ -882,6 +883,21 @@
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-scratchpad</artifactId>
 				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcmail-jdk15on</artifactId>
+				<version>${bouncycastle.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcpkix-jdk15on</artifactId>
+				<version>${bouncycastle.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk15on</artifactId>
+				<version>${bouncycastle.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jsoup</groupId>
