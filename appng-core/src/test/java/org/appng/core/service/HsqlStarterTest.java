@@ -15,6 +15,7 @@
  */
 package org.appng.core.service;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -37,8 +38,7 @@ public class HsqlStarterTest {
 
 		Server server = HsqlStarter.startHsql(platformProperties, "target/appNG");
 		String jdbcUrl = "jdbc:hsqldb:hsql://localhost:" + port + "/appng";
-		try {
-			DriverManager.getConnection(jdbcUrl, "sa", "");
+		try (Connection conn = DriverManager.getConnection(jdbcUrl, "sa", "")) {
 		} catch (SQLException e) {
 			Assert.fail(e.getMessage());
 		}
@@ -47,8 +47,7 @@ public class HsqlStarterTest {
 		Assert.assertEquals(ServerConstants.SERVER_STATE_ONLINE, server.getState());
 		HsqlStarter.shutdown(server);
 
-		try {
-			DriverManager.getConnection(jdbcUrl, "sa", "");
+		try (Connection conn = DriverManager.getConnection(jdbcUrl, "sa", "")) {
 			Assert.fail("getConnection() should fail!");
 		} catch (SQLException e) {
 		}
