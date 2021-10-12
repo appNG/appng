@@ -33,6 +33,7 @@ import org.appng.appngizer.model.xml.Group;
 import org.appng.appngizer.model.xml.Groups;
 import org.appng.appngizer.model.xml.Home;
 import org.appng.appngizer.model.xml.Package;
+import org.appng.appngizer.model.xml.Packages;
 import org.appng.appngizer.model.xml.Permission;
 import org.appng.appngizer.model.xml.Permissions;
 import org.appng.appngizer.model.xml.Properties;
@@ -379,6 +380,14 @@ public class AppNGizer implements AppNGizerClient {
 
 	public Package installPackage(String name, Package packageToInstall) {
 		return put("/repository/" + encode(name) + "/install/", packageToInstall, Package.class);
+	}
+
+	public Package getPackage(String name, String packageName, String version, String timeStamp) {
+		return get("/repository/" + encode(name) + "/" + packageName + "/" + version + "/" + timeStamp, Package.class);
+	}
+
+	public Packages getPackages(String name, String packageName) {
+		return get("/repository/" + encode(name) + "/" + packageName, Packages.class);
 	}
 
 	public Package uploadPackage(String name, File archive) throws IOException {

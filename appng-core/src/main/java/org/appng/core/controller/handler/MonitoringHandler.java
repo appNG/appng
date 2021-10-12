@@ -88,9 +88,10 @@ import lombok.NoArgsConstructor;
  */
 public class MonitoringHandler implements RequestHandler {
 
-	private static final String MONITORING_PASSWORD = "monitoringPassword";
 	private static final String BASIC_REALM = "Basic realm=\"appNG Health Monitoring\"";
 	private static final String MONITORING_USER = "monitoring";
+	private static final String MONITORING_PASSWORD = "monitoringPassword";
+	private static final String MONITORING_BASE_AUTH = "monitoringBaseAuth";
 	private static final String PREFIX_PASSWORD = "password";
 	private ObjectWriter writer;
 
@@ -194,11 +195,14 @@ public class MonitoringHandler implements RequestHandler {
 
 	private boolean isAuthenticated(Environment env, HttpServletRequest servletRequest) {
 		Properties platformCfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String sharedSecret = platformCfg.getString(Platform.Property.SHARED_SECRET);
-		String password = platformCfg.getString(MONITORING_PASSWORD, sharedSecret);
-		String actualAuth = servletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-		String expectedAuth = Base64.getEncoder().encodeToString((MONITORING_USER + ":" + password).getBytes());
-		return null != actualAuth && actualAuth.equals("Basic " + expectedAuth);
+		if (platformCfg.getBoolean(MONITORING_BASE_AUTH, true)) {
+			String sharedSecret = platformCfg.getString(Platform.Property.SHARED_SECRET);
+			String password = platformCfg.getString(MONITORING_PASSWORD, sharedSecret);
+			String actualAuth = servletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+			String expectedAuth = Base64.getEncoder().encodeToString((MONITORING_USER + ":" + password).getBytes());
+			return null != actualAuth && actualAuth.equals("Basic " + expectedAuth);
+		}
+		return true;
 	}
 
 	@Data

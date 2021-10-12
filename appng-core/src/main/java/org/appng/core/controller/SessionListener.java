@@ -208,7 +208,6 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 	}
 
 	public void requestDestroyed(ServletRequestEvent sre) {
-		MDC.clear();
 		HttpServletRequest httpServletRequest = (HttpServletRequest) sre.getServletRequest();
 		HttpSession httpSession = httpServletRequest.getSession(false);
 		if (null != httpSession && httpSession.isNew()) {
@@ -235,6 +234,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 
 			}
 		}
+		MDC.clear();
 	}
 
 }

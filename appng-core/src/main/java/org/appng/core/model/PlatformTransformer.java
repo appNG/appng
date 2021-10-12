@@ -87,7 +87,8 @@ public class PlatformTransformer {
 	private String prefix;
 
 	@SuppressWarnings("unchecked")
-	private static final Map<String, SourceAwareTemplate> STYLESHEETS = Collections.synchronizedMap(new LRUMap(20));
+	private static final Map<String, Map<String, SourceAwareTemplate>> STYLESHEETS = Collections
+			.synchronizedMap(new LRUMap(20));
 
 	public PlatformTransformer() {
 		this.templates = new HashSet<>();
@@ -166,10 +167,14 @@ public class PlatformTransformer {
 		String result = null;
 		TransformerException transformerException = null;
 		Boolean writeDebugFiles = platformProperties.getBoolean(org.appng.api.Platform.Property.WRITE_DEBUG_FILES);
+		String siteName = applicationProvider.getSite().getName();
+		if (!STYLESHEETS.containsKey(siteName)) {
+			STYLESHEETS.put(siteName, Collections.synchronizedMap(new LRUMap(20)));
+		}
 		try {
 			ErrorCollector errorCollector = new ErrorCollector();
-			if (!devMode && STYLESHEETS.containsKey(styleId)) {
-				sourceAwareTemplate = STYLESHEETS.get(styleId);
+			if (!devMode && STYLESHEETS.get(siteName).containsKey(styleId)) {
+				sourceAwareTemplate = STYLESHEETS.get(siteName).get(styleId);
 				styleSheetProvider.cleanup();
 				LOGGER.debug("reading templates from cache (id: {})", styleId);
 			} else {
@@ -188,7 +193,7 @@ public class PlatformTransformer {
 						LOGGER.error(t.getMessage(), t);
 					}
 					if (!devMode) {
-						STYLESHEETS.put(styleId, sourceAwareTemplate);
+						STYLESHEETS.get(siteName).put(styleId, sourceAwareTemplate);
 					}
 					LOGGER.debug("writing templates to cache (id: {})", styleId);
 				}
@@ -410,8 +415,10 @@ public class PlatformTransformer {
 	/**
 	 * Clears the internal template-cache, which must be done if a {@link Site} is being reloaded.
 	 */
-	public static synchronized void clearCache() {
-		STYLESHEETS.clear();
+	public static synchronized void clearCache(Site site) {
+		if (null != site && STYLESHEETS.containsKey(site.getName())) {
+			STYLESHEETS.get(site.getName()).clear();
+		}
 	}
 
 	/**

@@ -73,9 +73,21 @@ public class LdapServiceIT {
 	}
 
 	@Test
+	public void testLoginUser() throws Exception {
+		Site site = mockSite("ou=ACME,ou=Groups,dc=example,dc=com");
+		boolean success = new LdapService().loginUser(site, "John Wick", "secret".toCharArray());
+		Assert.assertTrue(success);
+	}
+
+	@Test
+	public void testLoginUserEmptyCredentials() throws Exception {
+		boolean success = new LdapService().loginUser(mockSite(""), "John Wick", "".toCharArray());
+		Assert.assertFalse(success);
+	}
+
+	@Test
 	public void testLoginUserInvalidCredentials() throws Exception {
-		Site site = mockSite("");
-		boolean success = new LdapService().loginUser(site, "John Wick", "wrong".toCharArray());
+		boolean success = new LdapService().loginUser(mockSite(""), "John Wick", "wrong".toCharArray());
 		Assert.assertFalse(success);
 	}
 

@@ -71,8 +71,6 @@ public class MarshallService {
 
 	private DocumentBuilderFactory documentBuilderFactory;
 	private TransformerFactory transformerFactory;
-	private Marshaller marshaller;
-	private Unmarshaller unmarshaller;
 	private boolean throwMarshallingError = false;
 	private boolean throwUnmarshallingError = false;
 	private List<String> cdataElements;
@@ -80,8 +78,7 @@ public class MarshallService {
 	private boolean prettyPrint = false;
 	private AppNGSchema schema;
 	private String schemaLocation;
-	private MarshallEventHandler marshallingEventHandler;
-	private MarshallEventHandler unmarshallingEventHandler;
+	private Schema validationSchema;
 
 	public AppNGSchema getSchema() {
 		return schema;
@@ -147,35 +144,41 @@ public class MarshallService {
 		init();
 	}
 
+	protected Marshaller getMarshaller() throws JAXBException {
+		Marshaller marshaller = schema.getContext().createMarshaller();
+		if (prettyPrint) {
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		}
+		if (useSchema) {
+			marshaller.setEventHandler(new MarshallEventHandler(throwMarshallingError));
+			if (null != schemaLocation) {
+				LOGGER.trace("schemaLocation is {}", schemaLocation);
+				marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
+						this.schema.getNamespace() + " " + schemaLocation);
+			}
+			marshaller.setSchema(validationSchema);
+		}
+		return marshaller;
+	}
+
+	protected Unmarshaller getUnmarshaller() throws JAXBException {
+		Unmarshaller unmarshaller = schema.getContext().createUnmarshaller();
+		if (useSchema) {
+			unmarshaller.setEventHandler(new MarshallEventHandler(throwUnmarshallingError));
+		}
+		return unmarshaller;
+	}
+
 	public void init() {
 		URL schemaUrl = MarshallService.class.getClassLoader().getResource(schema.getXsd());
-		try {
-			this.marshaller = schema.getContext().createMarshaller();
-			this.unmarshaller = schema.getContext().createUnmarshaller();
-			if (prettyPrint) {
-				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			}
-
-			if (useSchema) {
+		if (useSchema) {
+			try {
 				LOGGER.trace("using schema {}", schemaUrl);
 				SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-				Schema schema = sf.newSchema(schemaUrl);
-				marshaller.setSchema(schema);
-				unmarshaller.setSchema(schema);
-				this.marshallingEventHandler = new MarshallEventHandler(throwMarshallingError);
-				this.unmarshallingEventHandler = new MarshallEventHandler(throwUnmarshallingError);
-				marshaller.setEventHandler(marshallingEventHandler);
-				unmarshaller.setEventHandler(unmarshallingEventHandler);
-				if (null != schemaLocation) {
-					LOGGER.trace("schemaLocation is {}", schemaLocation);
-					marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
-							this.schema.getNamespace() + " " + schemaLocation);
-				}
+				this.validationSchema = sf.newSchema(schemaUrl);
+			} catch (SAXException e) {
+				LOGGER.error(String.format("error while loading Schema from url %s", schemaUrl), e);
 			}
-		} catch (JAXBException e) {
-			LOGGER.error("error while initializing JAXB", e);
-		} catch (SAXException e) {
-			LOGGER.error(String.format("error while Schema from url %s", schemaUrl), e);
 		}
 	}
 
@@ -190,7 +193,7 @@ public class MarshallService {
 			throws ParserConfigurationException, JAXBException, TransformerException {
 		Document document = marshallToDocument(data);
 		buildTransformer().transform(new DOMSource(document), new StreamResult(out));
-		logValidationMessages(marshallingEventHandler);
+		logValidationMessages(new MarshallEventHandler(throwMarshallingError));
 	}
 
 	public String marshal(Object data) throws ParserConfigurationException, JAXBException, TransformerException {
@@ -198,14 +201,14 @@ public class MarshallService {
 		DOMSource xmlSource = new DOMSource(document);
 		StringWriter writer = new StringWriter();
 		buildTransformer().transform(xmlSource, new StreamResult(writer));
-		logValidationMessages(marshallingEventHandler);
+		logValidationMessages(new MarshallEventHandler(throwMarshallingError));
 		return writer.toString();
 	}
 
 	private void logValidationMessages(MarshallEventHandler eventHandler) {
 		if (null != eventHandler) {
 			Collection<ErrorItem> errorItems = eventHandler.getErrorItems().values();
-			String separator = System.getProperty("line.separator");
+			String separator = System.lineSeparator();
 			for (ErrorItem errorItem : errorItems) {
 				StringBuilder sb = new StringBuilder("error on " + errorItem.object + ":");
 				sb.append(separator);
@@ -224,7 +227,7 @@ public class MarshallService {
 	private Document marshallToDocument(Object data)
 			throws ParserConfigurationException, JAXBException, TransformerException {
 		Document document = documentBuilderFactory.newDocumentBuilder().newDocument();
-		marshaller.marshal(data, document);
+		getMarshaller().marshal(data, document);
 		return document;
 	}
 
@@ -247,10 +250,9 @@ public class MarshallService {
 
 	private void marshalNoValidation(Object data, OutputStream stream) throws JAXBException {
 		try {
-			Schema schema = marshaller.getSchema();
+			Marshaller marshaller = getMarshaller();
 			marshaller.setSchema(null);
 			marshaller.marshal(data, stream);
-			marshaller.setSchema(schema);
 		} finally {
 			close(stream);
 		}
@@ -268,10 +270,9 @@ public class MarshallService {
 
 	public void marshalNoValidation(Object data, Writer writer) throws JAXBException {
 		try {
-			Schema schema = marshaller.getSchema();
+			Marshaller marshaller = getMarshaller();
 			marshaller.setSchema(null);
 			marshaller.marshal(data, writer);
-			marshaller.setSchema(schema);
 		} finally {
 			close(writer);
 		}
@@ -293,8 +294,8 @@ public class MarshallService {
 	}
 
 	public <T> T unmarshall(Source source, Class<T> clazz) throws JAXBException {
-		JAXBElement<T> unmarshal = unmarshaller.unmarshal(source, clazz);
-		logValidationMessages(unmarshallingEventHandler);
+		JAXBElement<T> unmarshal = getUnmarshaller().unmarshal(source, clazz);
+		logValidationMessages(new MarshallEventHandler(throwUnmarshallingError));
 		return unmarshal.getValue();
 	}
 
@@ -311,8 +312,8 @@ public class MarshallService {
 	}
 
 	private Object unmarshall(Source source) throws JAXBException {
-		Object object = unmarshaller.unmarshal(source);
-		logValidationMessages(unmarshallingEventHandler);
+		Object object = getUnmarshaller().unmarshal(source);
+		logValidationMessages(new MarshallEventHandler(throwUnmarshallingError));
 		if (object instanceof JAXBElement<?>) {
 			return ((JAXBElement<?>) object).getValue();
 		}
@@ -332,8 +333,8 @@ public class MarshallService {
 	}
 
 	public Object unmarshall(InputSource inputSource) throws JAXBException {
-		Object object = unmarshaller.unmarshal(inputSource);
-		logValidationMessages(unmarshallingEventHandler);
+		Object object = getUnmarshaller().unmarshal(inputSource);
+		logValidationMessages(new MarshallEventHandler(throwUnmarshallingError));
 		return object;
 	}
 

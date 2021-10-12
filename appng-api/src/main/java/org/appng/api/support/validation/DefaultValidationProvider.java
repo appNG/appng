@@ -82,6 +82,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultValidationProvider implements ValidationProvider {
 
+	private static final String PATH_SEPARATOR = ".";
 	private static final String INVALID_DIGIT = "invalid.digit";
 	private static final String INVALID_INTEGER = "invalid.integer";
 	private static final String INDEXED = "[]";
@@ -191,7 +192,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 	private Set<ConstraintDescriptor<?>> getConstraintsForProperty(final Class<?> validationClass,
 			final String propertyPath) {
 		String normalizedPath = propertyPath.replaceAll(INDEX_PATTERN, StringUtils.EMPTY);
-		int separator = normalizedPath.lastIndexOf('.');
+		int separator = normalizedPath.indexOf(PATH_SEPARATOR);
 		String rootPath = separator > 0 ? normalizedPath.substring(0, separator) : normalizedPath;
 		String leafName = separator > 0 ? normalizedPath.substring(separator + 1) : normalizedPath;
 
@@ -201,7 +202,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 		Class<?> concreteType = validationClass;
 		Field ancestor = null;
 		if (!rootPath.equals(leafName)) {
-			for (String segment : rootPath.split("\\.")) {
+			for (String segment : rootPath.split("\\" + PATH_SEPARATOR)) {
 				Field field = ReflectionUtils.findField(propertyType, segment);
 				if (null != field) {
 					if (null != ancestor) {
@@ -231,6 +232,10 @@ public class DefaultValidationProvider implements ValidationProvider {
 			}
 		}
 
+		if (leafName.indexOf(PATH_SEPARATOR) > 0) {
+			return getConstraintsForProperty(concreteType, leafName);
+		}
+
 		BeanDescriptor beanDescriptor = validator.getConstraintsForClass(concreteType);
 		if (null != beanDescriptor) {
 			PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(leafName);
@@ -238,6 +243,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 				constraints = propertyDescriptor.getConstraintDescriptors();
 				LOGGER.debug("Found constraint(s) for path {} on type {}: {}", propertyPath, validationClass,
 						constraints);
+			} else {
+				LOGGER.debug("No constraint(s) found for path {} on type {}", propertyPath, validationClass);
 			}
 		}
 
@@ -494,7 +501,8 @@ public class DefaultValidationProvider implements ValidationProvider {
 			String constraintPath = cv.getPropertyPath().toString();
 			String expectedBinding = constraintPath.replaceAll(INDEX_PATTERN, INDEXED);
 			int count = 0;
-			String absolutePropertyPath = null == propertyRoot ? constraintPath : propertyRoot + "." + constraintPath;
+			String absolutePropertyPath = null == propertyRoot ? constraintPath
+					: propertyRoot + PATH_SEPARATOR + constraintPath;
 			if (constraintPath.equals(relativePropertyPath) || expectedBinding.equals(relativePropertyPath)) {
 				Message errorMessage = addFieldMessage(fieldDef, absolutePropertyPath, cv);
 				LOGGER.debug("Added message '{}' to field {}", errorMessage.getContent(), absolutePropertyPath);

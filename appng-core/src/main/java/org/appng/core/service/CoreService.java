@@ -668,6 +668,31 @@ public class CoreService {
 		return false;
 	}
 
+	public boolean loginUserWithGroups(Environment env, String userName, String email, String realName,
+			List<String> appNGGroups) {
+		List<Group> groups = groupRepository.findByNameIn(appNGGroups);
+		if (groups.isEmpty()) {
+			return false;
+		}
+		SubjectImpl subject = new SubjectImpl();
+		subject.setEmail(email);
+		subject.setName(userName);
+		subject.setRealname(realName);
+		subject.setGroups(groups);
+		initializeSubject(subject);
+		return login(env, subject);
+	}
+
+	public boolean loginByUserName(Environment env, String username) {
+		SubjectImpl subject = getSubjectByName(username, true);
+		if (null != subject && UserType.LOCAL_USER.equals(subject.getUserType())) {
+			return login(env, subject);
+		} else {
+			LOGGER.info("User {} not found or not a local user!", username);
+			return false;
+		}
+	}
+
 	private boolean login(Environment env, SubjectImpl subject) {
 		if (subject != null) {
 			((DefaultEnvironment) env).setSubject(subject);
@@ -1897,7 +1922,7 @@ public class CoreService {
 		String siteTimeZone = site.getProperties().getString(Platform.Property.TIME_ZONE);
 		for (SubjectImpl subject : subjects) {
 			initializeSubject(subject);
-			subject.getApplicationroles(application);
+			subject.getApplicationRoles(application);
 			if (UserType.GLOBAL_GROUP.equals(subject.getUserType())) {
 				List<SubjectImpl> membersOfGroup = ldapService.getMembersOfGroup(site, subject.getAuthName());
 				for (SubjectImpl ldapSubject : membersOfGroup) {
@@ -1922,7 +1947,7 @@ public class CoreService {
 	private ApplicationSubject getApplicationSubject(ApplicationImpl application, SubjectImpl subject) {
 		ApplicationSubject ps = new ApplicationSubjectImpl(subject.getAuthName(), subject.getRealname(),
 				subject.getEmail(), subject.getLanguage(), subject.getTimeZone());
-		ps.getRoles().addAll(subject.getApplicationroles(application));
+		ps.getRoles().addAll(subject.getApplicationRoles(application));
 		return ps;
 	}
 
@@ -2161,6 +2186,20 @@ public class CoreService {
 
 	public void setSiteReloadCount(SiteImpl site) {
 		siteRepository.findOne(site.getId()).setReloadCount(site.getReloadCount());
+	}
+
+	public void refreshTemplate(Site site, PlatformProperties platformConfig) {
+		Properties siteProps = site.getProperties();
+		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
+		if (null == template) {
+			String rootPath = platformConfig.getString(Platform.Property.PLATFORM_ROOT_PATH);
+			String templateFolder = platformConfig.getString(Platform.Property.TEMPLATE_FOLDER);
+			String templateRealPath = new File(rootPath, templateFolder).getAbsolutePath();
+			TemplateService.copyTemplate(platformConfig, siteProps, templateRealPath);
+		} else {
+			TemplateService.materializeTemplate(template, platformConfig, siteProps);
+		}
+		CacheService.expireCacheElementsStartingWith(site, "/template");
 	}
 
 }

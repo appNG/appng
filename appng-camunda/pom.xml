@@ -16,8 +16,8 @@
 	</parent>
 
 	<properties>
-		<camunda.version>7.10.0</camunda.version>
-		<camunda.javadoc.version>7.10</camunda.javadoc.version>
+		<camunda.version>7.15.0</camunda.version>
+		<camunda.javadoc.version>7.15</camunda.javadoc.version>
 	</properties>
 
 	<build>

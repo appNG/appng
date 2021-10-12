@@ -89,7 +89,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 public class TestSupport {
 
-	protected String host = "host.example.com";
+	protected String host = "manager";
 
 	protected String manager = "manager";
 
@@ -324,8 +324,7 @@ public class TestSupport {
 		siteMap.put(site.getName(), site);
 
 		this.platformProperties = new PropertyHolder(PropertySupport.PREFIX_PLATFORM, new ArrayList<>());
-		java.util.Properties overrides = new java.util.Properties();
-		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
+		java.util.Properties overrides = getPlatformPropertyOverrides();
 		new PropertySupport((PropertyHolder) platformProperties).initPlatformConfig("target/root", true, overrides,
 				true);
 		platformMap = new ConcurrentHashMap<>();
@@ -361,6 +360,12 @@ public class TestSupport {
 		site.getSiteApplications().add(provider);
 
 		Mockito.when(ctx.getAttribute(Scope.PLATFORM.name())).thenReturn(platformMap);
+	}
+
+	protected java.util.Properties getPlatformPropertyOverrides() {
+		java.util.Properties overrides = new java.util.Properties();
+		overrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
+		return overrides;
 	}
 
 	protected Subject getSubject() {

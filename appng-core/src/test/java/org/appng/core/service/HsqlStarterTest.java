@@ -15,15 +15,15 @@
  */
 package org.appng.core.service;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.testsupport.persistence.ConnectionHelper;
 import org.hsqldb.Server;
+import org.hsqldb.server.ServerConstants;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,32 +38,22 @@ public class HsqlStarterTest {
 
 		Server server = HsqlStarter.startHsql(platformProperties, "target/appNG");
 		String jdbcUrl = "jdbc:hsqldb:hsql://localhost:" + port + "/appng";
-		try {
-			DriverManager.getConnection(jdbcUrl, "sa", "");
+		try (Connection conn = DriverManager.getConnection(jdbcUrl, "sa", "")) {
 		} catch (SQLException e) {
 			Assert.fail(e.getMessage());
 		}
 
-		List<String> hsqlThreads = getHsqlThreads();
+		Assert.assertTrue(server.getServerThread().isAlive());
+		Assert.assertEquals(ServerConstants.SERVER_STATE_ONLINE, server.getState());
 		HsqlStarter.shutdown(server);
 
-		try {
-			DriverManager.getConnection(jdbcUrl, "sa", "");
-			Assert.fail("getConnection() should fail");
+		try (Connection conn = DriverManager.getConnection(jdbcUrl, "sa", "")) {
+			Assert.fail("getConnection() should fail!");
 		} catch (SQLException e) {
 		}
 
-		while (hsqlThreads.size() > 0) {
-			Thread.sleep(1000);
-			hsqlThreads = getHsqlThreads();
-		}
-
-		Assert.assertTrue("HSQL Threads should be empty, but there are " + hsqlThreads.size(), hsqlThreads.isEmpty());
-	}
-
-	private List<String> getHsqlThreads() {
-		return Thread.getAllStackTraces().keySet().stream().filter(t -> t.getName().startsWith("HSQLDB"))
-				.map(Thread::getName).collect(Collectors.toList());
+		Assert.assertTrue("HSQL server thread should be dead!", null == server.getServerThread());
+		Assert.assertEquals(ServerConstants.SERVER_STATE_SHUTDOWN, server.getState());
 	}
 
 }

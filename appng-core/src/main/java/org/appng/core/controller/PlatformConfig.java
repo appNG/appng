@@ -72,10 +72,19 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
  * @author Matthias Müller
  */
 @Configuration
-@ComponentScan(basePackages = { "org.appng.core",
-		"org.appng.taglib.config" }, excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
 @EnableTransactionManagement
-@EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "org.appng.core.repository", entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "coreTxManager")
+// @formatter:off
+@ComponentScan(
+	basePackages = { "org.appng.core", "org.appng.taglib.config" },
+	excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*")
+)
+@EnableJpaRepositories(
+	repositoryBaseClass = SearchRepositoryImpl.class,
+	basePackages = "org.appng.core.repository",
+	entityManagerFactoryRef = "entityManagerFactory",
+	transactionManagerRef = "coreTxManager"
+)
+// @formatter:on
 public class PlatformConfig {
 
 	@Bean
@@ -96,8 +105,8 @@ public class PlatformConfig {
 			@Value("${database.minConnections:3}") Integer minConnections,
 			@Value("${database.maxConnections:10}") Integer maxConnections,
 			@Value("${database.maxLifetime:90000}") Integer maxLifetime,
-			@Value("${database.validationQuery}") String validationQuery,
-			@Value("${database.validationPeriod}") Integer validationPeriod,
+			@Value("${database.validationQuery:}") String validationQuery,
+			@Value("${database.validationPeriod:}") Integer validationPeriod,
 			@Value("${database.validationTimeout:5000}") Integer validationTimeout,
 			@Value("${database.connectionTimeout:5000}") Integer connectionTimeout,
 			@Value("${database.logPerformance:false}") boolean logPerformance

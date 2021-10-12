@@ -23,38 +23,39 @@ import org.appng.api.messaging.Sender;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.messaging.NodeEvent;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Continuously sends {@link NodeEvent}s to the other cluster members, if messaging is enabled.
  */
 @Slf4j
-@AllArgsConstructor
-public class HeartBeat implements Runnable {
+public class HeartBeat extends Thread {
 
 	private final long heartBeatInterval;
 	private final ServletContext servletContext;
+
+	public HeartBeat(long heartBeatInterval, ServletContext servletContext) {
+		super("appng-heartbeat");		
+		this.heartBeatInterval = heartBeatInterval;
+		this.servletContext = servletContext;
+	}
 
 	@Override
 	public void run() {
 		DefaultEnvironment env = DefaultEnvironment.get(servletContext);
 		Sender sender = Messaging.getMessageSender(env);
-		if (null != sender) {
-			while (!Thread.currentThread().isInterrupted()) {
-				boolean sent = sender.send(new NodeEvent(env, StringUtils.EMPTY));
-				if (!sent) {
-					LOGGER.warn("NodeEvent could not be sent, please check messaging configuration.");
-				}
-				try {
-					Thread.sleep(heartBeatInterval);
-				} catch (InterruptedException e) {
-					LOGGER.error("Thread was interrupted!");
-					Thread.currentThread().interrupt();
-				}
+		while (!isInterrupted()) {
+			boolean sent = sender.send(new NodeEvent(env, StringUtils.EMPTY));
+			if (!sent) {
+				LOGGER.warn("NodeEvent could not be sent, please check messaging configuration.");
 			}
-		} else {
-			LOGGER.info("Messaging is disabled, not sending heartbeat.");
+			try {
+				sleep(heartBeatInterval);
+			} catch (InterruptedException e) {
+				LOGGER.error("Thread was interrupted!");
+				interrupt();
+			}
 		}
 	}
+
 }

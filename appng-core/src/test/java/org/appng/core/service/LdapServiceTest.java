@@ -136,7 +136,7 @@ public class LdapServiceTest {
 		// Password wrong
 		sitePropertyMocks.replace(LdapService.LDAP_PRINCIPAL_SCHEME, "SAM");
 		sitePropertyMocks.replace(LdapService.LDAP_DOMAIN, "egypt");
-		ldapContextMock = setup("egypt\\aziz", "shadow", null, null);
+		ldapContextMock = setup("egypt\\aziz", "", null, null);
 		success = ldapService.loginUser(mockedSite, "aziz", "light".toCharArray());
 		Assert.assertFalse(success);
 		exList = ldapContextMock.exceptionHistory;

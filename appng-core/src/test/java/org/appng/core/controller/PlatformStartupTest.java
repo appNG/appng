@@ -91,7 +91,7 @@ public class PlatformStartupTest extends PlatformStartup {
 
 		Mockito.verify(initializerService).initPlatform(Mockito.isA(PlatformProperties.class),
 				Mockito.isA(Environment.class), Mockito.isA(DatabaseConnection.class), Mockito.eq(servContext),
-				Mockito.isA(ExecutorService.class));
+				Mockito.isA(ExecutorService.class), Mockito.isA(ExecutorService.class));
 		contextDestroyed(new ServletContextEvent(servContext));
 		Mockito.verify(initializerService).shutdownPlatform(servContext);
 		Mockito.verify(platformCtx).close();

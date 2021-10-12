@@ -209,14 +209,15 @@ public class LdapService {
 			return false;
 		}
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
-		TlsAwareLdapContext ctx = null;
-		try {
-			ctx = new TlsAwareLdapContext(ldapCredentials);
+		try (TlsAwareLdapContext ctx = new TlsAwareLdapContext(ldapCredentials)) {
+			String baseDn = site.getProperties().getString(LDAP_USER_BASE_DN);
+			if (StringUtils.isBlank(baseDn)) {
+				baseDn = site.getProperties().getString(LDAP_GROUP_BASE_DN);
+			}
+			ctx.delegate.getAttributes(baseDn);
 			return true;
 		} catch (IOException | NamingException ex) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-		} finally {
-			closeContext(ctx);
+			logException(ldapCredentials.ldapHost, username, ex);
 		}
 		return false;
 	}
@@ -251,14 +252,10 @@ public class LdapService {
 			return Collections.emptyList();
 		}
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
-		TlsAwareLdapContext ctx = null;
-		try {
-			ctx = new TlsAwareLdapContext(ldapCredentials);
+		try (TlsAwareLdapContext ctx = new TlsAwareLdapContext(ldapCredentials)) {
 			return getUserGroups(ctx.delegate, username, site, subject, groupNames);
 		} catch (NamingException | IOException ex) {
 			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-		} finally {
-			closeContext(ctx);
 		}
 		return Collections.emptyList();
 	}
@@ -327,9 +324,7 @@ public class LdapService {
 		String idAttribute = site.getProperties().getString(LDAP_ID_ATTRIBUTE);
 		String groupDn = getGroupDn(groupName, groupBaseDn);
 
-		TlsAwareLdapContext ctx = null;
-		try {
-			ctx = new TlsAwareLdapContext(ldapCredentials);
+		try (TlsAwareLdapContext ctx = new TlsAwareLdapContext(ldapCredentials)) {
 			for (String member : getGroupMembers(ctx.delegate, groupDn)) {
 				Attributes userAttrs = getUserAttributes(ctx.delegate, member, idAttribute);
 				SubjectImpl ldapSubject = fillSubjectFromAttributes(new SubjectImpl(), idAttribute, userAttrs);
@@ -337,8 +332,6 @@ public class LdapService {
 			}
 		} catch (IOException | NamingException ex) {
 			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-		} finally {
-			closeContext(ctx);
 		}
 		LOGGER.info("Found {} member(s) for group '{}'", subjects.size(), groupDn);
 		return subjects;
@@ -395,13 +388,7 @@ public class LdapService {
 		}
 	}
 
-	private void closeContext(TlsAwareLdapContext ctx) {
-		if (null != ctx) {
-			ctx.close();
-		}
-	}
-
-	private class TlsAwareLdapContext {
+	private class TlsAwareLdapContext implements AutoCloseable {
 		private final LdapContext delegate;
 		private StartTlsResponse tls;
 
@@ -422,6 +409,7 @@ public class LdapService {
 			}
 		}
 
+		@Override
 		public void close() {
 			if (tls != null) {
 				try {

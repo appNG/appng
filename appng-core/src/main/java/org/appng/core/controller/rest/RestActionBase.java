@@ -78,10 +78,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RestController
 abstract class RestActionBase extends RestOperation {
 
 	@Autowired
@@ -139,7 +141,6 @@ abstract class RestActionBase extends RestOperation {
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null);
-		postProcessAction(action, site, application, env);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -204,7 +205,6 @@ abstract class RestActionBase extends RestOperation {
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData);
-		postProcessAction(action, site, application, env);
 		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
 
@@ -585,10 +585,6 @@ abstract class RestActionBase extends RestOperation {
 		public String toString() {
 			return getClass().getName() + ": " + getWrappedRequest().getParametersList();
 		}
-	}
-
-	protected void postProcessAction(Action action, Site site, Application application, Environment environment) {
-		// optionally implemented by subclass
 	}
 
 	Logger getLogger() {

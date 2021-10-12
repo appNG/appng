@@ -31,7 +31,6 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.jar.JarInputStream;
 
 import javax.servlet.ServletContext;
@@ -80,7 +79,7 @@ public class PlatformStartup implements ServletContextListener {
 	public static final String APPNG_CONTEXT = "appNG platform context";
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
 	public static final String WEB_INF = "/WEB-INF";
-	private ExecutorService executor;
+	private ExecutorService messagingExecutor;
 	private ExecutorService startUpExecutor;
 
 	public void contextInitialized(ServletContextEvent sce) {
@@ -115,29 +114,28 @@ public class PlatformStartup implements ServletContextListener {
 
 			initPlatformContext(ctx, env, config, platformConnection);
 			InitializerService service = getService(env);
-			ThreadFactoryBuilder tfb = new ThreadFactoryBuilder();
-			ThreadFactory threadFactory = tfb.setDaemon(true).setNameFormat("appng-messaging-%d").build();
-			executor = Executors.newFixedThreadPool(2, threadFactory);
-
 			final PlatformProperties platformProperties = service.loadPlatformProperties(config, env);
 			service.loadNodeProperties(env);
+			File debugFolder = new File(appngData, "debug").getAbsoluteFile();
+			if (!(debugFolder.exists() || debugFolder.mkdirs())) {
+				LOGGER.warn("Failed to create debig folder at {}", debugFolder.getPath());
+			}
 
-			Runnable startUp = () -> {
-				try {
-					service.initPlatform(platformProperties, env, platformConnection, ctx, executor);
-					startupWatch.stop();
-					String appngVersion = env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
-					LOGGER.info("appNG {} started in {} ms.", appngVersion, startupWatch.getTotalTimeMillis());
-					LOGGER.info(StringUtils.leftPad("", 100, "="));
-					ctx.setAttribute(APPNG_STARTED, true);
-				} catch (Exception e) {
-					LOGGER.error("error during platform startup", e);
-					contextDestroyed(sce);
-				}
-			};
-			startUpExecutor = Executors
-					.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("appNG Startup").build());
-			startUpExecutor.execute(startUp);
+			messagingExecutor = Executors.newSingleThreadExecutor(
+					new ThreadFactoryBuilder().setDaemon(true).setNameFormat(Messaging.getNodeId(env)).build());
+			startUpExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+					new ThreadFactoryBuilder().setNameFormat("appng-startup-%d").setUncaughtExceptionHandler((t, e) -> {
+						LOGGER.error("Uncaught exception was thrown!", e);
+					}).build());
+
+			service.initPlatform(platformProperties, env, platformConnection, ctx, messagingExecutor, startUpExecutor);
+			startUpExecutor.shutdown();
+			startupWatch.stop();
+			String appngVersion = env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
+			LOGGER.info("appNG {} started in {} ms.", appngVersion, startupWatch.getTotalTimeMillis());
+			LOGGER.info(StringUtils.leftPad("", 100, "="));
+			ctx.setAttribute(APPNG_STARTED, true);
+
 		} catch (Exception e) {
 			LOGGER.error("error during platform startup", e);
 			contextDestroyed(sce);
@@ -205,7 +203,7 @@ public class PlatformStartup implements ServletContextListener {
 		}
 		Messaging.shutdown(env);
 		HazelcastConfigurer.shutdown();
-		shutDownExecutor(executor);
+		shutDownExecutor(messagingExecutor);
 		shutDownExecutor(startUpExecutor);
 		LOGGER.info("appNG stopped.");
 		LOGGER.info(StringUtils.leftPad("", 100, "="));

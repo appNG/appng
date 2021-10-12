@@ -182,6 +182,8 @@ public final class Platform {
 		 * {@link Application}s.
 		 */
 		public static final String MANAGE_DATABASES = "manageDatabases";
+		/** A multilined property containing a maintenance screen */
+		public static final String MAINTENANCE_SCREEN ="maintenanceScreen";
 		/** set to {@code true} to enable support for Mapped Diagnostic Context (MDC) Logging. */
 		public static final String MDC_ENABLED = "mdcEnabled";
 		/** Set to true to enable cluster messaging */
@@ -196,6 +198,8 @@ public final class Platform {
 		public static final String MAX_UPLOAD_SIZE = "maxUploadSize";
 		/** Set to true to enable performance monitoring for the target XML */
 		public static final String MONITOR_PERFORMANCE = "monitorPerformance";
+		/** Start sites in parallel {@code true|false} ? */
+		public static final String PARALLEL_SITE_STARTS = "parallelSiteStarts";
 		/** The maximum number of days a password is valid, where -1 means forever */
 		public static final String PASSWORD_MAX_VALIDITY = "passwordMaxValidity";
 		/** The fully qualified name of the {@link PasswordPolicy} to use. */
@@ -287,6 +291,15 @@ public final class Platform {
 		 * (milliseconds).
 		 */
 		public static final String MAX_WAIT_TIME = "maxWaitTime";
+
+		/** The 'Token Claim Name' configured in the 'User Client Role'-mapper of the Keycloak client */
+		public static final String KEYCLOAK_GROUP_CLAIM_NAME = "keycloakGroupClaimName";
+
+		/** The 'Client Role prefix' configured in the 'User Client Role'-mapper of the Keycloak client */
+		public static final String KEYCLOAK_GROUP_PREFIX = "keycloakGroupPrefix";
+
+		/** The role configured in the Keycloak client, used as a security-role in web.xml */
+		public static final String KEYCLOAK_SECURITY_ROLE = "keycloakSecurityRole";
 
 		/** The maximum number of failed login attempts before a {@link Subject} gets locked. */
 		public static final String MAX_LOGIN_ATTEMPTS = "maxLoginAttempts";

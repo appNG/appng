@@ -65,6 +65,10 @@
 					<groupId>javax.ws.rs</groupId>
 					<artifactId>javax.ws.rs-api</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-rt-rs-client</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
