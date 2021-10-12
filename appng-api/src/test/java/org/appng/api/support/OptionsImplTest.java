@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.junit.Test;
  * Test for {@link OptionsImpl}.
  * 
  * @author Gajanan Nilwarn
- * 
  */
 public class OptionsImplTest {
 
@@ -62,7 +61,7 @@ public class OptionsImplTest {
 		Assert.assertEquals(Integer.valueOf(6), options.getInteger("options-6", "integer-6"));
 		Assert.assertEquals(Integer.valueOf(-7), options.getInteger("options-7", "integer-7"));
 		Assert.assertNull(options.getInteger("options-4", "attribute-4"));
-		Assert.assertNull(options.getInteger("options-7","not-exists"));
+		Assert.assertNull(options.getInteger("options-7", "not-exists"));
 	}
 
 	@Test

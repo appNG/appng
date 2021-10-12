@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
  * A {@code IndexConfig} is used to provide different index configurations for different folders.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class IndexConfig {
@@ -53,7 +52,7 @@ public class IndexConfig {
 	 * Creates a new {@code ParseTags} using the given tag-prefix (usually {@code appNG}).
 	 * 
 	 * @param tagPrefix
-	 *            the tag prefix to use
+	 *                  the tag prefix to use
 	 */
 	public IndexConfig(String tagPrefix) {
 		this.tagPrefix = tagPrefix;
@@ -70,9 +69,10 @@ public class IndexConfig {
 	 * {@code org.apache.lucene.analysis.<folder>.<analyzer-class>}
 	 * 
 	 * @param configString
-	 *            the string to parse the {@link IndexConfig} from
+	 *                     the string to parse the {@link IndexConfig} from
 	 * @param tagPrefix
-	 *            the tag prefix to use
+	 *                     the tag prefix to use
+	 * 
 	 * @return the {@link IndexConfig} instance
 	 */
 	public static IndexConfig getInstance(String configString, String tagPrefix) {
@@ -87,9 +87,10 @@ public class IndexConfig {
 	 * {@code /en;en-US;org.apache.lucene.analysis.en.EnglishAnalyzer}
 	 * 
 	 * @param configEntries
-	 *            a list of config entries
+	 *                      a list of config entries
 	 * @param tagPrefix
-	 *            the tag prefix to use
+	 *                      the tag prefix to use
+	 * 
 	 * @return the {@link IndexConfig} instance
 	 */
 	public static IndexConfig getInstance(List<String> configEntries, String tagPrefix) {
@@ -113,7 +114,6 @@ public class IndexConfig {
 	 * use.
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	public class ConfigEntry {
 		private final String folder;

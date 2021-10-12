@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.data.domain.Sort.Order;
  * Test for {@link SortParamSupport}
  * 
  * @author Matthias Müller
- * 
  */
 public class SortParamSupportTest {
 
@@ -53,7 +52,8 @@ public class SortParamSupportTest {
 
 	@Test
 	public void testWithPageParams() {
-		Mockito.when(sessionMap.get(SESS_PARAM_ID)).thenReturn("type:asc;lastname:asc;name:asc;id:asc;page:4;pageSize:5");
+		Mockito.when(sessionMap.get(SESS_PARAM_ID))
+				.thenReturn("type:asc;lastname:asc;name:asc;id:asc;page:4;pageSize:5");
 		Pageable fromSession = sortParamSupport.getPageable(null);
 		Assert.assertEquals(new Sort(Direction.ASC, "type", "lastname", "name", "id"), fromSession.getSort());
 		Assert.assertEquals(4, fromSession.getPageNumber());

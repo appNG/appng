@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Message;
 
 /**
- * Interface that can be implemented by an {@link ActionProvider} or the formBean that is used by an {@link ActionProvider}
- * . A {@link FormValidator} is used for contextual validation, e.g. to verify that one value is greater than the other
- * or that two given passwords match. For all other basic validations, use <a
- * href="https://jcp.org/en/jsr/detail?id=380">JSR-380 (Bean Validtion 2.0)</a> annotations.<br/>
+ * Interface that can be implemented by an {@link ActionProvider} or the formBean that is used by an
+ * {@link ActionProvider} . A {@link FormValidator} is used for contextual validation, e.g. to verify that one value is
+ * greater than the other or that two given passwords match. For all other basic validations, use
+ * <a href="https://jcp.org/en/jsr/detail?id=380">JSR-380 (Bean Validtion 2.0)</a> annotations.<br/>
  * The {@code validate()}-method is being called before the {@link ActionProvider}s {@code perform}-method. Only if
  * there are no errors (see {@link FieldProcessor#hasErrors()}), the {@link ActionProvider} is being actually called.
  * 
@@ -40,17 +40,18 @@ public interface FormValidator {
 	 * {@link FieldProcessor} using one of its {@code addErrorMessage()}-methods.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                       the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                       the current {@link Application}
 	 * @param environment
-	 *            the current {@link Environment}
+	 *                       the current {@link Environment}
 	 * @param options
-	 *            the {@link Options} for this {@link DataProvider}
+	 *                       the {@link Options} for this {@link DataProvider}
 	 * @param request
-	 *            the current {@link Request}
+	 *                       the current {@link Request}
 	 * @param fieldProcessor
-	 *            the {@link FieldProcessor} containing all readable {@link FieldDef}initions for the DataProvider
+	 *                       the {@link FieldProcessor} containing all readable {@link FieldDef}initions for the
+	 *                       DataProvider
 	 * 
 	 * @see FieldProcessor#addErrorMessage(String)
 	 * @see FieldProcessor#addErrorMessage(FieldDef, String)

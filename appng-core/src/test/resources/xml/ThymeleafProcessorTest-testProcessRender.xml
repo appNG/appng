@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="./template/resources/css/style.css" rel="stylesheet" />
+</head>
+<body>
+		<div>
+    <span>Hello John Doe!</span>
+  </div>
+	<div>true</div>
+	<div>true</div>
+	<div>Europe/Berlin</div>
+	<div>[PLATFORM, APP, SITE, appNG, thymeleaf::EvaluationContext, REQUEST, SESSION, platform]</div>
+	<div>John Doe</div>
+	<div>thymeleaf</div>
+	<div>all</div>
+	<div>UTF-8</div>
+</body>
+</html>

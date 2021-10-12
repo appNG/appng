@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,13 +133,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
  * Base class for integration-testing an {@link Application}.<br />
- * 
- * 
  * Example Usage (w/o JPA):
  * 
  * <pre>
@@ -192,7 +192,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </pre>
  * 
  * @author Matthias Müller
- * 
  */
 @ContextConfiguration(locations = { TestBase.BEANS_PATH, TestBase.TESTCONTEXT })
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -225,7 +224,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	@Autowired
 	protected MockHttpServletRequest servletRequest;
 
-	protected MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+	@Autowired
+	protected MockHttpServletResponse servletResponse;
 
 	@Autowired
 	protected ConfigurableApplicationContext context;
@@ -394,6 +394,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * {@link Application}'s properties. Override in subclasses to add custom values.
 	 * 
 	 * @return the properties to use
+	 * 
 	 * @see Application#getProperties()
 	 * @see #initialize(GenericApplicationContext)
 	 */
@@ -413,9 +414,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * {@link ActionCall#withParam(String, String)}!</strong>
 	 * 
 	 * @param name
-	 *            the name of the parameter
+	 *              the name of the parameter
 	 * @param value
-	 *            the value of the parameter
+	 *              the value of the parameter
 	 */
 	protected void addParameter(String name, String value) {
 		parameters.put(name, value);
@@ -483,16 +484,16 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		sites.put(site.getHost(), site);
 		platformEnv.put(Platform.Environment.SITES, sites);
 
-		this.session = new MockHttpSession(servletContext);
+		session = new MockHttpSession(servletContext);
+		servletRequest.setSession(session);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformEnv);
 
 		environment = context.getBean("environment", Environment.class);
-		if (!((DefaultEnvironment) environment).isInitialized()) {
-			environment.init(servletContext, session, servletRequest, servletResponse, site.getHost());
-		}
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, path);
 		Mockito.when(path.getServicePath()).thenReturn(SITE_SERVICE_PATH);
 		Mockito.when(path.getGuiPath()).thenReturn(SITE_MANAGER_PATH);
+		
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest, servletResponse));
 	}
 
 	protected List<Property> getSiteProperties(String prefix) {
@@ -640,7 +641,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * Returns a {@link DataSourceCall} that wraps a {@link DatasourceRef}, using the given id for a {@link Datasource}
 	 * 
 	 * @param id
-	 *            the id of the {@link Datasource}
+	 *           the id of the {@link Datasource}
+	 * 
 	 * @return the {@link DataSourceCall}
 	 */
 	protected DataSourceCall getDataSource(String id) {
@@ -651,9 +653,10 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * Returns an {@link ActionCall} that wraps an {@link ActionRef}, using the given id for an {@link Action}.
 	 * 
 	 * @param eventId
-	 *            the id of the {@link Event}
+	 *                the id of the {@link Event}
 	 * @param id
-	 *            the id of the {@link Action}
+	 *                the id of the {@link Action}
+	 * 
 	 * @return the {@link ActionCall}
 	 */
 	protected ActionCall getAction(String eventId, String id) {
@@ -757,9 +760,10 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * Adds a {@link Param} to the wrapped {@link DatasourceRef}.
 		 * 
 		 * @param name
-		 *            the name of the {@link Param}
+		 *              the name of the {@link Param}
 		 * @param value
-		 *            the value
+		 *              the value
+		 * 
 		 * @return
 		 */
 		public DataSourceCall withParam(String name, String value) {
@@ -771,8 +775,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * Returns the {@link CallableDataSource}.
 		 * 
 		 * @return the {@link CallableDataSource}
+		 * 
 		 * @throws ProcessingException
-		 *             if an error occurs while assembling the CallableDataSource
+		 *                             if an error occurs while assembling the CallableDataSource
 		 */
 		public CallableDataSource getCallableDataSource() throws ProcessingException {
 			return new CallableDataSource(site, application, request, getParameterSupport(), this);
@@ -812,9 +817,10 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * Adds a {@link Param} to the wrapped {@link ActionRef}.
 		 * 
 		 * @param name
-		 *            the name of the {@link Param}
+		 *              the name of the {@link Param}
 		 * @param value
-		 *            the value
+		 *              the value
+		 * 
 		 * @return
 		 */
 		public ActionCall withParam(String name, String value) {
@@ -826,11 +832,13 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * Returns the {@link CallableAction}.
 		 * 
 		 * @param form
-		 *            an instance of the bind-object used by the {@link Action}. The type must be compatible with
-		 *            {@link MetaData#getBindClass()} of the {@link Datasource} that is used by the {@link Action}.
+		 *             an instance of the bind-object used by the {@link Action}. The type must be compatible with
+		 *             {@link MetaData#getBindClass()} of the {@link Datasource} that is used by the {@link Action}.
+		 * 
 		 * @return the {@link CallableAction}
+		 * 
 		 * @throws ProcessingException
-		 *             if an error occurs while assembling the CallableAction
+		 *                             if an error occurs while assembling the CallableAction
 		 */
 		public CallableAction getCallableAction(Object form) throws ProcessingException {
 			return new CallableTestAction(site, application, request, this, form);
@@ -841,8 +849,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * coming from {@link DataProvider}, but not performed.
 		 * 
 		 * @return the {@link Action}
+		 * 
 		 * @throws ProcessingException
-		 *             if an error occurs while assembling the Action
+		 *                             if an error occurs while assembling the Action
 		 */
 		public Action initialize() throws ProcessingException {
 			return new CallableTestAction(site, application, request, this, null).initialize();
@@ -855,8 +864,9 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		 * and then returning the result of {@link DataContainer#getItem()}.
 		 * 
 		 * @return the initial form, may be {@code null}
+		 * 
 		 * @throws ProcessingException
-		 *             if an error occurs while retrieving the data
+		 *                             if an error occurs while retrieving the data
 		 */
 		@SuppressWarnings("unchecked")
 		public <T> T getForm() throws ProcessingException {

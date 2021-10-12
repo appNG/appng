@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,16 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 /**
  * Provides methods to hash and validate passwords usings the bcrypt algorithm.
  * 
- * @see <a href="http://static.usenix.org/events/usenix99/provos/provos_html/">Provos, Niels; Talan Jason
- *      Sutton (1999). A Future-Adaptable Password Scheme</a>
- * @see <a href="http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#core-services-password-encoding">Spring Security Reference</a>
- * @see <a href="https://docs.spring.io/spring-security/site/docs/current/apidocs/org/springframework/security/crypto/bcrypt/BCrypt.html">jBCrypt JavaDoc</a>
+ * @see <a href="http://static.usenix.org/events/usenix99/provos/provos_html/">Provos, Niels; Talan Jason Sutton (1999).
+ *      A Future-Adaptable Password Scheme</a>
+ * @see <a href=
+ *      "http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#core-services-password-encoding">Spring
+ *      Security Reference</a>
+ * @see <a href=
+ *      "https://docs.spring.io/spring-security/site/docs/current/apidocs/org/springframework/security/crypto/bcrypt/BCrypt.html">jBCrypt
+ *      JavaDoc</a>
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class BCryptPasswordHandler implements PasswordHandler {
 
@@ -68,7 +71,7 @@ public class BCryptPasswordHandler implements PasswordHandler {
 	}
 
 	public boolean isValidPasswordResetDigest(String digest) {
-		String expectedDigest =  new SaltedDigestSha1().getDigest(authSubject.getEmail(), authSubject.getSalt());
+		String expectedDigest = new SaltedDigestSha1().getDigest(authSubject.getEmail(), authSubject.getSalt());
 		return expectedDigest.equals(digest);
 	}
 

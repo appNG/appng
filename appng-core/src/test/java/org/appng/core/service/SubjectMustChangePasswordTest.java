@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,21 +87,21 @@ public class SubjectMustChangePasswordTest {
 		boolean success = coreService.login(null, environment, subject.getName(), password);
 		assertTrue(success);
 		subject = coreService.getSubjectByName(subject.getName(), false);
-		assertEquals(PasswordChangePolicy.MAY,subject.getPasswordChangePolicy());
+		assertEquals(PasswordChangePolicy.MAY, subject.getPasswordChangePolicy());
 
 		subject.setPasswordLastChanged(DateUtils.addDays(new Date(), -2));
 		coreService.updateSubject(subject);
 		success = coreService.login(null, environment, subject.getName(), password);
 		assertTrue(success);
 		subject = coreService.getSubjectByName(subject.getName(), false);
-		assertEquals(PasswordChangePolicy.MAY,subject.getPasswordChangePolicy());
+		assertEquals(PasswordChangePolicy.MAY, subject.getPasswordChangePolicy());
 
 		subject.setPasswordLastChanged(DateUtils.addDays(new Date(), -3));
 		coreService.updateSubject(subject);
 		success = coreService.login(null, environment, subject.getName(), password);
 		assertTrue(success);
 		subject = coreService.getSubjectByName(subject.getName(), false);
-		assertEquals(PasswordChangePolicy.MUST,subject.getPasswordChangePolicy());
+		assertEquals(PasswordChangePolicy.MUST, subject.getPasswordChangePolicy());
 	}
 
 }

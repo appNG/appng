@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.net.URI;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.ConstraintViolationException;
 
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
@@ -37,12 +38,15 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@RequestMapping(produces = { MediaType.TEXT_XML_VALUE, MediaType.APPLICATION_XML_VALUE })
 public abstract class ControllerBase {
 
 	@Autowired
@@ -66,8 +70,16 @@ public abstract class ControllerBase {
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(BusinessException.class)
 	public void onBusinessException(HttpServletRequest request, BusinessException e) {
-		String message = String.format("%s error while processing [%s] %s", request.getSession().getId(),
-				request.getMethod(), request.getServletPath());
+		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
+				request.getMethod(), request.getRequestURI());
+		logger().error(message, e);
+	}
+
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(ConstraintViolationException.class)
+	public void onConstraintViolationException(HttpServletRequest request, ConstraintViolationException e) {
+		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
+				request.getMethod(), request.getRequestURI());
 		logger().error(message, e);
 	}
 

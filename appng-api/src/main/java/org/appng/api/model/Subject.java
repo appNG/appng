@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,20 +49,22 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	/**
 	 * Checks whether this {@link Subject} has authorization for the given {@link Authorizable}.
 	 * 
-	 * @param  authorizable
-	 *                      the {@link Authorizable}
-	 * @return              {@code true} if this {@link Subject} has authorization for the given {@link Authorizable},
-	 *                      {@code false} otherwise
+	 * @param authorizable
+	 *                     the {@link Authorizable}
+	 * 
+	 * @return {@code true} if this {@link Subject} has authorization for the given {@link Authorizable}, {@code false}
+	 *         otherwise
 	 */
 	boolean isAuthorized(Authorizable<?> authorizable);
 
 	/**
 	 * Checks whether this {@link Subject} owns at least one {@link Role} of the the given {@link Application}.
 	 * 
-	 * @param  application
-	 *                     the {@link Application}
-	 * @return             {@code true} if this {@link Subject} owns at least one {@link Role} of the the given
-	 *                     {@link Application} , {@code false} otherwise
+	 * @param application
+	 *                    the {@link Application}
+	 * 
+	 * @return {@code true} if this {@link Subject} owns at least one {@link Role} of the the given {@link Application}
+	 *         , {@code false} otherwise
 	 */
 	boolean hasApplication(Application application);
 
@@ -70,7 +72,8 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Whether or not the subject is locked.
 	 * 
 	 * @return {@code true} if the subject is locked.
-	 * @since  1.21
+	 * 
+	 * @since 1.21
 	 */
 	default boolean isLocked() {
 		return false;
@@ -80,7 +83,8 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * The date on which the subject expires.
 	 * 
 	 * @return the date, if any (may be {@code null})
-	 * @since  1.21
+	 * 
+	 * @since 1.21
 	 */
 	default Date getExpiryDate() {
 		return null;
@@ -90,7 +94,8 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Returns the date of the last login, if any.
 	 * 
 	 * @return the date.
-	 * @since  1.21
+	 * 
+	 * @since 1.21
 	 */
 	default Date getLastLogin() {
 		return null;
@@ -100,7 +105,8 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Returns the date when the password was last changed. Default to the creation date of the subject.
 	 * 
 	 * @return the date.
-	 * @since  1.21
+	 * 
+	 * @since 1.21
 	 */
 	default Date getPasswordLastChanged() {
 		return null;
@@ -110,7 +116,8 @@ public interface Subject extends Named<Integer>, AuthSubject {
 	 * Returns the number of failed login attempts for this subject.
 	 * 
 	 * @return the number of failed login attempts
-	 * @since  1.21
+	 * 
+	 * @since 1.21
 	 */
 	default Integer getFailedLoginAttempts() {
 		return 0;

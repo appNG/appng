@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,16 @@
 package org.appng.core.controller.messaging;
 
 import org.appng.api.Environment;
+import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
-import org.appng.api.Platform;
-import org.appng.api.Scope;
-import org.appng.api.messaging.Event;
 import org.appng.api.model.Site;
 import org.appng.api.support.FieldProcessorImpl;
+import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.CoreService;
-import org.appng.core.service.InitializerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
-public class ReloadSiteEvent extends Event {
+public class ReloadSiteEvent extends SiteEvent {
 
 	private static final long serialVersionUID = 8053808333634879840L;
 
@@ -36,14 +33,20 @@ public class ReloadSiteEvent extends Event {
 		super(siteName);
 	}
 
+	public ReloadSiteEvent(String siteName, String targetNode) {
+		super(siteName, targetNode);
+	}
+
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
 		Logger logger = LoggerFactory.getLogger(ReloadSiteEvent.class);
-		logger.info("about to reload site: {}", getSiteName());
-		ApplicationContext platformContext = environment.getAttribute(Scope.PLATFORM,
-				Platform.Environment.CORE_PLATFORM_CONTEXT);
-		InitializerService initializerService = platformContext.getBean(InitializerService.class);
-		CoreService coreService = platformContext.getBean(CoreService.class);
-		FieldProcessorImpl fp = new FieldProcessorImpl("ReloadSiteEvent");
-		initializerService.loadSite(environment, coreService.getSiteByName(getSiteName()), false, fp);
+		if (isTargetNode(environment)) {
+			logger.info("about to start site: {}", getSiteName());
+			SiteImpl siteByName = getPlatformContext(environment).getBean(CoreService.class)
+					.getSiteByName(getSiteName());
+			FieldProcessor fp = new FieldProcessorImpl("start");
+			getInitializerService(environment).loadSite(siteByName, environment, false, fp, false);
+		} else {
+			logIgnoreMessage(logger);
+		}
 	}
 }

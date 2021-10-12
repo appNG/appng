@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ package org.appng.api.search;
  * {@link #put(Object, long)} and {@link #putWithTimeout(Object, long)} method. It can access it's queued
  * {@link Producer}s with the corresponding {@link #get()}, {@link #get(long)} and {@link #getBlockingQueue()}
  * method.<br/>
- * 
  * TODO MM this has nothing to do especially with searching! Design seems overloaded, use a shared single BlockingQueue
  * for communication between consumer and producer!
  * 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
  * Utility class for {@link Receiver}s to handle {@link Event}s
  * 
  * @author Matthias Müller
- *
  */
 class Messaging {
 
@@ -47,7 +46,7 @@ class Messaging {
 				Site site = serializer.getSite(event.getSiteName());
 				String currentNode = serializer.getNodeId();
 				String originNode = event.getNodeId();
-				logger.debug("current node: {}, originNode node: {}", currentNode, originNode);
+				logger.trace("current node: {}, originNode node: {}", currentNode, originNode);
 				boolean sameNode = StringUtils.equals(currentNode, originNode);
 				if (!sameNode || alternativeCondition) {
 					logger.info("about to execute {} ", event);
@@ -55,7 +54,7 @@ class Messaging {
 						eventHandler.onEvent(event, serializer.getEnvironment(), site);
 					}
 				} else {
-					logger.debug("message is from myself and can be ignored");
+					logger.debug("event {} is from myself ({}) and can be ignored", event, currentNode);
 				}
 
 			} catch (Exception e) {

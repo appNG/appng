@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,16 +49,17 @@ public class ApplicationPropertyConstantCreator {
 	 * located two folders above ({@code ../../}) of the {@code application.xml}.
 	 * 
 	 * @param args
-	 *            args[0] - the path to {@code application.xml} (required)<br/>
-	 *            args[1] - the fully qualified name of the target class to generate (required)<br/>
-	 *            args[2] - the output-folder for the generated class (required)<br/>
-	 *            args[3] - a prefix for the name of the generated constants (optional)<br/>
+	 *             args[0] - the path to {@code application.xml} (required)<br/>
+	 *             args[1] - the fully qualified name of the target class to generate (required)<br/>
+	 *             args[2] - the output-folder for the generated class (required)<br/>
+	 *             args[3] - a prefix for the name of the generated constants (optional)<br/>
+	 * 
 	 * @throws IOException
-	 *             if the file can not be found or the target class can not be written
+	 *                                  if the file can not be found or the target class can not be written
 	 * @throws JAXBException
-	 *             if the file can not unmarshalled
+	 *                                  if the file can not unmarshalled
 	 * @throws IllegalArgumentException
-	 *             if one of the parameters is missing
+	 *                                  if one of the parameters is missing
 	 */
 	public static void main(String[] args) throws IOException, JAXBException {
 

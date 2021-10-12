@@ -11,13 +11,13 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.22.1</version>
+		<version>1.23.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
-		<camunda.version>7.10.0</camunda.version>
-		<camunda.javadoc.version>7.10</camunda.javadoc.version>
+		<camunda.version>7.15.0</camunda.version>
+		<camunda.javadoc.version>7.15</camunda.javadoc.version>
 	</properties>
 
 	<build>

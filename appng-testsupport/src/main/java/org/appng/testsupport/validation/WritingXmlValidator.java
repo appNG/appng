@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
  * Utility class that supports testing if two XML documents have the same content.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class WritingXmlValidator {
@@ -74,11 +73,13 @@ public class WritingXmlValidator {
 	 * Writes the document represented by {@code data} to a {@link File}.
 	 * 
 	 * @param data
-	 *            a JAXB object from package {@code org.appng.xml.platform}
+	 *             a JAXB object from package {@code org.appng.xml.platform}
 	 * @param name
-	 *            the path to the file (relative to {@link #controlFileSource} )
+	 *             the path to the file (relative to {@link #controlFileSource} )
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while writing the file
+	 *                     if an I/O error occurs while writing the file
+	 * 
 	 * @return the generated {@link File}
 	 */
 	public static File writeToDisk(Object data, String name) throws IOException {
@@ -97,11 +98,13 @@ public class WritingXmlValidator {
 	 * Writes the document represented by {@code data} to a {@link File}.
 	 * 
 	 * @param data
-	 *            a XML string
+	 *             a XML string
 	 * @param name
-	 *            the path to the file (relative to {@link #controlFileSource} )
+	 *             the path to the file (relative to {@link #controlFileSource} )
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while writing the file
+	 *                     if an I/O error occurs while writing the file
+	 * 
 	 * @return the generated {@link File}
 	 */
 	public static File writeToDiskPlain(String data, String name) throws IOException {
@@ -117,13 +120,14 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param object
-	 *            a JAXB object from package {@code org.appng.xml.platform}
+	 *                    a JAXB object from package {@code org.appng.xml.platform}
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(BaseObject object, String controlFile) throws IOException {
 		validateXml(object, controlFile, null);
@@ -134,16 +138,17 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param object
-	 *            a JAXB object from package {@code org.appng.xml.platform}
+	 *                           a JAXB object from package {@code org.appng.xml.platform}
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                           the path to the control file (relative to the classpath)
 	 * @param differenceListener
-	 *            an optional {@link DifferenceListener} that is applied when building the {@link Diff} between the
-	 *            documents
+	 *                           an optional {@link DifferenceListener} that is applied when building the {@link Diff}
+	 *                           between the documents
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(BaseObject object, String controlFile, DifferenceListener differenceListener)
 			throws IOException {
@@ -165,13 +170,14 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param result
-	 *            a XML string
+	 *                    a XML string
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(String result, String controlFile) throws IOException {
 		validateXml(result, controlFile, null);
@@ -182,16 +188,17 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param result
-	 *            a XML string
+	 *                           a XML string
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                           the path to the control file (relative to the classpath)
 	 * @param differenceListener
-	 *            an optional {@link DifferenceListener} that is applied when building the {@link Diff} between the
-	 *            documents
+	 *                           an optional {@link DifferenceListener} that is applied when building the {@link Diff}
+	 *                           between the documents
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(String result, String controlFile, DifferenceListener differenceListener)
 			throws IOException {
@@ -207,16 +214,17 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param result
-	 *            a XML string
+	 *                           a XML string
 	 * @param controlFile
-	 *            the control file
+	 *                           the control file
 	 * @param differenceListener
-	 *            an optional {@link DifferenceListener} that is applied when building the {@link Diff} between the
-	 *            documents
+	 *                           an optional {@link DifferenceListener} that is applied when building the {@link Diff}
+	 *                           between the documents
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(String result, File controlFile, DifferenceListener differenceListener)
 			throws IOException {
@@ -229,15 +237,16 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param result
-	 *            a XML string
+	 *                    a XML string
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                    the path to the control file (relative to the classpath)
 	 * @param trimComment
-	 *            set to {@code true} to un-comment previously commented elements
+	 *                    set to {@code true} to un-comment previously commented elements
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(String result, String controlFile, boolean trimComment) throws IOException {
 		validateXml(result, controlFile, trimComment, null);
@@ -248,18 +257,19 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param result
-	 *            a XML string
+	 *                           a XML string
 	 * @param controlFile
-	 *            the path to the control file (relative to the classpath)
+	 *                           the path to the control file (relative to the classpath)
 	 * @param trimComment
-	 *            set to {@code true} to un-comment previously commented elements
+	 *                           set to {@code true} to un-comment previously commented elements
 	 * @param differenceListener
-	 *            an optional {@link DifferenceListener} that is applied when building the {@link Diff} between the
-	 *            documents
+	 *                           an optional {@link DifferenceListener} that is applied when building the {@link Diff}
+	 *                           between the documents
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(String result, String controlFile, boolean trimComment,
 			DifferenceListener differenceListener) throws IOException {
@@ -275,18 +285,19 @@ public class WritingXmlValidator {
 	 * {@code controlFile}.
 	 * 
 	 * @param result
-	 *            a XML string
+	 *                           a XML string
 	 * @param controlFile
-	 *            the control file
+	 *                           the control file
 	 * @param trimComment
-	 *            set to {@code true} to un-comment previously commented elements
+	 *                           set to {@code true} to un-comment previously commented elements
 	 * @param differenceListener
-	 *            an optional {@link DifferenceListener} that is applied when building the {@link Diff} between the
-	 *            documents
+	 *                           an optional {@link DifferenceListener} that is applied when building the {@link Diff}
+	 *                           between the documents
+	 * 
 	 * @throws IOException
-	 *             if an I/O error occurs while validating
+	 *                        if an I/O error occurs while validating
 	 * @throws AssertionError
-	 *             if the validation fails
+	 *                        if the validation fails
 	 */
 	public static void validateXml(String result, File controlFile, boolean trimComment,
 			DifferenceListener differenceListener) throws IOException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,20 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
 /**
- * 
  * A {@link SearchRepository} that additionally offers Query DSL functionality
  * 
  * @author Matthias Müller
  * 
  * @param <T>
- *            the domain class
+ *             the domain class
  * @param <ID>
- *            the type of the Id of the domain class
+ *             the type of the Id of the domain class
  * 
  * @see SearchRepository
  * @see QueryDslPredicateExecutor
  */
 @NoRepositoryBean
-public interface QueryDslSearchRepository<T, ID extends Serializable> extends SearchRepository<T, ID>,
-		QueryDslPredicateExecutor<T> {
+public interface QueryDslSearchRepository<T, ID extends Serializable>
+		extends SearchRepository<T, ID>, QueryDslPredicateExecutor<T> {
 
 }

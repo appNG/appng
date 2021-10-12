@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.appng.api.search;
  * A {@link Producer} creates a product via the {@link #put(Object)}, {@link #put(Object, long)} and
  * {@link #putWithTimeout(Object, long)} method and offers it to it's (unknown) {@link Consumer}s via the {@link #get()}
  * , {@link #get(long)} or {@link #getWithTimeout(long)}-method.<br/>
- * 
  * TODO MM this has nothing to do especially with searching! Design seems overloaded, use a shared single BlockingQueue
  * for communication between consumer and producer!
  * 

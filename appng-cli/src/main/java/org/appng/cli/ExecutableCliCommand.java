@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import org.appng.api.BusinessException;
  * Interface to be implemented by each command.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public interface ExecutableCliCommand {
 
@@ -30,8 +29,9 @@ public interface ExecutableCliCommand {
 	 * 
 	 * @param cle
 	 *            the {@link CliEnvironment} to use
+	 * 
 	 * @throws BusinessException
-	 *             if on error occurs while executing the command
+	 *                           if on error occurs while executing the command
 	 */
 	void execute(CliEnvironment cle) throws BusinessException;
 

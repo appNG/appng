@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -213,7 +213,9 @@ public class ElementHelper {
 	 * 
 	 * @param beanOptions
 	 *                    some {@link BeanOption}s
+	 * 
 	 * @return the {@link Options}
+	 * 
 	 * @see #initOptions(List)
 	 */
 	Options getOptions(List<BeanOption> beanOptions) {
@@ -401,6 +403,7 @@ public class ElementHelper {
 	 *                    the current {@link Environment}
 	 * @param messages
 	 *                    the {@link Messages} to add
+	 * 
 	 * @return the messages for the current session
 	 */
 	public static Messages addMessages(Environment environment, Messages messages) {
@@ -423,6 +426,7 @@ public class ElementHelper {
 	 * 
 	 * @param environment
 	 *                    the current {@link Environment}
+	 * 
 	 * @return the messages removed from the current session, if any
 	 */
 	public Messages removeMessages(Environment environment) {
@@ -438,6 +442,7 @@ public class ElementHelper {
 	 * 
 	 * @param environment
 	 *                    the current {@link Environment}
+	 * 
 	 * @return the messages for the current session, if any
 	 */
 	public Messages getMessages(Environment environment) {

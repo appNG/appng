@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,11 +70,11 @@ public class OptionsImpl implements Options {
 	public Integer getInteger(String name, String attribute) {
 		return hasOption(name) ? getOption(name).getInteger(attribute) : null;
 	}
-	
+
 	public Boolean getBoolean(String name, String attribute) {
 		return hasOption(name) ? getOption(name).getBoolean(attribute) : null;
 	}
-	
+
 	public <E extends Enum<E>> E getEnum(String name, String attribute, Class<E> type) {
 		return hasOption(name) ? getOption(name).getEnum(attribute, type) : null;
 	}

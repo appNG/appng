@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,6 @@ import lombok.extern.slf4j.Slf4j;
  * The controller performing the update operation.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 @RestController
@@ -418,8 +417,7 @@ public class Updater {
 			return;
 		}
 		Path warArchive = Files.createTempFile(null, null);
-		try (
-				FileOutputStream out = new FileOutputStream(warArchive.toFile());
+		try (FileOutputStream out = new FileOutputStream(warArchive.toFile());
 				InputStream is = resource.getInputStream()) {
 			IOUtils.copy(is, out);
 			try (ZipFile zip = new ZipFile(warArchive.toFile())) {

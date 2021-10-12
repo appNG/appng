@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ public class CacheService {
 	public static final String STATS_AVG_REMOVAL_TIME = "avgRemovalTime";
 
 	private static CacheManager cacheManager;
+	private static final int MICROS_PER_MILLI = 1000;
 
 	public static CacheManager createCacheManager(HazelcastInstance instance, boolean isClient) {
 		Properties properties = new Properties();
@@ -98,9 +99,10 @@ public class CacheService {
 	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a cache instance
 	 * which already must exists.
 	 * 
-	 * @param  site
-	 *              The {@link Site} to get the cache for
-	 * @return      The {@link Cache} instance for the specified site.
+	 * @param site
+	 *             The {@link Site} to get the cache for
+	 * 
+	 * @return The {@link Cache} instance for the specified site.
 	 */
 	public static Cache<String, CachedResponse> getCache(Site site) {
 		return cacheManager.getCache(getCacheKey(site));
@@ -120,9 +122,10 @@ public class CacheService {
 	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a new cache
 	 * instance. Should be only used in {@link InitializerService}
 	 * 
-	 * @param  site
-	 *              The site.
-	 * @return      The {@link Cache} instance for the specified site.
+	 * @param site
+	 *             The site.
+	 * 
+	 * @return The {@link Cache} instance for the specified site.
 	 */
 	public synchronized static Cache<String, CachedResponse> createCache(Site site) {
 		String cacheKey = getCacheKey(site);
@@ -183,11 +186,11 @@ public class CacheService {
 					stats.put(STATS_MISSES, String.valueOf(cacheStatistics.getCacheMisses()));
 					stats.put(STATS_MISSES_PERCENT, String.valueOf(cacheStatistics.getCacheMissPercentage()));
 					stats.put(STATS_PUTS, String.valueOf(cacheStatistics.getCachePuts()));
-					stats.put(STATS_AVG_PUT_TIME, String.valueOf(cacheStatistics.getAveragePutTime()));
+					stats.put(STATS_AVG_PUT_TIME, String.valueOf(cacheStatistics.getAveragePutTime() / MICROS_PER_MILLI));
 					stats.put(STATS_GETS, String.valueOf(cacheStatistics.getCacheGets()));
-					stats.put(STATS_AVG_GET_TIME, String.valueOf(cacheStatistics.getAverageGetTime()));
+					stats.put(STATS_AVG_GET_TIME, String.valueOf(cacheStatistics.getAverageGetTime()/ MICROS_PER_MILLI));
 					stats.put(STATS_REMOVALS, String.valueOf(cacheStatistics.getCacheRemovals()));
-					stats.put(STATS_AVG_REMOVAL_TIME, String.valueOf(cacheStatistics.getAverageRemoveTime()));
+					stats.put(STATS_AVG_REMOVAL_TIME, String.valueOf(cacheStatistics.getAverageRemoveTime()/ MICROS_PER_MILLI));
 				} else {
 					stats.put("Status",
 							String.format("Failed to retrieve caching statistics for site %s", site.getName()));
@@ -234,16 +237,21 @@ public class CacheService {
 	}
 
 	public static int expireCacheElementsStartingWith(Cache<String, CachedResponse> cache, String cacheElementPrefix) {
-		int count = 0;
 		int removed = 0;
-		for (Entry<String, CachedResponse> entry : cache) {
-			count++;
-			if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix) && cache.remove(entry.getKey())) {
-				LOGGER.debug("removed from cache: {}", entry.getKey());
-				removed++;
+		if (null == cache) {
+			LOGGER.info("No cache found, can not remove elements starting with {}", cacheElementPrefix);
+		} else {
+			int count = 0;
+			for (Entry<String, CachedResponse> entry : cache) {
+				count++;
+				if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)
+						&& cache.remove(entry.getKey())) {
+					LOGGER.debug("removed from cache: {}", entry.getKey());
+					removed++;
+				}
 			}
+			LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
 		}
-		LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
 		return removed;
 	}
 

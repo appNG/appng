@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,8 @@ public class DatabaseServiceTest extends TestInitializer {
 		StringBuilder dbInfo = new StringBuilder();
 		Assert.assertTrue(platformConnection.testConnection(dbInfo, true));
 		Assert.assertTrue(dbInfo.toString().startsWith("HSQL Database Engine"));
+		Assert.assertEquals(Integer.valueOf(3), platformConnection.getMinConnections());
+		Assert.assertEquals(Integer.valueOf(25), platformConnection.getMaxConnections());
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
@@ -122,8 +124,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		try (MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:10.4")) {
 			mariadb.withUsername("root").withPassword("").start();
 			System.err.println(mariadb.getJdbcUrl());
-			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", "10.4", "?useMysqlMetadata=true", true,
-					true);
+			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", "10.4", "", true, true);
 		}
 	}
 
@@ -258,6 +259,8 @@ public class DatabaseServiceTest extends TestInitializer {
 		platformProperties.setProperty(DatabaseService.DATABASE_VALIDATION_QUERY, "");
 		platformProperties.setProperty(DatabaseService.DATABASE_VALIDATION_PERIOD, "15");
 		platformProperties.setProperty(DatabaseService.HIBERNATE_CONNECTION_DRIVER_CLASS, driverClass);
+		platformProperties.setProperty(DatabaseService.DATABASE_MIN_CONNECTIONS, "3");
+		platformProperties.setProperty(DatabaseService.DATABASE_MAX_CONNECTIONS, "25");
 		return platformProperties;
 	}
 

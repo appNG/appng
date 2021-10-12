@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@ package org.appng.appngizer.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="platform")
+@XmlRootElement(name = "platform")
 public class Platform extends org.appng.appngizer.model.xml.Platform implements UriAware {
-	
-	
-	public Platform(boolean dbInitialized, boolean platformReloadAvailable){
+
+	public Platform(boolean dbInitialized, boolean platformReloadAvailable) {
 		setSelf("/platform");
 		if (dbInitialized) {
 			addLink(new Link("database", "/platform/database"));
 			addLink(new Link("property", "/platform/property"));
 		}
-		if(platformReloadAvailable){
+		if (platformReloadAvailable) {
 			addLink(new Link("reload", "/platform/reload"));
 		}
 		addLink(new Link("system", "/platform/system"));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
  * Utility-class that helps dealing with several HTTP-Headers
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class HttpHeaderUtils {
@@ -60,19 +59,21 @@ public class HttpHeaderUtils {
 	 * {@value org.springframework.http.HttpHeaders#IF_MODIFIED_SINCE}-header from the request.
 	 * 
 	 * @param servletRequest
-	 *            the current {@link HttpServletRequest}
+	 *                        the current {@link HttpServletRequest}
 	 * @param servletResponse
-	 *            the current {@link HttpServletResponse}
+	 *                        the current {@link HttpServletResponse}
 	 * @param resource
-	 *            the {@link HttpResource} to process
+	 *                        the {@link HttpResource} to process
 	 * @param output
-	 *            whether or not to write the response data to the {@link OutputStream} of the
-	 *            {@link HttpServletResponse}, also setting the content-type and content length
+	 *                        whether or not to write the response data to the {@link OutputStream} of the
+	 *                        {@link HttpServletResponse}, also setting the content-type and content length
+	 * 
 	 * @return the response-data, which may have a length of 0 in case
 	 *         {@value org.springframework.http.HttpHeaders#IF_MODIFIED_SINCE} was set for the request and the
 	 *         {@link HttpResource} has'nt been updated since then
+	 * 
 	 * @throws IOException
-	 *             if an error occurred while reading/updating the {@link HttpResource}
+	 *                     if an error occurred while reading/updating the {@link HttpResource}
 	 */
 	public static byte[] handleModifiedHeaders(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
 			HttpResource resource, boolean output) throws IOException {
@@ -130,14 +131,16 @@ public class HttpHeaderUtils {
 	 * {@value org.springframework.http.HttpHeaders#IF_MODIFIED_SINCE}-header from the request.
 	 * 
 	 * @param requestHeaders
-	 *            the headers the current {@link HttpServletRequest}
+	 *                        the headers the current {@link HttpServletRequest}
 	 * @param responseHeaders
-	 *            the headers of the current {@link HttpServletResponse}
+	 *                        the headers of the current {@link HttpServletResponse}
 	 * @param resource
-	 *            the {@link HttpResource} to process
+	 *                        the {@link HttpResource} to process
+	 * 
 	 * @return the response-data, which may have a length of 0 in case
 	 *         {@value org.springframework.http.HttpHeaders#IF_MODIFIED_SINCE} was set for the request and the
 	 *         {@link HttpResource} has'nt been updated since then
+	 * 
 	 * @throws IOException
 	 */
 	public static byte[] handleModifiedHeaders(HttpHeaders requestHeaders, HttpHeaders responseHeaders,
@@ -174,8 +177,9 @@ public class HttpHeaderUtils {
 		 * Updates this resource if necessary and returns the latest version.
 		 * 
 		 * @return the latest version of the resource
+		 * 
 		 * @throws IOException
-		 *             if an error occurs while updating
+		 *                     if an error occurs while updating
 		 */
 		long update() throws IOException;
 
@@ -199,8 +203,9 @@ public class HttpHeaderUtils {
 		 * Retrieves the data of this resource.
 		 * 
 		 * @return the data
+		 * 
 		 * @throws IOException
-		 *             if an error occurs while retrieving the data
+		 *                     if an error occurs while retrieving the data
 		 */
 		byte[] getData() throws IOException;
 
@@ -208,7 +213,7 @@ public class HttpHeaderUtils {
 		 * Set the status for this response.
 		 * 
 		 * @param status
-		 *            the status
+		 *               the status
 		 */
 		default void setStatus(HttpStatus status) {
 		}
@@ -236,7 +241,8 @@ public class HttpHeaderUtils {
 	 * Parses the string-based HTTP headers of the given {@link HttpServletRequest} to an {@link HttpHeaders} object.
 	 * 
 	 * @param httpServletRequest
-	 *            a {@link HttpServletRequest}
+	 *                           a {@link HttpServletRequest}
+	 * 
 	 * @return The immutable {@link HttpHeaders}
 	 */
 	public static HttpHeaders parse(HttpServletRequest httpServletRequest) {
@@ -257,9 +263,9 @@ public class HttpHeaderUtils {
 	 * Applies the given {@link HttpHeaders} to the {@link HttpServletResponse}.
 	 * 
 	 * @param httpServletResponse
-	 *            the response to set the headers for
+	 *                            the response to set the headers for
 	 * @param headers
-	 *            the headers to apply
+	 *                            the headers to apply
 	 */
 	public static void applyHeaders(HttpServletResponse httpServletResponse, HttpHeaders headers) {
 		if (null != headers) {

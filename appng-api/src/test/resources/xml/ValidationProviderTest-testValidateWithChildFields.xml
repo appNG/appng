@@ -10,8 +10,8 @@
 			</rule>
 		</validation>
 		<messages ref="name">
-			<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			<message ref="name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+			<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 		</messages>
 	</field>
 	<field name="offsprings" type="list:object" binding="offsprings">
@@ -26,8 +26,8 @@
 					</rule>
 				</validation>
 				<messages ref="offsprings[].name">
-					<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 					<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+					<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 					<message ref="offsprings[1].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
 				</messages>
 			</field>
@@ -43,8 +43,8 @@
 			</rule>
 		</validation>
 		<messages ref="father.name">
-			<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+			<message ref="father.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 		</messages>
 	</field>
 	<field name="offsprings[0].name" type="text" binding="offsprings[0].name">
@@ -57,8 +57,8 @@
 			</rule>
 		</validation>
 		<messages ref="offsprings[0].name">
-			<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 			<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotBlank.message}">Thou must provide a value!</message>
+			<message ref="offsprings[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
 		</messages>
 	</field>
 </metaData>

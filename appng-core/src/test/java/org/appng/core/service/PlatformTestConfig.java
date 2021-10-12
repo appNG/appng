@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.appng.core.service;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -29,7 +32,7 @@ import org.appng.core.model.PlatformProcessor;
 import org.appng.core.model.PlatformTransformer;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.model.ThymeleafProcessor;
-import org.appng.persistence.dialect.HSQLDialect;
+import org.appng.persistence.hibernate.dialect.HSQLDialect;
 import org.appng.persistence.repository.SearchRepositoryImpl;
 import org.appng.testsupport.persistence.TestDataProvider;
 import org.appng.xml.MarshallService;
@@ -74,8 +77,15 @@ public class PlatformTestConfig {
 	}
 
 	@Bean
-	public DataSource dataSource() {
-		return new DriverManagerDataSource("jdbc:hsqldb:mem:hsql-testdb");
+	public DataSource dataSource() throws SQLException {
+		DriverManagerDataSource ds = new DriverManagerDataSource("jdbc:hsqldb:mem:hsql-testdb");
+		try (
+				Connection conn = ds.getConnection();
+				// http://www.hsqldb.org/doc/2.0/guide/sessions-chapt.html#snc_tx_mvcc
+				CallableStatement stmt = conn.prepareCall("SET DATABASE TRANSACTION CONTROL MVCC")) {
+			stmt.execute();
+		}
+		return ds;
 	}
 
 	@Bean

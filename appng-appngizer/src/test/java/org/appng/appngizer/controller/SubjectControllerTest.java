@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,33 @@ import org.springframework.http.HttpStatus;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SubjectControllerTest extends ControllerTest {
+
+	@Test
+	public void testInvalidName() throws Exception {
+		Subject subject = new Subject();
+		subject.setName("john doe");
+		subject.setRealName("John Doe");
+		subject.setEmail("admin@appng.org");
+		subject.setTimeZone("Europe/London");
+		subject.setLanguage("en");
+		subject.setType(UserType.GLOBAL_USER);
+		postAndVerify("/subject", "", subject, HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void testDotInName() throws Exception {
+		Subject subject = new Subject();
+		subject.setName("john.doe");
+		subject.setRealName("John Doe");
+		subject.setEmail("admin@appng.org");
+		subject.setTimeZone("Europe/London");
+		subject.setLanguage("en");
+		subject.setType(UserType.GLOBAL_USER);
+		postAndVerify("/subject", "", subject, HttpStatus.CREATED);
+		subject.setTimeZone("Europe/Paris");
+		putAndVerify("/subject/john.doe", "", subject, HttpStatus.OK);
+		deleteAndVerify("/subject/john.doe", "", HttpStatus.NO_CONTENT);
+	}
 
 	@Test
 	public void testCreateRetrieveAndUpdate() throws Exception {

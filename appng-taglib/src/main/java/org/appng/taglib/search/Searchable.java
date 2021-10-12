@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * This class represents a Searchable Tag.<br/>
  * This tag is used to mark areas of a JSP as indexable/searchable. It can also be used to exclude certain areas form
- * indexing/searching, for example the navigation of page. During indexing, a {@link org.appng.api.search.Document} is being created from
- * each indexed JSP.
+ * indexing/searching, for example the navigation of page. During indexing, a {@link org.appng.api.search.Document} is
+ * being created from each indexed JSP.
  * <p/>
  * <b>Attributes:</b>
  * <ul>

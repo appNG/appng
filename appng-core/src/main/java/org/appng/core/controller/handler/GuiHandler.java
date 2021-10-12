@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,8 +97,7 @@ public class GuiHandler implements RequestHandler {
 	}
 
 	private void processGui(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment env,
-			Site site, PathInfo pathInfo, String templateDir)
-			throws IOException, InvalidConfigurationException {
+			Site site, PathInfo pathInfo, String templateDir) throws IOException, InvalidConfigurationException {
 		Subject subject = env.getSubject();
 		if (env.isSubjectAuthenticated()) {
 

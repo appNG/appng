@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import org.springframework.context.ConfigurableApplicationContext;
  * Wraps the appNG CLI in a shell.
  * 
  * @author Matthias Müller
- *
  */
 public class CliShell {
 
@@ -44,10 +43,11 @@ public class CliShell {
 	 * Starts the shell
 	 * 
 	 * @param args
-	 *            May contain the path to the appNG installation ({@code APPNG_HOME}) (optional). If empty, the system
-	 *            property {@value CliBootstrap#APPNG_HOME} is used.
+	 *             May contain the path to the appNG installation ({@code APPNG_HOME}) (optional). If empty, the system
+	 *             property {@value CliBootstrap#APPNG_HOME} is used.
+	 * 
 	 * @throws Exception
-	 *             if an error occurs while initializing /executing the shell
+	 *                   if an error occurs while initializing /executing the shell
 	 */
 	public static void main(String[] args) throws Exception {
 		if (!OperatingSystem.isWindows()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,28 +28,27 @@ import org.appng.xml.ApplicationPropertyConstantCreator;
 @Mojo(name = "generateApplicationConstants", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
 public class GenerateApplicationConstantsMojo extends AbstractGeneratorMojo {
 
-    /**
-     * a prefix for the name of the generated constants (optional)
-     */
-    @Parameter(property = "prefix", defaultValue = "", required = false)
-    private String prefix;
+	/**
+	 * a prefix for the name of the generated constants (optional)
+	 */
+	@Parameter(property = "prefix", defaultValue = "", required = false)
+	private String prefix;
 
-    @Override
-    protected void createConstantClass() throws IOException, JAXBException {
-        ApplicationPropertyConstantCreator.main(getArgs());
-    }
+	@Override
+	protected void createConstantClass() throws IOException, JAXBException {
+		ApplicationPropertyConstantCreator.main(getArgs());
+	}
 
-    @Override
-    protected String getMessage() {
-        return "generate application constants";
-    }
+	@Override
+	protected String getMessage() {
+		return "generate application constants";
+	}
 
-    @Override
-    protected String[] getArgs() {
-        return prefix == null
-                ? new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() }
-                : new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath(), prefix };
+	@Override
+	protected String[] getArgs() {
+		return prefix == null ? new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath() }
+				: new String[] { filePath.getAbsolutePath(), targetClass, outfolder.getAbsolutePath(), prefix };
 
-    }
+	}
 
 }

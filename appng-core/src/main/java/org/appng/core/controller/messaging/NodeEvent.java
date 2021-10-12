@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +33,14 @@ import org.appng.api.messaging.Event;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
- * An {@link Event} that holds informations about the current status of an node (system properties and
- * environment,memory usage, state of sites).
+ * An {@link Event} that holds information about the current status of an node (system properties and environment,memory
+ * usage, state of sites).
  * 
  * @author Matthias Müller
- *
  */
 public class NodeEvent extends Event {
 
@@ -50,8 +52,9 @@ public class NodeEvent extends Event {
 		Map<String, SiteState> stateMap = SiteStateEvent.getStateMap(environment);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 		for (String site : siteMap.keySet()) {
-			if (!stateMap.containsKey(site)) {
-				stateMap.put(site, SiteState.STARTED);
+			SiteState state = siteMap.get(site).getState();
+			if (!(stateMap.containsKey(site) || SiteState.DELETED.equals(state))) {
+				stateMap.put(site, state);
 			}
 		}
 		this.nodeState = new NodeState(getNodeId(), stateMap);
@@ -72,6 +75,8 @@ public class NodeEvent extends Event {
 		stateMap.put(getNodeId(), this.nodeState);
 	}
 
+	@Getter
+	@Setter
 	public class MemoryUsage implements Serializable {
 		private long size;
 		private long max;
@@ -85,40 +90,10 @@ public class NodeEvent extends Event {
 			this.usedPercent = (double) usage.getUsed() / (double) usage.getMax();
 		}
 
-		public long getSize() {
-			return size;
-		}
-
-		public void setSize(long size) {
-			this.size = size;
-		}
-
-		public long getMax() {
-			return max;
-		}
-
-		public void setMax(long max) {
-			this.max = max;
-		}
-
-		public long getUsed() {
-			return used;
-		}
-
-		public void setUsed(long used) {
-			this.used = used;
-		}
-
-		public double getUsedPercent() {
-			return usedPercent;
-		}
-
-		public void setUsedPercent(double usedPercent) {
-			this.usedPercent = usedPercent;
-		}
-
 	}
 
+	@Getter
+	@Setter
 	public class NodeState implements Serializable {
 		private String nodeId;
 		private Date date;
@@ -140,61 +115,10 @@ public class NodeEvent extends Event {
 			this.date = new Date();
 		}
 
-		public String getNodeId() {
-			return nodeId;
-		}
+	}
 
-		public void setNodeId(String nodeId) {
-			this.nodeId = nodeId;
-		}
-
-		public MemoryUsage getHeap() {
-			return heap;
-		}
-
-		public void setHeap(MemoryUsage heap) {
-			this.heap = heap;
-		}
-
-		public MemoryUsage getNonHeap() {
-			return nonHeap;
-		}
-
-		public void setNonHeap(MemoryUsage nonHeap) {
-			this.nonHeap = nonHeap;
-		}
-
-		public Properties getProps() {
-			return props;
-		}
-
-		public void setProps(Properties props) {
-			this.props = props;
-		}
-
-		public Map<String, String> getEnv() {
-			return env;
-		}
-
-		public void setEnv(Map<String, String> env) {
-			this.env = env;
-		}
-
-		public Map<String, SiteState> getSiteStates() {
-			return siteStates;
-		}
-
-		public void setSiteStates(Map<String, SiteState> siteStates) {
-			this.siteStates = siteStates;
-		}
-
-		public Date getDate() {
-			return date;
-		}
-
-		public void setDate(Date date) {
-			this.date = date;
-		}
-
+	@Override
+	public String toString() {
+		return String.format("%s (%s: %s)", getClass().getSimpleName(), getNodeId(), nodeState.getSiteStates());
 	}
 }

@@ -180,6 +180,20 @@
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The ID of the section, must be unique within the page.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The ID of the section, must be unique within the page.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="sectionConfig">
@@ -305,6 +319,20 @@ If evaluating to 'true', the resulting &lt;sectionelement&gt; will not determine
 					<jxb:property>
 						<jxb:javadoc>
 <![CDATA[The time in milliseconds it took to process this {@code Section}.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="id" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+<![CDATA[The ID of the section, must be unique within the page.]]>
+				</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[The ID of the section, must be unique within the page.]]>
 						</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>

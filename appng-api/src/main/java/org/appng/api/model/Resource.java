@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.appng.api.model;
 import java.io.File;
 
 /**
- * A {@link Application} provides several {@link Resource}s, which are needed to load and execute the {@link Application}. A
- * {@link Resource} is created from the physical files that come with a {@link Application}.
+ * A {@link Application} provides several {@link Resource}s, which are needed to load and execute the
+ * {@link Application}. A {@link Resource} is created from the physical files that come with a {@link Application}.
  * 
  * @author Matthias Herlitzius
  * 
@@ -59,7 +59,7 @@ public interface Resource extends Named<Integer> {
 	 * Sets the cached version of the {@link Resource}s file.
 	 * 
 	 * @param cachedFile
-	 *            the cached file
+	 *                   the cached file
 	 */
 	void setCachedFile(File cachedFile);
 

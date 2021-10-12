@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 
-import org.appng.api.support.environment.EnvironmentFactoryBean;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.PlatformEventListener;
@@ -73,9 +72,19 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
  * @author Matthias Müller
  */
 @Configuration
-@ComponentScan(basePackages = "org.appng.core", excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*"))
 @EnableTransactionManagement
-@EnableJpaRepositories(repositoryBaseClass = SearchRepositoryImpl.class, basePackages = "org.appng.core.repository", entityManagerFactoryRef = "entityManagerFactory", transactionManagerRef = "coreTxManager")
+// @formatter:off
+@ComponentScan(
+	basePackages = { "org.appng.core", "org.appng.taglib.config" },
+	excludeFilters = @Filter(type = FilterType.REGEX, pattern = "org\\.appng\\.core\\.controller\\.rest\\.*")
+)
+@EnableJpaRepositories(
+	repositoryBaseClass = SearchRepositoryImpl.class,
+	basePackages = "org.appng.core.repository",
+	entityManagerFactoryRef = "entityManagerFactory",
+	transactionManagerRef = "coreTxManager"
+)
+// @formatter:on
 public class PlatformConfig {
 
 	@Bean
@@ -96,8 +105,8 @@ public class PlatformConfig {
 			@Value("${database.minConnections:3}") Integer minConnections,
 			@Value("${database.maxConnections:10}") Integer maxConnections,
 			@Value("${database.maxLifetime:90000}") Integer maxLifetime,
-			@Value("${database.validationQuery}") String validationQuery,
-			@Value("${database.validationPeriod}") Integer validationPeriod,
+			@Value("${database.validationQuery:}") String validationQuery,
+			@Value("${database.validationPeriod:}") Integer validationPeriod,
 			@Value("${database.validationTimeout:5000}") Integer validationTimeout,
 			@Value("${database.connectionTimeout:5000}") Integer connectionTimeout,
 			@Value("${database.logPerformance:false}") boolean logPerformance
@@ -214,24 +223,6 @@ public class PlatformConfig {
 		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf);
 		thymeleafProcessor.setMarshallService(marshallService);
 		return thymeleafProcessor;
-	}
-
-	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public Object tagletProcessor(MarshallService marshallService, StyleSheetProvider styleSheetProvider)
-			throws ReflectiveOperationException {
-		Object instance = getClass().getClassLoader().loadClass("org.appng.taglib.TagletProcessor").newInstance();
-		instance.getClass().getDeclaredMethod("setMarshallService", MarshallService.class).invoke(instance,
-				marshallService);
-		instance.getClass().getDeclaredMethod("setStyleSheetProvider", StyleSheetProvider.class).invoke(instance,
-				styleSheetProvider);
-		return instance;
-	}
-
-	@Bean
-	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public EnvironmentFactoryBean environment() {
-		return new EnvironmentFactoryBean();
 	}
 
 	@Bean

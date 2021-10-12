@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -462,14 +462,16 @@ public class PathInfo implements Path {
 	 * Builds the the path to which a {@link HttpServletRequest} has to be forwarded to in order the retrieve a file
 	 * from a document directory. If the requested fiel is a JSP, the JSP Url-Parameters are being initialized.
 	 * 
-	 * @param  wwwRootPath
-	 *                     the relative path to a {@link Site}s web-folder, under which the document-folders reside
-	 * @param  wwwRootFile
-	 *                     a file representing the very same relative path
-	 * @return             the forward path
-	 * @see                #isDocument()
-	 * @see                #getDocumentDirectories()
-	 * @see                #isJsp()
+	 * @param wwwRootPath
+	 *                    the relative path to a {@link Site}s web-folder, under which the document-folders reside
+	 * @param wwwRootFile
+	 *                    a file representing the very same relative path
+	 * 
+	 * @return the forward path
+	 * 
+	 * @see #isDocument()
+	 * @see #getDocumentDirectories()
+	 * @see #isJsp()
 	 */
 	public String getForwardPath(String wwwRootPath, File wwwRootFile) {
 		String realServletPath = initJspUrlParameters(wwwRootFile);

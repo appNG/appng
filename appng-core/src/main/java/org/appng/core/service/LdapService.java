@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.core.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -45,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
  * Service providing methods to login {@link Subject}s based on the LDAP-configuration of a {@link Site}. The following
  * site-properties need to be configured properly:
  * <ul>
+ * <li>{@value #LDAP_DISABLED}
  * <li>{@value #LDAP_DOMAIN}
  * <li>{@value #LDAP_GROUP_BASE_DN}
  * <li>{@value #LDAP_HOST}
@@ -73,6 +75,8 @@ public class LdapService {
 	private static final Pattern DN_PATTERN = Pattern
 			.compile("^[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?(,[a-z0-9+\"\\\\<>; \\n\\d]+?=.+?)+$");
 
+	/** Whether authentication via LDAP is disabled */
+	public static final String LDAP_DISABLED = "ldapDisabled";
 	/** The domain for the LDAP authentication */
 	public static final String LDAP_DOMAIN = "ldapDomain";
 	/** The base-DN for LDAP-groups */
@@ -179,36 +183,41 @@ public class LdapService {
 	/**
 	 * Tries to login the user with the given username and password.
 	 * 
-	 * @param  site
-	 *                  the {@link Site} the user wants to login at
-	 * @param  username
-	 *                  The plain name of the user without base-DN. This name will be mapped to an LDAP principal
-	 *                  according to the value of {@value #LDAP_PRINCIPAL_SCHEME}.
-	 *                  <ul>
-	 *                  <li>"DN": results in
-	 *                  <code>{@value #LDAP_ID_ATTRIBUTE}=username,{@value #LDAP_USER_BASE_DN}</code> (this should work
-	 *                  with any LDAP server)</li>
-	 *                  <li>"UPN": results in <code>username@{@value #LDAP_DOMAIN}</code> (probably most common name
-	 *                  format to log on to Active Directory, @see <a
-	 *                  https://msdn.microsoft.com/en-us/library/cc223499.aspx">MSDN on LDAP simple
-	 *                  authentication</a>)</li>
-	 *                  <li>"SAM": results in <code>{@value #LDAP_DOMAIN}&#92;username</code> (name format including
-	 *                  sAMAccountName and NetBios name to logon to active Directory)</li>
-	 *                  </ul>
-	 * @param  password
-	 *                  the password of the user
-	 * @return          {@code true} if the user could be successfully logged in, {@code null} otherwise
+	 * @param site
+	 *                 the {@link Site} the user wants to login at
+	 * @param username
+	 *                 The plain name of the user without base-DN. This name will be mapped to an LDAP principal
+	 *                 according to the value of {@value #LDAP_PRINCIPAL_SCHEME}.
+	 *                 <ul>
+	 *                 <li>"DN": results in
+	 *                 <code>{@value #LDAP_ID_ATTRIBUTE}=username,{@value #LDAP_USER_BASE_DN}</code> (this should work
+	 *                 with any LDAP server)</li>
+	 *                 <li>"UPN": results in <code>username@{@value #LDAP_DOMAIN}</code> (probably most common name
+	 *                 format to log on to Active Directory, @see <a
+	 *                 https://msdn.microsoft.com/en-us/library/cc223499.aspx">MSDN on LDAP simple
+	 *                 authentication</a>)</li>
+	 *                 <li>"SAM": results in <code>{@value #LDAP_DOMAIN}&#92;username</code> (name format including
+	 *                 sAMAccountName and NetBios name to logon to active Directory)</li>
+	 *                 </ul>
+	 * @param password
+	 *                 the password of the user
+	 * 
+	 * @return {@code true} if the user could be successfully logged in, {@code null} otherwise
 	 */
 	public boolean loginUser(Site site, String username, char[] password) {
+		if (isLdapDisabled(site)) {
+			return false;
+		}
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
-		TlsAwareLdapContext ctx = null;
-		try {
-			ctx = new TlsAwareLdapContext(ldapCredentials);
+		try (TlsAwareLdapContext ctx = new TlsAwareLdapContext(ldapCredentials)) {
+			String baseDn = site.getProperties().getString(LDAP_USER_BASE_DN);
+			if (StringUtils.isBlank(baseDn)) {
+				baseDn = site.getProperties().getString(LDAP_GROUP_BASE_DN);
+			}
+			ctx.delegate.getAttributes(baseDn);
 			return true;
 		} catch (IOException | NamingException ex) {
-			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-		} finally {
-			closeContext(ctx);
+			logException(ldapCredentials.ldapHost, username, ex);
 		}
 		return false;
 	}
@@ -222,33 +231,33 @@ public class LdapService {
 	 * User, dc=mycompany, dc=com". If this is the case, it will be used as LDAP principal without mapping. If it is not
 	 * a DN, it will be mapped as described in {@link #loginUser(Site, String, char[])}.
 	 * 
-	 * @param  site
-	 *                    the {@link Site} the user wants to login at
-	 * @param  username
-	 *                    the name of the user
-	 * @param  password
-	 *                    the password of the user
-	 * @param  subject
-	 *                    a {@link SubjectImpl} where the name and real name are set, in case the user belongs to at
-	 *                    least one of the given groups
-	 * @param  groupNames
-	 *                    a list containing the names of all groups to check group membership for (without base-DN, this
-	 *                    is set in the site-property {@value #LDAP_GROUP_BASE_DN})
-	 * @return            the names of all groups that the user is a member of (may be empty)
+	 * @param site
+	 *                   the {@link Site} the user wants to login at
+	 * @param username
+	 *                   the name of the user
+	 * @param password
+	 *                   the password of the user
+	 * @param subject
+	 *                   a {@link SubjectImpl} where the name and real name are set, in case the user belongs to at
+	 *                   least one of the given groups
+	 * @param groupNames
+	 *                   a list containing the names of all groups to check group membership for (without base-DN, this
+	 *                   is set in the site-property {@value #LDAP_GROUP_BASE_DN})
+	 * 
+	 * @return the names of all groups that the user is a member of (may be empty)
 	 */
 	public List<String> loginGroup(Site site, String username, char[] password, SubjectImpl subject,
 			List<String> groupNames) {
+		if (isLdapDisabled(site)) {
+			return Collections.emptyList();
+		}
 		LdapCredentials ldapCredentials = new LdapCredentials(site, username, password, false);
-		TlsAwareLdapContext ctx = null;
-		try {
-			ctx = new TlsAwareLdapContext(ldapCredentials);
+		try (TlsAwareLdapContext ctx = new TlsAwareLdapContext(ldapCredentials)) {
 			return getUserGroups(ctx.delegate, username, site, subject, groupNames);
 		} catch (NamingException | IOException ex) {
 			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-		} finally {
-			closeContext(ctx);
 		}
-		return new ArrayList<>();
+		return Collections.emptyList();
 	}
 
 	private List<String> getUserGroups(LdapContext ctx, String username, Site site, SubjectImpl subject,
@@ -294,13 +303,17 @@ public class LdapService {
 	 * Objects in the {@code member} attribute(s) of
 	 * <code>{@value #LDAP_ID_ATTRIBUTE}=groupName,{@value #LDAP_GROUP_BASE_DN}</code>.
 	 * 
-	 * @param  site
-	 *                   the {@link Site} in which the application using this group is running
-	 * @param  groupName
-	 *                   the name of the group whose members should be fetched
-	 * @return           the members of the groupName (may be empty)
+	 * @param site
+	 *                  the {@link Site} in which the application using this group is running
+	 * @param groupName
+	 *                  the name of the group whose members should be fetched
+	 * 
+	 * @return the members of the groupName (may be empty)
 	 */
 	public List<SubjectImpl> getMembersOfGroup(Site site, String groupName) {
+		if (isLdapDisabled(site)) {
+			return Collections.emptyList();
+		}
 		List<SubjectImpl> subjects = new ArrayList<>();
 
 		String serviceUser = site.getProperties().getString(LDAP_USER);
@@ -311,9 +324,7 @@ public class LdapService {
 		String idAttribute = site.getProperties().getString(LDAP_ID_ATTRIBUTE);
 		String groupDn = getGroupDn(groupName, groupBaseDn);
 
-		TlsAwareLdapContext ctx = null;
-		try {
-			ctx = new TlsAwareLdapContext(ldapCredentials);
+		try (TlsAwareLdapContext ctx = new TlsAwareLdapContext(ldapCredentials)) {
 			for (String member : getGroupMembers(ctx.delegate, groupDn)) {
 				Attributes userAttrs = getUserAttributes(ctx.delegate, member, idAttribute);
 				SubjectImpl ldapSubject = fillSubjectFromAttributes(new SubjectImpl(), idAttribute, userAttrs);
@@ -321,11 +332,13 @@ public class LdapService {
 			}
 		} catch (IOException | NamingException ex) {
 			logException(ldapCredentials.ldapHost, ldapCredentials.principal, ex);
-		} finally {
-			closeContext(ctx);
 		}
 		LOGGER.info("Found {} member(s) for group '{}'", subjects.size(), groupDn);
 		return subjects;
+	}
+
+	private boolean isLdapDisabled(Site site) {
+		return site.getProperties().getBoolean(LdapService.LDAP_DISABLED);
 	}
 
 	private SubjectImpl fillSubjectFromAttributes(SubjectImpl subject, String idAttribute, Attributes userAttrs)
@@ -375,13 +388,7 @@ public class LdapService {
 		}
 	}
 
-	private void closeContext(TlsAwareLdapContext ctx) {
-		if (null != ctx) {
-			ctx.close();
-		}
-	}
-
-	private class TlsAwareLdapContext {
+	private class TlsAwareLdapContext implements AutoCloseable {
 		private final LdapContext delegate;
 		private StartTlsResponse tls;
 
@@ -402,6 +409,7 @@ public class LdapService {
 			}
 		}
 
+		@Override
 		public void close() {
 			if (tls != null) {
 				try {

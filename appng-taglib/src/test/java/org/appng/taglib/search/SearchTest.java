@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ import javax.xml.transform.TransformerFactory;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -108,26 +108,32 @@ public class SearchTest extends Search {
 		};
 		Mockito.doAnswer(mockWriter).when(jspWriter).print(Mockito.anyString());
 		Mockito.doAnswer(mockWriter).when(jspWriter).write(Mockito.anyString());
-		Mockito.when(servletRequest.getServerName()).thenReturn(LOCALHOST);
 		ConcurrentMap<String, Object> platformEnv = new ConcurrentHashMap<>();
 		Mockito.when(servletContext.getAttribute(Scope.PLATFORM.name())).thenReturn(platformEnv);
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.name());
 		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, platformProperties);
+
 		Map<String, Site> siteMap = new HashMap<>();
 		siteMap.put(LOCALHOST, site);
 		platformEnv.put("sites", siteMap);
+		
+		Mockito.when(site.getHost()).thenReturn(LOCALHOST);
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);
 
-		Mockito.when(siteProperties.getString(SiteProperties.INDEX_CONFIG)).thenReturn(
-				"/de;de;GermanAnalyzer|/en;en;EnglishAnalyzer");
-		Mockito.when(site.getHost()).thenReturn(LOCALHOST);
+		Mockito.when(servletRequest.getServerName()).thenReturn(LOCALHOST);
+		Mockito.when(servletRequest.getServletContext()).thenReturn(servletContext);
+		Mockito.when(servletRequest.getSession()).thenReturn(session);
 		Mockito.when(servletRequest.getParameter("xsl")).thenReturn("false");
-
 		Mockito.when(servletRequest.getParameter("q")).thenReturn("Hitchhiker");
+		Mockito.when(servletRequest.getServletPath()).thenReturn("/repository/site/www/de/index.jsp");
+
+		
+		Mockito.when(siteProperties.getString(SiteProperties.INDEX_CONFIG))
+		.thenReturn("/de;de;GermanAnalyzer|/en;en;EnglishAnalyzer");
 		Mockito.when(siteProperties.getString(SiteProperties.SITE_ROOT_DIR)).thenReturn("");
 		Mockito.when(siteProperties.getString(SiteProperties.INDEX_DIR)).thenReturn("target/index");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
-				.thenReturn(VHostMode.NAME_BASED.name());
-		Mockito.when(servletRequest.getServletPath()).thenReturn("/repository/site/www/de/index.jsp");
+		
 		setPageContext(pageContext);
 		setFormat("json");
 		setParts(true);
@@ -157,15 +163,17 @@ public class SearchTest extends Search {
 		IndexWriter indexWriter = new IndexWriter(directory, conf);
 
 		indexWriter.deleteDocuments(new MatchAllDocsQuery());
-		List<? extends IndexableField> doc1 = Arrays.asList(new TextField(Document.FIELD_TITLE, "A Hitchhiker",
-				Store.YES), new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
+		List<? extends IndexableField> doc1 = Arrays.asList(
+				new TextField(Document.FIELD_TITLE, "A Hitchhiker", Store.YES),
+				new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
 		indexWriter.addDocument(doc1);
-		List<? extends IndexableField> doc2 = Arrays.asList(new TextField(Document.FIELD_TITLE,
-				"The Hitchhiker's Guide to the Galaxy", Store.YES), new StringField(Document.FIELD_LANGUAGE, "de",
-				Store.YES));
+		List<? extends IndexableField> doc2 = Arrays.asList(
+				new TextField(Document.FIELD_TITLE, "The Hitchhiker's Guide to the Galaxy", Store.YES),
+				new StringField(Document.FIELD_LANGUAGE, "de", Store.YES));
 		indexWriter.addDocument(doc2);
-		List<? extends IndexableField> doc3 = Arrays.asList(new StringField(Document.FIELD_TYPE, "com.foo.Bar",
-				Store.YES), new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
+		List<? extends IndexableField> doc3 = Arrays.asList(
+				new StringField(Document.FIELD_TYPE, "com.foo.Bar", Store.YES),
+				new StringField(Document.FIELD_LANGUAGE, "en", Store.YES));
 		indexWriter.addDocument(doc3);
 		indexWriter.commit();
 		indexWriter.close();
@@ -176,7 +184,8 @@ public class SearchTest extends Search {
 		platformEnv.put(Platform.Environment.CORE_PLATFORM_CONTEXT, ctx);
 
 		doEndTag();
-		Assert.assertEquals("[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.31782177,\"fields\":[]}]}]",
+		Assert.assertEquals(
+				"[{\"data\":[{\"title\":\"A Hitchhiker\",\"language\":\"en\",\"score\":0.31782177,\"fields\":[]}]}]",
 				result.get(0));
 		Assert.assertNull(getFormat());
 		Assert.assertNull(getHighlight());

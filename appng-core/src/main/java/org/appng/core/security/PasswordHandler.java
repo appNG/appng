@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,19 +33,22 @@ public interface PasswordHandler {
 	 * 
 	 * @param password
 	 *                 The cleartext password.
-	 * @see            AuthSubject#setDigest(String)
-	 * @see            AuthSubject#setSalt(String)
-	 * @see            AuthSubject#setPasswordLastChanged(java.util.Date)
+	 * 
+	 * @see AuthSubject#setDigest(String)
+	 * @see AuthSubject#setSalt(String)
+	 * @see AuthSubject#setPasswordLastChanged(java.util.Date)
 	 */
 	void applyPassword(String password);
 
 	/**
 	 * Checks whether the password is valid for the current {@link AuthSubject}.
 	 * 
-	 * @param  password
-	 *                  The cleartext password.
-	 * @return          {@code true} if the password is valid, false if it is invalid.
-	 * @see             AuthSubject#getDigest()
+	 * @param password
+	 *                 The cleartext password.
+	 * 
+	 * @return {@code true} if the password is valid, false if it is invalid.
+	 * 
+	 * @see AuthSubject#getDigest()
 	 */
 	boolean isValidPassword(String password);
 
@@ -53,19 +56,22 @@ public interface PasswordHandler {
 	 * Calculates, sets and returns a salted digest which can be used for the "Forgot password?" function.
 	 * 
 	 * @return A digest.
-	 * @see    AuthSubject#setSalt(String)
-	 * @see    #isValidPasswordResetDigest(String)
+	 * 
+	 * @see AuthSubject#setSalt(String)
+	 * @see #isValidPasswordResetDigest(String)
 	 */
 	String calculatePasswordResetDigest();
 
 	/**
 	 * Checks whether the digest is valid for the current {@link AuthSubject}.
 	 * 
-	 * @param  digest
-	 *                The digest.
-	 * @return        {@code true} if the digest is valid, false if it is invalid.
-	 * @see           AuthSubject#getSalt()
-	 * @see           #calculatePasswordResetDigest()
+	 * @param digest
+	 *               The digest.
+	 * 
+	 * @return {@code true} if the digest is valid, false if it is invalid.
+	 * 
+	 * @see AuthSubject#getSalt()
+	 * @see #calculatePasswordResetDigest()
 	 */
 	boolean isValidPasswordResetDigest(String digest);
 

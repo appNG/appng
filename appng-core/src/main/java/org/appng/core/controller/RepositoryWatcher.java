@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.cache.Cache;
 
@@ -48,14 +49,11 @@ import lombok.extern.slf4j.Slf4j;
  * www-directory (see {@link SiteProperties#WWW_DIR}) using a
  * {@link WatchService}.
  * </p>
- * If caching for the site is active (see
- * {@link SiteProperties#CACHE_ENABLED}), cache entries for the
- * modified/deleted files are removed from the cache. Since there could be some
- * forwarding rules defined in the site's {@code urlrewrite.xml}, it is also
- * necessary to parse these rules and remove the 'aliases' from the cache.
+ * If caching for the site is active (see {@link SiteProperties#CACHE_ENABLED}), cache entries for the modified/deleted
+ * files are removed from the cache. Since there could be some forwarding rules defined in the site's
+ * {@code urlrewrite.xml}, it is also necessary to parse these rules and remove the 'aliases' from the cache.
  * 
  * @author Matthias Müller
- *
  */
 @Slf4j
 public class RepositoryWatcher implements Runnable {
@@ -68,13 +66,12 @@ public class RepositoryWatcher implements Runnable {
 	private boolean needsToBeWatched = false;
 	private Map<String, List<String>> forwardMap;
 	protected Long forwardsUpdatedAt = null;
+	protected AtomicLong numEvents = new AtomicLong(0);
+	protected AtomicLong numOverflows = new AtomicLong(0);
 
 	private String wwwDir;
-
 	private Cache<String, CachedResponse> cache;
-
 	private File configFile;
-
 	private String ruleSourceSuffix;
 
 	public RepositoryWatcher(Site site, String jspExtension, String ruleSourceSuffix) {
@@ -114,7 +111,8 @@ public class RepositoryWatcher implements Runnable {
 	private void watch(File file) throws IOException {
 		if (file.exists() && file.isDirectory()) {
 			LOGGER.info("watching {}", file.toString());
-			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+			file.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE,
+					StandardWatchEventKinds.ENTRY_MODIFY);
 		}
 	}
 
@@ -129,36 +127,37 @@ public class RepositoryWatcher implements Runnable {
 				return;
 			}
 			for (WatchEvent<?> event : key.pollEvents()) {
+				long processed = numEvents.incrementAndGet();
 				long start = System.currentTimeMillis();
-				if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-					continue;
-				}
 				Path eventPath = (Path) key.watchable();
-				File absoluteFile = new File(eventPath.toFile(), ((Path) event.context()).toString());
-				LOGGER.debug("received event {} for {}", event.kind(), absoluteFile);
-				if (absoluteFile.equals(configFile)) {
-					readUrlRewrites(absoluteFile);
+				if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+					numOverflows.incrementAndGet();
+					LOGGER.warn("events for {} overflowed after {} events", eventPath, processed);
 				} else {
-					String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
-					String relativePathName = absolutePath.substring(wwwDir.length());
-					if (relativePathName.endsWith(jspExtension)) {
-						relativePathName = relativePathName.substring(0,
-								relativePathName.length() - jspExtension.length());
+					File absoluteFile = new File(eventPath.toFile(), String.valueOf(event.context()));
+					LOGGER.info("({}) received {} for {}", key.watchable(), event.kind(), event.context());
+					if (absoluteFile.equals(configFile)) {
+						readUrlRewrites(absoluteFile);
+					} else {
+						String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
+						String relativePathName = absolutePath.substring(wwwDir.length());
+						if (relativePathName.endsWith(jspExtension)) {
+							relativePathName = relativePathName.substring(0,
+									relativePathName.length() - jspExtension.length());
+						}
+						removeFromCache(relativePathName);
+						if (forwardMap.containsKey(relativePathName)) {
+							forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
+						}
+						LOGGER.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
+								System.currentTimeMillis() - start);
 					}
-					removeFromCache(relativePathName);
-					if (forwardMap.containsKey(relativePathName)) {
-						forwardMap.get(relativePathName).forEach(path -> removeFromCache(path));
-					}
-					LOGGER.debug("processed event {} for {} ins {}ms", event.kind(), relativePathName,
-							System.currentTimeMillis() - start);
 				}
 			}
-			boolean valid = key.reset();
-			if (!valid) {
-				break;
+			if (!key.reset()) {
+				LOGGER.warn("key could not be reset: {}", key);
 			}
 		}
-
 	}
 
 	private int removeFromCache(String relativePathName) {

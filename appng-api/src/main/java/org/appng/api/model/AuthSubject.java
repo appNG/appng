@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,8 @@ public interface AuthSubject extends Account {
 	 * Returns the {@link PasswordChangePolicy} for this subject
 	 * 
 	 * @return the {@link PasswordChangePolicy} for this subject
-	 * @since  1.21
+	 * 
+	 * @since 1.21
 	 */
 	default PasswordChangePolicy getPasswordChangePolicy() {
 		return PasswordChangePolicy.MAY;
@@ -78,7 +79,8 @@ public interface AuthSubject extends Account {
 	 * 
 	 * @param passwordChangePolicy
 	 *                             the policy to use
-	 * @since                      1.21
+	 * 
+	 * @since 1.21
 	 */
 	default void setPasswordChangePolicy(PasswordChangePolicy passwordChangePolicy) {
 	}
@@ -88,7 +90,8 @@ public interface AuthSubject extends Account {
 	 * 
 	 * @param date
 	 *             the date
-	 * @since      1.21
+	 * 
+	 * @since 1.21
 	 */
 	default void setPasswordLastChanged(Date date) {
 	}

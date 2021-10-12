@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.appng.xml.platform.SectionelementDef;
  * A {@link Sectionelement} that contains an {@link Action}. This is mainly a delegate to a {@link CallableAction}.
  * 
  * @author Matthias Müller
- * 
  */
 class ActionElement extends Sectionelement {
 
@@ -41,15 +40,17 @@ class ActionElement extends Sectionelement {
 	 * Creates a new {@code ActionElement}.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                           the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                           the current {@link Application}
 	 * @param applicationRequest
-	 *            the current {@link ApplicationRequest}
+	 *                           the current {@link ApplicationRequest}
 	 * @param actionRef
-	 *            the {@link ActionRef} as given in the {@link SectionelementDef} of a {@link PageDefinition}.
+	 *                           the {@link ActionRef} as given in the {@link SectionelementDef} of a
+	 *                           {@link PageDefinition}.
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurs while assembling the {@code ActionElement}
+	 *                             if an error occurs while assembling the {@code ActionElement}
 	 */
 	ActionElement(Site site, Application application, ApplicationRequest applicationRequest, ActionRef actionRef)
 			throws ProcessingException {
@@ -62,11 +63,13 @@ class ActionElement extends Sectionelement {
 	 * {@code ActionElement}.
 	 * 
 	 * @param sectionelement
-	 *            the origin {@link SectionelementDef} of the {@code ActionElement}
+	 *                        the origin {@link SectionelementDef} of the {@code ActionElement}
 	 * @param isSectionHidden
-	 *            whether the {@link SectionDef} including the action is hidden, i.e. the action will not be visible
+	 *                        whether the {@link SectionDef} including the action is hidden, i.e. the action will not be
+	 *                        visible
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurred while while performing
+	 *                             if an error occurred while while performing
 	 */
 	void perform(SectionelementDef sectionelement, boolean isSectionHidden) throws ProcessingException {
 		callableAction.perform(isSectionHidden);

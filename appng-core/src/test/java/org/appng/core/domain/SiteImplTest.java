@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import static org.appng.api.Scope.REQUEST;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,10 +30,12 @@ import org.appng.api.Path;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.controller.messaging.SiteStateEvent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,6 +107,17 @@ public class SiteImplTest {
 		site.sendRedirect(environment, "/some/uri", HttpServletResponse.SC_MOVED_TEMPORARILY);
 		Assert.assertEquals("/some/uri", response.getHeader(HttpHeaders.LOCATION));
 		Assert.assertEquals(HttpServletResponse.SC_MOVED_TEMPORARILY, response.getStatus());
+	}
+
+	@Test
+	public void testSetSiteState() {
+		Map<String, SiteState> stateMap = new HashMap<String, SiteState>();
+		stateMap.put(site.getName(), SiteState.STARTING);
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, SiteStateEvent.SITE_STATE)).thenReturn(stateMap);
+		site.setState(SiteState.STARTED, environment);
+		Assert.assertEquals(SiteState.STARTED, stateMap.get(site.getName()));
+		site.setState(SiteState.DELETED, environment);
+		Assert.assertNull(stateMap.get(site.getName()));
 	}
 
 	@Test

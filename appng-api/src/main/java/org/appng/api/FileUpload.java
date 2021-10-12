@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,12 +77,14 @@ public @interface FileUpload {
 		/**
 		 * Formats the given size using a {@link NumberFormat}
 		 * 
-		 * @param  size
-		 *                the size in bytes
-		 * @param  format
-		 *                the {@link NumberFormat}
-		 * @return        the formatted size
-		 * @see           FileUpload.Unit#format(FileUpload.Unit, long, NumberFormat)
+		 * @param size
+		 *               the size in bytes
+		 * @param format
+		 *               the {@link NumberFormat}
+		 * 
+		 * @return the formatted size
+		 * 
+		 * @see FileUpload.Unit#format(FileUpload.Unit, long, NumberFormat)
 		 */
 		public String format(long size, NumberFormat format) {
 			return format(this, size, format);
@@ -100,13 +102,14 @@ public @interface FileUpload {
 		 * 
 		 * <pre>
 		 * 
-		 * @param  unit
-		 *                the {@link Unit}
-		 * @param  size
-		 *                the size in bytes
-		 * @param  format
-		 *                the {@link NumberFormat}
-		 * @return        the formatted size
+		 * @param unit
+		 *               the {@link Unit}
+		 * @param size
+		 *               the size in bytes
+		 * @param format
+		 *               the {@link NumberFormat}
+		 * 
+		 * @return the formatted size
 		 */
 		public static String format(Unit unit, long size, NumberFormat format) {
 			return format.format((double) size / unit.factor) + unit.name();
@@ -126,13 +129,15 @@ public @interface FileUpload {
 
 	/**
 	 * @return the minimum size for an uploaded file (default: 0 {@link #unit()})
-	 * @see    #unit()
+	 * 
+	 * @see #unit()
 	 */
 	long minSize() default 0;
 
 	/**
 	 * @return the maximum size for an uploaded file (default: 10 {@link #unit()})
-	 * @see    #unit()
+	 * 
+	 * @see #unit()
 	 */
 	long maxSize() default 10;
 

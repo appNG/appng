@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,10 @@ public final class AuthTools {
 	 * From a base 64 representation, returns the corresponding byte[]
 	 * 
 	 * @param data
-	 *            The base 64 data to be converted to byte[].
+	 *             The base 64 data to be converted to byte[].
+	 * 
 	 * @return The base 64 data converted to byte[].
+	 * 
 	 * @throws IOException
 	 */
 	public static byte[] base64ToByte(String data) throws IOException {
@@ -58,7 +60,8 @@ public final class AuthTools {
 	 * From a byte[] returns a base 64 representation.
 	 * 
 	 * @param data
-	 *            The byte[] to be converted to base 64.
+	 *             The byte[] to be converted to base 64.
+	 * 
 	 * @return The byte[] converted to base 64.
 	 */
 	public static String byteToBase64(byte[] data) {
@@ -69,7 +72,8 @@ public final class AuthTools {
 	 * Returns a random salt with a given length.
 	 * 
 	 * @param length
-	 *            The length of the salt in byte.
+	 *               The length of the salt in byte.
+	 * 
 	 * @return A random salt, represented as base 64. The value of the length parameter is only relevant for the length
 	 *         of byte[], which is internally used to generate the salt. The length of the returned base 64
 	 *         representation of the salt may be different than the value of the length parameter.
@@ -106,7 +110,8 @@ public final class AuthTools {
 	 * {@link #getSha512Digest(String)} method or at least the {@link #getSha1Digest(String)} method.
 	 * 
 	 * @param input
-	 *            the input string
+	 *              the input string
+	 * 
 	 * @return the MD5 hash of the input string
 	 */
 	public static String getMd5Digest(String input) {
@@ -117,7 +122,8 @@ public final class AuthTools {
 	 * Returns a SHA-1 digest. It is recommended to use the stronger {@link #getSha512Digest(String)} method.
 	 * 
 	 * @param input
-	 *            the input string
+	 *              the input string
+	 * 
 	 * @return the SHA-1 hash of the input string
 	 */
 	public static String getSha1Digest(String input) {
@@ -128,7 +134,8 @@ public final class AuthTools {
 	 * Returns a SHA-512 digest.
 	 * 
 	 * @param input
-	 *            the input string
+	 *              the input string
+	 * 
 	 * @return the SHA-512 hash of the input string
 	 */
 	public static String getSha512Digest(String input) {

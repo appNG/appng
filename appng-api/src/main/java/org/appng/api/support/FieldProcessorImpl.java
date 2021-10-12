@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,11 +40,9 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 
 /**
- * 
  * Default {@link FieldProcessor}-implementation
  * 
  * @author Matthias Müller
- * 
  */
 public final class FieldProcessorImpl implements FieldProcessor, Serializable {
 

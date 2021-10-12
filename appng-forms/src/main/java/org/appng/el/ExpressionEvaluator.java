@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,10 @@ import org.apache.jasper.el.ELContextImpl;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Used for evaluating expressions that conform the <a
- * href="https://docs.oracle.com/javaee/7/tutorial/jsf-el.htm">Expression Language 2.2</a> syntax.<br/>
- * A valid expression must start with ${ and end with }. A list of the allowed operators an be found <a
- * href="https://docs.oracle.com/javaee/7/tutorial/jsf-el005.htm#BNAIK">here</a>.
+ * Used for evaluating expressions that conform the
+ * <a href="https://docs.oracle.com/javaee/7/tutorial/jsf-el.htm">Expression Language 2.2</a> syntax.<br/>
+ * A valid expression must start with ${ and end with }. A list of the allowed operators an be found
+ * <a href="https://docs.oracle.com/javaee/7/tutorial/jsf-el005.htm#BNAIK">here</a>.
  * <p/>
  * Example:
  * 
@@ -54,9 +54,7 @@ import lombok.extern.slf4j.Slf4j;
  * org.junit.Assert.assertTrue(ee.evaluate(&quot;${stringValue.length() == 6}&quot;));
  * </pre>
  * 
- * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public final class ExpressionEvaluator {
@@ -70,7 +68,7 @@ public final class ExpressionEvaluator {
 	 * Creates a new {@link ExpressionEvaluator} using the given variables.
 	 * 
 	 * @param variables
-	 *            a {@link Map} of variables to use
+	 *                  a {@link Map} of variables to use
 	 */
 	public ExpressionEvaluator(Map<String, ?> variables) {
 		this.ef = ExpressionFactory.newInstance();
@@ -90,7 +88,7 @@ public final class ExpressionEvaluator {
 	 * Creates a new {@link ExpressionEvaluator} using the given {@link javax.el.VariableMapper}.
 	 * 
 	 * @param variableMapper
-	 *            the {@link javax.el.VariableMapper} to use
+	 *                       the {@link javax.el.VariableMapper} to use
 	 */
 	public ExpressionEvaluator(javax.el.VariableMapper variableMapper) {
 		this.ef = ExpressionFactory.newInstance();
@@ -109,14 +107,16 @@ public final class ExpressionEvaluator {
 	 * Evaluates the given expression to an object of the given targetType
 	 * 
 	 * @param expression
-	 *            the expression to parse
+	 *                   the expression to parse
 	 * @param targetType
-	 *            the expected target type
+	 *                   the expected target type
+	 * 
 	 * @return an object of the given type
+	 * 
 	 * @throws NullPointerException
-	 *             if targetType is {@code null}
+	 *                              if targetType is {@code null}
 	 * @throws ELException
-	 *             if the expression has syntactical errors
+	 *                              if the expression has syntactical errors
 	 */
 	@SuppressWarnings("unchecked")
 	public final <T> T evaluate(String expression, Class<T> targetType) {
@@ -137,7 +137,8 @@ public final class ExpressionEvaluator {
 	 * Evaluates the given expression to a {@code boolean}.
 	 * 
 	 * @param expression
-	 *            the expression to evaluate
+	 *                   the expression to evaluate
+	 * 
 	 * @return evaluation result
 	 */
 	public final boolean evaluate(String expression) {
@@ -145,7 +146,8 @@ public final class ExpressionEvaluator {
 	}
 
 	/**
-	 * Adds a prefixed function to this {@link ExpressionEvaluator}. The given {@link Method} must be {@code static}.<br/>
+	 * Adds a prefixed function to this {@link ExpressionEvaluator}. The given {@link Method} must be
+	 * {@code static}.<br/>
 	 * Example:
 	 * 
 	 * <pre>
@@ -155,11 +157,11 @@ public final class ExpressionEvaluator {
 	 * </pre>
 	 * 
 	 * @param prefix
-	 *            the prefix for the method
+	 *               the prefix for the method
 	 * @param name
-	 *            the name of the method
+	 *               the name of the method
 	 * @param method
-	 *            the {@link Method} to add as a function
+	 *               the {@link Method} to add as a function
 	 */
 	public final void addFunction(String prefix, String name, Method method) {
 		putFunction(prefix + ":" + name, method);
@@ -177,9 +179,9 @@ public final class ExpressionEvaluator {
 	 * </pre>
 	 * 
 	 * @param name
-	 *            the name of the method
+	 *               the name of the method
 	 * @param method
-	 *            the {@link Method} to add as a function
+	 *               the {@link Method} to add as a function
 	 */
 	public final void addFunction(String name, Method method) {
 		putFunction(":" + name, method);
@@ -205,9 +207,9 @@ public final class ExpressionEvaluator {
 	 * Sets the variable with the given name to the given value.
 	 * 
 	 * @param name
-	 *            the name of the variable
+	 *              the name of the variable
 	 * @param value
-	 *            the value of the variable (must not be {@code null})
+	 *              the value of the variable (must not be {@code null})
 	 */
 	public final void setVariable(String name, Object value) {
 		setVariable(name, value, value.getClass());
@@ -217,11 +219,11 @@ public final class ExpressionEvaluator {
 	 * Sets the variable with the given name, which has the given type, to the given value.
 	 * 
 	 * @param name
-	 *            the name of the variable
+	 *              the name of the variable
 	 * @param value
-	 *            the value of the variable (must not be {@code null})
+	 *              the value of the variable (must not be {@code null})
 	 * @param type
-	 *            the type of the variable (must not be {@code null})
+	 *              the type of the variable (must not be {@code null})
 	 */
 	private final void setVariable(String name, Object value, Class<?> type) {
 		ValueExpression expression = ef.createValueExpression(value, type);
@@ -237,7 +239,7 @@ public final class ExpressionEvaluator {
 	 * Calls {@link #setVariable(String, Object)} for each entry of the given map.
 	 * 
 	 * @param variables
-	 *            a {@link Map} of variables
+	 *                  a {@link Map} of variables
 	 */
 	public final void setVariables(Map<String, ?> variables) {
 		for (String key : variables.keySet()) {
@@ -249,7 +251,8 @@ public final class ExpressionEvaluator {
 	 * Checks whether the given {@link String} is a valid expression (starts with ${ and ends with }).
 	 * 
 	 * @param value
-	 *            the String to check
+	 *              the String to check
+	 * 
 	 * @return {@code true} if the given value is a valid expression, {@code false} otherwise
 	 */
 	public boolean isExpression(String value) {
@@ -260,11 +263,14 @@ public final class ExpressionEvaluator {
 	 * Evaluates the given expression to a {@link String}, if possible.
 	 * 
 	 * @param expression
-	 *            the expression to evaluate
-	 * @return <ul>
+	 *                   the expression to evaluate
+	 * 
+	 * @return
+	 *         <ul>
 	 *         <li>the {@link String} evaluated from the expression, in cases it's a valid expression
 	 *         <li>the given expression itself, otherwise
 	 *         </ul>
+	 * 
 	 * @see #isExpression(String)
 	 */
 	public String getString(String expression) {
@@ -278,13 +284,16 @@ public final class ExpressionEvaluator {
 	 * Evaluates the given expression to a {@link Boolean}, if possible.
 	 * 
 	 * @param expression
-	 *            the expression to evaluate
-	 * @return <ul>
+	 *                   the expression to evaluate
+	 * 
+	 * @return
+	 *         <ul>
 	 *         <li>the {@link Boolean} evaluated from the expression, in cases it's a valid expression
 	 *         <li>{@code Boolean.valueOf(expression)} if the expression is not {@code null} but is not a valid
 	 *         expression
 	 *         <li>{@code null} if the expression is {@code null}
 	 *         </ul>
+	 * 
 	 * @see #isExpression(String)
 	 */
 	public Boolean getBoolean(String expression) {

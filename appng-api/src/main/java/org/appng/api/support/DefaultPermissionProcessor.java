@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
  * Default {@link PermissionProcessor} implementation.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class DefaultPermissionProcessor implements PermissionProcessor {
@@ -55,11 +54,11 @@ public class DefaultPermissionProcessor implements PermissionProcessor {
 	 * given {@link Application} on the given {@link Site}.
 	 * 
 	 * @param subject
-	 *            the current {@link Subject} (if any)
+	 *                    the current {@link Subject} (if any)
 	 * @param site
-	 *            the {@link Site} currently used by the {@link Subject}
+	 *                    the {@link Site} currently used by the {@link Subject}
 	 * @param application
-	 *            the {@link Application} currently used by the {@link Subject}
+	 *                    the {@link Application} currently used by the {@link Subject}
 	 */
 	public DefaultPermissionProcessor(Subject subject, Site site, Application application) {
 		this.site = site;

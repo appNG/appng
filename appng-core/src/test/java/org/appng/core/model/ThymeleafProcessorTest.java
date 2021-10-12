@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.PathInfo;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.Session;
 import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
@@ -38,6 +39,9 @@ import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.domain.SiteImpl;
+import org.appng.core.domain.SubjectImpl;
+import org.appng.core.service.ApplicationProperties;
+import org.appng.testsupport.validation.WritingXmlValidator;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.Datafield;
@@ -81,7 +85,7 @@ public class ThymeleafProcessorTest {
 	@Test
 	public void testProcessRender() throws Exception {
 		String result = doProcess(true, false);
-		Assert.assertTrue(result.contains("<span>Hello John Doe!</span>"));
+		WritingXmlValidator.validateXml(result, "xml/ThymeleafProcessorTest-testProcessRender.xml");
 	}
 
 	@Test
@@ -107,8 +111,8 @@ public class ThymeleafProcessorTest {
 	protected String doProcess(boolean render, boolean withCustomTemplate) throws Exception {
 		MockServletContext servletContext = new MockServletContext();
 		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.addParameter("debug", "true");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		DefaultEnvironment env = DefaultEnvironment.get(servletContext);
 
 		Properties platformCfg = Mockito.mock(Properties.class);
 		Mockito.when(platformCfg.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
@@ -121,7 +125,13 @@ public class ThymeleafProcessorTest {
 		Mockito.when(platformCfg.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
 		Mockito.when(platformCfg.getString(Platform.Property.ENCODING)).thenReturn("UTF-8");
 		Mockito.when(platformCfg.getString(Platform.Property.TEMPLATE_PREFIX)).thenReturn("./template");
-		env.setAttribute(Scope.PLATFORM, org.appng.api.Platform.Environment.PLATFORM_CONFIG, platformCfg);
+		DefaultEnvironment.get(servletContext).setAttribute(Scope.PLATFORM,
+				org.appng.api.Platform.Environment.PLATFORM_CONFIG, platformCfg);
+
+		DefaultEnvironment env = DefaultEnvironment.get(request, response);
+		SubjectImpl subject = new SubjectImpl();
+		subject.setName("John Doe");
+		env.setAttribute(Scope.SESSION, Session.Environment.SUBJECT, subject);
 
 		Map<String, Site> sites = new HashMap<String, Site>();
 		SiteImpl site = new SiteImpl();
@@ -135,7 +145,7 @@ public class ThymeleafProcessorTest {
 
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, sites);
 		env.setAttribute(Scope.PLATFORM, Platform.Property.TIME_ZONE, TimeZone.getDefault());
-		DefaultEnvironment.get(request, response).setAttribute(Scope.REQUEST, EnvironmentKeys.RENDER, render);
+		env.setAttribute(Scope.REQUEST, EnvironmentKeys.RENDER, render);
 
 		MarshallService marshallService = MarshallService.getMarshallService();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -165,6 +175,11 @@ public class ThymeleafProcessorTest {
 			protected ApplicationProvider getApplicationProvider(Site site) throws InvalidConfigurationException {
 				ApplicationProvider applicationProvider = Mockito.mock(ApplicationProvider.class);
 				Mockito.when(applicationProvider.getName()).thenReturn("application");
+				Properties appProps = Mockito.mock(Properties.class);
+				Mockito.when(appProps.getString(ApplicationProperties.FEATURE_INDEXING)).thenReturn("true");
+				Mockito.when(appProps.getString(ApplicationProperties.PROP_ACTIVE_PROFILES)).thenReturn("all");
+				Mockito.when(applicationProvider.getProperties()).thenReturn(appProps);
+				Mockito.when(applicationProvider.getSite()).thenReturn(site);
 				return applicationProvider;
 			}
 		};

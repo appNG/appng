@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from {@link PageDefinition}.
 	 * 
 	 * @param page
-	 *            the {@link PageDefinition}
+	 *             the {@link PageDefinition}
 	 */
 	public PermissionOwner(PageDefinition page) {
 		this("page:" + page.getId(), page.getConfig());
@@ -61,7 +61,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from an {@link Event}.
 	 * 
 	 * @param event
-	 *            the {@link Event}
+	 *              the {@link Event}
 	 */
 	public PermissionOwner(Event event) {
 		this("event:" + event.getId(), event.getConfig());
@@ -71,7 +71,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from an {@link Action}.
 	 * 
 	 * @param action
-	 *            the {@link Action}
+	 *               the {@link Action}
 	 */
 	public PermissionOwner(Action action) {
 		this("action:" + action.getId(), action.getConfig());
@@ -81,7 +81,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from {@link ActionRef}.
 	 * 
 	 * @param actionRef
-	 *            the {@link ActionRef}
+	 *                  the {@link ActionRef}
 	 */
 	public PermissionOwner(ActionRef actionRef) {
 		this("action-reference:" + actionRef.getId(), actionRef.getPermissions());
@@ -91,7 +91,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from a {@link Datasource}.
 	 * 
 	 * @param datasource
-	 *            the {@link Datasource}
+	 *                   the {@link Datasource}
 	 */
 	public PermissionOwner(Datasource datasource) {
 		this("datasource:" + datasource.getId(), datasource.getConfig());
@@ -101,7 +101,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from an {@link DatasourceRef}.
 	 * 
 	 * @param datasourceRef
-	 *            the {@link DatasourceRef}
+	 *                      the {@link DatasourceRef}
 	 */
 	public PermissionOwner(DatasourceRef datasourceRef) {
 		this("datasource-reference:" + datasourceRef.getId(), datasourceRef.getPermissions());
@@ -111,7 +111,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from an {@link OutputType}.
 	 * 
 	 * @param outputType
-	 *            the {@link OutputType}
+	 *                   the {@link OutputType}
 	 */
 	public PermissionOwner(OutputType outputType) {
 		this("outputType:" + outputType.getId(), outputType.getPermissions());
@@ -121,7 +121,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from an {@link OutputFormat}.
 	 * 
 	 * @param outputFormat
-	 *            the {@link OutputFormat}
+	 *                     the {@link OutputFormat}
 	 */
 	public PermissionOwner(OutputFormat outputFormat) {
 		this("outputFormat:" + outputFormat.getId(), outputFormat.getPermissions());
@@ -131,7 +131,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from a {@link Link}.
 	 * 
 	 * @param link
-	 *            the {@link Link}
+	 *             the {@link Link}
 	 */
 	public PermissionOwner(Link link) {
 		this("link:" + link.getLabel().getValue(), link.getPermissions());
@@ -141,7 +141,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from a {@link Linkpanel}.
 	 * 
 	 * @param linkpanel
-	 *            the {@link Linkpanel}
+	 *                  the {@link Linkpanel}
 	 */
 	public PermissionOwner(Linkpanel linkpanel) {
 		this("linkpanel:" + linkpanel.getId(), linkpanel.getPermissions());
@@ -151,7 +151,7 @@ public final class PermissionOwner {
 	 * Creates a new PermissionOwner from a {@link Config}.
 	 * 
 	 * @param config
-	 *            the {@link Config}
+	 *               the {@link Config}
 	 */
 	public PermissionOwner(Config config) {
 		this("config", config.getPermissions());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Scope;
@@ -39,6 +38,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -75,7 +75,8 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		if (null == context || PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())) {
+		if (null == context || PlatformStartup.APPNG_CONTEXT.equals(applicationContext.getDisplayName())
+				|| !ConfigurableApplicationContext.class.cast(context).isActive()) {
 			PlatformEventListener.context = applicationContext;
 			LOGGER.info("Using application context {}", applicationContext);
 		}
@@ -101,17 +102,11 @@ public class PlatformEventListener implements ApplicationContextAware {
 	}
 
 	public void createEvent(Type type, String message) {
-		HttpServletRequest servletRequest = getServletRequest();
-		HttpSession session = null == servletRequest ? null : servletRequest.getSession();
-		createEvent(type, message, session, servletRequest);
+		createEvent(type, message, getServletRequest());
 	}
 
-	public void createEvent(Type type, String message, HttpSession session) {
-		createEvent(type, message, session, null);
-	}
-
-	private void createEvent(Type type, String message, HttpSession session, HttpServletRequest request) {
-		PlatformEvent event = getEventProvider().provide(type, message, session, request);
+	public void createEvent(Type type, String message, HttpServletRequest request) {
+		PlatformEvent event = getEventProvider().provide(type, message, request);
 		if (persist) {
 			if (null == entityManager) {
 				context.getAutowireCapableBeanFactory().autowireBean(this);
@@ -162,13 +157,13 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return UUID.randomUUID().toString();
 		}
 
-		PlatformEvent provide(Type type, String message, HttpSession session, HttpServletRequest request) {
+		PlatformEvent provide(Type type, String message, HttpServletRequest request) {
 			PlatformEvent event = new PlatformEvent();
 			event.setType(type);
 			event.setEvent(message);
-			event.setUser(getUser(session));
+			event.setUser(getUser(request));
 			event.setRequestId(getExecutionId(request));
-			event.setSessionId(getSessionId(session));
+			event.setSessionId(getSessionId(request));
 			event.setApplication(getApplication());
 			event.setContext(getContext(request));
 			try {
@@ -183,17 +178,17 @@ public class PlatformEventListener implements ApplicationContextAware {
 			return event;
 		}
 
-		private String getSessionId(HttpSession session) {
-			if (null != session) {
-				return StringUtils.substring(session.getId(), 0, 8);
+		private String getSessionId(HttpServletRequest request) {
+			if (null != request) {
+				return StringUtils.substring(request.getSession().getId(), 0, 8);
 			}
 			return null;
 		}
 
-		protected String getUser(HttpSession session) {
+		protected String getUser(HttpServletRequest request) {
 			Subject s = null;
-			if (null != session) {
-				s = DefaultEnvironment.get(session).getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
+			if (null != request) {
+				s = DefaultEnvironment.get(request, null).getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
 			}
 			return s == null ? auditUser : s.getRealname();
 		}

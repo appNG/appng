@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,10 +137,13 @@ public class PlatformProperties implements Properties {
 			return new ByteArrayInputStream(cacheConfig.getBytes(StandardCharsets.UTF_8));
 		} else {
 			File cacheConfigFile = getAbsoluteFile(Platform.Property.CACHE_CONFIG);
-			LOGGER.info("Reading caching config from {}", cacheConfigFile);
-			return new FileInputStream(cacheConfigFile);
+			if (cacheConfigFile.exists()) {
+				LOGGER.info("Reading caching config from {}", cacheConfigFile);
+				return new FileInputStream(cacheConfigFile);
+			}
+			LOGGER.warn("Cache config file does not exist: {}", cacheConfigFile.getAbsoluteFile());
 		}
-
+		return null;
 	}
 
 	public File getUploadDir() {

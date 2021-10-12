@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ public class PropertyHolder implements Properties {
 	 * Creates a new {@link PropertyHolder}
 	 * 
 	 * @param prefix
-	 *            the prefix to use
+	 *                   the prefix to use
 	 * @param properties
-	 *            the {@link Property}-instances to hold
+	 *                   the {@link Property}-instances to hold
 	 */
 	public PropertyHolder(String prefix, Iterable<? extends Property> properties) {
 		this.prefix = prefix;
@@ -115,14 +115,15 @@ public class PropertyHolder implements Properties {
 	/**
 	 * As long as {@link #setFinal()} has not be called, this method can be used to add new properties
 	 * 
-	 * @param  name
-	 *                                  the name of the property, <b>without prefix</b>
-	 * @param  defaultValue
-	 *                                  the default value for the property to add, must not be {@code null}
-	 * @param  description
-	 *                                  the description for the property
-	 * @param  type
-	 *                                  the type of the property
+	 * @param name
+	 *                     the name of the property, <b>without prefix</b>
+	 * @param defaultValue
+	 *                     the default value for the property to add, must not be {@code null}
+	 * @param description
+	 *                     the description for the property
+	 * @param type
+	 *                     the type of the property
+	 * 
 	 * @throws IllegalArgumentException
 	 *                                  if defaultValue is {@code null} or if {@link #setFinal()} has been called
 	 *                                  before.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,10 @@ import org.thymeleaf.standard.processor.StandardReplaceTagProcessor;
 import org.thymeleaf.templatemode.TemplateMode;
 
 /**
- * An appNG specific Thymeleaf dialect to enable the functionality to add
- * application-specific interceptors. An interceptor can redirect the 'replace'
- * call of a fragment.
+ * An appNG specific Thymeleaf dialect to enable the functionality to add application-specific interceptors. An
+ * interceptor can redirect the 'replace' call of a fragment.
  * 
  * @author Claus Stümke
- *
  */
 public class AppNGThymeleafDialect extends SpringStandardDialect {
 
@@ -43,9 +41,8 @@ public class AppNGThymeleafDialect extends SpringStandardDialect {
 	}
 
 	/**
-	 * Get all processors as composed by the {@link SpringStandardDialect}, remove
-	 * the processor for the replace tag and add our own replace tag processor which
-	 * enables the usage of interceptors.
+	 * Get all processors as composed by the {@link SpringStandardDialect}, remove the processor for the replace tag and
+	 * add our own replace tag processor which enables the usage of interceptors.
 	 */
 	public Set<IProcessor> getProcessors(final String dialectPrefix) {
 		Set<IProcessor> springStandardProcessorsSet = createSpringStandardProcessorsSet(dialectPrefix);

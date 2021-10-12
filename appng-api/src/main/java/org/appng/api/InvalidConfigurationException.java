@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,8 @@ import org.appng.api.model.Resource;
 import org.appng.api.model.Site;
 
 /**
- * 
- * An {@code InvalidConfigurationException} is a checked exception thrown by the platform whenever something goes
- * wrong during {@link Application}-execution.<br/>
+ * An {@code InvalidConfigurationException} is a checked exception thrown by the platform whenever something goes wrong
+ * during {@link Application}-execution.<br/>
  * Some examples:
  * <ul>
  * <li>a {@link Application} could not be found
@@ -32,7 +31,6 @@ import org.appng.api.model.Site;
  * </ul>
  * 
  * @author Matthias Müller
- * 
  */
 public class InvalidConfigurationException extends Exception {
 
@@ -43,11 +41,11 @@ public class InvalidConfigurationException extends Exception {
 	 * Create a new {@code InvalidConfigurationException}.
 	 * 
 	 * @param site
-	 *            the {@link Site} where the error occurred
+	 *                        the {@link Site} where the error occurred
 	 * @param applicationName
-	 *            the name of the {@link Application} where the error occurred
+	 *                        the name of the {@link Application} where the error occurred
 	 * @param message
-	 *            the error message
+	 *                        the error message
 	 */
 	public InvalidConfigurationException(Site site, String applicationName, String message) {
 		super(message);
@@ -59,9 +57,9 @@ public class InvalidConfigurationException extends Exception {
 	 * Create a new {@code InvalidConfigurationException}.
 	 * 
 	 * @param applicationName
-	 *            the name of the {@link Application} where the error occurred
+	 *                        the name of the {@link Application} where the error occurred
 	 * @param message
-	 *            the error message
+	 *                        the error message
 	 */
 	public InvalidConfigurationException(String applicationName, String message) {
 		super(message);
@@ -73,11 +71,11 @@ public class InvalidConfigurationException extends Exception {
 	 * Create a new {@code InvalidConfigurationException}.
 	 * 
 	 * @param applicationName
-	 *            the name of the {@link Application} where the error occurred
+	 *                        the name of the {@link Application} where the error occurred
 	 * @param message
-	 *            the error message
+	 *                        the error message
 	 * @param cause
-	 *            the cause of the {@code InvalidConfigurationException}
+	 *                        the cause of the {@code InvalidConfigurationException}
 	 */
 	public InvalidConfigurationException(String applicationName, String message, Throwable cause) {
 		super(message, cause);

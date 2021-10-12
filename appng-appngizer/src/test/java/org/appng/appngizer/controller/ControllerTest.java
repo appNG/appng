@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,9 @@ public abstract class ControllerTest {
 			Map<Object, Object> platformEnv = new ConcurrentHashMap<>();
 			platformEnv.put(Platform.Environment.APPNG_VERSION, "1.21.x");
 			List<? extends Property> properties = Arrays.asList(
-					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.SHARED_SECRET, "4711"));
+					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.SHARED_SECRET, "4711"),
+					new SimpleProperty(PropertySupport.PREFIX_PLATFORM + Platform.Property.VHOST_MODE,
+							VHostMode.NAME_BASED.name()));
 			platformEnv.put(Platform.Environment.PLATFORM_CONFIG,
 					new PropertyHolder(PropertySupport.PREFIX_PLATFORM, properties));
 			this.wac.getServletContext().setAttribute(Scope.PLATFORM.name(), platformEnv);
@@ -184,7 +186,7 @@ public abstract class ControllerTest {
 			HttpStatus status, String controlSource)
 			throws Exception, UnsupportedEncodingException, SAXException, IOException {
 		if (null != content) {
-			builder.contentType(MediaType.TEXT_XML);
+			builder.contentType(MediaType.TEXT_XML_VALUE);
 			StringResult result = new StringResult();
 			marshaller.marshal(content, result);
 			builder.content(result.toString());
@@ -198,6 +200,9 @@ public abstract class ControllerTest {
 		MvcResult mvcResult = mockMvc.perform(builder).andReturn();
 		MockHttpServletResponse response = mvcResult.getResponse();
 		Assert.assertEquals("HTTP status does not match	", status.value(), response.getStatus());
+		if (HttpStatus.OK.equals(status)) {
+			Assert.assertEquals("Content type does not match ", MediaType.TEXT_XML_VALUE, response.getContentType());
+		}
 		validate(response.getContentAsString(), controlSource);
 		return response;
 	}

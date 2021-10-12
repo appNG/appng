@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.appng.appngizer.model.xml.Group;
 import org.appng.appngizer.model.xml.Groups;
 import org.appng.appngizer.model.xml.Home;
 import org.appng.appngizer.model.xml.Package;
+import org.appng.appngizer.model.xml.Packages;
 import org.appng.appngizer.model.xml.Permission;
 import org.appng.appngizer.model.xml.Permissions;
 import org.appng.appngizer.model.xml.Properties;
@@ -68,12 +69,10 @@ import lombok.extern.slf4j.Slf4j;
  * appNGizer.login();
  * </pre>
  * 
- * Check out the <a href=
- * "https://appng.org/appng/docs/current/appngizer/html/appngizer-user-manual.html">appNGizer
+ * Check out the <a href= "https://appng.org/appng/docs/current/appngizer/html/appngizer-user-manual.html">appNGizer
  * User Manual</a> for a detailed description of the possible operations.
  * 
  * @author Matthias Müller
- *
  */
 
 @Slf4j
@@ -85,9 +84,13 @@ public class AppNGizer implements AppNGizerClient {
 	private String sharedSecret;
 
 	public AppNGizer(String endpoint, String sharedSecret) {
+		this(endpoint, sharedSecret, new RestTemplate());
+	}
+
+	public AppNGizer(String endpoint, String sharedSecret, RestTemplate restTemplate) {
 		this.endpoint = endpoint;
 		this.sharedSecret = sharedSecret;
-		restTemplate = new RestTemplate();
+		this.restTemplate = restTemplate;
 	}
 
 	private <REQ, RES> RES exchange(String path, REQ body, HttpMethod method, Class<RES> returnType) {
@@ -377,6 +380,14 @@ public class AppNGizer implements AppNGizerClient {
 
 	public Package installPackage(String name, Package packageToInstall) {
 		return put("/repository/" + encode(name) + "/install/", packageToInstall, Package.class);
+	}
+
+	public Package getPackage(String name, String packageName, String version, String timeStamp) {
+		return get("/repository/" + encode(name) + "/" + packageName + "/" + version + "/" + timeStamp, Package.class);
+	}
+
+	public Packages getPackages(String name, String packageName) {
+		return get("/repository/" + encode(name) + "/" + packageName, Packages.class);
 	}
 
 	public Package uploadPackage(String name, File archive) throws IOException {

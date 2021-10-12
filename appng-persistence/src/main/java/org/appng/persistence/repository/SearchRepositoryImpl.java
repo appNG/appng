@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,13 +54,12 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
  * "http://docs.spring.io/spring-data/jpa/docs/1.11.0.RELEASE/reference/html/#repositories.custom-behaviour-for-all-repositories">
  * 4.6.2. Adding custom behavior to all repositories</a> from the reference Documentation for further details.
  *
- * 
  * @author Matthias Müller
  * 
  * @param <T>
- *            the domain class
+ *             the domain class
  * @param <ID>
- *            the type of the Id of the domain class
+ *             the type of the Id of the domain class
  */
 public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRepository<T, ID>
 		implements SearchRepository<T, ID> {
@@ -129,7 +128,7 @@ public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaR
 		List<T> content = query.getResultList();
 		return new PageImpl<T>(content, pageable, total);
 	}
-	
+
 	public List<T> search(String queryString, Object... args) {
 		TypedQuery<T> query = entityManager.createQuery(queryString, domainClass);
 		if (null != args) {

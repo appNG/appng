@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.appng.core.repository;
 
 import java.util.List;
 
+import org.appng.api.model.Group;
 import org.appng.core.domain.GroupImpl;
 import org.appng.persistence.repository.SearchRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,5 +36,7 @@ public interface GroupRepository extends SearchRepository<GroupImpl, Integer> {
 	GroupImpl getGroup(Integer groupId);
 
 	List<GroupImpl> findByDefaultAdmin(boolean defaultAdmin);
+
+	List<Group> findByNameIn(List<String> names);
 
 }

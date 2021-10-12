@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.context.MessageSource;
  * Holds informations about the environment when executing {@link ExecutableCliCommand}s.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class CliEnvironment {
 
@@ -42,9 +41,10 @@ public class CliEnvironment {
 	 * Creates a new {@link CliEnvironment}.
 	 * 
 	 * @param platformContext
-	 *            the {@link ApplicationContext} used
+	 *                        the {@link ApplicationContext} used
 	 * @param cliConfig
-	 *            the configuration read from {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
+	 *                        the configuration read from
+	 *                        {@value org.appng.core.controller.PlatformStartup#CONFIG_LOCATION}
 	 */
 	public CliEnvironment(ApplicationContext platformContext, final java.util.Properties cliConfig) {
 		this.platformContext = platformContext;
@@ -56,7 +56,8 @@ public class CliEnvironment {
 	 */
 	public void initPlatform(java.util.Properties defaultOverrides) {
 		String platformRootPath = cliConfig.getProperty(Platform.Property.PLATFORM_ROOT_PATH);
-		this.platformConfig = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode, true, false);
+		this.platformConfig = getCoreService().initPlatformConfig(defaultOverrides, platformRootPath, devMode, true,
+				false);
 	}
 
 	/**
@@ -81,7 +82,7 @@ public class CliEnvironment {
 	 * Sets the result of a {@link ExecutableCliCommand}-execution, which is a string to output on the console.
 	 * 
 	 * @param result
-	 *            the result to set
+	 *               the result to set
 	 */
 	public void setResult(String result) {
 		this.result = result;

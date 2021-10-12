@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,12 +45,10 @@ public class LinkPanelFieldHandlerTest extends AbstractFieldConverterTest {
 		params.put("param1", 5);
 		super.setup(FieldType.LINKPANEL, params);
 		fieldWrapper.setLinkpanel(getLinkPanel());
-		Mockito.when(
-				messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "7" }, LABEL_WITH_PARAM,
-						environment.getLocale())).thenReturn("label-with-param-5-7");
-		Mockito.when(
-				messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "foobar" }, LABEL_WITH_PARAM,
-						environment.getLocale())).thenReturn("5 - foobar");
+		Mockito.when(messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "7" }, LABEL_WITH_PARAM,
+				environment.getLocale())).thenReturn("label-with-param-5-7");
+		Mockito.when(messageSource.getMessage(LABEL_WITH_PARAM, new Object[] { "5", "foobar" }, LABEL_WITH_PARAM,
+				environment.getLocale())).thenReturn("5 - foobar");
 	}
 
 	@Test

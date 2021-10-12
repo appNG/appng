@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.appng.tools.image.ImageProcessor;
  * Default {@link FeatureProvider} implementation.
  * 
  * @author Matthias Herlitzius
- * 
  */
 public class FeatureProviderImpl implements FeatureProvider {
 
@@ -44,7 +43,7 @@ public class FeatureProviderImpl implements FeatureProvider {
 	 * {@link Application}.
 	 * 
 	 * @param applicationProperties
-	 *            the {@link Properties} to use.
+	 *                              the {@link Properties} to use.
 	 */
 	public FeatureProviderImpl(Properties applicationProperties) {
 		this.applicationProperties = applicationProperties;
@@ -55,9 +54,10 @@ public class FeatureProviderImpl implements FeatureProvider {
 	 * {@value org.appng.core.service.ApplicationProperties#FEATURE_IMAGE_PROCESSING} equals to '{@code true}'.
 	 * 
 	 * @param imageMagickPath
-	 *            the path to the ImageMagick executable
+	 *                        the path to the ImageMagick executable
 	 * @param imageCache
-	 *            the folder to use for caching images
+	 *                        the folder to use for caching images
+	 * 
 	 * @see #getImageProcessor(File, String)
 	 */
 	public void initImageProcessor(File imageMagickPath, File imageCache) {
@@ -71,7 +71,8 @@ public class FeatureProviderImpl implements FeatureProvider {
 	 * {@value org.appng.core.service.ApplicationProperties#FEATURE_INDEXING} equals to '{@code true}'.
 	 * 
 	 * @param indexer
-	 *            the {@link DocumentIndexer}
+	 *                the {@link DocumentIndexer}
+	 * 
 	 * @see #getIndexer()
 	 */
 	public void setIndexer(DocumentIndexer indexer) {
@@ -119,7 +120,6 @@ public class FeatureProviderImpl implements FeatureProvider {
 	 * Wraps an {@link ImageProcessor}
 	 * 
 	 * @author Matthias Müller
-	 * 
 	 */
 	class ImageProcessorWrapper {
 

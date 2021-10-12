@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
  * A {@link PackageArchive}.
  * 
  * @author Matthias Herlitzius
- * 
  */
 @Slf4j
 public class PackageArchiveImpl implements PackageArchive {
@@ -171,7 +170,8 @@ public class PackageArchiveImpl implements PackageArchive {
 	 * Validates the filename against information in {@code application-info.xml}.
 	 * 
 	 * @param applicationInfo
-	 *            a {@link ApplicationInfo}
+	 *                        a {@link ApplicationInfo}
+	 * 
 	 * @return {@code true} if the file name of this {@link PackageArchive} matches the expected one, {@code false}
 	 *         otherwise
 	 */

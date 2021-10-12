@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,11 @@ import org.springframework.data.domain.PageRequest;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * A {@code CallableDataSource} is responsible for preparing and performing an {@link Datasource}, based on a
  * {@link DatasourceRef}. This {@link DatasourceRef} is provided either by a {@link PageDefinition}'s
  * {@link SectionelementDef} or by an {@link Action}.
  * 
  * @author Matthias Müller
- * 
  */
 @Slf4j
 public class CallableDataSource {
@@ -74,18 +72,19 @@ public class CallableDataSource {
 	 * {@link Permissions} and {@link Condition}s.
 	 * 
 	 * @param site
-	 *            the current {@link Site}
+	 *                           the current {@link Site}
 	 * @param application
-	 *            the current {@link Application}
+	 *                           the current {@link Application}
 	 * @param applicationRequest
-	 *            the current {@link ApplicationRequest}
+	 *                           the current {@link ApplicationRequest}
 	 * @param parameterSupport
-	 *            the {@link ParameterSupport} holding the parameters for the {@link Datasource}
+	 *                           the {@link ParameterSupport} holding the parameters for the {@link Datasource}
 	 * @param datasourceRef
-	 *            the {@link DatasourceRef} as given in the {@link SectionelementDef} of a {@link PageDefinition} or by
-	 *            an {@link Action}.
+	 *                           the {@link DatasourceRef} as given in the {@link SectionelementDef} of a
+	 *                           {@link PageDefinition} or by an {@link Action}.
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurs while assembling the {@code CallableDataSource}
+	 *                             if an error occurs while assembling the {@code CallableDataSource}
 	 */
 	public CallableDataSource(Site site, Application application, ApplicationRequest applicationRequest,
 			ParameterSupport parameterSupport, DatasourceRef datasourceRef) throws ProcessingException {
@@ -114,8 +113,8 @@ public class CallableDataSource {
 					this.include = true;
 					datasource.setMode(datasourceRef.getMode());
 					DataConfig config = getDatasource().getConfig();
-					Map<String, String> dataSourceParameters = elementHelper.initializeParameters("datasource '"
-							+ datasourceRef.getId() + "'", applicationRequest, parameterSupport,
+					Map<String, String> dataSourceParameters = elementHelper.initializeParameters(
+							"datasource '" + datasourceRef.getId() + "'", applicationRequest, parameterSupport,
 							datasourceRef.getParams(), config.getParams());
 
 					LOGGER.trace("parameters for datasource '{}': {}", datasourceRef.getId(), dataSourceParameters);
@@ -159,15 +158,18 @@ public class CallableDataSource {
 	 * {@link #doInclude()}), as this method doesn't check that condition.
 	 * 
 	 * @param pageId
-	 *            the ID of the current page
+	 *                      the ID of the current page
 	 * @param setBeanNull
-	 *            whether or not to set the {@link Bean} of the {@link Datasource} to {@code null} after performing
+	 *                      whether or not to set the {@link Bean} of the {@link Datasource} to {@code null} after
+	 *                      performing
 	 * @param addValidation
-	 *            whether or not to add validation metadata
+	 *                      whether or not to add validation metadata
+	 * 
 	 * @return the {@link Data} retrieved from the {@link Datasource} by calling
 	 *         {@link DataProvider#getData(Site, Application, org.appng.api.Environment, Options, org.appng.api.Request, org.appng.api.FieldProcessor)}
+	 * 
 	 * @throws ProcessingException
-	 *             if an error occurs while retrieving the {@code Data}
+	 *                             if an error occurs while retrieving the {@code Data}
 	 */
 	public Data perform(String pageId, boolean setBeanNull, boolean addValidation) throws ProcessingException {
 		Bean bean = datasource.getBean();
