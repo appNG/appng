@@ -62,7 +62,7 @@ public class RequestUtil {
 			return null;
 		}
 		String siteName = getSiteName(env, servletRequest);
-		Optional<Site> optionalSite = Optional.of(getSiteByName(env, siteName));
+		Optional<Site> optionalSite = Optional.ofNullable(getSiteByName(env, siteName));
 		return optionalSite.isPresent() ? optionalSite.get() : getSiteByHost(env, siteName);
 	}
 
