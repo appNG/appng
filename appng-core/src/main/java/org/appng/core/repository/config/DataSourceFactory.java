@@ -21,6 +21,7 @@ import org.appng.core.domain.DatabaseConnection;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,9 +35,10 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 
 	private DatasourceConfigurer configurer;
 
-	private @Setter String configurerClass;
-	private @Setter boolean logPerformance = false;
-	private @Setter long connectionTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
+	private @Getter @Setter String configurerClass;
+	private @Setter boolean autoCommit = false;
+	private @Getter @Setter boolean logPerformance = false;
+	private @Getter @Setter long connectionTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
 	private @Setter long validationTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
 	private @Setter long maxLifetime = DatasourceConfigurer.DEFAULT_LIFE_TIME;
 
@@ -64,6 +66,7 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 			this.configurer.setConnectionTimeout(connectionTimeout);
 			this.configurer.setValidationTimeout(validationTimeout);
 			this.configurer.setMaxLifetime(maxLifetime);
+			this.configurer.setAutoCommit(autoCommit);
 		} catch (Exception e) {
 			LOGGER.error(String.format("error creating instance of '%s'", configurerClass), e);
 		}
@@ -89,18 +92,6 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 
 	public DataSource getDataSource() {
 		return configurer.getDataSource();
-	}
-
-	public String getConfigurerClass() {
-		return configurerClass;
-	}
-
-	public boolean isLogPerformance() {
-		return logPerformance;
-	}
-
-	public long getConnectionTimeout() {
-		return connectionTimeout;
 	}
 
 }

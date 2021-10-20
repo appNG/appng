@@ -15,6 +15,7 @@
  */
 package org.appng.core.repository.config;
 
+import java.sql.Connection;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -85,5 +86,14 @@ public interface DatasourceConfigurer {
 	 *                    the maximum lifetime
 	 */
 	void setMaxLifetime(long maxLifetime);
+
+	/**
+	 * Set autoCommit mode for the {@link Connection}s returned by the {@link DataSource}
+	 * 
+	 * @param autoCommit
+	 *                   enables/disables autoCommit
+	 */
+	default void setAutoCommit(boolean autoCommit) {
+	}
 
 }
