@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -61,9 +62,10 @@ public class RequestUtil {
 			return null;
 		}
 		String siteName = getSiteName(env, servletRequest);
-		return getSiteByName(env, siteName);
+		Optional<Site> optionalSite = Optional.ofNullable(getSiteByName(env, siteName));
+		return optionalSite.isPresent() ? optionalSite.get() : getSiteByHost(env, siteName);
 	}
-	
+
 	/**
 	 * Retrieves a {@link Site} by its host.
 	 * 

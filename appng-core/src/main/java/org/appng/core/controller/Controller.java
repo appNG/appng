@@ -63,7 +63,6 @@ import org.appng.core.controller.handler.RequestHandler;
 import org.appng.core.controller.handler.ServiceRequestHandler;
 import org.appng.core.controller.handler.StaticContentHandler;
 import org.appng.core.domain.SiteImpl;
-import org.appng.core.model.PlatformTransformer;
 import org.appng.xml.MarshallService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -175,8 +174,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			throws ServletException, IOException {
 
 		Properties platformProperties = globalEnv.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		String hostIdentifier = RequestUtil.getHostIdentifier(servletRequest, globalEnv);
-		Site site = RequestUtil.getSiteByHost(globalEnv, hostIdentifier);
+		Site site = RequestUtil.getSite(globalEnv, servletRequest);
 
 		if (null == site) {
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());

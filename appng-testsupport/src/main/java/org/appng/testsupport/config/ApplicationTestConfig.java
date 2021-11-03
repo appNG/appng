@@ -23,7 +23,7 @@ public class ApplicationTestConfig extends ApplicationConfig {
 
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	public CustomScopeConfigurer CustomScopeConfigurer() {
+	public static CustomScopeConfigurer customScopeConfigurer() {
 		CustomScopeConfigurer customScopeConfigurer = new CustomScopeConfigurer();
 		customScopeConfigurer.addScope(WebApplicationContext.SCOPE_REQUEST, new SimpleThreadScope());
 		customScopeConfigurer.addScope(WebApplicationContext.SCOPE_SESSION, new SimpleThreadScope());

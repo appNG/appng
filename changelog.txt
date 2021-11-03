@@ -1,4 +1,75 @@
-Release Notes - appNG - Version 1.21.1 (2020-07-22)
+Release Notes - appNG - Version 1.23.0 (2021-10-12)
+---------------------------------------------------
+** Bug
+    * [APPNG-2128] - appNGizer should not be able to delete a site that is currently running
+    * [APPNG-2354] - Possible NPE in SubjectImpl#hasApplication when site has been stopped
+    * [APPNG-2365] - CacheManager must be primary
+    * [APPNG-2373] - Limitations in appNGizer regarding names that contain a dot
+    * [APPNG-2375] - Minimum/maximum poolsize for appNG Root Connection must be applied
+    * [APPNG-2381] - CoreServiceTest#testDeleteSiteWithEnvironment fails on several build environments
+    * [APPNG-2382] - PlatformEventListener must accept new context and discard old one, when inactive
+    * [APPNG-2385] - SessionEnvironment possibly holds reference to stale HttpSession
+    * [APPNG-2386] - RestService: Avoid the need to create a new RequestMappingHandlerMapping on each request
+    * [APPNG-2390] - When setting a site's state, this change must also get applied to the map containing the site states.
+    * [APPNG-2392] - RepositoryWatcher must also watch for ENTRY_CREATE
+    * [APPNG-2401] - Add missing indices for Quartz tables on MySql
+    * [APPNG-2403] - org.appng.appngizer.client.AppNGizer should provide a constructor receiving a custom RestTemplate
+    * [APPNG-2404] - Refactor RestPostProcessor
+    * [APPNG-2405] - Field-Validation not working for nested fields inside a list of objects
+    * [APPNG-2407] - Cache Statistics: Wrong unit for average put/get/remove time
+
+** Feature
+    * [APPNG-2212] - Keycloak support
+    * [APPNG-2355] - @FileUpload should support @Target({ FIELD })
+    * [APPNG-2356] - On a page, an action should support a mode-attribute
+    * [APPNG-2357] - Improve YAML output of AppNGizer
+    * [APPNG-2358] - In SessionListener, provide the possibility to discard a session immediately based on User-Agent Header
+    * [APPNG-2364] - Avoid unnecessary creation of DefaultEnvironment and access to the http session
+    * [APPNG-2376] - Void methods of SearchQuery should return the SearchQuery instead
+    * [APPNG-2377] - Fix link in Javadoc of HazelcastReceiver
+    * [APPNG-2379] - In RepositoryWatcher, log a warning for StandardWatchEventKinds.OVERFLOW and if the key could not be reset
+    * [APPNG-2383] - Several enhancements for ThymeleafProcessor
+    * [APPNG-2384] - Sort field validation messages in a predictable order
+    * [APPNG-2387] - Support node-specific configuration
+    * [APPNG-2388] - Provide a validation constraint and validator for validating the length of richtext fields
+    * [APPNG-2389] - Implement a heartbeat that continuously sends NodeEvents
+    * [APPNG-2391] - Provide a dedicated event for stopping a site
+    * [APPNG-2393] - It should be possible to manually set an ID for a section
+    * [APPNG-2395] - Support for parallel loading sites
+    * [APPNG-2397] - Support detection of site based on request header X-appNG-site
+    * [APPNG-2398] - Allow disabling basic auth in MonitoringHandler
+    * [APPNG-2400] - Support reloading only the template for a site, not the applications
+
+** Improvement
+    * [APPNG-2359] - Provide a site property to disable LDAP authentication
+    * [APPNG-2366] - Upgrade to Flyway 7
+    * [APPNG-2367] - AppNGizerClient is missing methods to retrieve packages
+    * [APPNG-2368] - Provide a Hibernate ImplicitNamingStrategy that uses snake case for tables and columns
+    * [APPNG-2369] - Provide Hibernate Dialects for MySql and MariaDB that assume utf8mb4 character set
+    * [APPNG-2374] - AppNGizer must return Content-Type text/xml or application/xml
+    * [APPNG-2394] - DatasourceInheritanceHelper should log with debug, not info level
+    * [APPNG-2399] - HikariCPConfigurer should set autoCommit to false and allow empty/null validation query
+    * [APPNG-2408] - Actions should forward with status 302 (found) instead of 301 (moved permanently)
+    * [APPNG-2409] - LdapService.loginUser should retrieve some attributes
+
+** Task
+    * [APPNG-2362] - Support running on Java >= 9
+    * [APPNG-2363] - Drop support for legacy MySql Driver
+    * [APPNG-2370] - Update license header to 2021
+    * [APPNG-2371] - Apply uniform code formatting
+    * [APPNG-2378] - Dependency updates
+    * [APPNG-2406] - Use latest Camunda Version
+
+Release Notes - appNG - Version 1.22.1 (2020-11-23)
+---------------------------------------------------
+* [APPNG-2361] - Release appNG 1.22.1
+* [APPNG-2360] - Missing nested fields when same name and different condition is used
+* [APPNG-2357] - Improve YAML output of AppNGizer
+* [APPNG-2356] - On a page, an action should support a mode-attribute
+* [APPNG-2355] - @FileUpload should support @Target({ FIELD })
+* [APPNG-2354] - Possible NPE in SubjectImpl#hasApplication when site has been stopped
+
+Release Notes - appNG - Version 1.22.0 (2020-10-05)
 ---------------------------------------------------
 * [APPNG-2353] - Release 1.22.0
 * [APPNG-2352] - Provide a tooltip for metadata fields

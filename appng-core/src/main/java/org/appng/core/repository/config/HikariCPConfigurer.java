@@ -15,8 +15,6 @@
  */
 package org.appng.core.repository.config;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
@@ -25,6 +23,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import ch.sla.jdbcperflogger.driver.WrappingDriver;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,11 +37,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HikariCPConfigurer implements DatasourceConfigurer {
 
-	private HikariDataSource hikariDataSource;
+	private @Getter HikariDataSource dataSource;
 	private @Setter boolean logPerformance = false;
 	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
 	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
 	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
+	private @Setter boolean autoCommit = false;
 
 	public HikariCPConfigurer() {
 
@@ -69,7 +69,7 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 			configuration.setConnectionTestQuery(connection.getValidationQuery());
 		}
 		configuration.setPoolName(connection.getName());
-		configuration.setAutoCommit(false);
+		configuration.setAutoCommit(autoCommit);
 
 		DatabaseType type = connection.getType();
 		configuration.setRegisterMbeans(true);
@@ -94,16 +94,12 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 			configuration.addDataSourceProperty("password", connection.getPasswordPlain());
 			LOGGER.info("connection {} uses datasource {}", jdbcUrl, dataSourceClassName);
 		}
-		this.hikariDataSource = new HikariDataSource(configuration);
+		this.dataSource = new HikariDataSource(configuration);
 	}
 
 	public void destroy() {
-		hikariDataSource.close();
-		hikariDataSource = null;
-	}
-
-	public DataSource getDataSource() {
-		return hikariDataSource;
+		dataSource.close();
+		dataSource = null;
 	}
 
 }
