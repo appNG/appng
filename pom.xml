@@ -1137,6 +1137,11 @@
 				<version>2.10.11</version>
 			</dependency>
 			<dependency>
+				<groupId>org.owasp.antisamy</groupId>
+				<artifactId>antisamy</artifactId>
+				<version>1.6.4</version>
+			</dependency>
+			<dependency>
 				<groupId>org.owasp.esapi</groupId>
 				<artifactId>esapi</artifactId>
 				<version>${esapi.version}</version>
