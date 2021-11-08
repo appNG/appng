@@ -970,18 +970,8 @@
 			<!-- BEGIN HIBERNATE + JPA -->
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-entitymanager</artifactId>
+				<artifactId>hibernate-core</artifactId>
 				<version>${hibernate.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>xml-apis</groupId>
-						<artifactId>xml-apis</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>javax.el</groupId>
-						<artifactId>el-api</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
