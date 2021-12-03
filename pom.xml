@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.23.3</version>
+	<version>1.23.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
