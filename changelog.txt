@@ -1,3 +1,25 @@
+Release Notes - appNG - Version 1.23.3 (2021-12-03)
+---------------------------------------------------
+** Bug
+    * [APPNG-2416] - Fix duplicate request mapping in RestConfig
+    * [APPNG-2417] - Fix wrongly formatted SQL comment
+    * [APPNG-2418] - Adjust application versions in parent pom
+
+Release Notes - appNG - Version 1.23.2 (2021-11-30)
+---------------------------------------------------
+** Bug
+    * [APPNG-2415] - Add missing JAX-WS API, update dependencies
+
+Release Notes - appNG - Version 1.23.1 (2021-11-03)
+---------------------------------------------------
+** Bug
+    * [APPNG-2402] - @Bean method AppNGizer.configurer is non-static...
+    * [APPNG-2410] - @Bean method ApplicationTestConfig.CustomScopeConfigurer is non-static and returns an object assignable to Spring's BeanFactoryPostProcessor interface
+    * [APPNG-2411] - Assure backwards compatibility of RequestUtil#getSite()
+    * [APPNG-2412] - Disable Hazelcast's auto-detection by default
+    * [APPNG-2413] - appNGizer Client receives 406 responses
+    * [APPNG-2414] - Rework autoCommit mode
+
 Release Notes - appNG - Version 1.23.0 (2021-10-12)
 ---------------------------------------------------
 ** Bug
