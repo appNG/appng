@@ -80,7 +80,6 @@ import lombok.extern.slf4j.Slf4j;
 @WebServlet(name = "controller", urlPatterns = { "/", "*.jsp" }, loadOnStartup = 1)
 public class Controller extends DefaultServlet implements ContainerServlet {
 
-	private static final String ERRORPAGE = "/errorpage";
 	private static final String SLASH = "/";
 
 	private static final String SCHEME_HTTPS = "https://";
@@ -250,12 +249,9 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 				requestHandler = serviceRequestHandler;
 			} else if (pathInfo.isJsp()) {
 				requestHandler = jspHandler;
-			} else if (ERRORPAGE.equals(servletPath)) {
-				requestHandler = errorHandler;
 			} else {
-				servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				LOGGER.debug("was not an internal request, rejecting {}", servletPath);
-			}
+				requestHandler = errorHandler;
+			} 
 
 			if (null != requestHandler) {
 				if (site.hasState(SiteState.STARTED)) {

@@ -279,7 +279,7 @@ public class ControllerTest extends Controller {
 		try {
 			doGet(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
-			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
+			Mockito.verify(base.request).setAttribute(RequestHandler.FORWARDED, Boolean.TRUE);
 		} catch (Exception e) {
 			fail(e);
 		}
@@ -378,6 +378,19 @@ public class ControllerTest extends Controller {
 	@Test
 	public void testErrorPage() {
 		when(base.request.getServletPath()).thenReturn("/errorpage");
+		try {
+			doGet(base.request, base.response);
+			verify(base.request).getRequestDispatcher("/de/fehler.jsp");
+			verify(base.request).setAttribute(RequestHandler.FORWARDED, Boolean.TRUE);
+			verify(base.dispatcher).forward(base.request, base.response);
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testInvalidPath() {
+		when(base.request.getServletPath()).thenReturn("/doesnotExist");
 		try {
 			doGet(base.request, base.response);
 			verify(base.request).getRequestDispatcher("/de/fehler.jsp");
