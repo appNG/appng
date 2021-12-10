@@ -23,7 +23,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -66,7 +65,8 @@ public class RestConfig {
 	@Bean
 	@Primary
 	public MappingJackson2HttpMessageConverter defaultJsonConverter() {
-		ObjectMapper objectMapper = new ObjectMapper();
+		
+    objectMapper = new ObjectMapper();
 		objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
 		MappingJackson2HttpMessageConverter defaultJsonConverter = new MappingJackson2HttpMessageConverter(
 				objectMapper);

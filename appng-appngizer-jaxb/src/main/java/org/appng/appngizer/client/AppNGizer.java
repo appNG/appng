@@ -17,13 +17,16 @@ package org.appng.appngizer.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Manifest;
 
 import org.appng.appngizer.model.xml.Application;
 import org.appng.appngizer.model.xml.Applications;
@@ -82,6 +85,19 @@ public class AppNGizer implements AppNGizerClient {
 	private Map<String, String> cookies = new HashMap<>();
 	private String endpoint;
 	private String sharedSecret;
+	private static String userAgent = "appNGizer Client";
+
+	static {
+		URL url = AppNGizer.class.getClassLoader().getResource("META-INF/MANIFEST.MF");
+		if (null != url) {
+			try (InputStream in = url.openStream()) {
+				String version = new Manifest(in).getMainAttributes().getValue("Implementation-Version");
+				userAgent += " (" + version + ")";
+			} catch (IOException e) {
+				LOGGER.warn("Error reading MANIFEST.MF", e);
+			}
+		}
+	}
 
 	public AppNGizer(String endpoint, String sharedSecret) {
 		this(endpoint, sharedSecret, new RestTemplate());
@@ -91,6 +107,7 @@ public class AppNGizer implements AppNGizerClient {
 		this.endpoint = endpoint;
 		this.sharedSecret = sharedSecret;
 		this.restTemplate = restTemplate;
+		this.restTemplate.getMessageConverters().add(new VoidResponseHttpMessageConverter());
 	}
 
 	private <REQ, RES> RES exchange(String path, REQ body, HttpMethod method, Class<RES> returnType) {
@@ -119,7 +136,7 @@ public class AppNGizer implements AppNGizerClient {
 				LOGGER.debug("sent cookie: {}={}", k, cookies.get(k));
 			});
 		}
-		headers.set(HttpHeaders.USER_AGENT, "appNGizer Client");
+		headers.set(HttpHeaders.USER_AGENT, userAgent);
 		return headers;
 	}
 

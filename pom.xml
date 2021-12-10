@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-parent</artifactId>
-	<version>1.23.0-SNAPSHOT</version>
+	<version>1.23.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>appNG Parent</name>
 	<description>Parent project for all appNG modules</description>
@@ -57,9 +57,9 @@
 		<template.name>appng-template</template.name>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!-- dependency versions -->
-		<appNG.manager.version>1.17.0</appNG.manager.version>
-		<appNG.scheduler.version>1.13.0</appNG.scheduler.version>
-		<appNG.authentication.version>1.13.0</appNG.authentication.version>
+		<appNG.manager.version>1.18.1</appNG.manager.version>
+		<appNG.scheduler.version>1.14.1</appNG.scheduler.version>
+		<appNG.authentication.version>1.13.1</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<bouncycastle.version>1.69</bouncycastle.version>
 		<esapi.version>2.2.3.1</esapi.version>
@@ -970,18 +970,8 @@
 			<!-- BEGIN HIBERNATE + JPA -->
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-entitymanager</artifactId>
+				<artifactId>hibernate-core</artifactId>
 				<version>${hibernate.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>xml-apis</groupId>
-						<artifactId>xml-apis</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>javax.el</groupId>
-						<artifactId>el-api</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
@@ -1135,6 +1125,11 @@
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
 				<version>2.10.11</version>
+			</dependency>
+			<dependency>
+				<groupId>org.owasp.antisamy</groupId>
+				<artifactId>antisamy</artifactId>
+				<version>1.6.4</version>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>

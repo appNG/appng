@@ -160,8 +160,8 @@ public class RepositoryWatcher implements Runnable {
 		}
 	}
 
-	private int removeFromCache(String relativePathName) {
-		return CacheService.expireCacheElementsStartingWith(cache, relativePathName);
+	private void removeFromCache(String relativePathName) {
+		CacheService.expireCacheElementsByPrefix(cache, relativePathName);
 	}
 
 	public boolean needsToBeWatched() {

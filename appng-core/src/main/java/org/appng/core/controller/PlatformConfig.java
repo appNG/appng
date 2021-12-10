@@ -109,7 +109,8 @@ public class PlatformConfig {
 			@Value("${database.validationPeriod:}") Integer validationPeriod,
 			@Value("${database.validationTimeout:5000}") Integer validationTimeout,
 			@Value("${database.connectionTimeout:5000}") Integer connectionTimeout,
-			@Value("${database.logPerformance:false}") boolean logPerformance
+			@Value("${database.logPerformance:false}") boolean logPerformance,
+			@Value("${database.autoCommit:true}") boolean autoCommit
 	// @formatter:on
 	) {
 		DatabaseConnection connection = new DatabaseConnection(DatabaseType.valueOf(type.toUpperCase()), jdbcUrl,
@@ -122,6 +123,7 @@ public class PlatformConfig {
 		configurer.setMaxLifetime(maxLifetime);
 		configurer.setValidationTimeout(validationTimeout);
 		configurer.setConnectionTimeout(connectionTimeout);
+		configurer.setAutoCommit(autoCommit);
 		return new DataSourceFactory(configurer);
 	}
 

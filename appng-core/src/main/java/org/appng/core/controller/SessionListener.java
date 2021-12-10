@@ -232,6 +232,9 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 					httpSession.invalidate();
 				}
 
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("None of the given patterns {} matched user-agent {} for session {}",
+						StringUtils.join(userAgentPatterns, StringUtils.SPACE), userAgent, httpSession.getId());
 			}
 		}
 		MDC.clear();

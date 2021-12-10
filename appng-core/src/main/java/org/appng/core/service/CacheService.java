@@ -20,18 +20,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
 import javax.cache.Cache.Entry;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.configuration.Factory;
-import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.appng.api.BusinessException;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
@@ -44,6 +46,9 @@ import com.hazelcast.cache.ICache;
 import com.hazelcast.cache.impl.HazelcastServerCachingProvider;
 import com.hazelcast.client.cache.impl.HazelcastClientCachingProvider;
 import com.hazelcast.config.CacheConfig;
+import com.hazelcast.config.EvictionConfig;
+import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.MaxSizePolicy;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +64,9 @@ public class CacheService {
 
 	public static final String PAGE_CACHE = "pageCache";
 	public static final String DASH = "-";
+	// hidden site property
+	private static final String CACHE_MAX_SIZE = "cacheMaxSize";
+	private static final int DEFAULT_MAX_SIZE = 20000;
 
 	public static final String STATS_NAME = "name";
 	public static final String STATS_SIZE = "size";
@@ -145,13 +153,14 @@ public class CacheService {
 		}
 
 		if (null == cache) {
-			MutableConfiguration<String, CachedResponse> configuration = new MutableConfiguration<>();
-			Factory<ExpiryPolicy> epf = CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl));
-			configuration.setExpiryPolicyFactory(epf);
+			Integer maxSize = site.getProperties().getInteger(CACHE_MAX_SIZE, DEFAULT_MAX_SIZE);
+			CacheConfig<String, CachedResponse> configuration = new CacheConfig<>(cacheKey);
+			configuration.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl)));
 			configuration.setStatisticsEnabled(statisticsEnabled);
-			configuration.setManagementEnabled(true);
+			configuration.setEvictionConfig(new EvictionConfig().setEvictionPolicy(EvictionPolicy.LRU).setSize(maxSize)
+					.setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT));
 			cache = cacheManager.createCache(cacheKey, configuration);
-			LOGGER.info("Created cache '{}' with TTL of {} seconds (statistics: {}).", cacheKey, ttl,
+			LOGGER.info("Created cache '{}' (ttl: {}s, maximum entries: {}, statistics: {})", cacheKey, ttl, maxSize,
 					statisticsEnabled);
 		}
 		return cache;
@@ -177,20 +186,21 @@ public class CacheService {
 				if (null != cache) {
 					@SuppressWarnings("unchecked")
 					ICache<String, CachedResponse> cacheInternal = cache.unwrap(ICache.class);
-					CacheStatistics cacheStatistics = cacheInternal.getLocalCacheStatistics();
+					CacheStatistics cacheStats = cacheInternal.getLocalCacheStatistics();
 
 					stats.put(STATS_NAME, cache.getName());
 					stats.put(STATS_SIZE, String.valueOf(cacheInternal.size()));
-					stats.put(STATS_HITS, String.valueOf(cacheStatistics.getCacheHits()));
-					stats.put(STATS_HITS_PERCENT, String.valueOf(cacheStatistics.getCacheHitPercentage()));
-					stats.put(STATS_MISSES, String.valueOf(cacheStatistics.getCacheMisses()));
-					stats.put(STATS_MISSES_PERCENT, String.valueOf(cacheStatistics.getCacheMissPercentage()));
-					stats.put(STATS_PUTS, String.valueOf(cacheStatistics.getCachePuts()));
-					stats.put(STATS_AVG_PUT_TIME, String.valueOf(cacheStatistics.getAveragePutTime() / MICROS_PER_MILLI));
-					stats.put(STATS_GETS, String.valueOf(cacheStatistics.getCacheGets()));
-					stats.put(STATS_AVG_GET_TIME, String.valueOf(cacheStatistics.getAverageGetTime()/ MICROS_PER_MILLI));
-					stats.put(STATS_REMOVALS, String.valueOf(cacheStatistics.getCacheRemovals()));
-					stats.put(STATS_AVG_REMOVAL_TIME, String.valueOf(cacheStatistics.getAverageRemoveTime()/ MICROS_PER_MILLI));
+					stats.put(STATS_HITS, String.valueOf(cacheStats.getCacheHits()));
+					stats.put(STATS_HITS_PERCENT, String.valueOf(cacheStats.getCacheHitPercentage()));
+					stats.put(STATS_MISSES, String.valueOf(cacheStats.getCacheMisses()));
+					stats.put(STATS_MISSES_PERCENT, String.valueOf(cacheStats.getCacheMissPercentage()));
+					stats.put(STATS_PUTS, String.valueOf(cacheStats.getCachePuts()));
+					stats.put(STATS_AVG_PUT_TIME, String.valueOf(cacheStats.getAveragePutTime() / MICROS_PER_MILLI));
+					stats.put(STATS_GETS, String.valueOf(cacheStats.getCacheGets()));
+					stats.put(STATS_AVG_GET_TIME, String.valueOf(cacheStats.getAverageGetTime() / MICROS_PER_MILLI));
+					stats.put(STATS_REMOVALS, String.valueOf(cacheStats.getCacheRemovals()));
+					stats.put(STATS_AVG_REMOVAL_TIME,
+							String.valueOf(cacheStats.getAverageRemoveTime() / MICROS_PER_MILLI));
 				} else {
 					stats.put("Status",
 							String.format("Failed to retrieve caching statistics for site %s", site.getName()));
@@ -232,27 +242,91 @@ public class CacheService {
 		return appngCacheEntries;
 	}
 
+	/**
+	 * Expires cache elements by path prefix
+	 * 
+	 * @param site
+	 *                           the {@link Site} to retrieve the cache for
+	 * @param cacheElementPrefix
+	 *                           the prefix to use
+	 * 
+	 * @return always {@code 0}, as the execution is asynchronous
+	 * 
+	 * @deprecated use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
+	 */
+	@Deprecated
 	public static int expireCacheElementsStartingWith(Site site, String cacheElementPrefix) {
-		return expireCacheElementsStartingWith(CacheService.getCache(site), cacheElementPrefix);
+		expireCacheElementsByPrefix(site, cacheElementPrefix);
+		return 0;
 	}
 
+	/**
+	 * Expires cache elements by path prefix
+	 * 
+	 * @param cache
+	 *                           the cache to use
+	 * @param cacheElementPrefix
+	 *                           the prefix to use
+	 * 
+	 * @return always {@code 0}, as the execution is asynchronous
+	 * 
+	 * @deprecated Use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
+	 */
+	@Deprecated
 	public static int expireCacheElementsStartingWith(Cache<String, CachedResponse> cache, String cacheElementPrefix) {
-		int removed = 0;
+		expireCacheElementsByPrefix(cache, cacheElementPrefix);
+		return 0;
+	}
+
+	/**
+	 * Expires cache elements by path prefix
+	 * 
+	 * @param site
+	 *                           the {@link Site} to retrieve the cache for
+	 * @param cacheElementPrefix
+	 *                           the prefix to use
+	 * 
+	 * @return a {@link Future} holding the number of removed elements
+	 */
+	public static Future<Integer> expireCacheElementsByPrefix(Site site, String cacheElementPrefix) {
+		return expireCacheElementsByPrefix(CacheService.getCache(site), cacheElementPrefix);
+	}
+
+	/**
+	 * Expires cache elements by path prefix
+	 * 
+	 * @param cache
+	 *                           the cache to use
+	 * @param cacheElementPrefix
+	 *                           the prefix to use
+	 * 
+	  * @return a {@link Future} holding the number of removed elements
+	 */
+	public static Future<Integer> expireCacheElementsByPrefix(Cache<String, CachedResponse> cache,
+			String cacheElementPrefix) {
 		if (null == cache) {
 			LOGGER.info("No cache found, can not remove elements starting with {}", cacheElementPrefix);
 		} else {
-			int count = 0;
-			for (Entry<String, CachedResponse> entry : cache) {
-				count++;
-				if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)
-						&& cache.remove(entry.getKey())) {
-					LOGGER.debug("removed from cache: {}", entry.getKey());
-					removed++;
+			ExecutorService clearCache = Executors
+					.newSingleThreadExecutor(new BasicThreadFactory.Builder().namingPattern(cache.getName()).build());
+			Future<Integer> removedFuture = clearCache.submit(() -> {
+				int removed = 0;
+				int count = 0;
+				for (Entry<String, CachedResponse> entry : cache) {
+					count++;
+					if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)
+							&& cache.remove(entry.getKey())) {
+						LOGGER.debug("removed from cache: {}", entry.getKey());
+						removed++;
+					}
 				}
-			}
-			LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
+				LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
+				return removed;
+			});
+			clearCache.shutdown();
+			return removedFuture;
 		}
-		return removed;
+		return null;
 	}
 
 }
