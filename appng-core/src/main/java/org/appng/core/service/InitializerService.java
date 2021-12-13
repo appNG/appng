@@ -835,6 +835,11 @@ public class InitializerService {
 						for (JarInfo jarInfo : application.getJarInfos()) {
 							LOGGER.info(jarInfo.toString());
 						}
+					} else {
+						String message = String.format("[%s] Error while starting application '%s'.", site.getName(),
+								application.getName());
+						fp.addErrorMessage(message);
+						auditableListener.createEvent(Type.ERROR, message);
 					}
 				}
 
@@ -878,16 +883,22 @@ public class InitializerService {
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {
 		boolean started = true;
 		ApplicationController controller = application.getBean(ApplicationController.class);
+		Exception startError = null;
 		if (null != controller) {
 			try {
 				started = controller.start(site, application, env);
-			} catch (RuntimeException e) {
-				LOGGER.error(String.format("error during %s.start()", controller.getClass().getName()), e);
+			} catch (Exception e) {
 				started = false;
+				startError = e;
 			}
 			if (!started) {
-				LOGGER.error(
-						"Failed to initialize application: " + application.getName() + ", so it will be shut down.");
+				String message = String.format("Application {} for site {} failed to start, so it will be shut down.",
+						site.getName(), application.getName());
+				if (null == startError) {
+					LOGGER.error(message);
+				} else {
+					LOGGER.error(message, startError);
+				}
 				controller.shutdown(site, application, env);
 				site.getSiteApplications().remove(application);
 				application.closeContext();
