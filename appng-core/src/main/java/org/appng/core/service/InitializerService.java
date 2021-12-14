@@ -892,7 +892,7 @@ public class InitializerService {
 				startError = e;
 			}
 			if (!started) {
-				String message = String.format("Application {} for site {} failed to start, so it will be shut down.",
+				String message = String.format("Application %s for site %s failed to start, so it will be shut down.",
 						site.getName(), application.getName());
 				if (null == startError) {
 					LOGGER.error(message);
