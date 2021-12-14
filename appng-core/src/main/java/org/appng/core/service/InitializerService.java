@@ -883,11 +883,11 @@ public class InitializerService {
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {
 		boolean started = true;
 		ApplicationController controller = application.getBean(ApplicationController.class);
-		Exception startError = null;
+		Throwable startError = null;
 		if (null != controller) {
 			try {
 				started = controller.start(site, application, env);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				started = false;
 				startError = e;
 			}
