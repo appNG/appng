@@ -173,7 +173,7 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 		converters.put(FieldType.PASSWORD, defaultConverter);
 		converters.put(FieldType.LONGTEXT, defaultConverter);
 		converters.put(FieldType.RICHTEXT, defaultConverter);
-		converters.put(FieldType.CHECKBOX, defaultConverter);
+		converters.put(FieldType.CHECKBOX, new CheckboxFieldConverter(environment, messageSource));
 		converters.put(FieldType.IMAGE, defaultConverter);
 		converters.put(FieldType.URL, defaultConverter);
 
