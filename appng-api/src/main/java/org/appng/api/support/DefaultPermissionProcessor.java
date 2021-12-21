@@ -130,7 +130,7 @@ public class DefaultPermissionProcessor implements PermissionProcessor {
 		List<Group> groups = subject.getGroups();
 		LOGGER.debug("checking permission '{}' for subject '{}'", permission.getRef(), subject.getName());
 		if (groups == null || groups.size() == 0) {
-			LOGGER.info("subject '{}' does not belong to any group, thus has no permissions", subject.getName());
+			LOGGER.debug("subject '{}' does not belong to any group, thus has no permissions", subject.getName());
 		}
 		for (Group group : groups) {
 			LOGGER.debug("{} belongs to group {}", subject.getName(), group.getName());
