@@ -2131,6 +2131,22 @@ public class CoreService {
 		CacheService.expireCacheElement(site, cacheElement);
 	}
 
+	/**
+	 * Expires cache elements for a site by path prefix
+	 * 
+	 * @param siteId
+	 *                           the id of the {@link Site} to retrieve the cache for
+	 * @param cacheElementPrefix
+	 *                           the prefix to use
+	 * 
+	 * @return always {@code 0}, as the execution is asynchronous
+	 * 
+	 * @throws BusinessException
+	 * 
+	 * @deprecated Use {@link CacheService#expireCacheElementsByPrefix(javax.cache.Cache, String)} or
+	 *             {@link CacheService#expireCacheElementsByPrefix(Site, String)}.
+	 */
+	@Deprecated
 	public int expireCacheElementsStartingWith(Integer siteId, String cacheElementPrefix) throws BusinessException {
 		Site site = getSite(siteId);
 		return CacheService.expireCacheElementsStartingWith(site, cacheElementPrefix);
@@ -2199,7 +2215,7 @@ public class CoreService {
 		} else {
 			TemplateService.materializeTemplate(template, platformConfig, siteProps);
 		}
-		CacheService.expireCacheElementsStartingWith(site, "/template");
+		CacheService.expireCacheElementsByPrefix(site, "/template");
 	}
 
 }
