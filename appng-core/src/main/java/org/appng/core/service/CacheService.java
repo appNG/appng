@@ -140,20 +140,21 @@ public class CacheService {
 		Cache<String, CachedResponse> cache = cacheManager.getCache(cacheKey);
 		Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
 		Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+		Integer maxSize = site.getProperties().getInteger(CACHE_MAX_SIZE, DEFAULT_MAX_SIZE);
 		if (null != cache) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			CacheConfig configuration = cache.getConfiguration(CacheConfig.class);
 			ExpiryPolicy ep = (ExpiryPolicy) configuration.getExpiryPolicyFactory().create();
 			if ((configuration.isStatisticsEnabled() ^ statisticsEnabled)
-					|| (ep.getExpiryForCreation().getDurationAmount() != ttl)) {
+					|| (ep.getExpiryForCreation().getDurationAmount() != ttl)
+					|| (configuration.getEvictionConfig().getSize() != maxSize)) {
 				cacheManager.destroyCache(cacheKey);
 				cache = null;
-				LOGGER.info("TTL and/or statistics setting has changed, destroyed cache '{}'.", cacheKey);
+				LOGGER.info("TTL,statistics or cache size has changed, destroyed cache '{}'.", cacheKey);
 			}
 		}
 
 		if (null == cache) {
-			Integer maxSize = site.getProperties().getInteger(CACHE_MAX_SIZE, DEFAULT_MAX_SIZE);
 			CacheConfig<String, CachedResponse> configuration = new CacheConfig<>(cacheKey);
 			configuration.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl)));
 			configuration.setStatisticsEnabled(statisticsEnabled);
@@ -300,7 +301,7 @@ public class CacheService {
 	 * @param cacheElementPrefix
 	 *                           the prefix to use
 	 * 
-	  * @return a {@link Future} holding the number of removed elements
+	 * @return a {@link Future} holding the number of removed elements
 	 */
 	public static Future<Integer> expireCacheElementsByPrefix(Cache<String, CachedResponse> cache,
 			String cacheElementPrefix) {

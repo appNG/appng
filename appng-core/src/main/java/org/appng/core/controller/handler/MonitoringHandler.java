@@ -49,6 +49,7 @@ import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.service.HazelcastConfigurer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,6 +59,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.hazelcast.core.HazelcastInstance;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.AllArgsConstructor;
@@ -144,10 +146,14 @@ public class MonitoringHandler implements RequestHandler {
 			}
 			typedProperties = addProperties(site);
 		}
-		HttpStatus status = isSiteStarted ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+
+		HazelcastInstance instance = HazelcastConfigurer.getInstance(null);
+		boolean isHzRunning = instance.getLifecycleService().isRunning();
+
+		HttpStatus status = (isSiteStarted && isHzRunning) ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
 		servletResponse.setStatus(status.value());
-		return new SiteInfo(site.getName(), site.getState(), site.getHost(), site.getDomain(), startup, uptime,
-				applicationInfos, typedProperties);
+		return new SiteInfo(site.getName(), site.getState(), site.getHost(), site.getDomain(), instance.toString(),
+				isHzRunning, startup, uptime, applicationInfos, typedProperties);
 	}
 
 	private Map<Object, Object> addProperties(Site site) {
@@ -213,6 +219,8 @@ public class MonitoringHandler implements RequestHandler {
 		SiteState state;
 		String host;
 		String domain;
+		String hazelcast;
+		boolean hazelcastRunning;
 		OffsetDateTime startupTime;
 		Long uptimeSeconds;
 		Map<String, ApplicationInfo> applications;
