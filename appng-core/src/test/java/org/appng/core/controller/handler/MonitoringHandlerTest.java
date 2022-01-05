@@ -100,8 +100,8 @@ public class MonitoringHandlerTest {
 	}
 
 	protected String cleanResponse(MockHttpServletResponse resp) throws UnsupportedEncodingException {
-		return resp.getContentAsString().replaceAll("\\d{10}", "1204768206").replaceAll("node=\\[.*\\]",
-				"node=[127.0.0.1]");
+		return resp.getContentAsString().replaceAll("\\d{10}", "1204768206").replaceAll("node=\\[.*\\]:\\d+",
+				"node=[127.0.0.1]:5702");
 	}
 
 	private PathInfo getPath(SiteImpl site, String servletPath) {
