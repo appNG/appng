@@ -3,6 +3,8 @@
   "state" : "STARTED",
   "host" : "localhost",
   "domain" : "http://localhost:8080",
+  "hazelcast" : "HazelcastInstance{name='test', node=[127.0.0.1]:5701}",
+  "hazelcastRunning" : true,
   "startupTime" : "1982-04-30T08:15:00+02:00",
   "uptimeSeconds" : 1204768206
 }

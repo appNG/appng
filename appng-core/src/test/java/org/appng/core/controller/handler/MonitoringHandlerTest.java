@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller.handler;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,15 +88,20 @@ public class MonitoringHandlerTest {
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		MockHttpServletRequest req = getRequest(ctx);
 		monitoringHandler.handle(req, resp, env, site, path);
-		String responseBody = resp.getContentAsString().replaceAll("\\d{10}", "1204768206");
+		String responseBody = cleanResponse(resp);
 		WritingJsonValidator.validate(responseBody, "rest/health.json");
 
 		req = getRequest(ctx);
 		req.addParameter("details", "true");
 		resp = new MockHttpServletResponse();
 		monitoringHandler.handle(req, resp, env, site, path);
-		responseBody = resp.getContentAsString().replaceAll("\\d{10}", "1204768206");
+		responseBody = cleanResponse(resp);
 		WritingJsonValidator.validate(responseBody, "rest/health-detailed.json");
+	}
+
+	protected String cleanResponse(MockHttpServletResponse resp) throws UnsupportedEncodingException {
+		return resp.getContentAsString().replaceAll("\\d{10}", "1204768206").replaceAll("node=\\[.*\\]",
+				"node=[127.0.0.1]");
 	}
 
 	private PathInfo getPath(SiteImpl site, String servletPath) {
