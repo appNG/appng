@@ -59,6 +59,7 @@ import org.appng.api.model.Role;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.ApplicationRequest.ApplicationPath;
 import org.appng.api.support.CallableAction;
 import org.appng.api.support.CallableDataSource;
 import org.appng.api.support.DefaultPermissionProcessor;
@@ -70,6 +71,7 @@ import org.appng.core.controller.filter.CsrfSetupFilter;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.model.JarInfo.JarInfoBuilder;
+import org.appng.el.ExpressionEvaluator;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
 import org.appng.xml.platform.ActionRef;
@@ -95,6 +97,7 @@ import org.appng.xml.platform.Permissions;
 import org.appng.xml.platform.Platform;
 import org.appng.xml.platform.PlatformConfig;
 import org.appng.xml.platform.Section;
+import org.appng.xml.platform.SectionConfig;
 import org.appng.xml.platform.SectionDef;
 import org.appng.xml.platform.Sectionelement;
 import org.appng.xml.platform.SectionelementDef;
@@ -276,7 +279,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		Structure structure = null;
 		boolean debugPermission = permissionProcessor.hasPermission("debug");
 		try {
-			structure = buildStructure(applicationRequest, applicationConfig, pageReference, page);
+			structure = buildStructure(applicationRequest, applicationConfig, pageReference, page, true,
+					Collections.emptyList());
 		} catch (ProcessingException e) {
 			FieldProcessor fieldProcessor = e.getFieldProcessor();
 			structure = handleException(applicationRequest, pageReference, e, fieldProcessor, debugPermission);
@@ -290,6 +294,190 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			pageReference.setExecutionTime(performPage.getTotalTimeMillis());
 		}
 		return applicationReference;
+	}
+
+	protected void checkConditionsAndPermissions(ApplicationRequest applicationRequest, PageDefinition page) {
+		Map<String, Object> conditionParams = new HashMap<>(applicationRequest.getParameters());
+		conditionParams.put(ApplicationPath.PATH_VAR, applicationRequest.applicationPath());
+		ExpressionEvaluator conditionEvaluator = new ExpressionEvaluator(conditionParams);
+
+		Map<SectionDef, List<SectionelementDef>> nonAccessibleElements = new HashMap<>();
+		List<SectionDef> sections = page.getStructure().getSection();
+		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
+		for (SectionDef sectionDef : sections) {
+			nonAccessibleElements.put(sectionDef, new ArrayList<>());
+			for (SectionelementDef element : sectionDef.getElement()) {
+				boolean conditionMatches = true;
+				boolean hasPermission = true;
+				ActionRef action = element.getAction();
+				if (null != action && null != action.getCondition()) {
+					conditionMatches = conditionEvaluator.evaluate(action.getCondition().getExpression());
+					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(action));
+					if (!conditionMatches) {
+						LOGGER.info("include condition for action '{}' of event '{}' did not match - {}",
+								action.getId(), action.getEventId(), action.getCondition().getExpression());
+					}
+					if (!hasPermission) {
+						LOGGER.info("missing permissions for action '{}' of event '{}'", action.getId(),
+								action.getEventId());
+					}
+				}
+				DatasourceRef datasource = element.getDatasource();
+				if (null != datasource && null != datasource.getCondition()) {
+					conditionMatches = conditionEvaluator.evaluate(datasource.getCondition().getExpression());
+					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(datasource));
+					if (!conditionMatches) {
+						LOGGER.info("include condition for datasource '{}' did not match - {}", datasource.getId(),
+								datasource.getCondition().getExpression());
+					}
+					if (!hasPermission) {
+						LOGGER.info("missing permissions for datasource '{}' ", datasource.getId());
+					}
+				}
+
+				if (!(conditionMatches && hasPermission)) {
+					nonAccessibleElements.get(sectionDef).add(element);
+				}
+			}
+		}
+
+		for (SectionDef sectionDef : sections) {
+			List<SectionelementDef> toBeRemoved = nonAccessibleElements.get(sectionDef);
+			sectionDef.getElement().removeAll(toBeRemoved);
+
+			if (null == sectionDef.getId()) {
+				Label title = sectionDef.getTitle();
+				SectionConfig config = sectionDef.getConfig();
+				if (null != title && null != title.getId()) {
+					sectionDef.setId(title.getId());
+					break;
+				} else if (null != config && null != config.getTitle().getId()) {
+					sectionDef.setId(config.getTitle().getId());
+					break;
+				} else {
+					for (SectionelementDef element : sectionDef.getElement()) {
+						if (StringUtils.isBlank(element.getPassive())
+								|| !Boolean.TRUE.equals(conditionEvaluator.evaluate(element.getPassive()))) {
+							String sectionId = null == element.getDatasource() ? element.getAction().getId()
+									: element.getDatasource().getId();
+							sectionDef.setId(sectionId);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public PageReference processPage(MarshallService marshallService, Path pathInfo, String pageId,
+			List<String> sectionIds, List<String> applicationUrlParameters) {
+		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
+		Environment env = applicationRequest.getEnvironment();
+
+		ApplicationConfigProvider applicationConfigProvider = null;
+		try {
+			applicationConfigProvider = applicationConfig.cloneConfig(marshallService);
+			applicationRequest.setApplicationConfig(applicationConfigProvider);
+		} catch (InvalidConfigurationException e) {
+			error("error while (re)loading configuration!", e);
+		}
+
+		trace("Processing application \"" + pathInfo.getApplicationName() + "\" with url-parameters \""
+				+ applicationUrlParameters + "\"");
+
+		ApplicationRootConfig applicationRootConfig = applicationConfigProvider.getApplicationRootConfig();
+		ApplicationConfig applicationConfig = applicationRootConfig.getConfig();
+		permissionProcessor.hasPermissions(new PermissionOwner(applicationConfig));
+
+		StopWatch performPage = new StopWatch();
+		if (monitorPerformance) {
+			performPage.start();
+		}
+
+		PageReference pageReference = new PageReference();
+
+		boolean isDefault = pageId == null;
+		String defaultPageName = applicationConfigProvider.getDefaultPage();
+		if (isDefault) {
+			pageId = defaultPageName;
+		}
+
+		PageDefinition defaultPage = applicationConfigProvider.getPage(defaultPageName);
+		PageDefinition page = applicationConfigProvider.getPage(pageId);
+		if (null == page) {
+			if (!isDefault) {
+				warn("could not find requested page with id '" + pageId + "', returning defaultpage '" + defaultPageName
+						+ "' instead");
+				page = defaultPage;
+				pageId = defaultPageName;
+				isDefault = true;
+			}
+			if (null == page) {
+				warn("no page found");
+				return null;
+			}
+		} else {
+			trace("found requested page with id '" + pageId + "'");
+		}
+
+		PageConfig pageConfig = page.getConfig();
+		addTemplate(applicationConfig, pageConfig.getTemplates());
+
+		pageReference.setConfig(pageConfig);
+		pageReference.setType(page.getType());
+		pageReference.setId(page.getId());
+
+		if (!permissionProcessor.hasPermissions(new PermissionOwner(page))) {
+			info("no permissions to display page '" + page.getId() + "', returning default page '" + defaultPageName
+					+ "'");
+			page = defaultPage;
+		}
+
+		Set<String> sessionParamNames = new HashSet<>();
+		for (Param sessionParam : applicationConfig.getSession().getSessionParams().getSessionParam()) {
+			sessionParamNames.add(sessionParam.getName());
+		}
+
+		PageParameterProcessor pageParameterProcessor = new PageParameterProcessor(getSessionParamKey(site),
+				sessionParamNames, env, applicationRequest);
+		pageParameterProcessor.processPageParams(applicationUrlParameters, pageConfig.getUrlSchema());
+		Map<String, String> pageParams = pageParameterProcessor.getParameters();
+		initSession(applicationConfig, env, getSessionParamKey(site));
+
+		if (pathInfo.hasAction()) {
+			// if action has been explicitly set at item element, override
+			// an existing entry in params
+			pageParams.put(pathInfo.getActionName(), pathInfo.getActionValue());
+		}
+
+		applicationRequest.addParameters(pageParams);
+		applicationRequest.setLabels(applicationConfig);
+		applicationRequest.setLabels(page.getConfig());
+		if (null == applicationConfig.getTitle()) {
+			Label title = new Label();
+			title.setValue(getDisplayName());
+			applicationConfig.setTitle(title);
+		}
+
+		elementHelper.initNavigation(applicationRequest, pathInfo, pageConfig);
+		Structure structure = null;
+		boolean debugPermission = permissionProcessor.hasPermission("debug");
+
+		try {
+			structure = buildStructure(applicationRequest, applicationConfig, pageReference, page, false, sectionIds);
+		} catch (ProcessingException e) {
+			FieldProcessor fieldProcessor = e.getFieldProcessor();
+			structure = handleException(applicationRequest, pageReference, e, fieldProcessor, debugPermission);
+		} catch (Exception e) {
+			handleException(applicationRequest, pageReference, e, null, debugPermission);
+		}
+
+		pageReference.setStructure(structure);
+		if (monitorPerformance) {
+			performPage.stop();
+			pageReference.setExecutionTime(performPage.getTotalTimeMillis());
+		}
+		return pageReference;
 	}
 
 	private Structure handleException(ApplicationRequest applicationRequest, PageReference pageReference, Exception e,
@@ -333,50 +521,58 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	private Structure buildStructure(ApplicationRequest applicationRequest, ApplicationConfig applicationConfig,
-			final PageReference pageReference, PageDefinition page) throws ProcessingException {
+			final PageReference pageReference, PageDefinition page, boolean includeElements, List<String> sectionIds)
+			throws ProcessingException {
+		checkConditionsAndPermissions(applicationRequest, page);
+
 		Structure structure = new Structure();
 
 		List<SectionDef> sectionDefs = page.getStructure().getSection();
 		boolean hasRedirect = false;
-		List<DataSourceElement> dataSourceWrappers = new ArrayList<>();
+		List<DataSourceWrapper> dataSourceWrappers = new ArrayList<>();
 
+		int sectionIdx = 0;
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
 			section.setId(sectionDef.getId());
+			applicationRequest.setLabel(section.getTitle());
 
 			String hidden = applicationRequest.getExpressionEvaluator().getString(sectionDef.getHidden());
 			section.setHidden(hidden);
 			List<SectionelementDef> elements = sectionDef.getElement();
 
+			boolean include = includeElements
+					|| ((0 == sectionIdx && sectionIds.isEmpty()) || sectionIds.contains(section.getId()));
 			hasRedirect |= addElements(applicationRequest, applicationConfig, section, elements, pageReference,
-					dataSourceWrappers);
+					dataSourceWrappers, include);
 
 			if (!section.getElement().isEmpty()) {
-				section.setTitle(sectionDef.getTitle());
-				applicationRequest.setLabel(section.getTitle());
 				structure.getSection().add(section);
 			}
+			sectionIdx++;
 		}
 		if (!hasRedirect) {
 			Messages messagesFromSession = elementHelper.removeMessages(applicationRequest.getEnvironment());
 			if (null != messagesFromSession) {
 				pageReference.setMessages(messagesFromSession);
 			}
-			for (final DataSourceElement dataSourceWrapper : dataSourceWrappers) {
-				Callback<Void> dataSourceCallback = new Callback<Void>() {
+			for (final DataSourceWrapper dataSourceWrapper : dataSourceWrappers) {
+				if (dataSourceWrapper.mustPerform) {
+					Callback<Void> dataSourceCallback = new Callback<Void>() {
 
-					public void perform() throws ProcessingException {
-						dataSourceWrapper.perform(pageReference.getId());
+						public void perform() throws ProcessingException {
+							dataSourceWrapper.perform(pageReference.getId());
+						}
+
+						public Void getResult() {
+							return null;
+						}
+					};
+
+					long time = doMonitored(dataSourceCallback);
+					if (monitorPerformance) {
+						dataSourceWrapper.setExecutionTime(time);
 					}
-
-					public Void getResult() {
-						return null;
-					}
-				};
-
-				long time = doMonitored(dataSourceCallback);
-				if (monitorPerformance) {
-					dataSourceWrapper.setExecutionTime(time);
 				}
 			}
 
@@ -392,24 +588,40 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		return structure;
 	}
 
+	protected class DataSourceWrapper extends DataSourceElement {
+		protected boolean mustPerform;
+
+		public DataSourceWrapper(Site site, AccessibleApplication application, ApplicationRequest applicationRequest,
+				ParameterSupport parameterSupportDollar, DatasourceRef datasourceRef) throws ProcessingException {
+			super(site, application, applicationRequest, parameterSupportDollar, datasourceRef);
+		}
+
+	}
+
 	private boolean addElements(final ApplicationRequest applicationRequest, final ApplicationConfig applicationConfig,
 			Section section, List<SectionelementDef> elements, final PageReference pageReference,
-			List<DataSourceElement> dataSourceWrappers) throws ProcessingException {
+			List<DataSourceWrapper> dataSourceWrappers, boolean include) throws ProcessingException {
 		boolean hasRedirect = false;
 		boolean isSectionHidden = Boolean.parseBoolean(section.getHidden());
+		ExpressionEvaluator expressionEvaluator = applicationRequest.getExpressionEvaluator();
 
 		for (final SectionelementDef sectionelement : elements) {
 
-			String folded = applicationRequest.getExpressionEvaluator().getString(sectionelement.getFolded());
-			String passive = applicationRequest.getExpressionEvaluator().getString(sectionelement.getPassive());
+			String folded = expressionEvaluator.getString(sectionelement.getFolded());
+			String passive = expressionEvaluator.getString(sectionelement.getPassive());
+			boolean mustSetTitle = !Boolean.valueOf(passive) && null == section.getTitle();
+
 			sectionelement.setFolded(folded);
 			sectionelement.setPassive(passive);
 			applicationRequest.setLabel(sectionelement.getTitle());
 
 			if (null != sectionelement.getDatasource()) {
-				DataSourceElement datasourceElement = getDataSourceSectionElement(applicationRequest, sectionelement);
+				DataSourceWrapper datasourceElement = getDataSourceSectionElement(applicationRequest, sectionelement);
 				if (null != datasourceElement) {
-					datasourceElement.setTitle(sectionelement.getTitle());
+					if (mustSetTitle) {
+						setSectionTitle(section, datasourceElement.getDatasource().getConfig().getTitle());
+					}
+					datasourceElement.mustPerform = include;
 					dataSourceWrappers.add(datasourceElement);
 					section.getElement().add(datasourceElement);
 				}
@@ -421,7 +633,10 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 					public void perform() throws ProcessingException {
 						this.result = getActionSectionElement(applicationRequest, applicationConfig, sectionelement,
-								pageReference, isSectionHidden);
+								pageReference, isSectionHidden, true);
+						if (mustSetTitle) {
+							setSectionTitle(section, result.getAction().getConfig().getTitle());
+						}
 					}
 
 					public ActionElement getResult() {
@@ -437,7 +652,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 								&& (!actionElement.hasErrors() || sectionelement.getAction().isForceForward());
 					}
 					if (actionElement.doInclude()) {
-						actionElement.setTitle(sectionelement.getTitle());
 						section.getElement().add(actionElement);
 						if (monitorPerformance) {
 							actionElement.setExecutionTime(time);
@@ -448,6 +662,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 		}
 		return hasRedirect;
+	}
+
+	protected void setSectionTitle(Section section, Label title) {
+		Label sectionTitle = new Label();
+		sectionTitle.setId(title.getId());
+		sectionTitle.setValue(title.getValue());
+		section.setTitle(sectionTitle);
 	}
 
 	private interface Callback<T> {
@@ -506,12 +727,16 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		return sb.toString();
 	}
 
-	private DataSourceElement getDataSourceSectionElement(ApplicationRequest applicationRequest,
+	private DataSourceWrapper getDataSourceSectionElement(ApplicationRequest applicationRequest,
 			SectionelementDef sectionelement) throws ProcessingException {
 		DatasourceRef datasourceRef = sectionelement.getDatasource();
 		if (null != datasourceRef) {
-			DataSourceElement wrapper = new DataSourceElement(site, application, applicationRequest,
+			DataSourceWrapper wrapper = new DataSourceWrapper(site, application, applicationRequest,
 					applicationRequest.getParameterSupportDollar(), datasourceRef);
+			if (null != wrapper.getDatasource()) {
+				DataConfig config = wrapper.getDatasource().getConfig();
+				wrapper.setTitle(null == config ? null : config.getTitle());
+			}
 			if (wrapper.doInclude()) {
 				wrapper.setFolded(sectionelement.getFolded());
 				wrapper.setMode(sectionelement.getMode());
@@ -524,11 +749,15 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 	private ActionElement getActionSectionElement(ApplicationRequest applicationRequest,
 			ApplicationConfig applicationConfig, SectionelementDef sectionelement, PageReference pageReference,
-			boolean isSectionHidden) throws ProcessingException {
+			boolean isSectionHidden, boolean perform) throws ProcessingException {
 		ActionRef actionRef = sectionelement.getAction();
 		if (null != actionRef) {
 			ActionElement actionElement = new ActionElement(site, application, applicationRequest, actionRef);
-			actionElement.perform(sectionelement, isSectionHidden);
+			if (perform) {
+				actionElement.perform(sectionelement, isSectionHidden);
+			}
+			DataConfig config = actionElement.getAction().getConfig();
+			actionElement.setTitle(null == config ? null : config.getTitle());
 			return actionElement;
 		}
 		return null;

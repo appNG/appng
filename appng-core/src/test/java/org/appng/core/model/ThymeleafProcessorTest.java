@@ -79,7 +79,7 @@ public class ThymeleafProcessorTest {
 		ClassLoader classLoader = ThymeleafProcessorTest.class.getClassLoader();
 		InputStream is = classLoader.getResourceAsStream("xml/ThymeleafProcessorTest-platform.xml");
 		platform = ms.unmarshall(is, org.appng.xml.platform.Platform.class);
-		appNG = new ThymeleafProcessor.AppNG(platform, null);
+		appNG = new ThymeleafProcessor.AppNG(platform, null, "site", "app");
 	}
 
 	@Test

@@ -81,6 +81,7 @@ import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
 import org.appng.core.controller.rest.RestPostProcessor;
+import org.appng.core.controller.rest.openapi.OpenApiPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
@@ -102,6 +103,7 @@ import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Messages;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -792,11 +794,14 @@ public class InitializerService {
 								application, dbc, platformCacheManager, dictionaryNames);
 						applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
-						Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
-						if (enableRest) {
-							applicationContext
-									.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
+						Boolean enableLegacyRest = application.getProperties().getBoolean("enableLegacyRest", false);
+						BeanFactoryPostProcessor restProcessor;
+						if (enableLegacyRest) {
+							restProcessor = new RestPostProcessor(application.getProperties());
+						} else {
+							restProcessor = new OpenApiPostProcessor();
 						}
+						applicationContext.addBeanFactoryPostProcessor(restProcessor);
 
 						applicationContext.refresh();
 

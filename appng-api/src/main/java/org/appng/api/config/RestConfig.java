@@ -7,12 +7,15 @@ import java.util.stream.Collectors;
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -21,6 +24,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
 
@@ -56,6 +61,18 @@ public class RestConfig {
 	public static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
 		return context.getBeansOfType(HttpMessageConverter.class).values().stream()
 				.map(m -> (HttpMessageConverter<?>) m).collect(Collectors.toList());
+	}
+
+	@Bean
+	@Primary
+	public MappingJackson2HttpMessageConverter defaultJsonConverter(
+			@Value("${site.jsonPrettyPrint:false}") boolean prettyPrint) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
+		MappingJackson2HttpMessageConverter defaultJsonConverter = new MappingJackson2HttpMessageConverter(
+				objectMapper);
+		defaultJsonConverter.setPrettyPrint(prettyPrint);
+		return defaultJsonConverter;
 	}
 
 	@Bean
