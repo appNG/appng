@@ -13,7 +13,7 @@
 		</session>
 	</config>
 	<pages>
-		<page id="entity" type="index" executionTime="21">
+		<page id="entity" type="index" executionTime="7">
 			<config>
 				<title id="entity">Entity</title>
 				<description></description>
@@ -51,8 +51,9 @@
 				</linkpanel>
 			</config>
 			<structure>
-				<section executionTime="16" id="42">
-					<element passive="true" executionTime="16">
+				<section executionTime="6" id="42">
+					<element passive="true" executionTime="6">
+						<title id="update.entity" params="#{name},${entityId}">Update entity new name (ID: 1)</title>
 						<action id="update" eventId="events" async="false">
 							<config>
 								<title id="update.entity" params="#{name},${entityId}">Update entity new name (ID: 1)</title>

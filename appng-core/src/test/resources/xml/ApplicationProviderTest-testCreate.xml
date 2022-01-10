@@ -52,7 +52,9 @@
 			</config>
 			<structure>
 				<section id="42">
+					<title id="create.entity">Create entity</title>
 					<element>
+						<title id="create.entity">Create entity</title>
 						<action id="create" eventId="events" onSuccess="demo-application/index/create">
 							<config>
 								<title id="create.entity">Create entity</title>
