@@ -117,15 +117,11 @@ import org.w3c.dom.Node;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link RequestProcessor} using
- * <a href="https://www.thymeleaf.org/">Thymeleaf</a> as a rendering
- * engine.<br/>
- * Processing uses an {@link IWebContext}, with some additional context
- * variables:
+ * A {@link RequestProcessor} using <a href="https://www.thymeleaf.org/">Thymeleaf</a> as a rendering engine.<br/>
+ * Processing uses an {@link IWebContext}, with some additional context variables:
  * <ul>
  * <li>{@code SESSION}<br/>
- * Provides a {@code Map<String,Object>} containing the current appNG
- * session.<br/>
+ * Provides a {@code Map<String,Object>} containing the current appNG session.<br/>
  * Example:
  * 
  * <pre>
@@ -143,8 +139,8 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * </li>
  * <li>{@code SITE}<br/>
- * Provides the {@link Site}s properties as {@link Properties}. See
- * {@link SiteProperties} for a list of available properties.<br/>
+ * Provides the {@link Site}s properties as {@link Properties}. See {@link SiteProperties} for a list of available
+ * properties.<br/>
  * Example:
  * 
  * <pre>
@@ -153,8 +149,8 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * </li>
  * <li>{@code PLATFORM}<br/>
- * Provides the platform properties as {@link Properties}. See
- * {@link Platform.Property} for a list of available properties.<br/>
+ * Provides the platform properties as {@link Properties}. See {@link Platform.Property} for a list of available
+ * properties.<br/>
  * Example:
  * 
  * <pre>
@@ -483,8 +479,8 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	/**
-	 * This is a helper class to make it easier for the thymeleaf template to
-	 * interact with appNG's {@link org.appng.xml.platform.Platform} object.
+	 * This is a helper class to make it easier for the thymeleaf template to interact with appNG's
+	 * {@link org.appng.xml.platform.Platform} object.
 	 * 
 	 * @author Matthias Müller
 	 */
