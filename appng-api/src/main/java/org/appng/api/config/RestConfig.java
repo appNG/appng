@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,19 +65,18 @@ public class RestConfig {
 
 	@Bean
 	@Primary
-	public MappingJackson2HttpMessageConverter defaultJsonConverter() {
-		
-    objectMapper = new ObjectMapper();
+	public MappingJackson2HttpMessageConverter defaultJsonConverter(
+			@Value("${site.jsonPrettyPrint:false}") boolean prettyPrint) {
+		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
 		MappingJackson2HttpMessageConverter defaultJsonConverter = new MappingJackson2HttpMessageConverter(
 				objectMapper);
-		defaultJsonConverter.setPrettyPrint(true);
+		defaultJsonConverter.setPrettyPrint(prettyPrint);
 		return defaultJsonConverter;
 	}
 
 	@Bean
 	@Lazy
-	@RequestScope
 	public SiteAwareHandlerMethodArgumentResolver siteAwareHandlerMethodArgumentResolver(Site site,
 			Application application, Environment environment) {
 		return new SiteAwareHandlerMethodArgumentResolver(site, environment, application);
