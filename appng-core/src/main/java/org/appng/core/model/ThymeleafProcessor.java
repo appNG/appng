@@ -338,17 +338,17 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		variables.put("platform", platform);
 		variables.put("SESSION", env.getSession());
 		variables.put("APP", applicationProvider.getProperties());
-		variables.put("SITE", applicationProvider.getSite().getProperties());
+		Site site = applicationProvider.getSite();
+		variables.put("SITE", site.getProperties());
 		variables.put("PLATFORM", env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG));
 		try {
 			Document doc = dbf.newDocumentBuilder().newDocument();
 			AppNGSchema.PLATFORM.getContext().createMarshaller().marshal(platform, doc);
 			XPathProcessor xpath = new XPathProcessor(doc);
 			xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
-			variables.put("appNG", new AppNG(platform, xpath, applicationProvider.getSite().getName(),
-					applicationProvider.getApplication().getName()));
+			variables.put("appNG", new AppNG(platform, xpath, site.getName(), applicationProvider.getName()));
 		} catch (Exception e) {
-			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
+			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage(), e);
 		}
 		return new WebContext(env.getServletRequest(), env.getServletResponse(), env.getServletContext(),
 				env.getLocale(), variables);
