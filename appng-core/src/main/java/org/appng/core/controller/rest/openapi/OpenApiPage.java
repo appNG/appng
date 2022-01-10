@@ -301,19 +301,6 @@ abstract class OpenApiPage extends OpenApiOperation {
 				if (null != a) {
 					AtomicBoolean mustExecute = new AtomicBoolean(false);
 					Action action = openApiAction.getAction(request, a, env, null, true, mustExecute);
-
-//					if (mustExecute.get()) {
-//					TODO
-//						try {
-//							ResponseEntity<Action> performedAction = openApiAction.performAction(a.getEventId(),
-//									a.getId(), null, action, env, servletReq, servletResp);
-//							action = performedAction.getBody();
-//						} catch (JAXBException | InvalidConfigurationException | ProcessingException e1) {
-//							// TODO Auto-generated catch block
-//							e1.printStackTrace();
-//						}
-//					}
-
 					if (null != a.getOnSuccess()) {
 						action.setOnSuccess("/manager/" + site.getName() + "/" + a.getOnSuccess());
 					}
