@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +50,6 @@ import org.appng.core.model.ApplicationProvider;
 import org.appng.openapi.model.Action;
 import org.appng.openapi.model.Datasource;
 import org.appng.openapi.model.Label;
-import org.appng.openapi.model.Message;
 import org.appng.openapi.model.Navigation;
 import org.appng.openapi.model.NavigationItem;
 import org.appng.openapi.model.PageDefinition;
@@ -64,10 +62,10 @@ import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Param;
 import org.appng.xml.platform.SectionConfig;
+import org.appng.xml.platform.Structure;
 import org.appng.xml.platform.UrlSchema;
 import org.slf4j.Logger;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -276,55 +274,58 @@ abstract class OpenApiPage extends OpenApiOperation {
 	protected void processSections(Environment env, HttpServletResponse servletResp,
 			ApplicationProvider applicationProvider, org.appng.xml.platform.PageReference pageReference,
 			PageDefinition pageDefinition) {
-		pageReference.getStructure().getSection().forEach(s -> {
-			Section section = new Section();
-			section.setElements(new ArrayList<>());
-			section.setId(s.getId());
-			section.setHidden(Boolean.valueOf(s.getHidden()));
-			SectionConfig config = s.getConfig();
+		Structure structure = pageReference.getStructure();
+		if (null != structure) {
+			structure.getSection().forEach(s -> {
+				Section section = new Section();
+				section.setElements(new ArrayList<>());
+				section.setId(s.getId());
+				section.setHidden(Boolean.valueOf(s.getHidden()));
+				SectionConfig config = s.getConfig();
 
-			org.appng.xml.platform.Label title = s.getTitle();
-			if (null != title) {
-				section.setTitle(new Label());
-				section.getTitle().setValue(title.getValue());
-			} else if (null != config && null != config.getTitle()) {
-				section.setTitle(new Label());
-				section.getTitle().setValue(config.getTitle().getValue());
-			}
-
-			s.getElement().forEach(e -> {
-				SectionElement element = new SectionElement();
-				element.setCollapsed(Boolean.valueOf(e.getFolded()));
-
-				org.appng.xml.platform.Action a = e.getAction();
-				org.appng.xml.platform.Label sectionTitle = e.getTitle();
-				if (null != a) {
-					AtomicBoolean mustExecute = new AtomicBoolean(false);
-					Action action = openApiAction.getAction(request, a, env, null, true, mustExecute);
-					if (null != a.getOnSuccess()) {
-						action.setOnSuccess("/manager/" + site.getName() + "/" + a.getOnSuccess());
-					}
-					action.setUser(null);
-					if (null != sectionTitle) {
-						element.setTitle(sectionTitle.getValue());
-					}
-					element.setAction(action);
-				}
-				org.appng.xml.platform.Datasource d = e.getDatasource();
-				if (null != d) {
-					Datasource datasource = openApiDataSource.transformDataSource(env, servletResp, applicationProvider,
-							d);
-					datasource.setUser(null);
-					if (null != sectionTitle) {
-						element.setTitle(sectionTitle.getValue());
-					}
-					element.setDatasource(datasource);
+				org.appng.xml.platform.Label title = s.getTitle();
+				if (null != title) {
+					section.setTitle(new Label());
+					section.getTitle().setValue(title.getValue());
+				} else if (null != config && null != config.getTitle()) {
+					section.setTitle(new Label());
+					section.getTitle().setValue(config.getTitle().getValue());
 				}
 
-				section.getElements().add(element);
+				s.getElement().forEach(e -> {
+					SectionElement element = new SectionElement();
+					element.setCollapsed(Boolean.valueOf(e.getFolded()));
+
+					org.appng.xml.platform.Action a = e.getAction();
+					org.appng.xml.platform.Label sectionTitle = e.getTitle();
+					if (null != a) {
+						AtomicBoolean mustExecute = new AtomicBoolean(false);
+						Action action = openApiAction.getAction(request, a, env, null, true, mustExecute);
+						if (null != a.getOnSuccess()) {
+							action.setOnSuccess("/manager/" + site.getName() + "/" + a.getOnSuccess());
+						}
+						action.setUser(null);
+						if (null != sectionTitle) {
+							element.setTitle(sectionTitle.getValue());
+						}
+						element.setAction(action);
+					}
+					org.appng.xml.platform.Datasource d = e.getDatasource();
+					if (null != d) {
+						Datasource datasource = openApiDataSource.transformDataSource(env, servletResp,
+								applicationProvider, d);
+						datasource.setUser(null);
+						if (null != sectionTitle) {
+							element.setTitle(sectionTitle.getValue());
+						}
+						element.setDatasource(datasource);
+					}
+
+					section.getElements().add(element);
+				});
+				pageDefinition.addSectionsItem(section);
 			});
-			pageDefinition.addSectionsItem(section);
-		});
+		}
 	}
 
 	Logger getLogger() {

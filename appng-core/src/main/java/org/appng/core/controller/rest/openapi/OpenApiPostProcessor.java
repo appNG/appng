@@ -40,14 +40,19 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 		registerRequestScoped(registry, OpenApiActionImpl.class);
 		registerRequestScoped(registry, OpenApiDataSourceImpl.class);
 		registerRequestScoped(registry, OpenApiPageImpl.class);
+		registry.registerBeanDefinition(SwaggerUI.class.getSimpleName(), getBeanDefinition(SwaggerUI.class));
 		registry.registerBeanDefinition(RestErrorHandler.class.getSimpleName(),
-				new AnnotatedGenericBeanDefinition(new StandardAnnotationMetadata(RestErrorHandler.class)));
+				getBeanDefinition(RestErrorHandler.class));
 	}
 
 	private void registerRequestScoped(BeanDefinitionRegistry registry, Class<?> beanClass) {
-		BeanDefinition bean = new AnnotatedGenericBeanDefinition(new StandardAnnotationMetadata(beanClass));
+		BeanDefinition bean = getBeanDefinition(beanClass);
 		bean.setScope(WebApplicationContext.SCOPE_REQUEST);
 		registry.registerBeanDefinition(beanClass.getSimpleName(), bean);
+	}
+
+	protected BeanDefinition getBeanDefinition(Class<?> beanClass) {
+		return new AnnotatedGenericBeanDefinition(new StandardAnnotationMetadata(beanClass));
 	}
 
 	static class OpenApiActionImpl extends OpenApiAction {

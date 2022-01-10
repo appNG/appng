@@ -39,7 +39,7 @@
 											<version>4.1.3</version>
 											<type>jar</type>
 											<overWrite>true</overWrite>
-											<includes>**/*.js,**/*.map,**/*.css,**/*.png</includes>
+											<includes>**/*.js,**/*.css,**/*.png</includes>
 											<outputDirectory>src/main/resources/org/appng/api/rest/swagger-ui</outputDirectory>
 											<fileMappers>
 												<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FlattenFileMapper" />

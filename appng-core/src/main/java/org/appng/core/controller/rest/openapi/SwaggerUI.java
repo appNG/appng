@@ -21,30 +21,29 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * A controller serving Swagger-UI resources
  */
-@Controller
+@RestController
 public class SwaggerUI {
 
 	private static final String BASE_PATH = "org/appng/api/rest";
+	private static final String YAML_SPEC = "appng-openapi.yaml";
 
 	@GetMapping(path = "/openapi/swagger-ui/{path:.+}")
 	public ResponseEntity<byte[]> serveResource(@PathVariable String path) throws IOException {
 		ClassPathResource resource;
-		ClassLoader classLoader = getClass().getClassLoader();
-		if (path.equals("appng-openapi.yaml")) {
-			resource = new ClassPathResource(BASE_PATH + "/appng-openapi.yaml", classLoader);
+		if (path.equals(YAML_SPEC)) {
+			resource = new ClassPathResource(BASE_PATH + "/" + YAML_SPEC);
 		} else {
-			resource = new ClassPathResource(BASE_PATH + "/swagger-ui" + path, classLoader);
+			resource = new ClassPathResource(BASE_PATH + "/swagger-ui/" + path);
 		}
 		if (resource.exists()) {
-			byte[] data = IOUtils.toByteArray(resource.getInputStream());
-			return new ResponseEntity<>(data, HttpStatus.OK);
+			return new ResponseEntity<>(IOUtils.toByteArray(resource.getInputStream()), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
