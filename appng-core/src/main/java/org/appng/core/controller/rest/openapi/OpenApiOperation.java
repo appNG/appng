@@ -356,7 +356,11 @@ abstract class OpenApiOperation {
 	}
 
 	protected StringBuilder getSelf(String suffix) {
-		return new StringBuilder("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi" + suffix);
+		return getSelf(application.getName(), suffix);
+	}
+
+	protected StringBuilder getSelf(String application, String suffix) {
+		return new StringBuilder("/service/" + site.getName() + "/" + application + "/rest/openapi" + suffix);
 	}
 
 	protected boolean appendParams(Params params, StringBuilder self) {

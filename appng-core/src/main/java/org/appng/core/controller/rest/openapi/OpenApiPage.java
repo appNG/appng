@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -81,15 +80,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 abstract class OpenApiPage extends OpenApiOperation {
 
-	private OpenApiDataSource openApiDataSource;
-	private OpenApiAction openApiAction;
-
 	public OpenApiPage(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters, OpenApiDataSource openApiDataSource, OpenApiAction openApiAction)
-			throws JAXBException {
+			boolean supportPathParameters) throws JAXBException {
 		super(site, application, request, messageSource, supportPathParameters);
-		this.openApiDataSource = openApiDataSource;
-		this.openApiAction = openApiAction;
 	}
 
 	@GetMapping(path = "/openapi/navigation")
@@ -113,29 +106,37 @@ abstract class OpenApiPage extends OpenApiOperation {
 				siteNavigation.setName(navSite.getName());
 				for (Application app : navSite.getApplications()) {
 					if (!app.isHidden() && subject.hasApplication(app)) {
-						NavigationItem applicationItem = new NavigationItem();
-						applicationItem.setType(NavigationItem.TypeEnum.APP);
-						applicationItem.setName(app.getDisplayName());
-						siteNavigation.addItemsItem(applicationItem);
+						NavigationItem appItem = new NavigationItem();
+						appItem.setType(NavigationItem.TypeEnum.APP);
+						appItem.setName(app.getDisplayName());
+						siteNavigation.addItemsItem(appItem);
 
-						applicationItem.setPath(managerPrefix + navSite.getName() + "/" + app.getName());
+						appItem.setPath(managerPrefix + navSite.getName() + "/" + app.getName());
 
 						if (site.getName().equals(navSite.getName()) && app.getName().equals(application.getName())) {
-							applicationItem.setActive(true);
+							appItem.setActive(true);
 							siteNavigation.setActive(true);
 
 							ApplicationConfigProvider applicationConfig = ((ApplicationProvider) application)
 									.getApplicationConfig();
+							String defaultPage = applicationConfig.getDefaultPage();
 							Linkpanel topNav = applicationConfig.getApplicationRootConfig().getNavigation();
 							for (org.appng.xml.platform.Link link : topNav.getLinks()) {
-								NavigationItem topNavItem = new NavigationItem();
-								topNavItem.setType(NavigationItem.TypeEnum.PAGE);
+								NavigationItem pageItem = new NavigationItem();
+								pageItem.setType(NavigationItem.TypeEnum.PAGE);
 								ResourceBundleMessageSource messages = application
 										.getBean(ResourceBundleMessageSource.class);
-								topNavItem.setName(getLabelMessage(link.getLabel(), messages, env.getLocale(),
+								pageItem.setName(getLabelMessage(link.getLabel(), messages, env.getLocale(),
 										new DollarParameterSupport()));
-								topNavItem.setPath(applicationItem.getPath() + link.getTarget());
-								applicationItem.addItemsItem(topNavItem);
+								pageItem.setPath(appItem.getPath() + link.getTarget());
+								pageItem.setSelf(getSelf("/page" + link.getTarget()).toString());
+								String pageName = link.getTarget().substring(1);
+								int pathSeparator = pageName.indexOf('/');
+								if (pathSeparator > 0) {
+									pageName = pageName.substring(0, pathSeparator);
+								}
+								pageItem.setDefault(StringUtils.equals(defaultPage, pageName));
+								appItem.addItemsItem(pageItem);
 							}
 						}
 
@@ -147,11 +148,13 @@ abstract class OpenApiPage extends OpenApiOperation {
 					sortItems(navigation.getItems());
 				}
 			}
+			String logoutPage = properties.getString(SiteProperties.AUTH_LOGOUT_PAGE);
 			String logoutRef = properties.getString(SiteProperties.AUTH_LOGOUT_REF);
 			NavigationItem logoutItem = new NavigationItem();
 			logoutItem.setName("Logout");
 			logoutItem.setType(NavigationItem.TypeEnum.PAGE);
 			logoutItem.setPath(managerPrefix + logoutRef);
+			logoutItem.setSelf(getSelf(authApp.getName(), "/page/" + logoutPage).toString());
 			navigation.addItemsItem(logoutItem);
 
 		} else {
@@ -161,6 +164,7 @@ abstract class OpenApiPage extends OpenApiOperation {
 			loginItem.setName("Login");
 			loginItem.setType(NavigationItem.TypeEnum.PAGE);
 			loginItem.setPath(authAppPath + loginPage + "/" + loginRef);
+			loginItem.setSelf(getSelf(authApp.getName(), "/page/" + loginPage).toString());
 			navigation.addItemsItem(loginItem);
 		}
 		navigation.setUser(getUser(env));
@@ -298,27 +302,22 @@ abstract class OpenApiPage extends OpenApiOperation {
 
 					org.appng.xml.platform.Action a = e.getAction();
 					org.appng.xml.platform.Label sectionTitle = e.getTitle();
+					if (null != sectionTitle) {
+						element.setTitle(sectionTitle.getValue());
+					}
 					if (null != a) {
-						AtomicBoolean mustExecute = new AtomicBoolean(false);
-						Action action = openApiAction.getAction(request, a, env, null, true, mustExecute);
-						if (null != a.getOnSuccess()) {
-							action.setOnSuccess("/manager/" + site.getName() + "/" + a.getOnSuccess());
-						}
-						action.setUser(null);
-						if (null != sectionTitle) {
-							element.setTitle(sectionTitle.getValue());
-						}
+						Action action = new Action();
+						action.setId(a.getId());
+						action.setEventId(a.getEventId());
+						action.setSelf(getSelf("/action/" + a.getEventId() + "/" + a.getId()).toString());
 						element.setAction(action);
 					}
 					org.appng.xml.platform.Datasource d = e.getDatasource();
 					if (null != d) {
-						Datasource datasource = openApiDataSource.transformDataSource(env, servletResp,
-								applicationProvider, d);
-						datasource.setUser(null);
-						if (null != sectionTitle) {
-							element.setTitle(sectionTitle.getValue());
-						}
-						element.setDatasource(datasource);
+						Datasource datasource = new Datasource();
+						datasource.setId(d.getId());
+						datasource.setSelf(getSelf("/datasource/" + d.getId()).toString());
+						element.setDatasource(new Datasource());
 					}
 
 					section.getElements().add(element);

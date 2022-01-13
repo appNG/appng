@@ -970,8 +970,14 @@ components:
     navigationItem:
       type: object
       properties:
+        _self:
+          type: string
+          description: the API path (type PAGE only)
         name:
           type: string
+        default:
+          type: boolean
+          description: if this is the default page? (type PAGE only)
         path:
           type: string
         active:

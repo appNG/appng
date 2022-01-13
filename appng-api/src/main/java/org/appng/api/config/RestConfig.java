@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -24,6 +25,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -61,6 +63,11 @@ public class RestConfig {
 	public static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
 		return context.getBeansOfType(HttpMessageConverter.class).values().stream()
 				.map(m -> (HttpMessageConverter<?>) m).collect(Collectors.toList());
+	}
+
+	@Bean
+	public ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
+		return new ByteArrayHttpMessageConverter();
 	}
 
 	@Bean

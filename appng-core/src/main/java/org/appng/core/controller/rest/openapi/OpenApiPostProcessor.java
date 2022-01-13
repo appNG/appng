@@ -74,9 +74,8 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 	static class OpenApiPageImpl extends OpenApiPage {
 		@Autowired
 		public OpenApiPageImpl(Site site, Application application, Request request, MessageSource messageSource,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters, OpenApiAction openApiAction,
-				OpenApiDataSource openApiDataSource) throws JAXBException {
-			super(site, application, request, messageSource, supportPathParameters, openApiDataSource, openApiAction);
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
+			super(site, application, request, messageSource, supportPathParameters);
 		}
 	}
 
