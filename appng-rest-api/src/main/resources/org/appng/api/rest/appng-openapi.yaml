@@ -31,12 +31,6 @@ paths:
           required: true
           schema:
             type: string
-        - in: path 
-          name: id
-          description: the ID of the page
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: datasource response
@@ -392,7 +386,11 @@ components:
       type: object
       required:
         - id
+        - _self
       properties:
+        _self:
+          type: string
+          description: the API path to this section
         id:
           type: string
         title:

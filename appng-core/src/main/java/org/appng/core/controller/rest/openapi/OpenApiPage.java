@@ -238,7 +238,8 @@ abstract class OpenApiPage extends OpenApiOperation {
 		pageDefinition.setUser(user);
 
 		pageDefinition.setId(pageId);
-		pageDefinition.setSelf(getSelf("/page/" + pageId).toString());
+		String pageSelf = getSelf("/page/" + pageId + (null == pageUrlParams ? "" : "/" + pageUrlParams)).toString();
+		pageDefinition.setSelf(pageSelf);
 		pageDefinition.setUserUrl("/manager/" + site.getName() + "/" + application.getName() + "/" + pageId);
 
 		StringBuilder templatePath = getSelf("/page/" + pageId);
@@ -285,6 +286,8 @@ abstract class OpenApiPage extends OpenApiOperation {
 				section.setElements(new ArrayList<>());
 				section.setId(s.getId());
 				section.setHidden(Boolean.valueOf(s.getHidden()));
+				String sectSelf = pageDefinition.getSelf() + (null == s.getId() ? "" : "?_sect=" + s.getId());
+				section.setSelf(sectSelf);
 				SectionConfig config = s.getConfig();
 
 				org.appng.xml.platform.Label title = s.getTitle();
@@ -317,7 +320,7 @@ abstract class OpenApiPage extends OpenApiOperation {
 						Datasource datasource = new Datasource();
 						datasource.setId(d.getId());
 						datasource.setSelf(getSelf("/datasource/" + d.getId()).toString());
-						element.setDatasource(new Datasource());
+						element.setDatasource(datasource);
 					}
 
 					section.getElements().add(element);
