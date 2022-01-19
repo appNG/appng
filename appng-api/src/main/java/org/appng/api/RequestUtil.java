@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
+import org.springframework.http.HttpHeaders;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,7 +118,7 @@ public class RequestUtil {
 	 */
 	public static Site waitForSite(Environment env, String name) {
 		Site site = getSiteByName(env, name);
-		if (null == site || site.hasState(SiteState.STARTED)) {
+		if (null == site || site.hasState(SiteState.STARTED, SiteState.INACTIVE, SiteState.DELETED)) {
 			return site;
 		}
 
@@ -134,7 +135,9 @@ public class RequestUtil {
 				LOGGER.error("error while waiting for site " + name, e);
 				Thread.currentThread().interrupt();
 			}
-			LOGGER.info("site '{}' is currently in state {}, waited {}ms", name, site.getState(), waited);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("site '{}' is currently in state {}, waited {}ms", name, site.getState(), waited);
+			}
 		}
 
 		return getSiteByName(env, name);
@@ -213,7 +216,7 @@ public class RequestUtil {
 	 *         configured by {@link Site#getDomain()}.
 	 *         </p>
 	 *         <li>the value of the request-<strong>header</strong> {@value #X_APPNG_SITE}, if present.
-	 *         <li>the lower-cased server name, otherwise (see {@link ServletRequest#getServerName()})
+	 *         <li>the server name, otherwise (see {@link ServletRequest#getServerName()})
 	 *         </ul>
 	 */
 	public static String getSiteName(Environment env, ServletRequest request) {
@@ -224,14 +227,25 @@ public class RequestUtil {
 			siteName = StringUtils.trimToNull((String) request.getAttribute(SERVER_LOCAL_NAME));
 			if (null == siteName) {
 				siteName = StringUtils.trimToNull(((HttpServletRequest) request).getHeader(X_APPNG_SITE));
+				if (null == siteName) {
+					siteName = request.getServerName();
+					if (LOGGER.isTraceEnabled()) {
+						LOGGER.trace("Retrieved sitename '{}' from request.getServerName() (Host: {})", siteName,
+								((HttpServletRequest) request).getHeader(HttpHeaders.HOST));
+					}
+				} else if (LOGGER.isTraceEnabled()) {
+					LOGGER.trace("Retrieved sitename '{}' from request header '{}'", siteName, X_APPNG_SITE);
+				}
+			} else if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("Retrieved sitename '{}' from request attribute '{}'", siteName, SERVER_LOCAL_NAME);
 			}
-			if (null == siteName) {
-				siteName = request.getServerName();
-			}
+
 		} else {
 			siteName = request.getLocalAddr();
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("Retrieved sitename '{}' from request.getLocalAddr()", siteName);
+			}
 		}
-		LOGGER.trace("site name: {}", siteName);
 		return siteName;
 	}
 
