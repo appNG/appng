@@ -385,7 +385,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		if (null != l.getConfirmation()) {
 			link.setConfirmation(l.getConfirmation().getValue());
 		}
-		link.setType(Link.TypeEnum.valueOf(l.getMode().name()));
+		link.setType(LINK_MAPPING.get(l.getMode()));
 		if (Linkmode.INTERN.equals(l.getMode())) {
 			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
 			String completePath = String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(),
@@ -395,6 +395,15 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			link.setTarget(l.getTarget());
 		}
 		return link;
+	}
+
+	protected static final Map<Linkmode, Link.TypeEnum> LINK_MAPPING = new HashMap<Linkmode, Link.TypeEnum>();
+	static {
+		LINK_MAPPING.put(Linkmode.ACTION, Link.TypeEnum.ACTION);
+		LINK_MAPPING.put(Linkmode.ACTION_MODAL, Link.TypeEnum.ACTION_MODAL);
+		LINK_MAPPING.put(Linkmode.EXTERN, Link.TypeEnum.EXTERN);
+		LINK_MAPPING.put(Linkmode.INTERN, Link.TypeEnum.PAGE);
+		LINK_MAPPING.put(Linkmode.WEBSERVICE, Link.TypeEnum.INTERN);
 	}
 
 	Logger getLogger() {

@@ -715,12 +715,18 @@ components:
           description: Whether or not this link should be considered as default.
         type:
           type: string
-          description: The type of this link.
+          description: |
+            * page - Links to a page.
+            * extern - Links to an external resource.
+            * intern - Links to an internal resource.
+            * action - Links to an action that does not require an input-form, but can use a confirmation.
+            * action-modal - Links to an action whose input-form should be displayed in a modal dialog. 
           enum:
-            - intern
+            - page
             - extern
-            - webservice
-            - rest
+            - intern
+            - action
+            - action-modal
         confirmation:
           type: string
           description: A confirmation message that should be displayed to the user before

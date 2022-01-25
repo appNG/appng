@@ -1408,6 +1408,18 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 					<xs:documentation>A link to a RESTful service.</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
+			<xs:enumeration value="action-modal">
+				<xs:annotation>
+					<xs:documentation><![CDATA[Links to an OpenAPI-based action whose input-form should be displayed in a modal dialog. <strong>Must not</strong> use a confirmation.<br/>
+Target must be in format {@code /action/<event-id>/<action-id>?param=value}]]></xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="action">
+				<xs:annotation>
+					<xs:documentation><![CDATA[Links to an OpenAPI-based action that does <strong>not</strong> require an input-form, but <strong>can</strong> use a confirmation.<br/>
+Target must be in format {@code /action/<event-id>/<action-id>?param=value}]]></xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
 

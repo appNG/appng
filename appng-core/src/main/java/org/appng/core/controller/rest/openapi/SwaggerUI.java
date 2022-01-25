@@ -19,8 +19,11 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class SwaggerUI {
-
 	private static final String BASE_PATH = "org/appng/api/rest";
 	private static final String YAML_SPEC = "appng-openapi.yaml";
 
@@ -43,7 +45,12 @@ public class SwaggerUI {
 			resource = new ClassPathResource(BASE_PATH + "/swagger-ui/" + path);
 		}
 		if (resource.exists()) {
-			return new ResponseEntity<>(IOUtils.toByteArray(resource.getInputStream()), HttpStatus.OK);
+			MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+			if (path.endsWith(".js")) {
+				headers.add(HttpHeaders.CONTENT_TYPE, "text/javascript");
+			}
+			byte[] data = IOUtils.toByteArray(resource.getInputStream());
+			return new ResponseEntity<>(data, headers, HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
