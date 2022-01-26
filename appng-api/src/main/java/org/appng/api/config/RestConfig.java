@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -137,9 +138,11 @@ public class RestConfig {
 	}
 
 	@Bean
-	public MappingJackson2HttpMessageConverter defaultJsonConverter(ObjectMapper objectMapper,
+	public MappingJackson2HttpMessageConverter defaultJsonConverter(
+			@Qualifier("defaultObjectMapper") ObjectMapper defaultObjectMapper,
 			@Value("${site.jsonPrettyPrint:false}") boolean prettyPrint) {
-		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter(objectMapper);
+		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter(
+				defaultObjectMapper);
 		jsonConverter.setPrettyPrint(prettyPrint);
 		return jsonConverter;
 	}
