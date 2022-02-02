@@ -102,36 +102,37 @@ public class DatabaseServiceTest extends TestInitializer {
 
 	@Test
 	@Ignore("uses testcontainers, which needs docker")
-	public void testInitDatabaseMySql56() throws Exception {
-		testInitDatabaseMySql("5.6");
-	}
-
-	@Test
-	@Ignore("uses testcontainers, which needs docker")
-	public void testInitDatabaseMySql57() throws Exception {
-		testInitDatabaseMySql("5.7");
-	}
-
-	@Test
-	@Ignore("uses testcontainers, which needs docker")
-	public void testInitDatabaseMySql8() throws Exception {
-		testInitDatabaseMySql("8");
+	public void testInitDatabaseMySql() throws Exception {
+		try (MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8")) {
+			mysql.withUsername("root").withPassword("")
+					.withCommand("mysqld --default-authentication-plugin=mysql_native_password").start();
+			validateConnectionType(mysql, DatabaseType.MYSQL, "MySQL", "8", "", "4.3", true, true);
+		}
 	}
 
 	@Test
 	@Ignore("run with profile 'mariadb', uses testcontainers, which needs docker")
-	public void testInitDatabaseMariaDB() throws Exception {
-		try (MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:10.4")) {
-			mariadb.withUsername("root").withPassword("").start();
-			System.err.println(mariadb.getJdbcUrl());
-			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", "10.4", "", true, true);
-		}
+	public void testInitDatabaseMariaDB104() throws Exception {
+		testInitDatabaseMariaDB("10.4");
 	}
 
-	void testInitDatabaseMySql(String version) throws Exception {
-		try (MySQLContainer<?> mysql = new MySQLContainer<>("mysql:" + version)) {
-			mysql.withUsername("root").withPassword("").start();
-			validateConnectionType(mysql, DatabaseType.MYSQL, "MySQL", version, true, true);
+	@Test
+	@Ignore("run with profile 'mariadb', uses testcontainers, which needs docker")
+	public void testInitDatabaseMariaDB105() throws Exception {
+		testInitDatabaseMariaDB("10.5");
+	}
+
+	@Test
+	@Ignore("run with profile 'mariadb', uses testcontainers, which needs docker")
+	public void testInitDatabaseMariaDB106() throws Exception {
+		testInitDatabaseMariaDB("10.6");
+	}
+
+	private void testInitDatabaseMariaDB(String version) throws Exception {
+		try (MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:" + version)) {
+			mariadb.withUsername("root").withPassword("").start();
+			System.err.println(mariadb.getJdbcUrl());
+			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", version, "", "4.3", true, true);
 		}
 	}
 
@@ -156,27 +157,34 @@ public class DatabaseServiceTest extends TestInitializer {
 	void testInitDatabasePostgreSQL(String version) throws Exception {
 		try (PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:" + version)) {
 			postgres.start();
-			validateConnectionType(postgres, DatabaseType.POSTGRESQL, "PostgreSQL", version, true, true);
+			validateConnectionType(postgres, DatabaseType.POSTGRESQL, "PostgreSQL", version, "", "4.2.1", true, true);
 		}
 	}
 
 	@Test
 	@Ignore("uses testcontainers, which needs docker")
-	public void testInitDatabaseMsSql() throws Exception {
-		try (MSSQLServerContainer<?> mssql = new MSSQLServerContainer<>()) {
+	public void testInitDatabaseMsSql2017() throws Exception {
+		testInitDatabaseMsSql("2017-latest", "14.00");
+	}
+
+	@Test
+	@Ignore("uses testcontainers, which needs docker")
+	public void testInitDatabaseMsSql2019() throws Exception {
+		testInitDatabaseMsSql("2019-latest", "15.00");
+	}
+
+	protected void testInitDatabaseMsSql(String imageVersion, String productVersion)
+			throws SQLException, IOException, URISyntaxException, Exception {
+		try (MSSQLServerContainer<?> mssql = new MSSQLServerContainer<>(
+				"mcr.microsoft.com/mssql/server:" + imageVersion)) {
 			mssql.start();
-			validateConnectionType(mssql, DatabaseType.MSSQL, "Microsoft SQL Server", "14.00", false, false);
+			validateConnectionType(mssql, DatabaseType.MSSQL, "Microsoft SQL Server", productVersion, "", "4.2.1",
+					false, false);
 		}
 	}
 
 	private void validateConnectionType(JdbcDatabaseContainer<?> container, DatabaseType databaseType,
-			String productName, String productVersion, boolean checksize, boolean checkConnection)
-			throws SQLException, IOException, URISyntaxException {
-		validateConnectionType(container, databaseType, productName, productVersion, "", checksize, checkConnection);
-	}
-
-	private void validateConnectionType(JdbcDatabaseContainer<?> container, DatabaseType databaseType,
-			String productName, String productVersion, String connectionParams, boolean checksize,
+			String productName, String productVersion, String connectionParams, String schemaVersion, boolean checksize,
 			boolean checkConnection) throws SQLException, IOException, URISyntaxException {
 		String jdbcUrl = container.getJdbcUrl();
 		jdbcUrl += connectionParams;
@@ -192,7 +200,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		if (checksize) {
 			Assert.assertTrue(platformConnection.getDatabaseSize() > 0.0d);
 		}
-		validateSchemaVersion(platformConnection, "4.2.1");
+		validateSchemaVersion(platformConnection, schemaVersion);
 
 		testRootConnectionJPA(platformConnection);
 		if (checkConnection) {

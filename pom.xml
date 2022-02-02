@@ -63,6 +63,7 @@
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<bouncycastle.version>1.69</bouncycastle.version>
 		<esapi.version>2.2.3.1</esapi.version>
+		<flyway.version>8.4.3</flyway.version>
 		<hazelcast.version>5.0.2</hazelcast.version>
 		<hibernate.version>5.4.32.Final</hibernate.version>
 		<jackson.version>2.13.0</jackson.version>
@@ -1043,7 +1044,7 @@
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-				<version>8.0.20</version>
+				<version>8.0.28</version>
 			</dependency>
 			<dependency>
 				<groupId>org.im4java</groupId>
@@ -1083,7 +1084,17 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>7.15.0</version>
+				<version>${flyway.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-mysql</artifactId>
+				<version>${flyway.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-sqlserver</artifactId>
+				<version>${flyway.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>
