@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.owasp.esapi.Encoder;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * A utility class helping with XSS prevention.<br/>
  * Uses <a href="https://www.javadoc.io/doc/org.owasp.esapi/esapi/2.1.0.1">ESAPI</a> and
- * <a href="https://jsoup.org/cookbook/cleaning-html/whitelist-sanitizer">JSOUP</a>.
+ * <a href="https://jsoup.org/cookbook/cleaning-html/safelist-sanitizer">JSOUP</a>.
  * 
  * @author Matthias Müller
  */
@@ -41,16 +41,16 @@ public class XSSUtil {
 	private static final String XSS_STRIPPED = XSSUtil.class.getName() + ".xssStripped";
 
 	private Encoder encoder;
-	private Whitelist whitelist;
+	private Safelist safelist;
 	private String[] exceptions;
 
 	public XSSUtil(Encoder encoder) {
-		this(encoder, Whitelist.basic());
+		this(encoder, Safelist.basic());
 	}
 
-	public XSSUtil(Encoder encoder, Whitelist whitelist, String... exceptions) {
+	public XSSUtil(Encoder encoder, Safelist safelist, String... exceptions) {
 		this.encoder = encoder;
-		this.whitelist = whitelist;
+		this.safelist = safelist;
 		this.exceptions = exceptions;
 	}
 
@@ -58,7 +58,7 @@ public class XSSUtil {
 		if (null == parameter) {
 			return parameter;
 		}
-		return Jsoup.clean(encoder.canonicalize(parameter), whitelist);
+		return Jsoup.clean(encoder.canonicalize(parameter), safelist);
 	}
 
 	public String[] stripXss(String[] values) {

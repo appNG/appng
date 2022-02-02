@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
 import org.appng.api.model.Properties;
 import org.appng.forms.XSSUtil;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.owasp.esapi.ESAPI;
 
 /**
@@ -54,19 +54,19 @@ public class XSSHelper {
 	public static XSSUtil getXssUtil(Properties platformProps, String... exceptions) {
 		XSSUtil util = null;
 		if (platformProps.getBoolean(Platform.Property.XSS_PROTECT)) {
-			Whitelist whitelist = Whitelist.basic();
+			Safelist safelist = Safelist.basic();
 			for (String tag : platformProps.getList(Platform.Property.XSS_ALLOWED_TAGS, StringUtils.EMPTY, "\\|")) {
 				String[] splitted = tag.split(StringUtils.SPACE);
 				String name = splitted[0];
 				if (splitted.length > 1) {
 					for (int i = 1; i < splitted.length; i++) {
-						whitelist.addAttributes(name, splitted[i]);
+						safelist.addAttributes(name, splitted[i]);
 					}
 				} else {
-					whitelist.addTags(name);
+					safelist.addTags(name);
 				}
 			}
-			util = new XSSUtil(ESAPI.encoder(), whitelist, exceptions);
+			util = new XSSUtil(ESAPI.encoder(), safelist, exceptions);
 		}
 		return util;
 	}

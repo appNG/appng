@@ -51,7 +51,7 @@ import org.appng.search.searcher.StandardSearcher;
 import org.appng.taglib.MultiSiteSupport;
 import org.appng.taglib.ParameterOwner;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StopWatch;
 
@@ -265,10 +265,10 @@ public class Search extends BodyTagSupport implements ParameterOwner {
 			if (maxTextLength > 0) {
 				int spaceIdx = description.indexOf(" ", maxTextLength - 3);
 				if (spaceIdx > 0) {
-					return Jsoup.clean(description.substring(0, spaceIdx) + fillWith, Whitelist.none());
+					return Jsoup.clean(description.substring(0, spaceIdx) + fillWith, Safelist.none());
 				}
 			}
-			return Jsoup.clean(description, Whitelist.none());
+			return Jsoup.clean(description, Safelist.none());
 		}
 		return null;
 	}

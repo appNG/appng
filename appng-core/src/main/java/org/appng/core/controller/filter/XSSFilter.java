@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
  * Inspired by
  * <ul>
  * <li>https://dzone.com/articles/stronger-anti-cross-site
- * <li>https://jsoup.org/cookbook/cleaning-html/whitelist-sanitizer
+ * <li>https://jsoup.org/cookbook/cleaning-html/safelist-sanitizer
  * </ul>
  * 
  * @author Matthias Müller

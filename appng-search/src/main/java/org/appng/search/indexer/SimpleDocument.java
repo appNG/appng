@@ -38,7 +38,7 @@ import org.appng.api.observe.impl.ObservableDelegate;
 import org.appng.api.search.Document;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document.OutputSettings;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -287,7 +287,7 @@ public class SimpleDocument implements Document {
 				Highlighter highlighter = new Highlighter(formatter, queryScorer);
 				TokenStream tokenStream = analyzer.tokenStream(field, doc.getContent());
 				String fragment = highlighter.getBestFragments(tokenStream, doc.getContent(), 3, "...");
-				fragment = Jsoup.clean(fragment, "", new Whitelist().addTags(highlightWith),
+				fragment = Jsoup.clean(fragment, "", new Safelist().addTags(highlightWith),
 						new OutputSettings().prettyPrint(false));
 				doc.setFragment(fragment);
 			} catch (Exception e) {
