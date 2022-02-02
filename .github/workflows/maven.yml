@@ -3,7 +3,7 @@ name: Java CI
 on:
   push:
     branches: 
-      - appng-1.24.x
+      - appng-1.25.x
 
 jobs:
   build:
