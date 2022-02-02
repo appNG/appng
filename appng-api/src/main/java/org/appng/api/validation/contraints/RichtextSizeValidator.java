@@ -20,7 +20,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 /**
  * Validates that the plain text length of the given string is >= {@link RichtextSize#min()} and <=
@@ -39,7 +39,7 @@ public class RichtextSizeValidator implements ConstraintValidator<RichtextSize, 
 
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
-		String cleanedValue = Jsoup.clean(StringUtils.trimToEmpty(value), Whitelist.none());
+		String cleanedValue = Jsoup.clean(StringUtils.trimToEmpty(value), Safelist.none());
 		return cleanedValue.length() >= maxRichtextLength.min() && cleanedValue.length() <= maxRichtextLength.max();
 	}
 
