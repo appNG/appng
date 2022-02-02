@@ -73,7 +73,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PageCacheFilter implements javax.servlet.Filter {
 
 	private static final String GZIP = "gzip";
-	private static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
+	protected static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
 	private Environment env;
@@ -235,6 +235,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
 			throws ServletException, IOException {
 		final String key = calculateKey(request);
+		boolean cacheHit = false;
 		CachedResponse cachedResponse = cache.get(key);
 		if (cachedResponse == null) {
 			cachedResponse = performRequest(request, response, chain, site, expiryPolicy);
@@ -250,17 +251,18 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			} else if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Response has status: {}, size: {} for key {}", cachedResponse.getStatus(), size, key);
 			}
-			request.setAttribute(CACHE_HIT, false);
 		} else {
-			// update hit statistic
+			cacheHit = true;
 			long hits = cachedResponse.incrementHit();
-			cache.unwrap(ICache.class).replace(key, cachedResponse, expiryPolicy);
+			if (site.getProperties().getBoolean("cacheHitStats", false)) {
+				cache.unwrap(ICache.class).replaceAsync(key, cachedResponse, expiryPolicy);
+			}
 			if (LOGGER.isDebugEnabled()) {
-				request.setAttribute(CACHE_HIT, true);
 				LOGGER.debug("Hit in cache {}: {} (type: {}, size: {}, hits: {})", cache.getName(), key,
 						cachedResponse.getContentType(), cachedResponse.getContentLength(), hits);
 			}
 		}
+		request.setAttribute(CACHE_HIT, cacheHit);
 		return cachedResponse;
 	}
 
@@ -287,12 +289,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 
 	static boolean isException(String exceptionsProp, String servletPath) {
 		if (null != exceptionsProp) {
-			Set<String> exceptions = new HashSet<>(Arrays.asList(exceptionsProp.split(StringUtils.LF)));
-			for (String e : exceptions) {
-				if (servletPath.startsWith(e.trim())) {
-					return true;
-				}
-			}
+			return Arrays.asList(exceptionsProp.split(StringUtils.LF)).stream()
+					.filter(e -> servletPath.startsWith(e.trim())).findFirst().isPresent();
 		}
 		return false;
 	}

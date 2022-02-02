@@ -16,6 +16,8 @@
 package org.appng.core.controller.filter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,8 +33,6 @@ import org.appng.core.controller.CachedResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -48,10 +48,12 @@ public class PageCacheFilterTest {
 		MockHttpServletRequest req = new MockHttpServletRequest(new MockServletContext());
 		req.setServletPath("/foo/bar");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
+
 		@SuppressWarnings("unchecked")
 		ICache<String, CachedResponse> cache = Mockito.mock(ICache.class);
 		Mockito.when(cache.getName()).thenReturn("testcache");
 		Mockito.when(cache.unwrap(ICache.class)).thenReturn(cache);
+
 		FilterChain chain = Mockito.mock(FilterChain.class);
 		String modifiedDate = "Wed, 28 Mar 2018 09:04:12 GMT";
 		String content = "foobar";
@@ -78,30 +80,44 @@ public class PageCacheFilterTest {
 				super.writeResponse(request, response, pageInfo);
 			}
 		};
+		
+		final Map<String, CachedResponse> innerCache = new HashMap<>();
 		AtomicReference<CachedResponse> actual = new AtomicReference<>();
-		Mockito.doAnswer(new Answer<Void>() {
-			public Void answer(InvocationOnMock invocation) throws Throwable {
-				CachedResponse element = invocation.getArgumentAt(1, CachedResponse.class);
-				actual.set(element);
-				return null;
-			}
-		}).when(cache).put(Mockito.any(String.class), Mockito.any(CachedResponse.class),
-				Mockito.any(ExpiryPolicy.class));
+		Mockito.doAnswer(i -> {
+			CachedResponse element = i.getArgumentAt(1, CachedResponse.class);
+			actual.set(element);
+			innerCache.put(i.getArgumentAt(0, String.class), element);
+			return null;
+
+		}).when(cache).put(Mockito.any(), Mockito.any(), Mockito.any());
+		Mockito.doAnswer(i -> innerCache.get(i.getArgumentAt(0, String.class))).when(cache).get(Mockito.anyString());
 
 		Site site = Mockito.mock(Site.class);
+		org.appng.api.model.Properties siteProps = Mockito.mock(org.appng.api.model.Properties.class);
+		Mockito.when(site.getProperties()).thenReturn(siteProps);
+		Mockito.when(siteProps.getBoolean("cacheHitStats", false)).thenReturn(true);
 
 		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(pageInfo, actual.get());
+		Assert.assertEquals(0, actual.get().getHitCount());
 		Assert.assertEquals(modifiedDate, resp.getHeader(HttpHeaders.LAST_MODIFIED));
 		Assert.assertEquals(lastModifiedSeconds, resp.getDateHeader(HttpHeaders.LAST_MODIFIED));
+		Assert.assertEquals(false, req.getAttribute(PageCacheFilter.CACHE_HIT));
+
+		CachedResponse cacheHit = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
+		Assert.assertEquals(pageInfo, cacheHit);
+		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
+		Mockito.verify(cache, Mockito.times(1)).replaceAsync(Mockito.any(), Mockito.any(), Mockito.any(ExpiryPolicy.class));
+		Assert.assertEquals(1, actual.get().getHitCount());
+		Assert.assertEquals(true, req.getAttribute(PageCacheFilter.CACHE_HIT));
 
 		// test gzip
 		req.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
 		pageCacheFilter.handleCaching(req, resp, site, chain, cache, null);
 		Assert.assertEquals(HttpStatus.OK.value(), resp.getStatus());
 		Assert.assertEquals(26, resp.getContentLength());
-		Mockito.verify(chain, Mockito.times(2)).doFilter(Mockito.any(), Mockito.eq(resp));
+		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 
 		// test if-modified-since
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -109,7 +125,7 @@ public class PageCacheFilterTest {
 		pageCacheFilter.handleCaching(req, response, site, chain, cache, null);
 		Assert.assertEquals(HttpStatus.NOT_MODIFIED.value(), response.getStatus());
 		Assert.assertEquals(0, response.getContentLength());
-		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(response));
+		Mockito.verify(chain, Mockito.times(0)).doFilter(Mockito.any(), Mockito.eq(response));
 
 		// test aborted
 		MockHttpServletRequest aborted = new MockHttpServletRequest(new MockServletContext());
