@@ -988,7 +988,19 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>7.15.0</version>
+				<version>8.4.3</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-mysql</artifactId>
+				<version>8.4.3</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-sqlserver</artifactId>
+				<version>8.4.3</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

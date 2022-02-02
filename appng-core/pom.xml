@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<testcontainers.version>1.16.0</testcontainers.version>
+		<testcontainers.version>1.16.3</testcontainers.version>
 	</properties>
 
 	<build>
@@ -99,7 +99,7 @@
 				<dependency>
 					<groupId>org.mariadb.jdbc</groupId>
 					<artifactId>mariadb-java-client</artifactId>
-					<version>2.5.4</version>
+					<version>3.0.3</version>
 					<scope>provided</scope>
 				</dependency>
 			</dependencies>
@@ -254,6 +254,14 @@
 			<artifactId>flyway-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-mysql</artifactId>			
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-sqlserver</artifactId>			
+		</dependency>
+		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 		</dependency>
@@ -340,7 +348,7 @@
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
-			<version>6.4.0.jre8</version>
+			<version>10.2.0.jre8</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
