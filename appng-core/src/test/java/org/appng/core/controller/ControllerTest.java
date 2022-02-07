@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Base64;
 
 import javax.servlet.RequestDispatcher;
@@ -53,11 +54,13 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
+import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.handler.JspHandler;
 import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
+import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
@@ -422,6 +425,23 @@ public class ControllerTest extends Controller {
 			doGet(base.request, base.response);
 			verify(base.response).setStatus(301);
 			verify(base.response).setHeader(HttpHeaders.LOCATION, "/de/index");
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testRootWithDefaultPath() {
+		SiteImpl site = (SiteImpl) base.siteMap.get(base.manager);
+		Properties properties = site.getProperties();
+		when(base.request.getServletPath()).thenReturn("");
+		try {
+			site.setProperties(new PropertyHolder("",
+					Arrays.asList(new PropertyImpl(SiteProperties.DEFAULT_PATH, "/defaultPath"))));
+			doGet(base.request, base.response);
+			site.setProperties(properties);
+			verify(base.response).setStatus(301);
+			verify(base.response).setHeader(HttpHeaders.LOCATION, "/defaultPath");
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
