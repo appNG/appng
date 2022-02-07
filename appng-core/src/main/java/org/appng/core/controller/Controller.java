@@ -186,10 +186,11 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			return;
 		}
 
+		Properties siteProps = site.getProperties();
 		if (SiteState.STARTING.equals(site.getState())) {
 			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 			servletResponse.setContentType(MediaType.TEXT_HTML_VALUE);
-			String siteLoadingScreen = site.getProperties().getClob(SiteProperties.LOADING_SCREEN);
+			String siteLoadingScreen = siteProps.getClob(SiteProperties.LOADING_SCREEN);
 			if (StringUtils.isNotBlank(siteLoadingScreen)) {
 				servletResponse.setContentLength(siteLoadingScreen.getBytes(StandardCharsets.UTF_8).length);
 				servletResponse.getWriter().write(siteLoadingScreen);
@@ -202,7 +203,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 		if (!SiteState.STARTED.equals(site.getState())) {
 			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
-			String maintenanceScreen = site.getProperties().getClob(Platform.Property.MAINTENANCE_SCREEN,
+			String maintenanceScreen = siteProps.getClob(Platform.Property.MAINTENANCE_SCREEN,
 					platformProperties.getClob(Platform.Property.MAINTENANCE_SCREEN));
 			if (StringUtils.isNotBlank(maintenanceScreen)) {
 				servletResponse.setContentLength(maintenanceScreen.getBytes(StandardCharsets.UTF_8).length);
@@ -211,7 +212,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			return;
 		}
 
-		boolean enforcePrimaryDomain = site.getProperties().getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
+		boolean enforcePrimaryDomain = siteProps.getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
 		if (enforcePrimaryDomain) {
 			String primaryDomain = site.getDomain();
 			String serverName = servletRequest.getServerName();
@@ -223,8 +224,12 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		}
 
 		if ((Path.SEPARATOR.equals(servletPath)) || StringUtils.isBlank(servletPath)) {
-			if (!pathInfo.getDocumentDirectories().isEmpty()) {
-				String defaultPage = site.getProperties().getString(SiteProperties.DEFAULT_PAGE);
+			String siteDefaultPath = siteProps.getString(SiteProperties.DEFAULT_PATH);
+			if (StringUtils.isNotBlank(siteDefaultPath)) {
+				LOGGER.debug("'{}' for site {} is {}", SiteProperties.DEFAULT_PATH, site.getName(), siteDefaultPath);
+				Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, siteDefaultPath);
+			} else if (!pathInfo.getDocumentDirectories().isEmpty()) {
+				String defaultPage = siteProps.getString(SiteProperties.DEFAULT_PAGE);
 				String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
 				Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
 			} else {

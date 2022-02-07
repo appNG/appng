@@ -124,6 +124,8 @@ public class SiteProperties {
 	/** Whether or not the cache is cleared on a site shutdown/reload */
 	public static final String CACHE_CLEAR_ON_SHUTDOWN = "cacheClearOnShutdown";
 
+	/** The default path to forward to, when a request with the root path "/" comes in. This is an optional setting. */
+	public static final String DEFAULT_PATH = "defaultPath";
 	/** Set to true to enforce the protocol used by the site (http or https) */
 	public static final String ENFORCE_PRIMARY_DOMAIN = "enforcePrimaryDomain";
 	/** The name of the default error-page (without extension) relative to {@link #WWW_DIR} */
