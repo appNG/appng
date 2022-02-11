@@ -106,20 +106,22 @@ abstract class OpenApiPage extends OpenApiOperation {
 				siteNavigation.setName(navSite.getName());
 				for (Application app : navSite.getApplications()) {
 					if (!app.isHidden() && subject.hasApplication(app)) {
+						ApplicationProvider applicationProvider = (ApplicationProvider) site
+								.getApplication(app.getName());
+						ApplicationConfigProvider applicationConfig = applicationProvider.getApplicationConfig();
+						String defaultPage = applicationConfig.getDefaultPage();
+
 						NavigationItem appItem = new NavigationItem();
 						appItem.setType(NavigationItem.TypeEnum.APP);
 						appItem.setName(app.getDisplayName());
-						siteNavigation.addItemsItem(appItem);
-
+						appItem.setSelf(getSelf(applicationProvider.getName(), "/page") + defaultPage);
 						appItem.setPath(managerPrefix + navSite.getName() + "/" + app.getName());
+						siteNavigation.addItemsItem(appItem);
 
 						if (site.getName().equals(navSite.getName()) && app.getName().equals(application.getName())) {
 							appItem.setActive(true);
 							siteNavigation.setActive(true);
 
-							ApplicationConfigProvider applicationConfig = ((ApplicationProvider) application)
-									.getApplicationConfig();
-							String defaultPage = applicationConfig.getDefaultPage();
 							Linkpanel topNav = applicationConfig.getApplicationRootConfig().getNavigation();
 							for (org.appng.xml.platform.Link link : topNav.getLinks()) {
 								NavigationItem pageItem = new NavigationItem();
