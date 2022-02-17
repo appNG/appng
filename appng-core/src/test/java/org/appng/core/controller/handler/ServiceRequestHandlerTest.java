@@ -41,7 +41,6 @@ import org.appng.api.Session;
 import org.appng.api.SoapService;
 import org.appng.api.VHostMode;
 import org.appng.api.Webservice;
-import org.appng.api.config.RestConfig;
 import org.appng.api.config.RestConfig.SiteAwareHandlerMethodArgumentResolver;
 import org.appng.api.model.Application;
 import org.appng.api.model.Property;
@@ -59,7 +58,6 @@ import org.appng.core.domain.SiteImpl;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.model.AccessibleApplication;
 import org.appng.core.model.ApplicationProvider;
-import org.appng.core.model.PlatformTransformer;
 import org.appng.core.service.PropertySupport;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
@@ -187,7 +185,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 		ac.refresh();
 
 		rmha.setApplicationContext(ac);
-		List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(ac);
+		List<HttpMessageConverter<?>> messageConverters = RestService.getMessageConverters(ac);
 		if (!messageConverters.isEmpty()) {
 			rmha.setMessageConverters(messageConverters);
 		}
