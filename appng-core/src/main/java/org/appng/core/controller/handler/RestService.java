@@ -116,12 +116,12 @@ public class RestService {
 	}
 
 	static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
-		return context.getBeansOfType(HttpMessageConverter.class).values().stream()
-				.map(HttpMessageConverter.class::cast).collect(Collectors.toList());
+		return context.getBeansOfType(HttpMessageConverter.class).values().stream().collect(Collectors.toList());
 	}
 
 	static List<HandlerMethodArgumentResolver> getArgumentResolvers(ApplicationContext context) {
-		return new ArrayList<>(context.getBeansOfType(HandlerMethodArgumentResolver.class).values());
+		return context.getBeansOfType(HandlerMethodArgumentResolver.class).values().stream()
+				.collect(Collectors.toList());
 	}
 
 	protected HttpServletRequestWrapper getWrappedRequest(HttpServletRequest servletRequest) {
