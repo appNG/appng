@@ -15,7 +15,6 @@
  */
 package org.appng.core.controller.handler;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -115,8 +114,9 @@ public class RestService {
 
 	}
 
-	static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
-		return context.getBeansOfType(HttpMessageConverter.class).values().stream().collect(Collectors.toList());
+	public static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
+		return context.getBeansOfType(HttpMessageConverter.class).values().stream()
+				.map(m -> (HttpMessageConverter<?>) m).collect(Collectors.toList());
 	}
 
 	static List<HandlerMethodArgumentResolver> getArgumentResolvers(ApplicationContext context) {
