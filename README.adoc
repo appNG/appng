@@ -1,4 +1,4 @@
-image::https://www.aiticon.com/assets/images/appng_logo_760px.jpg[]
+image::appng-logo.png[]
 :snapshot: 1.25.0-SNAPSHOT
 :stable: 1.24.1
 :current: {snapshot}
