@@ -792,11 +792,7 @@ public class InitializerService {
 								application, dbc, platformCacheManager, dictionaryNames);
 						applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
-						Boolean enableRest = application.getProperties().getBoolean("enableRest", true);
-						if (enableRest) {
-							applicationContext
-									.addBeanFactoryPostProcessor(new RestPostProcessor(application.getProperties()));
-						}
+						applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
 
 						applicationContext.refresh();
 

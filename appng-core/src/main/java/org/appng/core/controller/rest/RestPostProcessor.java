@@ -15,11 +15,23 @@
  */
 package org.appng.core.controller.rest;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.function.Function;
+
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Request;
 import org.appng.api.model.Application;
-import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.rest.RestOperation.RestErrorHandler;
 import org.springframework.beans.BeansException;
@@ -31,20 +43,36 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * A {@link BeanDefinitionRegistryPostProcessor} that adds {@link MappingJackson2HttpMessageConverter} and an
+ * {@link ObjectMapper} to the context, if not already present. Also checks the context for Jackson {@link Module}s and
+ * adds them to the {@link ObjectMapper}.
+ */
+@Slf4j
 public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, Ordered {
 
-	private Properties properties;
-
-	public RestPostProcessor(Properties properties) {
-		this.properties = properties;
+	public RestPostProcessor() {
 	}
 
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -63,16 +91,115 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 	}
 
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		Boolean restRegisterJacksonMapper = properties.getBoolean("restRegisterJsonConverter", false);
-		if (restRegisterJacksonMapper
-				&& beanFactory.getBeansOfType(MappingJackson2HttpMessageConverter.class).isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
-			MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(
-					objectMapper);
-			mappingJackson2HttpMessageConverter.setPrettyPrint(true);
-			beanFactory.registerSingleton("mappingJackson2HttpMessageConverter", mappingJackson2HttpMessageConverter);
+
+		Map<String, MappingJackson2HttpMessageConverter> jacksonConverters = beanFactory
+				.getBeansOfType(MappingJackson2HttpMessageConverter.class);
+		LOGGER.info("Found {} MappingJackson2HttpMessageConverters: {}", jacksonConverters.size(),
+				StringUtils.join(jacksonConverters.keySet(), ", "));
+
+		Map<String, ObjectMapper> objectMappers = beanFactory.getBeansOfType(ObjectMapper.class);
+		LOGGER.info("Found {} ObjectMappers: {}", objectMappers.size(), StringUtils.join(objectMappers.keySet(), ", "));
+
+		Map<String, Module> modules = beanFactory.getBeansOfType(Module.class);
+		LOGGER.info("Found {} Modules: {}", modules.size(), StringUtils.join(modules.keySet(), ", "));
+
+		Map<String, Object> primaryBeans = beanFactory.getBeansWithAnnotation(Primary.class);
+		LOGGER.info("Found {} @Primary Beans: {}", primaryBeans.size(), StringUtils.join(primaryBeans.keySet(), ", "));
+
+		boolean registerObjectMapper = false;
+		ObjectMapper objectMapper;
+		if (registerObjectMapper = objectMappers.isEmpty()) {
+			objectMapper = new ObjectMapper().setDefaultPropertyInclusion(Include.NON_ABSENT)
+					.enable(SerializationFeature.INDENT_OUTPUT).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+			LOGGER.info("No ObjectMapper found in context, creating default.");
+		} else {
+			objectMapper = getPrimaryOrFirst(objectMappers, primaryBeans);
 		}
+
+		boolean registerConverter = false;
+		MappingJackson2HttpMessageConverter converter;
+		if (registerConverter = jacksonConverters.isEmpty()) {
+			converter = new MappingJackson2HttpMessageConverter(objectMapper);
+			LOGGER.info("No MappingJackson2HttpMessageConverter found in context, creating default.");
+		} else {
+			converter = getPrimaryOrFirst(jacksonConverters, primaryBeans);
+			objectMapper = converter.getObjectMapper();
+		}
+
+		addDateModules(objectMapper);
+		for (Entry<String, Module> moduleEntry : modules.entrySet()) {
+			objectMapper.registerModule(moduleEntry.getValue());
+			LOGGER.info("Adding Module '{}' to ObjectMapper", moduleEntry.getKey());
+		}
+
+		if (registerObjectMapper) {
+			beanFactory.registerSingleton("defaultObjectMapper", objectMapper);
+			LOGGER.info("Registering ObjectMapper 'defaultObjectMapper'");
+		}
+
+		if (registerConverter) {
+			beanFactory.registerSingleton("defaultJacksonConverter", converter);
+			LOGGER.info("Registering MappingJackson2HttpMessageConverter 'defaultJacksonConverter'");
+		}
+	}
+
+	protected <T> T getPrimaryOrFirst(Map<String, T> beans, Map<String, Object> primaryBeans) {
+		T bean;
+		Optional<Entry<String, T>> entry = beans.entrySet().stream().filter(e -> primaryBeans.containsKey(e.getKey()))
+				.findFirst();
+		boolean isPrimary = false;
+		if (isPrimary = entry.isPresent()) {
+			bean = entry.get().getValue();
+		} else {
+			entry = Optional.of(beans.entrySet().iterator().next());
+			bean = entry.get().getValue();
+		}
+		LOGGER.info("Found {} '{}'", (isPrimary ? "@Primary " : "") + entry.get().getValue().getClass().getName(),
+				entry.get().getKey());
+		return bean;
+	}
+
+	public void addDateModules(ObjectMapper objectMapper) {
+		Module offsetDateTimeModule = getDateModule(OffsetDateTime.class, DateTimeFormatter.ISO_DATE_TIME,
+				text -> OffsetDateTime.parse(text, DateTimeFormatter.ISO_DATE_TIME));
+		objectMapper.registerModule(offsetDateTimeModule);
+
+		Module localDateModule = getDateModule(LocalDate.class, DateTimeFormatter.ISO_LOCAL_DATE,
+				text -> LocalDate.parse(text, DateTimeFormatter.ISO_LOCAL_DATE));
+		objectMapper.registerModule(localDateModule);
+		
+		Module localTimeModule = getDateModule(LocalTime.class, DateTimeFormatter.ISO_LOCAL_TIME,
+				text -> LocalTime.parse(text, DateTimeFormatter.ISO_LOCAL_TIME));
+		objectMapper.registerModule(localTimeModule);
+		
+		Module localDateTimeModule = getDateModule(LocalDateTime.class, DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+				text -> LocalDateTime.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+		objectMapper.registerModule(localDateTimeModule);
+	}
+
+	private <T extends Temporal> SimpleModule getDateModule(Class<T> temporal, DateTimeFormatter formatter,
+			Function<String, T> parseFunction) {
+		SimpleModule module = new SimpleModule();
+		module.addDeserializer(temporal, new JsonDeserializer<T>() {
+			@Override
+			public T deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException, JacksonException {
+				if(StringUtils.isNotBlank(parser.getText())) {
+					return parseFunction.apply(parser.getText());
+				}
+				return null;
+			}
+		});
+		module.addSerializer(temporal, new JsonSerializer<T>() {
+			@Override
+			public void serialize(T value, JsonGenerator jsonGenerator, SerializerProvider provider)
+					throws IOException {
+				if (value != null) {
+					jsonGenerator.writeString(formatter.format(value));
+				}
+			}
+		});
+		LOGGER.debug("Added Module handling {} using {}", temporal.getName(), formatter);
+		return module;
 	}
 
 	public int getOrder() {
