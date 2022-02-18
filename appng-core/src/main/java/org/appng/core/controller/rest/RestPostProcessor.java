@@ -65,12 +65,22 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link BeanDefinitionRegistryPostProcessor} that adds {@link MappingJackson2HttpMessageConverter} and an
- * {@link ObjectMapper} to the context, if not already present. Also checks the context for Jackson {@link Module}s and
- * adds them to the {@link ObjectMapper}.
+ * A {@link BeanDefinitionRegistryPostProcessor} that adds a {@link MappingJackson2HttpMessageConverter} and an
+ * {@link ObjectMapper} to the context, if not already present. <br/>
+ * Also checks the context for Jackson {@link Module}s and adds them to the {@link ObjectMapper}.<br/>
+ * Additionally, modules for handling these {@link Temporal}-types are registered:
+ * <ul>
+ * <li>{@link OffsetDateTime}, using {@link DateTimeFormatter#ISO_OFFSET_DATE_TIME}
+ * <li>{@link LocalDate}, using {@link DateTimeFormatter#ISO_LOCAL_DATE}
+ * <li>{@link LocalTime}, using {@link DateTimeFormatter#ISO_LOCAL_TIME}
+ * <li>{@link LocalDateTime}, using {@link DateTimeFormatter#ISO_LOCAL_DATE_TIME}
+ * </ul>
  */
 @Slf4j
 public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, Ordered {
+
+	private static final String DEFAULT_JACKSON_CONVERTER = "defaultJacksonConverter";
+	private static final String DEFAULT_OBJECT_MAPPER = "defaultObjectMapper";
 
 	public RestPostProcessor() {
 	}
@@ -133,13 +143,13 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 		}
 
 		if (registerObjectMapper) {
-			beanFactory.registerSingleton("defaultObjectMapper", objectMapper);
-			LOGGER.info("Registering ObjectMapper 'defaultObjectMapper'");
+			beanFactory.registerSingleton(DEFAULT_OBJECT_MAPPER, objectMapper);
+			LOGGER.info("Registering ObjectMapper '{}'", DEFAULT_OBJECT_MAPPER);
 		}
 
 		if (registerConverter) {
-			beanFactory.registerSingleton("defaultJacksonConverter", converter);
-			LOGGER.info("Registering MappingJackson2HttpMessageConverter 'defaultJacksonConverter'");
+			beanFactory.registerSingleton(DEFAULT_JACKSON_CONVERTER, converter);
+			LOGGER.info("Registering MappingJackson2HttpMessageConverter '{}'", DEFAULT_JACKSON_CONVERTER);
 		}
 	}
 
@@ -159,31 +169,41 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 		return bean;
 	}
 
+	// @formatter:off
 	public void addDateModules(ObjectMapper objectMapper) {
-		Module offsetDateTimeModule = getDateModule(OffsetDateTime.class, DateTimeFormatter.ISO_DATE_TIME,
-				text -> OffsetDateTime.parse(text, DateTimeFormatter.ISO_DATE_TIME));
-		objectMapper.registerModule(offsetDateTimeModule);
+		objectMapper.registerModule(getDateModule(
+			OffsetDateTime.class,
+			OffsetDateTime::parse,
+			DateTimeFormatter.ISO_OFFSET_DATE_TIME
+		));
 
-		Module localDateModule = getDateModule(LocalDate.class, DateTimeFormatter.ISO_LOCAL_DATE,
-				text -> LocalDate.parse(text, DateTimeFormatter.ISO_LOCAL_DATE));
-		objectMapper.registerModule(localDateModule);
-		
-		Module localTimeModule = getDateModule(LocalTime.class, DateTimeFormatter.ISO_LOCAL_TIME,
-				text -> LocalTime.parse(text, DateTimeFormatter.ISO_LOCAL_TIME));
-		objectMapper.registerModule(localTimeModule);
-		
-		Module localDateTimeModule = getDateModule(LocalDateTime.class, DateTimeFormatter.ISO_LOCAL_DATE_TIME,
-				text -> LocalDateTime.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-		objectMapper.registerModule(localDateTimeModule);
+		objectMapper.registerModule(getDateModule(
+			LocalDate.class,
+			LocalDate::parse,
+			DateTimeFormatter.ISO_LOCAL_DATE
+		));
+
+		objectMapper.registerModule(getDateModule(
+			LocalTime.class,
+			LocalTime::parse,
+			DateTimeFormatter.ISO_LOCAL_TIME
+		));
+
+		objectMapper.registerModule(getDateModule(
+			LocalDateTime.class,
+			LocalDateTime::parse,
+			DateTimeFormatter.ISO_LOCAL_DATE_TIME
+		));
 	}
+	// @formatter:on
 
-	private <T extends Temporal> SimpleModule getDateModule(Class<T> temporal, DateTimeFormatter formatter,
-			Function<String, T> parseFunction) {
+	private <T extends Temporal> SimpleModule getDateModule(Class<T> temporal, Function<String, T> parseFunction,
+			DateTimeFormatter formatter) {
 		SimpleModule module = new SimpleModule();
 		module.addDeserializer(temporal, new JsonDeserializer<T>() {
 			@Override
 			public T deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException, JacksonException {
-				if(StringUtils.isNotBlank(parser.getText())) {
+				if (StringUtils.isNotBlank(parser.getText())) {
 					return parseFunction.apply(parser.getText());
 				}
 				return null;
