@@ -40,6 +40,7 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 		registerRequestScoped(registry, OpenApiActionImpl.class);
 		registerRequestScoped(registry, OpenApiDataSourceImpl.class);
 		registerRequestScoped(registry, OpenApiPageImpl.class);
+		registerRequestScoped(registry, OpenApiNavigationImpl.class);
 		registry.registerBeanDefinition(SwaggerUI.class.getSimpleName(), getBeanDefinition(SwaggerUI.class));
 		registry.registerBeanDefinition(RestErrorHandler.class.getSimpleName(),
 				getBeanDefinition(RestErrorHandler.class));
@@ -74,6 +75,14 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 	static class OpenApiPageImpl extends OpenApiPage {
 		@Autowired
 		public OpenApiPageImpl(Site site, Application application, Request request, MessageSource messageSource,
+				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
+			super(site, application, request, messageSource, supportPathParameters);
+		}
+	}
+
+	static class OpenApiNavigationImpl extends OpenApiNavigation {
+		@Autowired
+		public OpenApiNavigationImpl(Site site, Application application, Request request, MessageSource messageSource,
 				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
 			super(site, application, request, messageSource, supportPathParameters);
 		}
