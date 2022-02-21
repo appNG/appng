@@ -27,12 +27,20 @@ import org.appng.api.model.Site;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 
-@ContextConfiguration(locations = { TestBase.TESTCONTEXT }, inheritLocations = false)
+@ContextConfiguration(locations = {
+		TestBase.TESTCONTEXT }, inheritLocations = false, inheritInitializers = false, initializers = TestBaseTest.class)
 public class TestBaseTest extends TestBase {
+
+	@Override
+	public void initialize(GenericApplicationContext ctx) {
+		mockSite(ctx);
+		mockApplication(ctx, false);
+	}
 
 	@Override
 	public void setup() throws Exception {

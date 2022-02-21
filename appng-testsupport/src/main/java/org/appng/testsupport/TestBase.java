@@ -344,21 +344,27 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected Application mockApplication(GenericApplicationContext applicationContext) {
+		return mockApplication(applicationContext, true);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Application mockApplication(GenericApplicationContext applicationContext, boolean checkResources) {
 		if (null == application) {
 			application = Mockito.mock(Application.class);
 		}
 		Mockito.when(application.getName()).thenReturn(applicationName);
 		Mockito.when(application.isFileBased()).thenReturn(true);
-		try {
-			Resources resources = getApplicationResources(MarshallService.getApplicationMarshallService());
-			Mockito.when(application.getResources()).thenReturn(resources);
-			ApplicationInfo applicationInfo = resources.getApplicationInfo();
-			org.appng.api.model.Properties properties = extractProperties(getProperties(), applicationInfo);
-			Mockito.when(application.getProperties()).thenReturn(properties);
-		} catch (JAXBException e) {
-			throw new RuntimeException("error reading resources", e);
+		if (checkResources && new File(applicationLocation).exists()) {
+			try {
+				Resources resources = getApplicationResources(MarshallService.getApplicationMarshallService());
+				Mockito.when(application.getResources()).thenReturn(resources);
+				ApplicationInfo applicationInfo = resources.getApplicationInfo();
+				org.appng.api.model.Properties properties = extractProperties(getProperties(), applicationInfo);
+				Mockito.when(application.getProperties()).thenReturn(properties);
+			} catch (JAXBException e) {
+				throw new RuntimeException("error reading resources", e);
+			}
 		}
 		Mockito.when(application.getBean(Mockito.any(Class.class)))
 				.thenAnswer(i -> applicationContext.getBean(i.getArgumentAt(0, Class.class)));
