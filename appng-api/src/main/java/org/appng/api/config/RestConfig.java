@@ -22,10 +22,12 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
@@ -34,12 +36,14 @@ import org.appng.api.model.Site;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -86,37 +90,56 @@ public class RestConfig implements BeanFactoryPostProcessor {
 	private static final String DEFAULT_JACKSON_CONVERTER = "defaultJacksonConverter";
 	private static final String DEFAULT_OBJECT_MAPPER = "defaultObjectMapper";
 
+	public static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
+		return context.getBeansOfType(HttpMessageConverter.class).values().stream()
+				.map(m -> (HttpMessageConverter<?>) m).collect(Collectors.toList());
+	}
+
+	public static List<HandlerMethodArgumentResolver> getArgumentResolvers(ApplicationContext context) {
+		return context.getBeansOfType(HandlerMethodArgumentResolver.class).values().stream()
+				.collect(Collectors.toList());
+	}
+
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		Site site = beanFactory.getBean(Site.class);
+		Application app = beanFactory.getBean(Application.class);
+		String siteApp = String.format("[%s:%s]", site.getName(), app.getName());
+		Boolean jsonPrettyPrint = site.getProperties().getBoolean("jsonPrettyPrint", true);
 		Map<String, MappingJackson2HttpMessageConverter> jacksonConverters = beanFactory
 				.getBeansOfType(MappingJackson2HttpMessageConverter.class);
-		LOGGER.info("Found {} MappingJackson2HttpMessageConverters: {}", jacksonConverters.size(),
+		LOGGER.info("{} Found {} MappingJackson2HttpMessageConverters: {}", siteApp, jacksonConverters.size(),
 				StringUtils.join(jacksonConverters.keySet(), ", "));
 
 		Map<String, ObjectMapper> objectMappers = beanFactory.getBeansOfType(ObjectMapper.class);
-		LOGGER.info("Found {} ObjectMappers: {}", objectMappers.size(), StringUtils.join(objectMappers.keySet(), ", "));
+		LOGGER.info("{} Found {} ObjectMappers: {}", siteApp, objectMappers.size(),
+				StringUtils.join(objectMappers.keySet(), ", "));
 
 		Map<String, Module> modules = beanFactory.getBeansOfType(Module.class);
-		LOGGER.info("Found {} Modules: {}", modules.size(), StringUtils.join(modules.keySet(), ", "));
+		LOGGER.info("{} Found {} Modules: {}", siteApp, modules.size(), StringUtils.join(modules.keySet(), ", "));
 
 		Map<String, Object> primaryBeans = beanFactory.getBeansWithAnnotation(Primary.class);
-		LOGGER.info("Found {} @Primary Beans: {}", primaryBeans.size(), StringUtils.join(primaryBeans.keySet(), ", "));
+		LOGGER.info("{} Found {} @Primary Beans: {}", siteApp, primaryBeans.size(),
+				StringUtils.join(primaryBeans.keySet(), ", "));
 
 		boolean registerObjectMapper = false;
 		ObjectMapper objectMapper;
 		if (registerObjectMapper = objectMappers.isEmpty()) {
 			objectMapper = new ObjectMapper().setDefaultPropertyInclusion(Include.NON_ABSENT)
-					.enable(SerializationFeature.INDENT_OUTPUT).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			LOGGER.info("No ObjectMapper found in context, creating default.");
+					.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+			LOGGER.info("{} No ObjectMapper found in context, creating default.", siteApp);
 		} else {
 			objectMapper = getPrimaryOrFirst(objectMappers, primaryBeans);
+		}
+		if (jsonPrettyPrint) {
+			objectMapper = objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		}
 
 		boolean registerConverter = false;
 		MappingJackson2HttpMessageConverter converter;
 		if (registerConverter = jacksonConverters.isEmpty()) {
 			converter = new MappingJackson2HttpMessageConverter(objectMapper);
-			LOGGER.info("No MappingJackson2HttpMessageConverter found in context, creating default.");
+			LOGGER.info("{} No MappingJackson2HttpMessageConverter found in context, creating default.", siteApp);
 		} else {
 			converter = getPrimaryOrFirst(jacksonConverters, primaryBeans);
 			objectMapper = converter.getObjectMapper();
@@ -125,17 +148,17 @@ public class RestConfig implements BeanFactoryPostProcessor {
 		addDateModules(objectMapper);
 		for (Entry<String, Module> moduleEntry : modules.entrySet()) {
 			objectMapper.registerModule(moduleEntry.getValue());
-			LOGGER.info("Adding Module '{}' to ObjectMapper", moduleEntry.getKey());
+			LOGGER.info("{} Adding Module '{}' to ObjectMapper", siteApp, moduleEntry.getKey());
 		}
 
 		if (registerObjectMapper) {
 			beanFactory.registerSingleton(DEFAULT_OBJECT_MAPPER, objectMapper);
-			LOGGER.info("Registering ObjectMapper '{}'", DEFAULT_OBJECT_MAPPER);
+			LOGGER.info("{} Registering ObjectMapper '{}'", siteApp, DEFAULT_OBJECT_MAPPER);
 		}
 
 		if (registerConverter) {
 			beanFactory.registerSingleton(DEFAULT_JACKSON_CONVERTER, converter);
-			LOGGER.info("Registering MappingJackson2HttpMessageConverter '{}'", DEFAULT_JACKSON_CONVERTER);
+			LOGGER.info("{} Registering MappingJackson2HttpMessageConverter '{}'", siteApp, DEFAULT_JACKSON_CONVERTER);
 		}
 	}
 

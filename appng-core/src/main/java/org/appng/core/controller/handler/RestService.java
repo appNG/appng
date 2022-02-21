@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Path;
+import org.appng.api.config.RestConfig;
 import org.appng.core.model.AccessibleApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -69,8 +70,8 @@ public class RestService {
 		ApplicationContext context = application.getContext();
 
 		HandlerMethod handlerMethod = null;
-		List<HttpMessageConverter<?>> messageConverters = getMessageConverters(context);
-		List<HandlerMethodArgumentResolver> argumentResolvers = getArgumentResolvers(context);
+		List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(context);
+		List<HandlerMethodArgumentResolver> argumentResolvers =  RestConfig.getArgumentResolvers(context);
 		try {
 			RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
 			rmhm.setApplicationContext(context);
@@ -112,16 +113,6 @@ public class RestService {
 			eher.resolveException(wrapped, servletResponse, handlerMethod, e);
 		}
 
-	}
-
-	public static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
-		return context.getBeansOfType(HttpMessageConverter.class).values().stream()
-				.map(m -> (HttpMessageConverter<?>) m).collect(Collectors.toList());
-	}
-
-	static List<HandlerMethodArgumentResolver> getArgumentResolvers(ApplicationContext context) {
-		return context.getBeansOfType(HandlerMethodArgumentResolver.class).values().stream()
-				.collect(Collectors.toList());
 	}
 
 	protected HttpServletRequestWrapper getWrappedRequest(HttpServletRequest servletRequest) {
