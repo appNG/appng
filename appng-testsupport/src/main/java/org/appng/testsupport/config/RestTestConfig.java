@@ -17,14 +17,23 @@ package org.appng.testsupport.config;
 
 import org.appng.api.config.RestConfig;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @Configuration
 public class RestTestConfig extends RestConfig {
 
 	public static HttpMessageConverter<?>[] getMessageConverterArray(ApplicationContext context) {
 		return getMessageConverters(context).toArray(new HttpMessageConverter<?>[0]);
+	}
+
+	public static MockMvc buildMvc(ConfigurableApplicationContext context, Class<?> controllerClass) {
+		return MockMvcBuilders.standaloneSetup(context.getBean(controllerClass))
+				.setCustomArgumentResolvers(context.getBean(SiteAwareHandlerMethodArgumentResolver.class))
+				.setMessageConverters(getMessageConverterArray(context)).build();
 	}
 
 }
