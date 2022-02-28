@@ -26,13 +26,13 @@ public class Property extends org.appng.appngizer.model.xml.Property implements 
 		String sitePrefix = PropertySupport.getPropertyPrefix(site, application);
 		prop.setName(property.getName().substring(sitePrefix.length()));
 		prop.setDescription(property.getDescription());
-		if (null == property.getClob() && null != property.getDefaultString()) {
-			prop.setDefaultValue(property.getDefaultString());
-			prop.setValue(property.getString());
-		} else {
+		if(org.appng.api.model.Property.Type.MULTILINE.equals(property.getType())) {
 			prop.setValue(property.getClob());
 			prop.setDefaultValue(null);
 			prop.setClob(true);
+		} else {
+			prop.setDefaultValue(property.getDefaultString());
+			prop.setValue(property.getString());
 		}
 
 		if (null == prop.getValue()) {
