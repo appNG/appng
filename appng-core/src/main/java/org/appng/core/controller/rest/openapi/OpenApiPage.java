@@ -49,7 +49,6 @@ import org.appng.openapi.model.User;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.Param;
-import org.appng.xml.platform.Params;
 import org.appng.xml.platform.SectionConfig;
 import org.appng.xml.platform.Structure;
 import org.appng.xml.platform.UrlSchema;
@@ -210,17 +209,9 @@ abstract class OpenApiPage extends OpenApiOperation {
 						Action action = new Action();
 						action.setId(a.getId());
 						action.setEventId(a.getEventId());
-						StringBuilder actionSelf = getSelf("/action/" + a.getEventId() + "/" + a.getId());
+						StringBuilder actionSelf = getSelf("/action/" + a.getEventId() + "/" + a.getId(),
+								a.getConfig().getParams());
 
-						Params params = a.getConfig().getParams();
-						if (null != params) {
-							List<Param> param = params.getParam();
-							int idx = 0;
-							String value;
-							while (StringUtils.isNotBlank(value = param.get(idx++).getValue())) {
-								actionSelf.append("/" + value);
-							}
-						}
 						action.setSelf(actionSelf.toString());
 						element.setAction(action);
 					}
@@ -228,7 +219,7 @@ abstract class OpenApiPage extends OpenApiOperation {
 					if (null != d) {
 						Datasource datasource = new Datasource();
 						datasource.setId(d.getId());
-						datasource.setSelf(getSelf("/datasource/" + d.getId()).toString());
+						datasource.setSelf(getSelf("/datasource/" + d.getId(), d.getConfig().getParams()).toString());
 						element.setDatasource(datasource);
 					}
 

@@ -359,6 +359,23 @@ abstract class OpenApiOperation {
 		return getSelf(application.getName(), suffix);
 	}
 
+	protected StringBuilder getSelf(String suffix, Params params) {
+		StringBuilder self = getSelf(application.getName(), suffix);
+		if (null != params) {
+			boolean istFirst = true;
+			for (Param p : params.getParam()) {
+				try {
+					self.append(istFirst ? "?" : "&").append(p.getName()).append("=")
+							.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
+					istFirst = false;
+				} catch (UnsupportedEncodingException e) {
+					// will not happen!
+				}
+			}
+		}
+		return self;
+	}
+
 	protected StringBuilder getSelf(String application, String suffix) {
 		return new StringBuilder("/service/" + site.getName() + "/" + application + "/rest/openapi" + suffix);
 	}
