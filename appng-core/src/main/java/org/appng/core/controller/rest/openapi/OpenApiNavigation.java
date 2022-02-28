@@ -81,8 +81,8 @@ abstract class OpenApiNavigation extends OpenApiOperation {
 				siteNavigation.setName(navSite.getName());
 				for (Application app : navSite.getApplications()) {
 					if (!app.isHidden() && subject.hasApplication(app)) {
-						ApplicationProvider applicationProvider = (ApplicationProvider) navSite
-								.getApplication(app.getName());
+						LOGGER.debug("{} on site {}", app, navSite);
+						ApplicationProvider applicationProvider = (ApplicationProvider) app;
 						ApplicationConfigProvider applicationConfig = applicationProvider.getApplicationConfig();
 						String defaultPage = applicationConfig.getDefaultPage();
 
