@@ -38,6 +38,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.DollarParameterSupport;
 import org.appng.api.support.ResourceBundleMessageSource;
+import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.openapi.model.Navigation;
 import org.appng.openapi.model.NavigationItem;
@@ -81,8 +82,9 @@ abstract class OpenApiNavigation extends OpenApiOperation {
 				siteNavigation.setName(navSite.getName());
 				for (Application app : navSite.getApplications()) {
 					if (!app.isHidden() && subject.hasApplication(app)) {
-						LOGGER.debug("{} on site {}", app, navSite);
-						ApplicationProvider applicationProvider = (ApplicationProvider) app;
+						ApplicationProvider applicationProvider = (ApplicationProvider) ((SiteImpl) navSite)
+								.getSiteApplication(app.getName());
+
 						ApplicationConfigProvider applicationConfig = applicationProvider.getApplicationConfig();
 						String defaultPage = applicationConfig.getDefaultPage();
 
