@@ -365,8 +365,8 @@ abstract class OpenApiOperation {
 			boolean istFirst = true;
 			for (Param p : params.getParam()) {
 				try {
-					self.append(istFirst ? "?" : "&").append(p.getName()).append("=")
-							.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
+					self.append(istFirst ? "?" : "&").append(p.getName()).append("=").append(
+							null == p.getValue() ? "" : URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
 					istFirst = false;
 				} catch (UnsupportedEncodingException e) {
 					// will not happen!
