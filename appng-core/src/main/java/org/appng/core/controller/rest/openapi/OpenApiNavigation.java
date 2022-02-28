@@ -91,7 +91,7 @@ abstract class OpenApiNavigation extends OpenApiOperation {
 						NavigationItem appItem = new NavigationItem();
 						appItem.setType(NavigationItem.TypeEnum.APP);
 						appItem.setName(app.getDisplayName());
-						appItem.setSelf(getSelf(applicationProvider.getName(), "/page") + defaultPage);
+						appItem.setSelf(getSelf(applicationProvider.getName(), "/page/") + defaultPage);
 						appItem.setPath(managerPrefix + navSite.getName() + "/" + app.getName());
 						siteNavigation.addItemsItem(appItem);
 
