@@ -361,18 +361,7 @@ abstract class OpenApiOperation {
 
 	protected StringBuilder getSelf(String suffix, Params params) {
 		StringBuilder self = getSelf(application.getName(), suffix);
-		if (null != params) {
-			boolean istFirst = true;
-			for (Param p : params.getParam()) {
-				try {
-					self.append(istFirst ? "?" : "&").append(p.getName()).append("=").append(
-							null == p.getValue() ? "" : URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
-					istFirst = false;
-				} catch (UnsupportedEncodingException e) {
-					// will not happen!
-				}
-			}
-		}
+		appendParams(params, self);
 		return self;
 	}
 
