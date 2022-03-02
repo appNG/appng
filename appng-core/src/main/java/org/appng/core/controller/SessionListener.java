@@ -215,7 +215,7 @@ public class SessionListener implements ServletContextListener, HttpSessionListe
 			Properties platformConfig = GLOBAL_ENV.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 			List<String> userAgentPatterns = Arrays
 					.asList(platformConfig.getClob(Platform.Property.SESSION_FILTER).split(StringUtils.LF));
-			if (userAgentPatterns.stream().anyMatch(userAgent::matches)) {
+			if (userAgentPatterns.stream().map(StringUtils::trim).anyMatch(userAgent::matches)) {
 				Site site = RequestUtil.getSite(GLOBAL_ENV, httpServletRequest);
 				if (null != site
 						&& RequestUtil.getPathInfo(GLOBAL_ENV, site, httpServletRequest.getServletPath()).isGui()) {

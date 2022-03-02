@@ -56,7 +56,7 @@ public class SessionListenerTest {
 
 		Properties props = Mockito.mock(Properties.class);
 		Mockito.when(props.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.name());
-		Mockito.when(props.getClob(Platform.Property.SESSION_FILTER)).thenReturn(".*test.*");
+		Mockito.when(props.getClob(Platform.Property.SESSION_FILTER)).thenReturn("^.*test.*$\r\n\n^nomatch$");
 		platformMap.put(Platform.Environment.PLATFORM_CONFIG, props);
 		Map<String, Site> sitemap = new HashMap<>();
 		Site site = Mockito.mock(Site.class);
