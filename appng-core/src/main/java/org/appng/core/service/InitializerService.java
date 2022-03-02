@@ -797,7 +797,7 @@ public class InitializerService {
 						Boolean enableLegacyRest = application.getProperties().getBoolean("enableLegacyRest", false);
 						BeanFactoryPostProcessor restProcessor;
 						if (enableLegacyRest) {
-							restProcessor = new RestPostProcessor(application.getProperties());
+							restProcessor = new RestPostProcessor();
 						} else {
 							restProcessor = new OpenApiPostProcessor();
 						}

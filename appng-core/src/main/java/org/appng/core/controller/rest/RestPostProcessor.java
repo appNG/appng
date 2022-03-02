@@ -19,7 +19,6 @@ import javax.xml.bind.JAXBException;
 
 import org.appng.api.Request;
 import org.appng.api.model.Application;
-import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.rest.RestOperation.RestErrorHandler;
 import org.springframework.beans.BeansException;
@@ -33,20 +32,15 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.StandardAnnotationMetadata;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+/**
+ * A {@link BeanDefinitionRegistryPostProcessor} that registers a {@link RestAction}, {@link RestDataSource} and a
+ * {@link RestErrorHandler}.
+ */
 public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, Ordered {
 
-	private Properties properties;
-
-	public RestPostProcessor(Properties properties) {
-		this.properties = properties;
-	}
-
+	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 		registerRequestScoped(registry, RestAction.class);
 		registerRequestScoped(registry, RestDataSource.class);
@@ -62,17 +56,8 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 		registry.registerBeanDefinition(beanClass.getSimpleName(), bean);
 	}
 
+	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		Boolean restRegisterJacksonMapper = properties.getBoolean("restRegisterJsonConverter", false);
-		if (restRegisterJacksonMapper
-				&& beanFactory.getBeansOfType(MappingJackson2HttpMessageConverter.class).isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.setDefaultPropertyInclusion(Include.NON_ABSENT);
-			MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(
-					objectMapper);
-			mappingJackson2HttpMessageConverter.setPrettyPrint(true);
-			beanFactory.registerSingleton("mappingJackson2HttpMessageConverter", mappingJackson2HttpMessageConverter);
-		}
 	}
 
 	public int getOrder() {

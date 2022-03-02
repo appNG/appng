@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,39 @@
 package org.appng.api.config;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.temporal.Temporal;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.util.UrlPathHelper;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JacksonException;
@@ -51,51 +57,178 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link Configuration} providing commonly used {@link HttpMessageConverter}s (for binary and JSON content) and a
- * {@link HandlerMethodArgumentResolver} that can resolve
+ * A {@link Configuration}that adds a {@link MappingJackson2HttpMessageConverter} and an {@link ObjectMapper} to the
+ * context, if not already present. <br/>
+ * Also checks the context for Jackson {@link Module}s and adds them to the {@link ObjectMapper}.<br/>
+ * Additionally, modules for handling these {@link Temporal}-types are registered:
+ * <ul>
+ * <li>{@link OffsetDateTime}, using {@link DateTimeFormatter#ISO_OFFSET_DATE_TIME}
+ * <li>{@link LocalDate}, using {@link DateTimeFormatter#ISO_LOCAL_DATE}
+ * <li>{@link LocalTime}, using {@link DateTimeFormatter#ISO_LOCAL_TIME}
+ * <li>{@link LocalDateTime}, using {@link DateTimeFormatter#ISO_LOCAL_DATE_TIME}
+ * </ul>
+ * <br/>
+ * Also adds a {@link HandlerMethodArgumentResolver} that can resolve the current {@link Environment}, {@link Site} and
+ * {@link Application}.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 @Configuration
-public class RestConfig {
+public class RestConfig implements BeanFactoryPostProcessor {
 
-	@Bean
-	public RequestMappingHandlerMapping requestMappingHandlerMapping(ApplicationContext context) {
-		RequestMappingHandlerMapping requestMappingHandlerMapping = new RequestMappingHandlerMapping();
-		requestMappingHandlerMapping.setApplicationContext(context);
-		UrlPathHelper urlPathHelper = new UrlPathHelper();
-		urlPathHelper.setRemoveSemicolonContent(false);
-		requestMappingHandlerMapping.setUrlPathHelper(urlPathHelper);
-		return requestMappingHandlerMapping;
-	}
-
-	@Bean
-	@Lazy
-	@RequestScope
-	public RequestMappingHandlerAdapter RequestMappingHandlerAdapter(ApplicationContext context, Site site,
-			Application application, Environment environment) {
-		RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
-		rmha.setApplicationContext(context);
-
-		List<HttpMessageConverter<?>> messageConverters = getMessageConverters(context);
-		if (!messageConverters.isEmpty()) {
-			rmha.setMessageConverters(messageConverters);
-		}
-		rmha.setCustomArgumentResolvers(getArgumentResolvers(context));
-		return rmha;
-	}
+	private static final String DEFAULT_JACKSON_CONVERTER = "defaultJacksonConverter";
+	private static final String DEFAULT_OBJECT_MAPPER = "defaultObjectMapper";
 
 	public static List<HttpMessageConverter<?>> getMessageConverters(ApplicationContext context) {
 		return context.getBeansOfType(HttpMessageConverter.class).values().stream()
 				.map(m -> (HttpMessageConverter<?>) m).collect(Collectors.toList());
+	}
+
+	public static List<HandlerMethodArgumentResolver> getArgumentResolvers(ApplicationContext context) {
+		return context.getBeansOfType(HandlerMethodArgumentResolver.class).values().stream()
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		Site site = beanFactory.getBean(Site.class);
+		Application app = beanFactory.getBean(Application.class);
+		String siteApp = String.format("[%s:%s]", site.getName(), app.getName());
+		Boolean jsonPrettyPrint = site.getProperties().getBoolean("jsonPrettyPrint", true);
+		Map<String, MappingJackson2HttpMessageConverter> jacksonConverters = beanFactory
+				.getBeansOfType(MappingJackson2HttpMessageConverter.class);
+		LOGGER.info("{} Found {} MappingJackson2HttpMessageConverters: {}", siteApp, jacksonConverters.size(),
+				StringUtils.join(jacksonConverters.keySet(), ", "));
+
+		Map<String, ObjectMapper> objectMappers = beanFactory.getBeansOfType(ObjectMapper.class);
+		LOGGER.info("{} Found {} ObjectMappers: {}", siteApp, objectMappers.size(),
+				StringUtils.join(objectMappers.keySet(), ", "));
+
+		Map<String, Module> modules = beanFactory.getBeansOfType(Module.class);
+		LOGGER.info("{} Found {} Modules: {}", siteApp, modules.size(), StringUtils.join(modules.keySet(), ", "));
+
+		Map<String, Object> primaryBeans = beanFactory.getBeansWithAnnotation(Primary.class);
+		LOGGER.info("{} Found {} @Primary Beans: {}", siteApp, primaryBeans.size(),
+				StringUtils.join(primaryBeans.keySet(), ", "));
+
+		boolean registerObjectMapper = false;
+		ObjectMapper objectMapper;
+		if (registerObjectMapper = objectMappers.isEmpty()) {
+			objectMapper = new ObjectMapper().setDefaultPropertyInclusion(Include.NON_ABSENT)
+					.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+			LOGGER.info("{} No ObjectMapper found in context, creating default.", siteApp);
+		} else {
+			objectMapper = getPrimaryOrFirst(objectMappers, primaryBeans);
+		}
+		if (jsonPrettyPrint) {
+			objectMapper = objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+		}
+
+		boolean registerConverter = false;
+		MappingJackson2HttpMessageConverter converter;
+		if (registerConverter = jacksonConverters.isEmpty()) {
+			converter = new MappingJackson2HttpMessageConverter(objectMapper);
+			LOGGER.info("{} No MappingJackson2HttpMessageConverter found in context, creating default.", siteApp);
+		} else {
+			converter = getPrimaryOrFirst(jacksonConverters, primaryBeans);
+			objectMapper = converter.getObjectMapper();
+		}
+
+		addDateModules(objectMapper);
+		for (Entry<String, Module> moduleEntry : modules.entrySet()) {
+			objectMapper.registerModule(moduleEntry.getValue());
+			LOGGER.info("{} Adding Module '{}' to ObjectMapper", siteApp, moduleEntry.getKey());
+		}
+
+		if (registerObjectMapper) {
+			beanFactory.registerSingleton(DEFAULT_OBJECT_MAPPER, objectMapper);
+			LOGGER.info("{} Registering ObjectMapper '{}'", siteApp, DEFAULT_OBJECT_MAPPER);
+		}
+
+		if (registerConverter) {
+			beanFactory.registerSingleton(DEFAULT_JACKSON_CONVERTER, converter);
+			LOGGER.info("{} Registering MappingJackson2HttpMessageConverter '{}'", siteApp, DEFAULT_JACKSON_CONVERTER);
+		}
+	}
+
+	protected <T> T getPrimaryOrFirst(Map<String, T> beans, Map<String, Object> primaryBeans) {
+		T bean;
+		Optional<Entry<String, T>> entry = beans.entrySet().stream().filter(e -> primaryBeans.containsKey(e.getKey()))
+				.findFirst();
+		boolean isPrimary = false;
+		if (isPrimary = entry.isPresent()) {
+			bean = entry.get().getValue();
+		} else {
+			entry = Optional.of(beans.entrySet().iterator().next());
+			bean = entry.get().getValue();
+		}
+		LOGGER.info("Found {} '{}'", (isPrimary ? "@Primary " : "") + entry.get().getValue().getClass().getName(),
+				entry.get().getKey());
+		return bean;
+	}
+
+	// @formatter:off
+	protected void addDateModules(ObjectMapper objectMapper) {
+		objectMapper.registerModule(getDateModule(
+			OffsetDateTime.class,
+			OffsetDateTime::parse,
+			DateTimeFormatter.ISO_OFFSET_DATE_TIME
+		));
+
+		objectMapper.registerModule(getDateModule(
+			LocalDate.class,
+			LocalDate::parse,
+			DateTimeFormatter.ISO_LOCAL_DATE
+		));
+
+		objectMapper.registerModule(getDateModule(
+			LocalTime.class,
+			LocalTime::parse,
+			DateTimeFormatter.ISO_LOCAL_TIME
+		));
+
+		objectMapper.registerModule(getDateModule(
+			LocalDateTime.class,
+			LocalDateTime::parse,
+			DateTimeFormatter.ISO_LOCAL_DATE_TIME
+		));
+	}	
+	// @formatter:on
+
+	protected <T extends Temporal> SimpleModule getDateModule(Class<T> temporal, Function<String, T> parseFunction,
+			DateTimeFormatter formatter) {
+		SimpleModule module = new SimpleModule();
+		module.addDeserializer(temporal, new JsonDeserializer<T>() {
+			@Override
+			public T deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException, JacksonException {
+				if (StringUtils.isNotBlank(parser.getText())) {
+					return parseFunction.apply(parser.getText());
+				}
+				return null;
+			}
+		});
+		module.addSerializer(temporal, new JsonSerializer<T>() {
+			@Override
+			public void serialize(T value, JsonGenerator jsonGenerator, SerializerProvider provider)
+					throws IOException {
+				if (value != null) {
+					jsonGenerator.writeString(formatter.format(value));
+				}
+			}
+		});
+		LOGGER.debug("Added Module handling {}.", temporal.getName());
+		return module;
 	}
 
 	@Bean
@@ -103,59 +236,11 @@ public class RestConfig {
 		return new ByteArrayHttpMessageConverter();
 	}
 
-	/**
-	 * Creates an {@link ObjectMapper} that can (de)serialize {@link OffsetDateTime} using the
-	 * {@link DateTimeFormatter#ISO_DATE_TIME} pattern.
-	 * 
-	 * @return the {@link ObjectMapper}
-	 */
-	@Bean
-	public ObjectMapper defaultObjectMapper() {
-		SimpleModule dateModule = new SimpleModule();
-		dateModule.addSerializer(OffsetDateTime.class, new JsonSerializer<OffsetDateTime>() {
-			@Override
-			public void serialize(OffsetDateTime value, JsonGenerator jsonGenerator, SerializerProvider provider)
-					throws IOException {
-				if (value != null) {
-					jsonGenerator.writeString(DateTimeFormatter.ISO_DATE_TIME.format(value));
-				}
-			}
-		});
-		dateModule.addDeserializer(OffsetDateTime.class, new JsonDeserializer<OffsetDateTime>() {
-			@Override
-			public OffsetDateTime deserialize(JsonParser parser, DeserializationContext ctxt)
-					throws IOException, JacksonException {
-				return OffsetDateTime.parse(parser.getText(), DateTimeFormatter.ISO_DATE_TIME);
-			}
-		});
-		// @formatter:off
-		return new ObjectMapper()
-			.setDefaultPropertyInclusion(Include.NON_ABSENT)
-			.enable(SerializationFeature.INDENT_OUTPUT)
-			.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-			.registerModule(dateModule);
-		// @formatter:on
-	}
-
-	@Bean
-	public MappingJackson2HttpMessageConverter defaultJsonConverter(
-			@Qualifier("defaultObjectMapper") ObjectMapper defaultObjectMapper,
-			@Value("${site.jsonPrettyPrint:false}") boolean prettyPrint) {
-		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter(
-				defaultObjectMapper);
-		jsonConverter.setPrettyPrint(prettyPrint);
-		return jsonConverter;
-	}
-
 	@Bean
 	@Lazy
 	public SiteAwareHandlerMethodArgumentResolver siteAwareHandlerMethodArgumentResolver(Site site,
 			Application application, Environment environment) {
 		return new SiteAwareHandlerMethodArgumentResolver(site, environment, application);
-	}
-
-	public static List<HandlerMethodArgumentResolver> getArgumentResolvers(ApplicationContext context) {
-		return new ArrayList<>(context.getBeansOfType(HandlerMethodArgumentResolver.class).values());
 	}
 
 	/**
