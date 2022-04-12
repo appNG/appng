@@ -30,7 +30,9 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkpanel;
+import org.appng.xml.platform.OpenapiAction;
 import org.appng.xml.platform.PanelLocation;
 import org.slf4j.Logger;
 import org.springframework.context.MessageSource;
@@ -64,14 +66,20 @@ class LinkPanelFieldHandler extends ConverterBase {
 				String panelId = linkpanel.getId();
 				copy.setId(panelId);
 				copy.setLocation(linkpanel.getLocation());
-				List<Link> links = linkpanel.getLinks();
-				for (Link link : links) {
+				List<Linkable> links = linkpanel.getLinks();
+				for (Linkable link : links) {
 					Condition linkCondition = link.getCondition();
 					boolean showDisabled = Boolean.TRUE.equals(link.isShowDisabled());
 					boolean conditionMatches = null == linkCondition
 							|| expressionEvaluator.evaluate(linkCondition.getExpression());
 					if (conditionMatches || showDisabled) {
-						Link linkCopy = new Link();
+						Linkable linkCopy;
+						if (link instanceof Link) {
+							linkCopy = new Link();
+							((Link) linkCopy).setMode(((Link) link).getMode());
+						} else {
+							linkCopy = new OpenapiAction();
+						}
 						linkCopy.setId(link.getId());
 						HashParameterSupport fieldParams = new HashParameterSupport(dataFieldOwner.getFieldValues());
 						fieldParams.allowDotInName();
@@ -87,14 +95,11 @@ class LinkPanelFieldHandler extends ConverterBase {
 							}
 							linkCopy.setConfirmation(copyLabel(fieldParams, link.getConfirmation()));
 						}
-						linkCopy.setMode(link.getMode());
 						linkCopy.setIcon(link.getIcon());
-
 						copy.getLinks().add(linkCopy);
 					}
 				}
 				dataFieldOwner.getLinkpanels().add(copy);
-
 			}
 		} else {
 			getLog().warn("linkpanel for field '" + fieldWrapper.getBinding() + "' is null!");
