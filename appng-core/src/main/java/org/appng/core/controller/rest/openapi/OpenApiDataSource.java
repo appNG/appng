@@ -39,6 +39,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.core.model.ApplicationProvider;
+import org.appng.openapi.model.ActionLink;
 import org.appng.openapi.model.Datasource;
 import org.appng.openapi.model.Field;
 import org.appng.openapi.model.FieldType;
@@ -47,10 +48,12 @@ import org.appng.openapi.model.Filter;
 import org.appng.openapi.model.Icon;
 import org.appng.openapi.model.Item;
 import org.appng.openapi.model.Link;
+import org.appng.openapi.model.Linkable;
 import org.appng.openapi.model.OptionType;
 import org.appng.openapi.model.Options;
 import org.appng.openapi.model.Page;
 import org.appng.openapi.model.PageSize;
+import org.appng.openapi.model.Parameter;
 import org.appng.openapi.model.Sort.OrderEnum;
 import org.appng.openapi.model.User;
 import org.appng.xml.platform.Data;
@@ -60,6 +63,7 @@ import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Option;
 import org.appng.xml.platform.PanelLocation;
+import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Resultset;
 import org.appng.xml.platform.Selection;
@@ -373,31 +377,57 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		return fv;
 	}
 
-	protected Link getLink(org.appng.xml.platform.Link l) {
-		Link link = new Link();
-		link.setLabel(l.getLabel().getValue());
-		link.setId(l.getId());
-		link.setIcon(l.getIcon().getContent());
-		link.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
+	protected Linkable getLink(org.appng.xml.platform.Linkable l) {
+		Linkable linkable = null;
+
+		if (l instanceof org.appng.xml.platform.Link) {
+			Link link = new Link();
+			org.appng.xml.platform.Link ll = (org.appng.xml.platform.Link) l;
+			link.setType(LINK_MAPPING.get(ll.getMode()));
+			if (Linkmode.INTERN.equals(ll.getMode())) {
+				String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
+				String completePath = String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(),
+						l.getTarget());
+				link.setTarget(completePath);
+			} else {
+				link.setTarget(l.getTarget());
+			}
+			linkable = link;
+		} else if (l instanceof org.appng.xml.platform.OpenapiAction) {
+			ActionLink action = new ActionLink();
+			org.appng.xml.platform.OpenapiAction al = (org.appng.xml.platform.OpenapiAction) l;
+
+			Params params = ((org.appng.xml.platform.OpenapiAction) l).getParams();
+			if (null != params) {
+				List<Parameter> parameters = new ArrayList<>();
+				params.getParam().forEach(p -> {
+					Parameter param = new Parameter();
+					param.setName(p.getName());
+					param.setValue(p.getValue());
+					parameters.add(param);
+				});
+				action.setParameters(parameters);
+			}
+
+			action.setTarget(l.getTarget());
+			action.setId(al.getId());
+			action.setEventId(al.getEventId());
+			action.setInteractive(al.isInteractive());
+			linkable = action;
+		}
+
+		linkable.setLabel(l.getLabel().getValue());
+		linkable.setId(l.getId());
+		linkable.setIcon(l.getIcon().getContent());
+		linkable.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
 		if (null != l.getConfirmation()) {
-			link.setConfirmation(l.getConfirmation().getValue());
+			linkable.setConfirmation(l.getConfirmation().getValue());
 		}
-		link.setType(LINK_MAPPING.get(l.getMode()));
-		if (Linkmode.INTERN.equals(l.getMode())) {
-			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
-			String completePath = String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(),
-					l.getTarget());
-			link.setTarget(completePath);
-		} else {
-			link.setTarget(l.getTarget());
-		}
-		return link;
+		return linkable;
 	}
 
 	protected static final Map<Linkmode, Link.TypeEnum> LINK_MAPPING = new HashMap<Linkmode, Link.TypeEnum>();
 	static {
-		LINK_MAPPING.put(Linkmode.ACTION, Link.TypeEnum.ACTION);
-		LINK_MAPPING.put(Linkmode.ACTION_MODAL, Link.TypeEnum.ACTION_MODAL);
 		LINK_MAPPING.put(Linkmode.EXTERN, Link.TypeEnum.EXTERN);
 		LINK_MAPPING.put(Linkmode.INTERN, Link.TypeEnum.PAGE);
 		LINK_MAPPING.put(Linkmode.WEBSERVICE, Link.TypeEnum.INTERN);

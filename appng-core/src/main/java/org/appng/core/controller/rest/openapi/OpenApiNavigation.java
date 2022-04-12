@@ -100,7 +100,7 @@ abstract class OpenApiNavigation extends OpenApiOperation {
 							siteNavigation.setActive(true);
 
 							Linkpanel topNav = applicationConfig.getApplicationRootConfig().getNavigation();
-							for (org.appng.xml.platform.Link link : topNav.getLinks()) {
+							for (org.appng.xml.platform.Linkable link : topNav.getLinks()) {
 								NavigationItem pageItem = new NavigationItem();
 								pageItem.setType(NavigationItem.TypeEnum.PAGE);
 								ResourceBundleMessageSource messages = application

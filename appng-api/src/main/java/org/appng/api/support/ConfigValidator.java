@@ -71,6 +71,7 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
 import org.appng.xml.platform.GetParams;
 import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.MetaData;
@@ -303,58 +304,63 @@ public class ConfigValidator {
 			Resource resource = getResourceIfPresent(ResourceType.XML, originResourceName);
 			checkPermissions(new PermissionOwner(linkpanel), origin + " linkpanel '" + linkpanel.getId() + "'",
 					resource, linkpanelXPath);
-			for (Link link : linkpanel.getLinks()) {
-				String target = link.getTarget();
+			for (Linkable linkable : linkpanel.getLinks()) {
+				String target = linkable.getTarget();
 				String linkOrigin = origin + " linkpanel '" + linkpanel.getId() + "' link '" + target + "'";
 				String xpathBase = "/link[@target='" + target + "']";
-				Linkmode mode = link.getMode();
-				if (Linkmode.INTERN.equals(mode)) {
-					String pageName = null;
-					if (StringUtils.isNotBlank(target)) {
-						if (target.startsWith("/")) {
-							int endIdx = target.indexOf("/", 1);
-							pageName = target.substring(1, endIdx > 0 ? endIdx : target.length());
-							endIdx = pageName.indexOf('?');
-							if (endIdx > 0) {
-								pageName = pageName.substring(0, endIdx);
-							}
-						} else if (!target.startsWith("?") && !target.startsWith("$")) {
-							String message = linkOrigin
-									+ " points to an invalid target, must start with '/', '${<param>}' or '?'!";
-							addDetailedError(message, resource, linkpanelXPath + xpathBase);
-						}
-					}
-					if (null != pageName && !pageName.startsWith("$")) {
-						PageDefinition page = provider.getPage(pageName);
-						if (page == null) {
-							String message = linkOrigin + " points to the unknown page '" + pageName + "'";
-							addDetailedError(message, resource, linkpanelXPath + xpathBase);
 
-						} else if (StringUtils.isNotBlank(target)) {
-							List<String> queryParameters = new ArrayList<>();
-							int idx = target.indexOf('?');
-							if (idx > 0) {
-								String query = target.substring(idx + 1);
-								for (String pair : query.split("&")) {
-									int eqIdx = pair.indexOf("=");
-									queryParameters.add(pair.substring(0, eqIdx));
+				if (linkable instanceof Link) {
+					Link link = (Link) linkable;
+
+					Linkmode mode = link.getMode();
+					if (Linkmode.INTERN.equals(mode)) {
+						String pageName = null;
+						if (StringUtils.isNotBlank(target)) {
+							if (target.startsWith("/")) {
+								int endIdx = target.indexOf("/", 1);
+								pageName = target.substring(1, endIdx > 0 ? endIdx : target.length());
+								endIdx = pageName.indexOf('?');
+								if (endIdx > 0) {
+									pageName = pageName.substring(0, endIdx);
 								}
-							}
-
-							Map<String, String> allGetParams = getPageGetParams(page);
-							Set<String> getParamNames = allGetParams.keySet();
-							@SuppressWarnings("rawtypes")
-							Collection unknownGetParams = CollectionUtils.subtract(queryParameters, getParamNames);
-							if (!unknownGetParams.isEmpty()) {
-								String message = linkOrigin + " points to page '" + pageName
-										+ "' and uses the unknown get-paramter(s) " + unknownGetParams
-										+ ". Valid get-parameters are: " + getParamNames;
+							} else if (!target.startsWith("?") && !target.startsWith("$")) {
+								String message = linkOrigin
+										+ " points to an invalid target, must start with '/', '${<param>}' or '?'!";
 								addDetailedError(message, resource, linkpanelXPath + xpathBase);
+							}
+						}
+						if (null != pageName && !pageName.startsWith("$")) {
+							PageDefinition page = provider.getPage(pageName);
+							if (page == null) {
+								String message = linkOrigin + " points to the unknown page '" + pageName + "'";
+								addDetailedError(message, resource, linkpanelXPath + xpathBase);
+
+							} else if (StringUtils.isNotBlank(target)) {
+								List<String> queryParameters = new ArrayList<>();
+								int idx = target.indexOf('?');
+								if (idx > 0) {
+									String query = target.substring(idx + 1);
+									for (String pair : query.split("&")) {
+										int eqIdx = pair.indexOf("=");
+										queryParameters.add(pair.substring(0, eqIdx));
+									}
+								}
+
+								Map<String, String> allGetParams = getPageGetParams(page);
+								Set<String> getParamNames = allGetParams.keySet();
+								@SuppressWarnings("rawtypes")
+								Collection unknownGetParams = CollectionUtils.subtract(queryParameters, getParamNames);
+								if (!unknownGetParams.isEmpty()) {
+									String message = linkOrigin + " points to page '" + pageName
+											+ "' and uses the unknown get-paramter(s) " + unknownGetParams
+											+ ". Valid get-parameters are: " + getParamNames;
+									addDetailedError(message, resource, linkpanelXPath + xpathBase);
+								}
 							}
 						}
 					}
 				}
-				checkPermissions(new PermissionOwner(link), linkOrigin, resource, linkpanelXPath + xpathBase);
+				checkPermissions(new PermissionOwner(linkable), linkOrigin, resource, linkpanelXPath + xpathBase);
 			}
 		}
 	}

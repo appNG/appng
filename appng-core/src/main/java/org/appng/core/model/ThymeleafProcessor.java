@@ -66,6 +66,7 @@ import org.appng.xml.platform.GetParams;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Labels;
 import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.Message;
 import org.appng.xml.platform.MessageType;
@@ -829,9 +830,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			return null;
 		}
 
-		public Link defaultLink(Linkpanel panel) {
+		public Linkable defaultLink(Linkpanel panel) {
 			if (null != panel) {
-				for (Link l : panel.getLinks()) {
+				for (Linkable l : panel.getLinks()) {
 					if (Boolean.parseBoolean(l.getDefault())) {
 						return l;
 					}
@@ -840,9 +841,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			return null;
 		}
 
-		public Link defaultLink(List<Linkpanel> panels) {
+		public Linkable defaultLink(List<Linkpanel> panels) {
 			for (Linkpanel panel : panels) {
-				Link defaultLink = defaultLink(panel);
+				Linkable defaultLink = defaultLink(panel);
 				if (null != defaultLink) {
 					return defaultLink;
 				}

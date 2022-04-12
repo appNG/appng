@@ -41,6 +41,7 @@ import org.appng.api.PermissionProcessor;
 import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
 import org.appng.api.Session;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
@@ -52,12 +53,14 @@ import org.appng.xml.platform.Data;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Navigation;
 import org.appng.xml.platform.NavigationItem;
+import org.appng.xml.platform.OpenapiAction;
 import org.appng.xml.platform.OptionGroup;
 import org.appng.xml.platform.PageConfig;
 import org.appng.xml.platform.Param;
@@ -132,44 +135,62 @@ public class ElementHelper {
 			String panelId = panel.getId();
 			outPanel.setId(panelId);
 			outPanel.setLocation(panel.getLocation());
-			List<Link> links = panel.getLinks();
+			List<Linkable> links = panel.getLinks();
 			int linkCount = 1;
 			String servicePath = pathInfo.getServicePath();
 			String guiPath = pathInfo.getGuiPath();
-			for (Link link : links) {
-				boolean hasPermission = request.getPermissionProcessor().hasPermissions(new PermissionOwner(link));
+			for (Linkable linkable : links) {
+				boolean hasPermission = request.getPermissionProcessor().hasPermissions(new PermissionOwner(linkable));
 				if (hasPermission) {
-					Condition condition = link.getCondition();
+					Condition condition = linkable.getCondition();
 					ExpressionEvaluator linkExpressionEvaluator = parameterSupport.getExpressionEvaluator();
 					boolean doInclude = expressionMatchesOrContainsCurrent(condition, linkExpressionEvaluator);
-					boolean showDisabled = Boolean.TRUE.equals(link.isShowDisabled());
+					boolean showDisabled = Boolean.TRUE.equals(linkable.isShowDisabled());
 
 					if (doInclude || showDisabled) {
-						link.setCondition(condition);
-						if (link.getId() == null) {
-							link.setId(panelId + "[" + linkCount + "]");
+						linkable.setCondition(condition);
+						if (linkable.getId() == null) {
+							linkable.setId(panelId + "[" + linkCount + "]");
 						}
-						request.setLabel(link.getLabel());
-						request.setLabel(link.getConfirmation());
-						outPanel.getLinks().add(link);
-						String currentTarget = link.getTarget();
-						String newTarget = parameterSupport.replaceParameters(currentTarget);
-						if (Linkmode.WEBSERVICE.equals(link.getMode())) {
-							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
-									+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
+						request.setLabel(linkable.getLabel());
+						request.setLabel(linkable.getConfirmation());
+						outPanel.getLinks().add(linkable);
+
+						if (linkable instanceof Link) {
+							Link link = (Link) linkable;
+							String currentTarget = linkable.getTarget();
+							String newTarget = parameterSupport.replaceParameters(currentTarget);
+							if (Linkmode.WEBSERVICE.equals(link.getMode())) {
+								newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
+										+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
+							}
+							if (Linkmode.REST.equals(link.getMode())) {
+								newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
+										+ Platform.SERVICE_TYPE_REST + SLASH + newTarget;
+							}
+							StringBuilder proposedPath = new StringBuilder();
+							proposedPath.append(guiPath).append(pathInfo.getOutputPrefix()).append(SLASH);
+							proposedPath.append(site.getName()).append(SLASH).append(application.getName());
+							proposedPath.append(newTarget);
+							if (pathInfo.isPathSelected(proposedPath.toString())) {
+								linkable.setActive(Boolean.TRUE.toString());
+							}
+							linkable.setTarget(newTarget);
+						} else if (linkable instanceof OpenapiAction) {
+							OpenapiAction actionLink = (OpenapiAction) linkable;
+							StringBuilder target = new StringBuilder();
+							target.append(site.getProperties().getString(SiteProperties.SERVICE_PATH));
+							target.append("/");
+							target.append(site.getName());
+							target.append("/");
+							target.append(application.getName());
+							target.append("/rest/openapi/action");
+							target.append(actionLink.getEventId());
+							target.append("/");
+							target.append(actionLink.getActionId());
+							actionLink.setTarget(target.toString());
 						}
-						if (Linkmode.REST.equals(link.getMode())) {
-							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
-									+ Platform.SERVICE_TYPE_REST + SLASH + newTarget;
-						}
-						StringBuilder proposedPath = new StringBuilder();
-						proposedPath.append(guiPath).append(pathInfo.getOutputPrefix()).append(SLASH);
-						proposedPath.append(site.getName()).append(SLASH).append(application.getName());
-						proposedPath.append(newTarget);
-						if (pathInfo.isPathSelected(proposedPath.toString())) {
-							link.setActive(Boolean.TRUE.toString());
-						}
-						link.setTarget(newTarget);
+
 					}
 				}
 				linkCount++;
@@ -197,8 +218,7 @@ public class ElementHelper {
 		if (null != navigation) {
 			navigation = initLinkpanel(applicationRequest, pathInfo, navigation, parameterSupport);
 			if (!(null == pageLinks || null == navigation)) {
-				List<Link> links = navigation.getLinks();
-				for (Link link : links) {
+				for (Linkable link : navigation.getLinks()) {
 					pageLinks.getLinks().add(link);
 				}
 				pageConfig.setLinkpanel(pageLinks);
