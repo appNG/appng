@@ -203,7 +203,7 @@ public class CallableActionTest {
 
 		AtomicReference<Messages> envMessages = new AtomicReference<Messages>(new Messages());
 		AtomicReference<Messages> actionMessages = new AtomicReference<Messages>(new Messages());
-		mockMessages(envMessages, actionMessages, false);
+		mockMessages(envMessages, actionMessages, true);
 
 		Mockito.doAnswer(i -> {
 			FieldProcessor fp = i.getArgumentAt(5, FieldProcessor.class);
@@ -223,13 +223,17 @@ public class CallableActionTest {
 		Mockito.when(actionRef.getMode()).thenReturn("awesome");
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
-		Assert.assertNotNull(envMessages.get());
-		Assert.assertNull(actionMessages.get());
-		List<Message> messageList = envMessages.get().getMessageList();
-		Assert.assertEquals("Done!", messageList.get(0).getContent());
-		Assert.assertEquals(MessageType.OK, messageList.get(0).getClazz());
-		Assert.assertEquals("ACTION!", messageList.get(1).getContent());
-		Assert.assertEquals(MessageType.OK, messageList.get(1).getClazz());
+		Assert.assertNull(envMessages.get());
+		Assert.assertNotNull(actionMessages.get());
+
+		List<Message> messageList = actionMessages.get().getMessageList();
+		Message fromAction = messageList.get(0);
+		Assert.assertEquals("ACTION!", fromAction.getContent());
+		Assert.assertEquals(MessageType.OK, fromAction.getClazz());
+
+		Message fromDataSource = messageList.get(1);
+		Assert.assertEquals("Done!", fromDataSource.getContent());
+		Assert.assertEquals(MessageType.OK, fromDataSource.getClazz());
 		Mockito.verify(action.getAction()).setMode(actionRef.getMode());
 	}
 
@@ -249,10 +253,15 @@ public class CallableActionTest {
 			return returnRemoved ? messages : null;
 		}).when(environment).removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 
+		Mockito.when(environment.getAttribute(Scope.SESSION, Session.Environment.MESSAGES))
+				.thenReturn(envMessages.get());
+
 		Mockito.doAnswer(i -> {
 			actionMessages.set(i.getArgumentAt(0, Messages.class));
 			return null;
 		}).when(action).setMessages(Mockito.any());
+
+		Mockito.when(action.getMessages()).thenReturn(actionMessages.get());
 	}
 
 	public ApplicationRequest initApplication(boolean withDataSource) {
@@ -325,7 +334,7 @@ public class CallableActionTest {
 	public void testNoForward() throws ProcessingException {
 		CallableAction callableAction = getCallableAction(false, null);
 		callableAction.perform(false);
-		Assert.assertNotNull(callableAction.getAction().getMessages());
+		Assert.assertNull(callableAction.getAction().getMessages());
 		Assert.assertNull(callableAction.getAction().getOnSuccess());
 	}
 

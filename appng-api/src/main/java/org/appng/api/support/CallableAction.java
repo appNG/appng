@@ -232,7 +232,7 @@ public class CallableAction {
 					before.addAll(elementHelper.getMessages(environment).getMessageList());
 				}
 
-				Data data = datasourceElement.perform(null, setBeanNull, true);
+				Data data = datasourceElement.perform(null, setBeanNull, true, true);
 				action.setData(data);
 				DataConfig dsConfig = datasourceElement.getDatasource().getConfig();
 				elementHelper.addTemplates(applicationRequest.getApplicationConfig(), dsConfig);
@@ -247,20 +247,17 @@ public class CallableAction {
 				Collection<Message> addedMessages = CollectionUtils.disjunction(before, after);
 
 				if (!addedMessages.isEmpty()) {
-					boolean hasErrors = addedMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz()))
-							.findAny().isPresent();
+					dataOk = !addedMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
+							.isPresent();
 
-					if (hasErrors) {
-						dataOk = false;
-						Messages messages = elementHelper.getMessages(environment);
-						messages.getMessageList().removeAll(addedMessages);
-						if (messages.getMessageList().isEmpty()) {
-							elementHelper.removeMessages(environment);
-						}
-						Messages actionMessages = new Messages();
-						actionMessages.getMessageList().addAll(addedMessages);
-						getAction().setMessages(actionMessages);
+					Messages messages = elementHelper.getMessages(environment);
+					messages.getMessageList().removeAll(addedMessages);
+					if (messages.getMessageList().isEmpty()) {
+						elementHelper.removeMessages(environment);
 					}
+					Messages actionMessages = new Messages();
+					actionMessages.getMessageList().addAll(addedMessages);					
+					getAction().setMessages(actionMessages);
 				}
 
 				if (null != data && null != data.getResult()) {
@@ -345,16 +342,22 @@ public class CallableAction {
 					site.sendRedirect(applicationRequest.getEnvironment(), target.toString(), HttpStatus.FOUND.value());
 					getAction().setOnSuccess(target.toString());
 					applicationRequest.setRedirectTarget(target.toString());
-				} else if (!isSectionHidden) {
-					Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
-					getAction().setMessages(messages);
 				}
 			}
 		}
-		if (doInclude()) {
-			if (!doExecute() || !doForward()) {
+		if (doInclude() && !(doExecute() && doForward())) {
+			if (!isSectionHidden && null != action) {
+				Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
 				retrieveData(false);
 				handleSelections();
+				if (null != messages) {
+					Messages actionMessages = action.getMessages();
+					if (null == actionMessages) {
+						action.setMessages(messages);
+					} else {
+						actionMessages.getMessageList().addAll(0, messages.getMessageList());
+					}
+				}
 			}
 		}
 		return fp;
@@ -460,6 +463,8 @@ public class CallableAction {
 		}
 		return fieldProcessor;
 	}
+
+	
 
 	/**
 	 * Creates, fills and returns a new bindobject.

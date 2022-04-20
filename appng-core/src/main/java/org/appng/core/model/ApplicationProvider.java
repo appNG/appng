@@ -561,7 +561,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					Callback<Void> dataSourceCallback = new Callback<Void>() {
 
 						public void perform() throws ProcessingException {
-							dataSourceWrapper.perform(pageReference.getId());
+							dataSourceWrapper.perform(pageReference.getId(), false);
 						}
 
 						public Void getResult() {
@@ -1148,7 +1148,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			if (callableDataSource.doInclude()) {
 				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
 						application.getName(), site.getName());
-				callableDataSource.perform("service");
+				callableDataSource.perform("service", false);
 				return callableDataSource.getDatasource();
 			}
 			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
