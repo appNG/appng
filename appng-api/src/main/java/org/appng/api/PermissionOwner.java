@@ -135,7 +135,7 @@ public final class PermissionOwner {
 	 *             the {@link PermissionOwner}
 	 */
 	public PermissionOwner(Linkable linkable) {
-		this("linkable:" + linkable.getLabel().getValue(), linkable.getPermissions());
+		this("link:" + linkable.getLabel().getValue(), linkable.getPermissions());
 	}
 
 	/**
