@@ -48,13 +48,14 @@ public class SelectionBuilderTest {
 			}
 		};
 		HitCounter<Person> counter = p -> p.getName().equals(a.getName()) ? 1 : 3;
-		Selection selection = builder.title("label").options(Arrays.asList(a, b, c)).select(b).selector(selector)
-				.disable(c).hitCounter(counter).type(SelectionType.SELECT_MULTIPLE).defaultOption("-please select-", "")
-				.build();
+		Selection selection = builder.title("label").tooltip("tooltip").options(Arrays.asList(a, b, c)).select(b)
+				.selector(selector).disable(c).hitCounter(counter).type(SelectionType.SELECT_MULTIPLE)
+				.defaultOption("-please select-", "").build();
 
 		Assert.assertEquals("persons", selection.getId());
 		Assert.assertEquals(SelectionType.SELECT_MULTIPLE, selection.getType());
 		Assert.assertEquals("label", selection.getTitle().getValue());
+		Assert.assertEquals("tooltip", selection.getTooltip().getValue());
 		List<Option> options = selection.getOptions();
 		Assert.assertEquals(4, options.size());
 
