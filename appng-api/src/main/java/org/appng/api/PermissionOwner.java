@@ -131,7 +131,7 @@ public final class PermissionOwner {
 	/**
 	 * Creates a new PermissionOwner from a {@link Linkable}.
 	 * 
-	 * @param link
+	 * @param linkable
 	 *             the {@link PermissionOwner}
 	 */
 	public PermissionOwner(Linkable linkable) {
