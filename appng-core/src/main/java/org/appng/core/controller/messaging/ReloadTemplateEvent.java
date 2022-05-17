@@ -21,12 +21,13 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.core.domain.Template;
 import org.appng.core.service.CoreService;
 import org.appng.core.service.PlatformProperties;
 import org.springframework.context.ApplicationContext;
 
 /**
- * An event to be fired when a {@link Site} has been deleted.
+ * An event to be fired when the {@link Template} for a {@link Site} needs to be reloaded.
  * 
  * @author Matthias Müller
  */
@@ -40,8 +41,7 @@ public class ReloadTemplateEvent extends SiteEvent {
 		ApplicationContext platformContext = environment.getAttribute(Scope.PLATFORM,
 				Platform.Environment.CORE_PLATFORM_CONTEXT);
 		CoreService coreService = platformContext.getBean(CoreService.class);
-		Properties platformConfig = environment.getAttribute(Scope.PLATFORM,
-				Platform.Environment.PLATFORM_CONFIG);
+		Properties platformConfig = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		coreService.reloadTemplate(site, PlatformProperties.get(platformConfig));
 	}
 }
