@@ -57,16 +57,16 @@
 		<template.name>appng-template</template.name>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!-- dependency versions -->
-		<appNG.manager.version>1.18.1</appNG.manager.version>
-		<appNG.scheduler.version>1.14.1</appNG.scheduler.version>
+		<appNG.manager.version>1.19.1</appNG.manager.version>
+		<appNG.scheduler.version>1.15.0</appNG.scheduler.version>
 		<appNG.authentication.version>1.13.1</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
-		<bouncycastle.version>1.69</bouncycastle.version>
-		<esapi.version>2.2.3.1</esapi.version>
-		<flyway.version>8.4.3</flyway.version>
-		<hazelcast.version>5.0.2</hazelcast.version>
+		<bouncycastle.version>1.70</bouncycastle.version>
+		<esapi.version>2.3.0.0</esapi.version>
+		<flyway.version>8.5.11</flyway.version>
+		<hazelcast.version>5.1.1</hazelcast.version>
 		<hibernate.version>5.4.32.Final</hibernate.version>
-		<jackson.version>2.13.0</jackson.version>
+		<jackson.version>2.13.3</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
 		<lucene.version>8.10.0</lucene.version>
 		<pdfBox.version>2.0.24</pdfBox.version>
@@ -1006,6 +1006,16 @@
 			<!-- END SERVLET ET AL -->
 
 			<!-- BEGIN OTHERS -->
+			<dependency>
+				<groupId>org.owasp.antisamy</groupId>
+				<artifactId>antisamy</artifactId>
+				<version>1.6.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.owasp.esapi</groupId>
+				<artifactId>esapi</artifactId>
+				<version>${esapi.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
