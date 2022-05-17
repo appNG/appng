@@ -68,6 +68,7 @@ public class AppNGTestDataProvider implements TestDataProvider {
 		subjects.add(subject3);
 
 		SiteImpl site1 = getSite(1);
+		em.persist(new PropertyImpl("platform.site.site-1." + LdapService.LDAP_HOST, "ldaps://localhost:8888", ""));
 		SiteImpl site2 = getSite(2);
 		SiteImpl site3 = getSite(3);
 
