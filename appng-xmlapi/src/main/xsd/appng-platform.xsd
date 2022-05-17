@@ -2547,6 +2547,7 @@ If empty, the template is being applied to any output-type.]]>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="title" type="label" maxOccurs="1" />
+			<xs:element name="tooltip" type="label" minOccurs="0"/>
 			<xs:element name="option" type="option" minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="optionGroup" type="optionGroup" minOccurs="0" maxOccurs="unbounded" />
 		</xs:sequence>

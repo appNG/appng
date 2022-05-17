@@ -77,6 +77,21 @@ public class SelectionBuilder<T> extends OptionsBuilder<T, SelectionBuilder<T>.S
 		selection.setTitle(label);
 		return this;
 	}
+	
+	/**
+	 * Sets the tooltip for the selection
+	 * 
+	 * @param tooltip
+	 *              the tooltip
+	 * 
+	 * @return this builder
+	 */
+	public SelectionBuilder<T> tooltip(String tooltip) {
+		Label label = new Label();
+		label.setValue(tooltip);
+		selection.setTooltip(label);
+		return this;
+	}
 
 	/**
 	 * Sets the {@link SelectionType} for the selection
