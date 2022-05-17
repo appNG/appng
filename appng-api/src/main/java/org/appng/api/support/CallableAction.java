@@ -228,8 +228,9 @@ public class CallableAction {
 
 				List<Message> before = new ArrayList<>();
 				Environment environment = applicationRequest.getEnvironment();
+				Messages envMessages = elementHelper.getMessages(environment);
 				if (elementHelper.hasMessages(environment)) {
-					before.addAll(elementHelper.getMessages(environment).getMessageList());
+					before.addAll(envMessages.getMessageList());
 				}
 
 				Data data = datasourceElement.perform(null, setBeanNull, true, true);
@@ -240,23 +241,22 @@ public class CallableAction {
 
 				List<Message> after = new ArrayList<>();
 				if (elementHelper.hasMessages(environment)) {
-					after.addAll(elementHelper.getMessages(environment).getMessageList());
+					after.addAll(envMessages.getMessageList());
 				}
 
 				@SuppressWarnings("unchecked")
-				Collection<Message> addedMessages = CollectionUtils.disjunction(before, after);
+				Collection<Message> dataSourceMessages = CollectionUtils.disjunction(before, after);
 
-				if (!addedMessages.isEmpty()) {
-					dataOk = !addedMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
+				if (!dataSourceMessages.isEmpty()) {
+					dataOk = !dataSourceMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
 							.isPresent();
 
-					Messages messages = elementHelper.getMessages(environment);
-					messages.getMessageList().removeAll(addedMessages);
-					if (messages.getMessageList().isEmpty()) {
+					envMessages.getMessageList().removeAll(dataSourceMessages);
+					if (envMessages.getMessageList().isEmpty()) {
 						elementHelper.removeMessages(environment);
 					}
 					Messages actionMessages = new Messages();
-					actionMessages.getMessageList().addAll(addedMessages);					
+					actionMessages.getMessageList().addAll(dataSourceMessages);
 					getAction().setMessages(actionMessages);
 				}
 
@@ -347,9 +347,9 @@ public class CallableAction {
 		}
 		if (doInclude() && !(doExecute() && doForward())) {
 			if (!isSectionHidden && null != action) {
-				Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
 				retrieveData(false);
 				handleSelections();
+				Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
 				if (null != messages) {
 					Messages actionMessages = action.getMessages();
 					if (null == actionMessages) {
@@ -463,8 +463,6 @@ public class CallableAction {
 		}
 		return fieldProcessor;
 	}
-
-	
 
 	/**
 	 * Creates, fills and returns a new bindobject.

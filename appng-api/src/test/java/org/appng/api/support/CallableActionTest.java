@@ -223,10 +223,12 @@ public class CallableActionTest {
 		Mockito.when(actionRef.getMode()).thenReturn("awesome");
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
-		Assert.assertNull(envMessages.get());
-		Assert.assertNotNull(actionMessages.get());
 
+		Assert.assertNull(envMessages.get());
+
+		Assert.assertNotNull(actionMessages.get());
 		List<Message> messageList = actionMessages.get().getMessageList();
+
 		Message fromAction = messageList.get(0);
 		Assert.assertEquals("ACTION!", fromAction.getContent());
 		Assert.assertEquals(MessageType.OK, fromAction.getClazz());
@@ -234,6 +236,7 @@ public class CallableActionTest {
 		Message fromDataSource = messageList.get(1);
 		Assert.assertEquals("Done!", fromDataSource.getContent());
 		Assert.assertEquals(MessageType.OK, fromDataSource.getClazz());
+
 		Mockito.verify(action.getAction()).setMode(actionRef.getMode());
 	}
 
@@ -261,7 +264,7 @@ public class CallableActionTest {
 			return null;
 		}).when(action).setMessages(Mockito.any());
 
-		Mockito.when(action.getMessages()).thenReturn(actionMessages.get());
+		Mockito.doAnswer(i -> actionMessages.get()).when(action).getMessages();
 	}
 
 	public ApplicationRequest initApplication(boolean withDataSource) {
