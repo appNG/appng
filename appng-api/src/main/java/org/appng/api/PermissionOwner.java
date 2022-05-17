@@ -129,13 +129,13 @@ public final class PermissionOwner {
 	}
 
 	/**
-	 * Creates a new PermissionOwner from a {@link Link}.
+	 * Creates a new PermissionOwner from a {@link Linkable}.
 	 * 
 	 * @param link
-	 *             the {@link Link}
+	 *             the {@link PermissionOwner}
 	 */
 	public PermissionOwner(Linkable linkable) {
-		this("link:" + linkable.getLabel().getValue(), linkable.getPermissions());
+		this("linkable:" + linkable.getLabel().getValue(), linkable.getPermissions());
 	}
 
 	/**
