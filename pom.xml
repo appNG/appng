@@ -65,12 +65,12 @@
 		<esapi.version>2.3.0.0</esapi.version>
 		<flyway.version>8.5.11</flyway.version>
 		<hazelcast.version>5.1.1</hazelcast.version>
-		<hibernate.version>5.4.32.Final</hibernate.version>
+		<hibernate.version>5.6.9.Final</hibernate.version>
 		<jackson.version>2.13.3</jackson.version>
-		<junrar.version>1.0.1</junrar.version>
-		<lucene.version>8.11.1</lucene.version>
+		<junrar.version>7.5.1</junrar.version>
+		<lucene.version>9.1.0</lucene.version>
 		<pdfBox.version>2.0.24</pdfBox.version>
-		<poi.version>3.17</poi.version>
+		<poi.version>5.2.2</poi.version>
 		<queryDsl.version>5.0.0</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
 		<slf4j.version>1.7.26</slf4j.version>
@@ -80,7 +80,7 @@
 		<springDataJpa.version>1.11.23.RELEASE</springDataJpa.version>
 		<springSecurity.version>4.2.17.RELEASE</springSecurity.version>
 		<springWS.version>2.4.6.RELEASE</springWS.version>
-		<tika.version>1.18</tika.version>
+		<tika.version>2.4.0</tika.version>
 		<tomcat.version>9.0.31</tomcat.version>
 	</properties>
 	<scm>
@@ -822,7 +822,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
-				<artifactId>lucene-analyzers-common</artifactId>
+				<artifactId>lucene-analysis-common</artifactId>
 				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
@@ -844,6 +844,17 @@
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-core</artifactId>
 				<version>${tika.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tika</groupId>
+				<artifactId>tika-parsers-standard-package</artifactId>
+				<version>${tika.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>xerces</groupId>
+						<artifactId>xercesImpl</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.pdfbox</groupId>
@@ -982,7 +993,7 @@
 			<dependency>
 				<groupId>org.hibernate.validator</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>6.2.0.Final</version>
+				<version>6.2.3.Final</version>
 			</dependency>
 			<!-- END HIBERNATE + JPA -->
 
@@ -1006,22 +1017,6 @@
 			<!-- END SERVLET ET AL -->
 
 			<!-- BEGIN OTHERS -->
-			<dependency>
-				<groupId>org.owasp.antisamy</groupId>
-				<artifactId>antisamy</artifactId>
-				<version>1.6.7</version>
-				<exclusions>
-				<exclusion>
-					<groupId>xerces</groupId>
-					<artifactId>xercesImpl</artifactId>
-				</exclusion>
-			</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.owasp.esapi</groupId>
-				<artifactId>esapi</artifactId>
-				<version>${esapi.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>com.zaxxer</groupId>
 				<artifactId>HikariCP</artifactId>
@@ -1156,7 +1151,13 @@
 			<dependency>
 				<groupId>org.owasp.antisamy</groupId>
 				<artifactId>antisamy</artifactId>
-				<version>1.6.4</version>
+				<version>1.6.7</version>
+				<exclusions>
+					<exclusion>
+						<groupId>xerces</groupId>
+						<artifactId>xercesImpl</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>

@@ -91,7 +91,7 @@ public class FontBuilder {
 	protected void setColor(Font font) {
 		if (font instanceof XSSFFont) {
 			XSSFFont xssfFont = (XSSFFont) font;
-			XSSFColor colorInternal = new XSSFColor(color);
+			XSSFColor colorInternal = new XSSFColor(color, null);
 			xssfFont.setColor(colorInternal);
 		} else if (font instanceof HSSFFont) {
 			HSSFFont hssfFont = (HSSFFont) font;
