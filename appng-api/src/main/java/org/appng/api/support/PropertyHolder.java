@@ -97,7 +97,7 @@ public class PropertyHolder implements Properties {
 	}
 
 	/**
-	 * @deprecated use {@link #addProperty(String, Object, String, Type)} instead!
+	 * @deprecated use {@link #addProperty(String, Object, String, Property.Type)} instead!
 	 */
 	@Deprecated
 	public final Property addProperty(String name, Object defaultValue, String description) {
@@ -105,7 +105,7 @@ public class PropertyHolder implements Properties {
 	}
 
 	/**
-	 * @deprecated use {@link #addProperty(String, Object, String, Type)} instead!
+	 * @deprecated use {@link #addProperty(String, Object, String, Property.Type)} instead!
 	 */
 	@Deprecated
 	public final Property addProperty(String name, Object defaultValue, String description, boolean isMultiline) {

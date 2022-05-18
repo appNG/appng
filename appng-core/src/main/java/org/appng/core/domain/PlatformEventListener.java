@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * An entity listener that creates a new {@link PlatformEvent} on {@link PrePersist}, {@link PreUpdate} and
  * {@link PreRemove}. Also, a {@link PlatformEvent} can be created manually by calling
- * {@link #createEvent(Type, String)}. <br/>
+ * {@link #createEvent(PlatformEvent.Type, String)}. <br/>
  * Note that this listener is able to work in two scenarios. The first is as a regular Spring bean that can be invoked
  * from other beans. As a JPA entity listener, we use a static reference to the current {@link ApplicationContext} to
  * retrieve an instance of the {@link EntityManager} in use.
