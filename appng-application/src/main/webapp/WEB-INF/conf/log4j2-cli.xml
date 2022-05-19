@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration strict="true" xmlns="http://logging.apache.org/log4j/2.0/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://logging.apache.org/log4j/2.0/config 
+           https://raw.githubusercontent.com/apache/logging-log4j2/master/log4j-core/src/main/resources/Log4j-config.xsd">
+
+	<Appenders>
+
+		<RollingFile name="file" fileName="${env:APPNG_HOME}/WEB-INF/log/appNG-cli.log"
+			filePattern="${env:APPNG_HOME}/WEB-INF/log/appNG-cli.%d{yyyy-MM-dd}.log">
+			<PatternLayout>
+				<Pattern>%d{ISO8601} %-5p %-32c{1.}: %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+
+	</Appenders>
+
+	<Loggers>
+
+		<Logger name="org.hibernate" level="warn" additivity="false">
+			<AppenderRef ref="file" />
+		</Logger>
+
+		<Logger name="org.springframework" level="warn" additivity="false">
+			<AppenderRef ref="file" />
+		</Logger>
+
+		<Root level="info">
+			<AppenderRef ref="file" />
+		</Root>
+	</Loggers>
+
+</Configuration>
+        
