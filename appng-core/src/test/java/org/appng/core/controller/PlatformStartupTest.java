@@ -75,7 +75,7 @@ public class PlatformStartupTest extends PlatformStartup {
 				.thenReturn(log4jResource.getPath());
 		Mockito.when(servContext.getRealPath("")).thenReturn("target");
 		Mockito.when(servContext.getRealPath(WEB_INF + Log4jConfigurer.LOG4J_PROPERTIES))
-				.thenReturn("classpath:log4j.properties");
+				.thenReturn("classpath:log4j2.xml");
 
 		PlatformProperties value = PlatformProperties.get(DefaultEnvironment.get(servContext));
 		Mockito.when(initializerService.loadPlatformProperties(Mockito.any(), Mockito.any())).thenReturn(value);
