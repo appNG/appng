@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration strict="true" xmlns="http://logging.apache.org/log4j/2.0/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://logging.apache.org/log4j/2.0/config 
+           https://raw.githubusercontent.com/apache/logging-log4j2/master/log4j-core/src/main/resources/Log4j-config.xsd">
+	<Appenders>
+
+		<Console name="stdout" target="SYSTEM_OUT">
+			<PatternLayout>
+				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
+			</PatternLayout>
+		</Console>
+
+		<!-- the appng.log -->
+		<RollingFile name="appng" fileName="${webapp.root}/WEB-INF/log/appNG.log" filePattern="${webapp.root}/WEB-INF/log/appNG.log.%d{MM-dd-yyyy}.log">
+			<PatternLayout>
+				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+
+		<!-- the scheduler.log -->
+		<RollingFile name="scheduler" fileName="${webapp.root}/WEB-INF/log/scheduler.log"
+			filePattern="${webapp.root}/WEB-INF/log/scheduler.log.%d{MM-dd-yyyy}.log">
+			<PatternLayout>
+				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+
+		<!-- the redirect.log -->
+		<RollingFile name="redirect" fileName="${webapp.root}/WEB-INF/log/redirect.log"
+			filePattern="${webapp.root}/WEB-INF/log/redirect.log.%d{MM-dd-yyyy}.log">
+			<PatternLayout>
+				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+	
+	<!-- log quartz to scheduler.log -->
+		<Logger name="org.quartz" additivity="false" level="info">
+			<AppenderRef ref="scheduler" />
+		</Logger>
+		
+		<Logger name="org.tuckey" additivity="false" level="info">
+			<AppenderRef ref="redirect" />
+		</Logger>
+		
+		<Root level="info">
+			<AppenderRef ref="appng" />
+			<!-- uncomment to log to console--> 
+			<!-- AppenderRef ref="stdout" /-->
+		</Root>
+	</Loggers>
+</Configuration>
+        
