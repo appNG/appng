@@ -2,8 +2,14 @@
 <Configuration strict="true" xmlns="http://logging.apache.org/log4j/2.0/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://logging.apache.org/log4j/2.0/config 
            https://raw.githubusercontent.com/apache/logging-log4j2/master/log4j-core/src/main/resources/Log4j-config.xsd">
+
+	<Properties>
+		<Property name="logPath" value="${sys:webapp.root}/WEB-INF/log" />
+	</Properties>
+
 	<Appenders>
 
+		<!-- console -->
 		<Console name="stdout" target="SYSTEM_OUT">
 			<PatternLayout>
 				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
@@ -11,7 +17,7 @@
 		</Console>
 
 		<!-- the appng.log -->
-		<RollingFile name="appng" fileName="${webapp.root}/WEB-INF/log/appNG.log" filePattern="${webapp.root}/WEB-INF/log/appNG.log.%d{MM-dd-yyyy}.log">
+		<RollingFile name="appng" fileName="${logPath}/appNG.log" filePattern="${logPath}/appNG.%d{yyyy-MM-dd}.log">
 			<PatternLayout>
 				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
 			</PatternLayout>
@@ -21,8 +27,7 @@
 		</RollingFile>
 
 		<!-- the scheduler.log -->
-		<RollingFile name="scheduler" fileName="${webapp.root}/WEB-INF/log/scheduler.log"
-			filePattern="${webapp.root}/WEB-INF/log/scheduler.log.%d{MM-dd-yyyy}.log">
+		<RollingFile name="scheduler" fileName="${logPath}/scheduler.log" filePattern="${logPath}/scheduler.%d{yyyy-MM-dd}.log">
 			<PatternLayout>
 				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
 			</PatternLayout>
@@ -32,8 +37,7 @@
 		</RollingFile>
 
 		<!-- the redirect.log -->
-		<RollingFile name="redirect" fileName="${webapp.root}/WEB-INF/log/redirect.log"
-			filePattern="${webapp.root}/WEB-INF/log/redirect.log.%d{MM-dd-yyyy}.log">
+		<RollingFile name="redirect" fileName="${logPath}/redirect.log" filePattern="${logPath}/redirect.%d{yyyy-MM-dd}.log">
 			<PatternLayout>
 				<Pattern>%d{ISO8601} %-5p [%t] %-32c{1.}: %m%n</Pattern>
 			</PatternLayout>
@@ -44,20 +48,21 @@
 	</Appenders>
 
 	<Loggers>
-	
-	<!-- log quartz to scheduler.log -->
+
+		<!-- log quartz to scheduler.log -->
 		<Logger name="org.quartz" additivity="false" level="info">
 			<AppenderRef ref="scheduler" />
 		</Logger>
-		
+
+		<!-- log URL rewrits to redirect.log -->
 		<Logger name="org.tuckey" additivity="false" level="info">
 			<AppenderRef ref="redirect" />
 		</Logger>
-		
+
 		<Root level="info">
 			<AppenderRef ref="appng" />
-			<!-- uncomment to log to console--> 
-			<!-- AppenderRef ref="stdout" /-->
+			<!-- uncomment to log to console -->
+			<!--AppenderRef ref="stdout" /-->
 		</Root>
 	</Loggers>
 </Configuration>
