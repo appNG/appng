@@ -28,6 +28,7 @@
 			</field>
 		</meta-data>
 	</config>
+	<messages ref="entity" />
 	<data>
 		<selection id="integerValue" type="checkbox">
 			<title id="integerValue">integer value</title>
