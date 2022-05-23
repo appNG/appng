@@ -75,10 +75,17 @@ class DataSourceElement extends Sectionelement {
 	}
 
 	/**
-	 * Delegates to {@link CallableDataSource#perform(String)}.
+	 * Delegates to {@link #perform(String, boolean)} with {@code addMessagesToSession=false}
 	 */
 	Data perform(String pageId) throws ProcessingException {
-		return callableDataSource.perform(pageId);
+		return perform(pageId, false);
+	}
+
+	/**
+	 * Delegates to {@link CallableDataSource#perform(String, boolean)}
+	 */
+	Data perform(String pageId, boolean addMessagesToSession) throws ProcessingException {
+		return callableDataSource.perform(pageId, addMessagesToSession);
 	}
 
 }

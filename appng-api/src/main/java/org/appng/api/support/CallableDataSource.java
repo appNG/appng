@@ -146,10 +146,27 @@ public class CallableDataSource {
 	/**
 	 * Performs this {@link CallableDataSource}, setting the {@link Bean} {@code null} afterwards.
 	 * 
-	 * @see #perform(String, boolean, boolean)
+	  * @see #perform(String, boolean, boolean, boolean)
 	 */
 	public Data perform(String pageId) throws ProcessingException {
-		return perform(pageId, true, false);
+		return perform(pageId, true, false, false);
+	}
+
+	/**
+	 * Performs this {@link CallableDataSource}, setting the {@link Bean} {@code null} afterwards.
+	 * 
+	 * @see #perform(String, boolean, boolean, boolean)
+	 */
+	public Data perform(String pageId, boolean addMessagesToSession) throws ProcessingException {
+		return perform(pageId, true, false, addMessagesToSession);
+	}
+	
+	/***
+	 * @deprecated use {@link #perform(String, boolean, boolean, boolean)}
+	 */
+	 @Deprecated
+	public Data perform(String pageId, boolean setBeanNull, boolean addValidation) throws ProcessingException {
+		return perform(pageId, setBeanNull, addValidation, false);
 	}
 
 	/**
@@ -158,12 +175,14 @@ public class CallableDataSource {
 	 * {@link #doInclude()}), as this method doesn't check that condition.
 	 * 
 	 * @param pageId
-	 *                      the ID of the current page
+	 *                             the ID of the current page
 	 * @param setBeanNull
-	 *                      whether or not to set the {@link Bean} of the {@link Datasource} to {@code null} after
-	 *                      performing
+	 *                             whether or not to set the {@link Bean} of the {@link Datasource} to {@code null}
+	 *                             after performing
 	 * @param addValidation
-	 *                      whether or not to add validation metadata
+	 *                             whether or not to add validation metadata
+	 * @param addMessagesToSession
+	 *                             if {@link Messages} should be added to the session or kept on the {@link Datasource}
 	 * 
 	 * @return the {@link Data} retrieved from the {@link Datasource} by calling
 	 *         {@link DataProvider#getData(Site, Application, org.appng.api.Environment, Options, org.appng.api.Request, org.appng.api.FieldProcessor)}
@@ -171,7 +190,8 @@ public class CallableDataSource {
 	 * @throws ProcessingException
 	 *                             if an error occurs while retrieving the {@code Data}
 	 */
-	public Data perform(String pageId, boolean setBeanNull, boolean addValidation) throws ProcessingException {
+	public Data perform(String pageId, boolean setBeanNull, boolean addValidation, boolean addMessagesToSession)
+			throws ProcessingException {
 		Bean bean = datasource.getBean();
 		if (null != bean) {
 			FieldProcessorImpl fieldProcessor = null;
@@ -221,7 +241,11 @@ public class CallableDataSource {
 							elementHelper.getValidationGroups(metaData, container.getItem()));
 				}
 
-				ElementHelper.addMessages(applicationRequest.getEnvironment(), fieldProcessor.getMessages());
+				if (addMessagesToSession) {
+					ElementHelper.addMessages(applicationRequest.getEnvironment(), fieldProcessor.getMessages());
+				} else {
+					getDatasource().setMessages(fieldProcessor.getMessages());
+				}
 
 				Data data = container.getWrappedData();
 				getDatasource().setData(data);
@@ -241,7 +265,7 @@ public class CallableDataSource {
 						fieldProcessor);
 			}
 		} else {
-			LOGGER.info("{} is static!", getDatasource().getId());
+			LOGGER.debug("{} is static!", getDatasource().getId());
 		}
 		return getDatasource().getData();
 	}
