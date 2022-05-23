@@ -38,6 +38,7 @@ import org.appng.xml.platform.Data;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
+import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.PageDefinition;
 import org.appng.xml.platform.PageReference;
