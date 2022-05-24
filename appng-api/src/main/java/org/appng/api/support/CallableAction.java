@@ -329,20 +329,22 @@ public class CallableAction {
 	 */
 	public FieldProcessor perform(boolean isSectionHidden) throws ProcessingException {
 		FieldProcessor fp = null;
+		Environment env = applicationRequest.getEnvironment();
 		if (doExecute()) {
 			execute = retrieveData(false);
 			if (doExecute()) {
 				fp = execute();
 				if (doForward() || forceForward()) {
-					String outputPrefix = elementHelper.getOutputPrefix(applicationRequest.getEnvironment());
+					String outputPrefix = elementHelper.getOutputPrefix(env);
 					StringBuilder target = new StringBuilder();
 					if (null != outputPrefix) {
 						target.append(outputPrefix);
 					}
 					target.append(getOnSuccess());
-					site.sendRedirect(applicationRequest.getEnvironment(), target.toString(), HttpStatus.FOUND.value());
 					getAction().setOnSuccess(target.toString());
+					ElementHelper.addMessages(env, fp.getMessages());
 					applicationRequest.setRedirectTarget(target.toString());
+					site.sendRedirect(env, target.toString(), HttpStatus.FOUND.value());
 				}
 			}
 		}
@@ -350,7 +352,7 @@ public class CallableAction {
 			retrieveData(false);
 			handleSelections();
 			if (!isSectionHidden && null != action) {
-				Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
+				Messages messages = elementHelper.removeMessages(env);
 				if (null != messages) {
 					Messages actionMessages = action.getMessages();
 					if (null == actionMessages) {
