@@ -284,6 +284,7 @@ public class CallableAction {
 			actionRef.setOnSuccess(onSuccess);
 			getAction().setOnSuccess(onSuccess);
 		}
+		getAction().setPageMessages(actionRef.isPageMessages());
 	}
 
 	/**

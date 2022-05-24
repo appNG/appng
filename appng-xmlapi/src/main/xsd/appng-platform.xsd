@@ -1024,6 +1024,16 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="pageMessages" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Set to true to promote messages to the page, false to keep them on the action.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Set to true to promote messages to the page, false to keep them on the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
 		<xs:attribute name="mode" type="xs:string" use="optional">
 			<xs:annotation>
 				<xs:documentation>
@@ -1835,6 +1845,16 @@ Note that only those POST-parameters which are being used in a {@link Condition}
 				<xs:appinfo>
 					<jxb:property>
 						<jxb:javadoc>The URI to forward to after successfully performing the action.</jxb:javadoc>
+					</jxb:property>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="pageMessages" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Set to true to promote messages to the page, false to keep them on the action.</xs:documentation>
+				<xs:appinfo>
+					<jxb:property>
+						<jxb:javadoc>Set to true to promote messages to the page, false to keep them on the action.</jxb:javadoc>
 					</jxb:property>
 				</xs:appinfo>
 			</xs:annotation>

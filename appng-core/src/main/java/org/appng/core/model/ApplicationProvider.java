@@ -358,10 +358,27 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			}
 		}
 		if (!hasRedirect) {
-			Messages messagesFromSession = elementHelper.removeMessages(applicationRequest.getEnvironment());
-			if (null != messagesFromSession) {
-				pageReference.setMessages(messagesFromSession);
+			final Messages pageMessages = new Messages();
+			Environment env = applicationRequest.getEnvironment();
+			if (elementHelper.hasMessages(env)) {
+				pageMessages.getMessageList().addAll(elementHelper.removeMessages(env).getMessageList());
 			}
+
+			for (Section section : structure.getSection()) {
+				section.getElement() //
+						.stream() //
+						.filter(el -> null != el.getAction()) //
+						.map(Sectionelement::getAction) //
+						.filter(ac -> Boolean.TRUE.equals(ac.isPageMessages())) //
+						.forEach(ac -> {
+							pageMessages.getMessageList().addAll(ac.getMessages().getMessageList());
+							ac.setMessages(null);
+						});
+			}
+			if (!pageMessages.getMessageList().isEmpty()) {
+				pageReference.setMessages(pageMessages);
+			}
+
 			for (final DataSourceElement dataSourceWrapper : dataSourceWrappers) {
 				Callback<Void> dataSourceCallback = new Callback<Void>() {
 
@@ -390,6 +407,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			}
 		}
 		return structure;
+
 	}
 
 	private boolean addElements(final ApplicationRequest applicationRequest, final ApplicationConfig applicationConfig,
