@@ -342,7 +342,9 @@ public class CallableAction {
 					}
 					target.append(getOnSuccess());
 					getAction().setOnSuccess(target.toString());
-					ElementHelper.addMessages(env, fp.getMessages());
+					if (null != fp) {
+						ElementHelper.addMessages(env, fp.getMessages());
+					}
 					applicationRequest.setRedirectTarget(target.toString());
 					site.sendRedirect(env, target.toString(), HttpStatus.FOUND.value());
 				}
