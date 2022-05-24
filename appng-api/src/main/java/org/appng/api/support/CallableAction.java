@@ -228,9 +228,8 @@ public class CallableAction {
 
 				List<Message> before = new ArrayList<>();
 				Environment environment = applicationRequest.getEnvironment();
-				Messages envMessages = elementHelper.getMessages(environment);
 				if (elementHelper.hasMessages(environment)) {
-					before.addAll(envMessages.getMessageList());
+					before.addAll(elementHelper.getMessages(environment).getMessageList());
 				}
 
 				Data data = datasourceElement.perform(null, setBeanNull, true, true);
@@ -241,7 +240,7 @@ public class CallableAction {
 
 				List<Message> after = new ArrayList<>();
 				if (elementHelper.hasMessages(environment)) {
-					after.addAll(envMessages.getMessageList());
+					after.addAll(elementHelper.getMessages(environment).getMessageList());
 				}
 
 				@SuppressWarnings("unchecked")
@@ -251,6 +250,7 @@ public class CallableAction {
 					dataOk = !dataSourceMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
 							.isPresent();
 
+					Messages envMessages = elementHelper.getMessages(environment);
 					envMessages.getMessageList().removeAll(dataSourceMessages);
 					if (envMessages.getMessageList().isEmpty()) {
 						elementHelper.removeMessages(environment);
