@@ -74,7 +74,7 @@
 		<queryDsl.version>5.0.0</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<spring.version>4.3.30.RELEASE</spring.version>
+		<spring.version>5.2.22.RELEASE</spring.version>
 		<springData.version>1.13.23.RELEASE</springData.version>
 		<springDataEnvers.version>1.1.23.RELEASE</springDataEnvers.version>
 		<springDataJpa.version>1.11.23.RELEASE</springDataJpa.version>
