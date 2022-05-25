@@ -10,7 +10,7 @@
             </field>
         </meta-data>
     </config>
-    <messages>
+    <messages ref="create">
         <message ref="create" class="OK">Employee created!</message>
     </messages>
     <datasource id="employee"/>
