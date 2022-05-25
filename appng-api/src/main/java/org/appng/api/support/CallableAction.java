@@ -16,7 +16,6 @@
 package org.appng.api.support;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -28,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.appng.api.ActionProvider;
@@ -53,11 +51,11 @@ import org.appng.xml.platform.Condition;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
+import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
 import org.appng.xml.platform.Event;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
-import org.appng.xml.platform.Message;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
@@ -225,39 +223,21 @@ public class CallableAction {
 			CallableDataSource datasourceElement = new CallableDataSource(site, application, applicationRequest,
 					actionParamSupport, datasourceRef);
 			if (datasourceElement.doInclude()) {
-
-				List<Message> before = new ArrayList<>();
-				Environment environment = applicationRequest.getEnvironment();
-				if (elementHelper.hasMessages(environment)) {
-					before.addAll(elementHelper.getMessages(environment).getMessageList());
-				}
-
-				Data data = datasourceElement.perform(null, setBeanNull, true, true);
+				Data data = datasourceElement.perform(null, setBeanNull, true);
 				action.setData(data);
-				DataConfig dsConfig = datasourceElement.getDatasource().getConfig();
+				Datasource datasource = datasourceElement.getDatasource();
+				DataConfig dsConfig = datasource.getConfig();
 				elementHelper.addTemplates(applicationRequest.getApplicationConfig(), dsConfig);
 				action.getConfig().setMetaData(dsConfig.getMetaData());
 
-				List<Message> after = new ArrayList<>();
-				if (elementHelper.hasMessages(environment)) {
-					after.addAll(elementHelper.getMessages(environment).getMessageList());
-				}
-
-				@SuppressWarnings("unchecked")
-				Collection<Message> dataSourceMessages = CollectionUtils.disjunction(before, after);
-
-				if (!dataSourceMessages.isEmpty()) {
-					dataOk = !dataSourceMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
-							.isPresent();
-
-					Messages envMessages = elementHelper.getMessages(environment);
-					envMessages.getMessageList().removeAll(dataSourceMessages);
-					if (envMessages.getMessageList().isEmpty()) {
-						elementHelper.removeMessages(environment);
-					}
-					Messages actionMessages = new Messages();
-					actionMessages.getMessageList().addAll(dataSourceMessages);
-					getAction().setMessages(actionMessages);
+				Messages datasourceMessages = datasource.getMessages();
+				if (null != datasourceMessages && !datasourceMessages.getMessageList().isEmpty()) {
+					dataOk = !datasourceMessages.getMessageList().stream()
+							.filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny().isPresent();
+					Messages messages = new Messages();
+					messages.setRef(action.getId());
+					messages.getMessageList().addAll(datasourceMessages.getMessageList());
+					getAction().setMessages(messages);
 				}
 
 				if (null != data && null != data.getResult()) {
@@ -334,6 +314,10 @@ public class CallableAction {
 			execute = retrieveData(false);
 			if (doExecute()) {
 				fp = execute();
+				Messages messages = null;
+				if (null != fp) {
+					messages = fp.getMessages();
+				}
 				if (doForward() || forceForward()) {
 					String outputPrefix = elementHelper.getOutputPrefix(env);
 					StringBuilder target = new StringBuilder();
@@ -342,28 +326,19 @@ public class CallableAction {
 					}
 					target.append(getOnSuccess());
 					getAction().setOnSuccess(target.toString());
-					if (null != fp) {
-						ElementHelper.addMessages(env, fp.getMessages());
+					if (null != messages) {
+						ElementHelper.addMessages(env, messages);
 					}
 					applicationRequest.setRedirectTarget(target.toString());
 					site.sendRedirect(env, target.toString(), HttpStatus.FOUND.value());
+				} else if (null != messages && !messages.getMessageList().isEmpty()) {
+					action.setMessages(messages);
 				}
 			}
 		}
 		if (doInclude() && !(doExecute() && doForward())) {
 			retrieveData(false);
 			handleSelections();
-			if (!isSectionHidden && null != action) {
-				Messages messages = elementHelper.removeMessages(env);
-				if (null != messages) {
-					Messages actionMessages = action.getMessages();
-					if (null == actionMessages) {
-						action.setMessages(messages);
-					} else {
-						actionMessages.getMessageList().addAll(0, messages.getMessageList());
-					}
-				}
-			}
 		}
 		return fp;
 	}
@@ -449,7 +424,6 @@ public class CallableAction {
 					}
 				}
 				errors = fieldProcessor.hasErrors();
-				ElementHelper.addMessages(env, fieldProcessor.getMessages());
 				if (errors) {
 					LOGGER.debug("validation returned errors");
 					addUserdata(metaData.getFields());

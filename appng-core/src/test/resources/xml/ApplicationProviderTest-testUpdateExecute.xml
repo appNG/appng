@@ -89,7 +89,7 @@
 								</meta-data>
 							</config>
 							<condition expression="${form_action eq 'update' and action eq 'update' and not empty entityId}" />
-							<messages>
+							<messages ref="update">
 								<message ref="update" class="OK">executed action update</message>
 							</messages>
 							<datasource id="entity">

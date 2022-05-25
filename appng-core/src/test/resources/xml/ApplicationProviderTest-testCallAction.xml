@@ -34,7 +34,7 @@
 		</meta-data>
 	</config>
 	<condition expression="${form_action eq 'create' and action eq 'create'}" />
-	<messages>
+	<messages ref="create">
 		<message ref="create" class="OK">executed action create</message>
 	</messages>
 	<datasource id="new-entity" />

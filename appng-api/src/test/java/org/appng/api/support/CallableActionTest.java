@@ -145,6 +145,13 @@ public class CallableActionTest {
 		AtomicReference<Messages> actionMessages = new AtomicReference<Messages>(new Messages());
 		mockMessages(envMessages, actionMessages, false);
 
+		AtomicReference<Messages> datasourceMessages = new AtomicReference<Messages>(new Messages());
+		Mockito.doAnswer(i -> {
+			datasourceMessages.set(i.getArgumentAt(0, Messages.class));
+			return null;
+		}).when(datasource).setMessages(Mockito.any());
+		Mockito.doAnswer(i -> datasourceMessages.get()).when(datasource).getMessages();
+
 		Mockito.doAnswer(i -> {
 			FieldProcessor fp = i.getArgumentAt(5, FieldProcessor.class);
 			DataContainer dataContainer = new DataContainer(fp);
@@ -156,12 +163,11 @@ public class CallableActionTest {
 
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
-		Assert.assertNull(envMessages.get());
+		Assert.assertTrue(envMessages.get().getMessageList().isEmpty());
 		Assert.assertNotNull(actionMessages.get());
 		Message message = actionMessages.get().getMessageList().get(0);
 		Assert.assertEquals("Error!", message.getContent());
 		Assert.assertEquals(MessageType.ERROR, message.getClazz());
-
 	}
 
 	@Test
@@ -189,7 +195,7 @@ public class CallableActionTest {
 
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
-		Assert.assertNull(envMessages.get());
+		Assert.assertTrue(envMessages.get().getMessageList().isEmpty());
 		Assert.assertNotNull(actionMessages.get());
 		List<Message> messageList = actionMessages.get().getMessageList();
 		Assert.assertEquals("BOOOOM!", messageList.get(0).getContent());
@@ -224,7 +230,7 @@ public class CallableActionTest {
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
 
-		Assert.assertNull(envMessages.get());
+		Assert.assertTrue(envMessages.get().getMessageList().isEmpty());
 
 		Assert.assertNotNull(actionMessages.get());
 		List<Message> messageList = actionMessages.get().getMessageList();
@@ -232,10 +238,6 @@ public class CallableActionTest {
 		Message fromAction = messageList.get(0);
 		Assert.assertEquals("ACTION!", fromAction.getContent());
 		Assert.assertEquals(MessageType.OK, fromAction.getClazz());
-
-		Message fromDataSource = messageList.get(1);
-		Assert.assertEquals("Done!", fromDataSource.getContent());
-		Assert.assertEquals(MessageType.OK, fromDataSource.getClazz());
 
 		Mockito.verify(action.getAction()).setMode(actionRef.getMode());
 	}
