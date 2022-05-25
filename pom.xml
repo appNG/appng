@@ -1192,6 +1192,12 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
+			<dependency>
+				<groupId>net.sourceforge.htmlunit</groupId>
+				<artifactId>neko-htmlunit</artifactId>
+				<version>2.61.0</version>
+				<scope>provided</scope>
+			</dependency>
 			<!-- END OTHERS -->
 
 			<!-- BEGIN TESTING DEPENDENCIES -->
