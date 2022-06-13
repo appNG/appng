@@ -79,9 +79,7 @@ public class RequestUtil {
 	 * 
 	 * @see Site#getHost()
 	 *
-	 * @deprecated use {@link #getSiteByName(Environment, String)
 	 */
-	@Deprecated
 	public static Site getSiteByHost(Environment env, String host) {
 		return getSiteMap(env).values().stream().filter(s -> host.equals(s.getHost())).findFirst().orElse(null);
 	}
