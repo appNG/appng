@@ -15,25 +15,13 @@
  */
 package org.appng.core.domain;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.Immutable;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
+@Immutable
 @Table(name = "job_execution_record")
-public class JobExecutionRecord extends JobRecordBase {
-
-	@Lob
-	@Column(name = "custom_data")
-	private String customData;
-	
-	@Lob
-	private String stacktraces;
-
+public class JobRecord extends JobRecordBase {
 }
