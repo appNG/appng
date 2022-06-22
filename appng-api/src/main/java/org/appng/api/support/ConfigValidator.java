@@ -305,12 +305,11 @@ public class ConfigValidator {
 			checkPermissions(new PermissionOwner(linkpanel), origin + " linkpanel '" + linkpanel.getId() + "'",
 					resource, linkpanelXPath);
 			for (Linkable linkable : linkpanel.getLinks()) {
-				String target = linkable.getTarget();
-				String linkOrigin = origin + " linkpanel '" + linkpanel.getId() + "' link '" + target + "'";
-				String xpathBase = "/link[@target='" + target + "']";
-
 				if (linkable instanceof Link) {
 					Link link = (Link) linkable;
+					String target = link.getTarget();
+					String linkOrigin = origin + " linkpanel '" + linkpanel.getId() + "' link '" + target + "'";
+					String xpathBase = "/link[@target='" + target + "']";
 
 					Linkmode mode = link.getMode();
 					if (Linkmode.INTERN.equals(mode)) {
@@ -359,8 +358,8 @@ public class ConfigValidator {
 							}
 						}
 					}
+					checkPermissions(new PermissionOwner(linkable), linkOrigin, resource, linkpanelXPath + xpathBase);
 				}
-				checkPermissions(new PermissionOwner(linkable), linkOrigin, resource, linkpanelXPath + xpathBase);
 			}
 		}
 	}

@@ -147,7 +147,7 @@ public class LinkPanelFieldHandlerTest extends AbstractFieldConverterTest {
 		Assert.assertEquals(original.getId(), linkpanel.getId());
 		Assert.assertEquals(2, linkpanel.getLinks().size());
 
-		Linkable link1 = linkpanel.getLinks().get(0);
+		Link link1 = (Link) linkpanel.getLinks().get(0);
 		Assert.assertEquals("/foo/5/7", link1.getTarget());
 		Assert.assertEquals("label-with-param-5-7", link1.getConfirmation().getValue());
 		Assert.assertEquals("true", link1.getDefault());
@@ -156,7 +156,7 @@ public class LinkPanelFieldHandlerTest extends AbstractFieldConverterTest {
 		Assert.assertEquals("edit", link1.getIcon().getContent());
 		Assert.assertEquals("label-with-param-5-7", link1.getLabel().getValue());
 
-		Linkable link3 = linkpanel.getLinks().get(1);
+		Link link3 = (Link) linkpanel.getLinks().get(1);
 		Assert.assertEquals("", link3.getTarget());
 		Assert.assertTrue(link3.isDisabled());
 	}

@@ -149,16 +149,16 @@ public class ElementHelper {
 
 					if (doInclude || showDisabled) {
 						linkable.setCondition(condition);
-						if (linkable.getId() == null) {
-							linkable.setId(panelId + "[" + linkCount + "]");
-						}
 						request.setLabel(linkable.getLabel());
 						request.setLabel(linkable.getConfirmation());
 						outPanel.getLinks().add(linkable);
 
 						if (linkable instanceof Link) {
 							Link link = (Link) linkable;
-							String currentTarget = linkable.getTarget();
+							if (link.getId() == null) {
+								link.setId(panelId + "[" + linkCount + "]");
+							}
+							String currentTarget = link.getTarget();
 							String newTarget = parameterSupport.replaceParameters(currentTarget);
 							if (Linkmode.WEBSERVICE.equals(link.getMode())) {
 								newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
@@ -175,7 +175,7 @@ public class ElementHelper {
 							if (pathInfo.isPathSelected(proposedPath.toString())) {
 								linkable.setActive(Boolean.TRUE.toString());
 							}
-							linkable.setTarget(newTarget);
+							link.setTarget(newTarget);
 						} else if (linkable instanceof OpenapiAction) {
 							OpenapiAction actionLink = (OpenapiAction) linkable;
 							StringBuilder target = new StringBuilder();
@@ -187,7 +187,7 @@ public class ElementHelper {
 							target.append("/rest/openapi/action");
 							target.append(actionLink.getEventId());
 							target.append("/");
-							target.append(actionLink.getActionId());
+							target.append(actionLink.getId());
 							actionLink.setTarget(target.toString());
 						}
 

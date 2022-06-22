@@ -1245,29 +1245,6 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 			<xs:element name="confirmation" type="label" minOccurs="0" />
 			<xs:element name="textelements" type="textelements" minOccurs="0" />
 		</xs:sequence>
-		<xs:attribute name="id" type="xs:string" use="optional">
-			<xs:annotation>
-				<xs:documentation>The unqiue id of this &lt;link&gt; within the owning &lt;linkpanel&gt;</xs:documentation>
-				<xs:appinfo>
-					<jxb:property>
-						<jxb:javadoc>The unqiue id of this {@code Link} within the owning {@link Linkpanel}</jxb:javadoc>
-					</jxb:property>
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="target" type="xs:string" use="required">
-			<xs:annotation>
-				<xs:documentation>The URI of the link, may be relative to the application (linkmode 'inline' or 'intern') or absolute (linkmode 'extern')
-				</xs:documentation>
-				<xs:appinfo>
-					<jxb:property>
-						<jxb:javadoc>The URI of the link, may be relative to the application ({@link Linkmode#INTERN} or {@link
-							Linkmode#INTERN}) or absolute ({@link Linkmode#EXTERN})
-						</jxb:javadoc>
-					</jxb:property>
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:attribute>
 		<xs:attribute name="default" type="booleanValue" use="optional">
 			<xs:annotation>
 				<xs:documentation>If evaluating to 'true', the link will be the default for the current &lt;result&gt;
@@ -1320,7 +1297,17 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
                 <xs:sequence>
                     <xs:element name="params" type="params" minOccurs="0" maxOccurs="1" />
                 </xs:sequence>
-                <xs:attribute name="action-id" type="xs:string" use="required">
+                <xs:attribute name="target" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The URI of the OpenAPI action</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The URI of the OpenAPI action</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
+                <xs:attribute name="id" type="xs:string" use="required">
 					<xs:annotation>
 						<xs:documentation>The ID of the action.</xs:documentation>
 						<xs:appinfo>
@@ -1357,6 +1344,29 @@ Therefore, several {@link Template}s are used, which contain the nessecarry XSL 
 	<xs:complexType name="link">
         <xs:complexContent>
             <xs:extension base="linkable">
+            	<xs:attribute name="id" type="xs:string" use="optional">
+            		<xs:annotation>
+            			<xs:documentation>The unqiue id of this &lt;link&gt; within the owning &lt;linkpanel&gt;</xs:documentation>
+            			<xs:appinfo>
+            				<jxb:property>
+            					<jxb:javadoc>The unqiue id of this {@code Link} within the owning {@link Linkpanel}</jxb:javadoc>
+            				</jxb:property>
+            			</xs:appinfo>
+            		</xs:annotation>
+            	</xs:attribute>
+            	<xs:attribute name="target" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>The URI of the link, may be relative to the application (linkmode 'inline' or 'intern') or absolute (linkmode 'extern')
+						</xs:documentation>
+						<xs:appinfo>
+							<jxb:property>
+								<jxb:javadoc>The URI of the link, may be relative to the application ({@link Linkmode#INTERN} or {@link
+									Linkmode#INTERN}) or absolute ({@link Linkmode#EXTERN})
+								</jxb:javadoc>
+							</jxb:property>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:attribute>
             	<xs:attribute name="mode" type="linkmode" use="required">
 					<xs:annotation>
 						<xs:documentation>The &lt;linkmode&gt; used when displaying this link.</xs:documentation>

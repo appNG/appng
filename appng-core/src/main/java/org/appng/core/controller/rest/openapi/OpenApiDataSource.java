@@ -383,19 +383,21 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		if (l instanceof org.appng.xml.platform.Link) {
 			Link link = new Link();
 			org.appng.xml.platform.Link ll = (org.appng.xml.platform.Link) l;
+			link.setId(ll.getId());
 			link.setType(LINK_MAPPING.get(ll.getMode()));
 			if (Linkmode.INTERN.equals(ll.getMode())) {
 				String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
 				String completePath = String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(),
-						l.getTarget());
+						ll.getTarget());
 				link.setTarget(completePath);
 			} else {
-				link.setTarget(l.getTarget());
+				link.setTarget(ll.getTarget());
 			}
 			linkable = link;
 		} else if (l instanceof org.appng.xml.platform.OpenapiAction) {
 			ActionLink action = new ActionLink();
 			org.appng.xml.platform.OpenapiAction al = (org.appng.xml.platform.OpenapiAction) l;
+			action.setId(al.getId());
 
 			Params params = ((org.appng.xml.platform.OpenapiAction) l).getParams();
 			if (null != params) {
@@ -409,15 +411,13 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				action.setParameters(parameters);
 			}
 
-			action.setTarget(l.getTarget());
-			action.setId(al.getId());
+			action.setTarget(al.getTarget());
 			action.setEventId(al.getEventId());
 			action.setInteractive(al.isInteractive());
 			linkable = action;
 		}
 
 		linkable.setLabel(l.getLabel().getValue());
-		linkable.setId(l.getId());
 		linkable.setIcon(l.getIcon().getContent());
 		linkable.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
 		if (null != l.getConfirmation()) {

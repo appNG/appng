@@ -100,22 +100,26 @@ abstract class OpenApiNavigation extends OpenApiOperation {
 							siteNavigation.setActive(true);
 
 							Linkpanel topNav = applicationConfig.getApplicationRootConfig().getNavigation();
+							ResourceBundleMessageSource messages = application
+									.getBean(ResourceBundleMessageSource.class);
+							DollarParameterSupport parameterSupport = new DollarParameterSupport();
 							for (org.appng.xml.platform.Linkable link : topNav.getLinks()) {
-								NavigationItem pageItem = new NavigationItem();
-								pageItem.setType(NavigationItem.TypeEnum.PAGE);
-								ResourceBundleMessageSource messages = application
-										.getBean(ResourceBundleMessageSource.class);
-								pageItem.setName(getLabelMessage(link.getLabel(), messages, env.getLocale(),
-										new DollarParameterSupport()));
-								pageItem.setPath(appItem.getPath() + link.getTarget());
-								pageItem.setSelf(getSelf("/page" + link.getTarget()).toString());
-								String pageName = link.getTarget().substring(1);
-								int pathSeparator = pageName.indexOf('/');
-								if (pathSeparator > 0) {
-									pageName = pageName.substring(0, pathSeparator);
+								if (link instanceof org.appng.xml.platform.Link) {
+									NavigationItem pageItem = new NavigationItem();
+									pageItem.setType(NavigationItem.TypeEnum.PAGE);
+									pageItem.setName(getLabelMessage(link.getLabel(), messages, env.getLocale(),
+											parameterSupport));
+									String target = ((org.appng.xml.platform.Link) link).getTarget();
+									pageItem.setPath(appItem.getPath() + target);
+									pageItem.setSelf(getSelf("/page" + target).toString());
+									String pageName = target.substring(1);
+									int pathSeparator = pageName.indexOf('/');
+									if (pathSeparator > 0) {
+										pageName = pageName.substring(0, pathSeparator);
+									}
+									pageItem.setDefault(StringUtils.equals(defaultPage, pageName));
+									appItem.addItemsItem(pageItem);
 								}
-								pageItem.setDefault(StringUtils.equals(defaultPage, pageName));
-								appItem.addItemsItem(pageItem);
 							}
 						}
 

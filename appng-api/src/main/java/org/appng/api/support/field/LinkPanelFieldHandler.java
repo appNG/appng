@@ -16,6 +16,7 @@
 package org.appng.api.support.field;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.appng.api.Environment;
 import org.appng.api.FieldConverter;
@@ -73,29 +74,30 @@ class LinkPanelFieldHandler extends ConverterBase {
 					boolean conditionMatches = null == linkCondition
 							|| expressionEvaluator.evaluate(linkCondition.getExpression());
 					if (conditionMatches || showDisabled) {
+						Function<Linkable, String> getTarget;
+						Function<String, Void> setTarget;
 						Linkable linkCopy;
 						if (link instanceof Link) {
 							linkCopy = new Link();
 							((Link) linkCopy).setMode(((Link) link).getMode());
+							((Link) linkCopy).setId(((Link) link).getId());
+							getTarget = l -> ((Link) link).getTarget();
+							setTarget = t -> {
+								((Link) linkCopy).setTarget(t);
+								return null;
+							};
 						} else {
 							linkCopy = new OpenapiAction();
+							((OpenapiAction) linkCopy).setId(((OpenapiAction) link).getId());
+							getTarget = l -> ((OpenapiAction) link).getTarget();
+							setTarget = t -> {
+								((OpenapiAction) linkCopy).setTarget(t);
+								return null;
+							};
 						}
-						linkCopy.setId(link.getId());
 						HashParameterSupport fieldParams = new HashParameterSupport(dataFieldOwner.getFieldValues());
 						fieldParams.allowDotInName();
-						linkCopy.setLabel(copyLabel(fieldParams, link.getLabel()));
-						if (showDisabled && !conditionMatches) {
-							linkCopy.setDisabled(true);
-							linkCopy.setTarget("");
-						} else {
-							String target = fieldParams.replaceParameters(link.getTarget());
-							linkCopy.setTarget(expressionEvaluator.evaluate(target, String.class));
-							if (link.getDefault() != null) {
-								linkCopy.setDefault(expressionEvaluator.evaluate(link.getDefault(), String.class));
-							}
-							linkCopy.setConfirmation(copyLabel(fieldParams, link.getConfirmation()));
-						}
-						linkCopy.setIcon(link.getIcon());
+						setAttributes(link, getTarget, setTarget, showDisabled, conditionMatches, linkCopy, fieldParams);
 						copy.getLinks().add(linkCopy);
 					}
 				}
@@ -105,6 +107,23 @@ class LinkPanelFieldHandler extends ConverterBase {
 			getLog().warn("linkpanel for field '" + fieldWrapper.getBinding() + "' is null!");
 		}
 		return null;
+	}
+
+	public void setAttributes(Linkable link,Function<Linkable,String> getTarget,Function<String,Void> setTarget, boolean showDisabled, boolean conditionMatches,
+			Linkable linkCopy, HashParameterSupport fieldParams) {
+		linkCopy.setLabel(copyLabel(fieldParams, link.getLabel()));
+		linkCopy.setIcon(link.getIcon());
+		if (showDisabled && !conditionMatches) {
+			linkCopy.setDisabled(true);
+			setTarget.apply("");
+		} else {
+			String target = fieldParams.replaceParameters(getTarget.apply(link));
+			setTarget.apply((expressionEvaluator.evaluate(target, String.class)));
+			if (link.getDefault() != null) {
+				linkCopy.setDefault(expressionEvaluator.evaluate(link.getDefault(), String.class));
+			}
+			linkCopy.setConfirmation(copyLabel(fieldParams, link.getConfirmation()));
+		}
 	}
 
 	protected Label copyLabel(ParameterSupport fieldParameters, Label original) {
