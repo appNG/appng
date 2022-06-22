@@ -19,20 +19,20 @@
             <permissions>
                 <permission ref="doesNotExist" mode="set"></permission>
             </permissions>
-            <link mode="intern" target="/fizz">
+            <link target="/fizz" mode="intern">
                 <permissions>
                     <permission ref="doesNotExist" mode="set"></permission>
                 </permissions>
                 <label></label>
                 <icon></icon>
             </link>
-            <link mode="intern" target="?foo=bar">
+            <link target="?foo=bar" mode="intern">
                 <label></label>
                 <icon></icon>
             </link>
         </linkpanel>
         <linkpanel id="nintendo" location="inline">
-            <link mode="intern" id="legend-of-zelda" target="hyrule">
+            <link id="legend-of-zelda" target="hyrule" mode="intern">
                 <label></label>
                 <icon></icon>
             </link>
