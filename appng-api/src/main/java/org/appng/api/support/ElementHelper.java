@@ -184,7 +184,7 @@ public class ElementHelper {
 							target.append(site.getName());
 							target.append("/");
 							target.append(application.getName());
-							target.append("/rest/openapi/action");
+							target.append("/rest/openapi/action/");
 							target.append(actionLink.getEventId());
 							target.append("/");
 							target.append(actionLink.getId());

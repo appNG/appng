@@ -35,6 +35,8 @@ import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.OpenapiAction;
 import org.appng.xml.platform.PanelLocation;
+import org.appng.xml.platform.Param;
+import org.appng.xml.platform.Params;
 import org.slf4j.Logger;
 import org.springframework.context.MessageSource;
 
@@ -77,6 +79,10 @@ class LinkPanelFieldHandler extends ConverterBase {
 						Function<Linkable, String> getTarget;
 						Function<String, Void> setTarget;
 						Linkable linkCopy;
+
+						HashParameterSupport fieldParams = new HashParameterSupport(dataFieldOwner.getFieldValues());
+						fieldParams.allowDotInName();
+
 						if (link instanceof Link) {
 							linkCopy = new Link();
 							((Link) linkCopy).setMode(((Link) link).getMode());
@@ -87,16 +93,32 @@ class LinkPanelFieldHandler extends ConverterBase {
 								return null;
 							};
 						} else {
-							linkCopy = new OpenapiAction();
-							((OpenapiAction) linkCopy).setId(((OpenapiAction) link).getId());
-							getTarget = l -> ((OpenapiAction) link).getTarget();
+							OpenapiAction actionCopy = new OpenapiAction();
+							OpenapiAction originalLink = (OpenapiAction) link;
+							actionCopy.setId(originalLink.getId());
+							actionCopy.setEventId(originalLink.getEventId());
+							actionCopy.setInteractive(originalLink.isInteractive());
+							getTarget = l -> originalLink.getTarget();
 							setTarget = t -> {
-								((OpenapiAction) linkCopy).setTarget(t);
+								actionCopy.setTarget(t);
 								return null;
 							};
+
+							Params params = originalLink.getParams();
+							if (null != params) {
+								actionCopy.setParams(new Params());
+								params.getParam().forEach(p -> {
+									Param param = new Param();
+									param.setName(p.getName());
+									String value = fieldParams.replaceParameters(p.getValue());
+									param.setValue(expressionEvaluator.evaluate(value, String.class));
+									actionCopy.getParams().getParam().add(param);
+								});
+							}
+
+							linkCopy = actionCopy;
 						}
-						HashParameterSupport fieldParams = new HashParameterSupport(dataFieldOwner.getFieldValues());
-						fieldParams.allowDotInName();
+
 						setAttributes(link, getTarget, setTarget, showDisabled, conditionMatches, linkCopy, fieldParams);
 						copy.getLinks().add(linkCopy);
 					}
@@ -109,8 +131,8 @@ class LinkPanelFieldHandler extends ConverterBase {
 		return null;
 	}
 
-	public void setAttributes(Linkable link,Function<Linkable,String> getTarget,Function<String,Void> setTarget, boolean showDisabled, boolean conditionMatches,
-			Linkable linkCopy, HashParameterSupport fieldParams) {
+	public void setAttributes(Linkable link, Function<Linkable, String> getTarget, Function<String, Void> setTarget,
+			boolean showDisabled, boolean conditionMatches, Linkable linkCopy, ParameterSupport fieldParams) {
 		linkCopy.setLabel(copyLabel(fieldParams, link.getLabel()));
 		linkCopy.setIcon(link.getIcon());
 		if (showDisabled && !conditionMatches) {
