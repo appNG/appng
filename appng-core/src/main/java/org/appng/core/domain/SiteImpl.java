@@ -15,6 +15,10 @@
  */
 package org.appng.core.domain;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
 import static org.appng.api.Scope.REQUEST;
 
 import java.io.File;
@@ -90,6 +94,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private String description;
 	private Date version;
 	private String host;
+	private Set<String> hostAliases;
 	private String domain;
 	private Set<SiteApplication> applications = new HashSet<>();
 	private boolean active;
@@ -173,6 +178,17 @@ public class SiteImpl implements Site, Auditable<Integer> {
 
 	public void setHost(String host) {
 		this.host = host;
+	}
+
+	@ElementCollection
+	@CollectionTable(name = "site_host_alias", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"), foreignKey = @ForeignKey(name = "FK__SITE_HOST_ALIAS"))
+	@Column(name = "alias_name", unique = true)
+	public Set<String> getHostAliases() {
+		return hostAliases;
+	}
+
+	public void setHostAliases(Set<String> hostAliases) {
+		this.hostAliases = hostAliases;
 	}
 
 	@NotNull(message = ValidationMessages.VALIDATION_NOT_NULL)
