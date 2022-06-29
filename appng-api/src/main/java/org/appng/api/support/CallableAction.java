@@ -241,6 +241,7 @@ public class CallableAction {
 
 				List<Message> after = new ArrayList<>();
 				if (elementHelper.hasMessages(environment)) {
+					envMessages = elementHelper.getMessages(environment);
 					after.addAll(envMessages.getMessageList());
 				}
 
