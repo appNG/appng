@@ -59,6 +59,7 @@ import org.appng.openapi.model.User;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Option;
@@ -152,6 +153,10 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		String id = processedDataSource.getId();
 		datasource.setId(id);
 		User user = getUser(environment);
+		Label title = processedDataSource.getConfig().getTitle();
+		if (null != title) {
+			datasource.setTitle(title.getValue());
+		}
 		datasource.setUser(user);
 		datasource.setParameters(getParameters(processedDataSource.getConfig().getParams(), false));
 		datasource.setPermissions(getPermissions(processedDataSource.getConfig().getPermissions()));

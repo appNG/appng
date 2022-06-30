@@ -60,6 +60,7 @@ import org.appng.xml.platform.Condition;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
+import org.appng.xml.platform.Label;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Params;
 import org.appng.xml.platform.Selection;
@@ -171,7 +172,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 					application.getName(), site.getName());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		
+
 		request.addParameter(FORM_ACTION, actionId);
 		for (Map.Entry<String, String[]> entry : servletRequest.getParameterMap().entrySet()) {
 			request.addParameter(entry.getKey(), entry.getValue()[0]);
@@ -188,7 +189,6 @@ abstract class OpenApiAction extends OpenApiOperation {
 		Action action = getAction(request, processedAction, environment, null, false, null);
 		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
 	}
-
 
 	// @formatter:off
 	@PostMapping(
@@ -287,6 +287,10 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 		addValidationRules(processedAction.getConfig().getMetaData());
 		Action action = new Action();
+		Label title = processedAction.getConfig().getTitle();
+		if (null != title) {
+			action.setTitle(title.getValue());
+		}
 		action.setId(processedAction.getId());
 		action.setEventId(processedAction.getEventId());
 		action.setUser(getUser(environment));

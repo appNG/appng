@@ -431,6 +431,9 @@ components:
         event-id:
           type: string
           description: The event-Id of the action.
+        title:
+          type: string
+          description: The title of the datasource.
         parameters:
           type: object
           description: A list of parameters for the action
