@@ -377,7 +377,7 @@ components:
         links:
           type: array
           items:
-            $ref: "#/components/schemas/Linkable"
+            $ref: "#/components/schemas/Link"
         sections:
           type: array
           items:
@@ -483,7 +483,7 @@ components:
           type: array
           description: A list of links.
           items:
-            $ref: "#/components/schemas/Linkable"
+            $ref: "#/components/schemas/Link"
         messages:
           type: array
           description: A list of messages.
@@ -693,17 +693,29 @@ components:
           type: array
           description: A list of links.
           items:
-            $ref: "#/components/schemas/Linkable"
-    Linkable:
+            $ref: "#/components/schemas/Link"
+    Link:
       type: object
-      description: A linkable.
+      description: A link.
       required:
-      - linkType
+      - type
       discriminator:
         propertyName: linkType
       properties:
-        linkType:
+        type:
           type: string
+          description: |
+            * page - Links to a page.
+            * extern - Links to an external resource.
+            * intern - Links to an internal resource.
+            * action - Links to an action.
+            * datasource - Links to a datasource
+          enum:
+            - page
+            - extern
+            - intern
+            - action
+            - datasource
         id:
           type: string
           description: The ID for this link.
@@ -725,7 +737,7 @@ components:
             following this link.
     ActionLink:
       allOf:
-      - $ref: '#/components/schemas/Linkable'
+      - $ref: '#/components/schemas/Link'
       - type: object
         properties:
           id:
@@ -741,21 +753,6 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Parameter"
-    Link:
-      allOf:
-      - $ref: '#/components/schemas/Linkable'
-      - type: object
-        properties:
-          type:
-            type: string
-            description: |
-              * page - Links to a page.
-              * extern - Links to an external resource.
-              * intern - Links to an internal resource.
-            enum:
-              - page
-              - extern
-              - intern
     Filter:
       type: object
       description: A filter that applies to a datasource.

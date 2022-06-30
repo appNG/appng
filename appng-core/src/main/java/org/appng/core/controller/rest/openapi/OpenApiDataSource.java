@@ -48,7 +48,7 @@ import org.appng.openapi.model.Filter;
 import org.appng.openapi.model.Icon;
 import org.appng.openapi.model.Item;
 import org.appng.openapi.model.Link;
-import org.appng.openapi.model.Linkable;
+import org.appng.openapi.model.Link.TypeEnum;
 import org.appng.openapi.model.OptionType;
 import org.appng.openapi.model.Options;
 import org.appng.openapi.model.Page;
@@ -377,11 +377,11 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		return fv;
 	}
 
-	protected Linkable getLink(org.appng.xml.platform.Linkable l) {
-		Linkable linkable = null;
+	protected Link getLink(org.appng.xml.platform.Linkable l) {
+		Link link = null;
 
 		if (l instanceof org.appng.xml.platform.Link) {
-			Link link = new Link();
+			link = new Link();
 			org.appng.xml.platform.Link ll = (org.appng.xml.platform.Link) l;
 			link.setId(ll.getId());
 			link.setType(LINK_MAPPING.get(ll.getMode()));
@@ -393,7 +393,6 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			} else {
 				link.setTarget(ll.getTarget());
 			}
-			linkable = link;
 		} else if (l instanceof org.appng.xml.platform.OpenapiAction) {
 			ActionLink action = new ActionLink();
 			org.appng.xml.platform.OpenapiAction al = (org.appng.xml.platform.OpenapiAction) l;
@@ -414,16 +413,17 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			action.setTarget(al.getTarget());
 			action.setEventId(al.getEventId());
 			action.setInteractive(al.isInteractive());
-			linkable = action;
+			action.setType(TypeEnum.ACTION);
+			link = action;
 		}
 
-		linkable.setLabel(l.getLabel().getValue());
-		linkable.setIcon(l.getIcon().getContent());
-		linkable.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
+		link.setLabel(l.getLabel().getValue());
+		link.setIcon(l.getIcon().getContent());
+		link.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
 		if (null != l.getConfirmation()) {
-			linkable.setConfirmation(l.getConfirmation().getValue());
+			link.setConfirmation(l.getConfirmation().getValue());
 		}
-		return linkable;
+		return link;
 	}
 
 	protected static final Map<Linkmode, Link.TypeEnum> LINK_MAPPING = new HashMap<Linkmode, Link.TypeEnum>();
