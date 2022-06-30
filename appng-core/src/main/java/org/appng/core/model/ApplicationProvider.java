@@ -350,10 +350,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 				SectionConfig config = sectionDef.getConfig();
 				if (null != title && null != title.getId()) {
 					sectionDef.setId(title.getId());
-					break;
 				} else if (null != config && null != config.getTitle().getId()) {
-					sectionDef.setId(config.getTitle().getId());
-					break;
+					sectionDef.setId(config.getTitle().getId());					
 				} else {
 					for (SectionelementDef element : sectionDef.getElement()) {
 						if (StringUtils.isBlank(element.getPassive())
