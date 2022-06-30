@@ -1,0 +1,172 @@
+{
+  "body" : {
+    "_self" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4",
+    "id" : "entities",
+    "title" : "Entities",
+    "parameters" : {
+      "param3" : "",
+      "param4" : "4",
+      "param1" : "",
+      "param2" : ""
+    },
+    "user" : {
+      "authenticated" : false,
+      "locale" : "en",
+      "timezone" : "Europe/Berlin",
+      "decimalSeparator" : ".",
+      "groupingSeparator" : ","
+    },
+    "fields" : [ {
+      "name" : "id",
+      "label" : "ID",
+      "fieldType" : "int",
+      "format" : "#"
+    }, {
+      "name" : "name",
+      "label" : "Name",
+      "fieldType" : "text",
+      "sort" : {
+        "pathAsc" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=name:asc",
+        "pathDesc" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=name:desc"
+      }
+    }, {
+      "name" : "integerValue",
+      "label" : "integer value",
+      "fieldType" : "int",
+      "format" : "#"
+    }, {
+      "name" : "doubleValue",
+      "label" : "double value",
+      "fieldType" : "decimal",
+      "sort" : {
+        "pathAsc" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=doubleValue:asc",
+        "pathDesc" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=doubleValue:desc"
+      },
+      "format" : "#.##"
+    }, {
+      "name" : "booleanValue",
+      "label" : "boolean value",
+      "fieldType" : "checkbox"
+    } ],
+    "filterResetPath" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&",
+    "page" : {
+      "_first" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=pageSize:25;page:0",
+      "_previous" : null,
+      "_next" : null,
+      "_last" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=pageSize:25;page:0",
+      "number" : 0,
+      "size" : 25,
+      "totalPages" : 1,
+      "totalItems" : 2,
+      "isFirst" : true,
+      "isLast" : true,
+      "pageSizes" : [ {
+        "size" : 5,
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=pageSize:5"
+      }, {
+        "size" : 10,
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=pageSize:10"
+      }, {
+        "size" : 25,
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=pageSize:25"
+      }, {
+        "size" : 50,
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities?param1=&param2=&param3=&param4=4&sortEntities=pageSize:50"
+      } ]
+    },
+    "items" : [ {
+      "fields" : {
+        "name" : {
+          "name" : "name",
+          "value" : "entity1"
+        },
+        "integerValue" : {
+          "name" : "integerValue",
+          "value" : 5,
+          "formattedValue" : "5"
+        },
+        "booleanValue" : {
+          "name" : "booleanValue",
+          "value" : false
+        },
+        "id" : {
+          "name" : "id",
+          "value" : 1,
+          "formattedValue" : "1"
+        },
+        "doubleValue" : {
+          "name" : "doubleValue",
+          "value" : 5.5,
+          "formattedValue" : "5.5"
+        }
+      },
+      "selected" : false,
+      "links" : [ {
+        "type" : "page",
+        "id" : "actions[1]",
+        "label" : "Edit",
+        "target" : "/manager/localhost/demo-application/1_edit",
+        "icon" : "edit",
+        "default" : true
+      }, {
+        "type" : "page",
+        "id" : "actions[2]",
+        "label" : "Delete",
+        "target" : "/manager/localhost/demo-application/1_delete",
+        "icon" : "delete",
+        "default" : true,
+        "confirmation" : "Really delete entity1?"
+      } ]
+    }, {
+      "fields" : {
+        "name" : {
+          "name" : "name",
+          "value" : "entity2"
+        },
+        "integerValue" : {
+          "name" : "integerValue",
+          "value" : 7,
+          "formattedValue" : "7"
+        },
+        "booleanValue" : {
+          "name" : "booleanValue",
+          "value" : true
+        },
+        "id" : {
+          "name" : "id",
+          "value" : 2,
+          "formattedValue" : "2"
+        },
+        "doubleValue" : {
+          "name" : "doubleValue",
+          "value" : 7.8,
+          "formattedValue" : "7.8"
+        }
+      },
+      "selected" : false,
+      "links" : [ {
+        "type" : "page",
+        "id" : "actions[1]",
+        "label" : "Edit",
+        "target" : "/manager/localhost/demo-application/2_edit",
+        "icon" : "edit",
+        "default" : true
+      }, {
+        "type" : "page",
+        "id" : "actions[2]",
+        "label" : "Delete",
+        "target" : "/manager/localhost/demo-application/2_delete",
+        "icon" : "delete",
+        "default" : true,
+        "confirmation" : "Really delete entity2?"
+      } ]
+    } ],
+    "permissions" : [ {
+      "mode" : "SET",
+      "ref" : "show_entities",
+      "value" : false
+    } ]
+  },
+  "statusCode" : "OK",
+  "statusCodeValue" : 200
+}

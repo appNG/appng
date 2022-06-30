@@ -97,7 +97,7 @@ abstract class OpenApiPage extends OpenApiOperation {
 		String pageUrlParams = (String) ((HttpServletRequest) servletReq)
 				.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		int pathLength = ("/openapi/page/" + pageId).length();
-		if (pageUrlParams.length() > pathLength) {
+		if (null != pageUrlParams && pageUrlParams.length() > pathLength) {
 			pageUrlParams = pageUrlParams.substring(pathLength + 1);
 		} else {
 			pageUrlParams = null;
