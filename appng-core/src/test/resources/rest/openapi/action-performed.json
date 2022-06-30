@@ -64,6 +64,6 @@
       "value" : false
     } ]
   },
-  "statusCode" : "BAD_REQUEST",
-  "statusCodeValue" : 400
+  "statusCode" : "OK",
+  "statusCodeValue" : 200
 }

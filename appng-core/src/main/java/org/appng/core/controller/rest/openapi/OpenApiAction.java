@@ -144,7 +144,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null, false, null);
-		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
+		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
 	}
 
 	// @formatter:off
@@ -187,7 +187,10 @@ abstract class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(request, processedAction, environment, null, false, null);
-		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
+		ResponseEntity<Action> responseEntity = new ResponseEntity<>(action,
+				hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
+		errors = false;
+		return responseEntity;
 	}
 
 	// @formatter:off
@@ -258,7 +261,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(executingRequest, processedAction, env, receivedData, false, null);
-		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
+		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
 	}
 
 	protected RestRequest getInitialRequest(Site site, Application application, Environment environment,

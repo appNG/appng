@@ -65,6 +65,6 @@
       "value" : false
     } ]
   },
-  "statusCode" : "BAD_REQUEST",
-  "statusCodeValue" : 400
+  "statusCode" : "UNPROCESSABLE_ENTITY",
+  "statusCodeValue" : 422
 }

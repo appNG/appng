@@ -12,8 +12,8 @@
     "id" : "entity",
     "urlTemplate" : "/service/localhost/demo-application/rest/openapi/page/entity/{action}/{entityId}/{entityAction}/{entityId}",
     "sections" : [ {
-      "_self" : "/service/localhost/demo-application/rest/openapi/page/entity?_sect=entities",
-      "id" : "entities",
+      "_self" : "/service/localhost/demo-application/rest/openapi/page/entity?_sect=42",
+      "id" : "42",
       "title" : {
         "value" : "Entities"
       },
