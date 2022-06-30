@@ -16,8 +16,6 @@
 package org.appng.core.controller.rest.openapi;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.appng.api.Path;
@@ -34,26 +32,23 @@ import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.model.AccessibleApplication;
 import org.appng.core.model.ApplicationProvider;
-import org.appng.openapi.model.Action;
-import org.appng.openapi.model.Datasource;
-import org.appng.openapi.model.PageDefinition;
 import org.appng.testsupport.TestBase;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.appng.xml.application.ApplicationInfo;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.Ignore;
 import org.mockito.Mockito;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 
+@Ignore
 @ContextConfiguration(locations = { "classpath:applications/application1/beans.xml", TestBase.TESTCONTEXT,
-		TestBase.TESTCONTEXT_JPA }, inheritLocations = false, initializers = OpenApiTest.class)
-public class OpenApiTest extends TestBase {
+		TestBase.TESTCONTEXT_JPA }, inheritLocations = false, initializers = OpenApiActionTest.class)
+class OpenApiTest extends TestBase {
 
-	private static final String PAGE_ID = "entity";
-	private static final String TESTAPPLICATION = "demo-application";
-	private ApplicationProvider applicationProvider;
+	protected static final String PAGE_ID = "entity";
+	protected static final String TESTAPPLICATION = "demo-application";
+	protected ApplicationProvider applicationProvider;
 
 	static {
 		WritingJsonValidator.writeJson = false;
@@ -65,47 +60,21 @@ public class OpenApiTest extends TestBase {
 		setRepositoryBase("");
 	}
 
-	@Test
-	public void testPage() throws Exception {
-		OpenApiPage openApiPage = new OpenApiPage(site, applicationProvider, request, messageSource, true) {
-		};
-		ResponseEntity<PageDefinition> page = openApiPage.getPage(PAGE_ID, null, environment, servletRequest,
+	@Override
+	@Before
+	public void setup() throws Exception {
+		super.setup();
+		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, Mockito.mock(Path.class));
+		SimpleAccessibleApplication app = new SimpleAccessibleApplication(TESTAPPLICATION, context);
+		app.init(request.getApplicationConfig().getApplicationInfo());
+		applicationProvider = new ApplicationProvider(site, app);
+		applicationProvider.setApplicationConfig(request.getApplicationConfig().cloneConfig(marshallService));
+		ApplicationRequest applicationRequest = applicationProvider.getApplicationRequest(servletRequest,
 				servletResponse);
-		WritingJsonValidator.validate(page, "rest/openapi/page.json");
-	}
-
-	@Test
-	public void testAction() throws Exception {
-		OpenApiAction openApiAction = new OpenApiAction(site, applicationProvider, request, messageSource, true) {
-		};
-		Map<String, String> pathVariables = new HashMap<>();
-		pathVariables.put("form_action", "create");
-		pathVariables.put("action", "create");
-		ResponseEntity<Action> action = openApiAction.getAction("events", "create", pathVariables, environment,
-				servletRequest, servletResponse);
-		WritingJsonValidator.validate(action, "rest/openapi/action.json");
-
-		servletRequest.addParameter("form_action", "create");
-		servletRequest.addParameter("action", "create");
-		ResponseEntity<Action> validated = openApiAction.performActionMultiPart("events", "create", environment,
-				servletRequest, servletResponse);
-		WritingJsonValidator.validate(validated, "rest/openapi/action-validate.json");
-
-		servletRequest.addParameter("name", "foobar");
-		ResponseEntity<Action> performed = openApiAction.performActionMultiPart("events", "create", environment,
-				servletRequest, servletResponse);
-		WritingJsonValidator.validate(performed, "rest/openapi/action-performed.json");
-
-	}
-
-	@Test
-	public void testDataSource() throws Exception {
-		OpenApiDataSource openApiDatasource = new OpenApiDataSource(site, applicationProvider, request, messageSource,
-				true) {
-		};
-		ResponseEntity<Datasource> datasource = openApiDatasource.getDataSource("entities", null, environment,
-				servletRequest, servletResponse);
-		WritingJsonValidator.validate(datasource, "rest/openapi/datasource.json");
+		applicationRequest.setPermissionProcessor(new DummyPermissionProcessor(subject, site, app));
+		((DefaultEnvironment) environment).setSubject(new SubjectImpl());
+		subjectWithRole("Administrator");
+		((DefaultEnvironment) environment).setSubject(subject);
 	}
 
 	class SimpleAccessibleApplication extends SimpleApplication implements AccessibleApplication {
@@ -163,23 +132,6 @@ public class OpenApiTest extends TestBase {
 			super.init(new java.util.Properties(), applicationInfo);
 		}
 
-	}
-
-	@Override
-	@Before
-	public void setup() throws Exception {
-		super.setup();
-		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, Mockito.mock(Path.class));
-		SimpleAccessibleApplication app = new SimpleAccessibleApplication(TESTAPPLICATION, context);
-		app.init(request.getApplicationConfig().getApplicationInfo());
-		applicationProvider = new ApplicationProvider(site, app);
-		applicationProvider.setApplicationConfig(request.getApplicationConfig().cloneConfig(marshallService));
-		ApplicationRequest applicationRequest = applicationProvider.getApplicationRequest(servletRequest,
-				servletResponse);
-		applicationRequest.setPermissionProcessor(new DummyPermissionProcessor(subject, site, app));
-		((DefaultEnvironment) environment).setSubject(new SubjectImpl());
-		subjectWithRole("Administrator");
-		((DefaultEnvironment) environment).setSubject(subject);
 	}
 
 }
