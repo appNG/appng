@@ -72,11 +72,18 @@ public interface Site extends Named<Integer> {
 	boolean hasApplication(String name);
 
 	/**
-	 * Returns the host for this site
+	 * Returns the main hostname for this site
 	 * 
 	 * @return the host
 	 */
 	String getHost();
+
+	/**
+	 * Returns aliases hostnames for this {@link Site}
+	 *
+	 * @return the alias hostnames defined for this {@link Site}
+	 */
+	Set<String> getHostAliases();
 
 	/**
 	 * Returns the domain for this {@link Site}.
