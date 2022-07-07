@@ -79,11 +79,12 @@ public interface Site extends Named<Integer> {
 	String getHost();
 
 	/**
-	 * Returns aliases hostnames for this {@link Site}
+	 * Returns all hostnames that the {@link Site} will respond to.
+	 * This is the main host returned by {@link #getHost()} plus all alias hostnames.
 	 *
-	 * @return the alias hostnames defined for this {@link Site}
+	 * @return Set of alias names plus the main hostname
 	 */
-	Set<String> getHostAliases();
+	Set<String> getHostNames();
 
 	/**
 	 * Returns the domain for this {@link Site}.

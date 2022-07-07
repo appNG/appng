@@ -94,7 +94,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private String description;
 	private Date version;
 	private String host;
-	private Set<String> hostAliases;
+	private Set<String> hostnames = new HashSet<>();
 	private String domain;
 	private Set<SiteApplication> applications = new HashSet<>();
 	private boolean active;
@@ -180,15 +180,15 @@ public class SiteImpl implements Site, Auditable<Integer> {
 		this.host = host;
 	}
 
-	@ElementCollection
-	@CollectionTable(name = "site_host_alias", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"), foreignKey = @ForeignKey(name = "FK__SITE_HOST_ALIAS"))
-	@Column(name = "alias_name", unique = true)
-	public Set<String> getHostAliases() {
-		return hostAliases;
+	@ElementCollection()
+	@CollectionTable(name = "site_hostnames", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"), foreignKey = @ForeignKey(name = "FK__SITE_HOSTNAMES"))
+	@Column(name = "hostname", unique = true)
+	public Set<String> getHostNames() {
+		return hostnames;
 	}
 
-	public void setHostAliases(Set<String> hostAliases) {
-		this.hostAliases = hostAliases;
+	public void setHostNames(Set<String> hostnames) {
+		this.hostnames = hostnames;
 	}
 
 	@NotNull(message = ValidationMessages.VALIDATION_NOT_NULL)
