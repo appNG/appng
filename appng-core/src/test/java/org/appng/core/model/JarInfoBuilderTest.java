@@ -22,13 +22,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class JarInfoBuilderTest {
+
 	@Test
 	public void test() {
 		String javaHome = System.getenv("JAVA_HOME");
 		if (null == javaHome) {
 			javaHome = System.getenv("java.home");
 		}
-		JarInfo jarInfo = JarInfoBuilder.getJarInfo(new File(javaHome, "lib/tools.jar"));
-		Assert.assertEquals("tools.jar", jarInfo.toString());
+		JarInfo jarInfo = JarInfoBuilder.getJarInfo(new File(javaHome,"lib/jrt-fs.jar"));
+		Assert.assertTrue(jarInfo.toString().startsWith("jrt-fs.jar: Title:Java Runtime Environment"));
 	}
 }
