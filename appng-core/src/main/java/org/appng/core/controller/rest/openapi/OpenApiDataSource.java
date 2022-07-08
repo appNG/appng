@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -286,10 +287,8 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		}
 		List<FieldDef> childFields = f.getFields();
 		if (null != childFields) {
-			for (FieldDef fieldDef : childFields) {
-				Field child = getField(self, dataSourceId, fieldDef, hasQueryParams);
-				field.getFields().put(child.getName(), child);
-			}
+			field.setFields(childFields.stream().map(fieldDef -> getField(self, dataSourceId, fieldDef, hasQueryParams))
+					.collect(Collectors.toMap(Field::getName, Function.identity())));
 		}
 		Validation validation = f.getValidation();
 		if (null != validation) {
