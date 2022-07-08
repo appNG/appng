@@ -184,10 +184,12 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	@CollectionTable(name = "site_hostnames", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"), foreignKey = @ForeignKey(name = "FK__SITE_HOSTNAMES"))
 	@Column(name = "hostname", unique = true)
 	public Set<String> getHostNames() {
+		if (host != null) hostnames.add(host);
 		return hostnames;
 	}
 
 	public void setHostNames(Set<String> hostnames) {
+		if (host != null) hostnames.add(host);
 		this.hostnames = hostnames;
 	}
 
