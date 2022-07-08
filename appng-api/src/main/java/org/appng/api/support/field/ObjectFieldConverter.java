@@ -52,10 +52,10 @@ class ObjectFieldConverter extends ConverterBase {
 			BeanWrapper wrapper = field.getBeanWrapper();
 			if (null == currentObject) {
 				try {
-					currentObject = targetClass.newInstance();
+					currentObject = targetClass.getDeclaredConstructor().newInstance();
 					wrapper.setPropertyValue(field.getBinding(), currentObject);
 					logSetObject(field, currentObject);
-				} catch (InstantiationException | IllegalAccessException e) {
+				} catch (ReflectiveOperationException e) {
 					LOGGER.error(String.format("error setting property %s for %s", field.getBinding(),
 							wrapper.getWrappedInstance()), e);
 				}

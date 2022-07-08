@@ -53,8 +53,8 @@ public class PropertyTypeTest {
 	@Test
 	public void testInt() {
 		validateForObject(Type.INT, 5);
-		validateForObject(Type.INT, new Integer(5));
-		validateForObject(Type.INT, new Integer(5).shortValue());
+		validateForObject(Type.INT, Integer.valueOf(5));
+		validateForObject(Type.INT, Integer.valueOf(5).shortValue());
 
 		testValueValid(Type.INT, "5");
 		testValueValid(Type.INT, "+5");
@@ -72,8 +72,8 @@ public class PropertyTypeTest {
 	public void testDecimal() {
 		validateForObject(Type.DECIMAL, 5d);
 		validateForObject(Type.DECIMAL, 5f);
-		validateForObject(Type.DECIMAL, new Double(5));
-		validateForObject(Type.DECIMAL, new Float(5));
+		validateForObject(Type.DECIMAL, Double.valueOf(5));
+		validateForObject(Type.DECIMAL, Float.valueOf(5));
 
 		testValueValid(Type.DECIMAL, "5.0");
 		testValueValid(Type.DECIMAL, "+5.0");

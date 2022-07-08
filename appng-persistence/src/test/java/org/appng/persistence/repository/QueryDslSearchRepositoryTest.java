@@ -53,8 +53,8 @@ public class QueryDslSearchRepositoryTest {
 	@Test
 	public void testRepo() {
 		BooleanExpression like = QTestEntity.testEntity.name.like("%ame1");
-		TestEntity bob1 = repo.findOne(like);
-		TestEntity bob2 = repo.findOne(like);
+		TestEntity bob1 = repo.findOne(like).get();
+		TestEntity bob2 = repo.findOne(like).get();
 		Assert.assertEquals(bob1, bob2);
 
 		Iterable<TestEntity> byNameLike = repo.findAll(QTestEntity.testEntity.name.like("name%"));

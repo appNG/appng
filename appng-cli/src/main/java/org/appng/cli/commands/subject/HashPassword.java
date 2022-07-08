@@ -119,7 +119,7 @@ public class HashPassword implements ExecutableCliCommand {
 			String passwordPolicyClass = cle.getPlatformConfig().getString(Platform.Property.PASSWORD_POLICY,
 					ConfigurablePasswordPolicy.class.getName());
 			PasswordPolicy passwordPolicy = (PasswordPolicy) PasswordPolicy.class.getClassLoader()
-					.loadClass(passwordPolicyClass).newInstance();
+					.loadClass(passwordPolicyClass).getDeclaredConstructor().newInstance();
 			passwordPolicy.configure(cle.getPlatformConfig());
 
 			ValidationResult validationResult = passwordPolicy.validatePassword(subject.getAuthName(), null,

@@ -18,8 +18,6 @@ package org.appng.maven.plugins.appngizer;
 import java.io.File;
 import java.net.URL;
 
-import org.appng.maven.plugins.appngizer.InstallMojo;
-
 public class RunAppNGizerMojo {
 
 	public static void main(String[] args) throws Exception {

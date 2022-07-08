@@ -17,17 +17,16 @@ package org.appng.testsupport.persistence;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Driver;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.io.IOUtils;
 import org.dbunit.database.IDatabaseConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
 
 /**
  * A container for all information about a database connection like the JDBC-Url, user, password etc.
@@ -66,7 +65,7 @@ public class ConnectionInfo {
 		this.connection = connection;
 
 		try {
-			driver = (Driver) Class.forName(driverClass).newInstance();
+			driver = (Driver) Class.forName(driverClass).getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new IllegalArgumentException("can not instantiate driver class", e);
 		}
@@ -187,8 +186,7 @@ public class ConnectionInfo {
 
 	public void executeSqlFromResource(String resourceName) throws IOException {
 		InputStream resource = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
-		String viewScript = ScriptUtils.readScript(new LineNumberReader(new InputStreamReader(resource)),
-				ScriptUtils.DEFAULT_COMMENT_PREFIX, ScriptUtils.DEFAULT_STATEMENT_SEPARATOR);
+		String viewScript = IOUtils.toString(resource, StandardCharsets.UTF_8);
 		executeSql(viewScript);
 	}
 

@@ -99,7 +99,7 @@ public class FieldProcessorTest {
 
 	@Test
 	public void testPageable() {
-		Pageable pageable = new PageRequest(0, 20, Direction.ASC, "field");
+		Pageable pageable = PageRequest.of(0, 20, Direction.ASC, "field");
 		FieldProcessorImpl fp = getFieldProcessor();
 		fp.setPageable(pageable);
 		Sort sort = fp.getField("field").getSort();

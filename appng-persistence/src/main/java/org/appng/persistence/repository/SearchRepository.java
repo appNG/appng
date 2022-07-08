@@ -47,6 +47,17 @@ public interface SearchRepository<T, ID extends Serializable>
 		extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
 
 	/**
+	 * Retrieves an entity by its id.
+	 *
+	 * @param id must not be {@literal null}.
+	 * @return the entity with the given id or {@literal null} if none found.
+	 * @throws IllegalArgumentException if {@literal id} is {@literal null}.
+	 * @deprecated This is just a temporary methed to make migration to {@link #findById(Object)} more smooth.
+	 */
+	@Deprecated
+	T getOne(ID id);
+
+	/**
 	 * Checks whether the given property is unique for this domain type.
 	 * 
 	 * @param id

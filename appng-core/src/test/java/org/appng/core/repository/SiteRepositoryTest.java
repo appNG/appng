@@ -55,7 +55,7 @@ public class SiteRepositoryTest extends AbstractRepositoryTest {
 		Assert.assertEquals(site, repository.findByDomain(site.getDomain()));
 		Assert.assertEquals(site, repository.findByHost(site.getHost()));
 		Assert.assertEquals(site, repository.findByName(site.getName()));
-		Assert.assertEquals(site, repository.findOne(site.getId()));
+		Assert.assertEquals(site, repository.getOne(site.getId()));
 		Assert.assertEquals(Arrays.asList(1), repository.getSiteIds());
 
 		List<SiteImpl> siteList = Arrays.asList(site);

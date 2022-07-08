@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.appng.api.model.Identifiable;
 import org.appng.api.model.NameProvider;
 import org.appng.api.model.Nameable;
-import org.appng.api.support.OptionOwner;
 import org.appng.api.support.OptionOwner.HitCounter;
 import org.appng.api.support.OptionOwner.Selector;
 import org.appng.xml.platform.Option;

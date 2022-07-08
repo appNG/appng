@@ -341,12 +341,12 @@ public class RestClient {
 				LOGGER.debug("sent cookie: {}={}", k, cookies.get(k));
 			});
 		}
-		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		headers.setContentType(MediaType.APPLICATION_JSON);
 		List<MediaType> acceptableMediaTypes;
 		if (acceptAnyType) {
 			acceptableMediaTypes = Arrays.asList(MediaType.ALL);
 		} else {
-			acceptableMediaTypes = Arrays.asList(MediaType.APPLICATION_JSON_UTF8);
+			acceptableMediaTypes = Arrays.asList(MediaType.APPLICATION_JSON);
 		}
 		headers.setAccept(acceptableMediaTypes);
 		headers.set(HttpHeaders.USER_AGENT, "appNG Rest Client");

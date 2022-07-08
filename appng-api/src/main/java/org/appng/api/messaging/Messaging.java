@@ -146,7 +146,7 @@ public class Messaging {
 					Class<? extends Receiver> messagingReceiverClass = (Class<? extends Receiver>) Class
 							.forName(messagingReceiverClassName);
 					LOGGER.info("using message receiver {}", messagingReceiverClass);
-					Receiver eventReceiver = messagingReceiverClass.newInstance().configure(eventSerializer);
+					Receiver eventReceiver = messagingReceiverClass.getDeclaredConstructor().newInstance().configure(eventSerializer);
 					if (null != defaultHandler) {
 						eventReceiver.setDefaultHandler(defaultHandler);
 					}

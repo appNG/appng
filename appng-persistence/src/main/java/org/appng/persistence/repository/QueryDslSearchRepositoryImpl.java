@@ -16,6 +16,8 @@
 package org.appng.persistence.repository;
 
 import java.io.Serializable;
+import java.util.Optional;
+import java.util.function.Function;
 
 import javax.persistence.EntityManager;
 
@@ -24,7 +26,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
-import org.springframework.data.jpa.repository.support.QueryDslJpaRepository;
+import org.springframework.data.jpa.repository.support.QuerydslJpaPredicateExecutor;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.querydsl.SimpleEntityPathResolver;
+import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -49,13 +54,13 @@ import com.querydsl.core.types.Predicate;
  *             the type of the Id of the domain class
  */
 public class QueryDslSearchRepositoryImpl<T, ID extends Serializable> extends SearchRepositoryImpl<T, ID>
-		implements QueryDslSearchRepository<T, ID> {
+		implements QuerydslPredicateExecutor<T> {
 
-	private QueryDslJpaRepository<T, ID> queryDslJpaRepository;
+	private QuerydslJpaPredicateExecutor<T> queryDslJpaRepository;
 
 	public QueryDslSearchRepositoryImpl(JpaEntityInformation<T, ID> entityInformation, EntityManager entityManager) {
 		super(entityInformation, entityManager);
-		this.queryDslJpaRepository = new QueryDslJpaRepository<T, ID>(entityInformation, entityManager);
+		this.queryDslJpaRepository = new QuerydslJpaPredicateExecutor<>(entityInformation, entityManager, SimpleEntityPathResolver.INSTANCE, getRepositoryMethodMetadata());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,10 +68,10 @@ public class QueryDslSearchRepositoryImpl<T, ID extends Serializable> extends Se
 		super(domainType, entityManager);
 		JpaEntityInformation<T, ID> entityInformation = (JpaEntityInformation<T, ID>) JpaEntityInformationSupport
 				.getEntityInformation(domainClass, entityManager);
-		this.queryDslJpaRepository = new QueryDslJpaRepository<T, ID>(entityInformation, entityManager);
+		this.queryDslJpaRepository = new QuerydslJpaPredicateExecutor<T>(entityInformation, entityManager, SimpleEntityPathResolver.INSTANCE, getRepositoryMethodMetadata());
 	}
 
-	public T findOne(Predicate predicate) {
+	public Optional<T> findOne(Predicate predicate) {
 		return queryDslJpaRepository.findOne(predicate);
 	}
 
@@ -96,6 +101,10 @@ public class QueryDslSearchRepositoryImpl<T, ID extends Serializable> extends Se
 
 	public boolean exists(Predicate predicate) {
 		return queryDslJpaRepository.exists(predicate);
+	}
+
+	public <S extends T, R> R findBy(Predicate predicate, Function<FetchableFluentQuery<S>, R> queryFunction) {
+		return queryDslJpaRepository.findBy(predicate, queryFunction);
 	}
 
 }

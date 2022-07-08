@@ -114,10 +114,10 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 			Class<?> enclosingClass = bindClass.getEnclosingClass();
 			int modifier = bindClass.getModifiers();
 			if (enclosingClass == null || Modifier.isStatic(modifier)) {
-				return bindClass.newInstance();
+				return bindClass.getDeclaredConstructor().newInstance();
 			} else {
 				if (Modifier.isPublic(modifier)) {
-					return bindClass.getConstructor(enclosingClass).newInstance(enclosingClass.newInstance());
+					return bindClass.getConstructor(enclosingClass).newInstance(enclosingClass.getDeclaredConstructor().newInstance());
 				} else {
 					throw new BusinessException("bindClass " + bindClass.getName() + " needs to be public!");
 				}

@@ -32,10 +32,10 @@ public class PropertyRepositoryTest extends AbstractRepositoryTest {
 		property = repository.save(property);
 
 		Assert.assertEquals(property, repository.findByName(property.getName()));
-		Assert.assertEquals(property, repository.findOne(property.getId()));
+		Assert.assertEquals(property, repository.getOne(property.getId()));
 
 		repository.delete(property);
 
-		Assert.assertNull(repository.findOne(property.getId()));
+		Assert.assertNull(repository.getOne(property.getId()));
 	}
 }

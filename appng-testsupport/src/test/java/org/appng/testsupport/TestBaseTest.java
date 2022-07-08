@@ -59,10 +59,10 @@ public class TestBaseTest extends TestBase {
 		HandlerMethodArgumentResolver hmar = getHandlerMethodArgumentResolver();
 		Method method = TestBaseTest.class.getMethod("setApplication", Environment.class, Site.class, Application.class,
 				String.class);
-		MethodParameter envParameter = MethodParameter.forMethodOrConstructor(method, 0);
-		MethodParameter siteParameter = MethodParameter.forMethodOrConstructor(method, 1);
-		MethodParameter appParameter = MethodParameter.forMethodOrConstructor(method, 2);
-		MethodParameter notSupported = MethodParameter.forMethodOrConstructor(method, 3);
+		MethodParameter envParameter = MethodParameter.forExecutable(method, 0);
+		MethodParameter siteParameter = MethodParameter.forExecutable(method, 1);
+		MethodParameter appParameter = MethodParameter.forExecutable(method, 2);
+		MethodParameter notSupported = MethodParameter.forExecutable(method, 3);
 
 		Assert.assertTrue(hmar.supportsParameter(envParameter));
 		Assert.assertTrue(hmar.supportsParameter(siteParameter));

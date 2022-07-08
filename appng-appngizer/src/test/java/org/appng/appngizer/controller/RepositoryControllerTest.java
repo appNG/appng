@@ -101,7 +101,7 @@ public class RepositoryControllerTest extends ControllerTest {
 		File file = new File(new File("").getAbsolutePath(),
 				"../appng-core/src/test/resources/zip/" + originalFilename);
 		MockMultipartHttpServletRequestBuilder post = MockMvcRequestBuilders
-				.fileUpload(new URI("/repository/local/upload"));
+				.multipart(new URI("/repository/local/upload"));
 		post.file(new MockMultipartFile("file", originalFilename, null, FileUtils.readFileToByteArray(file)));
 		sendBodyAndVerify(post, null, HttpStatus.OK, "xml/archive-upload.xml");
 

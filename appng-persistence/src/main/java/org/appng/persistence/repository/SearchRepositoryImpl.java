@@ -51,7 +51,7 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
  * </pre>
  * 
  * See <a href=
- * "http://docs.spring.io/spring-data/jpa/docs/1.11.0.RELEASE/reference/html/#repositories.custom-behaviour-for-all-repositories">
+ * "https://docs.spring.io/spring-data/jpa/docs/2.7.1/reference/html/#repositories.customize-base-repository">
  * 4.6.2. Adding custom behavior to all repositories</a> from the reference Documentation for further details.
  *
  * @author Matthias Müller
@@ -80,6 +80,11 @@ public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaR
 	}
 
 	@Override
+	public T getOne(ID id) {
+		return super.findById(id).orElse(null);
+	}
+
+	@Override
 	public Page<T> findAll(Pageable pageable) {
 		return search(pageable);
 	}
@@ -87,7 +92,7 @@ public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaR
 	public Page<T> search(Pageable pageable) {
 		Page<T> page = super.findAll(pageable);
 		if (pageable.getOffset() >= page.getTotalElements()) {
-			Pageable newPageable = new PageRequest(0, pageable.getPageSize(), pageable.getSort());
+			Pageable newPageable = PageRequest.of(0, pageable.getPageSize(), pageable.getSort());
 			page = super.findAll(newPageable);
 		}
 		return page;
@@ -121,9 +126,9 @@ public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaR
 		}
 		Long total = countQuery.getSingleResult();
 		if (pageable.getOffset() >= total) {
-			pageable = new PageRequest(0, pageable.getPageSize(), pageable.getSort());
+			pageable = PageRequest.of(0, pageable.getPageSize(), pageable.getSort());
 		}
-		query.setFirstResult(pageable.getOffset());
+		query.setFirstResult((int) pageable.getOffset());
 		query.setMaxResults(pageable.getPageSize());
 		List<T> content = query.getResultList();
 		return new PageImpl<T>(content, pageable, total);
@@ -215,8 +220,8 @@ public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaR
 		if (results.isEmpty()) {
 			return true;
 		} else if (id != null) {
-			T current = findOne(id);
-			return results.size() == 1 && current.equals(results.get(0));
+			T current = findById(id).get();
+			return results.size() == 1 && null != current && current.equals(results.get(0));
 		} else {
 			return false;
 		}

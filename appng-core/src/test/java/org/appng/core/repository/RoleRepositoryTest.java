@@ -66,12 +66,12 @@ public class RoleRepositoryTest extends AbstractRepositoryTest {
 				applicationRoleRepository.findByApplicationIdAndName(applicationId, "name"));
 		List<RoleImpl> roleList = Arrays.asList(applicationRole);
 		Assert.assertEquals(roleList, applicationRoleRepository.findByApplicationId(applicationId));
-		Assert.assertEquals(applicationRole, applicationRoleRepository.findOne(applicationRole.getId()));
+		Assert.assertEquals(applicationRole, applicationRoleRepository.getOne(applicationRole.getId()));
 		Assert.assertEquals(roleList, applicationRoleRepository.findRolesForSite(site.getId()));
 		Assert.assertEquals(roleList,
 				applicationRoleRepository.findRolesForApplicationAndSite(site.getId(), applicationId));
 
 		applicationRoleRepository.delete(applicationRole);
-		Assert.assertNull(applicationRoleRepository.findOne(applicationRole.getId()));
+		Assert.assertNull(applicationRoleRepository.getOne(applicationRole.getId()));
 	}
 }

@@ -618,14 +618,16 @@ public class SearchQuery<T> {
 		setQueryParameters(countQuery, query);
 
 		Long total = null;
-		if (null != pageable) {
+		boolean isPaged = null != pageable;
+		if (isPaged) {
 			total = countQuery.getSingleResult();
 			pageable = applyPagination(query, total, pageable);
 		}
 
 		List<T> content = query.getResultList();
-		if (null == total) {
+		if (!isPaged) {
 			total = (long) content.size();
+			pageable = PageRequest.of(0, total.intValue() > 0 ? total.intValue() : 1);
 		}
 
 		return new PageImpl<T>(content, pageable, total);
@@ -731,9 +733,9 @@ public class SearchQuery<T> {
 	 */
 	protected Pageable applyPagination(Query query, Long total, Pageable pageable) {
 		if (pageable.getOffset() >= total) {
-			pageable = new PageRequest(0, pageable.getPageSize(), pageable.getSort());
+			pageable = PageRequest.of(0, pageable.getPageSize(), pageable.getSort());
 		}
-		query.setFirstResult(pageable.getOffset());
+		query.setFirstResult((int) pageable.getOffset());
 		query.setMaxResults(pageable.getPageSize());
 		return pageable;
 	}

@@ -31,7 +31,7 @@ public class ConnectionHelper {
 	private static final DBType type = DBType.HSQL;
 
 	public enum DBType {
-		MYSQL, HSQL, DERBY
+		MYSQL, HSQL
 	}
 
 	public static ConnectionInfo getMySqlConnectionInfo() {

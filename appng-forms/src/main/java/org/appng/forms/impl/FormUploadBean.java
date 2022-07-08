@@ -120,7 +120,7 @@ public class FormUploadBean implements FormUpload {
 	public boolean isValid(Class<? extends FormUploadValidator> validatorClass) {
 		FormUploadValidator validator;
 		try {
-			validator = validatorClass.newInstance();
+			validator = validatorClass.getDeclaredConstructor().newInstance();
 			return isValid(validator);
 		} catch (Exception e) {
 			LOGGER.error(String.format("unable to instanciate validator class '%s'", validatorClass.getName()), e);

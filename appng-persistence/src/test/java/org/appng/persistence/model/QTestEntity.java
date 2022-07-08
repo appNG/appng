@@ -15,18 +15,18 @@
  */
 package org.appng.persistence.model;
 
-import static com.querydsl.core.types.PathMetadataFactory.*;
+import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
-import com.querydsl.core.types.dsl.*;
-
-import com.querydsl.core.types.PathMetadata;
-import javax.annotation.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.dsl.BooleanPath;
+import com.querydsl.core.types.dsl.EntityPathBase;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.StringPath;
 
 /**
  * QTestEntity is a Querydsl query type for TestEntity
  */
-@Generated("com.querydsl.codegen.EntitySerializer")
 public class QTestEntity extends EntityPathBase<TestEntity> {
 
 	private static final long serialVersionUID = -1328827481L;

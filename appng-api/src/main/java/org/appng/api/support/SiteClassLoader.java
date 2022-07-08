@@ -46,12 +46,6 @@ public class SiteClassLoader extends URLClassLoader implements SmartClassLoader 
 
 	@Override
 	/* for simpler debugging */
-	protected void finalize() throws Throwable {
-		super.finalize();
-	}
-
-	@Override
-	/* for simpler debugging */
 	public void close() throws IOException {
 		super.close();
 		ResourceBundle.clearCache(this);

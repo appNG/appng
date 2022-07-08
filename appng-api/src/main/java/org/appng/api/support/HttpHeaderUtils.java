@@ -21,7 +21,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
@@ -35,8 +34,6 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.RequestEntity.BodyBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -245,18 +242,17 @@ public class HttpHeaderUtils {
 	 * 
 	 * @return The immutable {@link HttpHeaders}
 	 */
+	@SuppressWarnings("unchecked")
 	public static HttpHeaders parse(HttpServletRequest httpServletRequest) {
-		BodyBuilder builder = RequestEntity.method(null, null);
+		HttpHeaders headers = new HttpHeaders();
 		if (null != httpServletRequest) {
 			Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
 			while (headerNames.hasMoreElements()) {
 				String header = headerNames.nextElement();
-				@SuppressWarnings("unchecked")
-				List<String> headerValues = EnumerationUtils.toList(httpServletRequest.getHeaders(header));
-				builder.header(header, headerValues.toArray(new String[headerValues.size()]));
+				headers.addAll(header, EnumerationUtils.toList(httpServletRequest.getHeaders(header)));
 			}
 		}
-		return HttpHeaders.readOnlyHttpHeaders(builder.build().getHeaders());
+		return headers;
 	}
 
 	/**

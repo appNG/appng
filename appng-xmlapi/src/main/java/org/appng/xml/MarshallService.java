@@ -118,7 +118,7 @@ public class MarshallService {
 			try {
 				this.context = JAXBContext.newInstance(contextPath);
 			} catch (JAXBException e) {
-				throw new IllegalStateException("error while creating JAXBContext for path '" + contextPath + "'");
+				throw new IllegalStateException("error while creating JAXBContext for path '" + contextPath + "'", e);
 			}
 		}
 

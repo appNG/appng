@@ -52,6 +52,18 @@
 						</configuration>
 					</execution>
 				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>jakarta.xml.bind</groupId>
+						<artifactId>jakarta.xml.bind-api</artifactId>
+						<version>${jakarta.xml.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>com.sun.org.apache.xml.internal</groupId>
+						<artifactId>resolver</artifactId>
+						<version>20050927</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -247,11 +259,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-mysql</artifactId>			
+			<artifactId>flyway-mysql</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-sqlserver</artifactId>			
+			<artifactId>flyway-sqlserver</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>

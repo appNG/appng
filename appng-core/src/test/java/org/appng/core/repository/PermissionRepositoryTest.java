@@ -46,11 +46,11 @@ public class PermissionRepositoryTest extends AbstractRepositoryTest {
 
 		Integer applicationId = application.getId();
 		Assert.assertEquals(Arrays.asList(permission),
-				repository.findByApplicationId(applicationId, new Sort(Direction.ASC, "name")));
+				repository.findByApplicationId(applicationId, Sort.by(Direction.ASC, "name")));
 		Assert.assertEquals(permission, repository.findByNameAndApplicationId("name", applicationId));
-		Assert.assertEquals(permission, repository.findOne(permission.getId()));
+		Assert.assertEquals(permission, repository.getOne(permission.getId()));
 		repository.delete(permission);
-		Assert.assertNull(repository.findOne(permission.getId()));
+		Assert.assertNull(repository.getOne(permission.getId()));
 	}
 
 }

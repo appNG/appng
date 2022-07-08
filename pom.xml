@@ -63,23 +63,26 @@
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<bouncycastle.version>1.70</bouncycastle.version>
 		<esapi.version>2.3.0.0</esapi.version>
-		<flyway.version>8.5.11</flyway.version>
-		<hazelcast.version>5.1.1</hazelcast.version>
-		<hibernate.version>5.6.9.Final</hibernate.version>
+		<flyway.version>8.5.13</flyway.version>
+		<hazelcast.version>5.1.2</hazelcast.version>
+		<hibernate.version>5.6.10.Final</hibernate.version>
 		<jackson.version>2.13.3</jackson.version>
+		<jakarta.activation.version>1.2.2</jakarta.activation.version>
+		<jakarta.xml.version>2.3.3</jakarta.xml.version>
+		<jaxb.version>2.3.5</jaxb.version>
 		<junrar.version>7.5.1</junrar.version>
+		<log4j2.version>2.17.2</log4j2.version>
+		<lombok.version>1.18.24</lombok.version>
 		<lucene.version>8.11.1</lucene.version>
 		<pdfBox.version>2.0.24</pdfBox.version>
 		<poi.version>5.2.2</poi.version>
 		<queryDsl.version>5.0.0</queryDsl.version>
 		<servlet.version>3.1.0</servlet.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<spring.version>4.3.30.RELEASE</spring.version>
-		<springData.version>1.13.23.RELEASE</springData.version>
-		<springDataEnvers.version>1.1.23.RELEASE</springDataEnvers.version>
-		<springDataJpa.version>1.11.23.RELEASE</springDataJpa.version>
+		<spring.version>5.3.21</spring.version>
+		<springData.version>2.7.1</springData.version>
 		<springSecurity.version>4.2.17.RELEASE</springSecurity.version>
-		<springWS.version>2.4.6.RELEASE</springWS.version>
+		<springWS.version>3.1.3</springWS.version>
 		<tika.version>2.4.0</tika.version>
 		<tomcat.version>9.0.31</tomcat.version>
 	</properties>
@@ -115,7 +118,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -542,7 +545,7 @@
 					<aggregate>true</aggregate>
 					<links>
 						<link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
-						<link>http://docs.spring.io/spring-data/data-jpa/docs/${springDataJpa.version}/api/</link>
+						<link>http://docs.spring.io/spring-data/data-jpa/docs/${springData.version}/api/</link>
 						<link>http://docs.spring.io/spring-data/data-commons/docs/${springData.version}/api/</link>
 						<link>http://docs.spring.io/spring-ws/docs/${springWS.version}/api/</link>
 						<link>http://lucene.apache.org/core/8_5_0/core/</link>
@@ -557,8 +560,8 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
@@ -601,23 +604,28 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.16.22</version>
+			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.17.2</version>
+			<version>${log4j2.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.17.2</version>
+			<version>${log4j2.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-1.2-api</artifactId>
-			<version>2.17.2</version>
+			<version>${log4j2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>${jaxb.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -687,12 +695,12 @@
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
-				<version>${springDataJpa.version}</version>
+				<version>${springData.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-envers</artifactId>
-				<version>${springDataEnvers.version}</version>
+				<version>${springData.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.data</groupId>
@@ -713,7 +721,7 @@
 			<dependency>
 				<groupId>jakarta.activation</groupId>
 				<artifactId>jakarta.activation-api</artifactId>
-				<version>1.2.2</version>
+				<version>${jakarta.activation.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.annotation</groupId>
@@ -739,6 +747,11 @@
 				<groupId>jakarta.ws.rs</groupId>
 				<artifactId>jakarta.ws.rs-api</artifactId>
 				<version>2.1.6</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.xml.bind</groupId>
+				<artifactId>jakarta.xml.bind-api</artifactId>
+				<version>${jakarta.xml.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.xml.soap</groupId>
@@ -1136,11 +1149,23 @@
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.5.13</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents.client5</groupId>
 				<artifactId>httpclient5</artifactId>
 				<version>5.1.3</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>

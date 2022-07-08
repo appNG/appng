@@ -87,11 +87,11 @@ public class SubjectRepositoryTest extends AbstractRepositoryTest {
 		Assert.assertEquals(subject, repository.findByName(subject.getName()));
 		Assert.assertEquals(subject, repository.findByEmail(subject.getEmail()));
 		Assert.assertEquals(Arrays.asList(subject), repository.findByUserType(subject.getUserType()));
-		Assert.assertEquals(subject, repository.findOne(subject.getId()));
+		Assert.assertEquals(subject, repository.getOne(subject.getId()));
 
 		Assert.assertEquals(Arrays.asList(subject), repository.findSubjectsForApplication(application.getId()));
 
 		repository.delete(subject);
-		Assert.assertNull(repository.findOne(subject.getId()));
+		Assert.assertNull(repository.getOne(subject.getId()));
 	}
 }

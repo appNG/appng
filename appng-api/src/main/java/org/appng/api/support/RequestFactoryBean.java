@@ -39,7 +39,6 @@ import org.appng.forms.XSSUtil;
 import org.appng.forms.impl.RequestBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 

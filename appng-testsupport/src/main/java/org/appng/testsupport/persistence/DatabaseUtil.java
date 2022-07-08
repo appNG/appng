@@ -101,7 +101,7 @@ public class DatabaseUtil {
 
 	public void importData(Class<? extends TestDataProvider> testDataProviderClass) throws Exception {
 		LOGGER.info("found TestDataProvider {}", testDataProviderClass);
-		TestDataProvider testDataProvider = testDataProviderClass.newInstance();
+		TestDataProvider testDataProvider = testDataProviderClass.getDeclaredConstructor().newInstance();
 		clearDBJPA(true, testDataProvider);
 	}
 
@@ -139,7 +139,7 @@ public class DatabaseUtil {
 		try {
 			openConnection();
 			LOGGER.info("found TestDataProvider {}", testDataProviderClass);
-			TestDataProvider testDataProvider = testDataProviderClass.newInstance();
+			TestDataProvider testDataProvider = testDataProviderClass.getDeclaredConstructor().newInstance();
 			clearDBJPA(clearDb, testDataProvider);
 			export(dataName);
 			shutDown();
@@ -183,7 +183,7 @@ public class DatabaseUtil {
 			tx.begin();
 			if (testDataProvider != null) {
 				LOGGER.info("writing testdata");
-				testDataProvider.newInstance().writeTestData(em);
+				testDataProvider.getDeclaredConstructor().newInstance().writeTestData(em);
 				LOGGER.info("done importing testdata");
 			}
 			LOGGER.info("...done clearing");

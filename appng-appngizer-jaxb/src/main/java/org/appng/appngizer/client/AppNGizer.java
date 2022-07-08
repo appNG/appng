@@ -18,7 +18,6 @@ package org.appng.appngizer.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -453,11 +452,7 @@ public class AppNGizer implements AppNGizerClient {
 	}
 
 	static String encode(String segment) {
-		try {
-			return UriUtils.encodePathSegment(segment, StandardCharsets.UTF_8.name());
-		} catch (UnsupportedEncodingException e) {
-			return segment;
-		}
+		return UriUtils.encodePathSegment(segment, StandardCharsets.UTF_8.name());
 	}
 
 }

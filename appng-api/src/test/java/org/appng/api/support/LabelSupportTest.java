@@ -173,7 +173,7 @@ public class LabelSupportTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("id", 5);
 		parameters.put("date", new GregorianCalendar(2013, Calendar.MARCH, 8).getTime());
-		parameters.put("number", new Double(42000000.42d));
+		parameters.put("number", Double.valueOf(42000000.42d));
 		expressionEvaluator = new ExpressionEvaluator(parameters);
 		Mockito.when(request.getLocale()).thenReturn(locale);
 		expressionEvaluator.setVariable(ApplicationRequest.I18N_VAR, new I18n(request));

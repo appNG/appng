@@ -663,9 +663,9 @@ public class ConfigValidator {
 					}
 				});
 			} else if (enclosingClass == null || Modifier.isStatic(modifier)) {
-				return bindClass.newInstance();
+				return bindClass.getDeclaredConstructor().newInstance();
 			} else if (Modifier.isPublic(modifier)) {
-				return bindClass.getConstructor(enclosingClass).newInstance(enclosingClass.newInstance());
+				return bindClass.getConstructor(enclosingClass).newInstance(enclosingClass.getDeclaredConstructor().newInstance());
 			}
 		} catch (ReflectiveOperationException o) {
 			String errorMssg = String.format(

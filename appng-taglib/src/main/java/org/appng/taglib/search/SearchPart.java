@@ -143,7 +143,7 @@ public class SearchPart extends BodyTagSupport implements ParameterOwner, Clonea
 	}
 
 	public Analyzer getAnalyzer() throws ReflectiveOperationException {
-		return (Analyzer) Class.forName(analyzerClass).newInstance();
+		return (Analyzer) Class.forName(analyzerClass).getDeclaredConstructor().newInstance();
 	}
 
 	@Override

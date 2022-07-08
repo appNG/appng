@@ -135,7 +135,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	public void testRest() throws Exception {
 		String controlFile = getClass().getClassLoader().getResource("rest/restServiceResult.json").getFile();
 		String jsonResponse = new String(Files.readAllBytes(new File(controlFile).toPath()));
-		handleRestCall(3, 4, jsonResponse, MediaType.APPLICATION_JSON_UTF8_VALUE, HttpStatus.OK);
+		handleRestCall(3, 4, jsonResponse, MediaType.APPLICATION_JSON_VALUE, HttpStatus.OK);
 	}
 
 	@Test
@@ -145,13 +145,13 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 
 	@Test
 	public void testRestHandleBusinessException() throws Exception {
-		handleRestCall(11, 47, "{\n  \"message\" : \"BOOOM!\"\n}", MediaType.APPLICATION_JSON_UTF8_VALUE,
+		handleRestCall(11, 47, "{\n  \"message\" : \"BOOOM!\"\n}", MediaType.APPLICATION_JSON_VALUE,
 				HttpStatus.METHOD_NOT_ALLOWED);
 	}
 
 	@Test
 	public void testRestHandleNullPointerException() throws Exception {
-		handleRestCall(47, 12, "{\n  \"message\" : \"NPE\"\n}", MediaType.APPLICATION_JSON_UTF8_VALUE,
+		handleRestCall(47, 12, "{\n  \"message\" : \"NPE\"\n}", MediaType.APPLICATION_JSON_VALUE,
 				HttpStatus.I_AM_A_TEAPOT);
 	}
 
@@ -196,7 +196,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	@ControllerAdvice
 	static class FoobarRest extends ResponseEntityExceptionHandler {
 
-		@RequestMapping(value = "/add/{a}/{b}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+		@RequestMapping(value = "/add/{a}/{b}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 		public ResponseEntity<Result> add(@PathVariable("a") Integer a, @PathVariable("b") Integer b)
 				throws BusinessException {
 			if (a < 0) {

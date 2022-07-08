@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.appng.forms.FormUpload;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -92,7 +93,7 @@ public class RequestDataBinderTest {
 	protected void validate(List<FormUpload> pictures, Person person) {
 		Assert.assertEquals("Doe", person.getName());
 		Assert.assertEquals("14.05.1944", FDF.format(person.getBirthDate()));
-		Assert.assertThat(person.getIntegerList(), CoreMatchers.is(Arrays.asList(1, 2, 3)));
+		MatcherAssert.assertThat(person.getIntegerList(), CoreMatchers.is(Arrays.asList(1, 2, 3)));
 		Assert.assertEquals(pictures.get(0), person.getPicture());
 		Assert.assertEquals(pictures, person.getMorePictures());
 	}
@@ -110,5 +111,4 @@ public class RequestDataBinderTest {
 		});
 		return conversionService;
 	}
-
 }

@@ -341,7 +341,7 @@ public class TemplateService {
 				templateRepository.save(template);
 			} else {
 				List<TemplateResource> resources = existing.getResources();
-				templateResourceRepository.delete(resources);
+				templateResourceRepository.deleteAll(resources);
 				resources.clear();
 				existing.update(template);
 				template = existing;
