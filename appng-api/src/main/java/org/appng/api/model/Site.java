@@ -80,7 +80,7 @@ public interface Site extends Named<Integer> {
 
 	/**
 	 * Returns all hostnames that the {@link Site} will respond to.
-	 * This is the main host returned by {@link #getHost()} plus all alias hostnames.
+	 * This is the main hostname returned by {@link #getHost()} plus all alias hostnames.
 	 *
 	 * @return Set of alias names plus the main hostname
 	 */

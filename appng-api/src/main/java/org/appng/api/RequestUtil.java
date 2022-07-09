@@ -68,20 +68,23 @@ public class RequestUtil {
 	}
 
 	/**
-	 * Retrieves a {@link Site} by its host.
+	 * Retrieves a {@link Site} by its hostnames.
 	 * 
 	 * @param env
 	 *             the current {@link Environment}
 	 * @param host
-	 *             the host of the {@link Site}
+	 *             the hostname to match against the hostnames of the {@link Site}
 	 * 
-	 * @return the {@link Site}, if any
+	 * @return the {@link Site} or null if no site matches
 	 * 
-	 * @see Site#getHost()
+	 * @see Site#getHostNames()
 	 *
 	 */
 	public static Site getSiteByHost(Environment env, String host) {
-		return getSiteMap(env).values().stream().filter(s -> host.equals(s.getHost())).findFirst().orElse(null);
+		for (Site site : getSiteMap(env).values()) {
+			if (site.getHostNames().contains(host)) return site;
+		}
+		return null;
 	}
 
 	/**
