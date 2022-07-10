@@ -190,6 +190,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	}
 
 	public void setHostNames(Set<String> hostnames) {
+		hostnames.add(getHost());
 		this.hostnames = hostnames;
 	}
 
