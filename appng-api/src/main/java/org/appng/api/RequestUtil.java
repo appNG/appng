@@ -82,7 +82,7 @@ public class RequestUtil {
 	 */
 	public static Site getSiteByHost(Environment env, String host) {
 		for (Site site : getSiteMap(env).values()) {
-			if (site.getHostNames().contains(host)) return site;
+			if (host.equals(site.getHost()) || site.getHostAliases().contains(host)) return site;
 		}
 		return null;
 	}

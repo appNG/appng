@@ -94,7 +94,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	private String description;
 	private Date version;
 	private String host;
-	private Set<String> hostnames = new HashSet<>();
+	private Set<String> hostAliases = new HashSet<>();
 	private String domain;
 	private Set<SiteApplication> applications = new HashSet<>();
 	private boolean active;
@@ -180,18 +180,18 @@ public class SiteImpl implements Site, Auditable<Integer> {
 		this.host = host;
 	}
 
-	@ElementCollection()
-	@CollectionTable(name = "site_hostnames", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"), foreignKey = @ForeignKey(name = "FK__SITE_HOSTNAMES"))
+	// Sites are fetched in different transactions and reused all over the place. Since there is no performance gain
+	// in lazy-fetching the small amount of aliases, we agreed on eager fetching with MM.
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "site_hostalias", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"),
+		foreignKey = @ForeignKey(name = "FK__SITE_HOSTALIAS__SITE"))
 	@Column(name = "hostname", unique = true)
-	public Set<String> getHostNames() {
-		// Make sure the main hostname is included, even if it was not persisted in the "site_hostnames" table yet. 
-		hostnames.add(getHost());
-		return hostnames;
+	public Set<String> getHostAliases() {
+		return hostAliases;
 	}
 
-	public void setHostNames(Set<String> hostnames) {
-		hostnames.add(getHost());
-		this.hostnames = hostnames;
+	public void setHostAliases(Set<String> hostAliases) {
+		this.hostAliases = hostAliases;
 	}
 
 	@NotNull(message = ValidationMessages.VALIDATION_NOT_NULL)
