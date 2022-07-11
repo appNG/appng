@@ -178,17 +178,6 @@
 		<defaultValue>/health</defaultValue>
 		<description>The path to appNG's health monitoring</description>
 	</property>
-	<property name="passwordPolicyErrorMessageKey" self="http://localhost/appNGizer/platform/property/passwordPolicyErrorMessageKey">
-		<value>DefaultPasswordPolicy.errorMessage</value>
-		<defaultValue>DefaultPasswordPolicy.errorMessage</defaultValue>
-		<description>The resource-bundle key (for messages-core) for the message which is being displayed when the password
-			does not match the policy.</description>
-	</property>
-	<property name="passwordPolicyRegEx" self="http://localhost/appNGizer/platform/property/passwordPolicyRegEx">
-		<value>[\S]{6,64}</value>
-		<defaultValue>[\S]{6,64}</defaultValue>
-		<description>A regular expression describing the password-policy</description>
-	</property>
 	<property name="platformRootPath" self="http://localhost/appNGizer/platform/property/platformRootPath">
 		<value>target/webapps/ROOT</value>
 		<defaultValue>target/webapps/ROOT</defaultValue>

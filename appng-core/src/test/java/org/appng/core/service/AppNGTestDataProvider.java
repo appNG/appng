@@ -48,8 +48,8 @@ import org.appng.testsupport.persistence.TestDataProvider;
 
 public class AppNGTestDataProvider implements TestDataProvider {
 
-	public static final String SALT = "vh/ehxDEkAM=";
-	public static final String DIGEST = "VlBQQcXL+lpSZwu86CSYmdaB3pY=";
+	public static final String SALT = null;
+	public static final String DIGEST = "$2a$13$HLIRcg8tVuUIq.RGe6SgN.f9klwBfxGOQK9RUiRKlWCt6omc6MSle";
 
 	public void writeTestData(EntityManager em) {
 		SubjectImpl subject1 = getSubject(1, UserType.GLOBAL_GROUP, new ArrayList<>());

@@ -64,26 +64,7 @@ public class RequestUtil {
 		}
 		String siteName = getSiteName(env, servletRequest);
 		Optional<Site> optionalSite = Optional.ofNullable(getSiteByName(env, siteName));
-		return optionalSite.isPresent() ? optionalSite.get() : getSiteByHost(env, siteName);
-	}
-
-	/**
-	 * Retrieves a {@link Site} by its host.
-	 * 
-	 * @param env
-	 *             the current {@link Environment}
-	 * @param host
-	 *             the host of the {@link Site}
-	 * 
-	 * @return the {@link Site}, if any
-	 * 
-	 * @see Site#getHost()
-	 *
-	 * @deprecated use {@link #getSiteByName(Environment, String)
-	 */
-	@Deprecated
-	public static Site getSiteByHost(Environment env, String host) {
-		return getSiteMap(env).values().stream().filter(s -> host.equals(s.getHost())).findFirst().orElse(null);
+		return optionalSite.orElse(null);
 	}
 
 	/**
@@ -189,12 +170,6 @@ public class RequestUtil {
 
 		return new PathInfo(site.getHost(), site.getDomain(), site.getName(), servletPath, guiPath, servicePath,
 				blobDirectories, documentDirectories, repoPath, monitoringPath, extension);
-	}
-
-	/** @deprecated use {@link #getSiteName(Environment, ServletRequest)} */
-	@Deprecated
-	public static String getHostIdentifier(ServletRequest request, Environment env) {
-		return getSiteName(env, request);
 	}
 
 	/**

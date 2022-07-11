@@ -101,9 +101,6 @@ public class SiteProperties {
 	 * URL path prefixes which are never cached. Contains one prefix per line (multiline value).
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
-	/** @deprecated no more used */
-	@Deprecated
-	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
 	/** The cache timeouts as a multiline property, key=value */
 	public static final String CACHE_TIMEOUTS = "cacheTimeouts";
 	/** Use Ant-style path matching for {@link #CACHE_TIMEOUTS}? */

@@ -138,27 +138,4 @@ public interface Environment {
 	 */
 	boolean isSubjectAuthenticated();
 
-	/**
-	 * Initializes the {@link Environment}.
-	 * 
-	 * @param context
-	 *                 a {@link ServletContext}
-	 * @param session
-	 *                 a {@link HttpSession}
-	 * @param request
-	 *                 a {@link ServletRequest}
-	 * @param response
-	 *                 a {@link ServletResponse}
-	 * @param host
-	 *                 the host for the site-{@link Scope}
-	 * 
-	 * @throws IllegalStateException
-	 *                               if this {@link Environment} already has been initialized
-	 * 
-	 * @deprecated no replacement
-	 */
-	@Deprecated
-	void init(ServletContext context, HttpSession session, ServletRequest request, ServletResponse response,
-			String host);
-
 }

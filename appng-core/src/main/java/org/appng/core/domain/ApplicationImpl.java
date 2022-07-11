@@ -324,19 +324,8 @@ public class ApplicationImpl implements AccessibleApplication, Auditable<Integer
 		return isPrivileged;
 	}
 
-	@Transient
-	@Deprecated
-	public boolean isCoreApplication() {
-		return isPrivileged();
-	}
-
 	public void setPrivileged(boolean isPrivileged) {
 		this.isPrivileged = isPrivileged;
-	}
-
-	@Deprecated
-	public void setCoreApplication(boolean isCoreApplication) {
-		setPrivileged(isCoreApplication);
 	}
 
 	public void closeContext() {

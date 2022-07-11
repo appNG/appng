@@ -251,42 +251,6 @@ public class CacheService {
 	 * @param cacheElementPrefix
 	 *                           the prefix to use
 	 * 
-	 * @return always {@code 0}, as the execution is asynchronous
-	 * 
-	 * @deprecated use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
-	 */
-	@Deprecated
-	public static int expireCacheElementsStartingWith(Site site, String cacheElementPrefix) {
-		expireCacheElementsByPrefix(site, cacheElementPrefix);
-		return 0;
-	}
-
-	/**
-	 * Expires cache elements by path prefix
-	 * 
-	 * @param cache
-	 *                           the cache to use
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
-	 * 
-	 * @return always {@code 0}, as the execution is asynchronous
-	 * 
-	 * @deprecated Use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
-	 */
-	@Deprecated
-	public static int expireCacheElementsStartingWith(Cache<String, CachedResponse> cache, String cacheElementPrefix) {
-		expireCacheElementsByPrefix(cache, cacheElementPrefix);
-		return 0;
-	}
-
-	/**
-	 * Expires cache elements by path prefix
-	 * 
-	 * @param site
-	 *                           the {@link Site} to retrieve the cache for
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
-	 * 
 	 * @return a {@link Future} holding the number of removed elements
 	 */
 	public static Future<Integer> expireCacheElementsByPrefix(Site site, String cacheElementPrefix) {

@@ -64,50 +64,8 @@ public class DefaultEnvironment implements Environment {
 
 	}
 
-	@Deprecated
-	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession,
-			ServletRequest servletRequest) {
-		this(servletRequest, null);
-	}
-
-	/**
-	 * @deprecated use {@link #DefaultEnvironment(ServletRequest, ServletResponse)} instead.
-	 */
-	@Deprecated
-	protected DefaultEnvironment(ServletContext servletContext, HttpSession httpSession, ServletRequest servletRequest,
-			ServletResponse servletResponse) {
-		this(servletRequest, servletResponse);
-	}
-
-	/**
-	 * Returns a fully initialized DefaultEnvironment.
-	 * 
-	 * @param context
-	 *                a {@link ServletContext}
-	 * @param host
-	 *                the host for the site-{@link Scope}
-	 * 
-	 * @deprecated use {@link DefaultEnvironment#get(ServletContext)} instead
-	 */
-	@Deprecated
-	public DefaultEnvironment(ServletContext context, String host) {
-		init(context, null, null);
-	}
-
 	public DefaultEnvironment(ServletRequest servletRequest, ServletResponse servletResponse) {
 		init(servletRequest.getServletContext(), servletRequest, servletResponse);
-	}
-
-	/**
-	 * Initializes the environment
-	 * 
-	 * @deprecated use {@link #init(ServletContext, ServletRequest, ServletResponse)} instead.
-	 */
-	@Override
-	@Deprecated
-	public void init(ServletContext context, HttpSession session, ServletRequest request, ServletResponse response,
-			String host) {
-		init(context, request, response);
 	}
 
 	public synchronized void init(ServletContext servletContext, ServletRequest servletRequest,

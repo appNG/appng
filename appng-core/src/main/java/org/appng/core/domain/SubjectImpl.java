@@ -209,12 +209,6 @@ public class SubjectImpl implements Subject, Auditable<Integer> {
 	}
 
 	@Transient
-	@Deprecated
-	public List<Role> getApplicationroles(Application application) {
-		return getApplicationRoles(application);
-	}
-
-	@Transient
 	public List<Role> getApplicationRoles(Application application) {
 		List<Role> applicationRoles = new ArrayList<>();
 		if (null != application) {

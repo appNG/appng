@@ -86,27 +86,4 @@ public interface PasswordHandler {
 	 */
 	void migrate(CoreService service, String password);
 
-	/**
-	 * @deprecated will be removed in 2.x
-	 */
-	@Deprecated
-	default void updateSubject(CoreService service) throws BusinessException {
-	}
-
-	/**
-	 * @deprecated will be removed in 2.x
-	 */
-	@Deprecated
-	default String getPasswordResetDigest() {
-		return calculatePasswordResetDigest();
-	}
-
-	/**
-	 * @deprecated will be removed in 2.x
-	 */
-	@Deprecated
-	default void savePassword(String password) {
-		applyPassword(password);
-	}
-
 }

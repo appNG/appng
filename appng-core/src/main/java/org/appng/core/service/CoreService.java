@@ -111,7 +111,6 @@ import org.appng.core.repository.SubjectRepository;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.appng.core.security.DigestValidator;
 import org.appng.core.security.PasswordHandler;
-import org.appng.core.security.Sha1PasswordHandler;
 import org.appng.core.service.MigrationService.MigrationStatus;
 import org.appng.persistence.repository.SearchQuery;
 import org.appng.xml.MarshallService;
@@ -457,7 +456,7 @@ public class CoreService {
 	}
 
 	public boolean isValidPassword(AuthSubject authSubject, String password) {
-		PasswordHandler passwordHandler = getPasswordHandler(authSubject);
+		PasswordHandler passwordHandler = getDefaultPasswordHandler(authSubject);
 		StopWatch sw = new StopWatch("isValidPassword");
 		sw.start();
 		boolean validPassword = passwordHandler.isValidPassword(password);
@@ -472,28 +471,6 @@ public class CoreService {
 			LOGGER.debug(sw.shortSummary());
 		}
 		return validPassword;
-	}
-
-	/**
-	 * Returns a {@link PasswordHandler} which is able to handle the password of a given {@link AuthSubject}. This is
-	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
-	 * This method may be removed in the future.
-	 * 
-	 * @param authSubject
-	 *                    The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
-	 *                    determine which implementation of the {@link PasswordHandler} interface will be returned.
-	 * 
-	 * @return the {@link PasswordHandler} for the {@link AuthSubject}
-	 * 
-	 * @deprecated will be removed in 2.x
-	 */
-	@Deprecated
-	public PasswordHandler getPasswordHandler(AuthSubject authSubject) {
-		if (!authSubject.getDigest().startsWith(BCryptPasswordHandler.getPrefix())) {
-			return new Sha1PasswordHandler(authSubject);
-		} else {
-			return getDefaultPasswordHandler(authSubject);
-		}
 	}
 
 	/**
@@ -1310,7 +1287,7 @@ public class CoreService {
 	public byte[] resetPassword(AuthSubject authSubject, PasswordPolicy passwordPolicy, String email, String hash) {
 		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
 		if (canSubjectResetPassword(subject)) {
-			PasswordHandler passwordHandler = getPasswordHandler(authSubject);
+			PasswordHandler passwordHandler = getDefaultPasswordHandler(authSubject);
 			if (passwordHandler.isValidPasswordResetDigest(hash)) {
 				LOGGER.debug("setting new password for {}", email);
 				String password = passwordPolicy.generatePassword();
@@ -1332,7 +1309,7 @@ public class CoreService {
 	public String forgotPassword(AuthSubject authSubject) throws BusinessException {
 		SubjectImpl subject = getSubjectByName(authSubject.getAuthName(), false);
 		if (canSubjectResetPassword(subject)) {
-			return getPasswordHandler(subject).calculatePasswordResetDigest();
+			return getDefaultPasswordHandler(subject).calculatePasswordResetDigest();
 		} else {
 			throw new BusinessException(String.format("%s does not exist, is locked or must not change password!",
 					authSubject.getAuthName()));
@@ -1380,12 +1357,6 @@ public class CoreService {
 			throw new BusinessException("No such site " + name);
 		}
 		siteByName.setActive(active);
-	}
-
-	@Deprecated
-	protected void deleteSite(Environment env, SiteImpl site, FieldProcessor fp, Request request,
-			final String siteAliasDeleted, final String siteDeleteError) throws BusinessException {
-		deleteSite(env, site);
 	}
 
 	public void deleteSite(Environment env, SiteImpl site) throws BusinessException {
@@ -1795,12 +1766,6 @@ public class CoreService {
 		return validationResult;
 	}
 
-	@Deprecated
-	public Boolean updatePassword(char[] password, char[] passwordConfirmation, SubjectImpl currentSubject)
-			throws BusinessException {
-		throw new UnsupportedOperationException();
-	}
-
 	public void resetConnection(FieldProcessor fp, Integer conId) {
 		SiteApplication siteApplication = siteApplicationRepository.findByDatabaseConnectionId(conId);
 		if (null != siteApplication) {
@@ -2130,27 +2095,6 @@ public class CoreService {
 	public void expireCacheElement(Integer siteId, String cacheElement) throws BusinessException {
 		Site site = getSite(siteId);
 		CacheService.expireCacheElement(site, cacheElement);
-	}
-
-	/**
-	 * Expires cache elements for a site by path prefix
-	 * 
-	 * @param siteId
-	 *                           the id of the {@link Site} to retrieve the cache for
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
-	 * 
-	 * @return always {@code 0}, as the execution is asynchronous
-	 * 
-	 * @throws BusinessException
-	 * 
-	 * @deprecated Use {@link CacheService#expireCacheElementsByPrefix(javax.cache.Cache, String)} or
-	 *             {@link CacheService#expireCacheElementsByPrefix(Site, String)}.
-	 */
-	@Deprecated
-	public int expireCacheElementsStartingWith(Integer siteId, String cacheElementPrefix) throws BusinessException {
-		Site site = getSite(siteId);
-		return CacheService.expireCacheElementsStartingWith(site, cacheElementPrefix);
 	}
 
 	public void clearCacheStatistics(Integer siteId) {

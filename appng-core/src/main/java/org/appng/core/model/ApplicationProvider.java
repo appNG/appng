@@ -716,11 +716,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		return application.isPrivileged();
 	}
 
-	@Deprecated
-	public boolean isCoreApplication() {
-		return isPrivileged();
-	}
-
 	public void setPrivileged(boolean isPrivileged) {
 		application.setPrivileged(isPrivileged);
 	}
@@ -994,7 +989,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	}
 
 	public void setPlatformScope() {
-		setPlatformScope(isCoreApplication());
+		setPlatformScope(isPrivileged());
 	}
 
 	public void setPlatformScope(boolean enabled) {

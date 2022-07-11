@@ -65,19 +65,6 @@ public interface PasswordPolicy {
 	}
 
 	/**
-	 * Checks whether the given character-sequence is a valid password.
-	 * 
-	 * @param password
-	 *                 the character-sequence sequence to check
-	 * 
-	 * @return {@code true} if the character-sequence is a valid password, {@code false} otherwise
-	 * 
-	 * @deprecated will be removed in 2.x, use {@link #validatePassword(String, char[], char[])} instead
-	 */
-	@Deprecated
-	boolean isValidPassword(char[] password);
-
-	/**
 	 * Validates the password an returns a {@link ValidationResult}
 	 * 
 	 * @param username
@@ -94,16 +81,6 @@ public interface PasswordPolicy {
 	default ValidationResult validatePassword(String username, char[] currentPassword, char[] password) {
 		return null;
 	}
-
-	/**
-	 * Returns the message-key of an errormessage for the case that the password doesn't match the requirements.
-	 * 
-	 * @return the message key
-	 * 
-	 * @deprecated a {@link ValidationResult} should be used, see {@link #validatePassword(String, char[], char[])}
-	 */
-	@Deprecated
-	String getErrorMessageKey();
 
 	/**
 	 * Generates a new random password that matches the requirements and returns it.

@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 
-import org.appng.api.support.environment.EnvironmentFactoryBean;
 import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.model.PlatformProcessor;
 import org.appng.core.model.PlatformTransformer;
@@ -79,8 +78,7 @@ public class PlatformTestConfig {
 	@Bean
 	public DataSource dataSource() throws SQLException {
 		DriverManagerDataSource ds = new DriverManagerDataSource("jdbc:hsqldb:mem:hsql-testdb");
-		try (
-				Connection conn = ds.getConnection();
+		try (Connection conn = ds.getConnection();
 				// http://www.hsqldb.org/doc/2.0/guide/sessions-chapt.html#snc_tx_mvcc
 				CallableStatement stmt = conn.prepareCall("SET DATABASE TRANSACTION CONTROL MVCC")) {
 			stmt.execute();
@@ -187,11 +185,6 @@ public class PlatformTestConfig {
 		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf);
 		thymeleafProcessor.setMarshallService(marshallService);
 		return thymeleafProcessor;
-	}
-
-	@Bean
-	public EnvironmentFactoryBean environment() {
-		return new EnvironmentFactoryBean();
 	}
 
 	@Bean

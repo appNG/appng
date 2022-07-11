@@ -42,7 +42,6 @@ import org.appng.core.domain.SiteImpl;
 import org.appng.core.repository.config.DataSourceFactory;
 import org.appng.core.repository.config.HikariCPConfigurer;
 import org.appng.core.security.ConfigurablePasswordPolicy;
-import org.appng.core.security.DefaultPasswordPolicy;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -386,9 +385,6 @@ public class PropertySupport {
 		addPlatformProperty(defaultOverrides, Platform.Property.MESSAGING_RECEIVER, HazelcastReceiver.class.getName());
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITOR_PERFORMANCE, false);
 		addPlatformProperty(defaultOverrides, Platform.Property.MONITORING_PATH, "/health");
-		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_ERROR_MSSG_KEY,
-				DefaultPasswordPolicy.ERROR_MSSG_KEY);
-		addPlatformProperty(defaultOverrides, Platform.Property.PASSWORD_POLICY_REGEX, DefaultPasswordPolicy.REGEX);
 		addPlatformProperty(defaultOverrides, Platform.Property.PLATFORM_CACHE_FOLDER, "platform");
 		addPlatformProperty(defaultOverrides, Platform.Property.APPLICATION_DIR, "/applications");
 		addPlatformProperty(defaultOverrides, Platform.Property.REPOSITORY_PATH, "repository");

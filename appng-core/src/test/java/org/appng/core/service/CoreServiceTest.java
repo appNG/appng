@@ -92,12 +92,9 @@ import org.appng.core.model.RepositoryType;
 import org.appng.core.repository.DatabaseConnectionRepository;
 import org.appng.core.security.BCryptPasswordHandler;
 import org.appng.core.security.ConfigurablePasswordPolicy;
-import org.appng.core.security.DefaultPasswordPolicy;
 import org.appng.core.security.DigestUtil;
-import org.appng.core.security.PasswordHandler;
 import org.appng.core.security.SaltedDigest;
 import org.appng.core.security.SaltedDigestSha1;
-import org.appng.core.security.Sha1PasswordHandler;
 import org.appng.core.service.MigrationService.MigrationStatus;
 import org.appng.testsupport.persistence.TestDataProvider;
 import org.appng.xml.platform.Messages;
@@ -951,7 +948,9 @@ public class CoreServiceTest {
 			subject.setSalt(currentSalt);
 		}
 		String hash = saltedDigest.getDigest(subject.getEmail(), currentSalt);
-		coreService.resetPassword(subject, new DefaultPasswordPolicy(), subject.getEmail(), hash);
+		PasswordPolicy passwordPolicy = new ConfigurablePasswordPolicy();
+		passwordPolicy.configure(null);
+		coreService.resetPassword(subject, passwordPolicy, subject.getEmail(), hash);
 		assertNull(subject.getSalt());
 		assertNotEquals(subject.getDigest(), currentDigest);
 		assertTrue(subject.getDigest().startsWith(BCryptPasswordHandler.getPrefix()));
@@ -1084,32 +1083,6 @@ public class CoreServiceTest {
 		assertEquals("appng-manager", properties.getString(SiteProperties.DEFAULT_APPLICATION));
 		assertEquals(rootPath + "/repository/" + site.getName(), properties.getString(SiteProperties.SITE_ROOT_DIR));
 		assertNotNull(site.getPasswordPolicy());
-	}
-
-	@Test
-	public void testMigratePassword() {
-		SubjectImpl subject = new SubjectImpl();
-		subject.setRealname("Deve Loper");
-		subject.setLanguage("en");
-		subject.setName("deve");
-		subject.setUserType(UserType.LOCAL_USER);
-		subject.setDigest(AppNGTestDataProvider.DIGEST);
-		subject.setSalt(AppNGTestDataProvider.SALT);
-		Subject persistedSubject = coreService.createSubject(subject);
-		assertFalse(subject.getDigest().startsWith(BCryptPasswordHandler.getPrefix()));
-		Date changedOnCreation = subject.getPasswordLastChanged();
-		assertNotNull(changedOnCreation);
-
-		PasswordHandler handler = new Sha1PasswordHandler(persistedSubject);
-		handler.migrate(coreService, "veryStrongPassword");
-
-		assertNull(subject.getSalt());
-		assertTrue(subject.getDigest().startsWith(BCryptPasswordHandler.getPrefix()));
-		assertNotNull(subject.getPasswordLastChanged());
-		assertNotEquals(changedOnCreation, subject.getPasswordLastChanged());
-		assertTrue(changedOnCreation.before(subject.getPasswordLastChanged()));
-
-		coreService.deleteSubject(persistedSubject);
 	}
 
 }

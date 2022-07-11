@@ -147,13 +147,6 @@ public class InitializerService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
-	@Transactional
-	@Deprecated
-	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
-			ServletContext ctx, ExecutorService executor) throws InvalidConfigurationException {
-		initPlatform(platformConfig, env, rootConnection, ctx, executor, null);
-	}
-
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
@@ -186,23 +179,6 @@ public class InitializerService {
 		coreService.createEvent(Type.INFO, "Started platform");
 	}
 
-	/**
-	 * @param config
-	 * @param env
-	 * @param siteName
-	 * @param target
-	 * @param messagingExecutor
-	 * 
-	 * @deprecated will be removed with no replacement
-	 * 
-	 * @throws InvalidConfigurationException
-	 */
-	@Deprecated
-	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
-			ExecutorService messagingExecutor) throws InvalidConfigurationException {
-		throw new UnsupportedOperationException();
-	}
-
 	public InitializerService() {
 		this.siteThreads = new ConcurrentHashMap<>();
 	}
@@ -231,12 +207,6 @@ public class InitializerService {
 		siteThreads.get(site.getName()).add(executor);
 		executor.execute(runnable);
 		LOGGER.info("started site thread [{}] with runnable of type {}", threadName, runnable.getClass().getName());
-	}
-
-	@Deprecated
-	public void loadPlatform(PlatformProperties platformConfig, Environment env, String siteName, String target,
-			ExecutorService messagingExecutor) throws InvalidConfigurationException {
-		loadPlatform(platformConfig, env, siteName, target, messagingExecutor, null);
 	}
 
 	/**

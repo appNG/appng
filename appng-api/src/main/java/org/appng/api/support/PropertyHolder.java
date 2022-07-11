@@ -97,22 +97,6 @@ public class PropertyHolder implements Properties {
 	}
 
 	/**
-	 * @deprecated use {@link #addProperty(String, Object, String, Property.Type)} instead!
-	 */
-	@Deprecated
-	public final Property addProperty(String name, Object defaultValue, String description) {
-		return addProperty(name, defaultValue, description, Type.TEXT);
-	}
-
-	/**
-	 * @deprecated use {@link #addProperty(String, Object, String, Property.Type)} instead!
-	 */
-	@Deprecated
-	public final Property addProperty(String name, Object defaultValue, String description, boolean isMultiline) {
-		return addProperty(name, defaultValue, description, isMultiline ? Type.MULTILINE : Type.TEXT);
-	}
-
-	/**
 	 * As long as {@link #setFinal()} has not be called, this method can be used to add new properties
 	 * 
 	 * @param name

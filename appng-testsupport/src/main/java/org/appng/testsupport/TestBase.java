@@ -1013,11 +1013,6 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			return false;
 		}
 
-		@Deprecated
-		public boolean isCoreApplication() {
-			return isPrivileged();
-		}
-
 		public boolean isHidden() {
 			return false;
 		}

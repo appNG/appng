@@ -48,19 +48,6 @@ public interface Option {
 	boolean containsAttribute(String name);
 
 	/**
-	 * Returns the attribute with the given name, if present.
-	 * 
-	 * @param name
-	 *             the name of the attribute to get
-	 * 
-	 * @return the attribute, if present, {@code null} otherwise
-	 * 
-	 * @deprecated use {@link #getString(String)} instead
-	 */
-	@Deprecated
-	String getAttribute(String name);
-
-	/**
 	 * Returns the names of all attributes of this option
 	 * 
 	 * @return the names of all attributes
