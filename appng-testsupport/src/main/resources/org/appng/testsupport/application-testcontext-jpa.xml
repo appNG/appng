@@ -9,7 +9,7 @@
 		http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" depends-on="server">
-		<constructor-arg type="java.lang.String" value="jdbc:hsqldb:hsql://localhost:${hsqlPort:9001}/${database:hsql-testdb}" />
+		<constructor-arg type="java.lang.String" value="jdbc:hsqldb:mem:${database:hsql-testdb}" />
 		<constructor-arg type="java.lang.String" value="sa" />
 		<constructor-arg type="java.lang.String" value="" />
 	</bean>
@@ -17,12 +17,6 @@
 	<tx:annotation-driven transaction-manager="transactionManager" />
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager" lazy-init="true">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-
-	<bean id="server" class="org.appng.testsupport.persistence.HsqlServerFactoryBean" init-method="init"
-		destroy-method="destroy">
-		<property name="port" value="${hsqlPort:9001}" />
-		<property name="databaseName" value="${database:hsql-testdb}" />
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
