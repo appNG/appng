@@ -19,11 +19,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.appng.api.model.Application;
 import org.appng.api.model.Subject;
 

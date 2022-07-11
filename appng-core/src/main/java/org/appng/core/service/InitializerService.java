@@ -166,7 +166,7 @@ public class InitializerService {
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 * 
-	 * @see #loadPlatform(PlatformProperties, Environment, String, String, ExecutorService)
+	 * @see #loadPlatform(PlatformProperties, Environment, String, String, ExecutorService, ExecutorService)
 	 */
 	@Transactional
 	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,

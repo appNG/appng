@@ -61,7 +61,7 @@ public class PropertyHolder implements Properties {
 
 	/**
 	 * Sets this {@link PropertyHolder} to final, which means no more properties can be added using
-	 * {@link #addProperty(String, Object, String)}.
+	 * {@link #addProperty(String, Object, String, Type)}.
 	 * 
 	 * @return this {@code PropertyHolder}
 	 */

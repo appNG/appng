@@ -497,7 +497,7 @@ public class DefaultEnvironment implements Environment {
 	 * 
 	 * @return {@code true} if his {@link Environment} has been initialized, {@code false} otherwise.
 	 * 
-	 * @see #init(ServletContext, HttpSession, ServletRequest, ServletResponse, String)
+	 * @see #init(ServletContext, ServletRequest, ServletResponse)
 	 */
 	public boolean isInitialized() {
 		return initialized;
