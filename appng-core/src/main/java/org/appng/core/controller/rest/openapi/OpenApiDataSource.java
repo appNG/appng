@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -286,10 +287,8 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		}
 		List<FieldDef> childFields = f.getFields();
 		if (null != childFields) {
-			for (FieldDef fieldDef : childFields) {
-				Field child = getField(self, dataSourceId, fieldDef, hasQueryParams);
-				field.getFields().put(child.getName(), child);
-			}
+			field.setFields(childFields.stream().map(fieldDef -> getField(self, dataSourceId, fieldDef, hasQueryParams))
+					.collect(Collectors.toMap(Field::getName, Function.identity())));
 		}
 		Validation validation = f.getValidation();
 		if (null != validation) {
@@ -320,6 +319,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 					if (collectedValues.size() == 1) {
 						fieldValue.setValue(collectedValues.get(0).getValue());
 					} else {
+						fieldValue.setValues(new HashMap<>());
 						for (FieldValue value : collectedValues) {
 							fieldValue.getValues().put(value.getName(), value);
 						}
@@ -349,8 +349,9 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			FieldValue fv = getFieldValue(data, fieldDef.get(),
 					BeanUtils.findPropertyType(fieldDef.get().getBinding(), bindClass));
 			List<Datafield> childDataFields = data.getFields();
-			if (null != childDataFields) {
+			if (!childDataFields.isEmpty()) {
 				final AtomicInteger i = new AtomicInteger(0);
+				fv.setValues(new HashMap<>());
 				for (Datafield childData : childDataFields) {
 					Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
 					FieldValue childValue = getFieldValue(childData, childField, bindClass);
