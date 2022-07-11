@@ -31,7 +31,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
-import org.springframework.core.type.StandardAnnotationMetadata;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
@@ -45,13 +45,13 @@ public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, O
 		registerRequestScoped(registry, RestAction.class);
 		registerRequestScoped(registry, RestDataSource.class);
 
-		StandardAnnotationMetadata restErrorHandlerMetaData = new StandardAnnotationMetadata(RestErrorHandler.class);
+		AnnotationMetadata restErrorHandlerMetaData = AnnotationMetadata.introspect(RestErrorHandler.class);
 		AnnotatedGenericBeanDefinition restErrorHandler = new AnnotatedGenericBeanDefinition(restErrorHandlerMetaData);
 		registry.registerBeanDefinition("restErrorHandler", restErrorHandler);
 	}
 
 	private void registerRequestScoped(BeanDefinitionRegistry registry, Class<?> beanClass) {
-		BeanDefinition bean = new AnnotatedGenericBeanDefinition(new StandardAnnotationMetadata(beanClass));
+		BeanDefinition bean = new AnnotatedGenericBeanDefinition(AnnotationMetadata.introspect(beanClass));
 		bean.setScope(WebApplicationContext.SCOPE_REQUEST);
 		registry.registerBeanDefinition(beanClass.getSimpleName(), bean);
 	}

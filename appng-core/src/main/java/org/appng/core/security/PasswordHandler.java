@@ -15,7 +15,6 @@
  */
 package org.appng.core.security;
 
-import org.appng.api.BusinessException;
 import org.appng.api.model.AuthSubject;
 import org.appng.core.service.CoreService;
 

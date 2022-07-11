@@ -32,7 +32,6 @@ import javax.servlet.jsp.JspWriter;
 
 import org.appng.api.Environment;
 import org.appng.api.Platform;
-import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.ApplicationProvider;
