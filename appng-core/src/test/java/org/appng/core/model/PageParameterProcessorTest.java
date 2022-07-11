@@ -63,7 +63,7 @@ public class PageParameterProcessorTest extends TestSupport {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(request.getParameter(ACTION)).thenReturn(FOO_ACTION);
 		ppp = new PageParameterProcessor("key", sessionParamNames, env, request);
 		sessionParamNames.add(ACTION);

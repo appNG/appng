@@ -72,7 +72,7 @@ public class GuiHandlerTest {
 	@Test
 	public void testRedirectToFirstVisibleApplication() throws ServletException, IOException {
 		servletRequest.setSession(session);
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
 				.thenReturn(VHostMode.NAME_BASED.name());
 		Mockito.when(platformProperties.getString(Platform.Property.TEMPLATE_FOLDER)).thenReturn("template");

@@ -64,7 +64,7 @@ public abstract class AbstractFieldConverterTest {
 	}
 
 	protected void setup(FieldType type, Map<String, Object> params) throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(environment.getLocale()).thenReturn(Locale.ENGLISH);
 		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());
 		this.beanWrapper = new BeanWrapperImpl(getContainer());

@@ -72,7 +72,7 @@ public class ResultServiceTest {
 	@Before
 	final public void setUp() throws Exception {
 		Locale.setDefault(Locale.ENGLISH);
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 
 		ConversionServiceFactoryBean conversionServiceFactoryBean = new ConversionServiceFactoryBean();
 		conversionServiceFactoryBean.afterPropertiesSet();

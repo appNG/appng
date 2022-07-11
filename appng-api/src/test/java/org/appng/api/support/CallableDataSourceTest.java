@@ -113,7 +113,7 @@ public class CallableDataSourceTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		permissionProcessor = new DefaultPermissionProcessor(subject, site, application);
 		Mockito.when(applicationRequest.getPermissionProcessor()).thenReturn(permissionProcessor);
 		Mockito.when(applicationRequest.getApplicationConfig()).thenReturn(applicationConfigProvider);

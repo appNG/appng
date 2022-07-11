@@ -62,7 +62,7 @@ public abstract class AbstractMessagingIT {
 
 	@Test(timeout = 5000)
 	public void test() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		test(true);
 	}
 
@@ -87,7 +87,7 @@ public abstract class AbstractMessagingIT {
 		ProcessedHandler processedHandler = new ProcessedHandler();
 		Mockito.doAnswer(new Answer<Void>() {
 			public Void answer(InvocationOnMock invocation) throws Throwable {
-				wrapper.setBeanInstance(invocation.getArgumentAt(2, receiverClass));
+				wrapper.setBeanInstance(invocation.getArgument(2, receiverClass));
 				return null;
 			}
 		}).when(env).setAttribute(Mockito.eq(Scope.PLATFORM), Mockito.eq(Platform.Environment.MESSAGE_RECEIVER),

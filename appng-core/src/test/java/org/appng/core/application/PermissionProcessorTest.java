@@ -66,7 +66,7 @@ public class PermissionProcessorTest {
 
 	@Before
 	public void init() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		RequestSupportImpl requestSupport = new RequestSupportImpl();
 		requestSupport.setEnvironment(env);
 

@@ -56,7 +56,7 @@ public class PlatformStartupTest extends PlatformStartup {
 
 	@Test
 	public void testPlatformStartup() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		AtomicBoolean started = new AtomicBoolean(false);
 		Mockito.doAnswer(i -> {
 			started.set(true);

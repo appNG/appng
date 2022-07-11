@@ -46,7 +46,7 @@ public class ConfigValidatorTest {
 
 	@Test
 	public void test() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(application.isFileBased()).thenReturn(true);
 		File targetFolder = new File("target/temp");
 		ClassLoader classLoader = getClass().getClassLoader();

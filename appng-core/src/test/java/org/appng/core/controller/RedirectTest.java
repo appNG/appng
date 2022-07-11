@@ -36,21 +36,21 @@ public class RedirectTest {
 
 	@Test
 	public void test301() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		run(HttpServletResponse.SC_MOVED_PERMANENTLY, "/targeturl");
 		Assert.assertNull(connectionHeader);
 	}
 
 	@Test
 	public void test301External() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		run(HttpServletResponse.SC_MOVED_PERMANENTLY, "http://www.example.com");
 		Assert.assertEquals("close", connectionHeader);
 	}
 
 	@Test
 	public void test302() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		run(HttpServletResponse.SC_FOUND, "targeturl");
 		Assert.assertNull(connectionHeader);
 	}

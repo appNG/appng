@@ -72,7 +72,7 @@ public class RestOperationTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(environment.getSubject()).thenReturn(subject);
 		Mockito.when(environment.getLocale()).thenReturn(Locale.GERMANY);
 		Mockito.when(environment.getTimeZone()).thenReturn(TimeZone.getDefault());

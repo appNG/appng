@@ -56,7 +56,7 @@ public class RequestDataBinderTest {
 
 	@Test
 	public void doTest() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 
 		Map<String, List<String>> paramters = new HashMap<>();
 		paramters.put(NAME, Arrays.asList("Doe"));
@@ -65,7 +65,7 @@ public class RequestDataBinderTest {
 		Mockito.when(request.getParameterNames()).thenReturn(paramters.keySet());
 		Mockito.when(request.getParameterList(Mockito.anyString())).then(new Answer<List<String>>() {
 			public List<String> answer(InvocationOnMock invocation) throws Throwable {
-				return paramters.get(invocation.getArgumentAt(0, String.class));
+				return paramters.get(invocation.getArgument(0, String.class));
 			}
 		});
 

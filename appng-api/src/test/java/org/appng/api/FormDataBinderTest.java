@@ -50,7 +50,7 @@ public class FormDataBinderTest extends RequestDataBinderTest {
 
 	@Test
 	public void doTest() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		FormData formData = Mockito.mock(FormData.class);
 		Mockito.when(form.getFormData()).thenReturn(formData);
 		Mockito.when(form.getRequest()).thenReturn(request);

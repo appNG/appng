@@ -124,7 +124,7 @@ public class ElementHelperTest {
 
 	@Before
 	public void setup() throws JAXBException, ProcessingException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Datasource ds = new Datasource();
 		DataConfig config = new DataConfig();
 		ds.setConfig(config);

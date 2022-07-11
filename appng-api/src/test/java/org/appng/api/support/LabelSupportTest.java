@@ -50,7 +50,7 @@ public class LabelSupportTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class LabelSupportTest {
 		Mockito.when(request.getLocale()).thenReturn(locale);
 		expressionEvaluator.setVariable(ApplicationRequest.I18N_VAR, new I18n(request));
 		Mockito.when(request.getExpressionEvaluator()).thenReturn(expressionEvaluator);
-		Mockito.when(request.getMessage(Mockito.anyString(), Mockito.anyVararg())).thenAnswer(new Answer<String>() {
+		Mockito.when(request.getMessage(Mockito.anyString(), Mockito.any())).thenAnswer(new Answer<String>() {
 
 			public String answer(InvocationOnMock invocation) throws Throwable {
 				String key = (String) invocation.getArguments()[0];

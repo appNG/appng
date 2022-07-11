@@ -382,7 +382,7 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	}
 
 	private void setup(String servletPath, ConfigurableApplicationContext ac) throws JAXBException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 
 		servletRequest.setServletPath(servletPath);
 		servletRequest.setRequestURI(servletPath);

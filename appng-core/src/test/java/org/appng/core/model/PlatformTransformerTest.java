@@ -89,7 +89,7 @@ public class PlatformTransformerTest {
 
 	@Before
 	public void setup() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(platformProperties.getBoolean(org.appng.api.Platform.Property.DEV_MODE)).thenReturn(Boolean.FALSE);
 		Mockito.when(applicationProvider.getSite()).thenReturn(site);
 		Mockito.when(site.getName()).thenReturn("localhost");

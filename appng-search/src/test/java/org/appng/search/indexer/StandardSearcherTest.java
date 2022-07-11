@@ -83,7 +83,7 @@ public class StandardSearcherTest {
 
 	@Before
 	public void setup() throws IOException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		directory = FSDirectory.open(indexDir.toPath());
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(site.getName()).thenReturn("manager");

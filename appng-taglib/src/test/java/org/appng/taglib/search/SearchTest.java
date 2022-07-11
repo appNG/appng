@@ -93,7 +93,7 @@ public class SearchTest extends Search {
 
 	@Test
 	public void testSearch() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(pageContext.getRequest()).thenReturn(servletRequest);
 		Mockito.when(pageContext.getResponse()).thenReturn(servletResponse);
 		Mockito.when(pageContext.getServletContext()).thenReturn(servletContext);

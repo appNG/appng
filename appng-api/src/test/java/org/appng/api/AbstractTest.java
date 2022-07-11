@@ -72,7 +72,7 @@ public abstract class AbstractTest {
 
 	@Before
 	public void setUp() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(httpServletRequest.getSession()).thenReturn(httpSession);
 		Mockito.when(httpServletRequest.getServletContext()).thenReturn(ctx);
 		Mockito.when(httpServletRequest.getServerName()).thenReturn("localhost");

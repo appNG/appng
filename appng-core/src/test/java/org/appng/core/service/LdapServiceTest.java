@@ -62,7 +62,7 @@ public class LdapServiceTest {
 
 	public LdapContextMock setup(String userPrincipal, String userPassword, String servicePrincipal,
 			String servicePassword) throws NamingException, IOException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 
 		String testId = caller.getMethodName() + ":" + caller.getLineNumber();

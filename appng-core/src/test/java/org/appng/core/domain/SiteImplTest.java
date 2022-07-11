@@ -65,7 +65,7 @@ public class SiteImplTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(environment.getServletResponse()).thenReturn(response);
 		Mockito.when(environment.getServletRequest()).thenReturn(request);
 		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(path);

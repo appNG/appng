@@ -68,7 +68,7 @@ public class TagletAdapterTest {
 
 		Answer<Boolean> tagletProcessorAnswer = new Answer<Boolean>() {
 			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				Writer writer = invocation.getArgumentAt(7, Writer.class);
+				Writer writer = invocation.getArgument(7, Writer.class);
 				writer.write("TagletProcessor.perform()");
 				writer.flush();
 				return true;
@@ -77,7 +77,7 @@ public class TagletAdapterTest {
 		Map<String, String> expectedParams = new HashMap<>();
 		expectedParams.put("foo", "bar");
 		Mockito.when(tagletProcessor.perform(Mockito.eq(site), Mockito.eq(site), Mockito.eq(applicationProvider),
-				Mockito.eq(expectedParams), Mockito.any(ApplicationRequest.class), Mockito.eq("method"),
+				Mockito.eq(expectedParams), Mockito.any(), Mockito.eq("method"),
 				Mockito.eq("xml"), Mockito.any(Writer.class))).thenAnswer(tagletProcessorAnswer);
 
 		Mockito.when(environment.getAttribute(PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT))

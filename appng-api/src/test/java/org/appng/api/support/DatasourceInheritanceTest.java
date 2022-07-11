@@ -50,7 +50,7 @@ public class DatasourceInheritanceTest {
 
 	@Test
 	public void testInheritance() throws URISyntaxException, InvalidConfigurationException, JAXBException, IOException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(application.isFileBased()).thenReturn(true);
 
 		File targetFolder = new File("target/temp");

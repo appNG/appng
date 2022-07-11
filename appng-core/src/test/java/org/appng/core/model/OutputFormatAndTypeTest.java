@@ -59,7 +59,7 @@ public class OutputFormatAndTypeTest {
 
 	@Before
 	public void setup() throws InvalidConfigurationException, JAXBException {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		marshallService = MarshallService.getMarshallService();
 		processor = new PlatformProcessor();
 		MockServletContext servletContext = new MockServletContext();

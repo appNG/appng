@@ -367,11 +367,11 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 			}
 		}
 		Mockito.when(application.getBean(Mockito.any(Class.class)))
-				.thenAnswer(i -> applicationContext.getBean(i.getArgumentAt(0, Class.class)));
+				.thenAnswer(i -> applicationContext.getBean(i.getArgument(0, Class.class)));
 		Mockito.when(application.getBean(Mockito.any(String.class)))
-				.thenAnswer(i -> applicationContext.getBean(i.getArgumentAt(0, String.class)));
+				.thenAnswer(i -> applicationContext.getBean(i.getArgument(0, String.class)));
 		Mockito.when(application.getBean(Mockito.any(String.class), Mockito.any(Class.class))).thenAnswer(
-				i -> applicationContext.getBean(i.getArgumentAt(0, String.class), i.getArgumentAt(1, Class.class)));
+				i -> applicationContext.getBean(i.getArgument(0, String.class), i.getArgument(1, Class.class)));
 		applicationContext.addBeanFactoryPostProcessor(pp -> pp.registerSingleton("application", application));
 
 		return application;
@@ -434,7 +434,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	@Before
 	public void setup() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		initEnvironment();
 		application = new SimpleApplication(applicationName, context, getApplicationSubjects());
 		initRequest();

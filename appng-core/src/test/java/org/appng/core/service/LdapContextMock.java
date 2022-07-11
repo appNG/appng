@@ -133,7 +133,7 @@ public class LdapContextMock implements LdapContext {
 		userBaseDn = (String) siteProperties.get(LdapService.LDAP_USER_BASE_DN);
 		groupBaseDn = (String) siteProperties.get(LdapService.LDAP_GROUP_BASE_DN);
 
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Object startTlsProp = siteProperties.get(LdapService.LDAP_START_TLS);
 		if (startTlsProp != null && ((Boolean) startTlsProp).booleanValue()) {
 			useTls = true;

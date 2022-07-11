@@ -178,7 +178,7 @@ public class TestSupport {
 	public void setup() throws Exception {
 		WritingXmlValidator.writeXml = false;
 		Locale.setDefault(Locale.ENGLISH);
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 
 		Mockito.when(servletConfig.getServletContext()).thenReturn(ctx);
 

@@ -84,7 +84,7 @@ public class MessagingTest {
 			Mockito.when(serializer.getPlatformConfig()).thenReturn(Mockito.mock(Properties.class));
 			final List<TestEvent> processedEvents = new ArrayList<>();
 			Mockito.doAnswer(invocation -> {
-				Event event = deserialize(invocation.getArgumentAt(0, byte[].class));
+				Event event = deserialize(invocation.getArgument(0, byte[].class));
 				processedEvents.add((TestEvent) event);
 				return event;
 			}).when(serializer).deserialize(Mockito.any(byte[].class));

@@ -56,7 +56,7 @@ public class CacheProviderTest {
 
 	@Before
 	public void setUp() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		Mockito.when(site.getName()).thenReturn(sitename);
 		Mockito.when(application.getName()).thenReturn(applicationName);
 		Mockito.when(properties.getString(Platform.Property.PLATFORM_ROOT_PATH)).thenReturn("target");

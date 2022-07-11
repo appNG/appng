@@ -44,7 +44,7 @@ public class TestBaseTest extends TestBase {
 
 	@Override
 	public void setup() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		initEnvironment();
 		application = new SimpleApplication("dummy", context, getApplicationSubjects());
 	}

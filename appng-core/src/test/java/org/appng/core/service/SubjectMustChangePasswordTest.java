@@ -61,7 +61,7 @@ public class SubjectMustChangePasswordTest {
 
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 
 		java.util.Properties defaultOverrides = new java.util.Properties();
 		defaultOverrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.PASSWORD_MAX_VALIDITY, "3");
