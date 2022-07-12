@@ -18,7 +18,6 @@ package org.appng.core.controller.rest.openapi;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -77,6 +76,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -377,9 +377,9 @@ abstract class OpenApiOperation {
 					try {
 						self.append(first ? "?" : "&");
 						first = false;
-						self.append(URLEncoder.encode(p.getName(), StandardCharsets.UTF_8.name()));
+						self.append(UriUtils.encodeQueryParam(p.getName(), StandardCharsets.UTF_8.name()));
 						self.append("=");
-						self.append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8.name()));
+						self.append(UriUtils.encodeQueryParam(p.getValue(), StandardCharsets.UTF_8.name()));
 					} catch (UnsupportedEncodingException e) {
 						// will not happen
 					}
