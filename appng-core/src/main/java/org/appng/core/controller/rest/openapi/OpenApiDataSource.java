@@ -321,7 +321,9 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 					} else {
 						fieldValue.setValues(new HashMap<>());
 						for (FieldValue value : collectedValues) {
-							fieldValue.getValues().put(value.getName(), value);
+							if (null != value.getName()) {
+								fieldValue.getValues().put(value.getName(), value);
+							}
 						}
 					}
 				}

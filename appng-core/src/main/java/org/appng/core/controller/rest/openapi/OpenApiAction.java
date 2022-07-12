@@ -417,6 +417,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 			if (null != childDataFields) {
 				final AtomicInteger i = new AtomicInteger(0);
 				Set<String> childNames = new HashSet<>();
+				actionField.setFields(new ArrayList<>());
 				for (Datafield childData : childDataFields) {
 					if (!childNames.contains(childData.getName())) {
 						LOGGER.debug("Processing child {} of field {} with index {}.", childData.getName(),
