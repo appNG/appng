@@ -355,7 +355,9 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				for (Datafield childData : childDataFields) {
 					Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
 					FieldValue childValue = getFieldValue(childData, childField, bindClass);
-					fv.getValues().put(childValue.getName(), childValue);
+					if (null != childValue.getName()) {
+						fv.getValues().put(childValue.getName(), childValue);
+					}
 					i.incrementAndGet();
 				}
 			}
