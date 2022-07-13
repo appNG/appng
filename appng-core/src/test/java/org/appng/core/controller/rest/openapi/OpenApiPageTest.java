@@ -27,7 +27,7 @@ public class OpenApiPageTest extends OpenApiTest {
 	@Test
 	public void testPage() throws Exception {
 		environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
-		OpenApiPage openApiPage = new OpenApiPage(site, applicationProvider, request, messageSource, true) {
+		OpenApiPage openApiPage = new OpenApiPage(site, applicationProvider, request, messageSource) {
 		};
 		ResponseEntity<PageDefinition> page = openApiPage.getPage(PAGE_ID, null, environment, servletRequest,
 				servletResponse);

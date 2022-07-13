@@ -43,6 +43,7 @@ import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.DefaultPermissionProcessor;
+import org.appng.api.support.ElementHelper;
 import org.appng.api.support.LabelSupport;
 import org.appng.api.support.RequestSupportImpl;
 import org.appng.api.support.validation.DefaultValidationProvider;
@@ -76,6 +77,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -87,31 +89,22 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 abstract class OpenApiAction extends OpenApiOperation {
 
-	private static final String ACTION_PATH = "/openapi/action/{event-id}/{id}";
-
-	public OpenApiAction(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) throws JAXBException {
-		super(site, application, request, messageSource, supportPathParameters);
+	public OpenApiAction(Site site, Application application, Request request, MessageSource messageSource)
+			throws JAXBException {
+		super(site, application, request, messageSource);
 	}
 
+	@GetMapping(path = "/openapi/action/{event-id}/{id}/{params}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Action> getAction(
 	// @formatter:off
-	@GetMapping(
-		path = {
-			ACTION_PATH,
-			ACTION_PATH + "/{pathVar1:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
-		},
-		produces =  MediaType.APPLICATION_JSON_UTF8_VALUE
-	)
+		@PathVariable(name = "event-id") String eventId,
+		@PathVariable(name = "id") String actionId,
+		Environment env,
+		HttpServletRequest servletReq, 
+		HttpServletResponse servletResp,
+		@MatrixVariable(required = false, pathVar = "params") Map<String, String> params
 	// @formatter:on
-	public ResponseEntity<Action> getAction(@PathVariable(name = "event-id") String eventId,
-			@PathVariable(name = "id") String actionId,
-			@PathVariable(required = false) Map<String, String> pathVariables, Environment env,
-			HttpServletRequest servletReq, HttpServletResponse servletResp)
-			throws JAXBException, InvalidConfigurationException, ProcessingException {
+	) throws JAXBException, InvalidConfigurationException, ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
 				actionId);
@@ -126,9 +119,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 		RestRequest initialRequest = getInitialRequest(site, application, env, servletReq, applicationProvider);
 
-		if (supportPathParameters) {
-			applyPathParameters(pathVariables, originalAction.getConfig(), initialRequest);
-		}
+		applyPathParameters(params, originalAction.getConfig(), initialRequest);
 
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
@@ -149,19 +140,20 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 	// @formatter:off
 	@PostMapping(
-		path = ACTION_PATH,
+		path = { "/openapi/action/multipart/{event-id}/{id}", "/openapi/action/{event-id}/{id}/{params}" },
 		consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
 		produces =  MediaType.APPLICATION_JSON_VALUE
 	)
 	// @formatter:on
 	public ResponseEntity<Action> performActionMultiPart(
 	// @formatter:off
- 			@PathVariable(name = "event-id") String eventId,
-			@PathVariable(name = "id") String actionId,
-			Environment environment,
-			HttpServletRequest servletRequest,
-			HttpServletResponse servletResponse
-		// @formatter:on
+		@PathVariable(name = "event-id") String eventId,
+		@PathVariable(name = "id") String actionId,
+		Environment environment,
+		HttpServletRequest servletReq,
+		HttpServletResponse servletResp,
+		@MatrixVariable(required = false, pathVar = "params") Map<String, String> params
+	// @formatter:on
 	) throws ProcessingException, JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
@@ -174,13 +166,14 @@ abstract class OpenApiAction extends OpenApiOperation {
 		}
 
 		request.addParameter(FORM_ACTION, actionId);
-		for (Map.Entry<String, String[]> entry : servletRequest.getParameterMap().entrySet()) {
+		applyPathParameters(params, originalAction.getConfig(), request);
+		for (Map.Entry<String, String[]> entry : servletReq.getParameterMap().entrySet()) {
 			request.addParameter(entry.getKey(), entry.getValue()[0]);
 		}
 
 		MarshallService marshallService = MarshallService.getMarshallService();
-		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(servletResponse, false,
-				request, actionId, eventId, marshallService);
+		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(servletResp, false, request,
+				actionId, eventId, marshallService);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
@@ -195,28 +188,22 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 	// @formatter:off
 	@PostMapping(
-		path = {
-			ACTION_PATH,
-			ACTION_PATH + "/{pathVar1:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}",
-			ACTION_PATH + "/{pathVar1:.+}/{pathVar2:.+}/{pathVar3:.+}/{pathVar4:.+}/{pathVar5:.+}"
-		},
+		path = "/openapi/action/{event-id}/{id}/{params}",
 		consumes = MediaType.APPLICATION_JSON_VALUE,
 		produces =  MediaType.APPLICATION_JSON_VALUE
 	)
 	// @formatter:on
 	protected ResponseEntity<Action> performAction(
 	// @formatter:off
- 			@PathVariable(name = "event-id") String eventId,
-			@PathVariable(name = "id") String actionId,
-			@PathVariable(required = false) Map<String, String> pathVariables,
-			@RequestBody Action receivedData,
-			Environment env,
-			HttpServletRequest servletReq,
-			HttpServletResponse servletResp
-		// @formatter:on
+		@PathVariable(name = "event-id") String eventId,
+		@PathVariable(name = "id") String actionId,
+		Environment env,
+		HttpServletRequest servletReq, 
+		HttpServletResponse servletResp,
+		@RequestBody Action receivedData,
+		@PathVariable(required = false) Map<String, String> pathVariables, 
+		@MatrixVariable(required = false, pathVar = "params") Map<String, String> params
+	// @formatter:on
 	) throws JAXBException, InvalidConfigurationException, ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 		org.appng.xml.platform.Action originalAction = applicationProvider.getApplicationConfig().getAction(eventId,
@@ -232,9 +219,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 		RestRequest initialRequest = getInitialRequest(site, application, env, servletReq, applicationProvider);
 
-		if (supportPathParameters) {
-			applyPathParameters(pathVariables, originalAction.getConfig(), initialRequest);
-		}
+		applyPathParameters(pathVariables, originalAction.getConfig(), initialRequest);
 
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
@@ -247,9 +232,8 @@ abstract class OpenApiAction extends OpenApiOperation {
 		RestRequest executingRequest = new RestRequest(servletReq, initialAction, receivedData);
 		executingRequest.addParameter(FORM_ACTION, actionId);
 		initRequest(site, application, env, applicationProvider, executingRequest);
-		if (supportPathParameters) {
-			applyPathParameters(pathVariables, initialAction.getConfig(), executingRequest);
-		}
+		applyPathParameters(pathVariables, initialAction.getConfig(), executingRequest);
+
 		org.appng.xml.platform.Action processedAction = applicationProvider.processAction(servletResp, false,
 				executingRequest, actionId, eventId, marshallService);
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
@@ -282,10 +266,9 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 		Map<String, String> actionParams = getParameters(processedAction.getConfig().getParams(), allParams);
 
-		if (null != mustExecute) {
-			ExpressionEvaluator executeEvaluator = new ExpressionEvaluator(actionParams);
-			Condition condition = processedAction.getCondition();
-			mustExecute.set(null == condition || executeEvaluator.evaluate(condition.getExpression()));
+		Condition condition = processedAction.getCondition();
+		if (null != mustExecute && null != condition) {
+			mustExecute.set(new ExpressionEvaluator(actionParams).evaluate(condition.getExpression()));
 		}
 
 		addValidationRules(processedAction.getConfig().getMetaData());

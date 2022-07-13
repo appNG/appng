@@ -90,18 +90,16 @@ abstract class OpenApiOperation {
 	protected Site site;
 	protected Application application;
 	protected ApplicationRequest request;
-	protected boolean supportPathParameters;
 	protected boolean errors = false;
 	protected MessageSource messageSource;
 	protected MarshallService marshallService;
 
-	public OpenApiOperation(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) throws JAXBException {
+	public OpenApiOperation(Site site, Application application, Request request, MessageSource messageSource)
+			throws JAXBException {
 		this.site = site;
 		this.application = application;
 		this.request = (ApplicationRequest) request;
 		this.messageSource = messageSource;
-		this.supportPathParameters = supportPathParameters;
 		this.marshallService = MarshallService.getMarshallService();
 		marshallService.setDocumentBuilderFactory(BuilderFactory.documentBuilderFactory());
 	}
@@ -197,23 +195,14 @@ abstract class OpenApiOperation {
 
 	abstract Logger getLogger();
 
-	protected void applyPathParameters(Map<String, String> pathVariables, DataConfig config,
+	protected void applyPathParameters(Map<String, String> pathParameters, DataConfig config,
 			ApplicationRequest applicationRequest) {
-		Params params = config.getParams();
-		if (null != params && null != pathVariables) {
-			List<Param> paramList = params.getParam();
-			int maxParams = 5;
-			int paramNo = 1;
-			while (paramNo <= paramList.size() && paramNo < maxParams) {
-				String paramName = paramList.get(paramNo - 1).getName();
-				String pathVariable = pathVariables.get(PATH_VAR + paramNo);
-				if (StringUtils.isNotBlank(pathVariable)) {
-					applicationRequest.addParameter(paramName, pathVariable);
-					getLogger().debug("added path parameter {}:{}", paramName, pathVariable);
-				}
-				paramNo++;
+		pathParameters.entrySet().forEach(e -> {
+			if (StringUtils.isNotBlank(e.getValue())) {
+				applicationRequest.addParameter(e.getKey(), e.getValue());
+				getLogger().warn("added path parameter {}:{}", e.getKey(), e.getValue());
 			}
-		}
+		});
 	}
 
 	protected boolean hasErrors() {
@@ -375,7 +364,7 @@ abstract class OpenApiOperation {
 			for (Param p : params.getParam()) {
 				if (null != p.getValue()) {
 					try {
-						self.append(first ? "?" : "&");
+						self.append(first ? "/" : ";");
 						first = false;
 						self.append(UriUtils.encodeQueryParam(p.getName(), StandardCharsets.UTF_8.name()));
 						self.append("=");

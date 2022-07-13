@@ -38,45 +38,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Navigation"
-  "/service/{site}/{application}/rest/openapi/page/{id}":
-    get:
-      tags:
-        - appNG
-      operationId: getPage
-      parameters:
-        - in: path 
-          name: site
-          description: the site to call
-          required: true
-          schema:
-            type: string
-        - in: path 
-          name: application
-          description: the application to call
-          required: true
-          schema:
-            type: string
-        - in: path 
-          name: id
-          description: the ID of the page
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: _sect
-          description: a list of section IDs to fill
-          required: false         
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        "200":
-          description: datasource response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PageDefinition"
   "/service/{site}/{application}/rest/openapi/page/{id}/{pageUrlParams}":
     get:
       tags:
@@ -122,7 +83,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PageDefinition"
-  "/service/{site}/{application}/rest/openapi/datasource/{id}":
+  "/service/{site}/{application}/rest/openapi/datasource/{id}/{params}":
     get:
       tags:
         - appNG
@@ -147,6 +108,14 @@ paths:
           required: true
           schema:
             type: string
+        - in: path
+          name: params
+          schema:
+            type: string
+          style: matrix
+          explode: true
+          description: the parameters (including sorting and filtering parameters) for the datasource
+          required: true
       responses:
         "200":
           description: datasource response
@@ -160,7 +129,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorModel"
-  "/service/{site}/{application}/rest/openapi/action/{event-id}/{id}":
+  "/service/{site}/{application}/rest/openapi/action/{event-id}/{id}/{params}":
     get:
       tags:
         - appNG
@@ -191,6 +160,14 @@ paths:
           required: true
           schema:
             type: string
+        - in: path
+          name: params
+          schema:
+            type: string
+          style: matrix
+          explode: true
+          description: the parameters for the action
+          required: true
       responses:
         "200":
           description: action response
@@ -264,7 +241,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorModel"
-  "/service/{site}/{application}/rest/openapi/action/multipart/{event-id}/{id}":
+  "/service/{site}/{application}/rest/openapi/action/multipart/{event-id}/{id}/{params}":
     post:
       tags:
         - appNG
@@ -295,6 +272,14 @@ paths:
           required: true
           schema:
             type: string
+        - in: path
+          name: params
+          schema:
+            type: string
+          style: matrix
+          explode: true
+          description: the parameters for the action
+          required: true
       requestBody:
         content: 
           multipart/form-data:

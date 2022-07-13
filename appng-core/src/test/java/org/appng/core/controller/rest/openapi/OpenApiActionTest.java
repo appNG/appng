@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appng.openapi.model.Action;
-import org.appng.openapi.model.Datasource;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
@@ -28,36 +27,25 @@ public class OpenApiActionTest extends OpenApiTest {
 
 	@Test
 	public void testAction() throws Exception {
-		OpenApiAction openApiAction = new OpenApiAction(site, applicationProvider, request, messageSource, true) {
+		OpenApiAction openApiAction = new OpenApiAction(site, applicationProvider, request, messageSource) {
 		};
 		Map<String, String> pathVariables = new HashMap<>();
-		pathVariables.put("form_action", "create");
 		pathVariables.put("action", "create");
-		ResponseEntity<Action> action = openApiAction.getAction("events", "create", pathVariables, environment,
-				servletRequest, servletResponse);
+		ResponseEntity<Action> action = openApiAction.getAction("events", "create", environment, servletRequest,
+				servletResponse, pathVariables);
 		WritingJsonValidator.validate(action, "rest/openapi/action.json");
 
 		servletRequest.addParameter("form_action", "create");
 		servletRequest.addParameter("action", "create");
 		ResponseEntity<Action> validated = openApiAction.performActionMultiPart("events", "create", environment,
-				servletRequest, servletResponse);
+				servletRequest, servletResponse, pathVariables);
 		WritingJsonValidator.validate(validated, "rest/openapi/action-validate.json");
 
 		servletRequest.addParameter("name", "super new name");
 		ResponseEntity<Action> performed = openApiAction.performActionMultiPart("events", "create", environment,
-				servletRequest, servletResponse);
+				servletRequest, servletResponse, pathVariables);
 		WritingJsonValidator.validate(performed, "rest/openapi/action-performed.json");
 
-	}
-
-	@Test
-	public void testDataSource() throws Exception {
-		OpenApiDataSource openApiDatasource = new OpenApiDataSource(site, applicationProvider, request, messageSource,
-				true) {
-		};
-		ResponseEntity<Datasource> datasource = openApiDatasource.getDataSource("entities", null, environment,
-				servletRequest, servletResponse);
-		WritingJsonValidator.validate(datasource, "rest/openapi/datasource.json");
 	}
 
 }

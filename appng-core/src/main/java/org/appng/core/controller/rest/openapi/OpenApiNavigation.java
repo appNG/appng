@@ -56,9 +56,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 abstract class OpenApiNavigation extends OpenApiOperation {
 
-	public OpenApiNavigation(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) throws JAXBException {
-		super(site, application, request, messageSource, supportPathParameters);
+	public OpenApiNavigation(Site site, Application application, Request request, MessageSource messageSource)
+			throws JAXBException {
+		super(site, application, request, messageSource);
 	}
 
 	@GetMapping(path = "/openapi/navigation")

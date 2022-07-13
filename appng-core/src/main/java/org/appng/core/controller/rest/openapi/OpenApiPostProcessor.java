@@ -24,7 +24,6 @@ import org.appng.core.controller.rest.openapi.OpenApiOperation.RestErrorHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -58,33 +57,33 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 
 	static class OpenApiActionImpl extends OpenApiAction {
 		@Autowired
-		public OpenApiActionImpl(Site site, Application application, Request request, MessageSource messageSource,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
-			super(site, application, request, messageSource, supportPathParameters);
+		public OpenApiActionImpl(Site site, Application application, Request request, MessageSource messageSource)
+				throws JAXBException {
+			super(site, application, request, messageSource);
 		}
 	}
 
 	static class OpenApiDataSourceImpl extends OpenApiDataSource {
 		@Autowired
-		public OpenApiDataSourceImpl(Site site, Application application, Request request, MessageSource messageSource,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
-			super(site, application, request, messageSource, supportPathParameters);
+		public OpenApiDataSourceImpl(Site site, Application application, Request request, MessageSource messageSource)
+				throws JAXBException {
+			super(site, application, request, messageSource);
 		}
 	}
 
 	static class OpenApiPageImpl extends OpenApiPage {
 		@Autowired
-		public OpenApiPageImpl(Site site, Application application, Request request, MessageSource messageSource,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
-			super(site, application, request, messageSource, supportPathParameters);
+		public OpenApiPageImpl(Site site, Application application, Request request, MessageSource messageSource)
+				throws JAXBException {
+			super(site, application, request, messageSource);
 		}
 	}
 
 	static class OpenApiNavigationImpl extends OpenApiNavigation {
 		@Autowired
-		public OpenApiNavigationImpl(Site site, Application application, Request request, MessageSource messageSource,
-				@Value("${restUsePathParameters:true}") boolean supportPathParameters) throws JAXBException {
-			super(site, application, request, messageSource, supportPathParameters);
+		public OpenApiNavigationImpl(Site site, Application application, Request request, MessageSource messageSource)
+				throws JAXBException {
+			super(site, application, request, messageSource);
 		}
 	}
 

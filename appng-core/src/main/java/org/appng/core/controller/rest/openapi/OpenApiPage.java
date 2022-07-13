@@ -69,9 +69,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 abstract class OpenApiPage extends OpenApiOperation {
 
-	public OpenApiPage(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) throws JAXBException {
-		super(site, application, request, messageSource, supportPathParameters);
+	public OpenApiPage(Site site, Application application, Request request, MessageSource messageSource)
+			throws JAXBException {
+		super(site, application, request, messageSource);
 	}
 
 	@GetMapping(path = "/openapi/page/{id}/**", produces = MediaType.APPLICATION_JSON_VALUE)

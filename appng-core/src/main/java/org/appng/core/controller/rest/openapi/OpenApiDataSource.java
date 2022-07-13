@@ -15,6 +15,8 @@
  */
 package org.appng.core.controller.rest.openapi;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,6 +80,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -87,30 +90,28 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 abstract class OpenApiDataSource extends OpenApiOperation {
 
-	public OpenApiDataSource(Site site, Application application, Request request, MessageSource messageSource,
-			boolean supportPathParameters) throws JAXBException {
-		super(site, application, request, messageSource, supportPathParameters);
+	public OpenApiDataSource(Site site, Application application, Request request, MessageSource messageSource)
+			throws JAXBException {
+		super(site, application, request, messageSource);
 	}
 
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		System.err.println(URLEncoder.encode("params[id]", "utf-8"));
+	}
+
+	@GetMapping(path = "/openapi/datasource/{id}/{params}")
+	public ResponseEntity<Datasource> getDataSource(
 	// @formatter:off
-	@GetMapping(
-		path = {
-			"/openapi/datasource/{id}",
-			"/openapi/datasource/{id}/{pathVar1}",
-			"/openapi/datasource/{id}/{pathVar1}/{pathVar2}",
-			"/openapi/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}",
-			"/openapi/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}",
-			"/openapi/datasource/{id}/{pathVar1}/{pathVar2}/{pathVar3}/{pathVar4}/{pathVar5}"
-		}
-	)
+		@PathVariable(name = "id") String dataSourceId,		
+		Environment environment,
+		HttpServletRequest httpServletRequest, 
+		HttpServletResponse httpServletResponse,
+		@MatrixVariable(required = false, pathVar = "params") Map<String, String> params
 	// @formatter:on
-	public ResponseEntity<Datasource> getDataSource(@PathVariable(name = "id") String dataSourceId,
-			@PathVariable(required = false) Map<String, String> pathVariables, Environment environment,
-			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ProcessingException,
-			JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
+	) throws ProcessingException, JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 
-		if (supportPathParameters) {
+		if (!params.isEmpty()) {
 			org.appng.xml.platform.Datasource originalDatasource = applicationProvider.getApplicationConfig()
 					.getDatasource(dataSourceId);
 			if (null == originalDatasource) {
@@ -118,7 +119,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 						application.getName(), site.getName());
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
-			applyPathParameters(pathVariables, originalDatasource.getConfig(), request);
+			applyPathParameters(params, originalDatasource.getConfig(), request);
 		}
 
 		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
@@ -238,7 +239,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 
 	private String addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource,
 			boolean hasQueryParams) {
-		StringBuilder filterResetLink = new StringBuilder(hasQueryParams ? "&" : "?");
+		StringBuilder filterResetLink = new StringBuilder(hasQueryParams ? "" : ";");
 		List<SelectionGroup> selectionGroups = processedDataSource.getData().getSelectionGroups();
 		if (null != selectionGroups) {
 			selectionGroups.forEach(sg -> {
@@ -255,7 +256,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 						filter.getOptions().addEntriesItem(getOption(s.getId(), o, Collections.emptyList()));
 					});
 					datasource.addFiltersItem(filter);
-					filterResetLink.append((istFirst.getAndSet(false) ? "?" : "&") + s.getId() + "=");
+					filterResetLink.append((istFirst.getAndSet(false) ? "" : ";") + s.getId() + "=");
 				});
 			});
 		}
@@ -279,7 +280,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			if (null != s.getOrder()) {
 				sort.setOrder(OrderEnum.fromValue(s.getOrder().name().toLowerCase()));
 			}
-			String sortParam = (hasQueryParams ? "&" : "?") + "sort" + StringUtils.capitalize(dataSourceId) + "="
+			String sortParam = (hasQueryParams ? ";" : "") + "sort" + StringUtils.capitalize(dataSourceId) + "="
 					+ f.getBinding();
 			sort.setPathDesc(self + sortParam + ":desc");
 			sort.setPathAsc(self + sortParam + ":asc");
