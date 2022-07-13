@@ -217,6 +217,14 @@ paths:
           required: true
           schema:
             type: string
+        - in: path
+          name: params
+          schema:
+            type: string
+          style: matrix
+          explode: true
+          description: the parameters for the action
+          required: true 
       requestBody:
         content: 
           application/json:
