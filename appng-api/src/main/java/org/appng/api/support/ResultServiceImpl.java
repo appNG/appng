@@ -59,9 +59,10 @@ public class ResultServiceImpl extends AdapterBase implements ResultService {
 		final Result r = new Result();
 		setResultSelector(fp, r);
 		DatafieldOwner dataFieldOwner = getDataFieldOwner(r);
+		BeanWrapperImpl beanWrapper = new BeanWrapperImpl(object);
 		for (FieldDef fieldDef : fp.getFields()) {
 			Linkpanel linkpanel = fp.getLinkPanel(fieldDef.getName());
-			FieldWrapper fieldWrapper = new FieldWrapper(fieldDef, new BeanWrapperImpl(object));
+			FieldWrapper fieldWrapper = new FieldWrapper(fieldDef, beanWrapper);
 			fieldWrapper.backupFields();
 			fieldWrapper.setLinkpanel(linkpanel);
 			fieldConverter.addField(dataFieldOwner, fieldWrapper);
