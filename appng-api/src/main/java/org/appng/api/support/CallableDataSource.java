@@ -102,9 +102,10 @@ public class CallableDataSource {
 
 		if (permissionProcessor.hasPermissions(new PermissionOwner(datasourceRef))) {
 			ExpressionEvaluator includeEvaluator = new ExpressionEvaluator(parameterSupport.getParameters());
-			this.elementHelper = new ElementHelper(site, application, includeEvaluator);
+			this.elementHelper = new ElementHelper(applicationRequest.getEnvironment(), site,
+					application, includeEvaluator);
 			Condition includeCondition = datasourceRef.getCondition();
-			if (elementHelper.conditionMatches(includeEvaluator, includeCondition)) {
+			if (elementHelper.conditionMatches(includeCondition)) {
 				this.datasource = applicationRequest.getApplicationConfig().getDatasource(datasourceRef.getId());
 				if (null == datasource) {
 					throw new ProcessingException("no such datasource: " + datasourceRef.getId(),
@@ -143,7 +144,7 @@ public class CallableDataSource {
 	public Datasource getDatasource() {
 		return datasource;
 	}
-	
+
 	/**
 	 * Performs this {@link CallableDataSource}, setting the {@link Bean} {@code null} afterwards.
 	 * 
@@ -161,7 +162,7 @@ public class CallableDataSource {
 	public Data perform(String pageId, boolean addMessagesToSession) throws ProcessingException {
 		return perform(pageId, true, false, addMessagesToSession);
 	}
-	
+
 	/***
 	 * @see #perform(String, boolean, boolean, boolean)
 	 */

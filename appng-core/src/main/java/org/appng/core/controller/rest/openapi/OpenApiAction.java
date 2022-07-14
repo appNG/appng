@@ -268,7 +268,8 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 		Condition condition = processedAction.getCondition();
 		if (null != mustExecute && null != condition) {
-			mustExecute.set(new ExpressionEvaluator(actionParams).evaluate(condition.getExpression()));
+			mustExecute.set(new ElementHelper(environment, site, application, new ExpressionEvaluator(actionParams))
+					.conditionMatches(condition));
 		}
 
 		addValidationRules(processedAction.getConfig().getMetaData());

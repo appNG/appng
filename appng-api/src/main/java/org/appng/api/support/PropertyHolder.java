@@ -61,7 +61,7 @@ public class PropertyHolder implements Properties {
 
 	/**
 	 * Sets this {@link PropertyHolder} to final, which means no more properties can be added using
-	 * {@link #addProperty(String, Object, String)}.
+	 * {@link #addProperty(String, Object, String, Type)}.
 	 * 
 	 * @return this {@code PropertyHolder}
 	 */
@@ -94,22 +94,6 @@ public class PropertyHolder implements Properties {
 			return property.getString();
 		}
 		return defaultValue;
-	}
-
-	/**
-	 * @deprecated use {@link #addProperty(String, Object, String, Type)} instead!
-	 */
-	@Deprecated
-	public final Property addProperty(String name, Object defaultValue, String description) {
-		return addProperty(name, defaultValue, description, Type.TEXT);
-	}
-
-	/**
-	 * @deprecated use {@link #addProperty(String, Object, String, Type)} instead!
-	 */
-	@Deprecated
-	public final Property addProperty(String name, Object defaultValue, String description, boolean isMultiline) {
-		return addProperty(name, defaultValue, description, isMultiline ? Type.MULTILINE : Type.TEXT);
 	}
 
 	/**

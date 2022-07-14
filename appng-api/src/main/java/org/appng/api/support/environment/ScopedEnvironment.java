@@ -28,7 +28,7 @@ import org.appng.api.Scope;
  * 
  * @see Environment
  */
-interface ScopedEnvironment {
+public interface ScopedEnvironment {
 
 	/**
 	 * @see Environment#setAttribute(Scope, String, Object)

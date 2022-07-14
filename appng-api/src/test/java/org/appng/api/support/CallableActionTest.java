@@ -34,6 +34,7 @@ import org.appng.api.ProcessingException;
 import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.validation.DefaultValidationProvider;
@@ -42,6 +43,7 @@ import org.appng.xml.platform.ActionRef;
 import org.appng.xml.platform.ApplicationConfig;
 import org.appng.xml.platform.ApplicationRootConfig;
 import org.appng.xml.platform.Bean;
+import org.appng.xml.platform.Condition;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
@@ -107,6 +109,9 @@ public class CallableActionTest {
 
 	@Mock
 	private Application application;
+
+	@Mock
+	private Properties properties;
 
 	@Mock
 	private ApplicationConfigProvider applicationConfigProvider;
@@ -289,6 +294,9 @@ public class CallableActionTest {
 		Mockito.when(action.getConfig()).thenReturn(config);
 		Mockito.when(action.getBean()).thenReturn(bean);
 		Mockito.when(action.getId()).thenReturn(MY_ACTION);
+		Condition condition = new Condition();
+		condition.setExpression("${APP.foo < 42.01}");
+		Mockito.when(action.getCondition()).thenReturn(condition);
 		Mockito.when(actionRef.getEventId()).thenReturn(MY_EVENT);
 		Mockito.when(actionRef.getId()).thenReturn(MY_ACTIONREF);
 		Mockito.when(actionRef.getParams()).thenReturn(new Params());
@@ -308,6 +316,11 @@ public class CallableActionTest {
 		Mockito.when(event.getConfig()).thenReturn(config);
 		Mockito.when(event.getId()).thenReturn(MY_EVENT);
 		Mockito.when(application.getBean(TEST_BEAN, ActionProvider.class)).thenReturn(actionProvider);
+		Mockito.when(site.getProperties()).thenReturn(properties);
+		Mockito.when(application.getProperties()).thenReturn(properties);
+		java.util.Properties props = new java.util.Properties();
+		props.put("foo", 42d);
+		Mockito.when(properties.getPlainProperties()).thenReturn(props);
 		Mockito.when(application.getBean(MessageSource.class)).thenReturn(messageSource);
 		Mockito.when(applicationConfigProvider.getAction(MY_EVENT, MY_ACTIONREF)).thenReturn(action);
 		Mockito.when(applicationConfigProvider.getEvent(MY_EVENT)).thenReturn(event);
@@ -344,9 +357,9 @@ public class CallableActionTest {
 	private CallableAction getCallableAction(boolean forward, String onSuccess) {
 		Action action = new Action();
 		action.setOnSuccess(onSuccess);
-		ElementHelper elementHelper = new ElementHelper(null, null) {
+		ElementHelper elementHelper = new ElementHelper(null, null, null, null) {
 			@Override
-			public Messages removeMessages(Environment environment) {
+			public Messages removeMessages() {
 				Messages messages = new Messages();
 				Message message = new Message();
 				message.setClazz(MessageType.ERROR);
@@ -356,7 +369,7 @@ public class CallableActionTest {
 			}
 
 			@Override
-			public String getOutputPrefix(Environment env) {
+			public String getOutputPrefix() {
 				return "/prefix/";
 			}
 		};

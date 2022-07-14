@@ -22,6 +22,7 @@ import org.appng.api.Environment;
 import org.appng.api.FieldConverter;
 import org.appng.api.FieldWrapper;
 import org.appng.api.ParameterSupport;
+import org.appng.api.support.ElementHelper;
 import org.appng.api.support.HashParameterSupport;
 import org.appng.api.support.LabelSupport;
 import org.appng.el.ExpressionEvaluator;
@@ -73,8 +74,7 @@ class LinkPanelFieldHandler extends ConverterBase {
 				for (Linkable link : links) {
 					Condition linkCondition = link.getCondition();
 					boolean showDisabled = Boolean.TRUE.equals(link.isShowDisabled());
-					boolean conditionMatches = null == linkCondition
-							|| expressionEvaluator.evaluate(linkCondition.getExpression());
+					boolean conditionMatches = ElementHelper.conditionMatches(expressionEvaluator, linkCondition);
 					if (conditionMatches || showDisabled) {
 						Function<Linkable, String> getTarget;
 						Function<String, Void> setTarget;

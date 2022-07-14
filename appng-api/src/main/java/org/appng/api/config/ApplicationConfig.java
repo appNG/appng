@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.appng.api.Environment;
 import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.api.support.RequestFactoryBean;
 import org.appng.api.support.ResourceBundleMessageSource;
 import org.appng.api.support.SelectionFactory;
@@ -76,9 +77,9 @@ public class ApplicationConfig {
 
 	@Bean
 	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public RequestFactoryBean request(Environment env, HttpServletRequest request, ConversionService conversionService,
-			MessageSource messageSource) {
-		return new RequestFactoryBean(request, env, conversionService, messageSource);
+	public RequestFactoryBean request(Environment env, Site site, Application application, HttpServletRequest request,
+			ConversionService conversionService, MessageSource messageSource) {
+		return new RequestFactoryBean(request, env, site, application, conversionService, messageSource);
 	}
 
 }

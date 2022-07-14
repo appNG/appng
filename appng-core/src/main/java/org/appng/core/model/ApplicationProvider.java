@@ -311,7 +311,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 				boolean hasPermission = true;
 				ActionRef action = element.getAction();
 				if (null != action && null != action.getCondition()) {
-					conditionMatches = conditionEvaluator.evaluate(action.getCondition().getExpression());
+					conditionMatches = ElementHelper.conditionMatches(conditionEvaluator, action.getCondition());
 					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(action));
 					if (!conditionMatches) {
 						LOGGER.info("include condition for action '{}' of event '{}' did not match - {}",
@@ -324,7 +324,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 				}
 				DatasourceRef datasource = element.getDatasource();
 				if (null != datasource && null != datasource.getCondition()) {
-					conditionMatches = conditionEvaluator.evaluate(datasource.getCondition().getExpression());
+					conditionMatches = ElementHelper.conditionMatches(conditionEvaluator, datasource.getCondition());
 					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(datasource));
 					if (!conditionMatches) {
 						LOGGER.info("include condition for datasource '{}' did not match - {}", datasource.getId(),
@@ -351,7 +351,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 				if (null != title && null != title.getId()) {
 					sectionDef.setId(title.getId());
 				} else if (null != config && null != config.getTitle().getId()) {
-					sectionDef.setId(config.getTitle().getId());					
+					sectionDef.setId(config.getTitle().getId());
 				} else {
 					for (SectionelementDef element : sectionDef.getElement()) {
 						if (StringUtils.isBlank(element.getPassive())
@@ -1033,7 +1033,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		if (createNew) {
 			MessageSource messageSource = getBean(MessageSource.class);
 			ConversionService conversionService = getBean("conversionService", ConversionService.class);
-			RequestFactoryBean rfb = new RequestFactoryBean(servletRequest, env, conversionService, messageSource);
+			RequestFactoryBean rfb = new RequestFactoryBean(servletRequest, env, site, application, conversionService,
+					messageSource);
 			rfb.afterPropertiesSet();
 			this.applicationRequest = (ApplicationRequest) rfb.getObject();
 		} else {

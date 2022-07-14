@@ -118,10 +118,14 @@ public class PlatformProperties implements Properties {
 		return properties.propertyExists(name);
 	}
 
+	public Object getObject(String name) {
+		return properties.getObject(name);
+	}
+
 	public java.util.Properties getPlainProperties() {
 		return properties.getPlainProperties();
 	}
-
+	
 	public java.util.Properties getProperties(String name) {
 		return properties.getProperties(name);
 	}

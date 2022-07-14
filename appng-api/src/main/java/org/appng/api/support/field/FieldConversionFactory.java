@@ -22,6 +22,7 @@ import java.util.Map;
 import org.appng.api.Environment;
 import org.appng.api.FieldConverter;
 import org.appng.api.FieldWrapper;
+import org.appng.api.support.ElementHelper;
 import org.appng.el.ExpressionEvaluator;
 import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.Condition;
@@ -73,7 +74,7 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 		Condition condition = fieldWrapper.getCondition();
 		boolean addField = true;
 		if (condition != null) {
-			addField = expressionEvaluator.evaluate(condition.getExpression());
+			addField = ElementHelper.conditionMatches(expressionEvaluator, condition);
 			condition.setExpression(String.valueOf(addField));
 		}
 

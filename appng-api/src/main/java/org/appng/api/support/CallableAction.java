@@ -164,7 +164,7 @@ public class CallableAction {
 				boolean clientValidation = pageExpressionEvaluator.getBoolean(actionRef.getClientValidation());
 				this.action.setClientValidation(String.valueOf(clientValidation));
 			}
-			this.elementHelper = new ElementHelper(site, application);
+			this.elementHelper = new ElementHelper(applicationRequest.getEnvironment(), site, application, null);
 			DataConfig config = getAction().getConfig();
 			getAction().setEventId(eventId);
 			getAction().setMode(actionRef.getMode());
@@ -182,7 +182,8 @@ public class CallableAction {
 				Map<String, Object> conditionParams = new HashMap<>(applicationRequest.getParameters());
 				conditionParams.put(ApplicationPath.PATH_VAR, applicationRequest.applicationPath());
 				ExpressionEvaluator conditionEvaluator = new ExpressionEvaluator(conditionParams);
-				this.include = elementHelper.conditionMatches(conditionEvaluator, includeCondition);
+				this.include = new ElementHelper(applicationRequest.getEnvironment(), site, application,
+						conditionEvaluator).conditionMatches(includeCondition);
 			}
 			if (include) {
 				elementHelper.processConfig(applicationRequest.getApplicationConfig(), applicationRequest,
@@ -228,8 +229,8 @@ public class CallableAction {
 
 				List<Message> before = new ArrayList<>();
 				Environment environment = applicationRequest.getEnvironment();
-				Messages envMessages = elementHelper.getMessages(environment);
-				if (elementHelper.hasMessages(environment)) {
+				Messages envMessages = elementHelper.getMessages();
+				if (elementHelper.hasMessages()) {
 					before.addAll(envMessages.getMessageList());
 				}
 
@@ -240,8 +241,8 @@ public class CallableAction {
 				action.getConfig().setMetaData(dsConfig.getMetaData());
 
 				List<Message> after = new ArrayList<>();
-				if (elementHelper.hasMessages(environment)) {
-					envMessages = elementHelper.getMessages(environment);
+				if (elementHelper.hasMessages()) {
+					envMessages = elementHelper.getMessages();
 					after.addAll(envMessages.getMessageList());
 				}
 
@@ -334,7 +335,7 @@ public class CallableAction {
 			if (doExecute()) {
 				fp = execute();
 				if (doForward() || forceForward()) {
-					String outputPrefix = elementHelper.getOutputPrefix(applicationRequest.getEnvironment());
+					String outputPrefix = elementHelper.getOutputPrefix();
 					StringBuilder target = new StringBuilder();
 					if (null != outputPrefix) {
 						target.append(outputPrefix);
@@ -350,7 +351,7 @@ public class CallableAction {
 			if (!isSectionHidden && null != action) {
 				retrieveData(false);
 				handleSelections();
-				Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
+				Messages messages = elementHelper.removeMessages();
 				if (null != messages) {
 					Messages actionMessages = action.getMessages();
 					if (null == actionMessages) {

@@ -114,6 +114,9 @@ public class ElementHelperTest {
 	@Mock
 	private Path path;
 
+	@Mock
+	private Environment env;
+
 	private MetaData metaData;
 
 	private ElementHelper elementHelper;
@@ -131,7 +134,13 @@ public class ElementHelperTest {
 		metaData = new MetaData();
 		config.setMetaData(metaData);
 
+		java.util.Properties props = new java.util.Properties();
+		props.put("foo", "42");
+		props.put("bar", 12);
+		Mockito.when(properties.getPlainProperties()).thenReturn(props);
+		Mockito.when(application.getProperties()).thenReturn(properties);
 		Mockito.when(site.getProperties()).thenReturn(properties);
+
 		Mockito.when(site.getName()).thenReturn("localhost");
 		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0], getClass().getClassLoader()));
 		Mockito.when(application.getName()).thenReturn("application");
@@ -160,11 +169,18 @@ public class ElementHelperTest {
 		Mockito.when(applicationRequest.getPermissionProcessor()).thenReturn(permissionProcessor);
 		parameterSupport = new DollarParameterSupport(new HashMap<>());
 		Mockito.when(applicationRequest.getParameterSupportDollar()).thenReturn(parameterSupport);
-		elementHelper = new ElementHelper(site, application);
+		elementHelper = new ElementHelper(env, site, application, null);
 		elementHelper.initializeParameters(DATASOURCE_TEST, applicationRequest, parameterSupport, new Params(),
 				new Params());
 
 		XMLUnit.setIgnoreWhitespace(true);
+	}
+
+	@Test
+	public void testConditionWithSiteAndApp() {
+		Condition condition = new Condition();
+		condition.setExpression("${not empty SITE.foo and APP.bar eq 12}");
+		Assert.assertTrue(elementHelper.conditionMatches(condition));
 	}
 
 	@Test
@@ -569,14 +585,13 @@ public class ElementHelperTest {
 
 	@Test
 	public void testGetOutputPrefix() {
-		Environment env = Mockito.mock(Environment.class);
 		Mockito.when(env.removeAttribute(Scope.REQUEST, EnvironmentKeys.EXPLICIT_FORMAT)).thenReturn(true);
 		Path pathMock = Mockito.mock(Path.class);
 		Mockito.when(pathMock.getGuiPath()).thenReturn("/manager");
 		Mockito.when(pathMock.getOutputPrefix()).thenReturn("/_html/_nonav");
 		Mockito.when(pathMock.getSiteName()).thenReturn("site");
 		Mockito.when(env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(pathMock);
-		String outputPrefix = elementHelper.getOutputPrefix(env);
+		String outputPrefix = elementHelper.getOutputPrefix();
 		Assert.assertEquals("/manager/_html/_nonav/site/", outputPrefix);
 	}
 
