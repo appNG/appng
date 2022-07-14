@@ -187,13 +187,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorModel"
-      responses:
-        "200":
-          description: action response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Action"
   "/service/{site}/{application}/rest/openapi/action/multipart/{event-id}/{id}/{params}":
     post:
       tags:
@@ -234,9 +227,9 @@ paths:
           description: the parameters for the action
           required: true
       requestBody:
+        description: For each field of an action, a multipart parameter must be present .
         content: 
           multipart/form-data:
-            description: For each field of an action, a multipart parameter must be present.
             schema:
               type: object
       responses:
