@@ -22,7 +22,7 @@
         "title" : "Entities",
         "collapsed" : false,
         "datasource" : {
-          "_self" : "/service/localhost/demo-application/rest/openapi/datasource/entities/param1=;param2=;param3=3;param4=4",
+          "_self" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=3;param4=4",
           "id" : "entities"
         }
       } ]
