@@ -77,7 +77,8 @@ public class RequestUtil {
 	 * 
 	 * @return the {@link Site} or null if no site matches
 	 * 
-	 * @see Site#getHostNames()
+	 * @see Site#getHost()
+	 * @see Site#getHostAliases()
 	 *
 	 */
 	public static Site getSiteByHost(Environment env, String host) {
