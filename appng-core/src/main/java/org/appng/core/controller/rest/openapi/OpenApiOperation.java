@@ -364,7 +364,7 @@ abstract class OpenApiOperation {
 			for (Param p : params.getParam()) {
 				if (null != p.getValue()) {
 					try {
-						self.append(first ? "/" : ";");
+						self.append(first ? "/" : "").append(";");
 						first = false;
 						self.append(UriUtils.encodeQueryParam(p.getName(), StandardCharsets.UTF_8.name()));
 						self.append("=");
