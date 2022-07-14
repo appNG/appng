@@ -187,49 +187,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorModel"
-    post:
-      tags:
-        - appNG
-      description: Performs an action.
-      operationId: performAction
-      parameters:
-        - in: path 
-          name: site
-          description: the site to call
-          required: true
-          schema:
-            type: string
-        - in: path 
-          name: application
-          description: the application to call
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: event-id
-          description: event-id of the action
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: id
-          description: ID of the action
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: params
-          schema:
-            type: string
-          style: matrix
-          explode: true
-          description: the parameters for the action
-          required: true 
-      requestBody:
-        content: 
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Action"
       responses:
         "200":
           description: action response
@@ -237,18 +194,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Action"
-        "400":
-          description: action response, in case an recoverable error occurred
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Action"
-        default:
-          description: unexpected/unrecoverable error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
   "/service/{site}/{application}/rest/openapi/action/multipart/{event-id}/{id}/{params}":
     post:
       tags:
@@ -291,16 +236,9 @@ paths:
       requestBody:
         content: 
           multipart/form-data:
+            description: For each field of an action, a multipart parameter must be present.
             schema:
               type: object
-              properties:             
-                body:
-                  $ref: "#/components/schemas/Action"
-                uploads:
-                  type: array
-                  items:
-                    type: string
-                    format: binary
       responses:
         "200":
           description: action response
