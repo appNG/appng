@@ -12,6 +12,7 @@
 	<ok>true</ok>
 	<managed>false</managed>
 	<versions>
+        <version version="4.4" state="Success" description="add table site hostnames" checksum="368748984" installed="2022-07-14T16:04:41.567+02:00"/>
 		<version version="4.2.1" state="Success" description="change subject name length" checksum="-1403960313" installed="2020-03-27T16:03:24.700+01:00" />
 		<version version="4.2" state="Success" description="add subject columns" checksum="-1022623583" installed="2020-03-27T16:03:24.680+01:00" />
 		<version version="4.1.2" state="Success" description="add property type" checksum="-1851785451" installed="2020-03-27T16:03:24.611+01:00" />
