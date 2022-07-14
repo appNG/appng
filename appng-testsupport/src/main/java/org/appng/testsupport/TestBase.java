@@ -57,6 +57,7 @@ import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
+import org.appng.api.config.RestConfig;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
 import org.appng.api.model.FeatureProvider;
@@ -83,7 +84,6 @@ import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.OptionImpl;
 import org.appng.api.support.OptionsImpl;
 import org.appng.api.support.PropertyHolder;
-import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.forms.FormUpload;
 import org.appng.forms.impl.FormUploadBean;
@@ -120,7 +120,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -131,12 +130,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
  * Base class for integration-testing an {@link Application}.<br />
@@ -348,21 +344,27 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected Application mockApplication(GenericApplicationContext applicationContext) {
+		return mockApplication(applicationContext, true);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Application mockApplication(GenericApplicationContext applicationContext, boolean checkResources) {
 		if (null == application) {
 			application = Mockito.mock(Application.class);
 		}
 		Mockito.when(application.getName()).thenReturn(applicationName);
 		Mockito.when(application.isFileBased()).thenReturn(true);
-		try {
-			Resources resources = getApplicationResources(MarshallService.getApplicationMarshallService());
-			Mockito.when(application.getResources()).thenReturn(resources);
-			ApplicationInfo applicationInfo = resources.getApplicationInfo();
-			org.appng.api.model.Properties properties = extractProperties(getProperties(), applicationInfo);
-			Mockito.when(application.getProperties()).thenReturn(properties);
-		} catch (JAXBException e) {
-			throw new RuntimeException("error reading resources", e);
+		if (checkResources && new File(applicationLocation).exists()) {
+			try {
+				Resources resources = getApplicationResources(MarshallService.getApplicationMarshallService());
+				Mockito.when(application.getResources()).thenReturn(resources);
+				ApplicationInfo applicationInfo = resources.getApplicationInfo();
+				org.appng.api.model.Properties properties = extractProperties(getProperties(), applicationInfo);
+				Mockito.when(application.getProperties()).thenReturn(properties);
+			} catch (JAXBException e) {
+				throw new RuntimeException("error reading resources", e);
+			}
 		}
 		Mockito.when(application.getBean(Mockito.any(Class.class)))
 				.thenAnswer(i -> applicationContext.getBean(i.getArgumentAt(0, Class.class)));
@@ -492,7 +494,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, path);
 		Mockito.when(path.getServicePath()).thenReturn(SITE_SERVICE_PATH);
 		Mockito.when(path.getGuiPath()).thenReturn(SITE_MANAGER_PATH);
-		
+
 		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest, servletResponse));
 	}
 
@@ -698,34 +700,7 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	 * @return the resolver
 	 */
 	public HandlerMethodArgumentResolver getHandlerMethodArgumentResolver() {
-		return new HandlerMethodArgumentResolver() {
-
-			public boolean supportsParameter(MethodParameter parameter) {
-				return isSite(parameter) || isEnvironment(parameter) || isApplication(parameter);
-			}
-
-			public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-					NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-				return isSite(parameter) ? site
-						: (isEnvironment(parameter) ? environment : (isApplication(parameter) ? application : null));
-			}
-
-			private boolean isParameterType(MethodParameter parameter, Class<?> type) {
-				return parameter.getParameterType().equals(type);
-			}
-
-			private boolean isEnvironment(MethodParameter parameter) {
-				return isParameterType(parameter, Environment.class);
-			}
-
-			protected boolean isSite(MethodParameter parameter) {
-				return isParameterType(parameter, Site.class);
-			}
-
-			private boolean isApplication(MethodParameter parameter) {
-				return isParameterType(parameter, Application.class);
-			}
-		};
+		return new RestConfig.SiteAwareHandlerMethodArgumentResolver(site, environment, application);
 	}
 
 	/**

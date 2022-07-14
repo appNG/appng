@@ -15,8 +15,14 @@
  */
 package org.appng.core.controller.handler;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,7 +48,6 @@ import org.appng.api.SoapService;
 import org.appng.api.VHostMode;
 import org.appng.api.Webservice;
 import org.appng.api.config.RestConfig;
-import org.appng.api.config.RestConfig.SiteAwareHandlerMethodArgumentResolver;
 import org.appng.api.model.Application;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
@@ -59,7 +64,6 @@ import org.appng.core.domain.SiteImpl;
 import org.appng.core.domain.SubjectImpl;
 import org.appng.core.model.AccessibleApplication;
 import org.appng.core.model.ApplicationProvider;
-import org.appng.core.model.PlatformTransformer;
 import org.appng.core.service.PropertySupport;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Action;
@@ -72,18 +76,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
@@ -94,9 +93,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 
@@ -133,8 +133,9 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 
 	@Test
 	public void testRest() throws Exception {
-		handleRestCall(3, 4, "{\"operation\":\"add\",\"result\":7}", MediaType.APPLICATION_JSON_UTF8_VALUE,
-				HttpStatus.OK);
+		String controlFile = getClass().getClassLoader().getResource("rest/restServiceResult.json").getFile();
+		String jsonResponse = new String(Files.readAllBytes(new File(controlFile).toPath()));
+		handleRestCall(3, 4, jsonResponse, MediaType.APPLICATION_JSON_UTF8_VALUE, HttpStatus.OK);
 	}
 
 	@Test
@@ -144,13 +145,13 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 
 	@Test
 	public void testRestHandleBusinessException() throws Exception {
-		handleRestCall(11, 47, "{\"message\":\"BOOOM!\"}", MediaType.APPLICATION_JSON_UTF8_VALUE,
+		handleRestCall(11, 47, "{\n  \"message\" : \"BOOOM!\"\n}", MediaType.APPLICATION_JSON_UTF8_VALUE,
 				HttpStatus.METHOD_NOT_ALLOWED);
 	}
 
 	@Test
 	public void testRestHandleNullPointerException() throws Exception {
-		handleRestCall(47, 12, "{\"message\":\"NPE\"}", MediaType.APPLICATION_JSON_UTF8_VALUE,
+		handleRestCall(47, 12, "{\n  \"message\" : \"NPE\"\n}", MediaType.APPLICATION_JSON_UTF8_VALUE,
 				HttpStatus.I_AM_A_TEAPOT);
 	}
 
@@ -168,34 +169,17 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	private void handleRestCall(String content, String contentType, HttpStatus status, String servletPath)
 			throws JAXBException, IOException, UnsupportedEncodingException {
 
-		RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
-		RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
-
-		BeanFactoryPostProcessor beanFactoryPostProcessor = new BeanFactoryPostProcessor() {
-			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-				beanFactory.registerSingleton("foobarRest", new FoobarRest());
-				beanFactory.registerSingleton("jsonConverter", new MappingJackson2HttpMessageConverter());
-				beanFactory.registerSingleton("requestMappingHandlerAdapter", rmha);
-				beanFactory.registerSingleton("requestMappingHandlerMapping", rmhm);
-				beanFactory.registerSingleton("siteAwareHandlerMethodArgumentResolver",
-						new SiteAwareHandlerMethodArgumentResolver(site, environment, application));
-			}
-		};
-
-		ConfigurableApplicationContext ac = new GenericApplicationContext();
-		ac.addBeanFactoryPostProcessor(beanFactoryPostProcessor);
+		AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext();
+		ac.addBeanFactoryPostProcessor(bf -> {
+			bf.registerSingleton("foobarRest", new FoobarRest());
+			bf.registerSingleton("site", (Site) site);
+			bf.registerSingleton("application", (Application) application);
+			bf.registerSingleton("env", (Environment) environment);
+		});
+		ac.register(RestConfig.class);
+		setup(servletPath, ac);
 		ac.refresh();
 
-		rmha.setApplicationContext(ac);
-		List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(ac);
-		if (!messageConverters.isEmpty()) {
-			rmha.setMessageConverters(messageConverters);
-		}
-		rmha.afterPropertiesSet();
-		rmhm.setApplicationContext(ac);
-		rmhm.afterPropertiesSet();
-
-		setup(servletPath, ac);
 		servletRequest.setMethod(HttpMethod.GET.name());
 		List<String> emptyList = new ArrayList<>();
 		PathInfo pathInfo = new PathInfo("localhost", "localhost", "localhost", servletPath, "/ws", "/services",
@@ -224,7 +208,12 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 			if (b == 47) {
 				throw new BusinessException("BOOOM!");
 			}
-			return new ResponseEntity<Result>(new Result("add", a + b), HttpStatus.OK);
+			OffsetDateTime offsetDate = OffsetDateTime.parse("1982-04-30T20:15:00+02:00");
+			LocalDateTime localDateTime = offsetDate.toLocalDateTime();
+			LocalDate localDate = LocalDate.from(localDateTime);
+			LocalTime localTime = LocalTime.from(localDateTime);
+			return new ResponseEntity<Result>(new Result("add", a + b, offsetDate, localDate, localTime, localDateTime),
+					HttpStatus.OK);
 		}
 
 		@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
@@ -240,43 +229,21 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 			return new Error(e.getMessage());
 		}
 
+		@Data
+		@AllArgsConstructor
 		static class Error {
 			final String message;
-
-			public Error(String message) {
-				this.message = message;
-			}
-
-			public String getMessage() {
-				return message;
-			}
 		}
 
+		@Data
+		@AllArgsConstructor
 		class Result {
 			String operation;
 			Integer result;
-
-			public Result(String operation, Integer result) {
-				this.operation = operation;
-				this.result = result;
-			}
-
-			public String getOperation() {
-				return operation;
-			}
-
-			public void setOperation(String operation) {
-				this.operation = operation;
-			}
-
-			public Integer getResult() {
-				return result;
-			}
-
-			public void setResult(Integer result) {
-				this.result = result;
-			}
-
+			OffsetDateTime offsetDate;
+			LocalDate localDate;
+			LocalTime localTime;
+			LocalDateTime localDateTime;
 		}
 	}
 

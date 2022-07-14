@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -41,6 +42,7 @@ import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.UrlPathHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,10 +69,17 @@ public class RestService {
 		HttpServletRequestWrapper wrapped = getWrappedRequest(servletRequest);
 		ApplicationContext context = application.getContext();
 
-		RequestMappingHandlerMapping rmhm = context.getBean(RequestMappingHandlerMapping.class);
-
 		HandlerMethod handlerMethod = null;
+		List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(context);
+		List<HandlerMethodArgumentResolver> argumentResolvers =  RestConfig.getArgumentResolvers(context);
 		try {
+			RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
+			rmhm.setApplicationContext(context);
+			UrlPathHelper urlPathHelper = new UrlPathHelper();
+			urlPathHelper.setRemoveSemicolonContent(false);
+			rmhm.setUrlPathHelper(urlPathHelper);
+			rmhm.afterPropertiesSet();
+
 			HandlerExecutionChain handler = rmhm.getHandler(wrapped);
 			if (null == handler) {
 				LOGGER.warn("no @RestController found for {}", servletRequest.getServletPath());
@@ -79,16 +88,18 @@ public class RestService {
 			}
 			handlerMethod = (HandlerMethod) handler.getHandler();
 
-			RequestMappingHandlerAdapter rmha = context.getBean(RequestMappingHandlerAdapter.class);
+			RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
+			rmha.setApplicationContext(context);
+			rmha.setCustomArgumentResolvers(argumentResolvers);
+			rmha.setMessageConverters(messageConverters);
+			rmha.afterPropertiesSet();
 			rmha.handle(wrapped, servletResponse, handlerMethod);
 		} catch (Exception e) {
 			servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-			List<HandlerMethodArgumentResolver> argumentResolvers = RestConfig.getArgumentResolvers(context);
-
 			ExceptionHandlerExceptionResolver eher = new ExceptionHandlerExceptionResolver();
 			eher.setApplicationContext(context);
 			eher.setCustomArgumentResolvers(argumentResolvers);
-			List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(context);
+
 			if (!messageConverters.isEmpty()) {
 				eher.setMessageConverters(messageConverters);
 			}

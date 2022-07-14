@@ -19,6 +19,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobRecord</class>
 		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<!-- this works because hibernate replaces system-properties -->
@@ -49,6 +50,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobRecord</class>
 		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/appng" />
@@ -79,6 +81,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobRecord</class>
 		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:sqlserver://localhost:1433;databaseName=appng_migration" />
@@ -109,6 +112,7 @@
 		<class>org.appng.core.domain.Template</class>
 		<class>org.appng.core.domain.TemplateResource</class>
 		<class>org.appng.core.domain.PlatformEvent</class>
+		<class>org.appng.core.domain.JobRecord</class>
 		<class>org.appng.core.domain.JobExecutionRecord</class>
 		<properties>
 			<property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/appng" />
