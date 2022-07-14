@@ -124,7 +124,7 @@ public class ElementHelper {
 				other.setVariable(APP, application.getProperties().getPlainProperties());
 			}
 			if (null != environment) {
-				ScopedEnvironment sessionEnv = environment.getScopedEnvironment(Scope.SESSION);
+				ScopedEnvironment sessionEnv = environment.getEnvironment(Scope.SESSION);
 				if (null != sessionEnv) {
 					other.setVariable(SESSION, sessionEnv.getContainer());
 				}
