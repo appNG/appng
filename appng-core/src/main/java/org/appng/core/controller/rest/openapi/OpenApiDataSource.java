@@ -17,7 +17,6 @@ package org.appng.core.controller.rest.openapi;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -107,7 +106,11 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		System.err.println(UriUtils.decode(parseMatrixVariables.getFirst("sortSites"), "utf-8"));
 	}
 
-	@GetMapping(path = "/openapi/datasource/{id}")
+	@GetMapping(path = {
+			// without parameters
+			"/openapi/datasource/{id}",
+			// with matrix-style parameters
+			"/openapi/datasource/{id}/;*" })
 	public ResponseEntity<Datasource> getDataSource(
 	// @formatter:off
 		@PathVariable(name = "id") String dataSourceId,		

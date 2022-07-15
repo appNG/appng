@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -205,19 +206,16 @@ abstract class OpenApiOperation {
 			params.remove(params.keySet().iterator().next());
 			params.entrySet().forEach(e -> {
 				if (!e.getValue().isEmpty()) {
-					try {
-						String name = UriUtils.decode(e.getKey(), StandardCharsets.UTF_8.name());
-						int numParams = e.getValue().size();
-						if (numParams == 1) {
-							String value = UriUtils.decode(e.getValue().get(0), StandardCharsets.UTF_8.name());
-							applicationRequest.addParameter(name, value);
-							getLogger().warn("added path parameter {}={}", name, value);
-						} else {
-							getLogger().warn("{} path parameters for {} were given!", numParams, name);
+					List<String> values = e.getValue().stream().map(v -> {
+						try {
+							return UriUtils.decode(v, StandardCharsets.UTF_8.name());
+						} catch (UnsupportedEncodingException e1) {
+							// will not happen
 						}
-					} catch (UnsupportedEncodingException e1) {
-						// will not happen
-					}
+						return v;
+					}).collect(Collectors.toList());
+					applicationRequest.addParameters(e.getKey(), values);
+					getLogger().warn("added path parameter {}={}", e.getKey(), values);
 				}
 			});
 		}
@@ -382,7 +380,7 @@ abstract class OpenApiOperation {
 			for (Param p : params.getParam()) {
 				if (null != p.getValue()) {
 					try {
-						self.append(";");
+						self.append(first ? "/" : "").append(";");
 						first = false;
 						self.append(UriUtils.encodeQueryParam(p.getName(), StandardCharsets.UTF_8.name()));
 						self.append("=");

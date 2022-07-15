@@ -268,6 +268,10 @@ public class ApplicationRequest implements Request {
 		wrappedRequest.addParameters(singleParameters);
 	}
 
+	public void addParameters(String name, List<String> values) {
+		wrappedRequest.addParameters(name, values);
+	}
+
 	public void addParameter(String key, String value) {
 		wrappedRequest.addParameter(key, value);
 	}

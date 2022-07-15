@@ -77,7 +77,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -89,12 +88,15 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 abstract class OpenApiAction extends OpenApiOperation {
 
+	private static final String ACTION_PATH = "/openapi/action/{event-id}/{id}";
+	private static final String ACTION_PATH_PARAMETRIZED = "/openapi/action/{event-id}/{id}/;*";
+
 	public OpenApiAction(Site site, Application application, Request request, MessageSource messageSource)
 			throws JAXBException {
 		super(site, application, request, messageSource);
 	}
 
-	@GetMapping(path = "/openapi/action/{event-id}/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(path = { ACTION_PATH, ACTION_PATH_PARAMETRIZED }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Action> getAction(
 	// @formatter:off
 		@PathVariable(name = "event-id") String eventId,
@@ -137,7 +139,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 	// @formatter:off
 	@PostMapping(
-		path = { "/openapi/action/multipart/{event-id}/{id}", "/openapi/action/{event-id}/{id}" },
+		path = { "/openapi/action/multipart/{event-id}/{id}", "/openapi/action/multipart/{event-id}/{id}/;*"},
 		consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
 		produces =  MediaType.APPLICATION_JSON_VALUE
 	)
@@ -184,7 +186,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 	// @formatter:off
 	@PostMapping(
-		path = "/openapi/action/{event-id}/{id}",
+		path = { ACTION_PATH, ACTION_PATH_PARAMETRIZED },
 		consumes = MediaType.APPLICATION_JSON_VALUE,
 		produces =  MediaType.APPLICATION_JSON_VALUE
 	)
@@ -278,9 +280,6 @@ abstract class OpenApiAction extends OpenApiOperation {
 		action.setUser(getUser(environment));
 		action.setParameters(actionParams);
 		action.setPermissions(getPermissions(processedAction.getConfig().getPermissions()));
-		action.setSelf("/service/" + site.getName() + "/" + application.getName() + "/rest/openapi/action/"
-				+ processedAction.getEventId() + "/" + processedAction.getId());
-
 		Data data = processedAction.getData();
 		if (null != data && null != data.getResult()) {
 			data.getResult().getFields().forEach(fieldData -> {
@@ -299,6 +298,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		StringBuilder self = getSelf("/action/" + action.getEventId() + "/" + action.getId());
 		appendParams(processedAction.getConfig().getParams(), self);
 		action.setSelf(self.toString());
+		action.setExecute(action.getSelf().replace("/action/", "/action/multipart/"));
 
 		return action;
 	}
