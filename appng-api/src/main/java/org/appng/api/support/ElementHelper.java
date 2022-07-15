@@ -470,9 +470,6 @@ public class ElementHelper {
 	/**
 	 * Returns the messages for the current session.
 	 * 
-	 * @param  environment
-	 *                     the current {@link Environment}
-	 * 
 	 * @return             the messages for the current session, if any
 	 */
 	public Messages removeMessages() {
@@ -501,9 +498,6 @@ public class ElementHelper {
 
 	/**
 	 * Returns the messages for the current session.
-	 * 
-	 * @param  environment
-	 *                     the current {@link Environment}
 	 * 
 	 * @return             the messages for the current session, if any
 	 */

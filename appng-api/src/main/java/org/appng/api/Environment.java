@@ -49,8 +49,8 @@ public interface Environment {
 	/**
 	 * Returns a {@link ScopedEnvironment} for the given {@link Scope}
 	 * 
-	 * @param  the
-	 *             {@link Scope}
+	 * @param scope
+	 *              the {@link Scope} to use
 	 * 
 	 * @return     the {@link ScopedEnvironment}, if scope is available, {@code null} otherwise.
 	 */

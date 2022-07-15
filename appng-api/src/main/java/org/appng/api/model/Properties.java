@@ -244,12 +244,12 @@ public interface Properties {
 	String getDescriptionFor(String name);
 
 	/**
-	 * Returns the object representation of the {@link Property} according to it's {@link Type}:
+	 * Returns the object representation of the {@link Property} according to it's {@link Property.Type}:
 	 * <ul>
-	 * <li>an {@link Integer} (for type {@link Type#INT})
-	 * <li>a {@link Double} (for type {@link Type#DECIMAL})
-	 * <li>a {@link Boolean} (for type {@link Type#BOOLEAN})
-	 * <li>a {@link String} (for types {@link Type#TEXT}, {@link Type#PASSWORD} and {@link Type#MULTILINE})
+	 * <li>an {@link Integer} (for type {@link Property.Type#INT})
+	 * <li>a {@link Double} (for type {@link Property.Type#DECIMAL})
+	 * <li>a {@link Boolean} (for type {@link Property.Type#BOOLEAN})
+	 * <li>a {@link String} (for types {@link Property.Type#TEXT}, {@link Property.Type#PASSWORD} and {@link Property.Type#MULTILINE})
 	 * <ul>
 	 * 
 	 * @param  the
