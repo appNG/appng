@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -44,6 +46,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.api.support.environment.ScopedEnvironment;
 import org.appng.xml.platform.ApplicationConfig;
 import org.appng.xml.platform.ApplicationRootConfig;
 import org.appng.xml.platform.Bean;
@@ -139,7 +142,7 @@ public class CallableDataSourceTest {
 		Mockito.when(datasourceRef.getParams()).thenReturn(new Params());
 		Mockito.when(datasourceRef.getPageSize()).thenReturn(10);
 		Condition condition = new Condition();
-		condition.setExpression("${SITE.foo > 41.05 and ENV.foobar}");
+		condition.setExpression("${SITE.foo > 41.05 and SESSION.foobar}");
 		Mockito.when(datasourceRef.getCondition()).thenReturn(condition);
 		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
 		Mockito.when(application.getBean(TEST_BEAN, DataProvider.class)).thenReturn(dataProvider);
@@ -152,6 +155,12 @@ public class CallableDataSourceTest {
 
 		Mockito.when(applicationRequest.getEnvironment()).thenReturn(environment);
 		Mockito.when(environment.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO)).thenReturn(path);
+		
+		ScopedEnvironment session = Mockito.mock(ScopedEnvironment.class);
+		ConcurrentMap<String, Object> sessionMap = new ConcurrentHashMap<>();
+		sessionMap.put("foobar", true);
+		Mockito.when(session.getContainer()).thenReturn(sessionMap);
+		Mockito.when(environment.getEnvironment(Scope.SESSION)).thenReturn(session);
 		ApplicationRootConfig applicationRootConfig = new ApplicationRootConfig();
 		applicationRootConfig.setConfig(new ApplicationConfig());
 		Mockito.when(applicationConfigProvider.getApplicationRootConfig()).thenReturn(applicationRootConfig);
