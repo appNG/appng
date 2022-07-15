@@ -83,7 +83,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PageDefinition"
-  "/service/{site}/{application}/rest/openapi/datasource/{id}/{params}":
+  "/service/{site}/{application}/rest/openapi/datasource/{id}":
     get:
       tags:
         - appNG
@@ -104,17 +104,15 @@ paths:
             type: string
         - in: path
           name: id
-          description: ID of the datasource
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: params
+          description: |
+            The id of the datasource.
+            Parameters (including sorting and filtering parameters) are passed as matrix style parameters.
+            Note that names and values of these matrix parameters must be URL-Encoded
           schema:
             type: string
           style: matrix
           explode: true
-          description: the parameters (including sorting and filtering parameters) for the datasource
+          example: /service/appng/appng-manager/rest/openapi/datasource/sites;name=appng;host=localhost;sortSites=name%3Aasc%3Bhost%3Adesc%3Bpage%3A0%3BpageSize%3A10
           required: true
       responses:
         "200":
@@ -129,7 +127,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorModel"
-  "/service/{site}/{application}/rest/openapi/action/{event-id}/{id}/{params}":
+  "/service/{site}/{application}/rest/openapi/action/{event-id}/{id}":
     get:
       tags:
         - appNG
@@ -156,18 +154,15 @@ paths:
             type: string
         - in: path
           name: id
-          description: ID of the action
+          description: |
+            The ID of the action.
+            Parameters are passed as matrix style parameters.
+          example: /service/appng/appng-manager/rest/openapi/action/siteEvent/update;siteid=1;action=update
           required: true
-          schema:
-            type: string
-        - in: path
-          name: params
           schema:
             type: string
           style: matrix
           explode: true
-          description: the parameters for the action
-          required: true
       responses:
         "200":
           description: action response
@@ -187,7 +182,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorModel"
-  "/service/{site}/{application}/rest/openapi/action/multipart/{event-id}/{id}/{params}":
+  "/service/{site}/{application}/rest/openapi/action/multipart/{event-id}/{id}":
     post:
       tags:
         - appNG
@@ -214,18 +209,15 @@ paths:
             type: string
         - in: path
           name: id
-          description: ID of the action
+          description: |
+            The ID of the action.
+            Parameters are passed as matrix style parameters.
+          example: /service/appng/appng-manager/rest/openapi/action/siteEvent/update;siteid=1;action=update
           required: true
-          schema:
-            type: string
-        - in: path
-          name: params
           schema:
             type: string
           style: matrix
           explode: true
-          description: the parameters for the action
-          required: true
       requestBody:
         description: For each field of an action, a multipart parameter must be present .
         content: 
