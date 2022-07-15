@@ -177,7 +177,7 @@ public interface Request extends RequestContainer {
 	 * 
 	 * @param name
 	 *              the parameter name
-	 * @param value
+	 * @param values
 	 *              the parameter values
 	 */
 	void addParameters(String name, List<String> values);

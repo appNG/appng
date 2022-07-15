@@ -252,8 +252,8 @@ public interface Properties {
 	 * <li>a {@link String} (for types {@link Property.Type#TEXT}, {@link Property.Type#PASSWORD} and {@link Property.Type#MULTILINE})
 	 * <ul>
 	 * 
-	 * @param  the
-	 *             name of the property
+	 * @param name
+	 *             the name of the property
 	 * 
 	 * @return     the object representation
 	 */
