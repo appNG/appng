@@ -73,10 +73,12 @@ import org.slf4j.Logger;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -195,14 +197,30 @@ abstract class OpenApiOperation {
 
 	abstract Logger getLogger();
 
-	protected void applyPathParameters(Map<String, String> pathParameters, DataConfig config,
+	protected void applyPathParameters(HttpServletRequest request, DataConfig config,
 			ApplicationRequest applicationRequest) {
-		pathParameters.entrySet().forEach(e -> {
-			if (StringUtils.isNotBlank(e.getValue())) {
-				applicationRequest.addParameter(e.getKey(), e.getValue());
-				getLogger().warn("added path parameter {}:{}", e.getKey(), e.getValue());
-			}
-		});
+		MultiValueMap<String, String> params = WebUtils.parseMatrixVariables(request.getRequestURI());
+		if (params.keySet().size() > 0) {
+			// remove first param, which contains the path
+			params.remove(params.keySet().iterator().next());
+			params.entrySet().forEach(e -> {
+				if (!e.getValue().isEmpty()) {
+					try {
+						String name = UriUtils.decode(e.getKey(), StandardCharsets.UTF_8.name());
+						int numParams = e.getValue().size();
+						if (numParams == 1) {
+							String value = UriUtils.decode(e.getValue().get(0), StandardCharsets.UTF_8.name());
+							applicationRequest.addParameter(name, value);
+							getLogger().warn("added path parameter {}={}", name, value);
+						} else {
+							getLogger().warn("{} path parameters for {} were given!", numParams, name);
+						}
+					} catch (UnsupportedEncodingException e1) {
+						// will not happen
+					}
+				}
+			});
+		}
 	}
 
 	protected boolean hasErrors() {
@@ -364,7 +382,7 @@ abstract class OpenApiOperation {
 			for (Param p : params.getParam()) {
 				if (null != p.getValue()) {
 					try {
-						self.append(first ? "/" : "").append(";");
+						self.append(";");
 						first = false;
 						self.append(UriUtils.encodeQueryParam(p.getName(), StandardCharsets.UTF_8.name()));
 						self.append("=");

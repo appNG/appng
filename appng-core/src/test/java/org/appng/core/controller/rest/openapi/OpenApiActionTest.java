@@ -31,19 +31,20 @@ public class OpenApiActionTest extends OpenApiTest {
 		};
 		Map<String, String> pathVariables = new HashMap<>();
 		pathVariables.put("action", "create");
+
+		servletRequest.setRequestURI("/create;action=create");
 		ResponseEntity<Action> action = openApiAction.getAction("events", "create", environment, servletRequest,
-				servletResponse, pathVariables);
+				servletResponse);
 		WritingJsonValidator.validate(action, "rest/openapi/action.json");
 
-		servletRequest.addParameter("form_action", "create");
-		servletRequest.addParameter("action", "create");
+		servletRequest.setRequestURI("/create;action=create;form_action=create");
 		ResponseEntity<Action> validated = openApiAction.performActionMultiPart("events", "create", environment,
-				servletRequest, servletResponse, pathVariables);
+				servletRequest, servletResponse);
 		WritingJsonValidator.validate(validated, "rest/openapi/action-validate.json");
 
 		servletRequest.addParameter("name", "super new name");
 		ResponseEntity<Action> performed = openApiAction.performActionMultiPart("events", "create", environment,
-				servletRequest, servletResponse, pathVariables);
+				servletRequest, servletResponse);
 		WritingJsonValidator.validate(performed, "rest/openapi/action-performed.json");
 
 	}

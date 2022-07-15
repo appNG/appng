@@ -17,6 +17,7 @@ package org.appng.core.controller.rest.openapi;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,10 +80,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,31 +99,33 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException {
-		System.err.println(URLEncoder.encode("params[id]", "utf-8"));
+		System.err.println(URLEncoder.encode(":", "utf-8"));
+
+		MultiValueMap<String, String> parseMatrixVariables = WebUtils.parseMatrixVariables(
+				"/sites;name=appng;host=localhost;sortSites=name%3Aasc%3Bhost%3Adesc%3Bpage%3A0%3BpageSize%3A10");
+		System.err.println(parseMatrixVariables);
+		System.err.println(UriUtils.decode(parseMatrixVariables.getFirst("sortSites"), "utf-8"));
 	}
 
-	@GetMapping(path = "/openapi/datasource/{id}/{params}")
+	@GetMapping(path = "/openapi/datasource/{id}")
 	public ResponseEntity<Datasource> getDataSource(
 	// @formatter:off
 		@PathVariable(name = "id") String dataSourceId,		
 		Environment environment,
 		HttpServletRequest httpServletRequest, 
-		HttpServletResponse httpServletResponse,
-		@MatrixVariable(required = false, pathVar = "params") Map<String, String> params
+		HttpServletResponse httpServletResponse
 	// @formatter:on
 	) throws ProcessingException, JAXBException, InvalidConfigurationException, org.appng.api.ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
 
-		if (!params.isEmpty()) {
-			org.appng.xml.platform.Datasource originalDatasource = applicationProvider.getApplicationConfig()
-					.getDatasource(dataSourceId);
-			if (null == originalDatasource) {
-				LOGGER.debug("Datasource {} not found on application {} of site {}", dataSourceId,
-						application.getName(), site.getName());
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			}
-			applyPathParameters(params, originalDatasource.getConfig(), request);
+		org.appng.xml.platform.Datasource originalDatasource = applicationProvider.getApplicationConfig()
+				.getDatasource(dataSourceId);
+		if (null == originalDatasource) {
+			LOGGER.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
+					site.getName());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		applyPathParameters(httpServletRequest, originalDatasource.getConfig(), request);
 
 		org.appng.xml.platform.Datasource processedDataSource = applicationProvider.processDataSource(
 				httpServletResponse, false, (ApplicationRequest) request, dataSourceId, marshallService);
@@ -229,12 +234,20 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 	}
 
 	protected String getPageLink(boolean hasQueryParams, String self, String id, int pageSize, int page) {
-		return getPageLink(hasQueryParams, self, id, pageSize) + ";page:" + page;
+		return getPageLink(hasQueryParams, self, id, pageSize) + ";" + sortParam("page", page);
 	}
 
 	protected String getPageLink(boolean hasQueryParams, String self, String id, int pageSize) {
-		return self.toString() + (hasQueryParams ? "&" : "?") + "sort" + StringUtils.capitalize(id) + "=pageSize:"
-				+ pageSize;
+		return self.toString() + ";" + getSortParam(id) + "=" + sortParam("pageSize", pageSize);
+	}
+
+	private String sortParam(String name, Object value) {
+//		try {
+//			return URLEncoder.encode(name + ":" + value.toString(), StandardCharsets.UTF_8.name());
+//		} catch (UnsupportedEncodingException e) {
+//			// will not happen
+//		}
+		return name + ":" + value;
 	}
 
 	private String addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource,
@@ -280,10 +293,10 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			if (null != s.getOrder()) {
 				sort.setOrder(OrderEnum.fromValue(s.getOrder().name().toLowerCase()));
 			}
-			String sortParam = (hasQueryParams ? ";" : "") + "sort" + StringUtils.capitalize(dataSourceId) + "="
-					+ f.getBinding();
-			sort.setPathDesc(self + sortParam + ":desc");
-			sort.setPathAsc(self + sortParam + ":asc");
+
+			String sortParam = self + (hasQueryParams ? ";" : "") + getSortParam(dataSourceId) + "=";
+			sort.setPathDesc(sortParam + sortParam(f.getBinding(), "desc"));
+			sort.setPathAsc(sortParam + sortParam(f.getBinding(), "asc"));
 			field.setSort(sort);
 		}
 		List<FieldDef> childFields = f.getFields();
@@ -296,6 +309,10 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			validation.getRules().stream().forEach(r -> field.addRulesItem(getRule(r)));
 		}
 		return field;
+	}
+
+	public String getSortParam(String dataSourceId) {
+		return "sort" + StringUtils.capitalize(dataSourceId);
 	}
 
 	protected Item getItem(List<Selection> selections, Result r, MetaData metaData, Class<?> bindClass) {

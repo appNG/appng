@@ -1,6 +1,6 @@
 {
   "body" : {
-    "_self" : "/service/localhost/demo-application/rest/openapi/action/events/create/;form_action=;action=create",
+    "_self" : "/service/localhost/demo-application/rest/openapi/action/events/create;form_action=;action=create",
     "id" : "create",
     "event-id" : "events",
     "title" : "Create entity",

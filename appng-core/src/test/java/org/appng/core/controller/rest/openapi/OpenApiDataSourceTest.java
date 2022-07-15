@@ -15,8 +15,6 @@
  */
 package org.appng.core.controller.rest.openapi;
 
-import java.util.HashMap;
-
 import org.appng.openapi.model.Datasource;
 import org.appng.testapplication.TestEntities;
 import org.appng.testsupport.validation.WritingJsonValidator;
@@ -30,8 +28,9 @@ public class OpenApiDataSourceTest extends OpenApiTest {
 		TestEntities.reset();
 		OpenApiDataSource openApiDatasource = new OpenApiDataSource(site, applicationProvider, request, messageSource) {
 		};
+		servletRequest.setRequestURI("/entities;param3=5");
 		ResponseEntity<Datasource> datasource = openApiDatasource.getDataSource("entities", environment, servletRequest,
-				servletResponse, new HashMap<>());
+				servletResponse);
 		WritingJsonValidator.validate(datasource, "rest/openapi/datasource.json");
 	}
 
