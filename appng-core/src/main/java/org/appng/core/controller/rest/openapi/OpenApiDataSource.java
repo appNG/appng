@@ -17,6 +17,7 @@ package org.appng.core.controller.rest.openapi;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,20 +98,13 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		super(site, application, request, messageSource);
 	}
 
-	public static void main(String[] args) throws UnsupportedEncodingException {
-		System.err.println(URLEncoder.encode(":", "utf-8"));
 
-		MultiValueMap<String, String> parseMatrixVariables = WebUtils.parseMatrixVariables(
-				"/sites;name=appng;host=localhost;sortSites=name%3Aasc%3Bhost%3Adesc%3Bpage%3A0%3BpageSize%3A10");
-		System.err.println(parseMatrixVariables);
-		System.err.println(UriUtils.decode(parseMatrixVariables.getFirst("sortSites"), "utf-8"));
-	}
 
 	@GetMapping(path = {
 			// without parameters
 			"/openapi/datasource/{id}",
 			// with matrix-style parameters
-			"/openapi/datasource/{id}/;*" })
+			"/openapi/datasource/{id}/**"})
 	public ResponseEntity<Datasource> getDataSource(
 	// @formatter:off
 		@PathVariable(name = "id") String dataSourceId,		
@@ -237,20 +231,20 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 	}
 
 	protected String getPageLink(boolean hasQueryParams, String self, String id, int pageSize, int page) {
-		return getPageLink(hasQueryParams, self, id, pageSize) + ";" + sortParam("page", page);
+		return getPageLink(hasQueryParams, self, id, pageSize) + encode(";") + encode("page:" + page);
 	}
 
 	protected String getPageLink(boolean hasQueryParams, String self, String id, int pageSize) {
-		return self.toString() + ";" + getSortParam(id) + "=" + sortParam("pageSize", pageSize);
+		return self.toString() + ";" + getSortParam(id) + "=" + encode("pageSize:" + pageSize);
 	}
 
-	private String sortParam(String name, Object value) {
-//		try {
-//			return URLEncoder.encode(name + ":" + value.toString(), StandardCharsets.UTF_8.name());
-//		} catch (UnsupportedEncodingException e) {
-//			// will not happen
-//		}
-		return name + ":" + value;
+	private String encode(String value) {
+		try {
+			return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			// will not happen
+		}
+		return value;
 	}
 
 	private String addFilters(org.appng.xml.platform.Datasource processedDataSource, Datasource datasource,
