@@ -26,8 +26,8 @@
       "label" : "Name",
       "fieldType" : "text",
       "sort" : {
-        "pathAsc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=name:asc",
-        "pathDesc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=name:desc"
+        "pathAsc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=name%3Aasc",
+        "pathDesc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=name%3Adesc"
       }
     }, {
       "name" : "integerValue",
@@ -39,8 +39,8 @@
       "label" : "double value",
       "fieldType" : "decimal",
       "sort" : {
-        "pathAsc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=doubleValue:asc",
-        "pathDesc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=doubleValue:desc"
+        "pathAsc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=doubleValue%3Aasc",
+        "pathDesc" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=doubleValue%3Adesc"
       },
       "format" : "#.##"
     }, {
@@ -50,10 +50,10 @@
     } ],
     "filterResetPath" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4",
     "page" : {
-      "_first" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize:25;page:0",
+      "_first" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize%3A25%3Bpage%3A0",
       "_previous" : null,
       "_next" : null,
-      "_last" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize:25;page:0",
+      "_last" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize%3A25%3Bpage%3A0",
       "number" : 0,
       "size" : 25,
       "totalPages" : 1,
@@ -62,16 +62,16 @@
       "isLast" : true,
       "pageSizes" : [ {
         "size" : 5,
-        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize:5"
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize%3A5"
       }, {
         "size" : 10,
-        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize:10"
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize%3A10"
       }, {
         "size" : 25,
-        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize:25"
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize%3A25"
       }, {
         "size" : 50,
-        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize:50"
+        "path" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=5;param4=4;sortEntities=pageSize%3A50"
       } ]
     },
     "items" : [ {

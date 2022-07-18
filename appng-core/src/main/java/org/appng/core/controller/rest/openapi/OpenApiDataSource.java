@@ -98,13 +98,11 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		super(site, application, request, messageSource);
 	}
 
-
-
 	@GetMapping(path = {
 			// without parameters
 			"/openapi/datasource/{id}",
 			// with matrix-style parameters
-			"/openapi/datasource/{id}/**"})
+			"/openapi/datasource/{id}/**" })
 	public ResponseEntity<Datasource> getDataSource(
 	// @formatter:off
 		@PathVariable(name = "id") String dataSourceId,		
@@ -292,8 +290,8 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			}
 
 			String sortParam = self + (hasQueryParams ? ";" : "") + getSortParam(dataSourceId) + "=";
-			sort.setPathDesc(sortParam + sortParam(f.getBinding(), "desc"));
-			sort.setPathAsc(sortParam + sortParam(f.getBinding(), "asc"));
+			sort.setPathDesc(sortParam + encode(f.getBinding() + ":desc"));
+			sort.setPathAsc(sortParam + encode(f.getBinding() + ":asc"));
 			field.setSort(sort);
 		}
 		List<FieldDef> childFields = f.getFields();
