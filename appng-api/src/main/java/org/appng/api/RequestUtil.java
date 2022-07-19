@@ -35,45 +35,98 @@ import org.springframework.http.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Utility-class for retrieving {@link Site}s by name,host or {@link ServletRequest} and also creating a {@link Path}
- * -object based on a {@link ServletRequest}.
+ * Utility-class for mapping requests to {@link Site}s. Also creates a {@link Path} object based on a
+ * {@link ServletRequest}.
+ *
+ * <p>
+ * <strong>Mapping logic</strong>
+ * </p>
+ *
+ * <p>
+ * <ul>
+ * <li>If the platform is running in {@link VHostMode#IP_BASED}:
+ * <p>
+ * The value of {@link ServletRequest#getLocalAddr()} is compared against the values returned by {@link Site#getHost()}
+ * and {@link Site#getHostAliases()} of each site. If a site matches, it is returned.
+ * </p>
+ * </li>
+ * <li>If the platform is running in {@link VHostMode#NAME_BASED}:
+ * <p>
+ * If the {@link ServletRequest} contains the {@code SERVER_LOCAL_NAME} attribute or the header {@code X_APPNG_SITE}, it
+ * is assumed that an upstream reverse-proxy has taken care of site-mapping already and the respective attribute
+ * contains a site name ({@link Site#getName()}). If a site with this name exists, it is returned.
+ * {@link Site#getHost()} and {@link Site#getHostAliases()} are ignored.
+ * </p>
+ * <p>
+ * If the mentioned attributes are not present, the value of {@link ServletRequest#getServerName()} (corresponds to the
+ * {@code HOST} header) is compared against the values returned by {@link Site#getHost()} and
+ * {@link Site#getHostAliases()} of each site. If a site matches, it is returned.
+ * </p>
+ * </li>
+ * </ul>
  * 
  * @author Matthias Müller
+ * @author Dirk Heuvels
  */
 @Slf4j
 public class RequestUtil {
 
-	private static final String SERVER_LOCAL_NAME = "SERVER_LOCAL_NAME";
-	private static final String X_APPNG_SITE = "X-appNG-site";
+	static final String SERVER_LOCAL_NAME = "SERVER_LOCAL_NAME";
+	static final String X_APPNG_SITE = "X-appNG-site";
 
-	/**
-	 * Retrieves a {@link Site} by its name.
-	 * 
-	 * @param env
-	 *                       the current {@link Environment}
-	 * @param servletRequest
-	 *                       the current {@link ServletRequest}
-	 * 
-	 * @return the {@link Site}, if any
-	 * 
-	 * @see #getSiteName(Environment, ServletRequest)
-	 */
-	public static Site getSite(Environment env, ServletRequest servletRequest) {
-		if (null == servletRequest || null == env) {
-			return null;
-		}
-		String siteName = getSiteName(env, servletRequest);
-		Optional<Site> optionalSite = Optional.ofNullable(getSiteByName(env, siteName));
-		return optionalSite.isPresent() ? optionalSite.get() : getSiteByHost(env, siteName);
+	private enum MatchScope {
+		MATCH_SITE_NAME, MATCH_SITE_HOSTS, UNDEFINED
 	}
 
 	/**
-	 * Retrieves a {@link Site} by its hostnames.
+	 * Class to describe the request's name attribute used for site-mapping.
+	 */
+	private static class RequestIdentifier {
+		public String name;
+		public MatchScope matchScope;
+
+		RequestIdentifier() {
+			this.matchScope = MatchScope.UNDEFINED;
+		}
+
+		RequestIdentifier(String name, MatchScope matchScope) {
+			this.name = name;
+			this.matchScope = matchScope;
+		}
+	}
+
+	/**
+	 * Retrieves a {@link Site} using the mapping logic described in the class documentation above.
 	 * 
 	 * @param env
-	 *             the current {@link Environment}
+	 *            the current {@link Environment}
+	 * @param servletRequest
+	 *            the current {@link ServletRequest}
+	 * 
+	 * @return the {@link Site} or null, if no site matched
+	 * 
+	 */
+	public static Site getSite(Environment env, ServletRequest servletRequest) {
+		if (null == servletRequest || null == env)
+			return null;
+		RequestIdentifier reqId = getRequestIdentifier(env, servletRequest);
+		switch (reqId.matchScope) {
+		case MATCH_SITE_NAME:
+			return getSiteByName(env, reqId.name);
+		case MATCH_SITE_HOSTS:
+			return getSiteByHost(env, reqId.name);
+		default:
+			return null;
+		}
+	}
+
+	/**
+	 * Retrieves a {@link Site} by its hostnames (primary and aliases).
+	 * 
+	 * @param env
+	 *            the current {@link Environment}
 	 * @param host
-	 *             the hostname to match against the hostnames of the {@link Site}
+	 *            the name to be compared against the {@link Site}'s hostnames
 	 * 
 	 * @return the {@link Site} or null if no site matches
 	 * 
@@ -82,8 +135,11 @@ public class RequestUtil {
 	 *
 	 */
 	public static Site getSiteByHost(Environment env, String host) {
+		if (null == host || host.isEmpty())
+			return null;
 		for (Site site : getSiteMap(env).values()) {
-			if (host.equals(site.getHost()) || site.getHostAliases().contains(host)) return site;
+			if (host.equals(site.getHost()) || site.getHostAliases().contains(host))
+				return site;
 		}
 		return null;
 	}
@@ -92,9 +148,9 @@ public class RequestUtil {
 	 * Retrieves a {@link Site} by its name.
 	 * 
 	 * @param env
-	 *             the current {@link Environment}
+	 *            the current {@link Environment}
 	 * @param name
-	 *             the name of the {@link Site}
+	 *            the name of the {@link Site}
 	 * 
 	 * @return the {@link Site}, if any
 	 * 
@@ -109,9 +165,9 @@ public class RequestUtil {
 	 * it's state is {@code SiteState#STARTED}.
 	 * 
 	 * @param env
-	 *             the current {@link Environment}
+	 *            the current {@link Environment}
 	 * @param name
-	 *             the name of the {@link Site}
+	 *            the name of the {@link Site}
 	 * 
 	 * @return the {@link Site}, if any
 	 * 
@@ -166,11 +222,11 @@ public class RequestUtil {
 	 * Creates and returns a {@link PathInfo}-object based upon the given parameters.
 	 * 
 	 * @param env
-	 *                    the current {@link Environment}
+	 *            the current {@link Environment}
 	 * @param site
-	 *                    the current {@link Site}
+	 *            the current {@link Site}
 	 * @param servletPath
-	 *                    the current servlet-path
+	 *            the current servlet-path
 	 * 
 	 * @return a {@link PathInfo}-object
 	 */
@@ -193,62 +249,60 @@ public class RequestUtil {
 				blobDirectories, documentDirectories, repoPath, monitoringPath, extension);
 	}
 
-	/** @deprecated use {@link #getSiteName(Environment, ServletRequest)} */
+	/** @deprecated use {@link #getRequestIdentifier(Environment, ServletRequest)} */
 	@Deprecated
 	public static String getHostIdentifier(ServletRequest request, Environment env) {
 		return getSiteName(env, request);
 	}
 
+	/** @deprecated use {@link #getRequestIdentifier(Environment, ServletRequest)} */
+	@Deprecated
+	public static String getSiteName(Environment env, ServletRequest request) {
+		RequestIdentifier reqId = getRequestIdentifier(env, request);
+		return reqId.name;
+	}
+
 	/**
-	 * Retrieves a {@link Site}'s name for the given {@link ServletRequest}, using the given {@link Environment} to
-	 * retrieve the {@link VHostMode}.
+	 * Retrieves a name according to the mapping logic described in the class documentation above together with the
+	 * matching scope to be applied.
 	 * 
 	 * @param env
-	 *                an {@link Environment}
+	 *            an {@link Environment}
 	 * @param request
-	 *                the {@link ServletRequest}
+	 *            the {@link ServletRequest}
 	 * 
-	 * @return
-	 *         <ul>
-	 *         <li>the IP-address, if {@link VHostMode#IP_BASED} is used (see {@link ServletRequest#getLocalAddr()})
-	 *         <li>the value of the request-<strong>attribute</strong> {@value #SERVER_LOCAL_NAME}, if present.
-	 *         <p>
-	 *         This header has to be added by the webserver of choice (usually <a href="http://httpd.apache.org/">Apache
-	 *         httpd</a>), in case a {@link Site} needs to be accessible from a domain that is different from the one
-	 *         configured by {@link Site#getDomain()}.
-	 *         </p>
-	 *         <li>the value of the request-<strong>header</strong> {@value #X_APPNG_SITE}, if present.
-	 *         <li>the server name, otherwise (see {@link ServletRequest#getServerName()})
-	 *         </ul>
+	 * @return {@link RequestUtil.RequestIdentifier} object
 	 */
-	public static String getSiteName(Environment env, ServletRequest request) {
+	public static RequestIdentifier getRequestIdentifier(Environment env, ServletRequest request) {
 		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		VHostMode vHostMode = VHostMode.valueOf(platformProperties.getString(Platform.Property.VHOST_MODE));
-		String siteName;
-		if (VHostMode.NAME_BASED.equals(vHostMode)) {
-			siteName = StringUtils.trimToNull((String) request.getAttribute(SERVER_LOCAL_NAME));
-			if (null == siteName) {
-				siteName = StringUtils.trimToNull(((HttpServletRequest) request).getHeader(X_APPNG_SITE));
-				if (null == siteName) {
-					siteName = request.getServerName();
-					if (LOGGER.isTraceEnabled()) {
-						LOGGER.trace("Retrieved sitename '{}' from request.getServerName() (Host: {})", siteName,
-								((HttpServletRequest) request).getHeader(HttpHeaders.HOST));
-					}
-				} else if (LOGGER.isTraceEnabled()) {
-					LOGGER.trace("Retrieved sitename '{}' from request header '{}'", siteName, X_APPNG_SITE);
-				}
-			} else if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("Retrieved sitename '{}' from request attribute '{}'", siteName, SERVER_LOCAL_NAME);
-			}
 
+		RequestIdentifier reqId = new RequestIdentifier();
+		if (VHostMode.IP_BASED.equals(vHostMode)) {
+			reqId = new RequestIdentifier(request.getLocalAddr(), MatchScope.MATCH_SITE_HOSTS);
+			LOGGER.trace("Using '{}' from 'ServletRequest.getLocalAddr()' for site mapping", reqId.name);
 		} else {
-			siteName = request.getLocalAddr();
-			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("Retrieved sitename '{}' from request.getLocalAddr()", siteName);
+			String attrVal = null;
+			attrVal = StringUtils.trimToNull((String) request.getAttribute(SERVER_LOCAL_NAME));
+			if (null != attrVal) {
+				reqId = new RequestIdentifier(attrVal, MatchScope.MATCH_SITE_NAME);
+				LOGGER.trace("Using '{}' from request attribute '{}' for site mapping", attrVal, SERVER_LOCAL_NAME);
+			} else {
+				attrVal = StringUtils.trimToNull(((HttpServletRequest) request).getHeader(X_APPNG_SITE));
+				if (null != attrVal) {
+					reqId = new RequestIdentifier(attrVal, MatchScope.MATCH_SITE_NAME);
+					LOGGER.trace("Using '{}' from request header '{}' for site mapping", attrVal, X_APPNG_SITE);
+				} else {
+					reqId = new RequestIdentifier(request.getServerName(), MatchScope.MATCH_SITE_HOSTS);
+					if (LOGGER.isTraceEnabled()) {
+						LOGGER.trace(
+								"Using '{}' from 'request.getServerName()' for site mapping (HOST header was '{}')",
+								reqId.name, ((HttpServletRequest) request).getHeader(HttpHeaders.HOST));
+					}
+				}
 			}
 		}
-		return siteName;
+		return reqId;
 	}
 
 	private RequestUtil() {

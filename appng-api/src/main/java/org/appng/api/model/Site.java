@@ -53,7 +53,7 @@ public interface Site extends Named<Integer> {
 	 * {@link Site}.
 	 * 
 	 * @param name
-	 *             the name of the {@link Application}
+	 *            the name of the {@link Application}
 	 * 
 	 * @return the {@link Application}, if such a {@link Application} is assigned to this {@link Site}, {@code null}
 	 *         otherwise
@@ -64,7 +64,7 @@ public interface Site extends Named<Integer> {
 	 * Checks whether the {@link Application} with the given name is assigned to this {@link Site}.
 	 * 
 	 * @param name
-	 *             the name of the {@link Application}
+	 *            the name of the {@link Application}
 	 * 
 	 * @return {@code true} if the {@link Application} with the given name is assigned to this {@link Site},
 	 *         {@code false} otherwise
@@ -136,11 +136,11 @@ public interface Site extends Named<Integer> {
 	 * <b>does</b> start with a slash, it is expected to be a target relative to the domain of this site.
 	 * 
 	 * @param env
-	 *                   the actual {@link Environment}
+	 *            the actual {@link Environment}
 	 * @param target
-	 *                   the redirect target
+	 *            the redirect target
 	 * @param statusCode
-	 *                   -the HTTP status code to send. Use constants from {@link HttpServletRequest}
+	 *            -the HTTP status code to send. Use constants from {@link HttpServletRequest}
 	 */
 	void sendRedirect(Environment env, String target, Integer statusCode);
 
@@ -148,7 +148,7 @@ public interface Site extends Named<Integer> {
 	 * Returns the {@link File} defined by the given path, which is located relative to the site's repository-folder.
 	 * 
 	 * @param relativePath
-	 *                     the relative path of the file
+	 *            the relative path of the file
 	 * 
 	 * @return the {@link File}, if such a path exists
 	 */
@@ -179,7 +179,7 @@ public interface Site extends Named<Integer> {
 	 * If clustering is enabled, sends an {@link Event} to other appNG nodes
 	 * 
 	 * @param event
-	 *              the event to send
+	 *            the event to send
 	 * 
 	 * @return {@code true} if the event was sent successfully
 	 */
