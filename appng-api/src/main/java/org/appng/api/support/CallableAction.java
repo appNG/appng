@@ -348,11 +348,10 @@ public class CallableAction {
 			}
 		}
 		if (doInclude() && !(doExecute() && doForward())) {
-			if (!isSectionHidden && null != action) {
 				retrieveData(false);
 				handleSelections();
 				Messages messages = elementHelper.removeMessages();
-				if (null != messages) {
+				if (!isSectionHidden && null != action && null != messages) {
 					Messages actionMessages = action.getMessages();
 					if (null == actionMessages) {
 						action.setMessages(messages);
@@ -360,7 +359,6 @@ public class CallableAction {
 						actionMessages.getMessageList().addAll(0, messages.getMessageList());
 					}
 				}
-			}
 		}
 		return fp;
 	}
