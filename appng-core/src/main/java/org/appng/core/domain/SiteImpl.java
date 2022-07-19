@@ -183,8 +183,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 	// Sites are fetched in different transactions and reused all over the place. Since there is no performance gain
 	// in lazy-fetching the small amount of aliases, we agreed on eager fetching with MM.
 	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "site_hostalias", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"),
-		foreignKey = @ForeignKey(name = "FK__SITE_HOSTALIAS__SITE"))
+	@CollectionTable(name = "site_hostalias", joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id"), foreignKey = @ForeignKey(name = "FK__SITE_HOSTALIAS__SITE"))
 	@Column(name = "hostname", unique = true)
 	public Set<String> getHostAliases() {
 		return hostAliases;

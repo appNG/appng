@@ -39,21 +39,22 @@ public class RequestMappingTest {
 
 	@Mock
 	private Environment env;
-	
+
 	@Mock
 	Properties platformProperties;
-
 
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(platformProperties);
+		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG))
+				.thenReturn(platformProperties);
 
 		Map<String, Site> siteMap = new HashMap<>();
 		Site site1 = Mockito.mock(Site.class);
 		Mockito.when(site1.getName()).thenReturn("site1");
 		Mockito.when(site1.getHost()).thenReturn("site1.loc");
-		Mockito.when(site1.getHostAliases()).thenReturn(new HashSet<String>(Arrays.asList("alias1-1.loc", "alias1-2.loc", "alias1-2.loc")));
+		Mockito.when(site1.getHostAliases())
+				.thenReturn(new HashSet<String>(Arrays.asList("alias1-1.loc", "alias1-2.loc", "alias1-2.loc")));
 		siteMap.put(site1.getName(), site1);
 
 		Site site2 = Mockito.mock(Site.class);
@@ -70,13 +71,14 @@ public class RequestMappingTest {
 
 		Mockito.when(env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES)).thenReturn(siteMap);
 	}
-	
+
 	@Test
 	public void testSiteMappingIPBasedMatchHost() throws Exception {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getLocalAddr()).thenReturn("127.0.47.11");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.IP_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.IP_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertEquals(site.getName(), "site2");
 	}
@@ -85,8 +87,9 @@ public class RequestMappingTest {
 	public void testSiteMappingIPBasedMatchHostAlias() throws Exception {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getLocalAddr()).thenReturn("127.0.47.12");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.IP_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.IP_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertEquals(site.getName(), "site2");
 	}
@@ -95,8 +98,9 @@ public class RequestMappingTest {
 	public void testSiteMappingIPBasedMiss() throws Exception {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getLocalAddr()).thenReturn("1.2.3.4");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.IP_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.IP_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertNull(site);
 	}
@@ -105,8 +109,9 @@ public class RequestMappingTest {
 	public void testSiteMappingNameBasedMatchHost() throws Exception {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getServerName()).thenReturn("site3.loc");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertEquals(site.getName(), "site3");
 	}
@@ -115,8 +120,9 @@ public class RequestMappingTest {
 	public void testSiteMappingNameBasedMatchHostAlias() throws Exception {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getServerName()).thenReturn("alias1-2.loc");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertEquals(site.getName(), "site1");
 	}
@@ -125,8 +131,9 @@ public class RequestMappingTest {
 	public void testSiteMappingDirectMatchSERVER_LOCAL_NAME() throws Exception {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getAttribute(RequestUtil.SERVER_LOCAL_NAME)).thenReturn("site1");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertEquals(site.getName(), "site1");
 	}
@@ -135,8 +142,9 @@ public class RequestMappingTest {
 	public void testSiteMappingDirectMatchX_APPNG_SITE() throws Exception {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getHeader(RequestUtil.X_APPNG_SITE)).thenReturn("site2");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertEquals(site.getName(), "site2");
 	}
@@ -146,8 +154,9 @@ public class RequestMappingTest {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Mockito.when(request.getAttribute(RequestUtil.X_APPNG_SITE)).thenReturn("site3");
 		Mockito.when(request.getAttribute(RequestUtil.SERVER_LOCAL_NAME)).thenReturn("site1");
-		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE)).thenReturn(VHostMode.NAME_BASED.toString());
-	
+		Mockito.when(platformProperties.getString(Platform.Property.VHOST_MODE))
+				.thenReturn(VHostMode.NAME_BASED.toString());
+
 		Site site = RequestUtil.getSite(env, request);
 		Assert.assertEquals(site.getName(), "site1");
 	}

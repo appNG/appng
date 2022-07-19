@@ -44,7 +44,7 @@ public interface SiteRepository extends SearchRepository<SiteImpl, Integer> {
 
 	@Query("select distinct s from SiteImpl s join s.hostAliases a where ( s.host in (?1) or a in (?1) )")
 	List<SiteImpl> findSitesForHostNames(Set<String> hostNames);
-	
+
 	List<SiteImpl> findByNameIn(Iterable<String> siteNames);
 
 }

@@ -178,8 +178,8 @@ public class DatabaseServiceTest extends TestInitializer {
 		try (MSSQLServerContainer<?> mssql = new MSSQLServerContainer<>(
 				"mcr.microsoft.com/mssql/server:" + imageVersion)) {
 			mssql.start();
-			validateConnectionType(mssql, DatabaseType.MSSQL, "Microsoft SQL Server", productVersion, "", "4.4",
-					false, false);
+			validateConnectionType(mssql, DatabaseType.MSSQL, "Microsoft SQL Server", productVersion, "", "4.4", false,
+					false);
 		}
 	}
 
