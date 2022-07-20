@@ -149,18 +149,13 @@ public class ElementHelperTest {
 		Mockito.when(applicationRequest.getApplicationConfig()).thenReturn(configProvider);
 		Mockito.when(applicationRequest.getLocale()).thenReturn(Locale.getDefault());
 
-		Mockito.doAnswer(new Answer<Void>() {
-			public Void answer(InvocationOnMock invocation) throws Throwable {
-				Object arg0 = invocation.getArguments()[0];
-				if (arg0 instanceof Label) {
-					Label label = (Label) arg0;
-					if (null == label.getValue()) {
-						label.setValue(label.getId());
-					}
-				}
-				return null;
+		Mockito.doAnswer(i -> {
+			Label label = i.getArgumentAt(0, Label.class);
+			if (null != label) {
+				label.setValue(label.getId() + ".translated");
 			}
-		}).when(applicationRequest).setLabel(Mockito.any(Label.class));
+			return null;
+		}).when(applicationRequest).setLabel(Mockito.any());
 
 		rootCfg = new ApplicationRootConfig();
 		Mockito.when(configProvider.getApplicationRootConfig()).thenReturn(rootCfg);
@@ -447,6 +442,9 @@ public class ElementHelperTest {
 		l3.setId("id3");
 		l2.setId("id2");
 		selection1.setTitle(l1);
+		Label tooltip = new Label();
+		tooltip.setId("tooltip");
+		selection1.setTooltip(tooltip);
 		selection2.setTitle(l2);
 		OptionGroup optionGroup = new OptionGroup();
 		optionGroup.setLabel(l3);
@@ -455,9 +453,10 @@ public class ElementHelperTest {
 		selectionGroup.getSelections().add(selection2);
 		data.getSelectionGroups().add(selectionGroup);
 		elementHelper.setSelectionTitles(data, applicationRequest);
-		Assert.assertEquals("id1", l1.getValue());
-		Assert.assertEquals("id2", l2.getValue());
-		Assert.assertEquals("id3", l3.getValue());
+		Assert.assertEquals("id1.translated", l1.getValue());
+		Assert.assertEquals("id2.translated", l2.getValue());
+		Assert.assertEquals("id3.translated", l3.getValue());
+		Assert.assertEquals("tooltip.translated", tooltip.getValue());
 	}
 
 	@Test
