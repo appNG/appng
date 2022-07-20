@@ -125,7 +125,7 @@ public class PlatformProperties implements Properties {
 	public java.util.Properties getPlainProperties() {
 		return properties.getPlainProperties();
 	}
-	
+
 	public java.util.Properties getProperties(String name) {
 		return properties.getProperties(name);
 	}

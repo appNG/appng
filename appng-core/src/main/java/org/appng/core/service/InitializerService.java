@@ -794,14 +794,10 @@ public class InitializerService {
 								application, dbc, platformCacheManager, dictionaryNames);
 						applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
-						Boolean enableLegacyRest = application.getProperties().getBoolean("enableLegacyRest", false);
-						BeanFactoryPostProcessor restProcessor;
-						if (enableLegacyRest) {
-							restProcessor = new RestPostProcessor();
-						} else {
-							restProcessor = new OpenApiPostProcessor();
+						if (application.getProperties().getBoolean("enableLegacyRest", false)) {
+							applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
 						}
-						applicationContext.addBeanFactoryPostProcessor(restProcessor);
+						applicationContext.addBeanFactoryPostProcessor( new OpenApiPostProcessor());
 
 						applicationContext.refresh();
 

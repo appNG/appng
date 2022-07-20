@@ -73,7 +73,7 @@ class DataSourceElement extends Sectionelement {
 	boolean doInclude() {
 		return callableDataSource.doInclude();
 	}
-	
+
 	/**
 	 * Delegates to {@link CallableDataSource#perform(String)}.
 	 */
