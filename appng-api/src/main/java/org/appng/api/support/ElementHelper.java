@@ -262,6 +262,7 @@ public class ElementHelper {
 	private void setSelectionTitles(List<Selection> selections, ApplicationRequest applicationRequest) {
 		for (Selection selection : selections) {
 			applicationRequest.setLabel(selection.getTitle());
+			applicationRequest.setLabel(selection.getTooltip());
 			for (OptionGroup optionGroup : selection.getOptionGroups()) {
 				applicationRequest.setLabel(optionGroup.getLabel());
 			}
