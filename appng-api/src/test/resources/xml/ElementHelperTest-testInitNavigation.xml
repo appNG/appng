@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <linkpanel xmlns="http://www.appng.org/schema/platform">
-	<link id="panel[1]" mode="extern" target="target">
+	<link id="panel[1]" target="target" mode="extern">
 		<condition expression="${1 eq 1}" />
-		<label>link1</label>
+		<label id="link1">link1.translated</label>
 	</link>
 </linkpanel>
