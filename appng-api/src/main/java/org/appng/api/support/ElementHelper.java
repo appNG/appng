@@ -536,7 +536,7 @@ public class ElementHelper {
 		}
 		String expression = condition.getExpression();
 		boolean evaluated = expressionEvaluator.evaluate(expression);
-		LOGGER.warn("{} = {}", expression, evaluated);
+		LOGGER.debug("{} = {}", expression, evaluated);
 		return evaluated;
 	}
 
