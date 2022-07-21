@@ -2206,11 +2206,20 @@ public class CoreService {
 	}
 
 	public void refreshTemplate(Site site, PlatformProperties platformConfig) {
+		refreshTemplate(site, platformConfig, true);
+	}
+
+	public void refreshTemplate(Site site, PlatformProperties platformConfig, boolean sendEvent) {
 		reloadTemplate(site, platformConfig);
-		site.sendEvent(new ReloadTemplateEvent(site.getName()));
+		if (sendEvent) {
+			ReloadTemplateEvent event = new ReloadTemplateEvent(site.getName());
+			LOGGER.debug("Sending {}", event);
+			site.sendEvent(event);
+		}
 	}
 
 	public void reloadTemplate(Site site, PlatformProperties platformConfig) {
+		LOGGER.debug("Refreshing template for '{}'", site);
 		Properties siteProps = site.getProperties();
 		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
 		if (null == template) {
