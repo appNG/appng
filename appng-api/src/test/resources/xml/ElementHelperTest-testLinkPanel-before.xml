@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <dataConfig xmlns="http://www.appng.org/schema/platform">
 	<linkpanel id="linkpanel1" location="inline">
-		<link mode="extern" target="foo">
+		<link target="foo" mode="extern">
 			<condition expression="${1 eq 1}" />
-			<label>link1</label>
+			<label id="link1">link1.translated</label>
 			<confirmation id="some.label" params="#{name}" />
 		</link>
-		<link mode="extern" target="bar">
+		<link target="bar" mode="extern">
 			<condition expression="${1 eq 2}" />
-			<label>link2</label>
+			<label id="link2">link2.translated</label>
 		</link>
-		<link mode="extern" target="bar">
-			<label>link3</label>
+		<link target="bar" mode="extern">
+			<label id="link3">link3.translated</label>
 		</link>
-		<link mode="webservice" target="wslink">
-			<label>link4</label>
+		<link target="wslink" mode="webservice">
+			<label id="link4">link4.translated</label>
 		</link>
-		<link mode="extern" target="disabled" show-disabled="true">
+		<link target="disabled" mode="extern" show-disabled="true">
 			<condition expression="${3 eq 4}" />
-			<label>link5</label>
+			<label id="link5">link5.translated</label>
 		</link>
-		<link mode="extern" target="foobar" show-disabled="true">
+		<link target="foobar" mode="extern" show-disabled="true">
 			<condition expression="${current.id=5}" />
 			<permissions>
 				<permission ref="link:withCurrentCondition" />
 			</permissions>
-			<label>withCurrentCondition</label>
+			<label id="withCurrentCondition">withCurrentCondition.translated</label>
 		</link>
 	</linkpanel>
 	<linkpanel id="linkpanel2" />
