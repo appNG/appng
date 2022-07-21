@@ -267,8 +267,8 @@ public class ElementHelperTest {
 					public Boolean answer(InvocationOnMock invocation) throws Throwable {
 						PermissionOwner owner = (PermissionOwner) invocation.getArguments()[0];
 						String name = owner.getName();
-						if ("linkpanel:linkpanel2".equals(name) || "link:link3".equals(name)
-								|| "link:withCurrentCondition".equals(name)) {
+						if ("linkpanel:linkpanel2".equals(name) || "link:link3.translated".equals(name)
+								|| "link:withCurrentCondition.translated".equals(name)) {
 							return false;
 						}
 						return true;
@@ -285,7 +285,8 @@ public class ElementHelperTest {
 	private Link addLink(Linkpanel linkpanel, String labelText, String target, String condition) {
 		Link link = new Link();
 		Label label = new Label();
-		label.setValue(labelText);
+		label.setId(labelText);
+		applicationRequest.setLabel(label);
 		link.setLabel(label);
 		link.setMode(Linkmode.EXTERN);
 		link.setTarget(target);
@@ -418,7 +419,7 @@ public class ElementHelperTest {
 		FieldDef field = new FieldDef();
 		field.setName(name);
 		Label label = new Label();
-		label.setValue(name);
+		label.setId(name);
 		field.setLabel(label);
 		metaData.getFields().add(field);
 		if (null != condition) {
