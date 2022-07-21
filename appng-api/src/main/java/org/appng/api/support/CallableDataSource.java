@@ -242,10 +242,11 @@ public class CallableDataSource {
 							elementHelper.getValidationGroups(metaData, container.getItem()));
 				}
 
+				Messages messages = fieldProcessor.getMessages();
 				if (addMessagesToSession) {
-					ElementHelper.addMessages(applicationRequest.getEnvironment(), fieldProcessor.getMessages());
-				} else {
-					getDatasource().setMessages(fieldProcessor.getMessages());
+					ElementHelper.addMessages(applicationRequest.getEnvironment(), messages);
+				} else if (!messages.getMessageList().isEmpty()) {
+					getDatasource().setMessages(messages);
 				}
 
 				Data data = container.getWrappedData();

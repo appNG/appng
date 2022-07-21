@@ -102,7 +102,6 @@
 									</link>
 								</linkpanel>
 							</config>
-							<messages ref="entities" />
 							<data>
 								<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0" lastchunk="0" hits="2">
 									<result>
