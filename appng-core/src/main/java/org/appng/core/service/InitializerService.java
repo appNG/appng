@@ -103,7 +103,6 @@ import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Messages;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -550,8 +549,16 @@ public class InitializerService {
 					site.setReloadCount(site.getReloadCount() + 1);
 				}
 
-				Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
-				site.setSender(sender);
+				boolean isClustered = Messaging.isEnabled(env);
+				if (isClustered) {
+					Sender sender = Messaging.getMessageSender(env);
+					if (null == sender) {
+						LOGGER.warn("Failed to retrieve {} although messaging is enabled!", Sender.class.getName());
+					} else {
+						site.setSender(sender);
+					}
+				}
+				
 				List<? extends Group> groups = coreService.getGroups();
 				site.setGroups(new HashSet<>(groups));
 
