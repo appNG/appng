@@ -215,7 +215,7 @@ abstract class OpenApiOperation {
 						return v;
 					}).collect(Collectors.toList());
 					applicationRequest.addParameters(e.getKey(), values);
-					getLogger().warn("added path parameter {}={}", e.getKey(), values);
+					getLogger().debug("added path parameter {}={}", e.getKey(), values);
 				}
 			});
 		}
