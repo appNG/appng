@@ -350,8 +350,8 @@ public class CallableAction {
 		if (doInclude() && !(doExecute() && doForward())) {
 				retrieveData(false);
 				handleSelections();
-				Messages messages = elementHelper.removeMessages();
-				if (!isSectionHidden && null != action && null != messages) {
+				if (!isSectionHidden && elementHelper.hasMessages()) {
+					Messages messages = elementHelper.removeMessages();
 					Messages actionMessages = action.getMessages();
 					if (null == actionMessages) {
 						action.setMessages(messages);
