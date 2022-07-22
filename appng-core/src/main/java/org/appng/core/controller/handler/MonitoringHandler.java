@@ -94,7 +94,6 @@ public class MonitoringHandler implements RequestHandler {
 	private static final String MONITORING_USER = "monitoring";
 	private static final String MONITORING_PASSWORD = "monitoringPassword";
 	private static final String MONITORING_BASE_AUTH = "monitoringBaseAuth";
-	private static final String PREFIX_PASSWORD = "password";
 	private ObjectWriter writer;
 
 	public MonitoringHandler() {
@@ -158,18 +157,11 @@ public class MonitoringHandler implements RequestHandler {
 
 	private Map<Object, Object> addProperties(Site site) {
 		Map<Object, Object> typedProperties = new TreeMap<>();
-		java.util.Properties plainProperties = site.getProperties().getPlainProperties();
-		for (Entry<Object, Object> entry : plainProperties.entrySet()) {
-			String value = (String) entry.getValue();
-			String key = (String) entry.getKey();
-			if (key.toLowerCase().contains(PREFIX_PASSWORD)) {
-				typedProperties.put(key, value.replaceAll(".", "*"));
-			} else if (value.matches("^\\d+$")) {
-				typedProperties.put(key, Integer.valueOf(value));
-			} else if (value.toLowerCase().matches("^\\d+\\.\\d+$")) {
-				typedProperties.put(key, Double.valueOf(value));
-			} else if (value.toLowerCase().matches("^true|false$")) {
-				typedProperties.put(key, Boolean.valueOf(value).booleanValue());
+		Properties props = site.getProperties();
+		for (String key : props.getPropertyNames()) {
+			Object value = props.getObject(key);
+			if (key.toLowerCase().contains("password") || key.toLowerCase().contains("secret")) {
+				typedProperties.put(key, ((String) value).replaceAll(".", "*"));
 			} else {
 				typedProperties.put(key, value);
 			}

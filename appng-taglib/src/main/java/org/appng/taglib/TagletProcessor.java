@@ -185,7 +185,8 @@ public class TagletProcessor {
 		boolean processPage = doProcessPage(xmltaglet);
 		try {
 			ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(applicationRequest.getParameters());
-			ElementHelper elementHelper = new ElementHelper(executingSite, application, expressionEvaluator);
+			ElementHelper elementHelper = new ElementHelper(applicationRequest.getEnvironment(), executingSite,
+					application, expressionEvaluator);
 			elementHelper.processDataContainer(applicationRequest, container, xmltaglet.getClass().getName());
 		} catch (ClassNotFoundException | ProcessingException e) {
 			LOGGER.error(String.format("error while processing %s", methodName), e);

@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -117,10 +118,11 @@ public class MonitoringHandlerTest {
 		site.setDomain("http://localhost:8080");
 		site.setState(SiteState.STARTED);
 		site.setStartupTime(FastDateFormat.getInstance("yyMMddHHmm").parse("8204300815"));
-		site.setProperties(new PropertyHolder("",
-				Arrays.asList(new SimpleProperty("foo", "bar"), new SimpleProperty("answer", "42"),
-						new SimpleProperty("awesome", "true"), new SimpleProperty("decimal", "8.15"),
-						new SimpleProperty("passWORD", "secret"))));
+		List<SimpleProperty> props = Arrays.asList(new SimpleProperty("foo", "bar"), new SimpleProperty("answer", "42"),
+				new SimpleProperty("awesome", "true"), new SimpleProperty("decimal", "8.15"),
+				new SimpleProperty("passWORD", "secret"));
+		props.forEach(p -> p.determineType());
+		site.setProperties(new PropertyHolder("", props));
 		Set<SiteApplication> applications = new HashSet<>();
 		ApplicationImpl app = new ApplicationImpl();
 		app.setName("acme");

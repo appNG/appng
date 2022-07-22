@@ -145,7 +145,7 @@ public class DefaultPermissionProcessor implements PermissionProcessor {
 				}
 				LOGGER.debug("'{}' contains role '{}' from application '{}'", group.getName(), role.getName(),
 						applicationFromRole.getName());
-				if (null != application && application.equals(applicationFromRole)) {
+				if (null != application && application.getName().equals(applicationFromRole.getName())) {
 					Set<org.appng.api.model.Permission> permissionsFromRole = role.getPermissions();
 					if (0 == permissionsFromRole.size()) {
 						LOGGER.debug("role '{}' does not contain any permissions!", role.getName());

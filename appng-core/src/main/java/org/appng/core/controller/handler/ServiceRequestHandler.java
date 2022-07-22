@@ -255,8 +255,8 @@ public class ServiceRequestHandler implements RequestHandler {
 		// Messages added to the FieldProcessor during processing of the datasource are normally not added
 		// to the Datasource if it is called with the GuiHandler. Those messages are added to the page. When a
 		// datasource is called as a service, we have to put them into the datasource and remove them from session.
-		ElementHelper elementHelper = new ElementHelper(site, application);
-		Messages messages = elementHelper.removeMessages(environment);
+		ElementHelper elementHelper = new ElementHelper(environment, null, null, null);
+		Messages messages = elementHelper.removeMessages();
 		if (null != messages) {
 			datasource.setMessages(messages);
 			return messages.getMessageList().stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()

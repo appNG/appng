@@ -178,6 +178,10 @@ public class TestRequest implements Request {
 		}
 	}
 
+	public void addParameters(String key, List<String> values) {
+		parametersList.put(key, values);
+	}
+
 	public void addParameter(String key, String value) {
 		if (null != value) {
 			parametersList.put(key, Arrays.asList(value));

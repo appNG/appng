@@ -35,11 +35,11 @@
 			</field>
 		</meta-data>
 		<linkpanel id="actions" location="inline">
-			<link id="actions[1]" mode="intern" target="/${current.id}_edit" default="true">
+			<link mode="intern" id="actions[1]" target="/${current.id}_edit" default="true">
 				<label id="edit">Edit</label>
 				<icon>edit</icon>
 			</link>
-			<link id="actions[2]" mode="intern" target="/${current.id}_delete" default="true">
+			<link mode="intern" id="actions[2]" target="/${current.id}_delete" default="true">
 				<label id="delete">Delete</label>
 				<icon>delete</icon>
 				<confirmation id="confirm.delete" params="#{name}">Really delete #{name}?</confirmation>
@@ -47,8 +47,7 @@
 		</linkpanel>
 	</config>
 	<data>
-		<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0"
-			lastchunk="0" hits="2">
+		<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0" lastchunk="0" hits="2">
 			<result>
 				<field name="id" type="int">
 					<value>1</value>
@@ -66,11 +65,11 @@
 					<value>false</value>
 				</field>
 				<linkpanel id="actions" location="inline">
-					<link id="actions[1]" mode="intern" target="/1_edit" default="true">
+					<link mode="intern" id="actions[1]" target="/1_edit" default="true">
 						<label id="edit">Edit</label>
 						<icon>edit</icon>
 					</link>
-					<link id="actions[2]" mode="intern" target="/1_delete" default="true">
+					<link mode="intern" id="actions[2]" target="/1_delete" default="true">
 						<label id="delete">Delete</label>
 						<icon>delete</icon>
 						<confirmation id="confirm.delete" params="#{name}">Really delete new name?</confirmation>
@@ -94,11 +93,11 @@
 					<value>true</value>
 				</field>
 				<linkpanel id="actions" location="inline">
-					<link id="actions[1]" mode="intern" target="/2_edit" default="true">
+					<link mode="intern" id="actions[1]" target="/2_edit" default="true">
 						<label id="edit">Edit</label>
 						<icon>edit</icon>
 					</link>
-					<link id="actions[2]" mode="intern" target="/2_delete" default="true">
+					<link mode="intern" id="actions[2]" target="/2_delete" default="true">
 						<label id="delete">Delete</label>
 						<icon>delete</icon>
 						<confirmation id="confirm.delete" params="#{name}">Really delete entity2?</confirmation>

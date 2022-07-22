@@ -164,7 +164,7 @@ public class CallableAction {
 				boolean clientValidation = pageExpressionEvaluator.getBoolean(actionRef.getClientValidation());
 				this.action.setClientValidation(String.valueOf(clientValidation));
 			}
-			this.elementHelper = new ElementHelper(site, application);
+			this.elementHelper = new ElementHelper(applicationRequest.getEnvironment(), site, application, null);
 			DataConfig config = getAction().getConfig();
 			getAction().setEventId(eventId);
 			getAction().setMode(actionRef.getMode());
@@ -182,7 +182,8 @@ public class CallableAction {
 				Map<String, Object> conditionParams = new HashMap<>(applicationRequest.getParameters());
 				conditionParams.put(ApplicationPath.PATH_VAR, applicationRequest.applicationPath());
 				ExpressionEvaluator conditionEvaluator = new ExpressionEvaluator(conditionParams);
-				this.include = elementHelper.conditionMatches(conditionEvaluator, includeCondition);
+				this.include = new ElementHelper(applicationRequest.getEnvironment(), site, application,
+						conditionEvaluator).conditionMatches(includeCondition);
 			}
 			if (include) {
 				elementHelper.processConfig(applicationRequest.getApplicationConfig(), applicationRequest,
@@ -228,39 +229,37 @@ public class CallableAction {
 
 				List<Message> before = new ArrayList<>();
 				Environment environment = applicationRequest.getEnvironment();
-				if (elementHelper.hasMessages(environment)) {
-					before.addAll(elementHelper.getMessages(environment).getMessageList());
+				Messages envMessages = elementHelper.getMessages();
+				if (elementHelper.hasMessages()) {
+					before.addAll(envMessages.getMessageList());
 				}
 
-				Data data = datasourceElement.perform(null, setBeanNull, true);
+				Data data = datasourceElement.perform(null, setBeanNull, true, true);
 				action.setData(data);
 				DataConfig dsConfig = datasourceElement.getDatasource().getConfig();
 				elementHelper.addTemplates(applicationRequest.getApplicationConfig(), dsConfig);
 				action.getConfig().setMetaData(dsConfig.getMetaData());
 
 				List<Message> after = new ArrayList<>();
-				if (elementHelper.hasMessages(environment)) {
-					after.addAll(elementHelper.getMessages(environment).getMessageList());
+				if (elementHelper.hasMessages()) {
+					envMessages = elementHelper.getMessages();
+					after.addAll(envMessages.getMessageList());
 				}
 
 				@SuppressWarnings("unchecked")
-				Collection<Message> addedMessages = CollectionUtils.disjunction(before, after);
+				Collection<Message> dataSourceMessages = CollectionUtils.disjunction(before, after);
 
-				if (!addedMessages.isEmpty()) {
-					boolean hasErrors = addedMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz()))
-							.findAny().isPresent();
+				if (!dataSourceMessages.isEmpty()) {
+					dataOk = !dataSourceMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
+							.isPresent();
 
-					if (hasErrors) {
-						dataOk = false;
-						Messages messages = elementHelper.getMessages(environment);
-						messages.getMessageList().removeAll(addedMessages);
-						if (messages.getMessageList().isEmpty()) {
-							elementHelper.removeMessages(environment);
-						}
-						Messages actionMessages = new Messages();
-						actionMessages.getMessageList().addAll(addedMessages);
-						getAction().setMessages(actionMessages);
+					envMessages.getMessageList().removeAll(dataSourceMessages);
+					if (envMessages.getMessageList().isEmpty()) {
+						elementHelper.removeMessages(environment);
 					}
+					Messages actionMessages = new Messages();
+					actionMessages.getMessageList().addAll(dataSourceMessages);
+					getAction().setMessages(actionMessages);
 				}
 
 				if (null != data && null != data.getResult()) {
@@ -336,7 +335,7 @@ public class CallableAction {
 			if (doExecute()) {
 				fp = execute();
 				if (doForward() || forceForward()) {
-					String outputPrefix = elementHelper.getOutputPrefix(applicationRequest.getEnvironment());
+					String outputPrefix = elementHelper.getOutputPrefix();
 					StringBuilder target = new StringBuilder();
 					if (null != outputPrefix) {
 						target.append(outputPrefix);
@@ -345,17 +344,21 @@ public class CallableAction {
 					site.sendRedirect(applicationRequest.getEnvironment(), target.toString(), HttpStatus.FOUND.value());
 					getAction().setOnSuccess(target.toString());
 					applicationRequest.setRedirectTarget(target.toString());
-				} else if (!isSectionHidden) {
-					Messages messages = elementHelper.removeMessages(applicationRequest.getEnvironment());
-					getAction().setMessages(messages);
 				}
 			}
 		}
-		if (doInclude()) {
-			if (!doExecute() || !doForward()) {
+		if (doInclude() && !(doExecute() && doForward())) {
 				retrieveData(false);
 				handleSelections();
-			}
+				Messages messages = elementHelper.removeMessages();
+				if (!isSectionHidden && null != action && null != messages) {
+					Messages actionMessages = action.getMessages();
+					if (null == actionMessages) {
+						action.setMessages(messages);
+					} else {
+						actionMessages.getMessageList().addAll(0, messages.getMessageList());
+					}
+				}
 		}
 		return fp;
 	}

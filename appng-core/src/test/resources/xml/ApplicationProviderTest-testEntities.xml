@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<applicationReference xmlns="http://www.appng.org/schema/platform" version="1.5.2" id="demo-application">
+<applicationReference xmlns="http://www.appng.org/schema/platform" id="demo-application" version="1.5.2">
 	<config>
 		<title id="plugintitle">A Test-Plugin</title>
 		<permissions>
-			<permission mode="set" ref="debug"></permission>
+			<permission ref="debug" mode="set"></permission>
 		</permissions>
 		<session>
 			<session-params>
@@ -13,12 +13,12 @@
 		</session>
 	</config>
 	<pages>
-		<page type="index" id="entity" executionTime="25">
+		<page id="entity" type="index" executionTime="21">
 			<config>
 				<title id="entity">Entity</title>
 				<description></description>
 				<permissions>
-					<permission mode="set" ref="page.entity"></permission>
+					<permission ref="page.entity" mode="set"></permission>
 				</permissions>
 				<url-schema>
 					<url-params>
@@ -34,128 +34,129 @@
 						<post-param name="form_action"></post-param>
 					</post-params>
 				</url-schema>
-				<linkpanel location="top" id="page-nav">
-					<link target="/page0" mode="intern" id="page-nav[1]">
+				<linkpanel id="page-nav" location="top">
+					<link mode="intern" id="page-nav[1]" target="/page0">
 						<label id="page0">Page 0</label>
 					</link>
-					<link target="/page1" mode="intern" id="page-nav[2]">
+					<link mode="intern" id="page-nav[2]" target="/page1">
 						<condition expression="${1==1}" />
 						<label id="page1">Page 1</label>
 					</link>
-					<link target="/page3" mode="intern" id="page-nav[4]">
+					<link mode="intern" id="page-nav[4]" target="/page3">
 						<permissions>
-							<permission mode="set" ref="page3"></permission>
+							<permission ref="page3" mode="set"></permission>
 						</permissions>
 						<label id="page3">Page 3</label>
 					</link>
 				</linkpanel>
 			</config>
 			<structure>
-				<section executionTime="20" id="42">
-					<element executionTime="20">
+				<section executionTime="11" id="42">
+					<title id="entities">Entities</title>
+					<element executionTime="11">
+						<title id="entities">Entities</title>
 						<datasource id="entities">
 							<config>
 								<title id="entities">Entities</title>
 								<permissions>
-									<permission mode="set" ref="show_entities"></permission>
+									<permission ref="show_entities" mode="set"></permission>
 								</permissions>
 								<params>
 									<param name="param1"></param>
 									<param name="param2"></param>
 									<param name="param3">3</param>
-									<param default="4" name="param4">4</param>
+									<param name="param4" default="4">4</param>
 								</params>
 								<meta-data bindClass="org.appng.testapplication.TestEntity">
-									<field binding="id" hidden="true" format="#" type="int" name="id">
+									<field name="id" type="int" format="#" hidden="true" binding="id">
 										<label id="id">ID</label>
 										<condition expression="true" />
 									</field>
-									<field binding="name" hidden="true" readonly="true" type="text" name="name">
-										<sort prio="0" order="asc" />
+									<field name="name" type="text" readonly="true" hidden="true" binding="name">
+										<sort order="asc" prio="0" />
 										<label id="name">Name</label>
 									</field>
-									<field binding="integerValue" format="#" type="int" name="integerValue">
+									<field name="integerValue" type="int" format="#" binding="integerValue">
 										<label id="integerValue">integer value</label>
 									</field>
-									<field binding="doubleValue" format="#.##" type="decimal" name="doubleValue">
-										<sort prio="1" order="desc" />
+									<field name="doubleValue" type="decimal" format="#.##" binding="doubleValue">
+										<sort order="desc" prio="1" />
 										<label id="doubleValue">double value</label>
 									</field>
-									<field binding="booleanValue" type="checkbox" name="booleanValue">
+									<field name="booleanValue" type="checkbox" binding="booleanValue">
 										<label id="booleanValue">boolean value</label>
 									</field>
-									<field binding="actions" type="linkpanel" name="actions">
+									<field name="actions" type="linkpanel" binding="actions">
 										<label id="actions">Actions</label>
 									</field>
 								</meta-data>
-								<linkpanel location="inline" id="actions">
-									<link default="true" target="/${current.id}_edit" mode="intern" id="actions[1]">
+								<linkpanel id="actions" location="inline">
+									<link mode="intern" id="actions[1]" target="/${current.id}_edit" default="true">
 										<label id="edit">Edit</label>
 										<icon>edit</icon>
 									</link>
-									<link default="true" target="/${current.id}_delete" mode="intern" id="actions[2]">
+									<link mode="intern" id="actions[2]" target="/${current.id}_delete" default="true">
 										<label id="delete">Delete</label>
 										<icon>delete</icon>
-										<confirmation params="#{name}" id="confirm.delete">Really delete #{name}?</confirmation>
+										<confirmation id="confirm.delete" params="#{name}">Really delete #{name}?</confirmation>
 									</link>
 								</linkpanel>
 							</config>
 							<data>
-								<resultset hits="2" lastchunk="0" firstchunk="0"
-									previouschunk="0" nextchunk="0" chunksize="2" chunk="0" chunkname="entities">
+								<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0" lastchunk="0" hits="2">
 									<result>
-										<field type="int" name="id">
+										<field name="id" type="int">
 											<value>1</value>
 										</field>
-										<field type="text" name="name">
+										<field name="name" type="text">
 											<value>entity1</value>
 										</field>
-										<field type="int" name="integerValue">
+										<field name="integerValue" type="int">
 											<value>5</value>
 										</field>
-										<field type="decimal" name="doubleValue">
+										<field name="doubleValue" type="decimal">
 											<value>5.5</value>
 										</field>
-										<field type="checkbox" name="booleanValue">
+										<field name="booleanValue" type="checkbox">
 											<value>false</value>
 										</field>
-										<linkpanel location="inline" id="actions">
-											<link default="true" target="/1_edit" mode="intern" id="actions[1]">
+										<linkpanel id="actions" location="inline">
+											<link mode="intern" id="actions[1]" target="/1_edit" default="true">
 												<label id="edit">Edit</label>
 												<icon>edit</icon>
 											</link>
-											<link default="true" target="/1_delete" mode="intern" id="actions[2]">
+											<link mode="intern" id="actions[2]" target="/1_delete" default="true">
 												<label id="delete">Delete</label>
 												<icon>delete</icon>
-												<confirmation params="#{name}" id="confirm.delete">Really delete entity1?</confirmation>
+												<confirmation id="confirm.delete" params="#{name}">Really delete entity1?</confirmation>
 											</link>
 										</linkpanel>
 									</result>
 									<result>
-										<field type="int" name="id">
+										<field name="id" type="int">
 											<value>2</value>
 										</field>
-										<field type="text" name="name">
+										<field name="name" type="text">
 											<value>entity2</value>
 										</field>
-										<field type="int" name="integerValue">
+										<field name="integerValue" type="int">
 											<value>7</value>
 										</field>
-										<field type="decimal" name="doubleValue">
+										<field name="doubleValue" type="decimal">
 											<value>7.8</value>
 										</field>
-										<field type="checkbox" name="booleanValue">
+										<field name="booleanValue" type="checkbox">
 											<value>true</value>
 										</field>
-										<linkpanel location="inline" id="actions">
-											<link default="true" target="/2_edit" mode="intern" id="actions[1]">
+										<linkpanel id="actions" location="inline">
+											<link mode="intern" id="actions[1]" target="/2_edit" default="true">
 												<label id="edit">Edit</label>
 												<icon>edit</icon>
 											</link>
-											<link default="true" target="/2_delete" mode="intern" id="actions[2]">
+											<link mode="intern" id="actions[2]" target="/2_delete" default="true">
 												<label id="delete">Delete</label>
 												<icon>delete</icon>
-												<confirmation params="#{name}" id="confirm.delete">Really delete entity2?</confirmation>
+												<confirmation id="confirm.delete" params="#{name}">Really delete entity2?</confirmation>
 											</link>
 										</linkpanel>
 									</result>

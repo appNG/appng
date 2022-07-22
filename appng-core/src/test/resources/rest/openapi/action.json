@@ -1,0 +1,66 @@
+{
+  "body" : {
+    "_self" : "/service/localhost/demo-application/rest/openapi/action/events/create/;form_action=;action=create",
+    "_execute" : "/service/localhost/demo-application/rest/openapi/action/multipart/events/create/;form_action=;action=create",
+    "id" : "create",
+    "event-id" : "events",
+    "title" : "Create entity",
+    "parameters" : {
+      "action" : "create"
+    },
+    "user" : {
+      "authenticated" : false,
+      "locale" : "en",
+      "timezone" : "Europe/Berlin",
+      "decimalSeparator" : ".",
+      "groupingSeparator" : ","
+    },
+    "fields" : [ {
+      "name" : "id",
+      "label" : "ID",
+      "fieldType" : "int",
+      "readonly" : false,
+      "visible" : false,
+      "format" : "#"
+    }, {
+      "name" : "name",
+      "label" : "Name",
+      "fieldType" : "text",
+      "readonly" : false,
+      "visible" : true,
+      "rules" : [ {
+        "type" : "javax.validation.constraints.NotNull",
+        "message" : "must not be null",
+        "messageKey" : "{javax.validation.constraints.NotNull.message}"
+      } ]
+    }, {
+      "name" : "integerValue",
+      "label" : "integer value",
+      "fieldType" : "int",
+      "readonly" : false,
+      "visible" : true,
+      "format" : "#"
+    }, {
+      "name" : "doubleValue",
+      "label" : "double value",
+      "fieldType" : "decimal",
+      "readonly" : false,
+      "visible" : true,
+      "format" : "#.##"
+    }, {
+      "name" : "booleanValue",
+      "value" : false,
+      "label" : "boolean value",
+      "fieldType" : "checkbox",
+      "readonly" : false,
+      "visible" : true
+    } ],
+    "permissions" : [ {
+      "mode" : "SET",
+      "ref" : "create.entity",
+      "value" : true
+    } ]
+  },
+  "statusCode" : "OK",
+  "statusCodeValue" : 200
+}

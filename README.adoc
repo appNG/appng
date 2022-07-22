@@ -1,6 +1,6 @@
 image::appng-logo.png[]
-:snapshot: 1.24.6-SNAPSHOT
-:stable: 1.24.5
+:snapshot: 1.25.0-SNAPSHOT
+:stable: 1.24.1
 :current: {snapshot}
 ifdef::env-github[]
 :caution-caption: :fire:

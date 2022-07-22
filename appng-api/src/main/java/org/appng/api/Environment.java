@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 
 import org.appng.api.model.Application;
 import org.appng.api.model.Subject;
+import org.appng.api.support.environment.ScopedEnvironment;
 
 /**
  * The {@link Environment} is able to set, read and remove attributes of a certain {@link Scope}. The main purposes are:
@@ -44,6 +45,18 @@ import org.appng.api.model.Subject;
  * @see Scope
  */
 public interface Environment {
+	
+	/**
+	 * Returns a {@link ScopedEnvironment} for the given {@link Scope}
+	 * 
+	 * @param scope
+	 *              the {@link Scope} to use
+	 * 
+	 * @return     the {@link ScopedEnvironment}, if scope is available, {@code null} otherwise.
+	 */
+	default ScopedEnvironment getEnvironment(Scope scope) {
+		return null;
+	}
 
 	/**
 	 * Sets an attribute for the given {@link Scope} to the given value.

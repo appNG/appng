@@ -1,0 +1,961 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: appNG REST API
+  description: The REST API for appNG
+  contact:
+    name: appNG developer team
+    email: matthias.mueller@appng.org
+    url: http://appng.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+security:
+  - appNGCookie: []
+paths:
+  "/service/{site}/{application}/rest/openapi/navigation":
+    get:
+      tags:
+        - appNG
+      operationId: getNavigation
+      parameters:
+        - in: path 
+          name: site
+          description: the site to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: application
+          description: the application to call
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: datasource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Navigation"
+  "/service/{site}/{application}/rest/openapi/page/{id}/{pageUrlParams}":
+    get:
+      tags:
+        - appNG
+      operationId: getPageWithUrlParams
+      parameters:
+        - in: path 
+          name: site
+          description: the site to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: application
+          description: the application to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: id
+          description: the ID of the page
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pageUrlParams
+          description: the URL path to parametrize the page with.
+          required: true         
+          schema:
+            type: string
+        - in: query
+          name: _sect
+          description: a list of section IDs to fill
+          required: false         
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: datasource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageDefinition"
+  "/service/{site}/{application}/rest/openapi/datasource/{id}/{params}":
+    get:
+      tags:
+        - appNG
+      description: Returns a datasource by id
+      operationId: getDatasource
+      parameters:
+        - in: path 
+          name: site
+          description: the site to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: application
+          description: the application to call
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: The id of the datasource.
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: params
+          description: |
+            The id of the datasource.
+            Parameters (including sorting and filtering parameters) are passed as matrix style parameters.
+            Note that names and values of these matrix parameters must be URL-Encoded
+          schema:
+            type: string
+          style: matrix
+          explode: true
+          example: ;name=appng;host=localhost;sortSites=name%3Aasc%3Bhost%3Adesc%3Bpage%3A0%3BpageSize%3A10
+          required: true
+      responses:
+        "200":
+          description: datasource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Datasource"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+  "/service/{site}/{application}/rest/openapi/action/{event-id}/{id}/{params}":
+    get:
+      tags:
+        - appNG
+      description: Returns an action. To be used for initially retrieving the action.
+      operationId: getAction
+      parameters:
+        - in: path 
+          name: site
+          description: the site to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: application
+          description: the application to call
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: event-id
+          description: event-id of the action
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: The ID of the action.
+          required: true
+          schema:
+            type: string          
+        - in: path
+          name: params
+          description: 
+            Parameters (including sorting and filtering parameters) are passed as matrix style parameters.
+            Note that names and values of these matrix parameters must be URL-Encoded
+          schema:
+            type: string
+          style: matrix
+          explode: true
+          example: ;name=appng;host=localhost;sortSites=name%3Aasc%3Bhost%3Adesc%3Bpage%3A0%3BpageSize%3A10
+          required: true
+      responses:
+        "200":
+          description: action response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Action"
+        "400":
+          description: action response, in case an recoverable error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Action"
+        default:
+          description: unexpected/unrecoverable error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+  "/service/{site}/{application}/rest/openapi/action/multipart/{event-id}/{id}/{params}":
+    post:
+      tags:
+        - appNG
+      description: Performs an action.
+      operationId: performActionMultiPart
+      parameters:
+        - in: path 
+          name: site
+          description: the site to call
+          required: true
+          schema:
+            type: string
+        - in: path 
+          name: application
+          description: the application to call
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: event-id
+          description: event-id of the action
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: The ID of the action.
+          required: true
+          schema:
+            type: string          
+        - in: path
+          name: params
+          description: 
+            Parameters (including sorting and filtering parameters) are passed as matrix style parameters.
+            Note that names and values of these matrix parameters must be URL-Encoded
+          schema:
+            type: string
+          style: matrix
+          explode: true
+          example: ;name=appng;host=localhost;sortSites=name%3Aasc%3Bhost%3Adesc%3Bpage%3A0%3BpageSize%3A10
+          required: true
+      requestBody:
+        description: For each field of an action, a multipart parameter must be present .
+        content: 
+          multipart/form-data:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: action response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Action"
+        "400":
+          description: action response, in case an recoverable error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Action"
+        default:
+          description: unexpected/unrecoverable error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+components:
+  securitySchemes:
+    appNGCookie:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+  schemas:
+    PageDefinition:
+      type: object
+      required:
+        - id
+        - _self
+      properties:
+        _self:
+          type: string
+          description: The URL of the page
+        _userUrl:
+          type: string
+          description: The URL of the page represented to the user
+        user:
+          $ref: "#/components/schemas/User"
+        id:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+        urlPath:
+          type: string
+          description: the current URL path 
+        urlParameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Parameter"
+        urlTemplate:
+          type: string
+          description: A complete template for teh full path this page can handle
+        getParameters:
+          type: object
+          additionalProperties:
+            type: string
+        sessionParameters:
+          type: object
+          additionalProperties:
+            type: string
+        title:
+          $ref: "#/components/schemas/Label"
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/Link"
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Section"
+    Section:
+      type: object
+      required:
+        - id
+        - _self
+      properties:
+        _self:
+          type: string
+          description: the API path to this section
+        id:
+          type: string
+        title:
+          $ref: "#/components/schemas/Label"
+        hidden:
+          type: boolean
+          description: Whether the section is hidden or not
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/SectionElement"
+    SectionElement:
+      type: object
+      properties:
+        title:
+          type: string
+        collapsed:
+          type: boolean
+          description: Whether the element is collapsed
+        datasource:
+          $ref: "#/components/schemas/Datasource"
+        action:
+          $ref: "#/components/schemas/Action"
+    Action:
+      type: object
+      description: An action, representing an executable operation.
+      required:
+        - _self
+        - id
+        - event-id
+      properties:
+        _self:
+          type: string
+          description: The URL of the action
+        _execute:
+          type: string
+          description: The URL to execute the action
+        id:
+          type: string
+          description: The Id of the action.
+        event-id:
+          type: string
+          description: The event-Id of the action.
+        title:
+          type: string
+          description: The title of the datasource.
+        parameters:
+          type: object
+          description: A list of parameters for the action
+          additionalProperties:
+            type: string
+        user:
+          $ref: "#/components/schemas/User"
+        messages:
+          type: array
+          description: A list of messages.
+          items:
+            $ref: "#/components/schemas/Message"
+        fields:
+          type: array
+          description: A list of action-fields.
+          items:
+            $ref: "#/components/schemas/ActionField"
+        permissions:
+          type: array
+          description: The permissions for this action.
+          items:
+            $ref: "#/components/schemas/Permission"
+        onSuccess:
+          type: string
+    Datasource:
+      type: object
+      description: A datasource, represented by either a page (of elements) or a single
+        element.
+      required:
+        - id
+        - _self
+      properties:
+        _self:
+          type: string
+          description: The URL of the datasource
+        id:
+          type: string
+          description: The unique ID of the datasource.
+        title:
+          type: string
+          description: The title of the datasource.
+        parameters:
+          type: object
+          description: The parameters for the datasource.
+          additionalProperties:
+            type: string
+        user:
+          $ref: "#/components/schemas/User"
+        links:
+          type: array
+          description: A list of links.
+          items:
+            $ref: "#/components/schemas/Link"
+        messages:
+          type: array
+          description: A list of messages.
+          items:
+            $ref: "#/components/schemas/Message"
+        fields:
+          type: array
+          description: A list of fields.
+          items:
+            $ref: "#/components/schemas/Field"
+        filters:
+          type: array
+          description: A list of filters.
+          items:
+            $ref: "#/components/schemas/Filter"
+        filterResetPath:
+          type: string
+          description: the path to be called to reset the filter
+        page:
+          $ref: "#/components/schemas/Page"
+        item:
+          $ref: "#/components/schemas/Item"
+        items:
+          type: array
+          description: The items of this page.
+          items:
+            $ref: "#/components/schemas/Item"  
+        permissions:
+          type: array
+          description: The permissions for this datasource.
+          items:
+            $ref: "#/components/schemas/Permission"
+    ErrorModel:
+      type: object
+      description: ""
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: ""
+        message:
+          type: string
+          description: ""
+    Field:
+      type: object
+      description: A field that is part of a datasource.
+      required:
+        - name
+        - fieldType
+      properties:
+        name:
+          type: string
+          description: The name for this field.
+        label:
+          type: string
+          description: The label for this field.
+        fieldType:
+          $ref: "#/components/schemas/FieldType"
+        sort:
+          $ref: "#/components/schemas/Sort"
+        format:
+          type: string
+          description: The format for this field, depending on its type.
+        rules:
+          type: array
+          description: The validation rules that should be applied for this field.
+          items:
+            $ref: "#/components/schemas/ValidationRule"
+        fields:
+          type: object
+          description: The child fields of this field.
+          additionalProperties:
+            $ref: "#/components/schemas/Field"
+    Icon:
+      type: object
+      description: an icon
+      properties:
+        name:
+          type: string
+        label:
+          type: string
+    FieldValue:
+      type: object
+      description: The value of a field within a datasource.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the field.
+        value:
+          type: object
+          description: The value of the field.
+        formattedValue:
+          type: string
+          description: The formatted value of the field.
+        icons:
+          type: array
+          items:
+            $ref: "#/components/schemas/Icon"
+        values:
+          type: object
+          description: The child values of this fieldValue.
+          additionalProperties:
+            $ref: "#/components/schemas/FieldValue"
+    Page:
+      type: object
+      description: A page that contains paging information an a list of elements.
+      required:
+        - _first
+        - _previous
+        - _next
+        - _last
+        - number
+        - size
+        - totalPages
+        - totalItems
+        - isFirst
+        - isLast
+      properties:
+        _first:
+          type: string
+          description: path to the first page
+        _previous:
+          type: string
+          description: path to the previous page
+        _next:
+          type: string
+          description: path to the next page
+        _last:
+          type: string
+          description: path to the last page
+        number:
+          type: integer
+          format: int32
+          description: The 0-based number of the current page.
+        size:
+          type: integer
+          format: int32
+          description: The number of items per page.
+        totalPages:
+          type: integer
+          format: int32
+          description: The number of total pages.
+        totalItems:
+          type: integer
+          format: int32
+          description: The total number of items.
+        isFirst:
+          type: boolean
+          description: If this is the first page.
+        isLast:
+          type: boolean
+          description: If this is the last page.
+        pageSizes:  
+          type: array
+          items:
+            $ref: "#/components/schemas/PageSize"
+    PageSize:
+      type: object
+      description: describes the size and path for setting a page size
+      properties:
+        size:
+          type: integer
+          format: int32
+          description: the number of items to show
+        path:
+          type: string
+          description: the path
+    Sort:
+      type: object
+      description: Marks a field as sortable, properties are filled only when sorting has
+        been applied.
+      properties:
+        prio:
+          type: integer
+          description: The priority for this sort, important when a multi-field sort is
+            applied.
+        order:
+          type: string
+          enum:
+            - asc
+            - desc
+          description: The order for this sort (ascending or descending).
+        pathAsc:
+          type: string
+          description: the path to sort ascending
+        pathDesc:
+          type: string
+          description: the path to sort descending
+    Item:
+      type: object
+      description: A single item of a page.
+      properties:
+        fields:
+          type: object
+          description: The list of field-values of the item.
+          additionalProperties:
+            $ref: "#/components/schemas/FieldValue"
+        selected:
+          type: boolean
+          description: Whether this item is selected/active.
+        links:
+          type: array
+          description: A list of links.
+          items:
+            $ref: "#/components/schemas/Link"
+    Link:
+      type: object
+      description: A link.
+      required:
+      - type
+      discriminator:
+        propertyName: linkType
+      properties:
+        type:
+          type: string
+          description: |
+            * page - Links to a page.
+            * extern - Links to an external resource.
+            * intern - Links to an internal resource.
+            * action - Links to an action.
+            * datasource - Links to a datasource
+          enum:
+            - page
+            - extern
+            - intern
+            - action
+            - datasource
+        id:
+          type: string
+          description: The ID for this link.
+        label:
+          type: string
+          description: The label for the link.
+        target:
+          type: string
+          description: The target for the link.
+        icon:
+          type: string
+          description: A descriptive name for an icon that should be used for this link.
+        default:
+          type: boolean
+          description: Whether or not this link should be considered as default.
+        confirmation:
+          type: string
+          description: A confirmation message that should be displayed to the user before
+            following this link.
+    ActionLink:
+      allOf:
+      - $ref: '#/components/schemas/Link'
+      - type: object
+        properties:
+          id:
+            type: string
+            description: ID of the action
+          event-id:
+            type: string
+            description: Event-ID of the action
+          interactive:
+            type: boolean
+            description: Wether or not this action requires additional user-input
+          parameters:
+            type: array
+            items:
+              $ref: "#/components/schemas/Parameter"
+    Filter:
+      type: object
+      description: A filter that applies to a datasource.
+      properties:
+        name:
+          type: string
+          description: The name of the filter.
+        label:
+          type: string
+          description: The label iof the filter.
+        type:
+          $ref: "#/components/schemas/OptionType"
+        options:
+          $ref: "#/components/schemas/Options"
+    Options:
+      type: object
+      description: A set of selectable options
+      properties:
+        multiple:
+          type: boolean
+          description: Whether or not this filter allows multiple options to be selected.
+        entries:
+          type: array
+          description: A list of options for this filter.
+          items:
+            $ref: "#/components/schemas/Option"
+    Option:
+      type: object
+      description: A single option, used in a filter or an action-field.
+      properties:
+        value:
+          type: string
+          description: The value for this option.
+        label:
+          type: string
+          description: The label for this option.
+        selected:
+          type: boolean
+          description: Whether or not this option is selected.
+        hits:
+          type: integer
+          description: Tells how many hits there are for this option.
+        options:
+          type: array
+          description: An option can act as a group and thus can itself own a list of
+            options.
+          items:
+            $ref: "#/components/schemas/Option"
+    FieldType:
+      type: string
+      description: The possible types for a field/action-field.
+      enum:
+        - text
+        - longtext
+        - richtext
+        - password
+        - url
+        - int
+        - long
+        - decimal
+        - checkbox
+        - coordinate
+        - date
+        - file
+        - file_multiple
+        - image
+        - linkpanel
+        - list_checkbox
+        - list_radio
+        - list_select
+        - list_text
+        - object
+        - list_object
+    OptionType:
+      type: string
+      description: The possible types for an option.
+      enum:
+        - select
+        - select_multiple
+        - radio
+        - checkbox
+        - text
+        - date
+    ActionField:
+      type: object
+      description: A single field as a part of an action.
+      properties:
+        name:
+          type: string
+          description: The name of the field.
+        value:
+          type: object
+          description: The value of the field. The concrete type of that object depends on
+            the fieldType of this field.
+        label:
+          type: string
+          description: The label for the field.
+        fieldType:
+          $ref: "#/components/schemas/FieldType"
+        readonly:
+          type: boolean
+          description: Whether or not this field is read-only.
+        visible:
+          type: boolean
+          description: Whether or not this field should be visible.
+        format:
+          type: string
+          description: The format for this field, depending on its type.
+        formattedValue:
+          type: string
+          description: The formatted value for this field.
+        options:
+          $ref: "#/components/schemas/Options"
+        rules:
+          type: array
+          description: The validation rules that should be applied for this field.
+          items:
+            $ref: "#/components/schemas/ValidationRule"
+        messages:
+          type: array
+          description: The messages related to this field.
+          items:
+            $ref: "#/components/schemas/Message"
+        fields:
+          type: array
+          description: The child fields of this fieldValue.
+          items:
+            $ref: "#/components/schemas/ActionField"
+    ValidationRule:
+      type: object
+      description: A validation rule that can be bound to an action-field.
+      properties:
+        type:
+          type: string
+          description: The type of the rule.
+        message:
+          type: string
+          description: The error message displayed when the rule isn't fulfilled.
+        active:
+          type: boolean
+          description: Whether or not this rule is active, meaning it should be applied.
+        messageKey:
+          type: string
+          description: The message key for this rule
+        options:
+          type: object
+          description: An array defining the custom parameters for this rule.
+          additionalProperties:
+            type: string
+    User:
+      type: object
+      description: ""
+      properties:
+        name:
+          type: string
+          description: ""
+        authenticated:
+          type: boolean
+        email:
+          type: string
+          description: The email address of the user.
+          example: john@example.com
+        locale:
+          type: string
+          description: The IETF BCP 47 language tag for the user.
+          example: en_US
+        timezone:
+          type: string
+          description: The name of the IANA time zone the user is located at.
+          example: Europe/Berlin
+        decimalSeparator:
+          type: string
+          description: The charactor used as a decimal separator.
+          example: .
+        groupingSeparator:
+          type: string
+          description: The charactor used when grouping numbers.
+          example: ","
+    Message:
+      type: object
+      description: A textual message with a certain level.
+      properties:
+        level:
+          type: string
+          description: The level of the message.
+          enum:
+            - OK
+            - NOTICE
+            - INVALID
+            - ERROR
+        text:
+          type: string
+          description: The actual message.
+        key:
+          type: string
+          description: A key for this message
+    Permission:
+      type: object
+      description: A permission.
+      properties:
+        mode:
+          type: string
+          description: The mode
+          enum:
+            - READ
+            - SET
+        ref:
+          type: string
+          description: The reference id of the permission.
+        value:
+          type: boolean
+          description: The value, true if the permission is present.
+    Parameter:
+      type: object
+      description: A single parameter.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the parameter.
+        value:
+          type: string
+          description: The value of the parameter.
+    Label:
+      type: object
+      properties:
+        value:
+          type: string
+    Navigation:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavigationItem"
+        loginAction:
+          $ref: "#/components/schemas/Action"
+    NavigationItem:
+      type: object
+      properties:
+        _self:
+          type: string
+          description: the API path (type PAGE only)
+        name:
+          type: string
+        default:
+          type: boolean
+          description: if this is the default page? (type PAGE only)
+        path:
+          type: string
+        active:
+          type: boolean
+        type:
+          type: string
+          enum:
+            - SITE
+            - APP
+            - PAGE
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavigationItem"
+          

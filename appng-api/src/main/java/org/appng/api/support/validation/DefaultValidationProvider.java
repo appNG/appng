@@ -65,6 +65,7 @@ import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Rule;
 import org.appng.xml.platform.Validation;
 import org.appng.xml.platform.ValidationRule;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.MessageSource;
@@ -217,7 +218,7 @@ public class DefaultValidationProvider implements ValidationProvider {
 						LOGGER.debug("Annotation @{} found on property {}.{} of {}", Valid.class.getName(),
 								ancestor.getName(), field.getName(), validationClass);
 					}
-					propertyType = new BeanWrapperImpl(propertyType).getPropertyType(segment);
+					propertyType = BeanUtils.findPropertyType(segment, propertyType);
 					ancestor = field;
 					if (Collection.class.isAssignableFrom(propertyType)) {
 						concreteType = (Class<?>) ((ParameterizedType) field.getGenericType())

@@ -53,6 +53,7 @@
 			<structure>
 				<section id="42">
 					<element passive="true">
+						<title id="update.entity" params="#{name},${entityId}">Update entity entity1 (ID: 1)</title>
 						<action id="update" eventId="events">
 							<config>
 								<title id="update.entity" params="#{name},${entityId}">Update entity entity1 (ID: 1)</title>

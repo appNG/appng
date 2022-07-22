@@ -75,4 +75,8 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 		fp.addOkMessage("executed action " + options.getOptionValue("action", "id"));
 	}
 
+	public static void reset() {
+		t1.setName("entity1");
+	}
+
 }

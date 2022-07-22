@@ -48,6 +48,7 @@ import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.OutputFormat;
 import org.appng.xml.platform.OutputType;
@@ -79,7 +80,7 @@ public class ThymeleafProcessorTest {
 		ClassLoader classLoader = ThymeleafProcessorTest.class.getClassLoader();
 		InputStream is = classLoader.getResourceAsStream("xml/ThymeleafProcessorTest-platform.xml");
 		platform = ms.unmarshall(is, org.appng.xml.platform.Platform.class);
-		appNG = new ThymeleafProcessor.AppNG(platform, null);
+		appNG = new ThymeleafProcessor.AppNG(platform, null, "site", "app");
 	}
 
 	@Test
@@ -321,8 +322,8 @@ public class ThymeleafProcessorTest {
 	public void testDefaultLink() {
 		Result result = appNG.result(appNG.datasource("site-properties"), 1);
 		Linkpanel linkpanel = appNG.linkpanel(result, "actions");
-		Link defaultLink = appNG.defaultLink(linkpanel);
-		Link defaultLink2 = appNG.defaultLink(Arrays.asList(linkpanel));
+		Link defaultLink = (Link) appNG.defaultLink(linkpanel);
+		Linkable defaultLink2 = appNG.defaultLink(Arrays.asList(linkpanel));
 		Assert.assertEquals(defaultLink, defaultLink2);
 		Assert.assertNotNull(defaultLink);
 		Assert.assertEquals("actions[1]", defaultLink.getId());

@@ -40,9 +40,6 @@ import org.springframework.web.context.WebApplicationContext;
  */
 public class RestPostProcessor implements BeanDefinitionRegistryPostProcessor, Ordered {
 
-	public RestPostProcessor() {
-	}
-
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 		registerRequestScoped(registry, RestAction.class);

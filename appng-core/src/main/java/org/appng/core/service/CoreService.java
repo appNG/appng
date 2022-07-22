@@ -74,6 +74,7 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.CachedResponse;
 import org.appng.core.controller.handler.SoapService;
+import org.appng.core.controller.messaging.ReloadTemplateEvent;
 import org.appng.core.controller.messaging.SiteDeletedEvent;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
@@ -2205,6 +2206,11 @@ public class CoreService {
 	}
 
 	public void refreshTemplate(Site site, PlatformProperties platformConfig) {
+		reloadTemplate(site, platformConfig);
+		site.sendEvent(new ReloadTemplateEvent(site.getName()));
+	}
+
+	public void reloadTemplate(Site site, PlatformProperties platformConfig) {
 		Properties siteProps = site.getProperties();
 		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
 		if (null == template) {

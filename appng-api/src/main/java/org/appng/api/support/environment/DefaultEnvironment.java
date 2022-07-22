@@ -297,7 +297,7 @@ public class DefaultEnvironment implements Environment {
 		return null;
 	}
 
-	private ScopedEnvironment getEnvironment(Scope scope) {
+	public ScopedEnvironment getEnvironment(Scope scope) {
 		ScopedEnvironment env = null;
 		switch (scope) {
 		case PLATFORM:
@@ -331,7 +331,7 @@ public class DefaultEnvironment implements Environment {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Returns the current {@link ServletContext}.
 	 * 
