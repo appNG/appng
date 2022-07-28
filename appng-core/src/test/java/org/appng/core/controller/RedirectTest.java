@@ -88,7 +88,7 @@ public class RedirectTest {
 		}).when(httpServletResponse).setHeader(HttpHeaders.LOCATION, target);
 
 		Redirect.to(httpServletResponse, status, target);
-		Assert.assertEquals(new Integer(status), mode);
+		Assert.assertEquals(Integer.valueOf(status), mode);
 		Assert.assertEquals(target, locationHeader);
 	}
 
