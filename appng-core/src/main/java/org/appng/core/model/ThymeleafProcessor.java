@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
+import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.XPathProcessor;
@@ -65,7 +66,6 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.GetParams;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Labels;
-import org.appng.xml.platform.Link;
 import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.Message;
@@ -166,14 +166,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ThymeleafProcessor extends AbstractRequestProcessor {
 
+	private static final String THYMELEAF_CACHE_MANAGER = "thymeleafCacheManager";
 	private static final Pattern BLANK_LINES = Pattern.compile("(\\s*\\r?\\n){1,}");
 	static final String PLATFORM_HTML = "platform.html";
 	private List<Template> templates;
 	private DocumentBuilderFactory dbf;
+	private Request request;
 
-	public ThymeleafProcessor(@Autowired DocumentBuilderFactory dbf) {
+	public ThymeleafProcessor(@Autowired DocumentBuilderFactory dbf,@Autowired Request request) {
 		templates = new ArrayList<>();
 		this.dbf = dbf;
+		this.request = request;
 	}
 
 	public String processWithTemplate(Site applicationSite, File debugRootFolder) throws InvalidConfigurationException {
@@ -395,9 +398,18 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		}
 
 		ThymeleafTemplateEngine templateEngine = new ThymeleafTemplateEngine(interceptors);
-		StandardCacheManager cacheManager = new StandardCacheManager();
-		cacheManager.setExpressionCacheInitialSize(500);
-		cacheManager.setExpressionCacheMaxSize(1000);
+
+		StandardCacheManager cacheManager = null;
+		if (null != request) {
+			cacheManager = request.getEnvironment().getAttribute(Scope.SITE, THYMELEAF_CACHE_MANAGER);
+			if (null == cacheManager) {
+				cacheManager = new StandardCacheManager();
+				cacheManager.setExpressionCacheInitialSize(500);
+				cacheManager.setExpressionCacheMaxSize(1000);
+				request.getEnvironment().setAttribute(Scope.SITE, THYMELEAF_CACHE_MANAGER, cacheManager);
+				LOGGER.debug("Using cached {}", cacheManager);
+			}
+		}
 		templateEngine.setCacheManager(cacheManager);
 		if (null != interceptors) {
 			for (ThymeleafReplaceInterceptor interceptor : interceptors) {

@@ -98,7 +98,7 @@ public class PlatformStartup implements ServletContextListener {
 				configIs = new FileInputStream(Paths.get(appngData, CONFIG_LOCATION).toFile());
 			}
 
-			Environment env = DefaultEnvironment.get(ctx);
+			Environment env = DefaultEnvironment.initGlobal(ctx);
 
 			Properties config = new Properties();
 			config.load(configIs);

@@ -154,7 +154,7 @@ public class ThymeleafProcessorTest {
 		marshallService.setTransformerFactory(TransformerFactory.newInstance());
 		marshallService.setCdataElements(new ArrayList<>());
 
-		ThymeleafProcessor thymlfPrcssr = new ThymeleafProcessor(dbf) {
+		ThymeleafProcessor thymlfPrcssr = new ThymeleafProcessor(dbf, null) {
 			@Override
 			public org.appng.xml.platform.Platform processPlatform(Site applicationSite)
 					throws InvalidConfigurationException {

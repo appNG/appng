@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 
+import org.appng.api.Request;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.DatabaseConnection.DatabaseType;
 import org.appng.core.domain.PlatformEventListener;
@@ -221,8 +222,8 @@ public class PlatformConfig {
 
 	@Bean
 	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public ThymeleafProcessor thymeleafProcessor(DocumentBuilderFactory dbf, MarshallService marshallService) {
-		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf);
+	public ThymeleafProcessor thymeleafProcessor(DocumentBuilderFactory dbf, MarshallService marshallService, Request request) {
+		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf, request);
 		thymeleafProcessor.setMarshallService(marshallService);
 		return thymeleafProcessor;
 	}

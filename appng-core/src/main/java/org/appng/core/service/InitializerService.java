@@ -558,7 +558,7 @@ public class InitializerService {
 						site.setSender(sender);
 					}
 				}
-				
+
 				List<? extends Group> groups = coreService.getGroups();
 				site.setGroups(new HashSet<>(groups));
 
@@ -804,7 +804,7 @@ public class InitializerService {
 						if (application.getProperties().getBoolean("enableLegacyRest", false)) {
 							applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
 						}
-						applicationContext.addBeanFactoryPostProcessor( new OpenApiPostProcessor());
+						applicationContext.addBeanFactoryPostProcessor(new OpenApiPostProcessor());
 
 						applicationContext.refresh();
 
@@ -868,6 +868,7 @@ public class InitializerService {
 				}
 				site.setState(SiteState.STARTED, env);
 				siteMap.put(site.getName(), site);
+				DefaultEnvironment.initSiteScope(site);
 				debugPlatformContext(platformContext);
 				auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
 

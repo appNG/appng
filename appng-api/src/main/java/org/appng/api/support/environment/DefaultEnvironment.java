@@ -59,9 +59,14 @@ public class DefaultEnvironment implements Environment {
 	private Locale locale = Locale.getDefault();
 	private TimeZone timeZone = TimeZone.getDefault();
 	private Map<Scope, Boolean> scopeEnabled = new ConcurrentHashMap<>(4);
+	private static DefaultEnvironment global;
 
 	protected DefaultEnvironment() {
 
+	}
+
+	public static DefaultEnvironment initGlobal(ServletContext ctx) {
+		return global = DefaultEnvironment.get(ctx);
 	}
 
 	@Deprecated
@@ -130,7 +135,7 @@ public class DefaultEnvironment implements Environment {
 				enable(Scope.SESSION);
 
 				if (null != currentSite) {
-					site = new SiteEnvironment(servletContext, currentSite.getHost());
+					site = new SiteEnvironment(servletContext, currentSite.getName());
 					enable(Scope.SITE);
 				} else if (null == scopeEnabled.get(Scope.SITE)) {
 					disable(Scope.SITE);
@@ -545,6 +550,13 @@ public class DefaultEnvironment implements Environment {
 		return initialized;
 	}
 
+	public static void initSiteScope(Site site) {
+		global.clearSiteScope(site);
+		ServletContext servletContext = ((PlatformEnvironment) global.getEnvironment(Scope.PLATFORM))
+				.getServletContext();
+		new SiteEnvironment(servletContext,  site.getName());
+	}
+
 	/**
 	 * Clears the site-scoped attributes for the given {@link Site}.
 	 * 
@@ -552,7 +564,7 @@ public class DefaultEnvironment implements Environment {
 	 *             The {@link Site} to clear the site-scope for.
 	 */
 	public void clearSiteScope(Site site) {
-		String identifier = Scope.SITE.forSite(site.getHost());
+		String identifier = Scope.SITE.forSite(site.getName());
 		platform.getServletContext().removeAttribute(identifier);
 		LOGGER.info("Clearing site scope with identifier '{}'", identifier);
 	}
