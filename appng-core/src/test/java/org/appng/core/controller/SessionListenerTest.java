@@ -62,6 +62,7 @@ public class SessionListenerTest {
 		Site site = Mockito.mock(Site.class);
 		Mockito.when(site.getDomain()).thenReturn("http://localhost:8080");
 		Mockito.when(site.getHost()).thenReturn("localhost");
+		Mockito.when(site.getName()).thenReturn("localhost");
 		Properties siteProps = Mockito.mock(Properties.class);
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(siteProps.getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)).thenReturn(true);

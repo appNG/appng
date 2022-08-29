@@ -167,13 +167,14 @@ import lombok.extern.slf4j.Slf4j;
 public class ThymeleafProcessor extends AbstractRequestProcessor {
 
 	private static final String THYMELEAF_CACHE_MANAGER = "thymeleafCacheManager";
+	private static final String THYMELEAF_TEMPLATE_RESOLVER = "thymeleafTemplateResolver";
 	private static final Pattern BLANK_LINES = Pattern.compile("(\\s*\\r?\\n){1,}");
 	static final String PLATFORM_HTML = "platform.html";
 	private List<Template> templates;
 	private DocumentBuilderFactory dbf;
 	private Request request;
 
-	public ThymeleafProcessor(@Autowired DocumentBuilderFactory dbf,@Autowired Request request) {
+	public ThymeleafProcessor(@Autowired DocumentBuilderFactory dbf, @Autowired Request request) {
 		templates = new ArrayList<>();
 		this.dbf = dbf;
 		this.request = request;
@@ -429,14 +430,27 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 	}
 
 	protected ITemplateResolver getGlobalTemplateResolver(Charset charset, Boolean devMode) {
-		FileTemplateResolver globalTemplateResolver = new FileTemplateResolver();
-		globalTemplateResolver.setName("Global Template Resolver");
-		globalTemplateResolver.setResolvablePatterns(Collections.singleton("*"));
-		globalTemplateResolver.setPrefix(templatePath + "/" + ResourceType.RESOURCE.getFolder() + "/html/");
-		globalTemplateResolver.setTemplateMode(TemplateMode.HTML);
-		globalTemplateResolver.setCharacterEncoding(charset.name());
-		globalTemplateResolver.setCacheable(!devMode);
-		globalTemplateResolver.setOrder(1);
+		FileTemplateResolver globalTemplateResolver = null;
+		if (null != request) {
+			globalTemplateResolver = request.getEnvironment().getAttribute(Scope.SITE, THYMELEAF_TEMPLATE_RESOLVER);
+		}
+		if (null == globalTemplateResolver) {
+			globalTemplateResolver = new FileTemplateResolver();
+			globalTemplateResolver.setName("Global Template Resolver");
+			globalTemplateResolver.setResolvablePatterns(Collections.singleton("*"));
+			globalTemplateResolver.setPrefix(templatePath + "/" + ResourceType.RESOURCE.getFolder() + "/html/");
+			globalTemplateResolver.setTemplateMode(TemplateMode.HTML);
+			globalTemplateResolver.setCharacterEncoding(charset.name());
+			globalTemplateResolver.setCacheable(!devMode);
+			globalTemplateResolver.setOrder(1);
+			LOGGER.debug("Created: {}", globalTemplateResolver);
+		} else {
+			LOGGER.debug("Retrieved: {}", globalTemplateResolver);
+		}
+
+		if (null != request) {
+			request.getEnvironment().setAttribute(Scope.SITE, THYMELEAF_TEMPLATE_RESOLVER, globalTemplateResolver);
+		}
 		return globalTemplateResolver;
 	}
 

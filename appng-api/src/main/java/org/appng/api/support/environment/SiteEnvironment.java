@@ -21,16 +21,16 @@ import org.appng.api.Scope;
 import org.appng.api.model.Site;
 
 /**
- * A {@link ScopedEnvironment} for {@link Scope#SITE}. Uses a {@link ServletContext} for storing its attributes, with a
- * {@link Site}s hostname as additional identifier.
+ * A {@link ScopedEnvironment} for {@link Scope#SITE}. Uses a {@link ServletContext} for storing its attributes, with the
+ * {@link Site}s name as additional identifier.
  * 
  * @author Matthias Müller
  */
 class SiteEnvironment extends PlatformEnvironment {
 
-	SiteEnvironment(ServletContext ctx, String host) {
-		super(ctx, Scope.SITE.forSite(host));
-		setAttribute("name", host);
+	SiteEnvironment(ServletContext ctx, String name) {
+		super(ctx, Scope.SITE.forSite(name));
+		setAttribute("name", name);
 	}
 
 	public Scope getScope() {
