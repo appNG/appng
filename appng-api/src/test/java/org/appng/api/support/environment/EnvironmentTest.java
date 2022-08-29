@@ -156,13 +156,13 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testSiteEnv() {
-		Mockito.when(site.getHost()).thenReturn("localhost");
+		Mockito.when(site.getName()).thenReturn("localhost");
 		MockServletContext mockedCtx = new MockServletContext();
-		SiteEnvironment siteEnv = new SiteEnvironment(mockedCtx, site.getHost());
-		Assert.assertEquals(site.getHost(), siteEnv.getAttribute("host"));
+		SiteEnvironment siteEnv = new SiteEnvironment(mockedCtx, site.getName());
+		Assert.assertEquals(site.getName(), siteEnv.getAttribute("name"));
 		Assert.assertEquals(Scope.SITE, siteEnv.getScope());
 		DefaultEnvironment.get(mockedCtx).clearSiteScope(site);
-		Assert.assertNull(siteEnv.getAttribute("host"));
+		Assert.assertNull(siteEnv.getAttribute("name"));
 	}
 
 	@Test

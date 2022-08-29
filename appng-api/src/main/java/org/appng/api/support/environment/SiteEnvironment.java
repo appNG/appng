@@ -30,7 +30,7 @@ class SiteEnvironment extends PlatformEnvironment {
 
 	SiteEnvironment(ServletContext ctx, String host) {
 		super(ctx, Scope.SITE.forSite(host));
-		setAttribute("host", host);
+		setAttribute("name", host);
 	}
 
 	public Scope getScope() {
