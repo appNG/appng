@@ -28,7 +28,7 @@ def REPO_REMOTE_NAME=${repository.remoteName}
 -initdatabase -m
 
 # Create admin user. The admin group "Administrators" is created by appNG on database schema creation
-create-subject -u ${ADMIN_SUBJECT} -p ${admin.password} -n "${admin.realName}" -l en -e ${admin.email}
+create-subject -u ${ADMIN_SUBJECT} -p "${admin.password}" -n "${admin.realName}" -l en -e ${admin.email}
 list-subjects -v
 
 # add admin user to admin group
