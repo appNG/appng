@@ -1,0 +1,38 @@
+image::appng-logo.png[]
+
+== Prerequisites
+
+Install Docker:
+https://docs.docker.com/engine/install/
+
+
+== Building
+[source]
+----
+docker compose up --build
+----
+
+After the container startetd, go to
+
+http://localhost:8080/manager
+
+and login with
+
+user: admin
+
+password: @ppNG$42
+
+== Tailing the logfile
+[source]
+----
+docker exec -it appng_dev tail -f webapps/ROOT/WEB-INF/log/appNG.log
+----
+
+== Removing the containers and their volumes
+[source]
+----
+docker rm appng_dev
+docker rm appng_dev_mariadb
+docker volume prune
+----
+

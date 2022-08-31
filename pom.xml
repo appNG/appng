@@ -57,10 +57,10 @@
 		<template.name>appng-template</template.name>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!-- dependency versions -->
-		<appNG.manager.version>1.18.1</appNG.manager.version>
-		<appNG.scheduler.version>1.14.1</appNG.scheduler.version>
+		<appNG.manager.version>1.19.2</appNG.manager.version>
+		<appNG.scheduler.version>1.16.2</appNG.scheduler.version>
 		<appNG.authentication.version>1.13.1</appNG.authentication.version>
-		<appNG.template.version>1.14.3</appNG.template.version>
+		<appNG.template.version>1.14.4</appNG.template.version>
 		<bouncycastle.version>1.69</bouncycastle.version>
 		<esapi.version>2.2.3.1</esapi.version>
 		<flyway.version>8.4.3</flyway.version>

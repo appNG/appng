@@ -1,6 +1,7 @@
 services:
   appng:
     image: appng
+    container_name: appng_dev
     build:
       args:
         - APPNG_MANAGER_VERSION
@@ -16,6 +17,7 @@ services:
 
   mariadb:
     image: mariadb:10.6
+    container_name: appng_dev_mariadb
     environment:
       MARIADB_ROOT_PASSWORD: mysql
       MARIADB_DATABASE: appng
