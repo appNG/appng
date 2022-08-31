@@ -1,0 +1,28 @@
+services:
+  appng:
+    image: appng
+    build:
+      args:
+        - APPNG_MANAGER_VERSION
+        - APPNG_AUTHENTICATION_VERSION
+        - APPNG_SCHEDULER_VERSION
+    restart: on-failure
+    network_mode: host
+    volumes:
+      - appng-init:/init
+    command: bash -c "if [ ! -f /init/done ]; then $${APPNG_HOME}/WEB-INF/bin/appng batch -f $${APPNG_HOME}/WEB-INF/conf/install.list && touch /init/done; fi && exec catalina.sh run"
+    depends_on:
+      - mariadb
+
+  mariadb:
+    image: mariadb:10.6
+    environment:
+      MARIADB_ROOT_PASSWORD: mysql
+      MARIADB_DATABASE: appng
+    network_mode: host
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+volumes:
+  appng-init:
+  mariadb-data:
