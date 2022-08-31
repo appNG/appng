@@ -222,8 +222,8 @@ public class PlatformConfig {
 
 	@Bean
 	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public ThymeleafProcessor thymeleafProcessor(DocumentBuilderFactory dbf, MarshallService marshallService, Request request) {
-		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf, request);
+	public ThymeleafProcessor thymeleafProcessor(DocumentBuilderFactory dbf, MarshallService marshallService) {
+		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf);
 		thymeleafProcessor.setMarshallService(marshallService);
 		return thymeleafProcessor;
 	}

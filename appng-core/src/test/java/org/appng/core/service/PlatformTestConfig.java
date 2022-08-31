@@ -184,7 +184,7 @@ public class PlatformTestConfig {
 
 	@Bean
 	public ThymeleafProcessor thymeleafProcessor(DocumentBuilderFactory dbf, MarshallService marshallService) {
-		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf, null);
+		ThymeleafProcessor thymeleafProcessor = new ThymeleafProcessor(dbf);
 		thymeleafProcessor.setMarshallService(marshallService);
 		return thymeleafProcessor;
 	}
