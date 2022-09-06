@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -80,12 +81,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriUtils;
-import org.springframework.web.util.WebUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -332,7 +330,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 					if (collectedValues.size() == 1) {
 						fieldValue.setValue(collectedValues.get(0).getValue());
 					} else {
-						fieldValue.setValues(new HashMap<>());
+						fieldValue.setValues(new LinkedHashMap<>());
 						for (FieldValue value : collectedValues) {
 							if (null != value.getName()) {
 								fieldValue.getValues().put(value.getName(), value);
@@ -366,7 +364,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			List<Datafield> childDataFields = data.getFields();
 			if (!childDataFields.isEmpty()) {
 				final AtomicInteger i = new AtomicInteger(0);
-				fv.setValues(new HashMap<>());
+				fv.setValues(new LinkedHashMap<>());
 				for (Datafield childData : childDataFields) {
 					Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
 					FieldValue childValue = getFieldValue(childData, childField, bindClass);
