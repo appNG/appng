@@ -8,6 +8,8 @@ services:
         - APPNG_AUTHENTICATION_VERSION
         - APPNG_SCHEDULER_VERSION
     restart: on-failure
+    environment:
+      CATALINA_OPTS: -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n 
     network_mode: host
     volumes:
       - appng-init:/init
