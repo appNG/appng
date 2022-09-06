@@ -136,6 +136,8 @@ public class TestSupport {
 
 	private List<Property> siteProperties = new ArrayList<>();
 
+	protected SiteImpl site;
+
 	protected String siteRoot;
 
 	class TestApplicationProvider extends ApplicationProvider {
@@ -236,7 +238,7 @@ public class TestSupport {
 		enableParameters(requestParameters.keySet().iterator());
 
 		siteMap = new HashMap<>();
-		SiteImpl site = new SiteImpl();
+		site = new SiteImpl();
 		site.setId(1);
 		site.setHost(host);
 		site.setName(manager);

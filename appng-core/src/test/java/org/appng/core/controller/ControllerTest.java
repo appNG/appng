@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -54,13 +55,11 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
-import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.handler.JspHandler;
 import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
-import org.appng.core.domain.PropertyImpl;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
@@ -74,6 +73,9 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockServletConfig;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,6 +84,7 @@ public class ControllerTest extends Controller {
 
 	TestSupport base;
 	DefaultEnvironment env;
+	ConcurrentMap<Object, Object> siteEnv = new ConcurrentHashMap<>();
 
 	@Before
 	public void initTest() throws Exception {
@@ -95,7 +98,14 @@ public class ControllerTest extends Controller {
 		ApplicationRequest applicationRequest = Mockito.mock(ApplicationRequest.class);
 		Mockito.when(applicationRequest.getEnvironment()).thenReturn(Mockito.mock(DefaultEnvironment.class));
 		base.provider.registerBean("request", applicationRequest);
-		env = Mockito.spy(DefaultEnvironment.get(base.ctx));
+		DefaultEnvironment.initGlobal(base.ctx);
+		siteEnv.put("site", base.site);
+		mockSiteEnv(siteEnv);
+		env = Mockito.spy(DefaultEnvironment.get(base.request, base.response));
+		ServletRequestAttributes attributes = new ServletRequestAttributes(base.request, base.response);
+		attributes.setAttribute(Environment.class.getName(), env, RequestAttributes.SCOPE_REQUEST);
+		RequestContextHolder.setRequestAttributes(attributes);
+		Mockito.when(base.request.getAttribute(Environment.class.getName())).thenReturn(env);
 		base.provider.registerBean("environment", (Environment) env);
 		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
 		Mockito.when(base.ctx.getAttribute(Globals.RESOURCES_ATTR)).thenReturn(Mockito.mock(WebResourceRoot.class));
@@ -431,23 +441,6 @@ public class ControllerTest extends Controller {
 	}
 
 	@Test
-	public void testRootWithDefaultPath() {
-		SiteImpl site = (SiteImpl) base.siteMap.get(base.manager);
-		Properties properties = site.getProperties();
-		when(base.request.getServletPath()).thenReturn("");
-		try {
-			site.setProperties(new PropertyHolder("",
-					Arrays.asList(new PropertyImpl(SiteProperties.DEFAULT_PATH, "/defaultPath"))));
-			doGet(base.request, base.response);
-			site.setProperties(properties);
-			verify(base.response).setStatus(301);
-			verify(base.response).setHeader(HttpHeaders.LOCATION, "/defaultPath");
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
-	}
-
-	@Test
 	public void testRootWithPath() {
 		when(base.request.getServletPath()).thenReturn("/de");
 		try {
@@ -461,6 +454,7 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testDocNoSite() {
+		mockSiteEnv(new ConcurrentHashMap<>());
 		when(base.request.getServerName()).thenReturn("localhost");
 		when(base.request.getServletPath()).thenReturn("/de");
 		try {
@@ -470,6 +464,7 @@ public class ControllerTest extends Controller {
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
+		mockSiteEnv(siteEnv);
 	}
 
 	@Test
@@ -499,6 +494,7 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testStaticNoSite() {
+		mockSiteEnv(new ConcurrentHashMap<>());
 		when(base.request.getServerName()).thenReturn("localhost");
 		when(base.request.getServletPath()).thenReturn("/repository/manager/www/de/test.txt");
 		try {
@@ -509,6 +505,11 @@ public class ControllerTest extends Controller {
 			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
+		mockSiteEnv(siteEnv);
+	}
+
+	protected void mockSiteEnv(ConcurrentMap<Object, Object> value) {
+		Mockito.when(base.ctx.getAttribute(Scope.SITE.forSite(base.site.getName()))).thenReturn(value);
 	}
 
 	@Test
@@ -609,7 +610,7 @@ public class ControllerTest extends Controller {
 	}
 
 	@Override
-	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+	protected Environment getEnvironment() {
 		return env;
 	}
 

@@ -85,7 +85,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent sce) {
 		ServletContext context = sce.getServletContext();
 
-		Properties platformProps = DefaultEnvironment.get(context).getAttribute(Scope.PLATFORM,
+		Properties platformProps = DefaultEnvironment.getGlobal().getAttribute(Scope.PLATFORM,
 				Platform.Environment.PLATFORM_CONFIG);
 
 		if (platformProps.getBoolean(Platform.Property.CSRF_FILTER_ENABLED)) {

@@ -305,7 +305,7 @@ public class InitializerService {
 
 		final int heartBeatSleepTime = platformConfig.getInteger(Platform.Property.HEART_BEAT_INTERVAL, 60) * 1000;
 		if (null != sender) {
-			new HeartBeat(heartBeatSleepTime, ((DefaultEnvironment) env).getServletContext()).start();
+			new HeartBeat(heartBeatSleepTime).start();
 		}
 
 		int activeSites = 0;
@@ -504,7 +504,7 @@ public class InitializerService {
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(siteToLoad, DefaultEnvironment.get(servletContext), true, fp, false);
+		loadSite(siteToLoad, DefaultEnvironment.getGlobal(), true, fp, false);
 	}
 
 	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp,
@@ -954,7 +954,7 @@ public class InitializerService {
 	 * @see #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
-		Environment env = DefaultEnvironment.get(ctx);
+		Environment env = DefaultEnvironment.getGlobal();
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 		if (null == siteMap) {
 			LOGGER.info("no sites found, must be boot sequence");

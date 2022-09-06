@@ -15,7 +15,10 @@
  */
 package org.appng.api.config;
 
+import static org.appng.api.Scope.SESSION;
+
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +29,6 @@ import org.appng.api.model.Site;
 import org.appng.api.support.RequestFactoryBean;
 import org.appng.api.support.ResourceBundleMessageSource;
 import org.appng.api.support.SelectionFactory;
-import org.appng.api.support.environment.DefaultEnvironment;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -69,9 +71,14 @@ public class ApplicationConfig {
 
 	@Bean
 	@RequestScope(proxyMode = ScopedProxyMode.NO)
-	public Environment environment(HttpServletRequest request, HttpServletResponse response) {
-		Environment environment = DefaultEnvironment.get(request, response);
-		LOGGER.debug("created new environment#{}", environment.hashCode());
+	public Environment environment(HttpServletRequest request, HttpServletResponse response, Site site) {
+		Environment environment = (Environment) request.getAttribute(Environment.class.getName());
+		for (Application app : site.getApplications()) {
+			String sessionParamName = app.getSessionParamKey(site);
+			if (null == environment.getAttribute(SESSION, sessionParamName)) {
+				environment.setAttribute(SESSION, sessionParamName, new HashMap<>());
+			}
+		}
 		return environment;
 	}
 

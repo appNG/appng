@@ -45,7 +45,7 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testPlatformEnvironment() {
-		Environment env = DefaultEnvironment.get(ctx, httpServletRequest);
+		Environment env = DefaultEnvironment.get(httpServletRequest, httpServletResponse);
 		env.setAttribute(Scope.PLATFORM, "app-attribute", "app-value");
 		Assert.assertEquals("app-value", env.getAttributeAsString(Scope.PLATFORM, "app-attribute"));
 
@@ -59,7 +59,7 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testAttributeMethods() {
-		Environment env = DefaultEnvironment.get(ctx, httpServletRequest);
+		Environment env = DefaultEnvironment.get(httpServletRequest, httpServletResponse);
 		env.setAttribute(Scope.PLATFORM, "app-attribute", "10");
 		Assert.assertEquals("10", env.getAttribute(Scope.PLATFORM, "app-attribute"));
 
@@ -114,7 +114,7 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testGetSubject() {
-		DefaultEnvironment env = DefaultEnvironment.get(ctx, httpServletRequest);
+		DefaultEnvironment env = DefaultEnvironment.get(httpServletRequest, httpServletResponse);
 
 		Subject subject = Mockito.mock(Subject.class);
 		Mockito.when(subject.getName()).thenReturn("admin");
@@ -129,7 +129,7 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testToggleScope() {
-		DefaultEnvironment env = DefaultEnvironment.get(ctx, httpServletRequest);
+		DefaultEnvironment env = DefaultEnvironment.get(httpServletRequest, httpServletResponse);
 		toggleScope(env, Scope.PLATFORM);
 		toggleScope(env, Scope.SESSION);
 		toggleScope(env, Scope.REQUEST);
@@ -144,7 +144,7 @@ public class EnvironmentTest extends AbstractTest {
 
 	@Test
 	public void testGetServletRequest() {
-		DefaultEnvironment env = DefaultEnvironment.get(ctx, httpServletRequest);
+		DefaultEnvironment env = DefaultEnvironment.get(httpServletRequest, httpServletResponse);
 		Assert.assertEquals(httpServletRequest, env.getServletRequest());
 	}
 
@@ -158,8 +158,8 @@ public class EnvironmentTest extends AbstractTest {
 	public void testSiteEnv() {
 		Mockito.when(site.getName()).thenReturn("localhost");
 		MockServletContext mockedCtx = new MockServletContext();
-		SiteEnvironment siteEnv = new SiteEnvironment(mockedCtx, site.getName());
-		Assert.assertEquals(site.getName(), siteEnv.getAttribute("name"));
+		SiteEnvironment siteEnv = new SiteEnvironment(mockedCtx, site);
+		Assert.assertEquals(site, siteEnv.getAttribute("site"));
 		Assert.assertEquals(Scope.SITE, siteEnv.getScope());
 		DefaultEnvironment.get(mockedCtx).clearSiteScope(site);
 		Assert.assertNull(siteEnv.getAttribute("name"));

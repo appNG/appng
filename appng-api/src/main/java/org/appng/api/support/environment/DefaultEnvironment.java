@@ -61,12 +61,16 @@ public class DefaultEnvironment implements Environment {
 	private Map<Scope, Boolean> scopeEnabled = new ConcurrentHashMap<>(4);
 	private static DefaultEnvironment global;
 
-	protected DefaultEnvironment() {
-
-	}
-
 	public static DefaultEnvironment initGlobal(ServletContext ctx) {
 		return global = DefaultEnvironment.get(ctx);
+	}
+
+	public static DefaultEnvironment getGlobal() {
+		return global;
+	}
+
+	protected DefaultEnvironment() {
+
 	}
 
 	@Deprecated
@@ -135,7 +139,7 @@ public class DefaultEnvironment implements Environment {
 				enable(Scope.SESSION);
 
 				if (null != currentSite) {
-					site = new SiteEnvironment(servletContext, currentSite.getName());
+					site = new SiteEnvironment(servletContext, currentSite);
 					enable(Scope.SITE);
 				} else if (null == scopeEnabled.get(Scope.SITE)) {
 					disable(Scope.SITE);
@@ -208,7 +212,10 @@ public class DefaultEnvironment implements Environment {
 	 *                a {@link ServletRequest}
 	 * 
 	 * @return a new {@link DefaultEnvironment}
+	 * 
+	 * @deprecated use {@link #get(ServletRequest, ServletResponse)} instead!
 	 */
+	@Deprecated
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request) {
 		return get(request, null);
 	}
@@ -238,7 +245,10 @@ public class DefaultEnvironment implements Environment {
 	 *                 a {@link ServletResponse}
 	 * 
 	 * @return a new {@link DefaultEnvironment}
+	 * 
+	 * @deprecated use {@link #get(ServletRequest, ServletResponse)} instead!
 	 */
+	@Deprecated
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request, ServletResponse response) {
 		return get(request, response);
 	}
@@ -451,6 +461,11 @@ public class DefaultEnvironment implements Environment {
 		}
 	}
 
+	@Override
+	public Site getSite() {
+		return getAttribute(Scope.SITE, SiteEnvironment.SITE);
+	}
+
 	public Subject getSubject() {
 		return getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
 	}
@@ -554,7 +569,7 @@ public class DefaultEnvironment implements Environment {
 		global.clearSiteScope(site);
 		ServletContext servletContext = ((PlatformEnvironment) global.getEnvironment(Scope.PLATFORM))
 				.getServletContext();
-		new SiteEnvironment(servletContext,  site.getName());
+		new SiteEnvironment(servletContext,  site);
 	}
 
 	/**

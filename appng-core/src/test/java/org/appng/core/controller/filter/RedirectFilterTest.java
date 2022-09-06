@@ -29,12 +29,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.filter.RedirectFilter.UrlRewriteConfig;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -49,6 +51,9 @@ import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.tuckey.web.filters.urlrewrite.NormalRule;
 import org.tuckey.web.filters.urlrewrite.Rule;
 import org.tuckey.web.filters.urlrewrite.UrlRewriter;
@@ -59,9 +64,9 @@ public class RedirectFilterTest {
 	@Test
 	public void testNoConfig() throws IOException, ServletException {
 		ServletContext servletContext = getServletContext("conf/does-not-exist.xml");
-
 		HttpServletResponse response = new MockHttpServletResponse();
 		HttpServletRequest request = new MockHttpServletRequest(servletContext);
+		initEnv(response, request);
 		FilterChain chain = new MockFilterChain();
 		FilterConfig filterConfig = getFilterConfig(servletContext);
 
@@ -74,9 +79,9 @@ public class RedirectFilterTest {
 	@Test
 	public void testRewriteRules() throws IOException, ServletException {
 		ServletContext servletContext = getServletContext("conf/urlrewrite.xml");
-
 		HttpServletResponse response = new MockHttpServletResponse();
 		HttpServletRequest request = new MockHttpServletRequest(servletContext);
+		initEnv(response, request);
 		FilterChain chain = new MockFilterChain();
 		FilterConfig filterConfig = getFilterConfig(servletContext);
 
@@ -97,6 +102,13 @@ public class RedirectFilterTest {
 		verifyRule(conf.getRules().get(7), "^/fr/index.jsp$", "/fr/accueil");
 		verifyRule(conf.getRules().get(8), "^/de/fault((\\?\\S+)?)$", "/de/fehler.jsp$1");
 
+	}
+
+	private void initEnv(HttpServletResponse response, HttpServletRequest request) {
+		ServletRequestAttributes attributes = new ServletRequestAttributes(request, response);
+		attributes.setAttribute(Environment.class.getName(), new DefaultEnvironment(request, response),
+				RequestAttributes.SCOPE_REQUEST);
+		RequestContextHolder.setRequestAttributes(attributes);
 	}
 
 	private ServletContext getServletContext(String resourceLocation) {

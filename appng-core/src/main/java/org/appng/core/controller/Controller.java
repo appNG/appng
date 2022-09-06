@@ -55,6 +55,7 @@ import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.Redirect;
+import org.appng.core.controller.filter.EnvironmentFilter;
 import org.appng.core.controller.handler.ErrorPageHandler;
 import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.handler.JspHandler;
@@ -92,7 +93,6 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	private StaticContentHandler staticContentHandler;
 	private ServiceRequestHandler serviceRequestHandler;
 
-	private Environment globalEnv;
 	private Manager manager;
 	protected final byte[] loadingScreen;
 
@@ -163,34 +163,33 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	}
 
 	private boolean isServiceRequest(HttpServletRequest servletRequest) {
-		Environment env = DefaultEnvironment.get(getServletContext());
-		Site site = RequestUtil.getSite(env, servletRequest);
+		DefaultEnvironment env = EnvironmentFilter.environment();
+		Site site = env.getSite();
 		return RequestUtil.getPathInfo(env, site, servletRequest.getServletPath()).isService();
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
 			throws ServletException, IOException {
-
-		Properties platformProperties = globalEnv.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		Site site = RequestUtil.getSite(globalEnv, servletRequest);
+		Environment env = getEnvironment();
+		Properties platformProperties = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		Site site = env.getSite();
 
 		if (null == site) {
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return;
 		}
 		String servletPath = servletRequest.getServletPath();
-		PathInfo pathInfo = RequestUtil.getPathInfo(globalEnv, site, servletPath);
+		PathInfo pathInfo = RequestUtil.getPathInfo(env, site, servletPath);
 		if (pathInfo.isMonitoring()) {
-			monitoringHandler.handle(servletRequest, servletResponse, globalEnv, site, pathInfo);
+			monitoringHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
 			return;
 		}
 
-		Properties siteProps = site.getProperties();
 		if (SiteState.STARTING.equals(site.getState())) {
 			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 			servletResponse.setContentType(MediaType.TEXT_HTML_VALUE);
-			String siteLoadingScreen = siteProps.getClob(SiteProperties.LOADING_SCREEN);
+			String siteLoadingScreen = site.getProperties().getClob(SiteProperties.LOADING_SCREEN);
 			if (StringUtils.isNotBlank(siteLoadingScreen)) {
 				servletResponse.setContentLength(siteLoadingScreen.getBytes(StandardCharsets.UTF_8).length);
 				servletResponse.getWriter().write(siteLoadingScreen);
@@ -203,7 +202,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 		if (!SiteState.STARTED.equals(site.getState())) {
 			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
-			String maintenanceScreen = siteProps.getClob(Platform.Property.MAINTENANCE_SCREEN,
+			String maintenanceScreen = site.getProperties().getClob(Platform.Property.MAINTENANCE_SCREEN,
 					platformProperties.getClob(Platform.Property.MAINTENANCE_SCREEN));
 			if (StringUtils.isNotBlank(maintenanceScreen)) {
 				servletResponse.setContentLength(maintenanceScreen.getBytes(StandardCharsets.UTF_8).length);
@@ -212,7 +211,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			return;
 		}
 
-		boolean enforcePrimaryDomain = siteProps.getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
+		boolean enforcePrimaryDomain = site.getProperties().getBoolean(SiteProperties.ENFORCE_PRIMARY_DOMAIN, false);
 		if (enforcePrimaryDomain) {
 			String primaryDomain = site.getDomain();
 			String serverName = servletRequest.getServerName();
@@ -224,12 +223,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		}
 
 		if ((Path.SEPARATOR.equals(servletPath)) || StringUtils.isBlank(servletPath)) {
-			String siteDefaultPath = siteProps.getString(SiteProperties.DEFAULT_PATH);
-			if (StringUtils.isNotBlank(siteDefaultPath)) {
-				LOGGER.debug("'{}' for site {} is {}", SiteProperties.DEFAULT_PATH, site.getName(), siteDefaultPath);
-				Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, siteDefaultPath);
-			} else if (!pathInfo.getDocumentDirectories().isEmpty()) {
-				String defaultPage = siteProps.getString(SiteProperties.DEFAULT_PAGE);
+			if (!pathInfo.getDocumentDirectories().isEmpty()) {
+				String defaultPage = site.getProperties().getString(SiteProperties.DEFAULT_PAGE);
 				String target = pathInfo.getDocumentDirectories().get(0) + SLASH + defaultPage;
 				Redirect.to(servletResponse, HttpServletResponse.SC_MOVED_PERMANENTLY, target);
 			} else {
@@ -260,7 +255,6 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 			if (null != requestHandler) {
 				if (site.hasState(SiteState.STARTED)) {
-					Environment env = getEnvironment(servletRequest, servletResponse);
 					setRequestAttributes(servletRequest, env, pathInfo);
 					requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
 					if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
@@ -281,8 +275,8 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	}
 
-	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
-		return DefaultEnvironment.get(servletRequest, servletResponse);
+	protected Environment getEnvironment() {
+		return EnvironmentFilter.environment();
 	}
 
 	private void setRequestAttributes(HttpServletRequest request, Environment env, Path pathInfo) {
@@ -304,7 +298,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		globalEnv = DefaultEnvironment.get(getServletContext());
+		Environment globalEnv = DefaultEnvironment.getGlobal();
 		Properties platformProperties = globalEnv.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String appngData = platformProperties.getString(org.appng.api.Platform.Property.APPNG_DATA);
 		File debugFolder = new File(appngData, "debug").getAbsoluteFile();
@@ -325,7 +319,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 		Context context = ((Context) wrapper.getParent());
 		this.manager = context.getManager();
 		context.getServletContext().setAttribute(SessionListener.SESSION_MANAGER, manager);
-		Environment env = DefaultEnvironment.get(context.getServletContext());
+		Environment env = DefaultEnvironment.getGlobal();
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		Integer sessionTimeout = platformConfig.getInteger(Platform.Property.SESSION_TIMEOUT);
 		context.setSessionTimeout((int) TimeUnit.SECONDS.toMinutes(sessionTimeout));

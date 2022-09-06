@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,18 @@ import org.appng.api.Scope;
 import org.appng.api.model.Site;
 
 /**
- * A {@link ScopedEnvironment} for {@link Scope#SITE}. Uses a {@link ServletContext} for storing its attributes, with the
- * {@link Site}s name as additional identifier.
+ * A {@link ScopedEnvironment} for {@link Scope#SITE}. Uses a {@link ServletContext} for storing its attributes, with a
+ * {@link Site}s hostname as additional identifier.
  * 
  * @author Matthias Müller
  */
 class SiteEnvironment extends PlatformEnvironment {
 
-	SiteEnvironment(ServletContext ctx, String name) {
-		super(ctx, Scope.SITE.forSite(name));
-		setAttribute("name", name);
+	static final String SITE = "site";
+
+	SiteEnvironment(ServletContext ctx, Site site) {
+		super(ctx, Scope.SITE.forSite(site.getName()));
+		setAttribute(SITE, site);
 	}
 
 	public Scope getScope() {

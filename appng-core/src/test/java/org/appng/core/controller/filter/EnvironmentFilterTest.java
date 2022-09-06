@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.appng.core.controller;
+package org.appng.core.controller.filter;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.ServletException;
 
 import org.appng.api.Platform;
 import org.appng.api.Scope;
@@ -31,30 +29,30 @@ import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
-import org.appng.api.support.environment.DefaultEnvironment;
-import org.appng.core.controller.filter.EnvironmentFilter;
+import org.appng.core.controller.Session;
+import org.appng.core.controller.SessionListener;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class SessionListenerTest {
+public class EnvironmentFilterTest {
 
 	private static ServletContext servletContext = new MockServletContext();
-	private MockHttpSession session1 = new MockHttpSession(servletContext, "ZUS383883OTOTOLSKKL");
-	private MockHttpSession session2 = new MockHttpSession(servletContext, "ERTERTZGFHFGHGFH234");
 	private static Map<String, Object> platformMap;
 
-	private static SessionListener sessionListener;
 	private static EnvironmentFilter environmentFilter;
 
 	@BeforeClass
 	public static void setup() {
-		sessionListener = new SessionListener();
 		environmentFilter = new EnvironmentFilter();
 
 		platformMap = new ConcurrentHashMap<>();
@@ -77,29 +75,25 @@ public class SessionListenerTest {
 	}
 
 	@Test
-	public void testSessionCreated() {
-		sessionListener.sessionCreated(new HttpSessionEvent(session1));
-		addRequest(session1);
-		addRequest(session1);
-		Assert.assertEquals(2, ((Session) session1.getAttribute(SessionListener.META_DATA)).getRequests());
-	}
-
-	@Test
-	public void testSessionDestroyed() {
-		sessionListener.sessionCreated(new HttpSessionEvent(session1));
-		addRequest(session1);
-		sessionListener.sessionCreated(new HttpSessionEvent(session2));
-		addRequest(session2);
-		sessionListener.sessionDestroyed(new HttpSessionEvent(session1));
-
-		Assert.assertNull(session1.getAttribute(SessionListener.META_DATA));
-		Assert.assertNotNull(session2.getAttribute(SessionListener.META_DATA));
-	}
-
-	private void addRequest(HttpSession session) {
+	public void testSessionFilter() throws ServletException, IOException {
+		MockHttpSession session = new MockHttpSession(servletContext);
+		Session sessionMeta = new Session("4711");
+		session.setAttribute(SessionListener.META_DATA, sessionMeta);
 		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
 		request.setSession(session);
-		environmentFilter.requestInitialized(request, DefaultEnvironment.get(request, new MockHttpServletResponse()));
+		request.addHeader(HttpHeaders.USER_AGENT, "this is test");
+		session.setNew(true);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+		environmentFilter.doFilterInternal(request, response, new MockFilterChain());
+		Assert.assertNotNull(EnvironmentFilter.environment());
+		Assert.assertEquals(1, sessionMeta.getRequests());
+		Assert.assertEquals("localhost", sessionMeta.getSite());
+		Assert.assertEquals("http://localhost:8080", sessionMeta.getDomain());
+		Assert.assertEquals("127.0.0.1", sessionMeta.getIp());
+		Assert.assertEquals("this is test", sessionMeta.getUserAgent());
 	}
+
+	
 
 }
