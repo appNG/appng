@@ -148,7 +148,7 @@ public class EnvironmentFilter extends OncePerRequestFilter {
 			List<String> userAgentPatterns = Arrays
 					.asList(platformConfig.getClob(Platform.Property.SESSION_FILTER).split(StringUtils.LF));
 			if (userAgentPatterns.stream().anyMatch(userAgent::matches)) {
-				Site site = RequestUtil.getSite(DefaultEnvironment.getGlobal(), httpServletRequest);
+				Site site = environment().getSite();
 				if (null != site && RequestUtil
 						.getPathInfo(DefaultEnvironment.getGlobal(), site, httpServletRequest.getServletPath())
 						.isGui()) {

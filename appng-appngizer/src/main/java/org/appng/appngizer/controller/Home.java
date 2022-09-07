@@ -54,7 +54,7 @@ public class Home extends ControllerBase {
 
 	@GetMapping(value = ROOT)
 	public ResponseEntity<org.appng.appngizer.model.xml.Home> welcome() {
-		String appngVersion = DefaultEnvironment.get(context).getAttribute(Scope.PLATFORM,
+		String appngVersion = DefaultEnvironment.getGlobal().getAttribute(Scope.PLATFORM,
 				Platform.Environment.APPNG_VERSION);
 		if (null == appngVersion) {
 			return reply(HttpStatus.SERVICE_UNAVAILABLE);
