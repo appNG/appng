@@ -34,4 +34,15 @@ public class OpenApiDataSourceTest extends OpenApiTest {
 		WritingJsonValidator.validate(datasource, "rest/openapi/datasource.json");
 	}
 
+	@Test
+	public void testSingleDataSource() throws Exception {
+		TestEntities.reset();
+		OpenApiDataSource openApiDatasource = new OpenApiDataSource(site, applicationProvider, request, messageSource) {
+		};
+		servletRequest.setRequestURI("/entity;entityId=1");
+		ResponseEntity<Datasource> datasource = openApiDatasource.getDataSource("entity", environment, servletRequest,
+				servletResponse);
+		WritingJsonValidator.validate(datasource, "rest/openapi/datasource-single.json");
+	}
+
 }

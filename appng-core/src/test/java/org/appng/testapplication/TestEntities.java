@@ -16,6 +16,7 @@
 package org.appng.testapplication;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.appng.api.ActionProvider;
@@ -35,6 +36,12 @@ import org.appng.xml.platform.SelectionType;
 public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 
 	private static TestEntity t1 = new TestEntity(1, "entity1", 5, 5.5d, false);
+	private static TestEntity t2 = new TestEntity(2, "entity2", 7, 7.8d, true);
+
+	static {
+		t1.setParent(t1);
+		t1.setChildren(Arrays.asList(t1, t2));
+	}
 
 	public DataContainer getData(Site site, Application application, Environment environment, Options options,
 			Request request, FieldProcessor fp) {
@@ -47,20 +54,25 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 		String id = options.getOptionValue("entity", "id");
 
 		if ("create".equals(action)) {
+			addSelection(dataContainer);
 			dataContainer.setItem(new TestEntity());
 		} else if (null == id) {
 			List<TestEntity> entities = new ArrayList<>();
 			entities.add(t1);
-			entities.add(new TestEntity(2, "entity2", 7, 7.8d, true));
+			entities.add(t2);
 			dataContainer.setPage(entities, fp.getPageable());
 		} else if (id.equals("1")) {
-			Selection simpleSelection = new SelectionFactory().fromObjects("integerValue", "integerValue",
-					new String[] { "1", "2", "3", "4", "5" }, "5");
-			simpleSelection.setType(SelectionType.CHECKBOX);
-			dataContainer.getSelections().add(simpleSelection);
+			addSelection(dataContainer);
 			dataContainer.setItem(t1);
 		}
 		return dataContainer;
+	}
+
+	public void addSelection(DataContainer dataContainer) {
+		Selection simpleSelection = new SelectionFactory().fromObjects("integerValue", "integerValue",
+				new String[] { "1", "2", "3", "4", "5" }, "5");
+		simpleSelection.setType(SelectionType.CHECKBOX);
+		dataContainer.getSelections().add(simpleSelection);
 	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,

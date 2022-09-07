@@ -519,19 +519,18 @@ components:
           description: The name of the field.
         value:
           type: object
-          description: The value of the field.
+          description: |
+            The value of the field.
+            This can be a simple string,integer,number or boolean value (for simple FieldTypes), 
+            or an object (namely: an associative array of FieldValues for FieldType.OBJECT)
+            or an array of objects (namely: an array of associative arrays of FieldValues for for FieldType.LIST_OBJECT).
         formattedValue:
           type: string
-          description: The formatted value of the field.
+          description: The formatted value of the field (only applies for "simple" FieldTypes).
         icons:
           type: array
           items:
             $ref: "#/components/schemas/Icon"
-        values:
-          type: object
-          description: The child values of this fieldValue.
-          additionalProperties:
-            $ref: "#/components/schemas/FieldValue"
     Page:
       type: object
       description: A page that contains paging information an a list of elements.

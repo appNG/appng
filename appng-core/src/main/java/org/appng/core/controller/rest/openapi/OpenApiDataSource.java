@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -330,10 +331,10 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 					if (collectedValues.size() == 1) {
 						fieldValue.setValue(collectedValues.get(0).getValue());
 					} else {
-						fieldValue.setValues(new LinkedHashMap<>());
+						Map<String, FieldValue> fieldMap = new LinkedHashMap<>();
 						for (FieldValue value : collectedValues) {
 							if (null != value.getName()) {
-								fieldValue.getValues().put(value.getName(), value);
+								fieldMap.put(value.getName(), value);
 							}
 						}
 					}
@@ -361,18 +362,48 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		if (fieldDef.isPresent()) {
 			FieldValue fv = getFieldValue(data, fieldDef.get(),
 					BeanUtils.findPropertyType(fieldDef.get().getBinding(), bindClass));
+
 			List<Datafield> childDataFields = data.getFields();
 			if (!childDataFields.isEmpty()) {
 				final AtomicInteger i = new AtomicInteger(0);
-				fv.setValues(new LinkedHashMap<>());
-				for (Datafield childData : childDataFields) {
-					Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
-					FieldValue childValue = getFieldValue(childData, childField, bindClass);
-					if (null != childValue.getName()) {
-						fv.getValues().put(childValue.getName(), childValue);
+
+				if (org.appng.xml.platform.FieldType.LIST_OBJECT.equals(fieldDef.get().getType())) {
+
+					List<FieldValue> objectArray = new ArrayList<>();
+
+					for (Datafield childData : childDataFields) {
+						Map<String, FieldValue> fieldMap = new LinkedHashMap<>();
+
+						FieldValue objectField = new FieldValue();
+						objectField.setName(fieldDef.get().getBinding() + "[" + i.get() + "]");
+						objectArray.add(objectField);
+						Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
+						FieldValue childValue = getFieldValue(childData, childField, bindClass);
+
+						if (null != childValue.getName()) {
+							for (Entry<String, FieldValue> childEntry : ((Map<String, FieldValue>) childValue
+									.getValue()).entrySet()) {
+								fieldMap.put(childEntry.getKey(), childEntry.getValue());
+							}
+						}
+						i.incrementAndGet();
+						objectField.setValue(fieldMap);
 					}
-					i.incrementAndGet();
+					fv.setValue(objectArray);
+				} else {
+					Map<String, FieldValue> fieldMap = new LinkedHashMap<>();
+					for (Datafield childData : childDataFields) {
+						Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
+						FieldValue childValue = getFieldValue(childData, childField, bindClass);
+						if (null != childValue.getName()) {
+							fieldMap.put(childValue.getName(), childValue);
+						}
+						i.incrementAndGet();
+					}
+					fv.setValue(fieldMap);
 				}
+			} else {
+				// simple type
 			}
 			return fv;
 		}

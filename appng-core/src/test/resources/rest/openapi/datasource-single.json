@@ -1,0 +1,169 @@
+{
+  "body" : {
+    "_self" : "/service/localhost/demo-application/rest/openapi/datasource/entity/;entityId=1;param2=",
+    "id" : "entity",
+    "title" : "Entity",
+    "parameters" : {
+      "entityId" : "1",
+      "param2" : ""
+    },
+    "user" : {
+      "authenticated" : false,
+      "locale" : "en",
+      "timezone" : "Europe/Berlin",
+      "decimalSeparator" : ".",
+      "groupingSeparator" : ","
+    },
+    "fields" : [ {
+      "name" : "id",
+      "label" : "ID",
+      "fieldType" : "int",
+      "format" : "#"
+    }, {
+      "name" : "name",
+      "label" : "Name",
+      "fieldType" : "text",
+      "rules" : [ {
+        "type" : "javax.validation.constraints.NotNull",
+        "message" : "must not be null",
+        "messageKey" : "{javax.validation.constraints.NotNull.message}"
+      } ]
+    }, {
+      "name" : "integerValue",
+      "label" : "integer value",
+      "fieldType" : "list_checkbox"
+    }, {
+      "name" : "doubleValue",
+      "label" : "double value",
+      "fieldType" : "decimal",
+      "format" : "#.##"
+    }, {
+      "name" : "booleanValue",
+      "label" : "boolean value",
+      "fieldType" : "checkbox"
+    }, {
+      "name" : "parent",
+      "fieldType" : "object",
+      "fields" : {
+        "name" : {
+          "name" : "name",
+          "fieldType" : "text",
+          "rules" : [ {
+            "type" : "javax.validation.constraints.NotNull",
+            "message" : "must not be null",
+            "messageKey" : "{javax.validation.constraints.NotNull.message}"
+          } ]
+        },
+        "integerValue" : {
+          "name" : "integerValue",
+          "fieldType" : "int",
+          "format" : "#"
+        }
+      }
+    }, {
+      "name" : "children",
+      "fieldType" : "list_object",
+      "fields" : {
+        "children[]" : {
+          "name" : "children[]",
+          "fieldType" : "object",
+          "fields" : {
+            "name" : {
+              "name" : "name",
+              "fieldType" : "text",
+              "rules" : [ {
+                "type" : "javax.validation.constraints.NotNull",
+                "message" : "must not be null",
+                "messageKey" : "{javax.validation.constraints.NotNull.message}"
+              } ]
+            },
+            "integerValue" : {
+              "name" : "integerValue",
+              "fieldType" : "int",
+              "format" : "#"
+            }
+          }
+        }
+      }
+    } ],
+    "filterResetPath" : "/service/localhost/demo-application/rest/openapi/datasource/entity/;entityId=1;param2=",
+    "item" : {
+      "fields" : {
+        "parent" : {
+          "name" : "parent",
+          "value" : {
+            "name" : {
+              "name" : "name",
+              "value" : "entity1"
+            },
+            "integerValue" : {
+              "name" : "integerValue",
+              "value" : 5,
+              "formattedValue" : "5"
+            }
+          }
+        },
+        "children" : {
+          "name" : "children",
+          "value" : [ {
+            "name" : "children[0]",
+            "value" : {
+              "name" : {
+                "name" : "name",
+                "value" : "entity1"
+              },
+              "integerValue" : {
+                "name" : "integerValue",
+                "value" : 5,
+                "formattedValue" : "5"
+              }
+            }
+          }, {
+            "name" : "children[1]",
+            "value" : {
+              "name" : {
+                "name" : "name",
+                "value" : "entity2"
+              },
+              "integerValue" : {
+                "name" : "integerValue",
+                "value" : 7,
+                "formattedValue" : "7"
+              }
+            }
+          } ]
+        },
+        "name" : {
+          "name" : "name",
+          "value" : "entity1"
+        },
+        "integerValue" : {
+          "name" : "integerValue",
+          "value" : "5"
+        },
+        "booleanValue" : {
+          "name" : "booleanValue",
+          "value" : false
+        },
+        "id" : {
+          "name" : "id",
+          "value" : 1,
+          "formattedValue" : "1"
+        },
+        "doubleValue" : {
+          "name" : "doubleValue",
+          "value" : 5.5,
+          "formattedValue" : "5.5"
+        }
+      },
+      "selected" : false
+    },
+    "permissions" : [ {
+      "mode" : "SET",
+      "ref" : "show_entity",
+      "value" : false
+    } ]
+  },
+  "statusCode" : "OK",
+  "statusCodeValue" : 200
+}

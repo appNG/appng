@@ -35,14 +35,14 @@
 					</post-params>
 				</url-schema>
 				<linkpanel id="page-nav" location="top">
-					<link id="page-nav[1]" mode="intern" target="/page0">
+					<link id="page-nav[1]" target="/page0" mode="intern">
 						<label id="page0">Page 0</label>
 					</link>
-					<link id="page-nav[2]" mode="intern" target="/page1">
+					<link id="page-nav[2]" target="/page1" mode="intern">
 						<condition expression="${1==1}" />
 						<label id="page1">Page 1</label>
 					</link>
-					<link id="page-nav[4]" mode="intern" target="/page3">
+					<link id="page-nav[4]" target="/page3" mode="intern">
 						<permissions>
 							<permission ref="page3" mode="set"></permission>
 						</permissions>
@@ -78,7 +78,7 @@
 											</notNull>
 										</validation>
 									</field>
-									<field name="integerValue" type="int" format="#" binding="integerValue">
+									<field name="integerValue" type="list:checkbox" binding="integerValue">
 										<label id="integerValue">integer value</label>
 									</field>
 									<field name="doubleValue" type="decimal" format="#.##" binding="doubleValue">
@@ -92,6 +92,14 @@
 							<condition expression="${form_action eq 'create' and action eq 'create'}" />
 							<datasource id="new-entity" />
 							<data>
+								<selection id="integerValue" type="checkbox">
+									<title id="integerValue">integer value</title>
+									<option value="1" name="1" selected="false" />
+									<option value="2" name="2" selected="false" />
+									<option value="3" name="3" selected="false" />
+									<option value="4" name="4" selected="false" />
+									<option value="5" name="5" selected="true" />
+								</selection>
 								<result>
 									<field name="id" type="int">
 										<value></value>
@@ -99,7 +107,7 @@
 									<field name="name" type="text">
 										<value></value>
 									</field>
-									<field name="integerValue" type="int">
+									<field name="integerValue" type="list:checkbox">
 										<value></value>
 									</field>
 									<field name="doubleValue" type="decimal">
