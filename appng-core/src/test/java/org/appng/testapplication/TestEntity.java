@@ -35,15 +35,10 @@ public class TestEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-
 	private @NotNull String name;
-
 	private Integer integerValue;
-
 	private Double doubleValue;
-
 	private Boolean booleanValue;
-
 	private @Transient TestEntity parent;
 	private @Transient List<TestEntity> children;
 
@@ -51,8 +46,11 @@ public class TestEntity {
 
 	}
 
+	public TestEntity(String name) {
+		this.name = name;
+	}
+
 	public TestEntity(Integer id, String name, Integer integerValue, Double doubleValue, Boolean booleanValue) {
-		super();
 		this.id = id;
 		this.name = name;
 		this.integerValue = integerValue;
