@@ -40,7 +40,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -238,6 +238,7 @@ public class RestConfig implements BeanFactoryPostProcessor {
 
 	@Bean
 	@Lazy
+	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public SiteAwareHandlerMethodArgumentResolver siteAwareHandlerMethodArgumentResolver(Site site,
 			Application application, Environment environment) {
 		return new SiteAwareHandlerMethodArgumentResolver(site, environment, application);

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.appng</groupId>
 	<artifactId>appng-template-parent</artifactId>
-	<version>1.24.5</version>
+	<version>1.24.1.1</version>
 	<name>appNG Template Parent</name>
 	<packaging>pom</packaging>
 	<description>A parent pom for appNG templates</description>
@@ -54,7 +54,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<appNG.version>1.24.4</appNG.version>
+		<appNG.version>1.24.1.1</appNG.version>
 	</properties>
 
 	<distributionManagement>
@@ -125,7 +125,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
