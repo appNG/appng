@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -60,6 +61,7 @@ public class RestConfig {
 
 	@Bean
 	@Lazy
+	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public SiteAwareHandlerMethodArgumentResolver siteAwareHandlerMethodArgumentResolver(Site site,
 			Application application, Environment environment) {
 		return new SiteAwareHandlerMethodArgumentResolver(site, environment, application);
