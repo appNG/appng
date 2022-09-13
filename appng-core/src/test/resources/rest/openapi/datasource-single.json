@@ -106,33 +106,25 @@
         "children" : {
           "name" : "children",
           "value" : [ {
-            "name" : "children[0]",
-            "value" : [ {
-              "name" : {
-                "name" : "name",
-                "value" : "entity1"
-              }
-            }, {
-              "integerValue" : {
-                "name" : "integerValue",
-                "value" : 5,
-                "formattedValue" : "5"
-              }
-            } ]
+            "name" : {
+              "name" : "name",
+              "value" : "entity1"
+            },
+            "integerValue" : {
+              "name" : "integerValue",
+              "value" : 5,
+              "formattedValue" : "5"
+            }
           }, {
-            "name" : "children[1]",
-            "value" : [ {
-              "name" : {
-                "name" : "name",
-                "value" : "entity2"
-              }
-            }, {
-              "integerValue" : {
-                "name" : "integerValue",
-                "value" : 7,
-                "formattedValue" : "7"
-              }
-            } ]
+            "name" : {
+              "name" : "name",
+              "value" : "entity2"
+            },
+            "integerValue" : {
+              "name" : "integerValue",
+              "value" : 7,
+              "formattedValue" : "7"
+            }
           } ]
         },
         "name" : {

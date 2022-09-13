@@ -369,42 +369,35 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				final AtomicInteger i = new AtomicInteger(0);
 
 				if (org.appng.xml.platform.FieldType.LIST_OBJECT.equals(fieldDef.get().getType())) {
-
-					List<FieldValue> objectArray = new ArrayList<>();
-
+					List<Map<String, FieldValue>> objectEntries = new ArrayList<>();
 					for (Datafield childData : childDataFields) {
-						Map<String, FieldValue> fieldMap = new LinkedHashMap<>();
-
-						FieldValue objectField = new FieldValue();
-						objectField.setName(fieldDef.get().getBinding() + "[" + i.get() + "]");
-						objectArray.add(objectField);
+						Map<String, FieldValue> object = new LinkedHashMap<>();
 						Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
-						FieldValue childValue = getFieldValue(childData, childField, bindClass);
-
-						if (null != childValue.getName()) {
-							Map<String, FieldValue> childMap = (Map<String, FieldValue>) childValue.getValue();
-							for (Entry<String, FieldValue> childEntry : childMap.entrySet()) {
-								fieldMap.put(childEntry.getKey(), childEntry.getValue());
+						FieldValue attribute = getFieldValue(childData, childField, bindClass);
+						if (null != attribute.getName()) {
+							Map<String, FieldValue> attributes = (Map<String, FieldValue>) attribute.getValue();
+							for (Entry<String, FieldValue> childEntry : attributes.entrySet()) {
+								object.put(childEntry.getKey(), childEntry.getValue());
 							}
 						}
 						i.incrementAndGet();
-						objectField.setValue(fieldMap.entrySet());
+						objectEntries.add(object);
 					}
-					fv.setValue(objectArray);
+					fv.setValue(objectEntries);
 				} else {
-					Map<String, FieldValue> fieldMap = new LinkedHashMap<>();
+					Map<String, FieldValue> object = new LinkedHashMap<>();
 					for (Datafield childData : childDataFields) {
 						Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
-						FieldValue childValue = getFieldValue(childData, childField, bindClass);
-						if (null != childValue.getName()) {
-							fieldMap.put(childValue.getName(), childValue);
+						FieldValue attribute = getFieldValue(childData, childField, bindClass);
+						if (null != attribute.getName()) {
+							object.put(attribute.getName(), attribute);
 						}
 						i.incrementAndGet();
 					}
-					fv.setValue(fieldMap);
+					fv.setValue(object);
 				}
 			} else {
-				// simple type
+				// simple type, nothing more to do
 			}
 			return fv;
 		}
