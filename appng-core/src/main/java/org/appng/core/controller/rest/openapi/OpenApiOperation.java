@@ -271,6 +271,9 @@ abstract class OpenApiOperation {
 				|| org.appng.xml.platform.FieldType.INT.equals(fieldType)) {
 			String format = field.getFormat();
 			if (StringUtils.isNotBlank(value)) {
+				if (StringUtils.isBlank(format)) {
+					format = isDecimal ? "#.##" : "#";
+				}
 				try {
 					Number number = getDecimalFormat(format).parse(value);
 					return isDecimal ? number.doubleValue() : number;

@@ -358,6 +358,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		}).collect(Collectors.toList());
 	}
 
+	@SuppressWarnings("unchecked")
 	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, Class<?> bindClass) {
 		if (fieldDef.isPresent()) {
 			FieldValue fv = getFieldValue(data, fieldDef.get(),
@@ -381,13 +382,13 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 						FieldValue childValue = getFieldValue(childData, childField, bindClass);
 
 						if (null != childValue.getName()) {
-							for (Entry<String, FieldValue> childEntry : ((Map<String, FieldValue>) childValue
-									.getValue()).entrySet()) {
+							Map<String, FieldValue> childMap = (Map<String, FieldValue>) childValue.getValue();
+							for (Entry<String, FieldValue> childEntry : childMap.entrySet()) {
 								fieldMap.put(childEntry.getKey(), childEntry.getValue());
 							}
 						}
 						i.incrementAndGet();
-						objectField.setValue(fieldMap);
+						objectField.setValue(fieldMap.entrySet());
 					}
 					fv.setValue(objectArray);
 				} else {
