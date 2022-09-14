@@ -74,7 +74,7 @@
 										<label id="name">Name</label>
 										<validation>
 											<notNull>
-												<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+												<message ref="name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
 											</notNull>
 										</validation>
 									</field>
@@ -91,7 +91,7 @@
 										<field name="name" type="text" binding="parent.name">
 											<validation>
 												<notNull>
-													<message ref="parent.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+													<message ref="parent.name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
 												</notNull>
 											</validation>
 										</field>
@@ -102,7 +102,7 @@
 											<field name="name" type="text" binding="children.children[].name">
 												<validation>
 													<notNull>
-														<message ref="children.children[].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+														<message ref="children.children[].name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
 													</notNull>
 												</validation>
 											</field>
@@ -154,19 +154,19 @@
 									<field name="children" type="list:object">
 										<field name="children[0]" type="object">
 											<field name="name" type="text">
-												<value>entity1</value>
+												<value>entity2</value>
 											</field>
 											<field name="integerValue" type="int">
-												<value>5</value>
+												<value>7</value>
 											</field>
 											<value></value>
 										</field>
 										<field name="children[1]" type="object">
 											<field name="name" type="text">
-												<value>entity2</value>
+												<value>entity3</value>
 											</field>
 											<field name="integerValue" type="int">
-												<value>7</value>
+												<value>9</value>
 											</field>
 											<value></value>
 										</field>

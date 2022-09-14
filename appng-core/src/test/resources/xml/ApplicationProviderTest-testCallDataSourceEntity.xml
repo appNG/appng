@@ -52,7 +52,7 @@
 				<value>1</value>
 			</field>
 			<field name="name" type="text">
-				<value>new name</value>
+				<value>Anakin</value>
 			</field>
 			<field name="integerValue" type="list:checkbox">
 				<value>5</value>
@@ -65,7 +65,7 @@
 			</field>
 			<field name="parent" type="object">
 				<field name="name" type="text">
-					<value>new name</value>
+					<value>Anakin</value>
 				</field>
 				<field name="integerValue" type="int">
 					<value>5</value>
@@ -75,19 +75,19 @@
 			<field name="children" type="list:object">
 				<field name="children[0]" type="object">
 					<field name="name" type="text">
-						<value>new name</value>
+						<value>Luke</value>
 					</field>
 					<field name="integerValue" type="int">
-						<value>5</value>
+						<value></value>
 					</field>
 					<value></value>
 				</field>
 				<field name="children[1]" type="object">
 					<field name="name" type="text">
-						<value>entity2</value>
+						<value>Lea</value>
 					</field>
 					<field name="integerValue" type="int">
-						<value>7</value>
+						<value></value>
 					</field>
 					<value></value>
 				</field>

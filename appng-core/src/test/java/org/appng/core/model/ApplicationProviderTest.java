@@ -158,7 +158,10 @@ public class ApplicationProviderTest extends TestBase {
 		addParameter("action", "update");
 		addParameter("entityId", "1");
 		addParameter("form_action", "update");
-		addParameter("name", "new name");
+		addParameter("name", "Anakin");
+		addParameter("parent.name", "Unkown");
+		addParameter("children[0].name", "Luke");
+		addParameter("children[1].name", "Lea");
 		initParameters(true);
 		runMonitoredTest(getPathInfo(TESTAPPLICATION + "/" + PAGE_ID + "/update/1"));
 	}
@@ -179,6 +182,9 @@ public class ApplicationProviderTest extends TestBase {
 		addParameter("entityId", "1");
 		addParameter("form_action", "update");
 		addParameter("name", "exception");
+		addParameter("parent.name", "the parent's name");
+		addParameter("children[0].name", "Lea");
+		addParameter("children[1].name", "Luke");
 		initParameters(true);
 		runTest(getPathInfo(TESTAPPLICATION + "/" + PAGE_ID + "/update/1"), getMessageTextDifferenceListener());
 	}
@@ -245,6 +251,9 @@ public class ApplicationProviderTest extends TestBase {
 		addParameter("action", "create");
 		addParameter("form_action", "create");
 		addParameter("name", "new name");
+		addParameter("parent.name", "the parent's name");
+		addParameter("children[0].name", "Lea");
+		addParameter("children[1].name", "Luke");
 		initParameters();
 		Action action = applicationProvider.processAction(servletResponse, true, request, "create", "events",
 				marshallService);
