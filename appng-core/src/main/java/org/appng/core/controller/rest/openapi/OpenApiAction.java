@@ -287,8 +287,8 @@ abstract class OpenApiAction extends OpenApiOperation {
 				Optional<FieldDef> originalDef = metaData.getFields().stream()
 						.filter(originalField -> originalField.getName().equals(fieldData.getName())).findFirst();
 
-				ActionField actionField = getActionField(request, processedAction, receivedData, fieldData, originalDef,
-						getBindClass(metaData));
+				ActionField actionField = getActionField(null, request, null, processedAction, receivedData, fieldData,
+						originalDef, getBindClass(metaData));
 				action.addFieldsItem(actionField);
 			});
 		}
@@ -303,14 +303,26 @@ abstract class OpenApiAction extends OpenApiOperation {
 		return action;
 	}
 
-	protected ActionField getActionField(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
-			Action receivedData, Datafield fieldData, Optional<FieldDef> originalDef, Class<?> bindClass) {
+	protected ActionField getActionField(ActionField parent, ApplicationRequest request, Integer index,
+			org.appng.xml.platform.Action processedAction, Action receivedData, Datafield fieldData,
+			Optional<FieldDef> originalDef, Class<?> bindClass) {
 		ActionField actionField = new ActionField();
 
 		if (originalDef.isPresent()) {
 			FieldDef fieldDef = originalDef.get();
 
-			actionField.setName(fieldDef.getBinding());
+			String name = null;
+			if (null != parent && null != index) {
+				if (FieldType.LIST_OBJECT.equals(parent.getFieldType())) {
+					name = parent.getName() + String.format("[%s]", index);
+				} else {
+					name = parent.getName() + "." + fieldDef.getName();
+				}
+			} else {
+				name = fieldDef.getBinding();
+			}
+
+			actionField.setName(name);
 
 			boolean isPassword = org.appng.xml.platform.FieldType.PASSWORD.equals(fieldDef.getType());
 			boolean isDate = org.appng.xml.platform.FieldType.DATE.equals(fieldDef.getType());
@@ -401,15 +413,15 @@ abstract class OpenApiAction extends OpenApiOperation {
 					if (!childNames.contains(childData.getName())) {
 						LOGGER.debug("Processing child {} of field {} with index {}.", childData.getName(),
 								fieldData.getName(), i.get());
-						Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.getAndIncrement(),
-								childData);
-						ActionField childActionField = getActionField(request, processedAction, receivedData, childData,
-								childField, bindClass);
+						Optional<FieldDef> childField = getChildField(fieldDef, fieldData, i.get(), childData);
+						ActionField childActionField = getActionField(actionField, request, i.get(), processedAction,
+								receivedData, childData, childField, bindClass);
 						actionField.getFields().add(childActionField);
 						if (childField.isPresent()) {
 							applyValidationRules(request, childActionField, childField.get());
 						}
 						childNames.add(childData.getName());
+						i.incrementAndGet();
 					} else {
 						LOGGER.debug("Child {} of field {} with index {} already processed.", childData.getName(),
 								fieldData.getName(), i.get());

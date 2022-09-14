@@ -37,10 +37,11 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 
 	private static TestEntity t1 = new TestEntity(1, "entity1", 5, 5.5d, false);
 	private static TestEntity t2 = new TestEntity(2, "entity2", 7, 7.8d, true);
+	private static TestEntity t3 = new TestEntity(2, "entity3", 9, 42d, true);
 
 	static {
 		t1.setParent(t1);
-		t1.setChildren(Arrays.asList(t1, t2));
+		t1.setChildren(Arrays.asList(t2, t3));
 	}
 
 	public DataContainer getData(Site site, Application application, Environment environment, Options options,
@@ -55,7 +56,10 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 
 		if ("create".equals(action)) {
 			addSelection(dataContainer);
-			dataContainer.setItem(new TestEntity());
+			TestEntity item = new TestEntity();
+			item.setParent(t1);
+			item.setChildren(Arrays.asList(t2, t3));
+			dataContainer.setItem(item);
 		} else if (null == id) {
 			List<TestEntity> entities = new ArrayList<>();
 			entities.add(t1);
@@ -83,6 +87,11 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 			throw new ApplicationException("adfsf", null);
 		} else {
 			t1.setName(name);
+			t2.setIntegerValue(valueHolder.getIntegerValue());
+			t2.setName(valueHolder.getChildren().get(0).getName());
+			t3.setName(valueHolder.getChildren().get(1).getName());
+			t2.setIntegerValue(valueHolder.getChildren().get(0).getIntegerValue());
+			t3.setIntegerValue(valueHolder.getChildren().get(1).getIntegerValue());
 		}
 		fp.addOkMessage("executed action " + options.getOptionValue("action", "id"));
 	}

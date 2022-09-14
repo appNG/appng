@@ -29,9 +29,9 @@
       "readonly" : false,
       "visible" : true,
       "rules" : [ {
-        "type" : "javax.validation.constraints.NotNull",
-        "message" : "must not be null",
-        "messageKey" : "{javax.validation.constraints.NotNull.message}"
+        "type" : "org.appng.api.NotBlank",
+        "message" : "Field must not be empty",
+        "messageKey" : "{validation.notNull}"
       } ]
     }, {
       "name" : "integerValue",
@@ -77,6 +77,87 @@
       "fieldType" : "checkbox",
       "readonly" : false,
       "visible" : true
+    }, {
+      "name" : "parent",
+      "fieldType" : "object",
+      "readonly" : false,
+      "visible" : true,
+      "fields" : [ {
+        "name" : "parent.name",
+        "value" : "entity1",
+        "fieldType" : "text",
+        "readonly" : false,
+        "visible" : true,
+        "rules" : [ {
+          "type" : "org.appng.api.NotBlank",
+          "message" : "Field must not be empty",
+          "messageKey" : "{validation.notNull}"
+        } ]
+      }, {
+        "name" : "parent.integerValue",
+        "value" : 5,
+        "fieldType" : "int",
+        "readonly" : false,
+        "visible" : true,
+        "format" : "#",
+        "formattedValue" : "5"
+      } ]
+    }, {
+      "name" : "children",
+      "fieldType" : "list_object",
+      "readonly" : false,
+      "visible" : true,
+      "fields" : [ {
+        "name" : "children[0]",
+        "fieldType" : "object",
+        "readonly" : false,
+        "visible" : true,
+        "fields" : [ {
+          "name" : "children[0].name",
+          "value" : "entity2",
+          "fieldType" : "text",
+          "readonly" : false,
+          "visible" : true,
+          "rules" : [ {
+            "type" : "org.appng.api.NotBlank",
+            "message" : "Field must not be empty",
+            "messageKey" : "{validation.notNull}"
+          } ]
+        }, {
+          "name" : "children[0].integerValue",
+          "value" : 7,
+          "fieldType" : "int",
+          "readonly" : false,
+          "visible" : true,
+          "format" : "#",
+          "formattedValue" : "7"
+        } ]
+      }, {
+        "name" : "children[1]",
+        "fieldType" : "object",
+        "readonly" : false,
+        "visible" : true,
+        "fields" : [ {
+          "name" : "children[1].name",
+          "value" : "entity3",
+          "fieldType" : "text",
+          "readonly" : false,
+          "visible" : true,
+          "rules" : [ {
+            "type" : "org.appng.api.NotBlank",
+            "message" : "Field must not be empty",
+            "messageKey" : "{validation.notNull}"
+          } ]
+        }, {
+          "name" : "children[1].integerValue",
+          "value" : 9,
+          "fieldType" : "int",
+          "readonly" : false,
+          "visible" : true,
+          "format" : "#",
+          "formattedValue" : "9"
+        } ]
+      } ]
     } ],
     "permissions" : [ {
       "mode" : "SET",

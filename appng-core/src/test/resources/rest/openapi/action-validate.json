@@ -29,14 +29,14 @@
       "readonly" : false,
       "visible" : true,
       "rules" : [ {
-        "type" : "javax.validation.constraints.NotNull",
-        "message" : "must not be null",
-        "messageKey" : "{javax.validation.constraints.NotNull.message}"
+        "type" : "org.appng.api.NotBlank",
+        "message" : "Field must not be empty",
+        "messageKey" : "{validation.notNull}"
       } ],
       "messages" : [ {
         "level" : "ERROR",
-        "text" : "must not be null",
-        "key" : "{javax.validation.constraints.NotNull.message}"
+        "text" : "Field must not be empty",
+        "key" : "{validation.notNull}"
       } ]
     }, {
       "name" : "integerValue",
@@ -82,6 +82,72 @@
       "fieldType" : "checkbox",
       "readonly" : false,
       "visible" : true
+    }, {
+      "name" : "parent",
+      "fieldType" : "object",
+      "readonly" : false,
+      "visible" : true,
+      "fields" : [ {
+        "name" : "parent.name",
+        "value" : "entity1",
+        "fieldType" : "text",
+        "readonly" : false,
+        "visible" : true,
+        "rules" : [ {
+          "type" : "org.appng.api.NotBlank",
+          "message" : "Field must not be empty",
+          "messageKey" : "{validation.notNull}"
+        } ],
+        "messages" : [ {
+          "level" : "ERROR",
+          "text" : "Field must not be empty",
+          "key" : "{validation.notNull}"
+        } ]
+      }, {
+        "name" : "parent.integerValue",
+        "value" : 5,
+        "fieldType" : "int",
+        "readonly" : false,
+        "visible" : true,
+        "format" : "#",
+        "formattedValue" : "5"
+      } ]
+    }, {
+      "name" : "children",
+      "fieldType" : "list_object",
+      "readonly" : false,
+      "visible" : true,
+      "fields" : [ {
+        "name" : "children[0]",
+        "fieldType" : "object",
+        "readonly" : false,
+        "visible" : true,
+        "fields" : [ {
+          "name" : "children[0].name",
+          "value" : "entity2",
+          "fieldType" : "text",
+          "readonly" : false,
+          "visible" : true,
+          "rules" : [ {
+            "type" : "org.appng.api.NotBlank",
+            "message" : "Field must not be empty",
+            "messageKey" : "{validation.notNull}"
+          } ],
+          "messages" : [ {
+            "level" : "ERROR",
+            "text" : "Field must not be empty",
+            "key" : "{validation.notNull}"
+          } ]
+        }, {
+          "name" : "children[0].integerValue",
+          "value" : 7,
+          "fieldType" : "int",
+          "readonly" : false,
+          "visible" : true,
+          "format" : "#",
+          "formattedValue" : "7"
+        } ]
+      }, { } ]
     } ],
     "permissions" : [ {
       "mode" : "SET",

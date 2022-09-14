@@ -68,6 +68,16 @@
 				<field name="booleanValue" type="checkbox">
 					<label>booleanValue</label>
 				</field>
+				<field name="parent" type="object">
+					<field name="name" type="text" />
+					<field name="integerValue" type="int" format="#"/>
+				</field>
+				<field name="children" type="list:object">
+					<field name="children[]" type="object">
+						<field name="name" type="text" />
+						<field name="integerValue" type="int" format="#"/>
+					</field>
+				</field>
 			</meta-data>
 		</config>
 		<bean id="entities">
