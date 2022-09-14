@@ -10,7 +10,10 @@
       "param2" : ""
     },
     "user" : {
-      "authenticated" : false,
+      "name" : "John Doe",
+      "nickName" : "johndoe",
+      "authenticated" : true,
+      "email" : "john@doe.org",
       "locale" : "en",
       "timezone" : "Europe/Berlin",
       "decimalSeparator" : ".",

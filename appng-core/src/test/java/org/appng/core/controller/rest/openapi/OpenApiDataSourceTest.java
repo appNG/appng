@@ -15,6 +15,9 @@
  */
 package org.appng.core.controller.rest.openapi;
 
+import org.appng.api.Scope;
+import org.appng.api.Session;
+import org.appng.core.domain.SubjectImpl;
 import org.appng.openapi.model.Datasource;
 import org.appng.testapplication.TestEntities;
 import org.appng.testsupport.validation.WritingJsonValidator;
@@ -25,6 +28,14 @@ public class OpenApiDataSourceTest extends OpenApiTest {
 
 	@Test
 	public void testDataSource() throws Exception {
+		SubjectImpl user = new SubjectImpl();
+		user.setName("johndoe");
+		user.setRealname("John Doe");
+		user.setEmail("john@doe.org");
+		user.setTimeZone("Europe/Berlin");
+		user.setLanguage("en");
+		user.setAuthenticated(true);
+		environment.setAttribute(Scope.SESSION, Session.Environment.SUBJECT, user);
 		TestEntities.reset();
 		OpenApiDataSource openApiDatasource = new OpenApiDataSource(site, applicationProvider, request, messageSource) {
 		};

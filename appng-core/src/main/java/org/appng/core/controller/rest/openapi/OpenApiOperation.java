@@ -112,6 +112,7 @@ abstract class OpenApiOperation {
 		Subject subject = environment.getSubject();
 		if (null != subject) {
 			user.setEmail(subject.getEmail());
+			user.setNickName(subject.getName());
 			user.setName(subject.getRealname());
 			user.setAuthenticated(subject.isAuthenticated());
 		} else {
