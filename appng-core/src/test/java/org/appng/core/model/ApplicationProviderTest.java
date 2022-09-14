@@ -33,6 +33,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Resources;
 import org.appng.api.model.Role;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.testapplication.TestEntities;
 import org.appng.testsupport.TestBase;
 import org.appng.testsupport.validation.WritingXmlValidator;
 import org.appng.testsupport.validation.XPathDifferenceHandler;
@@ -59,6 +60,10 @@ public class ApplicationProviderTest extends TestBase {
 	private PlatformConfig platformConfig;
 	private ApplicationProvider applicationProvider;
 	private ApplicationProvider monitoredApplicationProvider;
+
+	static {
+		TestEntities.init();
+	}
 
 	public ApplicationProviderTest() {
 		super(TESTAPPLICATION, "src/test/resources/applications/application1");

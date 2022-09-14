@@ -26,6 +26,10 @@ import org.springframework.http.ResponseEntity;
 
 public class OpenApiDataSourceTest extends OpenApiTest {
 
+	static {
+		TestEntities.init();
+	}
+
 	@Test
 	public void testDataSource() throws Exception {
 		SubjectImpl user = new SubjectImpl();

@@ -35,11 +35,14 @@ import org.appng.xml.platform.SelectionType;
 
 public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 
-	private static TestEntity t1 = new TestEntity(1, "entity1", 5, 5.5d, false);
-	private static TestEntity t2 = new TestEntity(2, "entity2", 7, 7.8d, true);
-	private static TestEntity t3 = new TestEntity(2, "entity3", 9, 42d, true);
+	private static TestEntity t1;
+	private static TestEntity t2;
+	private static TestEntity t3;
 
-	static {
+	public static void init() {
+		t1 = new TestEntity(1, "entity1", 5, 5.5d, false);
+		t2 = new TestEntity(2, "entity2", 7, 7.8d, true);
+		t3 = new TestEntity(2, "entity3", 9, 42d, true);
 		t1.setParent(t1);
 		t1.setChildren(Arrays.asList(t2, t3));
 	}

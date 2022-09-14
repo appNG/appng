@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appng.openapi.model.Action;
+import org.appng.testapplication.TestEntities;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class OpenApiActionTest extends OpenApiTest {
 
 	@Test
 	public void testAction() throws Exception {
+		TestEntities.init();
 		OpenApiAction openApiAction = new OpenApiAction(site, applicationProvider, request, messageSource) {
 		};
 		Map<String, String> pathVariables = new HashMap<>();
