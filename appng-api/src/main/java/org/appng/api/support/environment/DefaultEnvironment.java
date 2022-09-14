@@ -565,11 +565,12 @@ public class DefaultEnvironment implements Environment {
 		return initialized;
 	}
 
-	public static void initSiteScope(Site site) {
-		global.clearSiteScope(site);
+	public void initSiteScope(Site site) {
+		clearSiteScope(site);
 		ServletContext servletContext = ((PlatformEnvironment) global.getEnvironment(Scope.PLATFORM))
 				.getServletContext();
-		new SiteEnvironment(servletContext,  site);
+		this.site = new SiteEnvironment(servletContext,  site);
+		enable(Scope.SITE);
 	}
 
 	/**
@@ -579,8 +580,7 @@ public class DefaultEnvironment implements Environment {
 	 *             The {@link Site} to clear the site-scope for.
 	 */
 	public void clearSiteScope(Site site) {
-		String identifier = Scope.SITE.forSite(site.getName());
-		platform.getServletContext().removeAttribute(identifier);
+		String identifier = SiteEnvironment.remove(platform.getServletContext(), site);
 		LOGGER.info("Clearing site scope with identifier '{}'", identifier);
 	}
 

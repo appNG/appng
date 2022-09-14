@@ -20,15 +20,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.cache.Cache;
 import javax.cache.Cache.Entry;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.configuration.CacheEntryListenerConfiguration;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
@@ -38,8 +43,10 @@ import org.appng.api.BusinessException;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.CachedResponse;
+import org.appng.core.service.cache.CacheEntryListener;
 import org.springframework.http.HttpMethod;
 
+import com.google.common.collect.Streams;
 import com.hazelcast.cache.CacheStatistics;
 import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
@@ -62,6 +69,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CacheService {
 
+	private static final String CACHE_USE_ENTRY_LISTENER = "cacheUseEntryListener";
 	public static final String PAGE_CACHE = "pageCache";
 	public static final String DASH = "-";
 	// hidden site property
@@ -120,6 +128,7 @@ public class CacheService {
 		Cache<String, CachedResponse> cache = getCache(site);
 		if (null != cache) {
 			cache.removeAll();
+			getCacheEntryListener(cache).clear();
 		}
 	}
 
@@ -141,9 +150,11 @@ public class CacheService {
 		Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
 		Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 		Integer maxSize = site.getProperties().getInteger(CACHE_MAX_SIZE, DEFAULT_MAX_SIZE);
+
 		if (null != cache) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			CacheConfig configuration = cache.getConfiguration(CacheConfig.class);
+			@SuppressWarnings("unchecked")
+			CacheConfig<String, CachedResponse> configuration = (CacheConfig<String, CachedResponse>) cache
+					.getConfiguration(CacheConfig.class);
 			ExpiryPolicy ep = (ExpiryPolicy) configuration.getExpiryPolicyFactory().create();
 			if ((configuration.isStatisticsEnabled() ^ statisticsEnabled)
 					|| (ep.getExpiryForCreation().getDurationAmount() != ttl)
@@ -160,6 +171,12 @@ public class CacheService {
 			configuration.setStatisticsEnabled(statisticsEnabled);
 			configuration.setEvictionConfig(new EvictionConfig().setEvictionPolicy(EvictionPolicy.LRU).setSize(maxSize)
 					.setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT));
+			if (useCacheEntryListener(site)) {
+				CacheEntryListener cacheEntryListener = new CacheEntryListener();
+				CacheEntryListenerConfiguration<String, CachedResponse> listenerConfiguration = new MutableCacheEntryListenerConfiguration<>(
+						FactoryBuilder.factoryOf(cacheEntryListener), null, false, true);
+				configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
+			}
 			cache = cacheManager.createCache(cacheKey, configuration);
 			LOGGER.info("Created cache '{}' (ttl: {}s, maximum entries: {}, statistics: {})", cacheKey, ttl, maxSize,
 					statisticsEnabled);
@@ -282,20 +299,6 @@ public class CacheService {
 	/**
 	 * Expires cache elements by path prefix
 	 * 
-	 * @param site
-	 *                           the {@link Site} to retrieve the cache for
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
-	 * 
-	 * @return a {@link Future} holding the number of removed elements
-	 */
-	public static Future<Integer> expireCacheElementsByPrefix(Site site, String cacheElementPrefix) {
-		return expireCacheElementsByPrefix(CacheService.getCache(site), cacheElementPrefix);
-	}
-
-	/**
-	 * Expires cache elements by path prefix
-	 * 
 	 * @param cache
 	 *                           the cache to use
 	 * @param cacheElementPrefix
@@ -305,29 +308,75 @@ public class CacheService {
 	 */
 	public static Future<Integer> expireCacheElementsByPrefix(Cache<String, CachedResponse> cache,
 			String cacheElementPrefix) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Expires cache elements by path prefix
+	 * 
+	 * @param site
+	 *                           the {@link Site} to retrieve the cache for
+	 * @param cacheElementPrefix
+	 *                           the prefix to use
+	 * 
+	 * @return a {@link Future} holding the number of removed elements
+	 */
+	public static Future<Integer> expireCacheElementsByPrefix(Site site, String cacheElementPrefix) {
+		Cache<String, CachedResponse> cache = getCache(site);
 		if (null == cache) {
 			LOGGER.info("No cache found, can not remove elements starting with {}", cacheElementPrefix);
 		} else {
 			ExecutorService clearCache = Executors
 					.newSingleThreadExecutor(new BasicThreadFactory.Builder().namingPattern(cache.getName()).build());
 			Future<Integer> removedFuture = clearCache.submit(() -> {
+				final long start = System.currentTimeMillis();
 				int removed = 0;
 				int count = 0;
-				for (Entry<String, CachedResponse> entry : cache) {
-					count++;
-					if (entry.getKey().startsWith(HttpMethod.GET.name() + cacheElementPrefix)
-							&& cache.remove(entry.getKey())) {
-						LOGGER.debug("removed from cache: {}", entry.getKey());
+				final String completePrefix = HttpMethod.GET.name() + cacheElementPrefix;
+
+				Set<String> keys = null;
+				CacheEntryListener listener;
+
+				if (!useCacheEntryListener(site) || null == (listener = getCacheEntryListener(cache))) {
+					count = cache.unwrap(ICache.class).size();
+					keys = Streams.stream(cache.iterator()).map(Entry::getKey).filter(k -> k.startsWith(completePrefix))
+							.collect(Collectors.toSet());
+
+				} else {
+					count = listener.getKeys().size();
+					keys = listener.getKeys(completePrefix);
+				}
+
+				for (String key : keys) {
+					if (cache.remove(key)) {
+						LOGGER.debug("removed from cache: {}", key);
 						removed++;
 					}
 				}
-				LOGGER.info("removed {} cache elements for {} (cache size: {})", removed, cacheElementPrefix, count);
+
+				LOGGER.info("removed {} cache elements for {} in {}ms (previous cache size: {})", removed,
+						cacheElementPrefix, System.currentTimeMillis() - start, count);
 				return removed;
 			});
 			clearCache.shutdown();
 			return removedFuture;
 		}
 		return null;
+	}
+
+	private static CacheEntryListener getCacheEntryListener(Cache<String, CachedResponse> cache) {
+		@SuppressWarnings("unchecked")
+		CacheConfig<String, CachedResponse> configuration = (CacheConfig<String, CachedResponse>) cache
+				.getConfiguration(CacheConfig.class);
+		CacheEntryListenerConfiguration<String, CachedResponse> listenerConfiguration = configuration
+				.getListenerConfigurations().iterator().next();
+		CacheEntryListener listener = (CacheEntryListener) listenerConfiguration.getCacheEntryListenerFactory()
+				.create();
+		return listener;
+	}
+
+	private static Boolean useCacheEntryListener(Site site) {
+		return site.getProperties().getBoolean(CACHE_USE_ENTRY_LISTENER, true);
 	}
 
 }

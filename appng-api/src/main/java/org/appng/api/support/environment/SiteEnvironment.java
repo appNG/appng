@@ -22,7 +22,7 @@ import org.appng.api.model.Site;
 
 /**
  * A {@link ScopedEnvironment} for {@link Scope#SITE}. Uses a {@link ServletContext} for storing its attributes, with a
- * {@link Site}s hostname as additional identifier.
+ * {@link Site}s name as additional identifier.
  * 
  * @author Matthias Müller
  */
@@ -37,6 +37,12 @@ class SiteEnvironment extends PlatformEnvironment {
 
 	public Scope getScope() {
 		return Scope.SITE;
+	}
+
+	static String remove(ServletContext ctx, Site site) {
+		String identifier = Scope.SITE.forSite(site.getName());
+		ctx.removeAttribute(identifier);
+		return identifier;
 	}
 
 }
