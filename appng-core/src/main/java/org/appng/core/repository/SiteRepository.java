@@ -42,7 +42,7 @@ public interface SiteRepository extends SearchRepository<SiteImpl, Integer> {
 	@Query("select s from SiteImpl s join s.siteApplications p where p.application.id= ?1 and s.active=?2")
 	List<SiteImpl> findSitesForApplication(Integer applicationId, boolean active);
 
-	@Query("select distinct s from SiteImpl s join s.hostAliases a where ( s.host in (?1) or a in (?1) )")
+	@Query("select distinct s from SiteImpl s left join s.hostAliases a where s.host in (?1) or a in (?1)")
 	List<SiteImpl> findSitesForHostNames(Set<String> hostNames);
 
 	List<SiteImpl> findByNameIn(Iterable<String> siteNames);

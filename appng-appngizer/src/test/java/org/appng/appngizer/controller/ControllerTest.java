@@ -37,6 +37,7 @@ import org.appng.api.VHostMode;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.support.PropertyHolder;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.appngizer.model.xml.PackageType;
 import org.appng.appngizer.model.xml.Repository;
 import org.appng.appngizer.model.xml.RepositoryMode;
@@ -144,6 +145,7 @@ public abstract class ControllerTest {
 			defaultOverrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
 			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true,
 					false);
+			DefaultEnvironment.initGlobal(this.wac.getServletContext());
 			platformInitialized = true;
 		}
 	}

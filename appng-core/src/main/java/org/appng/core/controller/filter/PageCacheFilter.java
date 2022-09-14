@@ -34,7 +34,6 @@ import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -43,9 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
-import org.appng.api.Environment;
 import org.appng.api.Path;
-import org.appng.api.RequestUtil;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
@@ -76,11 +73,6 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	protected static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
-	private Environment env;
-
-	public void init(FilterConfig filterConfig) throws ServletException {
-		this.env = DefaultEnvironment.get(filterConfig.getServletContext());
-	}
 
 	public void destroy() {
 	}
@@ -97,11 +89,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		boolean isCacheableRequest = isCacheableRequest(httpServletRequest);
 		boolean cacheEnabled = false;
 		boolean isException = false;
-		Site site = null;
 		ExpiryPolicy expiryPolicy = null;
+		DefaultEnvironment env = EnvironmentFilter.environment();
+		Site site = env.getSite();
 
 		if (isCacheableRequest) {
-			site = RequestUtil.getSite(env, request);
 			if (null != site) {
 				org.appng.api.model.Properties siteProps = site.getProperties();
 				cacheEnabled = siteProps.getBoolean(SiteProperties.CACHE_ENABLED);

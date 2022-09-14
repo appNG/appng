@@ -50,17 +50,17 @@ public enum Scope {
 	URL;
 
 	/**
-	 * @param host
-	 *             the host of the {@link Site} to get the name for
+	 * @param name
+	 *             the name of the {@link Site} to get the identifier for
 	 * 
 	 * @return a String used in order to identify an {@link Environment} for a {@link Site}
 	 * 
 	 * @throws IllegalArgumentException
 	 *                                  if this scope not equals {@link Scope#SITE}
 	 */
-	public String forSite(String host) {
+	public String forSite(String name) {
 		if (SITE.equals(this)) {
-			return name() + "." + host;
+			return name() + "." + name;
 		}
 		throw new IllegalArgumentException("not allowed for scope " + name());
 	}

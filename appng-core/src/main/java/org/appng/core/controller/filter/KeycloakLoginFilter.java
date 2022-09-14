@@ -94,7 +94,7 @@ public class KeycloakLoginFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		Environment env = DefaultEnvironment.get(((HttpServletRequest) request).getSession());
+		Environment env = EnvironmentFilter.environment();
 		Principal principal = ((HttpServletRequest) request).getUserPrincipal();
 		if (!env.isSubjectAuthenticated() && null != principal) {
 			if (KeycloakPrincipal.class.isAssignableFrom(principal.getClass())) {
@@ -133,7 +133,7 @@ public class KeycloakLoginFilter implements Filter {
 	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-		DefaultEnvironment env = DefaultEnvironment.get(filterConfig.getServletContext());
+		DefaultEnvironment env = DefaultEnvironment.getGlobal();
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		claimName = platformConfig.getString(Platform.Property.KEYCLOAK_GROUP_CLAIM_NAME, "appNG Groups");
 		groupPrefix = platformConfig.getString(Platform.Property.KEYCLOAK_GROUP_PREFIX, "appng_");

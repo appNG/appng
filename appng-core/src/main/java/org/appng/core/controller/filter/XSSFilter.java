@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
-import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
@@ -57,7 +56,8 @@ public class XSSFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		Site site = RequestUtil.getSite(DefaultEnvironment.get(request.getServletContext()), request);
+		DefaultEnvironment environment = EnvironmentFilter.environment();
+		Site site = environment.getSite();
 		HttpServletRequest servletRequest = (HttpServletRequest) request;
 		boolean processXss = null != site && null != xssUtil;
 		if (processXss) {
@@ -89,7 +89,7 @@ public class XSSFilter implements Filter {
 	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-		Environment env = DefaultEnvironment.get(filterConfig.getServletContext());
+		Environment env = DefaultEnvironment.getGlobal();
 		Properties platformProps = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		if (platformProps.getBoolean(Platform.Property.XSS_PROTECT)) {
 			xssUtil = XSSHelper.getXssUtil(platformProps);

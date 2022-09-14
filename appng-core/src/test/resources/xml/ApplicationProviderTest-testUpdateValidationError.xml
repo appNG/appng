@@ -35,14 +35,14 @@
 					</post-params>
 				</url-schema>
 				<linkpanel id="page-nav" location="top">
-					<link id="page-nav[1]" mode="intern" target="/page0">
+					<link id="page-nav[1]" target="/page0" mode="intern">
 						<label id="page0">Page 0</label>
 					</link>
-					<link id="page-nav[2]" mode="intern" target="/page1">
+					<link id="page-nav[2]" target="/page1" mode="intern">
 						<condition expression="${1==1}" />
 						<label id="page1">Page 1</label>
 					</link>
-					<link id="page-nav[4]" mode="intern" target="/page3">
+					<link id="page-nav[4]" target="/page3" mode="intern">
 						<permissions>
 							<permission ref="page3" mode="set"></permission>
 						</permissions>
@@ -90,6 +90,28 @@
 									<field name="booleanValue" type="checkbox" binding="booleanValue">
 										<label id="booleanValue">boolean value</label>
 									</field>
+									<field name="parent" type="object" binding="parent">
+										<field name="name" type="text" binding="parent.name">
+											<validation>
+												<notNull>
+													<message ref="parent.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+												</notNull>
+											</validation>
+										</field>
+										<field name="integerValue" type="int" format="#" binding="parent.integerValue" />
+									</field>
+									<field name="children" type="list:object" binding="children">
+										<field name="children[0]" type="object" binding="children[0]">
+											<field name="name" type="text" binding="children[0].name">
+												<validation>
+													<notNull>
+														<message ref="children[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+													</notNull>
+												</validation>
+											</field>
+											<field name="integerValue" type="int" format="#" binding="children[0].integerValue" />
+										</field>
+									</field>
 								</meta-data>
 							</config>
 							<condition expression="${form_action eq 'update' and action eq 'update' and not empty entityId}" />
@@ -127,6 +149,35 @@
 									</field>
 									<field name="booleanValue" type="checkbox">
 										<value>false</value>
+									</field>
+									<field name="parent" type="object">
+										<field name="name" type="text">
+											<value>new name</value>
+										</field>
+										<field name="integerValue" type="int">
+											<value>5</value>
+										</field>
+										<value></value>
+									</field>
+									<field name="children" type="list:object">
+										<field name="children[0]" type="object">
+											<field name="name" type="text">
+												<value>new name</value>
+											</field>
+											<field name="integerValue" type="int">
+												<value>5</value>
+											</field>
+											<value></value>
+										</field>
+										<field name="children[1]" type="object">
+											<field name="name" type="text">
+												<value>entity2</value>
+											</field>
+											<field name="integerValue" type="int">
+												<value>7</value>
+											</field>
+											<value></value>
+										</field>
 									</field>
 								</result>
 							</data>

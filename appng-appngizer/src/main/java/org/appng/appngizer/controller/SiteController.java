@@ -21,8 +21,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletContext;
-
 import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -78,7 +76,7 @@ public class SiteController extends ControllerBase {
 			return notFound();
 		}
 		Site fromDomain = Site.fromDomain(site);
-		if (null != getSender(DefaultEnvironment.get(context)) || supportsReloadFile(site)) {
+		if (null != getSender(DefaultEnvironment.getGlobal()) || supportsReloadFile(site)) {
 			fromDomain.addLink(new Link("reload", "/site/" + name + "/reload"));
 		}
 		fromDomain.applyUriComponents(getUriBuilder());
@@ -103,7 +101,7 @@ public class SiteController extends ControllerBase {
 		if (null == site) {
 			return notFound();
 		}
-		Sender sender = getSender(DefaultEnvironment.get(context));
+		Sender sender = getSender(DefaultEnvironment.getGlobal());
 		if (null != sender) {
 			LOGGER.debug("messaging is active, sending ReloadSiteEvent");
 			sender.send(new ReloadSiteFromAppNGizer(name));
@@ -162,7 +160,7 @@ public class SiteController extends ControllerBase {
 		if (null == currentSite) {
 			return notFound();
 		}
-		Environment environment = DefaultEnvironment.get(context);
+		Environment environment = DefaultEnvironment.getGlobal();
 		org.appng.api.model.Site site = RequestUtil.getSiteByName(environment, name);
 		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED
 				|| site.getState() == SiteState.STOPPING)) {

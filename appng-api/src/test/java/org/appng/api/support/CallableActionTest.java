@@ -159,9 +159,11 @@ public class CallableActionTest {
 		}).when(dataProvider).getData(Mockito.eq(site), Mockito.eq(application), Mockito.eq(environment), Mockito.any(),
 				Mockito.eq(applicationRequest), Mockito.any());
 
+		Mockito.when(environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES))
+				.thenReturn(new Messages());
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
-		Assert.assertNull(envMessages.get());
+		Assert.assertNotNull(envMessages.get());
 		Assert.assertNotNull(actionMessages.get());
 		Message message = actionMessages.get().getMessageList().get(0);
 		Assert.assertEquals("Error!", message.getContent());

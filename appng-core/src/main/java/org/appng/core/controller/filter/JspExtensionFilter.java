@@ -24,15 +24,12 @@ import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.appng.api.Environment;
 import org.appng.api.Path;
 import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
@@ -76,7 +73,6 @@ public class JspExtensionFilter implements Filter {
 	private static final String PLATFORM_JSP_FILTER_SKIPPED_SERVICE_NAMES = "jspFilterSkippedServiceNames";
 	private static final ConcurrentMap<String, Pattern> PATTERNS = new ConcurrentHashMap<>();
 	private static final String DELIMITER = ",";
-	private Environment env;
 	private String defaultServiceFilterTypes;
 	// if prefix is '<site-domain>/' -> replace
 	// if prefix is quote (") or singlequote (') -> replace
@@ -97,7 +93,8 @@ public class JspExtensionFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		Site site = RequestUtil.getSite(env, request);
+		DefaultEnvironment env = EnvironmentFilter.environment();
+		Site site = env.getSite();
 		String servletPath = ((HttpServletRequest) request).getServletPath();
 		if (null != site) {
 			Path pathInfo = RequestUtil.getPathInfo(env, site, servletPath);
@@ -205,10 +202,6 @@ public class JspExtensionFilter implements Filter {
 		content = content.replace("alt=\"__Visual__\"", "alt=\"Visual\"");
 		content = content.replace("alt=\"__Visual__", "alt=\"");
 		return content;
-	}
-
-	public void init(FilterConfig filterConfig) throws ServletException {
-		this.env = DefaultEnvironment.get(filterConfig.getServletContext());
 	}
 
 	public void destroy() {

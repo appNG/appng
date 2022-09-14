@@ -533,6 +533,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		for (SectionDef sectionDef : sectionDefs) {
 			Section section = new Section();
 			section.setId(sectionDef.getId());
+			section.setTitle(sectionDef.getTitle());
 			applicationRequest.setLabel(section.getTitle());
 
 			String hidden = applicationRequest.getExpressionEvaluator().getString(sectionDef.getHidden());

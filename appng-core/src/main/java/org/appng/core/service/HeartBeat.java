@@ -15,8 +15,6 @@
  */
 package org.appng.core.service;
 
-import javax.servlet.ServletContext;
-
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.messaging.Messaging;
 import org.appng.api.messaging.Sender;
@@ -32,17 +30,15 @@ import lombok.extern.slf4j.Slf4j;
 public class HeartBeat extends Thread {
 
 	private final long heartBeatInterval;
-	private final ServletContext servletContext;
 
-	public HeartBeat(long heartBeatInterval, ServletContext servletContext) {
+	public HeartBeat(long heartBeatInterval) {
 		super("appng-heartbeat");		
 		this.heartBeatInterval = heartBeatInterval;
-		this.servletContext = servletContext;
 	}
 
 	@Override
 	public void run() {
-		DefaultEnvironment env = DefaultEnvironment.get(servletContext);
+		DefaultEnvironment env = DefaultEnvironment.getGlobal();
 		Sender sender = Messaging.getMessageSender(env);
 		while (!isInterrupted()) {
 			boolean sent = sender.send(new NodeEvent(env, StringUtils.EMPTY));

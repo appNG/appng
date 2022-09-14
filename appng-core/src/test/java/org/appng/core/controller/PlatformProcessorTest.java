@@ -76,7 +76,8 @@ public class PlatformProcessorTest extends TestSupport {
 		URL resource = PlatformProcessorTest.class.getClassLoader().getResource("template/appng");
 		String templatePath = resource.toURI().getPath();
 		initRequest();
-		DefaultEnvironment env = DefaultEnvironment.get(ctx, request, response);
+		Mockito.when(request.getServletContext()).thenReturn(ctx);
+		DefaultEnvironment env = DefaultEnvironment.get(request, response);
 		env.setAttribute(Scope.REQUEST, EnvironmentKeys.RENDER, true);
 		provider.registerBean("environment", env);
 		Mockito.when(applicationRequest.getEnvironment()).thenReturn(env);
