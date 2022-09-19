@@ -50,11 +50,14 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpHeaders;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Default {@link Request} implementation, mostly delegating method-calls to one of the internal objects.
  * 
  * @author Matthias Müller
  */
+@Slf4j
 public class ApplicationRequest implements Request {
 
 	public static final String I18N_VAR = "i18n";
@@ -82,10 +85,12 @@ public class ApplicationRequest implements Request {
 	}
 
 	public PermissionProcessor getPermissionProcessor() {
+		LOGGER.info("#{} Getting {}", hashCode(), permissionProcessor);
 		return permissionProcessor;
 	}
 
 	public void setPermissionProcessor(PermissionProcessor permissionProcessor) {
+		LOGGER.info("#{} Setting {}", hashCode(), permissionProcessor);
 		this.permissionProcessor = permissionProcessor;
 	}
 
