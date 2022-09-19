@@ -73,7 +73,7 @@ public class ApplicationRequest implements Request {
 	private HttpHeaders headers;
 
 	public ApplicationRequest() {
-
+		LOGGER.info("#{} Created: {}", hashCode(), getStackTrace());
 	}
 
 	public ApplicationRequest(org.appng.forms.Request request, PermissionProcessor permissionProcessor,
@@ -85,13 +85,22 @@ public class ApplicationRequest implements Request {
 	}
 
 	public PermissionProcessor getPermissionProcessor() {
-		LOGGER.info("#{} Getting {}", hashCode(), permissionProcessor);
+		LOGGER.info("#{} Getting {}: {}", hashCode(), permissionProcessor, getStackTrace());
 		return permissionProcessor;
 	}
 
 	public void setPermissionProcessor(PermissionProcessor permissionProcessor) {
-		LOGGER.info("#{} Setting {}", hashCode(), permissionProcessor);
+		LOGGER.info("#{} Setting {}: {}", hashCode(), permissionProcessor, getStackTrace());
 		this.permissionProcessor = permissionProcessor;
+	}
+
+	String getStackTrace() {
+		StringBuilder sb = new StringBuilder();
+		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		for (int i = 2; i < 10; i++) {
+			sb.append(stackTrace[i] + "\n");
+		}
+		return sb.toString();
 	}
 
 	public LabelSupport getLabelSupport() {
