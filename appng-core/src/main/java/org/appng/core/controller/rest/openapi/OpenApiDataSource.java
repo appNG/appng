@@ -67,6 +67,7 @@ import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Linkmode;
+import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Option;
 import org.appng.xml.platform.PanelLocation;
@@ -127,10 +128,8 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		if (null == processedDataSource) {
 			LOGGER.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
 					site.getName());
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
-		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
+		if (!(HttpStatus.OK.value() == httpServletResponse.getStatus())) {
 			LOGGER.debug("Datasource {} on application {} of site {} returned status {}", processedDataSource.getId(),
 					application.getName(), site.getName(), httpServletResponse.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
@@ -223,7 +222,10 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				datasource.setItem(getItem(data.getSelections(), data.getResult(), metaData, getBindClass(metaData)));
 			}
 		}
-
+		Messages messages = processedDataSource.getMessages();
+		if (null != messages) {
+			datasource.setMessages(getMessages(messages));
+		}
 		return datasource;
 	}
 

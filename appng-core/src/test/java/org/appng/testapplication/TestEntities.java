@@ -68,6 +68,10 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 			entities.add(t1);
 			entities.add(t2);
 			dataContainer.setPage(entities, fp.getPageable());
+			fp.addErrorMessage("Error!");
+			fp.addNoticeMessage("Notice!");
+			fp.addInvalidMessage("Invalid!");
+			fp.addOkMessage("OK!");
 		} else if (id.equals("1")) {
 			addSelection(dataContainer);
 			dataContainer.setItem(t1);

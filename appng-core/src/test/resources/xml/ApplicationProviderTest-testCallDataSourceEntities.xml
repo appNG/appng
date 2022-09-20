@@ -46,6 +46,12 @@
 			</link>
 		</linkpanel>
 	</config>
+	<messages ref="entities">
+		<message ref="entities" class="NOTICE">Notice!</message>
+		<message ref="entities" class="OK">OK!</message>
+		<message ref="entities" class="ERROR">Error!</message>
+		<message ref="entities" class="INVALID">Invalid!</message>
+	</messages>
 	<data>
 		<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0" lastchunk="0" hits="2">
 			<result>
