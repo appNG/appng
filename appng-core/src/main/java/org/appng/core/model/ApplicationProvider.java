@@ -1067,43 +1067,47 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
 					application.getName(), site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
-			return null;
-		}
-		Environment environment = applicationRequest.getEnvironment();
-		if (permissionsPresent(action.getConfig()) || environment.isSubjectAuthenticated()) {
-			Params params = action.getConfig().getParams();
-			ActionRef actionRef = new ActionRef();
-			actionRef.setEventId(eventId);
-			actionRef.setId(actionId);
-			actionRef.setParams(params);
-			if (applyPermissionsOnRef) {
-				actionRef.setPermissions(action.getConfig().getPermissions());
-			}
-
-			setParamValues(applicationRequest, params);
-			CallableAction callableAction = new CallableAction(site, application, applicationRequest, actionRef);
-
-			if (callableAction.doInclude() || callableAction.doExecute()) {
-				LOGGER.debug("Performing action {}:{} of application {} on site {}", eventId, actionId,
-						application.getName(), site.getName());
-				callableAction.perform(false);
-				Messages messages = elementHelper.removeMessages(environment);
-				if (null != messages) {
-					messages.setRef(actionId);
-					action.setMessages(messages);
+		} else {
+			Environment environment = applicationRequest.getEnvironment();
+			if (permissionsPresent(action.getConfig()) || environment.isSubjectAuthenticated()) {
+				Params params = action.getConfig().getParams();
+				ActionRef actionRef = new ActionRef();
+				actionRef.setEventId(eventId);
+				actionRef.setId(actionId);
+				actionRef.setParams(params);
+				if (applyPermissionsOnRef) {
+					actionRef.setPermissions(action.getConfig().getPermissions());
 				}
-				return action;
+
+				setParamValues(applicationRequest, params);
+				CallableAction callableAction = new CallableAction(site, application, applicationRequest, actionRef);
+
+				if (callableAction.doInclude() || callableAction.doExecute()) {
+					LOGGER.debug("Performing action {}:{} of application {} on site {}", eventId, actionId,
+							application.getName(), site.getName());
+					callableAction.perform(false);
+					Messages messages = elementHelper.removeMessages(environment);
+					if (null != messages) {
+						messages.setRef(actionId);
+						action.setMessages(messages);
+					}
+					return action;
+				} else {
+					LOGGER.debug("Include condition for action {}:{} of application {} on site {} does not match.",
+							eventId, actionId, application.getName(), site.getName());
+				}
+			} else {
+				LOGGER.debug("Subject {} not authorized for action {}:{} on application {} of site {}",
+						getSubjectName(environment), eventId, actionId, application.getName(), site.getName());
+				servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 			}
-			LOGGER.debug("Include condition for action {}:{} of application {} on site {} does not match.", eventId,
-					actionId, application.getName(), site.getName());
 		}
-		Subject subject = environment.getSubject();
-		LOGGER.debug(
-				"Action {}:{} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
-				eventId, actionId, application.getName(), site.getName(),
-				subject == null ? "<unknown>" : subject.getAuthName());
-		servletResponse.setStatus(HttpStatus.FORBIDDEN.value());
 		return null;
+	}
+
+	private String getSubjectName(Environment environment) {
+		Subject subject = environment.getSubject();
+		return subject == null ? "<unknown>" : subject.getAuthName();
 	}
 
 	protected void setParamValues(ApplicationRequest applicationRequest, Params params) {
@@ -1128,38 +1132,37 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			LOGGER.debug("DataSource {} not found on application {} of site {}", dataSource, application.getName(),
 					site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
-			return null;
-		}
-		DataConfig config = dataSource.getConfig();
-		Environment environment = applicationRequest.getEnvironment();
-		if (permissionsPresent(config) || environment.isSubjectAuthenticated()) {
-			Params params = config.getParams();
-			DatasourceRef datasourceRef = new DatasourceRef();
-			datasourceRef.setId(dataSourceId);
-			if (applyPermissionsOnRef) {
-				datasourceRef.setPermissions(config.getPermissions());
-			}
-			datasourceRef.setParams(params);
-			setParamValues(applicationRequest, params);
-			ParameterSupport parameterSupport = applicationRequest.getParameterSupportDollar();
+		} else {
+			DataConfig config = dataSource.getConfig();
+			Environment environment = applicationRequest.getEnvironment();
+			if (permissionsPresent(config) || environment.isSubjectAuthenticated()) {
+				Params params = config.getParams();
+				DatasourceRef datasourceRef = new DatasourceRef();
+				datasourceRef.setId(dataSourceId);
+				if (applyPermissionsOnRef) {
+					datasourceRef.setPermissions(config.getPermissions());
+				}
+				datasourceRef.setParams(params);
+				setParamValues(applicationRequest, params);
+				ParameterSupport parameterSupport = applicationRequest.getParameterSupportDollar();
 
-			CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
-					parameterSupport, datasourceRef);
-			if (callableDataSource.doInclude()) {
-				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
-						application.getName(), site.getName());
-				callableDataSource.perform("service", false);
-				return callableDataSource.getDatasource();
+				CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
+						parameterSupport, datasourceRef);
+				if (callableDataSource.doInclude()) {
+					LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
+							application.getName(), site.getName());
+					callableDataSource.perform("service", false);
+					return callableDataSource.getDatasource();
+				} else {
+					LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
+							dataSourceId, application.getName(), site.getName());
+				}
+			} else {
+				LOGGER.debug("Subject {} not authorized for DataSource {} on application {} of site {}",
+						getSubjectName(environment), dataSource, application.getName(), site.getName());
+				servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 			}
-			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
-					dataSourceId, application.getName(), site.getName());
 		}
-		Subject subject = environment.getSubject();
-		LOGGER.debug(
-				"DataSource {} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
-				dataSource, application.getName(), site.getName(),
-				subject == null ? "<unknown>" : subject.getAuthName());
-		servletResponse.setStatus(HttpStatus.FORBIDDEN.value());
 		return null;
 	}
 
