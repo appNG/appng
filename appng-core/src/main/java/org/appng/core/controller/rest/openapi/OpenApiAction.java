@@ -102,8 +102,8 @@ abstract class OpenApiAction extends OpenApiOperation {
 		@PathVariable(name = "event-id") String eventId,
 		@PathVariable(name = "id") String actionId,
 		Environment env,
-		HttpServletRequest servletReq, 
-		HttpServletResponse servletResp
+		HttpServletRequest httpServletRequest, 
+		HttpServletResponse httpServletResponse
 	// @formatter:on
 	) throws JAXBException, InvalidConfigurationException, ProcessingException {
 		ApplicationProvider applicationProvider = (ApplicationProvider) application;
@@ -117,20 +117,20 @@ abstract class OpenApiAction extends OpenApiOperation {
 		}
 
 		MarshallService marshallService = MarshallService.getMarshallService();
-		RestRequest initialRequest = getInitialRequest(site, application, env, servletReq, applicationProvider);
-		applyPathParameters(servletReq, originalAction.getConfig(), initialRequest);
+		RestRequest initialRequest = getInitialRequest(site, application, env, httpServletRequest, applicationProvider);
+		applyPathParameters(httpServletRequest, originalAction.getConfig(), initialRequest);
 
-		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
+		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(httpServletResponse, false,
 				initialRequest, actionId, eventId, marshallService);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
 		}
 
-		if (servletResp.getStatus() != HttpStatus.OK.value()) {
+		if (!(HttpStatus.OK.value() == httpServletResponse.getStatus())) {
 			LOGGER.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
-					application.getName(), site.getName(), servletResp.getStatus());
-			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
+					application.getName(), site.getName(), httpServletResponse.getStatus());
+			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null, false, null);

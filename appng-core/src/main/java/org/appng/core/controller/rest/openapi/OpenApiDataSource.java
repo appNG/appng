@@ -130,7 +130,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 					site.getName());
 		}
 		if (!(HttpStatus.OK.value() == httpServletResponse.getStatus())) {
-			LOGGER.debug("Datasource {} on application {} of site {} returned status {}", processedDataSource.getId(),
+			LOGGER.debug("Datasource {} on application {} of site {} returned status {}", dataSourceId,
 					application.getName(), site.getName(), httpServletResponse.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
 		}
