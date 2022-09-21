@@ -248,7 +248,7 @@ public class ApplicationProviderTest extends TestBase {
 		Datasource datasource = applicationProvider.processDataSource(servletResponse, true, request, "undefined",
 				marshallService);
 		Assert.assertNull(datasource);
-		Assert.assertEquals(HttpStatus.NOT_FOUND.value(), servletResponse.getStatus());
+		Assert.assertEquals(HttpStatus.UNAUTHORIZED.value(), servletResponse.getStatus());
 	}
 
 	@Test
@@ -271,7 +271,7 @@ public class ApplicationProviderTest extends TestBase {
 		Action action = applicationProvider.processAction(servletResponse, true, request, "foo", "bar",
 				marshallService);
 		Assert.assertNull(action);
-		Assert.assertEquals(HttpStatus.NOT_FOUND.value(), servletResponse.getStatus());
+		Assert.assertEquals(HttpStatus.UNAUTHORIZED.value(), servletResponse.getStatus());
 	}
 
 	private void runTest(Path pathInfo) throws JAXBException, IOException {
