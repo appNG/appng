@@ -1092,16 +1092,13 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 						action.setMessages(messages);
 					}
 					return action;
-				} else {
-					LOGGER.debug("Include condition for action {}:{} of application {} on site {} does not match.",
-							eventId, actionId, application.getName(), site.getName());
 				}
-			} else {
-				LOGGER.debug("Subject {} not authorized for action {}:{} on application {} of site {}",
-						getSubjectName(environment), eventId, actionId, application.getName(), site.getName());
-				servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 			}
 		}
+		LOGGER.debug("Subject {} not authorized for action {}:{} on application {} of site {}",
+				getSubjectName(applicationRequest.getEnvironment()), eventId, actionId, application.getName(),
+				site.getName());
+		servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 		return null;
 	}
 
@@ -1153,16 +1150,12 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 							application.getName(), site.getName());
 					callableDataSource.perform("service", false);
 					return callableDataSource.getDatasource();
-				} else {
-					LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
-							dataSourceId, application.getName(), site.getName());
 				}
-			} else {
-				LOGGER.debug("Subject {} not authorized for DataSource {} on application {} of site {}",
-						getSubjectName(environment), dataSource, application.getName(), site.getName());
-				servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 			}
 		}
+		LOGGER.debug("Subject {} not authorized for DataSource {} on application {} of site {}",
+				getSubjectName(applicationRequest.getEnvironment()), dataSource, application.getName(), site.getName());
+		servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 		return null;
 	}
 
