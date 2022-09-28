@@ -136,8 +136,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 	private DatabaseConnection databaseConnection;
 
-	private ApplicationRequest applicationRequest;
-
 	private boolean monitorPerformance;
 
 	public ApplicationProvider(Site site, Application application, boolean monitorPerformance) {
@@ -367,8 +365,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		}
 	}
 
-	public PageReference processPage(MarshallService marshallService, Path pathInfo, String pageId,
-			List<String> sectionIds, List<String> applicationUrlParameters) {
+	public PageReference processPage(ApplicationRequest applicationRequest, MarshallService marshallService,
+			Path pathInfo, String pageId, List<String> sectionIds, List<String> applicationUrlParameters) {
 		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
 		Environment env = applicationRequest.getEnvironment();
 
@@ -1022,6 +1020,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 	public ApplicationRequest getApplicationRequest(HttpServletRequest servletRequest,
 			HttpServletResponse servletResponse, boolean createNew) {
+		ApplicationRequest applicationRequest;
 		Environment env = initEnvironment(servletRequest, servletResponse);
 		Subject subject = env.getSubject();
 		PermissionProcessor permissionProcessor = null;
@@ -1034,12 +1033,12 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		if (createNew) {
 			MessageSource messageSource = getBean(MessageSource.class);
 			ConversionService conversionService = getBean("conversionService", ConversionService.class);
-			RequestFactoryBean rfb = new RequestFactoryBean(servletRequest, env, site, application, conversionService,
-					messageSource);
+			RequestFactoryBean rfb = new RequestFactoryBean(servletRequest, servletResponse, env, site, application,
+					conversionService, messageSource);
 			rfb.afterPropertiesSet();
-			this.applicationRequest = (ApplicationRequest) rfb.getObject();
+			applicationRequest = (ApplicationRequest) rfb.getObject();
 		} else {
-			this.applicationRequest = getBean("request", ApplicationRequest.class);
+			applicationRequest = getBean("request", ApplicationRequest.class);
 		}
 
 		applicationRequest.setPermissionProcessor(permissionProcessor);
@@ -1200,12 +1199,12 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		return databaseConnection;
 	}
 
-	public void setPlatformScope() {
-		setPlatformScope(isCoreApplication());
+	public void setPlatformScope(Environment env) {
+		setPlatformScope(isPrivileged(), env);
 	}
 
-	public void setPlatformScope(boolean enabled) {
-		DefaultEnvironment defaultEnvironment = (DefaultEnvironment) applicationRequest.getEnvironment();
+	public void setPlatformScope(boolean enabled, Environment env) {
+		DefaultEnvironment defaultEnvironment = (DefaultEnvironment) env;
 		if (enabled) {
 			defaultEnvironment.enable(PLATFORM);
 		} else {
