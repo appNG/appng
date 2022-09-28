@@ -1033,8 +1033,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		if (createNew) {
 			MessageSource messageSource = getBean(MessageSource.class);
 			ConversionService conversionService = getBean("conversionService", ConversionService.class);
-			RequestFactoryBean rfb = new RequestFactoryBean(servletRequest, servletResponse, env, site, application,
-					conversionService, messageSource);
+			RequestFactoryBean rfb = new RequestFactoryBean(servletRequest, env, site, application, conversionService,
+					messageSource);
 			rfb.afterPropertiesSet();
 			applicationRequest = (ApplicationRequest) rfb.getObject();
 		} else {
