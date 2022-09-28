@@ -313,7 +313,7 @@ public class DefaultEnvironment implements Environment {
 	}
 
 	public ScopedEnvironment getEnvironment(Scope scope) {
-		if (scopeEnabled.get(scope)) {
+		if (Boolean.TRUE.equals(scopeEnabled.get(scope))) {
 			ScopedEnvironment env = null;
 			switch (scope) {
 			case PLATFORM:
