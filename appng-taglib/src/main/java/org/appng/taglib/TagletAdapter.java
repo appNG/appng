@@ -118,7 +118,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 		Request request = (Request) pageContext.getRequest().getAttribute(Request.REQUEST_PARSED);
 		if (null == request) {
 			request = new RequestBean();
-			request.process((HttpServletRequest) pageContext.getRequest());
+			request.process((HttpServletRequest) pageContext.getRequest(), (HttpServletResponse) pageContext.getResponse());
 		}
 		return request;
 	}
@@ -136,8 +136,8 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		ApplicationProvider applicationProvider = null;
+		Environment environment = getEnvironment();
 		try {
-			Environment environment = getEnvironment();
 			ApplicationContext ctx = environment.getAttribute(PLATFORM, Platform.Environment.CORE_PLATFORM_CONTEXT);
 
 			if (ctx.containsBean(TAGLET_PROCESSOR)) {
@@ -148,7 +148,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 				HttpServletResponse servletResponse = (HttpServletResponse) pageContext.getResponse();
 				ApplicationRequest applicationRequest = applicationProvider.getApplicationRequest(servletRequest,
 						servletResponse, true);
-				applicationProvider.setPlatformScope();
+				applicationProvider.setPlatformScope(environment);
 				if (null == type) {
 					type = "text";
 				}
@@ -166,7 +166,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 					servletRequest.getRequestURI()), ex);
 		} finally {
 			if (null != applicationProvider) {
-				applicationProvider.setPlatformScope(true);
+				applicationProvider.setPlatformScope(true, environment);
 			}
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
 		}

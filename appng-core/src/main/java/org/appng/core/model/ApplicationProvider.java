@@ -171,6 +171,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	public ApplicationReference process(ApplicationRequest applicationRequest, MarshallService marshallService,
 			Path pathInfo, PlatformConfig platformConfig) {
 		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
+		setPlatformScope(applicationRequest.getEnvironment());
 
 		ApplicationConfigProvider applicationConfigProvider = null;
 		try {
@@ -291,6 +292,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			performPage.stop();
 			pageReference.setExecutionTime(performPage.getTotalTimeMillis());
 		}
+		setPlatformScope(isPrivileged(), applicationRequest.getEnvironment());
 		return applicationReference;
 	}
 

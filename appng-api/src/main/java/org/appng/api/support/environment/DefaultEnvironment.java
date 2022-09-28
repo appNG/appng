@@ -313,28 +313,30 @@ public class DefaultEnvironment implements Environment {
 	}
 
 	public ScopedEnvironment getEnvironment(Scope scope) {
-		ScopedEnvironment env = null;
-		switch (scope) {
-		case PLATFORM:
-			env = platform;
-			break;
-		case SITE:
-			env = site;
-			break;
-		case SESSION:
-			env = session;
-			break;
-		case REQUEST:
-			env = request;
-			break;
-		default:
-			LOGGER.warn("no environment found for scope {}", scope);
-		}
-		if (null != env && scopeEnabled.get(scope)) {
+		if (scopeEnabled.get(scope)) {
+			ScopedEnvironment env = null;
+			switch (scope) {
+			case PLATFORM:
+				env = platform;
+				break;
+			case SITE:
+				env = site;
+				break;
+			case SESSION:
+				env = session;
+				break;
+			case REQUEST:
+				env = request;
+				break;
+			case URL:
+				break;
+			}
+			if (null == env) {
+				LOGGER.warn("Scope {} is not available!", scope);
+			}
 			return env;
-		}
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("scope {} is not available", scope);
+		} else {
+			LOGGER.warn("Scope {} is not enabled!", scope);
 		}
 		return null;
 	}
