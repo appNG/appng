@@ -50,14 +50,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpHeaders;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Default {@link Request} implementation, mostly delegating method-calls to one of the internal objects.
  * 
  * @author Matthias Müller
  */
-@Slf4j
 public class ApplicationRequest implements Request {
 
 	public static final String I18N_VAR = "i18n";
@@ -72,10 +69,6 @@ public class ApplicationRequest implements Request {
 	private List<String> urlParameters;
 	private HttpHeaders headers;
 
-	public ApplicationRequest() {
-		LOGGER.info("#{} Created: {}", hashCode(), getStackTrace());
-	}
-
 	public ApplicationRequest(org.appng.forms.Request request, PermissionProcessor permissionProcessor,
 			RequestSupport requestSupport) {
 		this.permissionProcessor = permissionProcessor;
@@ -85,22 +78,11 @@ public class ApplicationRequest implements Request {
 	}
 
 	public PermissionProcessor getPermissionProcessor() {
-		LOGGER.info("#{} Getting {}: {}", hashCode(), permissionProcessor, getStackTrace());
 		return permissionProcessor;
 	}
 
 	public void setPermissionProcessor(PermissionProcessor permissionProcessor) {
-		LOGGER.info("#{} Setting {}: {}", hashCode(), permissionProcessor, getStackTrace());
 		this.permissionProcessor = permissionProcessor;
-	}
-
-	String getStackTrace() {
-		StringBuilder sb = new StringBuilder();
-		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		for (int i = 2; i < 10; i++) {
-			sb.append(stackTrace[i] + "\n");
-		}
-		return sb.toString();
 	}
 
 	public LabelSupport getLabelSupport() {
