@@ -118,7 +118,7 @@ public class TagletAdapter extends BodyTagSupport implements ParameterOwner {
 		Request request = (Request) pageContext.getRequest().getAttribute(Request.REQUEST_PARSED);
 		if (null == request) {
 			request = new RequestBean();
-			request.process((HttpServletRequest) pageContext.getRequest(), (HttpServletResponse) pageContext.getResponse());
+			request.process((HttpServletRequest) pageContext.getRequest());
 		}
 		return request;
 	}
