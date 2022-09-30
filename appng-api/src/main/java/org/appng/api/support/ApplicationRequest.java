@@ -69,6 +69,10 @@ public class ApplicationRequest implements Request {
 	private List<String> urlParameters;
 	private HttpHeaders headers;
 
+	public ApplicationRequest() {
+
+	}
+
 	public ApplicationRequest(org.appng.forms.Request request, PermissionProcessor permissionProcessor,
 			RequestSupport requestSupport) {
 		this.permissionProcessor = permissionProcessor;
