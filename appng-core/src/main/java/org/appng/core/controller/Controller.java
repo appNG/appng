@@ -49,6 +49,7 @@ import org.appng.api.Platform;
 import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
@@ -80,6 +81,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @WebServlet(name = "controller", urlPatterns = { "/", "*.jsp" }, loadOnStartup = 1)
 public class Controller extends DefaultServlet implements ContainerServlet {
+
+	protected static final String HEADER_VERSION = "X-appNG-Version";
+	protected static final String HEADER_SITE = "X-appNG-Site";
+	protected static final String HEADER_NODE = "X-appNG-Node";
 
 	private static final String SLASH = "/";
 
@@ -179,6 +184,9 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 			return;
 		}
+
+		addDebugHeaders(servletResponse, env, site);
+
 		String servletPath = servletRequest.getServletPath();
 		PathInfo pathInfo = RequestUtil.getPathInfo(env, site, servletPath);
 		if (pathInfo.isMonitoring()) {
@@ -251,7 +259,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 				requestHandler = jspHandler;
 			} else {
 				requestHandler = errorHandler;
-			} 
+			}
 
 			if (null != requestHandler) {
 				if (site.hasState(SiteState.STARTED)) {
@@ -273,6 +281,15 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 		}
 
+	}
+
+	private void addDebugHeaders(HttpServletResponse servletResponse, Environment env, Site site) {
+		if (site.getProperties().getBoolean(SiteProperties.SET_DEBUG_HEADERS, false)) {
+			servletResponse.setHeader(HEADER_NODE, Messaging.getNodeId(env));
+			servletResponse.setHeader(HEADER_VERSION,
+					env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
+			servletResponse.setHeader(HEADER_SITE, site.getName());
+		}
 	}
 
 	protected Environment getEnvironment() {
