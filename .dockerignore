@@ -1,3 +1,5 @@
+Dockerfile
+docker-compose.yml
 .classpath
 .project
 .settings
