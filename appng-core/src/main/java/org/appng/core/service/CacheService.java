@@ -17,6 +17,7 @@ package org.appng.core.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -335,9 +336,9 @@ public class CacheService {
 				final String completePrefix = HttpMethod.GET.name() + cacheElementPrefix;
 
 				Set<String> keys = null;
-				CacheEntryListener listener;
+				CacheEntryListener listener = getCacheEntryListener(cache);
 
-				if (!useCacheEntryListener(site) || null == (listener = getCacheEntryListener(cache))) {
+				if (!useCacheEntryListener(site) || null == listener) {
 					count = cache.unwrap(ICache.class).size();
 					keys = Streams.stream(cache.iterator()).map(Entry::getKey).filter(k -> k.startsWith(completePrefix))
 							.collect(Collectors.toSet());
@@ -365,13 +366,15 @@ public class CacheService {
 	}
 
 	private static CacheEntryListener getCacheEntryListener(Cache<String, CachedResponse> cache) {
+		CacheEntryListener listener = null;
 		@SuppressWarnings("unchecked")
 		CacheConfig<String, CachedResponse> configuration = (CacheConfig<String, CachedResponse>) cache
 				.getConfiguration(CacheConfig.class);
-		CacheEntryListenerConfiguration<String, CachedResponse> listenerConfiguration = configuration
-				.getListenerConfigurations().iterator().next();
-		CacheEntryListener listener = (CacheEntryListener) listenerConfiguration.getCacheEntryListenerFactory()
-				.create();
+		Iterator<CacheEntryListenerConfiguration<String, CachedResponse>> listenerConfigs = configuration
+				.getListenerConfigurations().iterator();
+		if (listenerConfigs.hasNext()) {
+			listener = (CacheEntryListener) listenerConfigs.next().getCacheEntryListenerFactory().create();
+		}
 		return listener;
 	}
 

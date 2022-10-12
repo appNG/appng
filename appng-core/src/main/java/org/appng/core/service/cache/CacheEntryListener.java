@@ -28,9 +28,15 @@ import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 
 import org.appng.core.controller.CachedResponse;
+import org.appng.core.service.CacheService;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * A {@link javax.cache.event.CacheEntryListener} that keeps track of the caches's keys. Used in {@link CacheService} to
+ * make it possible to expire cache elements by their key without having to iterate over all the values (which is slow
+ * for large caches).
+ */
 @Slf4j
 public class CacheEntryListener
 		implements CacheEntryCreatedListener<String, CachedResponse>, CacheEntryRemovedListener<String, CachedResponse>,
