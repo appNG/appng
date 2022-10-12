@@ -149,6 +149,18 @@ public class PageCacheFilterTest {
 	}
 
 	@Test
+	public void testIsExceptionPathMatch() {
+		String servletPath = "/foo/bar/lore/ipsum";
+		Assert.assertTrue(PageCacheFilter.isException(servletPath, servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/bar/lore/ip?um", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/bar/*/*", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/bar/**", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/**", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/*/lore/*", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/**/ipsum", servletPath));
+	}
+
+	@Test
 	public void testGetExpireAfterSeconds() {
 		Integer defaultCacheTime = Integer.valueOf(1800);
 		Integer oneMin = Integer.valueOf(60);
