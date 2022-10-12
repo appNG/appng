@@ -314,11 +314,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					conditionMatches = ElementHelper.conditionMatches(conditionEvaluator, action.getCondition());
 					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(action));
 					if (!conditionMatches) {
-						LOGGER.info("include condition for action '{}' of event '{}' did not match - {}",
+						LOGGER.debug("include condition for action '{}' of event '{}' did not match - {}",
 								action.getId(), action.getEventId(), action.getCondition().getExpression());
 					}
 					if (!hasPermission) {
-						LOGGER.info("missing permissions for action '{}' of event '{}'", action.getId(),
+						LOGGER.debug("missing permissions for action '{}' of event '{}'", action.getId(),
 								action.getEventId());
 					}
 				}
@@ -327,11 +327,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					conditionMatches = ElementHelper.conditionMatches(conditionEvaluator, datasource.getCondition());
 					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(datasource));
 					if (!conditionMatches) {
-						LOGGER.info("include condition for datasource '{}' did not match - {}", datasource.getId(),
+						LOGGER.debug("include condition for datasource '{}' did not match - {}", datasource.getId(),
 								datasource.getCondition().getExpression());
 					}
 					if (!hasPermission) {
-						LOGGER.info("missing permissions for datasource '{}' ", datasource.getId());
+						LOGGER.debug("missing permissions for datasource '{}' ", datasource.getId());
 					}
 				}
 
