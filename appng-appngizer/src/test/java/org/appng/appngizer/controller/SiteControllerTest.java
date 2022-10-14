@@ -29,6 +29,9 @@ public class SiteControllerTest extends ControllerTest {
 		Site created = new Site();
 		created.setName("localhost");
 		created.setHost("localhost");
+		created.setHostAliases("remotehost" + System.lineSeparator() + "overtherehost" + System.lineSeparator() +
+				"farawayhost" + System.lineSeparator() + "strayhost"
+		);
 		created.setDomain("http://localhost:8081");
 		created.setDescription("none");
 		created.setActive(false);
@@ -40,6 +43,7 @@ public class SiteControllerTest extends ControllerTest {
 		Site updated = new Site();
 		updated.setName("localhost");
 		updated.setHost("localhost");
+		updated.setHostAliases("onlyonelefthost");
 		updated.setDomain("http://localhost:8080");
 		updated.setDescription("the local host");
 		updated.setActive(true);

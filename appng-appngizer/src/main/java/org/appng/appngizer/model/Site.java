@@ -15,6 +15,11 @@
  */
 package org.appng.appngizer.model;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.appng.core.domain.SiteImpl;
 
 public class Site extends org.appng.appngizer.model.xml.Site implements UriAware {
@@ -30,6 +35,8 @@ public class Site extends org.appng.appngizer.model.xml.Site implements UriAware
 		Site site = new Site(siteImpl.getName());
 		site.setActive(siteImpl.isActive());
 		site.setHost(siteImpl.getHost());
+		site.setHostAliases(
+				siteImpl.getHostAliases().stream().sorted().collect(Collectors.joining(System.lineSeparator())));
 		site.setDomain(siteImpl.getDomain());
 		site.setDescription(siteImpl.getDescription());
 		site.setSelf("/site/" + site.getName());
@@ -42,10 +49,21 @@ public class Site extends org.appng.appngizer.model.xml.Site implements UriAware
 		site.setName(s.getName());
 		site.setActive(s.isActive());
 		site.setHost(s.getHost());
+		site.setHostAliases(hostAliasesToDomain(s.getHostAliases()));
 		site.setDomain(s.getDomain());
 		site.setDescription(s.getDescription());
 		site.setCreateRepository(s.isCreateRepositoryPath());
 		return site;
+	}
+
+	public static Set<String> hostAliasesToDomain(String hostAliases) {
+		Set<String> hostnames = new HashSet<>();
+		Pattern splitPattern = Pattern.compile("^[ \t]*(.+?)[ \t]*$", Pattern.MULTILINE);
+		Matcher splitMatcher = splitPattern.matcher(hostAliases);
+		while (splitMatcher.find()) {
+			hostnames.add(splitMatcher.group(1));
+		}
+		return hostnames;
 	}
 
 }

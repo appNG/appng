@@ -19,8 +19,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -147,6 +151,7 @@ public class SiteController extends ControllerBase {
 		}
 		siteByName.setHost(site.getHost());
 		siteByName.setDomain(site.getDomain());
+		siteByName.setHostAliases(Site.hostAliasesToDomain(site.getHostAliases()));
 		siteByName.setDescription(site.getDescription());
 		siteByName.setActive(site.isActive());
 		getCoreService().saveSite(siteByName);

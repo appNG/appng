@@ -7,6 +7,10 @@
 		<link name="reload" self="http://localhost/appNGizer/site/localhost/reload" />
 	</links>
 	<host>localhost</host>
+	<hostAliases>farawayhost
+overtherehost
+remotehost
+strayhost</hostAliases>
 	<domain>http://localhost:8081</domain>
 	<description>none</description>
 	<active>false</active>
