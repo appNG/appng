@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sites self="http://localhost/appNGizer/site" xmlns="http://www.appng.org/schema/appngizer">
-	<site name="localhost" self="http://localhost/appNGizer/site/localhost">
+<sites xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/appNGizer/site">
+	<site name="nakedhost" self="http://localhost/appNGizer/site/nakedhost">
 		<links>
-			<link name="properties" self="http://localhost/appNGizer/site/localhost/property" />
-			<link name="applications" self="http://localhost/appNGizer/site/localhost/application" />
-			<link name="databases" self="http://localhost/appNGizer/site/localhost/database" />
+			<link name="properties" self="http://localhost/appNGizer/site/nakedhost/property"/>
+			<link name="applications" self="http://localhost/appNGizer/site/nakedhost/application"/>
+			<link name="databases" self="http://localhost/appNGizer/site/nakedhost/database"/>
 		</links>
-		<host>localhost</host>
-		<domain>http://localhost:8080</domain>
-		<description>the local host</description>
-		<active>true</active>
+		<host>nakedhost</host>
+		<domain>http://nakedhost:8081</domain>
+		<active>false</active>
+		<createRepositoryPath>true</createRepositoryPath>
+	</site>
+	<site name="regularhost" self="http://localhost/appNGizer/site/regularhost">
+		<links>
+			<link name="properties" self="http://localhost/appNGizer/site/regularhost/property"/>
+			<link name="applications" self="http://localhost/appNGizer/site/regularhost/application"/>
+			<link name="databases" self="http://localhost/appNGizer/site/regularhost/database"/>
+		</links>
+		<host>regularhost</host>
+		<hostAliases>
+			<alias>KillEmAllHost</alias>
+			<alias>MasterofPuppetsHost</alias>
+			<alias>RidetheLightningHost</alias>
+		</hostAliases>
+		<domain>http://regularhost:8081</domain>
+		<description>36:38 regular fit</description>
+		<active>false</active>
 		<createRepositoryPath>true</createRepositoryPath>
 	</site>
 </sites>

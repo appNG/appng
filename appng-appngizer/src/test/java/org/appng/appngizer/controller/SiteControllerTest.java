@@ -25,47 +25,77 @@ import org.springframework.http.HttpStatus;
 public class SiteControllerTest extends ControllerTest {
 
 	@Test
-	public void testCreateRetrieveAndUpdate() throws Exception {
-		Site created = new Site();
-		created.setName("localhost");
-		created.setHost("localhost");
-		created.setHostAliases("remotehost" + System.lineSeparator() + "overtherehost" + System.lineSeparator() +
-				"farawayhost" + System.lineSeparator() + "strayhost"
-		);
-		created.setDomain("http://localhost:8081");
-		created.setDescription("none");
-		created.setActive(false);
-		created.setCreateRepositoryPath(true);
+	public void test01_SiteCreate() throws Exception {
+		// Null where xsd allows it.
+		Site siteNoOptionals = getAppNGizerSite("nakedhost", "nakedhost", null, "http://nakedhost:8081", null, false,
+				true);
+		postAndVerify("/site", "xml/site-create-nakedhost.xml", siteNoOptionals, HttpStatus.CREATED);
 
-		postAndVerify("/site", "xml/site-create.xml", created, HttpStatus.CREATED);
-		postAndVerify("/site", null, created, HttpStatus.CONFLICT);
-
-		Site updated = new Site();
-		updated.setName("localhost");
-		updated.setHost("localhost");
-		updated.setHostAliases("onlyonelefthost");
-		updated.setDomain("http://localhost:8080");
-		updated.setDescription("the local host");
-		updated.setActive(true);
-		putAndVerify("/site/localhost", "xml/site-update.xml", updated, HttpStatus.OK);
-
+		// A regular site (not active yet).
+		Site siteRegular = getAppNGizerSite("regularhost", "regularhost",
+				new String[] { "KillEmAllHost", "RidetheLightningHost", "MasterofPuppetsHost" },
+				"http://regularhost:8081", "36:38 regular fit", false, true);
+		postAndVerify("/site", "xml/site-create-regularhost.xml", siteRegular, HttpStatus.CREATED);
 	}
 
 	@Test
-	public void testDelete() throws Exception {
-		Site created = new Site();
-		created.setName("deleteme");
-		created.setHost("deleteme");
-		created.setDomain("http://deleteme:8080");
-		created.setDescription("deleteme");
-		created.setActive(false);
+	public void test02_SiteCollisions() throws Exception {
+		// New Site with name collision.
+		Site siteNameCollision = getAppNGizerSite("regularhost", "regularhost", null, "http://regularhost:8081", null,
+				true, true);
+		postAndVerify("/site", null, siteNameCollision, HttpStatus.CONFLICT);
 
-		postAndVerify("/site", null, created, HttpStatus.CREATED);
+		// New Stie with collision between new alias-name and existing site-name.
+		/* Functionality not implemented yet.
+		Site siteAlias2NameCollision = getAppNGizerSite("newnamehost", "newnamehost",
+				new String[] { "regularhost" }, "http://newnamehost:8081", null, true, true);
+		postAndVerify("/site", null, siteAlias2NameCollision, HttpStatus.CONFLICT);
+		*/
+
+		// New Site with collision between new alias-name and existing alias-name.
+		/*
+		Site siteAliasCollision = getAppNGizerSite("newnamehost", "newnamehost",
+				new String[] { "RidetheLightningHost" }, "http://newnamehost:8081", null, true, true);
+		postAndVerify("/site", null, siteAliasCollision, HttpStatus.CONFLICT);
+		*/
+	}
+
+	/*
+	@Test
+	public void test03_SiteUpdate() throws Exception {
+	  ToDo
+	}
+	*/
+
+	@Test
+	public void test04_SiteDelete() throws Exception {
+		Site siteDeleteDummy = getAppNGizerSite("deleteme", "deleteme", null, "http://deleteme:8080", "deleteme",
+				false, true);
+		postAndVerify("/site", null, siteDeleteDummy, HttpStatus.CREATED);
 		deleteAndVerify("/site/deleteme", "", HttpStatus.NO_CONTENT);
 	}
 
 	@Test
-	public void testList() throws Exception {
+	public void test05_SiteList() throws Exception {
 		getAndVerify("/site", "xml/site-list.xml", HttpStatus.OK);
+	}
+
+	private Site getAppNGizerSite(String name, String host, String[] aliasNames, String domain, String description,
+			boolean active, boolean repoPath) {
+		Site site = new Site();
+		site.setName(name);
+		site.setHost(host);
+		if (null != aliasNames) {
+			Site.HostAliases hostAliases = new Site.HostAliases();
+			for (String aliasName : aliasNames) {
+				hostAliases.getAlias().add(aliasName);
+			}
+			site.setHostAliases(hostAliases);
+		}
+		site.setDomain(domain);
+		site.setDescription(description);
+		site.setActive(active);
+		site.setCreateRepositoryPath(repoPath);
+		return site;
 	}
 }

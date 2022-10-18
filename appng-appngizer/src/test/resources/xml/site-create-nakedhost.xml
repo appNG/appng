@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<site xmlns="http://www.appng.org/schema/appngizer" name="nakedhost" self="http://localhost/appNGizer/site/nakedhost">
+	<links>
+		<link name="properties" self="http://localhost/appNGizer/site/nakedhost/property" />
+		<link name="applications" self="http://localhost/appNGizer/site/nakedhost/application" />
+		<link name="databases" self="http://localhost/appNGizer/site/nakedhost/database" />
+		<link name="reload" self="http://localhost/appNGizer/site/nakedhost/reload" />
+	</links>
+	<host>nakedhost</host>
+	<domain>http://nakedhost:8081</domain>
+	<active>false</active>
+	<createRepositoryPath>true</createRepositoryPath>
+</site>

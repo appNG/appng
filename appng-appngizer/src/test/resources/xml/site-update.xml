@@ -7,7 +7,9 @@
 		<link name="reload" self="http://localhost/appNGizer/site/localhost/reload" />
 	</links>
 	<host>localhost</host>
-	<hostAliases>onlyonelefthost</hostAliases>
+	<hostAliases>
+		<alias>onlyonelefthost</alias>
+	</hostAliases>
 	<domain>http://localhost:8080</domain>
 	<description>the local host</description>
 	<active>true</active>

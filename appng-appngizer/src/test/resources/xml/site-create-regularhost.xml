@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<site xmlns="http://www.appng.org/schema/appngizer" name="regularhost" self="http://localhost/appNGizer/site/regularhost">
+	<links>
+		<link name="properties" self="http://localhost/appNGizer/site/regularhost/property" />
+		<link name="applications" self="http://localhost/appNGizer/site/regularhost/application" />
+		<link name="databases" self="http://localhost/appNGizer/site/regularhost/database" />
+		<link name="reload" self="http://localhost/appNGizer/site/regularhost/reload" />
+	</links>
+	<host>regularhost</host>
+	<hostAliases>
+		<alias>KillEmAllHost</alias>
+		<alias>MasterofPuppetsHost</alias>
+		<alias>RidetheLightningHost</alias>
+	</hostAliases>
+	<domain>http://regularhost:8081</domain>
+	<description>36:38 regular fit</description>
+	<active>false</active>
+	<createRepositoryPath>true</createRepositoryPath>
+</site>

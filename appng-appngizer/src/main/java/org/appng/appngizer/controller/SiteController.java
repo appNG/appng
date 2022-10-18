@@ -138,6 +138,8 @@ public class SiteController extends ControllerBase {
 		if (null != currentSite) {
 			return conflict();
 		}
+		SiteImpl siteToCreate = Site.toDomain(site);
+		StringBuffer siteProblems = new StringBuffer();
 		getCoreService().createSite(Site.toDomain(site));
 		return created(getSite(site.getName()).getBody());
 	}
@@ -151,7 +153,8 @@ public class SiteController extends ControllerBase {
 		}
 		siteByName.setHost(site.getHost());
 		siteByName.setDomain(site.getDomain());
-		siteByName.setHostAliases(Site.hostAliasesToDomain(site.getHostAliases()));
+		if (null != siteByName.getHostAliases())
+			siteByName.setHostAliases(new HashSet<>(site.getHostAliases().getAlias()));
 		siteByName.setDescription(site.getDescription());
 		siteByName.setActive(site.isActive());
 		getCoreService().saveSite(siteByName);
@@ -159,16 +162,14 @@ public class SiteController extends ControllerBase {
 	}
 
 	@DeleteMapping(value = "/site/{name}")
-	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name)
-			throws BusinessException {
+	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name) throws BusinessException {
 		SiteImpl currentSite = getSiteByName(name);
 		if (null == currentSite) {
 			return notFound();
 		}
 		Environment environment = DefaultEnvironment.getGlobal();
 		org.appng.api.model.Site site = RequestUtil.getSiteByName(environment, name);
-		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED
-				|| site.getState() == SiteState.STOPPING)) {
+		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED || site.getState() == SiteState.STOPPING)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		getCoreService().deleteSite(name, new FieldProcessorImpl("delete-site"));
