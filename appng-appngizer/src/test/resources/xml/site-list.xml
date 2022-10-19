@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <sites xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/appNGizer/site">
-	<site name="nakedhost" self="http://localhost/appNGizer/site/nakedhost">
+	<site name="naked1" self="http://localhost/appNGizer/site/naked1">
 		<links>
-			<link name="properties" self="http://localhost/appNGizer/site/nakedhost/property"/>
-			<link name="applications" self="http://localhost/appNGizer/site/nakedhost/application"/>
-			<link name="databases" self="http://localhost/appNGizer/site/nakedhost/database"/>
+			<link name="properties" self="http://localhost/appNGizer/site/naked1/property"/>
+			<link name="applications" self="http://localhost/appNGizer/site/naked1/application"/>
+			<link name="databases" self="http://localhost/appNGizer/site/naked1/database"/>
 		</links>
-		<host>nakedhost</host>
+		<host>NotSoNakedAnyMoreHost</host>
+		<hostAliases>
+			<alias>CoverMeInAliasesHost</alias>
+		</hostAliases>
 		<domain>http://nakedhost:8081</domain>
-		<active>false</active>
+		<description>Descriptive clothing</description>
+		<active>true</active>
 		<createRepositoryPath>true</createRepositoryPath>
 	</site>
-	<site name="regularhost" self="http://localhost/appNGizer/site/regularhost">
+	<site name="regular1" self="http://localhost/appNGizer/site/regular1">
 		<links>
-			<link name="properties" self="http://localhost/appNGizer/site/regularhost/property"/>
-			<link name="applications" self="http://localhost/appNGizer/site/regularhost/application"/>
-			<link name="databases" self="http://localhost/appNGizer/site/regularhost/database"/>
+			<link name="properties" self="http://localhost/appNGizer/site/regular1/property"/>
+			<link name="applications" self="http://localhost/appNGizer/site/regular1/application"/>
+			<link name="databases" self="http://localhost/appNGizer/site/regular1/database"/>
 		</links>
 		<host>regularhost</host>
 		<hostAliases>

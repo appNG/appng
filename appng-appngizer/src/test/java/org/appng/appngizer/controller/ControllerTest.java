@@ -143,8 +143,8 @@ public abstract class ControllerTest {
 			RepositoryCacheFactory.init(null, null, null, null, false);
 			Properties defaultOverrides = new Properties();
 			defaultOverrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
-			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true,
-					false);
+			wac.getBean(CoreService.class)
+					.initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true, false);
 			DefaultEnvironment.initGlobal(this.wac.getServletContext());
 			platformInitialized = true;
 		}
@@ -170,7 +170,7 @@ public abstract class ControllerTest {
 	protected MockHttpServletResponse getAndVerify(String uri, String controlSource, HttpStatus status)
 			throws Exception {
 		MockHttpServletRequestBuilder get = MockMvcRequestBuilders.get(new URI(uri));
-		return verify(get, status, controlSource);
+		return verify(get, status, controlSource, false);
 	}
 
 	protected MockHttpServletResponse deleteAndVerify(String uri, String controlSource, HttpStatus status)
@@ -185,7 +185,12 @@ public abstract class ControllerTest {
 	}
 
 	protected MockHttpServletResponse sendBodyAndVerify(MockHttpServletRequestBuilder builder, Object content,
-			HttpStatus status, String controlSource)
+			HttpStatus status, String controlSource) throws Exception {
+		return sendBodyAndVerify(builder, content, status, controlSource, false);
+	}
+
+	protected MockHttpServletResponse sendBodyAndVerify(MockHttpServletRequestBuilder builder, Object content,
+			HttpStatus status, String controlSource, boolean validateFromLiteral)
 			throws Exception, UnsupportedEncodingException, SAXException, IOException {
 		if (null != content) {
 			builder.contentType(MediaType.TEXT_XML_VALUE);
@@ -193,11 +198,12 @@ public abstract class ControllerTest {
 			marshaller.marshal(content, result);
 			builder.content(result.toString());
 		}
-		return verify(builder, status, controlSource);
+		return verify(builder, status, controlSource, validateFromLiteral);
 	}
 
 	protected MockHttpServletResponse verify(MockHttpServletRequestBuilder builder, HttpStatus status,
-			String controlSource) throws Exception, UnsupportedEncodingException, SAXException, IOException {
+			String controlSource, boolean validateFromLiteral)
+			throws Exception {
 		builder.header(HttpHeaders.AUTHORIZATION, "Bearer 4711");
 		MvcResult mvcResult = mockMvc.perform(builder).andReturn();
 		MockHttpServletResponse response = mvcResult.getResponse();
@@ -205,7 +211,11 @@ public abstract class ControllerTest {
 		if (HttpStatus.OK.equals(status)) {
 			Assert.assertEquals("Content type does not match ", MediaType.TEXT_XML_VALUE, response.getContentType());
 		}
-		validate(response.getContentAsString(), controlSource);
+		if (validateFromLiteral) {
+			Assert.assertEquals(controlSource, response.getContentAsString());
+		} else {
+			validate(response.getContentAsString(), controlSource);
+		}
 		return response;
 	}
 

@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -133,13 +131,13 @@ public class SiteController extends ControllerBase {
 	}
 
 	@PostMapping(value = "/site")
-	public ResponseEntity<Site> createSite(@RequestBody org.appng.appngizer.model.xml.Site site) {
-		SiteImpl currentSite = getSiteByName(site.getName());
-		if (null != currentSite) {
-			return conflict();
-		}
+	public ResponseEntity<Site> createSite(@RequestBody org.appng.appngizer.model.xml.Site site,
+			HttpServletRequest request) throws ConflictException {
 		SiteImpl siteToCreate = Site.toDomain(site);
-		StringBuffer siteProblems = new StringBuffer();
+		ArrayList<String> conflictMsgs = new ArrayList<>();
+		if (getCoreService().checkSiteNameConflicts(siteToCreate, "all", request.getLocale(), conflictMsgs)) {
+			throw new ConflictException(String.join(System.lineSeparator(), conflictMsgs));
+		}
 		getCoreService().createSite(Site.toDomain(site));
 		return created(getSite(site.getName()).getBody());
 	}
