@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -73,6 +74,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	protected static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
+
+	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
 	public void destroy() {
 	}
@@ -281,8 +284,16 @@ public class PageCacheFilter implements javax.servlet.Filter {
 
 	static boolean isException(String exceptionsProp, String servletPath) {
 		if (null != exceptionsProp) {
-			return Arrays.asList(exceptionsProp.split(StringUtils.LF)).stream()
-					.filter(e -> servletPath.startsWith(e.trim())).findFirst().isPresent();
+			Optional<String> matchingRule = Arrays.asList(exceptionsProp.split(StringUtils.LF)).stream()
+					.filter(e -> PATH_MATCHER.isPattern(e.trim()) ? PATH_MATCHER.match(e.trim(), servletPath)
+							: servletPath.startsWith(e.trim()))
+					.findFirst();
+			if (matchingRule.isPresent()) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("'{}' matched exception '{}'", servletPath, matchingRule.get());
+				}
+				return true;
+			}
 		}
 		return false;
 	}
@@ -292,8 +303,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		if (null != cachingTimes && !cachingTimes.isEmpty()) {
 			if (antStylePathMatching) {
 				for (Object path : cachingTimes.keySet()) {
-					AntPathMatcher matcher = new AntPathMatcher();
-					if (matcher.match(path.toString(), servletPath)) {
+					if (PATH_MATCHER.match(path.toString(), servletPath)) {
 						Object entry = cachingTimes.get(path);
 						return Integer.valueOf(entry.toString().trim());
 					}

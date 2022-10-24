@@ -36,6 +36,7 @@ import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
+import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.model.ApplicationProvider;
 import org.appng.openapi.model.Action;
@@ -127,8 +128,8 @@ abstract class OpenApiPage extends OpenApiOperation {
 		List<String> sectionIds = null == sections ? Collections.emptyList() : Arrays.asList(sections);
 		List<String> urlParameters = null == pageUrlParams ? Collections.emptyList()
 				: Arrays.asList(pageUrlParams.split("/"));
-		org.appng.xml.platform.PageReference pageReference = applicationProvider.processPage(marshallService, pathInfo,
-				pageId, sectionIds, urlParameters);
+		org.appng.xml.platform.PageReference pageReference = applicationProvider.processPage(
+				(ApplicationRequest) request, marshallService, pathInfo, pageId, sectionIds, urlParameters);
 
 		PageDefinition pageDefinition = new PageDefinition();
 		User user = getUser(env);

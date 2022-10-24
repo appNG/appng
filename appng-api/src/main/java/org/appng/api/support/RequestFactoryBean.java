@@ -130,7 +130,7 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 	}
 
 	public boolean isSingleton() {
-		return true;
+		return false;
 	}
 
 	private File getUploadDir(Properties properties) {

@@ -167,7 +167,8 @@ public class SiteController extends ControllerBase {
 		}
 		Environment environment = DefaultEnvironment.getGlobal();
 		org.appng.api.model.Site site = RequestUtil.getSiteByName(environment, name);
-		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED || site.getState() == SiteState.STOPPING)) {
+		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED
+				|| site.getState() == SiteState.STOPPING)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		getCoreService().deleteSite(name, new FieldProcessorImpl("delete-site"));

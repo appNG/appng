@@ -67,6 +67,7 @@ import org.appng.xml.platform.Datafield;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Linkmode;
+import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Option;
 import org.appng.xml.platform.PanelLocation;
@@ -127,11 +128,9 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		if (null == processedDataSource) {
 			LOGGER.debug("Datasource {} not found on application {} of site {}", dataSourceId, application.getName(),
 					site.getName());
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
-		if (httpServletResponse.getStatus() != HttpStatus.OK.value()) {
-			LOGGER.debug("Datasource {} on application {} of site {} returned status {}", processedDataSource.getId(),
+		if (!(HttpStatus.OK.value() == httpServletResponse.getStatus())) {
+			LOGGER.debug("Datasource {} on application {} of site {} returned status {}", dataSourceId,
 					application.getName(), site.getName(), httpServletResponse.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
 		}
@@ -223,7 +222,10 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				datasource.setItem(getItem(data.getSelections(), data.getResult(), metaData, getBindClass(metaData)));
 			}
 		}
-
+		Messages messages = processedDataSource.getMessages();
+		if (null != messages) {
+			datasource.setMessages(getMessages(messages));
+		}
 		return datasource;
 	}
 
@@ -358,6 +360,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 		}).collect(Collectors.toList());
 	}
 
+	@SuppressWarnings("unchecked")
 	protected FieldValue getFieldValue(Datafield data, Optional<FieldDef> fieldDef, Class<?> bindClass) {
 		if (fieldDef.isPresent()) {
 			FieldValue fv = getFieldValue(data, fieldDef.get(),
@@ -368,42 +371,35 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				final AtomicInteger i = new AtomicInteger(0);
 
 				if (org.appng.xml.platform.FieldType.LIST_OBJECT.equals(fieldDef.get().getType())) {
-
-					List<FieldValue> objectArray = new ArrayList<>();
-
+					List<Map<String, FieldValue>> objectEntries = new ArrayList<>();
 					for (Datafield childData : childDataFields) {
-						Map<String, FieldValue> fieldMap = new LinkedHashMap<>();
-
-						FieldValue objectField = new FieldValue();
-						objectField.setName(fieldDef.get().getBinding() + "[" + i.get() + "]");
-						objectArray.add(objectField);
+						Map<String, FieldValue> object = new LinkedHashMap<>();
 						Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
-						FieldValue childValue = getFieldValue(childData, childField, bindClass);
-
-						if (null != childValue.getName()) {
-							for (Entry<String, FieldValue> childEntry : ((Map<String, FieldValue>) childValue
-									.getValue()).entrySet()) {
-								fieldMap.put(childEntry.getKey(), childEntry.getValue());
+						FieldValue attribute = getFieldValue(childData, childField, bindClass);
+						if (null != attribute.getName()) {
+							Map<String, FieldValue> attributes = (Map<String, FieldValue>) attribute.getValue();
+							for (Entry<String, FieldValue> childEntry : attributes.entrySet()) {
+								object.put(childEntry.getKey(), childEntry.getValue());
 							}
 						}
 						i.incrementAndGet();
-						objectField.setValue(fieldMap);
+						objectEntries.add(object);
 					}
-					fv.setValue(objectArray);
+					fv.setValue(objectEntries);
 				} else {
-					Map<String, FieldValue> fieldMap = new LinkedHashMap<>();
+					Map<String, FieldValue> object = new LinkedHashMap<>();
 					for (Datafield childData : childDataFields) {
 						Optional<FieldDef> childField = getChildField(fieldDef.get(), data, i.get(), childData);
-						FieldValue childValue = getFieldValue(childData, childField, bindClass);
-						if (null != childValue.getName()) {
-							fieldMap.put(childValue.getName(), childValue);
+						FieldValue attribute = getFieldValue(childData, childField, bindClass);
+						if (null != attribute.getName()) {
+							object.put(attribute.getName(), attribute);
 						}
 						i.incrementAndGet();
 					}
-					fv.setValue(fieldMap);
+					fv.setValue(object);
 				}
 			} else {
-				// simple type
+				// simple type, nothing more to do
 			}
 			return fv;
 		}

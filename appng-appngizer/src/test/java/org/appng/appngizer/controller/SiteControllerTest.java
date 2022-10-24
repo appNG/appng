@@ -42,18 +42,21 @@ public class SiteControllerTest extends ControllerTest {
 
 	@Test
 	public void test02_SiteConflicts() throws Exception {
-		// New Site with name conflict.
+		// Post the same site again. Should trigger conflict tests.
 		Site siteNameConflict = getAppNGizerSite("regular1", "regularhost", null, "http://regularhost:8081", null, true,
 				true);
-		String verifyNameConflict = "A different site named 'regular1' already exists!" + System.lineSeparator() + "Hostname 'regularhost' is already used as hostname or alias by site 'regular1'!" + System.lineSeparator() + "A different site uses domain 'http://regularhost:8081' already!";
+		String verifyNameConflict = "A different site named 'regular1' already exists!" + System.lineSeparator()
+				+ "Hostname 'regularhost' is already used as hostname or alias by site 'regular1'!"
+				+ System.lineSeparator() + "A different site uses domain 'http://regularhost:8081' already!";
 		sendBodyAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteNameConflict, HttpStatus.CONFLICT,
 				verifyNameConflict, true);
 
-		// New Site with conflict between aliases. (Only one cobination of Alias/Host<-conflict->Alias/Host. Rest is tested in Manager.)
+		// New Site with conflict between aliases. (Only one cobination of
+		// Alias/Host<-conflict->Alias/Host. Rest is tested in Manager.)
 		Site siteAliasConflict = getAppNGizerSite("newnamehost", "newnamehost",
 				new String[] { "RidetheLightningHost", "MasterofPuppetsHost" }, "http://newnamehost:8081", null, true,
 				true);
-		String verifyAliasConflict = "The following aliases are used as host or alias by site 'regular1': MasterofPuppetsHost, RidetheLightningHost";
+		String verifyAliasConflict = "The following aliases are used as hostname or alias by site 'regular1': MasterofPuppetsHost, RidetheLightningHost";
 		sendBodyAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteAliasConflict, HttpStatus.CONFLICT,
 				verifyAliasConflict, true);
 	}

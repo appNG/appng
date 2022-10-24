@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appng.openapi.model.Action;
+import org.appng.testapplication.TestEntities;
 import org.appng.testsupport.validation.WritingJsonValidator;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class OpenApiActionTest extends OpenApiTest {
 
 	@Test
 	public void testAction() throws Exception {
+		TestEntities.init();
 		OpenApiAction openApiAction = new OpenApiAction(site, applicationProvider, request, messageSource) {
 		};
 		Map<String, String> pathVariables = new HashMap<>();
@@ -43,6 +45,13 @@ public class OpenApiActionTest extends OpenApiTest {
 		WritingJsonValidator.validate(validated, "rest/openapi/action-validate.json");
 
 		servletRequest.addParameter("name", "super new name");
+		servletRequest.addParameter("parent.name", "the parent's name");
+		servletRequest.addParameter("children[0].name", "Lea");
+		servletRequest.addParameter("children[1].name", "Luke");
+		servletRequest.addParameter("integerValue", "1");
+		servletRequest.addParameter("parent.integerValue", "12");
+		servletRequest.addParameter("children[0].integerValue", "56");
+		servletRequest.addParameter("children[1].integerValue", "78");
 		ResponseEntity<Action> performed = openApiAction.performActionMultiPart("events", "create", environment,
 				servletRequest, servletResponse);
 		WritingJsonValidator.validate(performed, "rest/openapi/action-performed.json");

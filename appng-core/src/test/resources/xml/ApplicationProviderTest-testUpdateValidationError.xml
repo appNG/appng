@@ -74,11 +74,11 @@
 										<label id="name">Name</label>
 										<validation>
 											<notNull>
-												<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+												<message ref="name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
 											</notNull>
 										</validation>
 										<messages ref="name">
-											<message ref="name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+											<message ref="name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
 										</messages>
 									</field>
 									<field name="integerValue" type="list:checkbox" binding="integerValue">
@@ -94,9 +94,12 @@
 										<field name="name" type="text" binding="parent.name">
 											<validation>
 												<notNull>
-													<message ref="parent.name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+													<message ref="parent.name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
 												</notNull>
 											</validation>
+											<messages ref="parent.name">
+												<message ref="parent.name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+											</messages>
 										</field>
 										<field name="integerValue" type="int" format="#" binding="parent.integerValue" />
 									</field>
@@ -105,9 +108,12 @@
 											<field name="name" type="text" binding="children[0].name">
 												<validation>
 													<notNull>
-														<message ref="children[0].name" class="ERROR" code="{javax.validation.constraints.NotNull.message}">must not be null</message>
+														<message ref="children[0].name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
 													</notNull>
 												</validation>
+												<messages ref="children[0].name">
+													<message ref="children[0].name" class="ERROR" code="{validation.notNull}">Field must not be empty</message>
+												</messages>
 											</field>
 											<field name="integerValue" type="int" format="#" binding="children[0].integerValue" />
 										</field>
@@ -162,19 +168,19 @@
 									<field name="children" type="list:object">
 										<field name="children[0]" type="object">
 											<field name="name" type="text">
-												<value>new name</value>
+												<value>Lea</value>
 											</field>
 											<field name="integerValue" type="int">
-												<value>5</value>
+												<value></value>
 											</field>
 											<value></value>
 										</field>
 										<field name="children[1]" type="object">
 											<field name="name" type="text">
-												<value>entity2</value>
+												<value>Luke</value>
 											</field>
 											<field name="integerValue" type="int">
-												<value>7</value>
+												<value></value>
 											</field>
 											<value></value>
 										</field>

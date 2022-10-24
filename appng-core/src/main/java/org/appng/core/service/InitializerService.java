@@ -562,6 +562,7 @@ public class InitializerService {
 				List<? extends Group> groups = coreService.getGroups();
 				site.setGroups(new HashSet<>(groups));
 
+				((DefaultEnvironment)env).initSiteScope(site);
 				site.setState(SiteState.STARTING, env);
 				siteMap.put(site.getName(), site);
 
@@ -868,7 +869,7 @@ public class InitializerService {
 				}
 				site.setState(SiteState.STARTED, env);
 				siteMap.put(site.getName(), site);
-				DefaultEnvironment.initSiteScope(site);
+				
 				debugPlatformContext(platformContext);
 				auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
 
@@ -879,6 +880,7 @@ public class InitializerService {
 					}
 				}
 			} catch (Throwable t) {
+				((DefaultEnvironment)env).clearSiteScope(site);
 				site.setState(SiteState.INACTIVE);
 				throw new SiteLoadingException("Error while loading site " + siteToLoad.getName(), t);
 			} finally {

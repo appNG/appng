@@ -295,7 +295,7 @@ public class ServiceRequestHandler implements RequestHandler {
 		LOGGER.debug("calling  webservice '{}' of application '{}' in site {}", webserviceName, application.getName(),
 				site.getName());
 
-		application.setPlatformScope();
+		application.setPlatformScope(env);
 
 		byte[] data = webservice.processRequest(site, application, env, applicationRequest);
 		servletResponse.setStatus(webservice.getStatus());

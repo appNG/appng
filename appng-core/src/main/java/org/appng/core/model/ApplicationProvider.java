@@ -136,8 +136,6 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 	private DatabaseConnection databaseConnection;
 
-	private ApplicationRequest applicationRequest;
-
 	private boolean monitorPerformance;
 
 	public ApplicationProvider(Site site, Application application, boolean monitorPerformance) {
@@ -173,6 +171,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 	public ApplicationReference process(ApplicationRequest applicationRequest, MarshallService marshallService,
 			Path pathInfo, PlatformConfig platformConfig) {
 		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
+		setPlatformScope(applicationRequest.getEnvironment());
 
 		ApplicationConfigProvider applicationConfigProvider = null;
 		try {
@@ -293,6 +292,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			performPage.stop();
 			pageReference.setExecutionTime(performPage.getTotalTimeMillis());
 		}
+		setPlatformScope(isPrivileged(), applicationRequest.getEnvironment());
 		return applicationReference;
 	}
 
@@ -314,11 +314,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					conditionMatches = ElementHelper.conditionMatches(conditionEvaluator, action.getCondition());
 					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(action));
 					if (!conditionMatches) {
-						LOGGER.info("include condition for action '{}' of event '{}' did not match - {}",
+						LOGGER.debug("include condition for action '{}' of event '{}' did not match - {}",
 								action.getId(), action.getEventId(), action.getCondition().getExpression());
 					}
 					if (!hasPermission) {
-						LOGGER.info("missing permissions for action '{}' of event '{}'", action.getId(),
+						LOGGER.debug("missing permissions for action '{}' of event '{}'", action.getId(),
 								action.getEventId());
 					}
 				}
@@ -327,11 +327,11 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 					conditionMatches = ElementHelper.conditionMatches(conditionEvaluator, datasource.getCondition());
 					hasPermission = permissionProcessor.hasPermissions(new PermissionOwner(datasource));
 					if (!conditionMatches) {
-						LOGGER.info("include condition for datasource '{}' did not match - {}", datasource.getId(),
+						LOGGER.debug("include condition for datasource '{}' did not match - {}", datasource.getId(),
 								datasource.getCondition().getExpression());
 					}
 					if (!hasPermission) {
-						LOGGER.info("missing permissions for datasource '{}' ", datasource.getId());
+						LOGGER.debug("missing permissions for datasource '{}' ", datasource.getId());
 					}
 				}
 
@@ -367,8 +367,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		}
 	}
 
-	public PageReference processPage(MarshallService marshallService, Path pathInfo, String pageId,
-			List<String> sectionIds, List<String> applicationUrlParameters) {
+	public PageReference processPage(ApplicationRequest applicationRequest, MarshallService marshallService,
+			Path pathInfo, String pageId, List<String> sectionIds, List<String> applicationUrlParameters) {
 		PermissionProcessor permissionProcessor = applicationRequest.getPermissionProcessor();
 		Environment env = applicationRequest.getEnvironment();
 
@@ -1022,6 +1022,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 
 	public ApplicationRequest getApplicationRequest(HttpServletRequest servletRequest,
 			HttpServletResponse servletResponse, boolean createNew) {
+		ApplicationRequest applicationRequest;
 		Environment env = initEnvironment(servletRequest, servletResponse);
 		Subject subject = env.getSubject();
 		PermissionProcessor permissionProcessor = null;
@@ -1037,9 +1038,9 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			RequestFactoryBean rfb = new RequestFactoryBean(servletRequest, env, site, application, conversionService,
 					messageSource);
 			rfb.afterPropertiesSet();
-			this.applicationRequest = (ApplicationRequest) rfb.getObject();
+			applicationRequest = (ApplicationRequest) rfb.getObject();
 		} else {
-			this.applicationRequest = getBean("request", ApplicationRequest.class);
+			applicationRequest = getBean("request", ApplicationRequest.class);
 		}
 
 		applicationRequest.setPermissionProcessor(permissionProcessor);
@@ -1067,43 +1068,44 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
 					application.getName(), site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
-			return null;
-		}
-		Environment environment = applicationRequest.getEnvironment();
-		if (permissionsPresent(action.getConfig()) || environment.isSubjectAuthenticated()) {
-			Params params = action.getConfig().getParams();
-			ActionRef actionRef = new ActionRef();
-			actionRef.setEventId(eventId);
-			actionRef.setId(actionId);
-			actionRef.setParams(params);
-			if (applyPermissionsOnRef) {
-				actionRef.setPermissions(action.getConfig().getPermissions());
-			}
-
-			setParamValues(applicationRequest, params);
-			CallableAction callableAction = new CallableAction(site, application, applicationRequest, actionRef);
-
-			if (callableAction.doInclude() || callableAction.doExecute()) {
-				LOGGER.debug("Performing action {}:{} of application {} on site {}", eventId, actionId,
-						application.getName(), site.getName());
-				callableAction.perform(false);
-				Messages messages = elementHelper.removeMessages(environment);
-				if (null != messages) {
-					messages.setRef(actionId);
-					action.setMessages(messages);
+		} else {
+			Environment environment = applicationRequest.getEnvironment();
+			if (permissionsPresent(action.getConfig()) || environment.isSubjectAuthenticated()) {
+				Params params = action.getConfig().getParams();
+				ActionRef actionRef = new ActionRef();
+				actionRef.setEventId(eventId);
+				actionRef.setId(actionId);
+				actionRef.setParams(params);
+				if (applyPermissionsOnRef) {
+					actionRef.setPermissions(action.getConfig().getPermissions());
 				}
-				return action;
+
+				setParamValues(applicationRequest, params);
+				CallableAction callableAction = new CallableAction(site, application, applicationRequest, actionRef);
+
+				if (callableAction.doInclude() || callableAction.doExecute()) {
+					LOGGER.debug("Performing action {}:{} of application {} on site {}", eventId, actionId,
+							application.getName(), site.getName());
+					callableAction.perform(false);
+					Messages messages = elementHelper.removeMessages(environment);
+					if (null != messages) {
+						messages.setRef(actionId);
+						action.setMessages(messages);
+					}
+					return action;
+				}
 			}
-			LOGGER.debug("Include condition for action {}:{} of application {} on site {} does not match.", eventId,
-					actionId, application.getName(), site.getName());
 		}
-		Subject subject = environment.getSubject();
-		LOGGER.debug(
-				"Action {}:{} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
-				eventId, actionId, application.getName(), site.getName(),
-				subject == null ? "<unknown>" : subject.getAuthName());
-		servletResponse.setStatus(HttpStatus.FORBIDDEN.value());
+		LOGGER.debug("Subject {} not authorized for action {}:{} on application {} of site {}",
+				getSubjectName(applicationRequest.getEnvironment()), eventId, actionId, application.getName(),
+				site.getName());
+		servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 		return null;
+	}
+
+	private String getSubjectName(Environment environment) {
+		Subject subject = environment.getSubject();
+		return subject == null ? "<unknown>" : subject.getAuthName();
 	}
 
 	protected void setParamValues(ApplicationRequest applicationRequest, Params params) {
@@ -1128,38 +1130,33 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 			LOGGER.debug("DataSource {} not found on application {} of site {}", dataSource, application.getName(),
 					site.getName());
 			servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
-			return null;
-		}
-		DataConfig config = dataSource.getConfig();
-		Environment environment = applicationRequest.getEnvironment();
-		if (permissionsPresent(config) || environment.isSubjectAuthenticated()) {
-			Params params = config.getParams();
-			DatasourceRef datasourceRef = new DatasourceRef();
-			datasourceRef.setId(dataSourceId);
-			if (applyPermissionsOnRef) {
-				datasourceRef.setPermissions(config.getPermissions());
-			}
-			datasourceRef.setParams(params);
-			setParamValues(applicationRequest, params);
-			ParameterSupport parameterSupport = applicationRequest.getParameterSupportDollar();
+		} else {
+			DataConfig config = dataSource.getConfig();
+			Environment environment = applicationRequest.getEnvironment();
+			if (permissionsPresent(config) || environment.isSubjectAuthenticated()) {
+				Params params = config.getParams();
+				DatasourceRef datasourceRef = new DatasourceRef();
+				datasourceRef.setId(dataSourceId);
+				if (applyPermissionsOnRef) {
+					datasourceRef.setPermissions(config.getPermissions());
+				}
+				datasourceRef.setParams(params);
+				setParamValues(applicationRequest, params);
+				ParameterSupport parameterSupport = applicationRequest.getParameterSupportDollar();
 
-			CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
-					parameterSupport, datasourceRef);
-			if (callableDataSource.doInclude()) {
-				LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
-						application.getName(), site.getName());
-				callableDataSource.perform("service", false);
-				return callableDataSource.getDatasource();
+				CallableDataSource callableDataSource = new CallableDataSource(site, application, applicationRequest,
+						parameterSupport, datasourceRef);
+				if (callableDataSource.doInclude()) {
+					LOGGER.debug("Performing dataSource {} of application {} on site {}", dataSourceId,
+							application.getName(), site.getName());
+					callableDataSource.perform("service", false);
+					return callableDataSource.getDatasource();
+				}
 			}
-			LOGGER.debug("Include condition for dataSource {} of application {} on site {} does not match.",
-					dataSourceId, application.getName(), site.getName());
 		}
-		Subject subject = environment.getSubject();
-		LOGGER.debug(
-				"DataSource {} of application {} on site {} neither defines permissions, nor is the subject authenticated (subject is {}). Sending 403.",
-				dataSource, application.getName(), site.getName(),
-				subject == null ? "<unknown>" : subject.getAuthName());
-		servletResponse.setStatus(HttpStatus.FORBIDDEN.value());
+		LOGGER.debug("Subject {} not authorized for DataSource {} on application {} of site {}",
+				getSubjectName(applicationRequest.getEnvironment()), dataSource, application.getName(), site.getName());
+		servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 		return null;
 	}
 
@@ -1204,12 +1201,12 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		return databaseConnection;
 	}
 
-	public void setPlatformScope() {
-		setPlatformScope(isCoreApplication());
+	public void setPlatformScope(Environment env) {
+		setPlatformScope(isPrivileged(), env);
 	}
 
-	public void setPlatformScope(boolean enabled) {
-		DefaultEnvironment defaultEnvironment = (DefaultEnvironment) applicationRequest.getEnvironment();
+	public void setPlatformScope(boolean enabled, Environment env) {
+		DefaultEnvironment defaultEnvironment = (DefaultEnvironment) env;
 		if (enabled) {
 			defaultEnvironment.enable(PLATFORM);
 		} else {

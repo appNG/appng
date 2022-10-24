@@ -313,28 +313,30 @@ public class DefaultEnvironment implements Environment {
 	}
 
 	public ScopedEnvironment getEnvironment(Scope scope) {
-		ScopedEnvironment env = null;
-		switch (scope) {
-		case PLATFORM:
-			env = platform;
-			break;
-		case SITE:
-			env = site;
-			break;
-		case SESSION:
-			env = session;
-			break;
-		case REQUEST:
-			env = request;
-			break;
-		default:
-			LOGGER.warn("no environment found for scope {}", scope);
-		}
-		if (null != env && scopeEnabled.get(scope)) {
+		if (Boolean.TRUE.equals(scopeEnabled.get(scope))) {
+			ScopedEnvironment env = null;
+			switch (scope) {
+			case PLATFORM:
+				env = platform;
+				break;
+			case SITE:
+				env = site;
+				break;
+			case SESSION:
+				env = session;
+				break;
+			case REQUEST:
+				env = request;
+				break;
+			case URL:
+				break;
+			}
+			if (null == env) {
+				LOGGER.warn("Scope {} is not available!", scope);
+			}
 			return env;
-		}
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("scope {} is not available", scope);
+		} else {
+			LOGGER.warn("Scope {} is not enabled!", scope);
 		}
 		return null;
 	}
@@ -565,11 +567,12 @@ public class DefaultEnvironment implements Environment {
 		return initialized;
 	}
 
-	public static void initSiteScope(Site site) {
-		global.clearSiteScope(site);
+	public void initSiteScope(Site site) {
+		clearSiteScope(site);
 		ServletContext servletContext = ((PlatformEnvironment) global.getEnvironment(Scope.PLATFORM))
 				.getServletContext();
-		new SiteEnvironment(servletContext,  site);
+		this.site = new SiteEnvironment(servletContext,  site);
+		enable(Scope.SITE);
 	}
 
 	/**
@@ -579,8 +582,7 @@ public class DefaultEnvironment implements Environment {
 	 *             The {@link Site} to clear the site-scope for.
 	 */
 	public void clearSiteScope(Site site) {
-		String identifier = Scope.SITE.forSite(site.getName());
-		platform.getServletContext().removeAttribute(identifier);
+		String identifier = SiteEnvironment.remove(platform.getServletContext(), site);
 		LOGGER.info("Clearing site scope with identifier '{}'", identifier);
 	}
 

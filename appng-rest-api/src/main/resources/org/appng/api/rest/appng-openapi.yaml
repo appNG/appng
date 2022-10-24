@@ -847,7 +847,10 @@ components:
       properties:
         name:
           type: string
-          description: ""
+          description: "the user's real name"
+        nickName:
+          type: string
+          description: "the user's nickname"
         authenticated:
           type: boolean
         email:

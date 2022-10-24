@@ -283,6 +283,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
 		addSiteProperty(SiteProperties.TAG_PREFIX, "appNG");
 		addSiteProperty(SiteProperties.REWRITE_CONFIG, "/meta/conf/urlrewrite.xml");
+		addSiteProperty(SiteProperties.SET_DEBUG_HEADERS, false);
 		addSiteProperty(SiteProperties.SUPPORT_RELOAD_FILE,
 				!platformConfig.getBoolean(Platform.Property.MESSAGING_ENABLED));
 
@@ -305,7 +306,7 @@ public class PropertySupport {
 		addSiteProperty(SiteProperties.XSS_EXCEPTIONS, xssExceptions.toString(), Type.MULTILINE);
 
 		addSiteProperty(LdapService.LDAP_DISABLED, false);
-		addSiteProperty(LdapService.LDAP_HOST, "ldap(s):<host>:<port>");
+		addSiteProperty(LdapService.LDAP_HOST, "ldap://localhost:389");
 		addSiteProperty(LdapService.LDAP_USER_BASE_DN, "OU=Users,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_GROUP_BASE_DN, "OU=Groups,DC=example,DC=com");
 		addSiteProperty(LdapService.LDAP_USER, "serviceUser");

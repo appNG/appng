@@ -112,6 +112,7 @@ abstract class OpenApiOperation {
 		Subject subject = environment.getSubject();
 		if (null != subject) {
 			user.setEmail(subject.getEmail());
+			user.setNickName(subject.getName());
 			user.setName(subject.getRealname());
 			user.setAuthenticated(subject.isAuthenticated());
 		} else {
@@ -271,6 +272,9 @@ abstract class OpenApiOperation {
 				|| org.appng.xml.platform.FieldType.INT.equals(fieldType)) {
 			String format = field.getFormat();
 			if (StringUtils.isNotBlank(value)) {
+				if (StringUtils.isBlank(format)) {
+					format = isDecimal ? "#.##" : "#";
+				}
 				try {
 					Number number = getDecimalFormat(format).parse(value);
 					return isDecimal ? number.doubleValue() : number;

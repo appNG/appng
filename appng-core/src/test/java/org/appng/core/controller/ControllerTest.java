@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -50,6 +52,7 @@ import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.Webservice;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
@@ -110,6 +113,33 @@ public class ControllerTest extends Controller {
 		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
 		Mockito.when(base.ctx.getAttribute(Globals.RESOURCES_ATTR)).thenReturn(Mockito.mock(WebResourceRoot.class));
 		init(new MockServletConfig(base.ctx));
+
+		Messaging.getNodeId(getEnvironment());
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION, "latest-and-hottest");
+		final Map<String, String> headers = new HashMap<>();
+		Mockito.when(base.response.getHeader(Mockito.any())).then(i -> headers.get(i.getArgumentAt(0, String.class)));
+		Mockito.doAnswer(i -> headers.put(i.getArgumentAt(0, String.class), i.getArgumentAt(1, String.class)))
+				.when(base.response).setHeader(Mockito.any(), Mockito.any());
+	}
+
+	@Override
+	protected void doGet(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+			throws ServletException, IOException {
+		super.doGet(base.request, base.response);
+		assertHeaders(base.response);
+	}
+
+	@Override
+	protected void doPut(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+			throws ServletException, IOException {
+		super.doPut(servletRequest, servletResponse);
+		assertHeaders(servletResponse);
+	}
+
+	private void assertHeaders(HttpServletResponse response) {
+		Assert.assertEquals(base.site.getName(), response.getHeader(HEADER_SITE));
+		Assert.assertNotNull(response.getHeader(HEADER_NODE));
+		Assert.assertEquals("latest-and-hottest", response.getHeader(HEADER_VERSION));
 	}
 
 	@Test
@@ -302,7 +332,7 @@ public class ControllerTest extends Controller {
 	public void testStaticPut() {
 		when(base.request.getServletPath()).thenReturn("/test.txt");
 		try {
-			doPut(base.request, base.response);
+			super.doPut(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
 			Mockito.verify(base.response).sendError(HttpStatus.FORBIDDEN.value());
 		} catch (Exception e) {
@@ -458,7 +488,7 @@ public class ControllerTest extends Controller {
 		when(base.request.getServerName()).thenReturn("localhost");
 		when(base.request.getServletPath()).thenReturn("/de");
 		try {
-			doGet(base.request, base.response);
+			super.doGet(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
 			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
@@ -498,7 +528,7 @@ public class ControllerTest extends Controller {
 		when(base.request.getServerName()).thenReturn("localhost");
 		when(base.request.getServletPath()).thenReturn("/repository/manager/www/de/test.txt");
 		try {
-			doGet(base.request, base.response);
+			super.doGet(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
 			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {

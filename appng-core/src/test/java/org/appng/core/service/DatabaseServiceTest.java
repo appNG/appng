@@ -75,7 +75,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		String rootName = "appNG Root Database";
 		Assert.assertEquals(rootName, platformConnection.getDescription());
 		Assert.assertEquals(DatabaseType.HSQL, platformConnection.getType());
-		validateSchemaVersion(platformConnection, "4.4");
+		validateSchemaVersion(platformConnection, "4.5");
 
 		DatabaseConnection mssql = new DatabaseConnection(DatabaseType.MSSQL, rootName, "", "".getBytes());
 		mssql.setName(rootName);
@@ -106,7 +106,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		try (MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8")) {
 			mysql.withUsername("root").withPassword("")
 					.withCommand("mysqld --default-authentication-plugin=mysql_native_password").start();
-			validateConnectionType(mysql, DatabaseType.MYSQL, "MySQL", "8", "", "4.4", true, true);
+			validateConnectionType(mysql, DatabaseType.MYSQL, "MySQL", "8", "", "4.5", true, true);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		try (MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:" + version)) {
 			mariadb.withUsername("root").withPassword("").start();
 			System.err.println(mariadb.getJdbcUrl());
-			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", version, "", "4.4", true, true);
+			validateConnectionType(mariadb, DatabaseType.MYSQL, "MariaDB", version, "", "4.5", true, true);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class DatabaseServiceTest extends TestInitializer {
 	void testInitDatabasePostgreSQL(String version) throws Exception {
 		try (PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:" + version)) {
 			postgres.start();
-			validateConnectionType(postgres, DatabaseType.POSTGRESQL, "PostgreSQL", version, "", "4.4", true, true);
+			validateConnectionType(postgres, DatabaseType.POSTGRESQL, "PostgreSQL", version, "", "4.5", true, true);
 		}
 	}
 
@@ -178,7 +178,7 @@ public class DatabaseServiceTest extends TestInitializer {
 		try (MSSQLServerContainer<?> mssql = new MSSQLServerContainer<>(
 				"mcr.microsoft.com/mssql/server:" + imageVersion)) {
 			mssql.start();
-			validateConnectionType(mssql, DatabaseType.MSSQL, "Microsoft SQL Server", productVersion, "", "4.4", false,
+			validateConnectionType(mssql, DatabaseType.MSSQL, "Microsoft SQL Server", productVersion, "", "4.5", false,
 					false);
 		}
 	}

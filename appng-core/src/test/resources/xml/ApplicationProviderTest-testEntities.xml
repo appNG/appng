@@ -13,7 +13,7 @@
 		</session>
 	</config>
 	<pages>
-		<page id="entity" type="index" executionTime="21">
+		<page id="entity" type="index" executionTime="31">
 			<config>
 				<title id="entity">Entity</title>
 				<description></description>
@@ -35,14 +35,14 @@
 					</post-params>
 				</url-schema>
 				<linkpanel id="page-nav" location="top">
-					<link mode="intern" id="page-nav[1]" target="/page0">
+					<link id="page-nav[1]" target="/page0" mode="intern">
 						<label id="page0">Page 0</label>
 					</link>
-					<link mode="intern" id="page-nav[2]" target="/page1">
+					<link id="page-nav[2]" target="/page1" mode="intern">
 						<condition expression="${1==1}" />
 						<label id="page1">Page 1</label>
 					</link>
-					<link mode="intern" id="page-nav[4]" target="/page3">
+					<link id="page-nav[4]" target="/page3" mode="intern">
 						<permissions>
 							<permission ref="page3" mode="set"></permission>
 						</permissions>
@@ -51,9 +51,9 @@
 				</linkpanel>
 			</config>
 			<structure>
-				<section executionTime="11" id="42">
+				<section executionTime="12" id="42">
 					<title id="entities">Entities</title>
-					<element executionTime="11">
+					<element executionTime="12">
 						<title id="entities">Entities</title>
 						<datasource id="entities">
 							<config>
@@ -91,17 +91,23 @@
 									</field>
 								</meta-data>
 								<linkpanel id="actions" location="inline">
-									<link mode="intern" id="actions[1]" target="/${current.id}_edit" default="true">
+									<link id="actions[1]" target="/${current.id}_edit" mode="intern" default="true">
 										<label id="edit">Edit</label>
 										<icon>edit</icon>
 									</link>
-									<link mode="intern" id="actions[2]" target="/${current.id}_delete" default="true">
+									<link id="actions[2]" target="/${current.id}_delete" mode="intern" default="true">
 										<label id="delete">Delete</label>
 										<icon>delete</icon>
 										<confirmation id="confirm.delete" params="#{name}">Really delete #{name}?</confirmation>
 									</link>
 								</linkpanel>
 							</config>
+							<messages ref="entities">
+								<message ref="entities" class="NOTICE">Notice!</message>
+								<message ref="entities" class="OK">OK!</message>
+								<message ref="entities" class="ERROR">Error!</message>
+								<message ref="entities" class="INVALID">Invalid!</message>
+							</messages>
 							<data>
 								<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0" lastchunk="0" hits="2">
 									<result>
@@ -121,11 +127,11 @@
 											<value>false</value>
 										</field>
 										<linkpanel id="actions" location="inline">
-											<link mode="intern" id="actions[1]" target="/1_edit" default="true">
+											<link id="actions[1]" target="/1_edit" mode="intern" default="true">
 												<label id="edit">Edit</label>
 												<icon>edit</icon>
 											</link>
-											<link mode="intern" id="actions[2]" target="/1_delete" default="true">
+											<link id="actions[2]" target="/1_delete" mode="intern" default="true">
 												<label id="delete">Delete</label>
 												<icon>delete</icon>
 												<confirmation id="confirm.delete" params="#{name}">Really delete entity1?</confirmation>
@@ -149,11 +155,11 @@
 											<value>true</value>
 										</field>
 										<linkpanel id="actions" location="inline">
-											<link mode="intern" id="actions[1]" target="/2_edit" default="true">
+											<link id="actions[1]" target="/2_edit" mode="intern" default="true">
 												<label id="edit">Edit</label>
 												<icon>edit</icon>
 											</link>
-											<link mode="intern" id="actions[2]" target="/2_delete" default="true">
+											<link id="actions[2]" target="/2_delete" mode="intern" default="true">
 												<label id="delete">Delete</label>
 												<icon>delete</icon>
 												<confirmation id="confirm.delete" params="#{name}">Really delete entity2?</confirmation>

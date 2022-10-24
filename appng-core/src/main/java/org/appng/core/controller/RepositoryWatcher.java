@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.cache.Cache;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.SiteProperties;
@@ -70,7 +68,7 @@ public class RepositoryWatcher implements Runnable {
 	protected AtomicLong numOverflows = new AtomicLong(0);
 
 	private String wwwDir;
-	private Cache<String, CachedResponse> cache;
+	private Site site;
 	private File configFile;
 	private String ruleSourceSuffix;
 
@@ -79,22 +77,20 @@ public class RepositoryWatcher implements Runnable {
 			this.jspExtension = "." + jspExtension;
 			String rootDir = site.getProperties().getString(SiteProperties.SITE_ROOT_DIR);
 			String wwwdir = site.getProperties().getString(SiteProperties.WWW_DIR);
-			Cache<String, CachedResponse> cache = CacheService.getCache(site);
 			String rewriteConfig = site.getProperties().getString(SiteProperties.REWRITE_CONFIG);
 			List<String> documentsDirs = site.getProperties().getList(SiteProperties.DOCUMENT_DIR, ";");
-			init(cache, rootDir + wwwdir, site.readFile(rewriteConfig), ruleSourceSuffix, documentsDirs);
+			init(site, rootDir + wwwdir, site.readFile(rewriteConfig), ruleSourceSuffix, documentsDirs);
 		} catch (Exception e) {
 			LOGGER.error(String.format("error starting RepositoryWatcher for site %s", site.getName()), e);
 		}
 	}
 
 	RepositoryWatcher() {
-
 	}
 
-	void init(Cache<String, CachedResponse> cache, String wwwDir, File configFile, String ruleSourceSuffix,
+	void init(Site site, String wwwDir, File configFile, String ruleSourceSuffix,
 			List<String> documentDirs) throws Exception {
-		this.cache = cache;
+		this.site = site;
 		this.watcher = FileSystems.getDefault().newWatchService();
 		this.wwwDir = FilenameUtils.normalize(wwwDir, true);
 		this.configFile = configFile;
@@ -161,7 +157,7 @@ public class RepositoryWatcher implements Runnable {
 	}
 
 	private void removeFromCache(String relativePathName) {
-		CacheService.expireCacheElementsByPrefix(cache, relativePathName);
+		CacheService.expireCacheElementsByPrefix(site, relativePathName);
 	}
 
 	public boolean needsToBeWatched() {

@@ -327,7 +327,6 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		}
 
 		if (hasOutputFormat && hasOutputType) {
-			applicationProvider.setPlatformScope();
 			long start = System.currentTimeMillis();
 			ApplicationReference applicationReference = applicationProvider.process(applicationRequest, marshallService,
 					pathInfo, platformConfig);

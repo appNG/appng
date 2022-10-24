@@ -22,7 +22,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
+
+import org.appng.api.NotBlank;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,12 +37,12 @@ public class TestEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	private @NotNull String name;
+	private @NotBlank String name;
 	private Integer integerValue;
 	private Double doubleValue;
 	private Boolean booleanValue;
-	private @Transient TestEntity parent;
-	private @Transient List<TestEntity> children;
+	private @Transient @Valid TestEntity parent;
+	private @Transient @Valid List<TestEntity> children;
 
 	public TestEntity() {
 

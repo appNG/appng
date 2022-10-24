@@ -24,9 +24,9 @@
       "label" : "Name",
       "fieldType" : "text",
       "rules" : [ {
-        "type" : "javax.validation.constraints.NotNull",
-        "message" : "must not be null",
-        "messageKey" : "{javax.validation.constraints.NotNull.message}"
+        "type" : "org.appng.api.NotBlank",
+        "message" : "Field must not be empty",
+        "messageKey" : "{validation.notNull}"
       } ]
     }, {
       "name" : "integerValue",
@@ -49,9 +49,9 @@
           "name" : "name",
           "fieldType" : "text",
           "rules" : [ {
-            "type" : "javax.validation.constraints.NotNull",
-            "message" : "must not be null",
-            "messageKey" : "{javax.validation.constraints.NotNull.message}"
+            "type" : "org.appng.api.NotBlank",
+            "message" : "Field must not be empty",
+            "messageKey" : "{validation.notNull}"
           } ]
         },
         "integerValue" : {
@@ -72,9 +72,9 @@
               "name" : "name",
               "fieldType" : "text",
               "rules" : [ {
-                "type" : "javax.validation.constraints.NotNull",
-                "message" : "must not be null",
-                "messageKey" : "{javax.validation.constraints.NotNull.message}"
+                "type" : "org.appng.api.NotBlank",
+                "message" : "Field must not be empty",
+                "messageKey" : "{validation.notNull}"
               } ]
             },
             "integerValue" : {
@@ -106,30 +106,24 @@
         "children" : {
           "name" : "children",
           "value" : [ {
-            "name" : "children[0]",
-            "value" : {
-              "name" : {
-                "name" : "name",
-                "value" : "entity1"
-              },
-              "integerValue" : {
-                "name" : "integerValue",
-                "value" : 5,
-                "formattedValue" : "5"
-              }
+            "name" : {
+              "name" : "name",
+              "value" : "entity2"
+            },
+            "integerValue" : {
+              "name" : "integerValue",
+              "value" : 7,
+              "formattedValue" : "7"
             }
           }, {
-            "name" : "children[1]",
-            "value" : {
-              "name" : {
-                "name" : "name",
-                "value" : "entity2"
-              },
-              "integerValue" : {
-                "name" : "integerValue",
-                "value" : 7,
-                "formattedValue" : "7"
-              }
+            "name" : {
+              "name" : "name",
+              "value" : "entity3"
+            },
+            "integerValue" : {
+              "name" : "integerValue",
+              "value" : 9,
+              "formattedValue" : "9"
             }
           } ]
         },

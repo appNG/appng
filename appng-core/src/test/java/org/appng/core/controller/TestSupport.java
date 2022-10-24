@@ -317,6 +317,7 @@ public class TestSupport {
 		addSiteProperty(SiteProperties.AUTH_LOGIN_PAGE, "webform");
 		addSiteProperty(SiteProperties.AUTH_LOGIN_REF, "webform");
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
+		addSiteProperty(SiteProperties.SET_DEBUG_HEADERS, "true");
 		addSiteProperty(LdapService.LDAP_PASSWORD, "secret");
 
 		addSiteProperty("configLocations",
