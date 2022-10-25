@@ -46,15 +46,15 @@ public class SiteControllerTest extends ControllerTest {
 		// Post the same site again. Should trigger conflict tests.
 		Site siteNameConflict = getAppNGizerSite("regular1", "regularhost", null, "http://regularhost:8081", null, true,
 				true);
-		sendBodyAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteNameConflict, HttpStatus.CONFLICT,
-				"xml/site-test-sitename-conflict.xml", false);
+		sendAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteNameConflict, HttpStatus.CONFLICT,
+				"xml/site-test-sitename-conflict.xml");
 		// New Site with conflict between aliases. (Only one combination of
 		// Alias/Host<-conflict->Alias/Host. Rest is tested in Manager.)
 		Site siteAliasConflict = getAppNGizerSite("newnamehost", "newnamehost",
 				new String[] { "RidetheLightningHost", "MasterofPuppetsHost" }, "http://newnamehost:8081", null, true,
 				true);
-		sendBodyAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteAliasConflict, HttpStatus.CONFLICT,
-				"xml/site-test-alias-conflict.xml", false);
+		sendAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteAliasConflict, HttpStatus.CONFLICT,
+				"xml/site-test-alias-conflict.xml");
 	}
 
 	@Test
