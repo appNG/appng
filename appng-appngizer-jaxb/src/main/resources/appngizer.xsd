@@ -220,6 +220,24 @@
 		</xs:complexType>
 	</xs:element>
 
+	<xs:element name="errors">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="error" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="error">
+		<xs:complexType>
+			<xs:simpleContent>
+      			<xs:extension base="xs:string">
+        			<xs:attribute name="path" type="xs:string" />
+      			</xs:extension>
+    		</xs:simpleContent>
+    	</xs:complexType>
+	</xs:element>
+
 	<xs:element name="subjects">
 		<xs:complexType>
 			<xs:complexContent>

@@ -39,7 +39,7 @@ public class SubjectControllerTest extends ControllerTest {
 		subject.setTimeZone("Europe/London");
 		subject.setLanguage("en");
 		subject.setType(UserType.GLOBAL_USER);
-		postAndVerify("/subject", "", subject, HttpStatus.BAD_REQUEST);
+		postAndVerify("/subject", "xml/subject-name-invalid.xml", subject, HttpStatus.BAD_REQUEST);
 	}
 
 	@Test

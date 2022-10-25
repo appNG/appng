@@ -24,7 +24,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.appng.appngizer.model.xml.Linkable;
 import org.springframework.oxm.MarshallingFailureException;
 
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
@@ -36,7 +35,7 @@ public class Jaxb2Marshaller extends org.springframework.oxm.jaxb.Jaxb2Marshalle
 
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return Linkable.class.isAssignableFrom(clazz);
+		return clazz.getPackage().getName().startsWith("org.appng.appngizer.model");
 	}
 
 	@Override
