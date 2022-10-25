@@ -46,13 +46,13 @@ import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
+import org.appng.api.MessageConstants;
 import org.appng.api.Path;
 import org.appng.api.Platform;
 import org.appng.api.Request;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.auth.PasswordPolicy;
-import org.appng.api.MessageConstants;
 import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Application;
 import org.appng.api.model.ApplicationSubject;
@@ -539,9 +539,11 @@ public class CoreService {
 	 * This method may be removed in the future.
 	 *
 	 * @param authSubject
-	 * 		The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to determine which
-	 * 		implementation of the {@link PasswordHandler} interface will be returned.
+	 *                    The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
+	 *                    determine which implementation of the {@link PasswordHandler} interface will be returned.
+	 * 
 	 * @return the {@link PasswordHandler} for the {@link AuthSubject}
+	 * 
 	 * @deprecated will be removed in 2.x
 	 */
 	@Deprecated
@@ -557,7 +559,8 @@ public class CoreService {
 	 * Returns the default password manager which should be used to handle all passwords.
 	 *
 	 * @param authSubject
-	 * 		The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
+	 *                    The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
+	 * 
 	 * @return the default {@link PasswordHandler} for the {@link AuthSubject}
 	 */
 	public PasswordHandler getDefaultPasswordHandler(AuthSubject authSubject) {
@@ -668,7 +671,8 @@ public class CoreService {
 				Boolean forceChangePassword = platformCfg.getBoolean(Platform.Property.FORCE_CHANGE_PASSWORD, false);
 				Integer maxPasswordValidity = platformCfg.getInteger(Platform.Property.PASSWORD_MAX_VALIDITY, -1);
 				boolean mayChangePassword = PasswordChangePolicy.MAY.equals(subject.getPasswordChangePolicy());
-				if (isLocalUser && mayChangePassword && forceChangePassword && maxPasswordValidity > 0 && null != subject.getPasswordLastChanged()) {
+				if (isLocalUser && mayChangePassword && forceChangePassword && maxPasswordValidity > 0
+						&& null != subject.getPasswordLastChanged()) {
 					Date pwExpiredAt = DateUtils.addDays(subject.getPasswordLastChanged(), maxPasswordValidity);
 					if (pwExpiredAt.before(now)) {
 						subject.setPasswordChangePolicy(PasswordChangePolicy.MUST);
@@ -1068,12 +1072,14 @@ public class CoreService {
 	 * Deletes a {@link Template}
 	 *
 	 * @param name
-	 * 		the name of the template to delete
-	 * @return <ul>
-	 * 		<li>0 - if everything went OK
-	 * 		<li>-1 - if no such template exists
-	 * 		<li>-2 - if the template is still in use
-	 * 		</ul>
+	 *             the name of the template to delete
+	 * 
+	 * @return
+	 *         <ul>
+	 *         <li>0 - if everything went OK
+	 *         <li>-1 - if no such template exists
+	 *         <li>-2 - if the template is still in use
+	 *         </ul>
 	 */
 	public Integer deleteTemplate(String name) {
 		Template template = templateService.getTemplateByName(name);
@@ -1129,8 +1135,8 @@ public class CoreService {
 				throw new BusinessException("Repository with ID " + repositoryId + " not found.");
 			}
 		} else {
-			throw new BusinessException(
-					"Invalid parameters: repositoryId=" + repositoryId + ", packageName=" + packageName + ", packageVersion=" + packageVersion);
+			throw new BusinessException("Invalid parameters: repositoryId=" + repositoryId + ", packageName="
+					+ packageName + ", packageVersion=" + packageVersion);
 		}
 	}
 
@@ -1210,9 +1216,8 @@ public class CoreService {
 			boolean forceMultiline) {
 		property.setDescription(prop.getDescription());
 		PropertyType orignalType = prop.getType();
-		Property.Type type = null != orignalType ?
-				Property.Type.valueOf(orignalType.name()) :
-				Property.Type.forString(prop.getValue());
+		Property.Type type = null != orignalType ? Property.Type.valueOf(orignalType.name())
+				: Property.Type.forString(prop.getValue());
 		property.setType(type);
 		if (Boolean.TRUE.equals(prop.isClob()) || Property.Type.MULTILINE.equals(type)) {
 			if (forceMultiline || null == property.getClob()) {
@@ -1253,9 +1258,8 @@ public class CoreService {
 					application.getPackageVersion());
 			for (Resource r : resources) {
 				LOGGER.info("saving applicationresource {}", r.getName());
-				ResourceImpl resource = (r instanceof ResourceImpl) ?
-						((ResourceImpl) r) :
-						new ResourceImpl(application, r);
+				ResourceImpl resource = (r instanceof ResourceImpl) ? ((ResourceImpl) r)
+						: new ResourceImpl(application, r);
 				resourceRepository.save(resource);
 			}
 		}
@@ -1274,9 +1278,8 @@ public class CoreService {
 	}
 
 	protected Properties getPlatformConfig(Environment environment) {
-		return null == environment ?
-				getPlatform(false, false) :
-				environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		return null == environment ? getPlatform(false, false)
+				: environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 	}
 
 	protected String deleteResource(Environment env, Integer applicationId, Integer resourceId)
@@ -1287,8 +1290,8 @@ public class CoreService {
 			Resource applicationResource = applicationResourceHolder.getResource(resourceId);
 			if (application.isFileBased()) {
 				File applicationFolder = getApplicationFolder(env, application);
-				File file = new File(applicationFolder, applicationResource.getResourceType()
-						.getFolder() + File.separator + applicationResource.getName());
+				File file = new File(applicationFolder, applicationResource.getResourceType().getFolder()
+						+ File.separator + applicationResource.getName());
 				FileUtils.deleteQuietly(file);
 			} else {
 				application.getResourceSet().remove(applicationResource);
@@ -1322,17 +1325,17 @@ public class CoreService {
 				deleteApplicationResources(currentApplication, applicationFolder);
 			}
 		} catch (InvalidConfigurationException e) {
-			throw new BusinessException(
-					"error while transforming application '" + application.getName() + "' from " + convertDirection + ", application is in an erroneous state",
-					e);
+			throw new BusinessException("error while transforming application '" + application.getName() + "' from "
+					+ convertDirection + ", application is in an erroneous state", e);
 		}
 	}
 
 	private void writeFileBasedApplicationResources(Collection<Resource> resources, File outputDir)
 			throws BusinessException {
 		for (Resource applicationResource : resources) {
-			String outputPath = outputDir.getAbsolutePath() + File.separator + applicationResource.getResourceType()
-					.getFolder() + File.separator + applicationResource.getName();
+			String outputPath = outputDir.getAbsolutePath() + File.separator
+					+ applicationResource.getResourceType().getFolder() + File.separator
+					+ applicationResource.getName();
 			try {
 				File outputFile = new File(outputPath);
 				FileUtils.forceMkdir(outputFile.getParentFile());
@@ -1396,8 +1399,8 @@ public class CoreService {
 	}
 
 	private boolean canSubjectResetPassword(SubjectImpl subject) {
-		return !(null == subject || PasswordChangePolicy.MUST_NOT.equals(
-				subject.getPasswordChangePolicy()) || subject.isExpired(new Date()));
+		return !(null == subject || PasswordChangePolicy.MUST_NOT.equals(subject.getPasswordChangePolicy())
+				|| subject.isExpired(new Date()));
 	}
 
 	public SubjectImpl updateSubject(SubjectImpl subject) {
@@ -1532,21 +1535,19 @@ public class CoreService {
 		auditableListener.createEvent(Type.INFO,
 				String.format("Removed application %s from site %s", applicationName, site.getName()));
 		if (MigrationStatus.DB_MIGRATED.equals(status)) {
-			auditableListener.createEvent(Type.INFO,
-					String.format("Dropped database %s and user %s", databaseConnection.getJdbcUrl(),
-							databaseConnection.getUserName()));
+			auditableListener.createEvent(Type.INFO, String.format("Dropped database %s and user %s",
+					databaseConnection.getJdbcUrl(), databaseConnection.getUserName()));
 		} else if (MigrationStatus.ERROR.equals(status)) {
-			auditableListener.createEvent(Type.ERROR,
-					String.format("Error while dropping database %s and user %s", databaseConnection.getJdbcUrl(),
-							databaseConnection.getUserName()));
+			auditableListener.createEvent(Type.ERROR, String.format("Error while dropping database %s and user %s",
+					databaseConnection.getJdbcUrl(), databaseConnection.getUserName()));
 		}
 		return status;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public MigrationStatus unlinkApplicationFromSite(Integer siteId, Integer applicationId) {
-		SiteApplication siteApplication = siteApplicationRepository.findOne(
-				new SiteApplicationPK(siteId, applicationId));
+		SiteApplication siteApplication = siteApplicationRepository
+				.findOne(new SiteApplicationPK(siteId, applicationId));
 		return unlinkApplicationFromSite(siteApplication);
 	}
 
@@ -1628,8 +1629,8 @@ public class CoreService {
 			if (null != request) {
 				fp.addErrorMessage(request.getMessage(applicationDeleteErrorWithCause, site.getName(), site.getId()));
 			} else {
-				fp.addErrorMessage(
-						"Can not delete application, because it is linked to the active site \"" + site.getName() + "\" with ID " + site.getId());
+				fp.addErrorMessage("Can not delete application, because it is linked to the active site \""
+						+ site.getName() + "\" with ID " + site.getId());
 			}
 		}
 
@@ -1769,11 +1770,11 @@ public class CoreService {
 			boolean isWorking = databaseConnection.testConnection(true);
 			if (isWorking) {
 				if (null == databaseConnection.getSite()) {
-					databaseConnection.setMigrationInfoService(
-							databaseService.statusComplete(databaseConnection, false));
+					databaseConnection
+							.setMigrationInfoService(databaseService.statusComplete(databaseConnection, false));
 				} else {
-					SiteApplication siteApplication = siteApplicationRepository.findByDatabaseConnectionId(
-							databaseConnection.getId());
+					SiteApplication siteApplication = siteApplicationRepository
+							.findByDatabaseConnectionId(databaseConnection.getId());
 					if (null != siteApplication) {
 						File platformCache = cacheProvider.getPlatformCache(siteApplication.getSite(),
 								siteApplication.getApplication());
@@ -2170,8 +2171,8 @@ public class CoreService {
 	}
 
 	public Site getGrantingSite(String grantedSite, String grantedApplication) {
-		SiteApplication siteApplication = siteApplicationRepository.findByApplicationNameAndGrantedSitesName(
-				grantedApplication, grantedSite);
+		SiteApplication siteApplication = siteApplicationRepository
+				.findByApplicationNameAndGrantedSitesName(grantedApplication, grantedSite);
 		return null == siteApplication ? null : siteApplication.getSite();
 	}
 
@@ -2194,13 +2195,16 @@ public class CoreService {
 	 * Expires cache elements for a site by path prefix
 	 *
 	 * @param siteId
-	 * 		the id of the {@link Site} to retrieve the cache for
+	 *                           the id of the {@link Site} to retrieve the cache for
 	 * @param cacheElementPrefix
-	 * 		the prefix to use
+	 *                           the prefix to use
+	 * 
 	 * @return always {@code 0}, as the execution is asynchronous
+	 * 
 	 * @throws BusinessException
+	 * 
 	 * @deprecated Use {@link CacheService#expireCacheElementsByPrefix(javax.cache.Cache, String)} or
-	 *        {@link CacheService#expireCacheElementsByPrefix(Site, String)}.
+	 *             {@link CacheService#expireCacheElementsByPrefix(Site, String)}.
 	 */
 	@Deprecated
 	public int expireCacheElementsStartingWith(Integer siteId, String cacheElementPrefix) throws BusinessException {
