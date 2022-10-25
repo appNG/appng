@@ -4,25 +4,9 @@ Build Version  {project-version} created {localdate}
 :title-logo-image: image:appng.png[align=right]
 :toc:
 
-This guide describes how to setup appNG with the appNGizer.
+This guide describes how to setup the appNG platform with appNGizer.
 
-All *PUT* and *POST* requests have to use the header `Content-Type=text/xml`.
-The single exception is the login, where `text/plain` must be used.
-
-== Login
-
-The appNG platform property `sharedSecret` is needed to login into appNGizer. The client needs to accept cookies to proceed after login.
-
-*URL:* http://localhost:8080/appNGizer
-
-*METHOD:* POST
-
-*BODY:*
-[source]
-----
-<sharedSecret>
-----
-
+include::parts/setup.adoc[]
 
 == Enable messaging
 

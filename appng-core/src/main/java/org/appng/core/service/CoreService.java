@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,6 +46,7 @@ import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
+import org.appng.api.MessageConstants;
 import org.appng.api.Path;
 import org.appng.api.Platform;
 import org.appng.api.Request;
@@ -122,6 +124,7 @@ import org.appng.xml.application.Permissions;
 import org.appng.xml.application.PropertyType;
 import org.appng.xml.application.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -135,7 +138,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * A service implementing the core business logic for creation/retrieval/removal of business-objects.
- * 
+ *
  * @author Matthias Müller
  * @author Matthias Herlitzius
  */
@@ -187,6 +190,9 @@ public class CoreService {
 
 	@Autowired
 	protected PlatformEventListener auditableListener;
+
+	@Autowired
+	private MessageSource messageSource;
 
 	public Subject createSubject(SubjectImpl subject) {
 		boolean changePasswordAllowed = UserType.LOCAL_USER.equals(subject.getUserType());
@@ -404,6 +410,59 @@ public class CoreService {
 		}
 	}
 
+	public boolean checkSiteNameConflicts(Site site, String check, Locale locale, List<String> problems) {
+		boolean onlyOne = !"all".equals(check);
+		boolean problemSpotted = false;
+		switch (check) {
+		case "all":
+		case "name":
+			Site collidingSite = siteRepository.findByName(site.getName());
+			if (collidingSite != null) {
+				problems.add(messageSource.getMessage(MessageConstants.SITE_NAME_EXISTS,
+						new Object[] { site.getName() }, locale));
+				problemSpotted = true;
+			}
+			if (onlyOne)
+				break;
+		case "host":
+			List<SiteImpl> hostOverlapSites = siteRepository.findSitesForHostName(site.getHost());
+			for (SiteImpl ovlpSite : hostOverlapSites) {
+				if (site.getId() != ovlpSite.getId()) {
+					problems.add(messageSource.getMessage(MessageConstants.SITE_HOST_IN_USE,
+							new Object[] { site.getHost(), ovlpSite.getName() }, locale));
+					problemSpotted = true;
+				}
+			}
+			if (onlyOne)
+				break;
+		case "hostAliases":
+			List<SiteImpl> aliasOverlapSites = siteRepository.findSitesForHostNames(site.getHostAliases());
+			for (SiteImpl ovlpSite : aliasOverlapSites) {
+				if (site.getId() != ovlpSite.getId()) {
+					HashSet<String> intersection = new HashSet<>(ovlpSite.getHostAliases());
+					intersection.add(ovlpSite.getHost());
+					intersection.retainAll(site.getHostAliases());
+					String conflictAliases = intersection.stream().sorted().collect(Collectors.joining(", "));
+					problems.add(messageSource.getMessage(MessageConstants.SITE_HOSTALIAS_IN_USE,
+							new Object[] { ovlpSite.getName(), conflictAliases }, locale));
+					problemSpotted = true;
+				}
+			}
+			if (onlyOne)
+				break;
+		case "domain":
+			if (!siteRepository.isUnique(site.getId(), "domain", site.getDomain())) {
+				problems.add(messageSource.getMessage(MessageConstants.SITE_DOMAIN_EXISTS,
+						new Object[] { site.getDomain() }, locale));
+				problemSpotted = true;
+			}
+			break;
+		default:
+			throw new UnsupportedOperationException("Name collision check for '" + check + "' is not implemented");
+		}
+		return problemSpotted;
+	}
+
 	public PropertyImpl saveProperty(PropertyImpl property) {
 		return propertyRepository.save(property);
 	}
@@ -478,7 +537,7 @@ public class CoreService {
 	 * Returns a {@link PasswordHandler} which is able to handle the password of a given {@link AuthSubject}. This is
 	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
 	 * This method may be removed in the future.
-	 * 
+	 *
 	 * @param authSubject
 	 *                    The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
 	 *                    determine which implementation of the {@link PasswordHandler} interface will be returned.
@@ -498,7 +557,7 @@ public class CoreService {
 
 	/**
 	 * Returns the default password manager which should be used to handle all passwords.
-	 * 
+	 *
 	 * @param authSubject
 	 *                    The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
 	 * 
@@ -1011,7 +1070,7 @@ public class CoreService {
 
 	/**
 	 * Deletes a {@link Template}
-	 * 
+	 *
 	 * @param name
 	 *             the name of the template to delete
 	 * 
@@ -1502,7 +1561,7 @@ public class CoreService {
 
 	/**
 	 * Deletes a ApplicationRole
-	 * 
+	 *
 	 * @throws BusinessException
 	 */
 	protected void deleteRole(Integer roleId, final String roleDeleteError, final String roleErrorInvalid)
@@ -2134,7 +2193,7 @@ public class CoreService {
 
 	/**
 	 * Expires cache elements for a site by path prefix
-	 * 
+	 *
 	 * @param siteId
 	 *                           the id of the {@link Site} to retrieve the cache for
 	 * @param cacheElementPrefix

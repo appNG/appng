@@ -101,6 +101,14 @@ public abstract class ControllerBase {
 		return new ResponseEntity<Errors>(errors, HttpStatus.BAD_REQUEST);
 	}
 
+	@ExceptionHandler(ConflictException.class)
+	public ResponseEntity<String> onConflictException(HttpServletRequest request, ConflictException e) {
+		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
+				request.getMethod(), request.getRequestURI());
+		logger().error(message, e);
+		return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+	}
+
 	abstract Logger logger();
 
 	CoreService getCoreService() {
