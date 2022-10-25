@@ -134,9 +134,9 @@ public class SiteController extends ControllerBase {
 	public ResponseEntity<Site> createSite(@RequestBody org.appng.appngizer.model.xml.Site site,
 			HttpServletRequest request) throws ConflictException {
 		SiteImpl siteToCreate = Site.toDomain(site);
-		ArrayList<String> conflictMsgs = new ArrayList<>();
+		List<String> conflictMsgs = new ArrayList<>();
 		if (getCoreService().checkSiteNameConflicts(siteToCreate, "all", request.getLocale(), conflictMsgs)) {
-			throw new ConflictException(String.join(System.lineSeparator(), conflictMsgs));
+			throw new ConflictException(conflictMsgs);
 		}
 		getCoreService().createSite(Site.toDomain(site));
 		return created(getSite(site.getName()).getBody());

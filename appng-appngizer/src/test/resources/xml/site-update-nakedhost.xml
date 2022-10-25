@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <site xmlns="http://www.appng.org/schema/appngizer" name="naked1" self="http://localhost/appNGizer/site/naked1">
 	<links>
-		<link name="properties" self="http://localhost/appNGizer/site/naked1/property"/>
-		<link name="applications" self="http://localhost/appNGizer/site/naked1/application"/>
-		<link name="databases" self="http://localhost/appNGizer/site/naked1/database"/>
-		<link name="reload" self="http://localhost/appNGizer/site/naked1/reload"/>
+		<link name="properties" self="http://localhost/appNGizer/site/naked1/property" />
+		<link name="applications" self="http://localhost/appNGizer/site/naked1/application" />
+		<link name="databases" self="http://localhost/appNGizer/site/naked1/database" />
+		<link name="reload" self="http://localhost/appNGizer/site/naked1/reload" />
 	</links>
 	<host>NotSoNakedAnyMoreHost</host>
 	<hostAliases>

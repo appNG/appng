@@ -2,9 +2,9 @@
 <sites xmlns="http://www.appng.org/schema/appngizer" self="http://localhost/appNGizer/site">
 	<site name="naked1" self="http://localhost/appNGizer/site/naked1">
 		<links>
-			<link name="properties" self="http://localhost/appNGizer/site/naked1/property"/>
-			<link name="applications" self="http://localhost/appNGizer/site/naked1/application"/>
-			<link name="databases" self="http://localhost/appNGizer/site/naked1/database"/>
+			<link name="properties" self="http://localhost/appNGizer/site/naked1/property" />
+			<link name="applications" self="http://localhost/appNGizer/site/naked1/application" />
+			<link name="databases" self="http://localhost/appNGizer/site/naked1/database" />
 		</links>
 		<host>NotSoNakedAnyMoreHost</host>
 		<hostAliases>
@@ -17,9 +17,9 @@
 	</site>
 	<site name="regular1" self="http://localhost/appNGizer/site/regular1">
 		<links>
-			<link name="properties" self="http://localhost/appNGizer/site/regular1/property"/>
-			<link name="applications" self="http://localhost/appNGizer/site/regular1/application"/>
-			<link name="databases" self="http://localhost/appNGizer/site/regular1/database"/>
+			<link name="properties" self="http://localhost/appNGizer/site/regular1/property" />
+			<link name="applications" self="http://localhost/appNGizer/site/regular1/application" />
+			<link name="databases" self="http://localhost/appNGizer/site/regular1/database" />
 		</links>
 		<host>regularhost</host>
 		<hostAliases>

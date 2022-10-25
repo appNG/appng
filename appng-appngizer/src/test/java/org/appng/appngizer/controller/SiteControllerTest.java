@@ -16,6 +16,7 @@
 package org.appng.appngizer.controller;
 
 import java.net.URI;
+
 import org.appng.appngizer.model.xml.Site;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -45,20 +46,15 @@ public class SiteControllerTest extends ControllerTest {
 		// Post the same site again. Should trigger conflict tests.
 		Site siteNameConflict = getAppNGizerSite("regular1", "regularhost", null, "http://regularhost:8081", null, true,
 				true);
-		String verifyNameConflict = "A different site named 'regular1' already exists!" + System.lineSeparator()
-				+ "Hostname 'regularhost' is already used as hostname or alias by site 'regular1'!"
-				+ System.lineSeparator() + "A different site uses domain 'http://regularhost:8081' already!";
 		sendBodyAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteNameConflict, HttpStatus.CONFLICT,
-				verifyNameConflict, true);
-
-		// New Site with conflict between aliases. (Only one cobination of
+				"xml/site-test-sitename-conflict.xml", false);
+		// New Site with conflict between aliases. (Only one combination of
 		// Alias/Host<-conflict->Alias/Host. Rest is tested in Manager.)
 		Site siteAliasConflict = getAppNGizerSite("newnamehost", "newnamehost",
 				new String[] { "RidetheLightningHost", "MasterofPuppetsHost" }, "http://newnamehost:8081", null, true,
 				true);
-		String verifyAliasConflict = "The following aliases are used as hostname or alias by site 'regular1': MasterofPuppetsHost, RidetheLightningHost";
 		sendBodyAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteAliasConflict, HttpStatus.CONFLICT,
-				verifyAliasConflict, true);
+				"xml/site-test-alias-conflict.xml", false);
 	}
 
 	@Test

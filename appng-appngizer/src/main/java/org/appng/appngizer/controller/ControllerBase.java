@@ -102,11 +102,17 @@ public abstract class ControllerBase {
 	}
 
 	@ExceptionHandler(ConflictException.class)
-	public ResponseEntity<String> onConflictException(HttpServletRequest request, ConflictException e) {
+	public ResponseEntity<Errors> onConflictException(HttpServletRequest request, ConflictException e) {
 		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
 				request.getMethod(), request.getRequestURI());
 		logger().error(message, e);
-		return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		Errors errors = new Errors();
+		for (String cn : e.getConflicts()) {
+			Error error = new Error();
+			error.setValue(cn);
+			errors.getError().add(error);
+		}
+		return new ResponseEntity<Errors>(errors, HttpStatus.CONFLICT);
 	}
 
 	abstract Logger logger();

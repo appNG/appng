@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<errors xmlns="http://www.appng.org/schema/appngizer">
+	<error>A different site named 'regular1' already exists!</error>
+	<error>Hostname 'regularhost' is already used as hostname or alias by site 'regular1'!</error>
+	<error>A different site uses domain 'http://regularhost:8081' already!</error>
+</errors>
