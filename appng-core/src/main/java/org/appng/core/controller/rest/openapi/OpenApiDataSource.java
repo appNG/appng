@@ -290,7 +290,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 				sort.setOrder(OrderEnum.fromValue(s.getOrder().name().toLowerCase()));
 			}
 
-			String sortParam = self + (hasQueryParams ? ";" : "") + getSortParam(dataSourceId) + "=";
+			String sortParam = self + (hasQueryParams ? ";" : "/;") + getSortParam(dataSourceId) + "=";
 			sort.setPathDesc(sortParam + encode(f.getBinding() + ":desc"));
 			sort.setPathAsc(sortParam + encode(f.getBinding() + ":asc"));
 			field.setSort(sort);
