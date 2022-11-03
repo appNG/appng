@@ -264,6 +264,9 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 					s.getOptions().forEach(o -> {
 						filter.getOptions().addEntriesItem(getOption(s.getId(), o, Collections.emptyList()));
 					});
+					if (null == filter.getOptions().getEntries()) {
+						filter.getOptions().setEntries(Collections.emptyList());
+					}
 					datasource.addFiltersItem(filter);
 					filterResetLink.append((istFirst.getAndSet(false) ? "" : ";") + s.getId() + "=");
 				});

@@ -399,7 +399,13 @@ abstract class OpenApiAction extends OpenApiOperation {
 						og.getOptions().forEach(o -> {
 							optionGroup.getOptions().add(getOption(fieldDef.getBinding(), o, parameterList));
 						});
+						if (null == optionGroup.getOptions()) {
+							optionGroup.setOptions(Collections.emptyList());
+						}
 					});
+					if (null == actionField.getOptions().getEntries()) {
+						actionField.getOptions().setEntries(Collections.emptyList());
+					}
 				}
 
 			}
