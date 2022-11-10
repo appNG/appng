@@ -69,52 +69,54 @@ public class BeanOptionsGenerator {
 				new File(sourceFolder));
 
 		for (Entry<String, Map<String, Set<String>>> bean : collectBeanOptions.entrySet()) {
-			StringBuilder source = new StringBuilder("package ").append(packageName).append(";\r\n\r\n");
 
-			source.append("import org.appng.api.Options;\r\n");
-			source.append("import lombok.AccessLevel;\r\n");
-			source.append("import lombok.AllArgsConstructor;\r\n\r\n");
+			if (!bean.getValue().isEmpty()) {
 
-			String className = StringUtils.capitalize(bean.getKey()) + "Options";
-			source.append("public class " + className + " {\r\n\r\n");
+				StringBuilder source = new StringBuilder("package ").append(packageName).append(";\r\n\r\n");
 
-			source.append("\tpublic @AllArgsConstructor(access = AccessLevel.PRIVATE) static class Option {\r\n");
-			source.append("\t\tprivate final org.appng.api.Option inner;\r\n");
-			source.append("\t\tprivate final String name;\r\n");
-			source.append("\t\tpublic @Override String toString() { return inner.getString(name);}\r\n");
-			source.append("\t\tpublic Boolean toBoolean() { return inner.getBoolean(name);}\r\n");
-			source.append("\t\tpublic Integer toInt() { return inner.getInteger(name);}\r\n");
-			source.append("\t\tpublic Long toLong() { return Long.valueOf(inner.getString(name));}\r\n");
-			source.append("\t\tpublic Double toDouble() { return Double.valueOf(inner.getString(name));}\r\n");
-			source.append(
-					"\t\tpublic <E extends Enum<E>> E toEnum(Class<E> type) { return inner.getEnum(name, type);}\r\n");
-			source.append("\t}\r\n\r\n");
+				source.append("import org.appng.api.Options;\r\n");
+				source.append("import lombok.AccessLevel;\r\n");
+				source.append("import lombok.AllArgsConstructor;\r\n\r\n");
 
-			// 1. create static class for each option
-			for (String option : new TreeSet<>(bean.getValue().keySet())) {
-				Set<String> attributes = bean.getValue().get(option);
-				if (!attributes.isEmpty()) {
-					source.append("\tpublic @AllArgsConstructor(access = AccessLevel.PRIVATE) static class ");
-					source.append(option).append(" {");
-					for (String attribute : new TreeSet<>(attributes)) {
-						source.append(" public final Option ").append(attribute).append(";");
+				String className = StringUtils.capitalize(bean.getKey()) + "Options";
+				source.append("public class " + className + " {\r\n\r\n");
+
+				source.append("\tpublic @AllArgsConstructor(access = AccessLevel.PRIVATE) static class Option {\r\n");
+				source.append("\t\tprivate final org.appng.api.Option inner;\r\n");
+				source.append("\t\tprivate final String name;\r\n");
+				source.append("\t\tpublic @Override String toString() { return inner.getString(name);}\r\n");
+				source.append("\t\tpublic Boolean toBoolean() { return inner.getBoolean(name);}\r\n");
+				source.append("\t\tpublic Integer toInt() { return inner.getInteger(name);}\r\n");
+				source.append("\t\tpublic Long toLong() { return Long.valueOf(inner.getString(name));}\r\n");
+				source.append("\t\tpublic Double toDouble() { return Double.valueOf(inner.getString(name));}\r\n");
+				source.append(
+						"\t\tpublic <E extends Enum<E>> E toEnum(Class<E> type) { return inner.getEnum(name, type);}\r\n");
+				source.append("\t}\r\n\r\n");
+
+				// 1. create static class for each option
+				for (String option : new TreeSet<>(bean.getValue().keySet())) {
+					Set<String> attributes = bean.getValue().get(option);
+					if (!attributes.isEmpty()) {
+						source.append("\tpublic @AllArgsConstructor(access = AccessLevel.PRIVATE) static class ");
+						source.append(option).append(" {");
+						for (String attribute : new TreeSet<>(attributes)) {
+							source.append(" public final Option ").append(attribute).append(";");
+						}
+						source.append("}\r\n");
 					}
-					source.append("}\r\n");
 				}
-			}
-			source.append("\r\n");
+				source.append("\r\n");
 
-			// 2. create a field for each option
-			for (String option : new TreeSet<>(bean.getValue().keySet())) {
-				source.append("\tpublic final ").append(option).append(" ").append(option).append(";\r\n");
-			}
-			source.append("\r\n");
+				// 2. create a field for each option
+				for (String option : new TreeSet<>(bean.getValue().keySet())) {
+					source.append("\tpublic final ").append(option).append(" ").append(option).append(";\r\n");
+				}
+				source.append("\r\n");
 
-			// 3. create constructor
-			source.append("\tprivate ").append(className).append("(Options options) {\r\n");
-			for (String option : new TreeSet<>(bean.getValue().keySet())) {
-				Set<String> values = new TreeSet<>(bean.getValue().get(option));
-				if (!values.isEmpty()) {
+				// 3. create constructor
+				source.append("\tprivate ").append(className).append("(Options options) {\r\n");
+				for (String option : new TreeSet<>(bean.getValue().keySet())) {
+					Set<String> values = new TreeSet<>(bean.getValue().get(option));
 					source.append("\t\t").append(option).append(" =  new ").append(option).append("(");
 					int idx = 0;
 					int size = values.size();
@@ -127,15 +129,15 @@ public class BeanOptionsGenerator {
 					}
 					source.append(");\r\n");
 				}
-			}
-			source.append("\t}\r\n");
+				source.append("\t}\r\n");
 
-			source.append("}\r\n");
-			System.err.println(source);
-			File java = new File(outFolder + "/" + packageName.replace('.', '/'), className + ".java");
-			java.getParentFile().mkdirs();
-			Path outPath = java.toPath();
-			Files.write(outPath, source.toString().getBytes(StandardCharsets.UTF_8));
+				source.append("}\r\n");
+				System.err.println(source);
+				File java = new File(outFolder + "/" + packageName.replace('.', '/'), className + ".java");
+				java.getParentFile().mkdirs();
+				Path outPath = java.toPath();
+				Files.write(outPath, source.toString().getBytes(StandardCharsets.UTF_8));
+			}
 		}
 	}
 
