@@ -134,7 +134,6 @@ public class BeanOptionsGenerator {
 						+ "(options); }\r\n");
 
 				source.append("}\r\n");
-				System.err.println(source);
 				File java = new File(outFolder + "/" + packageName.replace('.', '/'), className + ".java");
 				java.getParentFile().mkdirs();
 				Path outPath = java.toPath();
