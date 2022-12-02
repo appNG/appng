@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.Set;
 
 import org.appng.api.Path;
+import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.FeatureProvider;
 import org.appng.api.model.Permission;
@@ -65,6 +66,7 @@ class OpenApiTest extends TestBase {
 	public void setup() throws Exception {
 		super.setup();
 		environment.setAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO, Mockito.mock(Path.class));
+		environment.setAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION, "1.25.x");
 		SimpleAccessibleApplication app = new SimpleAccessibleApplication(TESTAPPLICATION, context);
 		app.init(request.getApplicationConfig().getApplicationInfo());
 		applicationProvider = new ApplicationProvider(site, app);

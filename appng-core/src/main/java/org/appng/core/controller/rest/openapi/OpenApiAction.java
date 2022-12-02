@@ -133,7 +133,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
 		}
 
-		Action action = getAction(initialRequest, initialAction, env, null, false, null);
+		Action action = getAction(application, initialRequest, initialAction, env, null, false, null);
 		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
 	}
 
@@ -177,7 +177,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
 		}
 
-		Action action = getAction(request, processedAction, environment, null, false, null);
+		Action action = getAction(application, request, processedAction, environment, null, false, null);
 		ResponseEntity<Action> responseEntity = new ResponseEntity<>(action,
 				hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
 		errors = false;
@@ -241,7 +241,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(processedAction));
 		}
 
-		Action action = getAction(executingRequest, processedAction, env, receivedData, false, null);
+		Action action = getAction(application, executingRequest, processedAction, env, receivedData, false, null);
 		return new ResponseEntity<>(action, hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
 	}
 
@@ -258,8 +258,9 @@ abstract class OpenApiAction extends OpenApiOperation {
 		return initialRequest;
 	}
 
-	protected Action getAction(ApplicationRequest request, org.appng.xml.platform.Action processedAction,
-			Environment environment, Action receivedData, boolean allParams, AtomicBoolean mustExecute) {
+	protected Action getAction(Application application, ApplicationRequest request,
+			org.appng.xml.platform.Action processedAction, Environment environment, Action receivedData,
+			boolean allParams, AtomicBoolean mustExecute) {
 
 		Map<String, String> actionParams = getParameters(processedAction.getConfig().getParams(), allParams);
 
@@ -299,7 +300,8 @@ abstract class OpenApiAction extends OpenApiOperation {
 		appendParams(processedAction.getConfig().getParams(), self);
 		action.setSelf(self.toString());
 		action.setExecute(action.getSelf().replace("/action/", "/action/multipart/"));
-
+		action.setAppNGVersion(getAppNGVersion(environment));
+		action.setAppVersion(application.getPackageVersion());
 		return action;
 	}
 

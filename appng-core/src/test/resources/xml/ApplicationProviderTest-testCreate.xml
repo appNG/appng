@@ -122,6 +122,10 @@
 									<option value="4" name="4" selected="false" />
 									<option value="5" name="5" selected="true" />
 								</selection>
+								<selection id="enumValue">
+									<option value="ACME" name="acme" selected="true" />
+									<option value="WARNER" name="warner" selected="false" />
+								</selection>
 								<result>
 									<field name="id" type="int">
 										<value></value>

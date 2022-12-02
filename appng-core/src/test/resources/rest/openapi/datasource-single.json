@@ -42,6 +42,10 @@
       "label" : "boolean value",
       "fieldType" : "checkbox"
     }, {
+      "name" : "enumValue",
+      "label" : "enumValue",
+      "fieldType" : "list_radio"
+    }, {
       "name" : "parent",
       "fieldType" : "object",
       "fields" : {
@@ -103,6 +107,10 @@
             }
           }
         },
+        "enumValue" : {
+          "name" : "enumValue",
+          "value" : "ACME"
+        },
         "children" : {
           "name" : "children",
           "value" : [ {
@@ -156,7 +164,9 @@
       "mode" : "SET",
       "ref" : "show_entity",
       "value" : false
-    } ]
+    } ],
+    "appNGVersion" : "1.25.x",
+    "appVersion" : "1.5.2"
   },
   "statusCode" : "OK",
   "statusCodeValue" : 200

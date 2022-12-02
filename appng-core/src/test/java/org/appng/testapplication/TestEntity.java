@@ -34,6 +34,10 @@ import lombok.Setter;
 @Entity
 public class TestEntity {
 
+	public enum TestEnum {
+		ACME, WARNER;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -43,6 +47,8 @@ public class TestEntity {
 	private Boolean booleanValue;
 	private @Transient @Valid TestEntity parent;
 	private @Transient @Valid List<TestEntity> children;
+
+	private @Transient @Valid TestEnum enumValue = TestEnum.ACME;
 
 	public TestEntity() {
 

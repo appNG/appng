@@ -29,7 +29,9 @@ import org.appng.api.Options;
 import org.appng.api.Request;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
+import org.appng.api.support.SelectionBuilder;
 import org.appng.api.support.SelectionFactory;
+import org.appng.testapplication.TestEntity.TestEnum;
 import org.appng.xml.platform.Selection;
 import org.appng.xml.platform.SelectionType;
 
@@ -84,6 +86,9 @@ public class TestEntities implements ActionProvider<TestEntity>, DataProvider {
 				new String[] { "1", "2", "3", "4", "5" }, "5");
 		simpleSelection.setType(SelectionType.CHECKBOX);
 		dataContainer.getSelections().add(simpleSelection);
+		Selection enumSelection = new SelectionBuilder<TestEnum>("enumValue").options(Arrays.asList(TestEnum.values()))
+				.select(TestEnum.ACME).name(e -> e.name().toLowerCase()).build();
+		dataContainer.getSelections().add(enumSelection);
 	}
 
 	public void perform(Site site, Application application, Environment environment, Options options, Request request,

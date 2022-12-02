@@ -181,7 +181,9 @@
       "mode" : "SET",
       "ref" : "show_entities",
       "value" : false
-    } ]
+    } ],
+    "appNGVersion" : "1.25.x",
+    "appVersion" : "1.5.2"
   },
   "statusCode" : "OK",
   "statusCodeValue" : 200

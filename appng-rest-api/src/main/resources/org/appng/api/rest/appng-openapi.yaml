@@ -316,6 +316,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Section"
+        appNGVersion:
+          type: String
+          description: The version of appNG
+        appVersion:
+          type: String
+          description: The version of the application
     Section:
       type: object
       required:
@@ -395,6 +401,12 @@ components:
             $ref: "#/components/schemas/Permission"
         onSuccess:
           type: string
+        appNGVersion:
+          type: String
+          description: The version of appNG
+        appVersion:
+          type: String
+          description: The version of the application  
     Datasource:
       type: object
       description: A datasource, represented by either a page (of elements) or a single
@@ -456,6 +468,12 @@ components:
           description: The permissions for this datasource.
           items:
             $ref: "#/components/schemas/Permission"
+        appNGVersion:
+          type: String
+          description: The version of appNG
+        appVersion:
+          type: String
+          description: The version of the application
     ErrorModel:
       type: object
       description: ""
@@ -935,6 +953,9 @@ components:
             $ref: "#/components/schemas/NavigationItem"
         loginAction:
           $ref: "#/components/schemas/Action"
+        appNGVersion:
+          type: String
+          description: The version of appNG
     NavigationItem:
       type: object
       properties:

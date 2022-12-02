@@ -13,7 +13,7 @@
 		</session>
 	</config>
 	<pages>
-		<page id="entity" type="index" executionTime="27">
+		<page id="entity" type="index" executionTime="35">
 			<config>
 				<title id="entity">Entity</title>
 				<description></description>
@@ -51,8 +51,8 @@
 				</linkpanel>
 			</config>
 			<structure>
-				<section executionTime="25" id="42">
-					<element passive="true" executionTime="25">
+				<section executionTime="33" id="42">
+					<element passive="true" executionTime="33">
 						<title id="update.entity" params="#{name},${entityId}">Update entity Anakin (ID: 1)</title>
 						<action id="update" eventId="events" async="false">
 							<config>
@@ -86,6 +86,9 @@
 									</field>
 									<field name="booleanValue" type="checkbox" binding="booleanValue">
 										<label id="booleanValue">boolean value</label>
+									</field>
+									<field name="enumValue" type="list:radio" binding="enumValue">
+										<label id="enumValue">enumValue</label>
 									</field>
 									<field name="parent" type="object" binding="parent">
 										<field name="name" type="text" binding="parent.name">
@@ -139,6 +142,10 @@
 									<option value="4" name="4" selected="false" />
 									<option value="5" name="5" selected="true" />
 								</selection>
+								<selection id="enumValue">
+									<option value="ACME" name="acme" selected="true" />
+									<option value="WARNER" name="warner" selected="false" />
+								</selection>
 								<result>
 									<field name="id" type="int">
 										<value>1</value>
@@ -154,6 +161,9 @@
 									</field>
 									<field name="booleanValue" type="checkbox">
 										<value>false</value>
+									</field>
+									<field name="enumValue" type="list:radio">
+										<value>ACME</value>
 									</field>
 									<field name="parent" type="object">
 										<field name="name" type="text">

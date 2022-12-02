@@ -151,6 +151,7 @@ abstract class OpenApiNavigation extends OpenApiOperation {
 			navigation.addItemsItem(loginItem);
 		}
 		navigation.setUser(getUser(env));
+		navigation.setAppNGVersion(getAppNGVersion(env));
 		return new ResponseEntity<Navigation>(navigation, HttpStatus.OK);
 	}
 

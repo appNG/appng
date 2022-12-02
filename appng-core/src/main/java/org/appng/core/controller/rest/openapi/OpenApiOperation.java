@@ -38,7 +38,9 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
+import org.appng.api.Platform;
 import org.appng.api.Request;
+import org.appng.api.Scope;
 import org.appng.api.ValidationProvider;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
@@ -414,5 +416,9 @@ abstract class OpenApiOperation {
 					.toArray();
 		}
 		return messages.getMessage(code, params, code, locale);
+	}
+	
+	protected String getAppNGVersion(Environment env) {
+		return env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
 	}
 }

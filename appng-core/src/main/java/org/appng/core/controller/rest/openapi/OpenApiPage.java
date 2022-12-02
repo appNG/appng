@@ -159,6 +159,8 @@ abstract class OpenApiPage extends OpenApiOperation {
 		} else if (null != pageReference.getMessages()) {
 			pageDefinition.setMessages(getMessages(pageReference.getMessages()));
 		}
+		pageDefinition.setAppNGVersion(getAppNGVersion(env));
+		pageDefinition.setAppVersion(application.getPackageVersion());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processed page: {}", marshallService.marshallNonRoot(pageReference));
