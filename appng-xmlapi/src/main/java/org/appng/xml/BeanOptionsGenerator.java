@@ -55,19 +55,18 @@ public class BeanOptionsGenerator {
 	 *             args[2] - the output-folder for the generated classes
 	 * 
 	 * @throws IOException
-	 *                                  if the file can not be found or the target class can not be written
+	 *                       if the file can not be found or the target class can not be written
 	 * @throws JAXBException
-	 *                                  if a file can not unmarshalled
+	 *                       if a file can not unmarshalled
 	 */
 	public static void main(String[] args) throws IOException, JAXBException {
-		new BeanOptionsGenerator(args[0], args[1], args[1]).create();
+		new BeanOptionsGenerator(args[0], args[1], args[2]).create();
 	}
 
 	public void create() throws JAXBException, IOException {
 		Map</* BeanName */String, Map</* OptionName */ String, /* OptionAttributes */ Set<String>>> optionPerBean = new HashMap<>();
 		Map<String, Map<String, Set<String>>> collectBeanOptions = collectBeanOptions(optionPerBean,
 				new File(sourceFolder));
-
 		for (Entry<String, Map<String, Set<String>>> bean : collectBeanOptions.entrySet()) {
 
 			if (!bean.getValue().isEmpty()) {
@@ -129,7 +128,10 @@ public class BeanOptionsGenerator {
 					}
 					source.append(");\r\n");
 				}
-				source.append("\t}\r\n");
+				source.append("\t}\r\n\r\n");
+
+				source.append("\tpublic static " + className + " of(Options options) { return new " + className
+						+ "(options); }\r\n");
 
 				source.append("}\r\n");
 				System.err.println(source);
@@ -143,24 +145,28 @@ public class BeanOptionsGenerator {
 
 	public Map<String, Map<String, Set<String>>> collectBeanOptions(Map<String, Map<String, Set<String>>> optionPerBean,
 			File folder) throws JAXBException {
-		for (File file : folder.listFiles()) {
-			if (file.isFile()) {
-				Object unmarshalled = MarshallService.getMarshallService().unmarshall(file);
-				if (unmarshalled instanceof Datasource) {
-					collectBean(optionPerBean, Datasource.class.cast(unmarshalled).getBean());
-				} else if (unmarshalled instanceof Datasources) {
-					Datasources.class.cast(unmarshalled).getDatasourceList()
-							.forEach(d -> collectBean(optionPerBean, d.getBean()));
-				} else if (unmarshalled instanceof Action) {
-					collectBean(optionPerBean, Action.class.cast(unmarshalled).getBean());
-				} else if (unmarshalled instanceof Event) {
-					Event.class.cast(unmarshalled).getActions().forEach(a -> collectBean(optionPerBean, a.getBean()));
-				} else if (unmarshalled instanceof Events) {
-					Events.class.cast(unmarshalled).getEventList()
-							.forEach(e -> e.getActions().forEach(a -> collectBean(optionPerBean, a.getBean())));
+		File[] files = folder.listFiles();
+		if (null != files) {
+			for (File file : files) {
+				if (file.isFile()) {
+					Object unmarshalled = MarshallService.getMarshallService().unmarshall(file);
+					if (unmarshalled instanceof Datasource) {
+						collectBean(optionPerBean, Datasource.class.cast(unmarshalled).getBean());
+					} else if (unmarshalled instanceof Datasources) {
+						Datasources.class.cast(unmarshalled).getDatasourceList()
+								.forEach(d -> collectBean(optionPerBean, d.getBean()));
+					} else if (unmarshalled instanceof Action) {
+						collectBean(optionPerBean, Action.class.cast(unmarshalled).getBean());
+					} else if (unmarshalled instanceof Event) {
+						Event.class.cast(unmarshalled).getActions()
+								.forEach(a -> collectBean(optionPerBean, a.getBean()));
+					} else if (unmarshalled instanceof Events) {
+						Events.class.cast(unmarshalled).getEventList()
+								.forEach(e -> e.getActions().forEach(a -> collectBean(optionPerBean, a.getBean())));
+					}
+				} else {
+					collectBeanOptions(optionPerBean, file);
 				}
-			} else {
-				collectBeanOptions(optionPerBean, file);
 			}
 		}
 		return optionPerBean;
