@@ -18,6 +18,7 @@ package org.appng.core.repository;
 import java.util.Arrays;
 
 import org.appng.core.domain.JobExecutionRecord;
+import org.appng.core.domain.JobRecord;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,6 +29,9 @@ public class JobExecutionRecordRepositoryTest extends AbstractRepositoryTest {
 	@Autowired
 	JobExecutionRecordRepository repository;
 
+	@Autowired
+	JobRecordRepository recordRepository;
+
 	public void test() {
 		String site = "site";
 
@@ -35,6 +39,7 @@ public class JobExecutionRecordRepositoryTest extends AbstractRepositoryTest {
 		r1.setSite(site);
 		r1.setApplication("a1");
 		r1.setJobName("j1");
+		r1.setCustomData("a laaaaaaaarge BLOB!");
 		repository.save(r1);
 
 		JobExecutionRecord r2 = new JobExecutionRecord();
@@ -45,6 +50,12 @@ public class JobExecutionRecordRepositoryTest extends AbstractRepositoryTest {
 
 		Assert.assertEquals(Arrays.asList("a1"), repository.getDistinctApplications(site));
 		Assert.assertEquals(Arrays.asList("j1", "j2"), repository.getDistinctJobNames(site));
+
+		JobExecutionRecord j1WithData = repository.findOne(1);
+		Assert.assertEquals(r1.getCustomData(), j1WithData.getCustomData());
+
+		JobRecord j1 = recordRepository.findOne(1);
+		Assert.assertEquals("a1", j1.getApplication());
 
 	}
 }

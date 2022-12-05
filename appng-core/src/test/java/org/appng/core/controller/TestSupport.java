@@ -136,6 +136,8 @@ public class TestSupport {
 
 	private List<Property> siteProperties = new ArrayList<>();
 
+	protected SiteImpl site;
+
 	protected String siteRoot;
 
 	class TestApplicationProvider extends ApplicationProvider {
@@ -236,7 +238,7 @@ public class TestSupport {
 		enableParameters(requestParameters.keySet().iterator());
 
 		siteMap = new HashMap<>();
-		SiteImpl site = new SiteImpl();
+		site = new SiteImpl();
 		site.setId(1);
 		site.setHost(host);
 		site.setName(manager);
@@ -315,6 +317,7 @@ public class TestSupport {
 		addSiteProperty(SiteProperties.AUTH_LOGIN_PAGE, "webform");
 		addSiteProperty(SiteProperties.AUTH_LOGIN_REF, "webform");
 		addSiteProperty(SiteProperties.DATASOURCE_CONFIGURER, HikariCPConfigurer.class.getName());
+		addSiteProperty(SiteProperties.SET_DEBUG_HEADERS, "true");
 		addSiteProperty(LdapService.LDAP_PASSWORD, "secret");
 
 		addSiteProperty("configLocations",

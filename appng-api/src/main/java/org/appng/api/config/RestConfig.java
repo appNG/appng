@@ -41,11 +41,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
@@ -238,6 +240,7 @@ public class RestConfig implements BeanFactoryPostProcessor {
 
 	@Bean
 	@Lazy
+	@RequestScope(proxyMode = ScopedProxyMode.NO)
 	public SiteAwareHandlerMethodArgumentResolver siteAwareHandlerMethodArgumentResolver(Site site,
 			Application application, Environment environment) {
 		return new SiteAwareHandlerMethodArgumentResolver(site, environment, application);

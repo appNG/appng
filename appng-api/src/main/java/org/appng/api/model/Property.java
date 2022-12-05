@@ -34,31 +34,39 @@ public interface Property {
 		INT, DECIMAL, BOOLEAN, TEXT, PASSWORD, MULTILINE;
 
 		/**
-		 * Returns the best matching type for the given object
+		 * Returns the best matching type for the given object.
+		 * <ul>
+		 * <li>for {@code boolean} and {@link Boolean}, returns {@link #BOOLEAN}
+		 * <li>for {@link Integer},{@link Long}, {@link Short} (and their corresponding primitive types) returns
+		 * {@link #INT}
+		 * <li>for {@link Double} and {@link Float} (and their corresponding primitive types), returns {@link #DECIMAL}
+		 * <li>for a {@link String} that contains a linefeed ({@code \n}), returns {@link #MULTILINE}
+		 * <li>for everything else, return {@link #TEXT}
+		 * </ul>
 		 * 
-		 * @param value
-		 *              the object
+		 * @param  value
+		 *               the object
 		 * 
-		 * @return the best matching type for the given object
+		 * @return       the best matching type for the given object
 		 */
 		public static Type forObject(Object value) {
 			if (null == value) {
 				return TEXT;
 			}
-			if (value.getClass().isAssignableFrom(boolean.class) || value.getClass().isAssignableFrom(Boolean.class)) {
+			Class<? extends Object> clazz = value.getClass();
+			if (clazz.isAssignableFrom(boolean.class) || clazz.isAssignableFrom(Boolean.class)) {
 				return BOOLEAN;
 			}
-			if (value.getClass().isAssignableFrom(Integer.class) || value.getClass().isAssignableFrom(Long.class)
-					|| value.getClass().isAssignableFrom(short.class)
-					|| value.getClass().isAssignableFrom(Short.class)) {
+			if (clazz.isAssignableFrom(Integer.class) || clazz.isAssignableFrom(Long.class)
+					|| clazz.isAssignableFrom(int.class) || clazz.isAssignableFrom(Integer.class)
+					|| clazz.isAssignableFrom(short.class) || clazz.isAssignableFrom(Short.class)) {
 				return INT;
 			}
-			if (value.getClass().isAssignableFrom(double.class) || value.getClass().isAssignableFrom(Double.class)
-					|| value.getClass().isAssignableFrom(float.class)
-					|| value.getClass().isAssignableFrom(Float.class)) {
+			if (clazz.isAssignableFrom(double.class) || clazz.isAssignableFrom(Double.class)
+					|| clazz.isAssignableFrom(float.class) || clazz.isAssignableFrom(Float.class)) {
 				return DECIMAL;
 			}
-			if (String.class.isAssignableFrom(value.getClass()) && ((String) value).contains(StringUtils.LF)) {
+			if (String.class.isAssignableFrom(clazz) && ((String) value).contains(StringUtils.LF)) {
 				return MULTILINE;
 			}
 			return TEXT;

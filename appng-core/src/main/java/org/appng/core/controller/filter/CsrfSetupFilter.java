@@ -54,6 +54,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -84,7 +85,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent sce) {
 		ServletContext context = sce.getServletContext();
 
-		Properties platformProps = DefaultEnvironment.get(context).getAttribute(Scope.PLATFORM,
+		Properties platformProps = DefaultEnvironment.getGlobal().getAttribute(Scope.PLATFORM,
 				Platform.Environment.PLATFORM_CONFIG);
 
 		if (platformProps.getBoolean(Platform.Property.CSRF_FILTER_ENABLED)) {
@@ -181,7 +182,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 	class MultipartRequest implements org.appng.forms.Request {
 
 		private MultipartHttpServletRequest wrapped;
-		private Map<String, String> additionalParams = new HashMap<>();
+		private LinkedMultiValueMap<String, String> additionalParams = new LinkedMultiValueMap<>();
 		private String host;
 
 		MultipartRequest(MultipartHttpServletRequest wrapped) {
@@ -221,7 +222,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 
 		public List<String> getParameterList(String name) {
 			if (additionalParams.containsKey(name)) {
-				return Arrays.asList(additionalParams.get(name));
+				return additionalParams.get(name);
 			}
 			String[] parameterValues = wrapped.getParameterValues(name);
 			if (null != parameterValues) {
@@ -232,7 +233,7 @@ public class CsrfSetupFilter implements ServletContextListener {
 
 		public String getParameter(String name) {
 			if (additionalParams.containsKey(name)) {
-				return additionalParams.get(name);
+				return additionalParams.get(name).get(0);
 			}
 			return wrapped.getParameter(name);
 		}
@@ -329,10 +330,14 @@ public class CsrfSetupFilter implements ServletContextListener {
 			}
 		}
 
-		public void addParameter(String name, String value) {
+		public void addParameters(String name, List<String> values) {
 			if (wrapped.getParameter(name) == null) {
-				additionalParams.put(name, value);
+				additionalParams.put(name, values);
 			}
+		}
+
+		public void addParameter(String name, String value) {
+			addParameters(name, Arrays.asList(value));
 		}
 	}
 }

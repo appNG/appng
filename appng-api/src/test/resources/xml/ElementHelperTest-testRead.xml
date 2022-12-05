@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <metaData xmlns="http://www.appng.org/schema/platform">
-	 <field name="dateField" type="date" format="yyyy-MM-dd">
-        <label>dateField</label>
-    </field>
+	<field name="dateField" type="date" format="yyyy-MM-dd">
+		<label id="dateField">dateField.translated</label>
+	</field>
 	<field name="readableField">
-		<label>readableField</label>
-		<tooltip id="tooltip">tooltip</tooltip>
+		<label id="readableField">readableField.translated</label>
+		<tooltip id="tooltip">tooltip.translated</tooltip>
 	</field>
 	<field name="conditionTrue">
-		<label>conditionTrue</label>
+		<label id="conditionTrue">conditionTrue.translated</label>
 		<condition expression="${1 eq 1}" />
 	</field>
 	<field name="conditionCurrent">
-		<label>conditionCurrent</label>
+		<label id="conditionCurrent">conditionCurrent.translated</label>
 		<condition expression="${current.id gt 5}" />
 	</field>
 </metaData>

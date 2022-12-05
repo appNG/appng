@@ -48,7 +48,18 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>RequestContextFilter</filter-name>
-		<servlet-name>controller</servlet-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+	
+	<!-- set environment -->
+	<filter>
+		<filter-name>EnvironmentFilter</filter-name>
+		<filter-class>org.appng.core.controller.filter.EnvironmentFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>EnvironmentFilter</filter-name>
+		<url-pattern>/*</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
 	</filter-mapping>
 

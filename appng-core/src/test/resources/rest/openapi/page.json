@@ -1,0 +1,35 @@
+{
+  "body" : {
+    "_self" : "/service/localhost/demo-application/rest/openapi/page/entity",
+    "_userUrl" : "/manager/localhost/demo-application/entity",
+    "user" : {
+      "authenticated" : false,
+      "locale" : "en",
+      "timezone" : "Europe/Berlin",
+      "decimalSeparator" : ".",
+      "groupingSeparator" : ","
+    },
+    "id" : "entity",
+    "urlTemplate" : "/service/localhost/demo-application/rest/openapi/page/entity/{action}/{entityId}/{entityAction}/{entityId}",
+    "sections" : [ {
+      "_self" : "/service/localhost/demo-application/rest/openapi/page/entity?_sect=42",
+      "id" : "42",
+      "title" : {
+        "value" : "Entities"
+      },
+      "hidden" : false,
+      "elements" : [ {
+        "title" : "Entities",
+        "collapsed" : false,
+        "datasource" : {
+          "_self" : "/service/localhost/demo-application/rest/openapi/datasource/entities/;param1=;param2=;param3=3;param4=4",
+          "id" : "entities"
+        }
+      } ]
+    } ],
+    "appNGVersion" : "1.25.x",
+    "appVersion" : "1.5.2"
+  },
+  "statusCode" : "OK",
+  "statusCodeValue" : 200
+}

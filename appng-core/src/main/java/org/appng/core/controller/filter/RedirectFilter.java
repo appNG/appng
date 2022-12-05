@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -40,7 +39,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.appng.api.Environment;
 import org.appng.api.Platform;
-import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Properties;
@@ -73,11 +71,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RedirectFilter extends UrlRewriteFilter {
 
 	private static ConcurrentMap<String, CachedUrlRewriter> REWRITERS = new ConcurrentHashMap<>();
-	private FilterConfig filterConfig;
+	private int reloadIntervall;
 
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
-		this.filterConfig = filterConfig;
+		this.reloadIntervall = Integer.parseInt(filterConfig.getInitParameter("confReloadCheckInterval"));
 		Log.setLevel("slf4j");
 		super.init(filterConfig);
 	}
@@ -203,10 +201,9 @@ public class RedirectFilter extends UrlRewriteFilter {
 
 	@Override
 	protected UrlRewriter getUrlRewriter(ServletRequest request, ServletResponse response, FilterChain chain) {
-		ServletContext context = filterConfig.getServletContext();
-		Environment env = DefaultEnvironment.get(context);
+		DefaultEnvironment env = EnvironmentFilter.environment();
+		Site site = env.getSite();
 		String jspType = getJspType(env);
-		Site site = RequestUtil.getSite(env, request);
 
 		if (null != site) {
 			boolean reload = true;
@@ -214,7 +211,6 @@ public class RedirectFilter extends UrlRewriteFilter {
 			if (REWRITERS.containsKey(siteName)) {
 				CachedUrlRewriter cachedUrlRewriter = REWRITERS.get(siteName);
 				long ageMillis = (System.currentTimeMillis() - cachedUrlRewriter.created);
-				int reloadIntervall = Integer.parseInt(filterConfig.getInitParameter("confReloadCheckInterval"));
 				reload = ageMillis > reloadIntervall;
 				LOGGER.trace("found existing CachedUrlRewriter for site {}, age: {}ms, reload required: {}", siteName,
 						ageMillis, reload);

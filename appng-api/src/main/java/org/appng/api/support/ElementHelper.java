@@ -16,7 +16,6 @@
 package org.appng.api.support;
 
 import static org.appng.api.Scope.REQUEST;
-import static org.appng.api.Scope.SESSION;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,10 +39,13 @@ import org.appng.api.PermissionOwner;
 import org.appng.api.PermissionProcessor;
 import org.appng.api.Platform;
 import org.appng.api.ProcessingException;
+import org.appng.api.Scope;
 import org.appng.api.Session;
+import org.appng.api.SiteProperties;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.api.support.environment.ScopedEnvironment;
 import org.appng.el.ExpressionEvaluator;
 import org.appng.xml.platform.BeanOption;
 import org.appng.xml.platform.Condition;
@@ -52,12 +54,14 @@ import org.appng.xml.platform.Data;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkmode;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
 import org.appng.xml.platform.Navigation;
 import org.appng.xml.platform.NavigationItem;
+import org.appng.xml.platform.OpenapiAction;
 import org.appng.xml.platform.OptionGroup;
 import org.appng.xml.platform.PageConfig;
 import org.appng.xml.platform.Param;
@@ -76,19 +80,24 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class offering methods for proper initialization of {@link Linkpanel}s, {@link Link}s, {@link Navigation}/
- * {@link NavigationItem}s, {@link BeanOption}s, {@link Param}s etc.
+ * {@link NavigationItem}s, {@link BeanOption}s, {@link Param}s etc. <br/>
+ * Also wraps an {@link Environment} and an {@link ExpressionEvaluator} to evaluate expressions.
  * 
  * @author Matthias Müller
  */
 @Slf4j
 public class ElementHelper {
 
+	private static final String APP = "APP";
+	private static final String SITE = "SITE";
+	private static final String SESSION = "SESSION";
+
 	private static final String SLASH = "/";
 
 	public static final String INTERNAL_ERROR = "internal.error";
 
 	private Application application;
-
+	private Environment environment;
 	private Site site;
 
 	private ExpressionEvaluator expressionEvaluator;
@@ -98,10 +107,30 @@ public class ElementHelper {
 		this.site = site;
 	}
 
-	public ElementHelper(Site site, Application application, ExpressionEvaluator expressionEvaluator) {
-		this.application = application;
+	public ElementHelper(Environment environment, Site site, Application application,
+			ExpressionEvaluator expressionEvaluator) {
 		this.site = site;
-		this.expressionEvaluator = expressionEvaluator;
+		this.application = application;
+		this.environment = environment;
+		this.expressionEvaluator = initExpressionEvaluator(expressionEvaluator);
+	}
+
+	public ExpressionEvaluator initExpressionEvaluator(ExpressionEvaluator other) {
+		if (null != other) {
+			if (null != site) {
+				other.setVariable(SITE, site.getProperties().getPlainProperties());
+			}
+			if (null != application) {
+				other.setVariable(APP, application.getProperties().getPlainProperties());
+			}
+			if (null != environment) {
+				ScopedEnvironment sessionEnv = environment.getEnvironment(Scope.SESSION);
+				if (null != sessionEnv) {
+					other.setVariable(SESSION, sessionEnv.getContainer());
+				}
+			}
+		}
+		return other;
 	}
 
 	void initLinkpanel(ApplicationRequest applicationRequest, Path pathInfo, DataConfig dsConfig,
@@ -132,44 +161,63 @@ public class ElementHelper {
 			String panelId = panel.getId();
 			outPanel.setId(panelId);
 			outPanel.setLocation(panel.getLocation());
-			List<Link> links = panel.getLinks();
+			List<Linkable> links = panel.getLinks();
 			int linkCount = 1;
 			String servicePath = pathInfo.getServicePath();
 			String guiPath = pathInfo.getGuiPath();
-			for (Link link : links) {
-				boolean hasPermission = request.getPermissionProcessor().hasPermissions(new PermissionOwner(link));
+			for (Linkable linkable : links) {
+				boolean hasPermission = request.getPermissionProcessor().hasPermissions(new PermissionOwner(linkable));
 				if (hasPermission) {
-					Condition condition = link.getCondition();
-					ExpressionEvaluator linkExpressionEvaluator = parameterSupport.getExpressionEvaluator();
+					Condition condition = linkable.getCondition();
+					ExpressionEvaluator linkExpressionEvaluator = initExpressionEvaluator(
+							parameterSupport.getExpressionEvaluator());
 					boolean doInclude = expressionMatchesOrContainsCurrent(condition, linkExpressionEvaluator);
-					boolean showDisabled = Boolean.TRUE.equals(link.isShowDisabled());
+					boolean showDisabled = Boolean.TRUE.equals(linkable.isShowDisabled());
 
 					if (doInclude || showDisabled) {
-						link.setCondition(condition);
-						if (link.getId() == null) {
-							link.setId(panelId + "[" + linkCount + "]");
+						linkable.setCondition(condition);
+						request.setLabel(linkable.getLabel());
+						request.setLabel(linkable.getConfirmation());
+						outPanel.getLinks().add(linkable);
+
+						if (linkable instanceof Link) {
+							Link link = (Link) linkable;
+							if (link.getId() == null) {
+								link.setId(panelId + "[" + linkCount + "]");
+							}
+							String currentTarget = link.getTarget();
+							String newTarget = parameterSupport.replaceParameters(currentTarget);
+							if (Linkmode.WEBSERVICE.equals(link.getMode())) {
+								newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
+										+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
+							}
+							if (Linkmode.REST.equals(link.getMode())) {
+								newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
+										+ Platform.SERVICE_TYPE_REST + SLASH + newTarget;
+							}
+							StringBuilder proposedPath = new StringBuilder();
+							proposedPath.append(guiPath).append(pathInfo.getOutputPrefix()).append(SLASH);
+							proposedPath.append(site.getName()).append(SLASH).append(application.getName());
+							proposedPath.append(newTarget);
+							if (pathInfo.isPathSelected(proposedPath.toString())) {
+								linkable.setActive(Boolean.TRUE.toString());
+							}
+							link.setTarget(newTarget);
+						} else if (linkable instanceof OpenapiAction) {
+							OpenapiAction actionLink = (OpenapiAction) linkable;
+							StringBuilder target = new StringBuilder();
+							target.append(site.getProperties().getString(SiteProperties.SERVICE_PATH));
+							target.append("/");
+							target.append(site.getName());
+							target.append("/");
+							target.append(application.getName());
+							target.append("/rest/openapi/action/");
+							target.append(actionLink.getEventId());
+							target.append("/");
+							target.append(actionLink.getId());
+							actionLink.setTarget(target.toString());
 						}
-						request.setLabel(link.getLabel());
-						request.setLabel(link.getConfirmation());
-						outPanel.getLinks().add(link);
-						String currentTarget = link.getTarget();
-						String newTarget = parameterSupport.replaceParameters(currentTarget);
-						if (Linkmode.WEBSERVICE.equals(link.getMode())) {
-							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
-									+ Platform.SERVICE_TYPE_WEBSERVICE + SLASH + newTarget;
-						}
-						if (Linkmode.REST.equals(link.getMode())) {
-							newTarget = servicePath + SLASH + site.getName() + SLASH + application.getName() + SLASH
-									+ Platform.SERVICE_TYPE_REST + SLASH + newTarget;
-						}
-						StringBuilder proposedPath = new StringBuilder();
-						proposedPath.append(guiPath).append(pathInfo.getOutputPrefix()).append(SLASH);
-						proposedPath.append(site.getName()).append(SLASH).append(application.getName());
-						proposedPath.append(newTarget);
-						if (pathInfo.isPathSelected(proposedPath.toString())) {
-							link.setActive(Boolean.TRUE.toString());
-						}
-						link.setTarget(newTarget);
+
 					}
 				}
 				linkCount++;
@@ -183,7 +231,7 @@ public class ElementHelper {
 		if (null != condition) {
 			String expression = condition.getExpression();
 			if (StringUtils.isNotBlank(expression) && !expression.contains(AdapterBase.CURRENT)) {
-				return conditionExpressionEvaluator.evaluate(expression);
+				return conditionMatches(conditionExpressionEvaluator, condition);
 			}
 		}
 		return true;
@@ -197,8 +245,7 @@ public class ElementHelper {
 		if (null != navigation) {
 			navigation = initLinkpanel(applicationRequest, pathInfo, navigation, parameterSupport);
 			if (!(null == pageLinks || null == navigation)) {
-				List<Link> links = navigation.getLinks();
-				for (Link link : links) {
+				for (Linkable link : navigation.getLinks()) {
 					pageLinks.getLinks().add(link);
 				}
 				pageConfig.setLinkpanel(pageLinks);
@@ -211,12 +258,12 @@ public class ElementHelper {
 	/**
 	 * Builds {@link Options} from the given list of {@link BeanOption}s, without evaluation of parameter placeholders.
 	 * 
-	 * @param beanOptions
-	 *                    some {@link BeanOption}s
+	 * @param  beanOptions
+	 *                     some {@link BeanOption}s
 	 * 
-	 * @return the {@link Options}
+	 * @return             the {@link Options}
 	 * 
-	 * @see #initOptions(List)
+	 * @see                #initOptions(List)
 	 */
 	Options getOptions(List<BeanOption> beanOptions) {
 		OptionsImpl options = new OptionsImpl();
@@ -262,6 +309,7 @@ public class ElementHelper {
 	private void setSelectionTitles(List<Selection> selections, ApplicationRequest applicationRequest) {
 		for (Selection selection : selections) {
 			applicationRequest.setLabel(selection.getTitle());
+			applicationRequest.setLabel(selection.getTooltip());
 			for (OptionGroup optionGroup : selection.getOptionGroups()) {
 				applicationRequest.setLabel(optionGroup.getLabel());
 			}
@@ -391,29 +439,28 @@ public class ElementHelper {
 				}
 			}
 		}
-		this.expressionEvaluator = new ExpressionEvaluator(executionParameters);
+		this.expressionEvaluator = initExpressionEvaluator(new ExpressionEvaluator(executionParameters));
 		expressionEvaluator.setVariable(ApplicationRequest.I18N_VAR, new I18n(applicationRequest));
+
 		return executionParameters;
 	}
 
 	/**
-	 * Adds some messages to the current session.
+	 * Returns the messages for the current session.
 	 * 
-	 * @param environment
-	 *                    the current {@link Environment}
-	 * @param messages
-	 *                    the {@link Messages} to add
+	 * @param  environment
+	 *                     the current {@link Environment}
 	 * 
-	 * @return the messages for the current session
+	 * @return             the messages for the current session, if any
 	 */
 	public static Messages addMessages(Environment environment, Messages messages) {
-		Messages messagesFromSession = environment.getAttribute(SESSION, Session.Environment.MESSAGES);
+		Messages messagesFromSession = environment.getAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 		if (messages.getMessageList().size() > 0) {
 			if (null == messagesFromSession) {
 				messagesFromSession = new Messages();
 			}
 			messagesFromSession.getMessageList().addAll(messages.getMessageList());
-			environment.setAttribute(SESSION, Session.Environment.MESSAGES, messagesFromSession);
+			environment.setAttribute(Scope.SESSION, Session.Environment.MESSAGES, messagesFromSession);
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("messages : {}", messagesFromSession.getMessageList());
 			}
@@ -422,15 +469,20 @@ public class ElementHelper {
 	}
 
 	/**
-	 * Removes the messages from the current session.
+	 * Returns the messages for the current session.
 	 * 
-	 * @param environment
-	 *                    the current {@link Environment}
-	 * 
-	 * @return the messages removed from the current session, if any
+	 * @return             the messages for the current session, if any
 	 */
+	public Messages removeMessages() {
+		return removeMessagesInternal(environment);
+	}
+
 	public Messages removeMessages(Environment environment) {
-		Messages messages = environment.removeAttribute(SESSION, Session.Environment.MESSAGES);
+		return removeMessagesInternal(environment);
+	}
+
+	private Messages removeMessagesInternal(Environment other) {
+		Messages messages = other.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 		if (LOGGER.isDebugEnabled() && null != messages) {
 			LOGGER.debug("removed messages : {}", messages.getMessageList());
 		}
@@ -438,36 +490,54 @@ public class ElementHelper {
 	}
 
 	/**
+	 * @deprecated use {@link #hasMessages()}, since an {@link Environment} is wrapped here
+	 */
+	@Deprecated
+	public boolean hasMessages(Environment environment) {
+		return hasMessages();
+	}
+
+	/**
 	 * Returns the messages for the current session.
 	 * 
-	 * @param environment
-	 *                    the current {@link Environment}
-	 * 
-	 * @return the messages for the current session, if any
+	 * @return             the messages for the current session, if any
 	 */
-	public Messages getMessages(Environment environment) {
-		Messages messages = environment.getAttribute(SESSION, Session.Environment.MESSAGES);
+	public Messages getMessages() {
+		return getMessagesInternal(environment);
+	}
+
+//	public Messages getMessages(Environment environment) {
+//		return getMessagesInternal(environment);
+//	}
+
+	public Messages getMessagesInternal(Environment other) {
+		Messages messages = other.getAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 		if (LOGGER.isDebugEnabled() && null != messages) {
 			LOGGER.debug("retrieved messages : {}", messages.getMessageList());
 		}
 		return messages;
 	}
 
-	public boolean hasMessages(Environment environment) {
-		return null != getMessages(environment);
+	public boolean hasMessages() {
+		return null != getMessages();
 	}
 
 	ExpressionEvaluator getExpressionEvaluator() {
 		return expressionEvaluator;
 	}
 
-	boolean conditionMatches(Condition condition) {
+	public boolean conditionMatches(Condition condition) {
 		return conditionMatches(getExpressionEvaluator(), condition);
 	}
 
-	boolean conditionMatches(ExpressionEvaluator expressionEvaluator, Condition condition) {
-		return null == condition || StringUtils.isBlank(condition.getExpression())
-				|| expressionEvaluator.evaluate(condition.getExpression());
+	public static boolean conditionMatches(ExpressionEvaluator expressionEvaluator, Condition condition) {
+		if (null == condition || StringUtils.isBlank(condition.getExpression())) {
+			return true;
+		}
+		String expression = condition.getExpression();
+		boolean evaluated = expressionEvaluator.evaluate(expression);
+		LOGGER.debug("{} = {}", expression, evaluated);
+		return evaluated;
 	}
 
 	public void processDataContainer(org.appng.api.Request applicationRequest, DataContainer container,
@@ -477,6 +547,8 @@ public class ElementHelper {
 		FieldProcessor fieldProcessor = container.getFieldProcessor();
 
 		ResultServiceImpl resultService = new ResultServiceImpl(getExpressionEvaluator());
+		resultService.setSite(site);
+		resultService.setApplication(application);
 		resultService.setConversionService(applicationRequest);
 		resultService.setEnvironment(applicationRequest.getEnvironment());
 		MessageSource messageSource = this.application.getBean(MessageSource.class);
@@ -548,9 +620,17 @@ public class ElementHelper {
 		return groups.toArray(new Class<?>[groups.size()]);
 	}
 
+	/**
+	 * @deprecated use {@link #getOutputPrefix()}, since an {@link Environment} is wrapped here
+	 */
+	@Deprecated
 	public String getOutputPrefix(Environment env) {
-		if (Boolean.TRUE.equals(env.removeAttribute(REQUEST, EnvironmentKeys.EXPLICIT_FORMAT))) {
-			Path pathInfo = env.getAttribute(REQUEST, EnvironmentKeys.PATH_INFO);
+		return getOutputPrefix();
+	}
+
+	public String getOutputPrefix() {
+		if (Boolean.TRUE.equals(environment.removeAttribute(REQUEST, EnvironmentKeys.EXPLICIT_FORMAT))) {
+			Path pathInfo = environment.getAttribute(REQUEST, EnvironmentKeys.PATH_INFO);
 			StringBuilder prefix = new StringBuilder().append(pathInfo.getGuiPath());
 			prefix.append(pathInfo.getOutputPrefix()).append(Path.SEPARATOR).append(pathInfo.getSiteName());
 			return prefix.append(Path.SEPARATOR).toString();

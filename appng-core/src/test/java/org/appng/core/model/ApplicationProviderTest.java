@@ -33,6 +33,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Resources;
 import org.appng.api.model.Role;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.testapplication.TestEntities;
 import org.appng.testsupport.TestBase;
 import org.appng.testsupport.validation.WritingXmlValidator;
 import org.appng.testsupport.validation.XPathDifferenceHandler;
@@ -59,6 +60,10 @@ public class ApplicationProviderTest extends TestBase {
 	private PlatformConfig platformConfig;
 	private ApplicationProvider applicationProvider;
 	private ApplicationProvider monitoredApplicationProvider;
+
+	static {
+		TestEntities.init();
+	}
 
 	public ApplicationProviderTest() {
 		super(TESTAPPLICATION, "src/test/resources/applications/application1");
@@ -158,7 +163,10 @@ public class ApplicationProviderTest extends TestBase {
 		addParameter("action", "update");
 		addParameter("entityId", "1");
 		addParameter("form_action", "update");
-		addParameter("name", "new name");
+		addParameter("name", "Anakin");
+		addParameter("parent.name", "Unkown");
+		addParameter("children[0].name", "Luke");
+		addParameter("children[1].name", "Lea");
 		initParameters(true);
 		runMonitoredTest(getPathInfo(TESTAPPLICATION + "/" + PAGE_ID + "/update/1"));
 	}
@@ -179,6 +187,9 @@ public class ApplicationProviderTest extends TestBase {
 		addParameter("entityId", "1");
 		addParameter("form_action", "update");
 		addParameter("name", "exception");
+		addParameter("parent.name", "the parent's name");
+		addParameter("children[0].name", "Lea");
+		addParameter("children[1].name", "Luke");
 		initParameters(true);
 		runTest(getPathInfo(TESTAPPLICATION + "/" + PAGE_ID + "/update/1"), getMessageTextDifferenceListener());
 	}
@@ -237,7 +248,7 @@ public class ApplicationProviderTest extends TestBase {
 		Datasource datasource = applicationProvider.processDataSource(servletResponse, true, request, "undefined",
 				marshallService);
 		Assert.assertNull(datasource);
-		Assert.assertEquals(HttpStatus.NOT_FOUND.value(), servletResponse.getStatus());
+		Assert.assertEquals(HttpStatus.UNAUTHORIZED.value(), servletResponse.getStatus());
 	}
 
 	@Test
@@ -245,6 +256,9 @@ public class ApplicationProviderTest extends TestBase {
 		addParameter("action", "create");
 		addParameter("form_action", "create");
 		addParameter("name", "new name");
+		addParameter("parent.name", "the parent's name");
+		addParameter("children[0].name", "Lea");
+		addParameter("children[1].name", "Luke");
 		initParameters();
 		Action action = applicationProvider.processAction(servletResponse, true, request, "create", "events",
 				marshallService);
@@ -257,7 +271,7 @@ public class ApplicationProviderTest extends TestBase {
 		Action action = applicationProvider.processAction(servletResponse, true, request, "foo", "bar",
 				marshallService);
 		Assert.assertNull(action);
-		Assert.assertEquals(HttpStatus.NOT_FOUND.value(), servletResponse.getStatus());
+		Assert.assertEquals(HttpStatus.UNAUTHORIZED.value(), servletResponse.getStatus());
 	}
 
 	private void runTest(Path pathInfo) throws JAXBException, IOException {

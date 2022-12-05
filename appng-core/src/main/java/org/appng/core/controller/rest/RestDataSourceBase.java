@@ -337,23 +337,29 @@ abstract class RestDataSourceBase extends RestOperation {
 		return fv;
 	}
 
-	protected Link getLink(org.appng.xml.platform.Link l) {
+	protected Link getLink(org.appng.xml.platform.Linkable l) {
 		Link link = new Link();
 		link.setLabel(l.getLabel().getValue());
-		link.setId(l.getId());
 		link.setIcon(l.getIcon().getContent());
 		link.setDefault(Boolean.TRUE.toString().equalsIgnoreCase(l.getDefault()));
 		if (null != l.getConfirmation()) {
 			link.setConfirmation(l.getConfirmation().getValue());
 		}
-		link.setType(Link.TypeEnum.valueOf(l.getMode().name()));
-		if (Linkmode.INTERN.equals(l.getMode())) {
-			String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
-			String completePath = String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(),
-					l.getTarget());
-			link.setTarget(completePath);
+
+		if (l instanceof org.appng.xml.platform.Link) {
+			org.appng.xml.platform.Link ll = (org.appng.xml.platform.Link) l;
+			link.setId(ll.getId());
+			link.setType(Link.TypeEnum.valueOf(ll.getMode().name()));
+			if (Linkmode.INTERN.equals(ll.getMode())) {
+				String managerPath = site.getProperties().getString(SiteProperties.MANAGER_PATH);
+				String completePath = String.format("%s/%s/%s%s", managerPath, site.getName(), application.getName(),
+						ll.getTarget());
+				link.setTarget(completePath);
+			} else {
+				link.setTarget(ll.getTarget());
+			}
 		} else {
-			link.setTarget(l.getTarget());
+			// not supported in legacy rest api
 		}
 		return link;
 	}

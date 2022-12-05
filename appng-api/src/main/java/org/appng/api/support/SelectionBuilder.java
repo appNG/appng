@@ -17,6 +17,7 @@ package org.appng.api.support;
 
 import java.util.Collection;
 
+import org.appng.api.model.Application;
 import org.appng.api.model.NameProvider;
 import org.appng.api.support.OptionOwner.HitCounter;
 import org.appng.api.support.OptionOwner.Selector;
@@ -24,6 +25,7 @@ import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Option;
 import org.appng.xml.platform.OptionGroup;
 import org.appng.xml.platform.SelectionType;
+import org.springframework.context.MessageSource;
 
 /**
  * A builder for {@link org.appng.xml.platform.Selection}s, providing a fluent API.<br/>
@@ -89,6 +91,52 @@ public class SelectionBuilder<T> extends OptionsBuilder<T, SelectionBuilder<T>.S
 	public SelectionBuilder<T> tooltip(String tooltip) {
 		Label label = new Label();
 		label.setValue(tooltip);
+		selection.setTooltip(label);
+		return this;
+	}
+
+	/**
+	 * Sets the tooltip for the selection
+	 * 
+	 * @param tooltip
+	 *              the tooltip
+	 * 
+	 * @return this builder
+	 */
+	public SelectionBuilder<T> tooltip(String tooltip) {
+		Label label = new Label();
+		label.setValue(tooltip);
+		selection.setTooltip(label);
+		return this;
+	}
+
+	/**
+	 * Sets the title for the selection
+	 * 
+	 * @param  titleId
+	 *                 the id of the title (value will be retrieved from the {@link Application}s {@link MessageSource})
+	 * 
+	 * @return         this builder
+	 */
+	public SelectionBuilder<T> titleId(String titleId) {
+		Label label = new Label();
+		label.setId(titleId);
+		selection.setTitle(label);
+		return this;
+	}
+
+	/**
+	 * Sets the tooltip for the selection
+	 * 
+	 * @param  tooltipId
+	 *                   the id of the tooltip (value will be retrieved from the {@link Application}s
+	 *                   {@link MessageSource})
+	 * 
+	 * @return           this builder
+	 */
+	public SelectionBuilder<T> tooltipId(String tooltipId) {
+		Label label = new Label();
+		label.setId(tooltipId);
 		selection.setTooltip(label);
 		return this;
 	}

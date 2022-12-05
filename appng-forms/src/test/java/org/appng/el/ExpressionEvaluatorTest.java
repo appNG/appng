@@ -43,7 +43,8 @@ public class ExpressionEvaluatorTest {
 		parameters.put("a", FIVE);
 		parameters.put("b", SIX);
 		Map<String, Object> nested = new HashMap<>();
-		nested.put("foo", 5);
+		nested.put("foo", "5");
+		nested.put("fizz", "TRUE");
 		parameters.put("SESSION", nested);
 		evaluator = new ExpressionEvaluator(parameters);
 	}
@@ -51,6 +52,9 @@ public class ExpressionEvaluatorTest {
 	@Test
 	public void testNestedMap() {
 		Assert.assertTrue(evaluator.evaluate("${SESSION.foo eq 5}"));
+		Assert.assertTrue(evaluator.evaluate("${SESSION.foo eq '5'}"));
+		Assert.assertTrue(evaluator.evaluate("${SESSION.fizz}"));
+		Assert.assertTrue(evaluator.evaluate("${SESSION.fizz eq 'TRUE'}"));
 		Assert.assertTrue(evaluator.evaluate("${SESSION['foo'] eq 5}"));
 		Assert.assertTrue(evaluator.evaluate("${SESSION.foo ne null}"));
 		Assert.assertFalse(evaluator.evaluate("${SESSION['bar'] eq 5}"));

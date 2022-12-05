@@ -98,7 +98,7 @@ public class PlatformStartup implements ServletContextListener {
 				configIs = new FileInputStream(Paths.get(appngData, CONFIG_LOCATION).toFile());
 			}
 
-			Environment env = DefaultEnvironment.get(ctx);
+			Environment env = DefaultEnvironment.initGlobal(ctx);
 
 			Properties config = new Properties();
 			config.load(configIs);
@@ -178,7 +178,7 @@ public class PlatformStartup implements ServletContextListener {
 
 	public void contextDestroyed(ServletContextEvent sce) {
 		ServletContext ctx = sce.getServletContext();
-		DefaultEnvironment env = DefaultEnvironment.get(ctx);
+		DefaultEnvironment env = DefaultEnvironment.getGlobal();
 		InitializerService initializerService = getService(env);
 		if (null != initializerService) {
 			initializerService.shutdownPlatform(ctx);

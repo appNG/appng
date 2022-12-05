@@ -57,8 +57,8 @@
 		<template.name>appng-template</template.name>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!-- dependency versions -->
-		<appNG.manager.version>1.19.1</appNG.manager.version>
-		<appNG.scheduler.version>1.15.0</appNG.scheduler.version>
+		<appNG.manager.version>1.19.2</appNG.manager.version>
+		<appNG.scheduler.version>1.16.2</appNG.scheduler.version>
 		<appNG.authentication.version>1.13.1</appNG.authentication.version>
 		<appNG.template.version>1.14.3</appNG.template.version>
 		<bouncycastle.version>1.70</bouncycastle.version>
@@ -994,7 +994,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.9</version>
+				<version>1.10.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.dom4j</groupId>

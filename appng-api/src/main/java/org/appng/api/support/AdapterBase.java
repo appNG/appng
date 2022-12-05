@@ -19,9 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.appng.api.Environment;
-import org.appng.api.FieldConverter;
 import org.appng.api.RequestSupport;
 import org.appng.api.ResultService;
+import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.api.support.field.FieldConversionFactory;
 import org.appng.el.ExpressionEvaluator;
 import org.appng.xml.platform.FieldType;
@@ -29,11 +30,16 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Baseclass for {@link ResultService} and {@link RequestSupport} implementations
  * 
  * @author Matthias Müller
  */
+@Getter
+@Setter
 abstract class AdapterBase implements InitializingBean {
 
 	protected static final String CURRENT = "current";
@@ -48,38 +54,8 @@ abstract class AdapterBase implements InitializingBean {
 	protected Environment environment;
 	protected ExpressionEvaluator expressionEvaluator;
 	protected FieldConversionFactory fieldConverter;
-
-	public ConversionService getConversionService() {
-		return conversionService;
-	}
-
-	public void setConversionService(ConversionService conversionService) {
-		this.conversionService = conversionService;
-	}
-
-	public MessageSource getMessageSource() {
-		return messageSource;
-	}
-
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
-	}
-
-	public Environment getEnvironment() {
-		return environment;
-	}
-
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-	}
-
-	public ExpressionEvaluator getExpressionEvaluator() {
-		return expressionEvaluator;
-	}
-
-	public void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
-		this.expressionEvaluator = expressionEvaluator;
-	}
+	protected Application application;
+	protected Site site;
 
 	public final boolean isFile(FieldType type) {
 		return FILE_TYPES.contains(type);
@@ -87,10 +63,6 @@ abstract class AdapterBase implements InitializingBean {
 
 	public final boolean isListType(FieldType type) {
 		return LIST_TYPES.contains(type);
-	}
-
-	public FieldConverter getFieldConverter() {
-		return fieldConverter;
 	}
 
 	public void afterPropertiesSet() {

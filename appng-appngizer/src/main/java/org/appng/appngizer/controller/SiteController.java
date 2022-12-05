@@ -19,8 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
@@ -76,7 +78,7 @@ public class SiteController extends ControllerBase {
 			return notFound();
 		}
 		Site fromDomain = Site.fromDomain(site);
-		if (null != getSender(DefaultEnvironment.get(context)) || supportsReloadFile(site)) {
+		if (null != getSender(DefaultEnvironment.getGlobal()) || supportsReloadFile(site)) {
 			fromDomain.addLink(new Link("reload", "/site/" + name + "/reload"));
 		}
 		fromDomain.applyUriComponents(getUriBuilder());
@@ -101,7 +103,7 @@ public class SiteController extends ControllerBase {
 		if (null == site) {
 			return notFound();
 		}
-		Sender sender = getSender(DefaultEnvironment.get(context));
+		Sender sender = getSender(DefaultEnvironment.getGlobal());
 		if (null != sender) {
 			LOGGER.debug("messaging is active, sending ReloadSiteEvent");
 			sender.send(new ReloadSiteFromAppNGizer(name));
@@ -129,10 +131,12 @@ public class SiteController extends ControllerBase {
 	}
 
 	@PostMapping(value = "/site")
-	public ResponseEntity<Site> createSite(@RequestBody org.appng.appngizer.model.xml.Site site) {
-		SiteImpl currentSite = getSiteByName(site.getName());
-		if (null != currentSite) {
-			return conflict();
+	public ResponseEntity<Site> createSite(@RequestBody org.appng.appngizer.model.xml.Site site,
+			HttpServletRequest request) throws ConflictException {
+		SiteImpl siteToCreate = Site.toDomain(site);
+		List<String> conflictMsgs = new ArrayList<>();
+		if (getCoreService().checkSiteNameConflicts(siteToCreate, "all", request.getLocale(), conflictMsgs)) {
+			throw new ConflictException(conflictMsgs);
 		}
 		getCoreService().createSite(Site.toDomain(site));
 		return created(getSite(site.getName()).getBody());
@@ -147,6 +151,8 @@ public class SiteController extends ControllerBase {
 		}
 		siteByName.setHost(site.getHost());
 		siteByName.setDomain(site.getDomain());
+		if (null != siteByName.getHostAliases())
+			siteByName.setHostAliases(new HashSet<>(site.getHostAliases().getAlias()));
 		siteByName.setDescription(site.getDescription());
 		siteByName.setActive(site.isActive());
 		getCoreService().saveSite(siteByName);
@@ -154,13 +160,12 @@ public class SiteController extends ControllerBase {
 	}
 
 	@DeleteMapping(value = "/site/{name}")
-	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name)
-			throws BusinessException {
+	public ResponseEntity<Void> deleteSite(@PathVariable("name") String name) throws BusinessException {
 		SiteImpl currentSite = getSiteByName(name);
 		if (null == currentSite) {
 			return notFound();
 		}
-		Environment environment = DefaultEnvironment.get(context);
+		Environment environment = DefaultEnvironment.getGlobal();
 		org.appng.api.model.Site site = RequestUtil.getSiteByName(environment, name);
 		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED
 				|| site.getState() == SiteState.STOPPING)) {

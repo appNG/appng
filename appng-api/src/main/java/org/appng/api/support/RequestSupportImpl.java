@@ -15,11 +15,9 @@
  */
 package org.appng.api.support;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.BusinessException;
@@ -122,13 +120,7 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 					throw new BusinessException("bindClass " + bindClass.getName() + " needs to be public!");
 				}
 			}
-		} catch (IllegalAccessException e) {
-			throw new BusinessException(errorMssg, e);
-		} catch (InstantiationException e) {
-			throw new BusinessException(errorMssg, e);
-		} catch (InvocationTargetException e) {
-			throw new BusinessException(errorMssg, e);
-		} catch (NoSuchMethodException e) {
+		} catch (ReflectiveOperationException e) {
 			throw new BusinessException(errorMssg, e);
 		}
 	}
@@ -222,10 +214,10 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 		}
 		BeanWrapper sourceWrapper = new BeanWrapperImpl(source);
 		BeanWrapper targetWrapper = new BeanWrapperImpl(target);
-		Map<String, Object> parameters = new HashMap<>();
-		ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(parameters);
-		expressionEvaluator.setVariable(CURRENT, source);
-		setPropertyValues(sourceWrapper, targetWrapper, metaData, expressionEvaluator);
+		ExpressionEvaluator currentEvaluator = new ExpressionEvaluator(new HashMap<>());
+		currentEvaluator.setVariable(CURRENT, source);
+		setPropertyValues(sourceWrapper, targetWrapper, metaData,
+				new ElementHelper(environment, site, application, currentEvaluator));
 	}
 
 	public <T> void setPropertyValue(T source, T target, String property) {
@@ -235,7 +227,7 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 	}
 
 	private <T> void setPropertyValues(BeanWrapper sourceWrapper, BeanWrapper targetWrapper, MetaData metaData,
-			ExpressionEvaluator expressionEvaluator) {
+			ElementHelper elementHelper) {
 		for (FieldDef fieldDef : metaData.getFields()) {
 			boolean doWrite = true;
 			String fieldBinding = fieldDef.getBinding();
@@ -244,7 +236,7 @@ public class RequestSupportImpl extends AdapterBase implements RequestSupport {
 			if (null != condition) {
 				expression = condition.getExpression();
 				if (StringUtils.isNotBlank(expression)) {
-					doWrite = expressionEvaluator.evaluate(expression);
+					doWrite = elementHelper.conditionMatches(condition);
 					if (doWrite) {
 						LOGGER.debug("condition '{}' for property '{}' matched", expression, fieldBinding);
 					} else {

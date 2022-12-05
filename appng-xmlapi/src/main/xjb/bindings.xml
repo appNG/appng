@@ -101,7 +101,7 @@
 			<jxb:property name="options" />
 		</jxb:bindings>
 
-		<jxb:bindings node="//xs:complexType[@name='linkpanel']//xs:element[@name='link']">
+		<jxb:bindings node="//xs:complexType[@name='linkpanel']//xs:choice">
 			<jxb:property name="links" />
 		</jxb:bindings>
 

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<errors xmlns="http://www.appng.org/schema/appngizer">
+	<error path="name">The name must either be a valid e-mail address, or consist of letters, digits, dots, underscores and hyphens or a valid LDAP group reference</error>
+</errors>

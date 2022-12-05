@@ -187,6 +187,8 @@ public class SiteProperties {
 	public static final String SERVICE_PATH = "service-path";
 	/** Track usage of HTTP sessions? **/
 	public static final String SESSION_TRACKING_ENABLED = "sessionTrackingEnabled";
+	/** Set debug headers in HTTP response? */
+	public static final String  SET_DEBUG_HEADERS = "setDebugHeaders";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
 	/**

@@ -31,11 +31,14 @@ import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.core.controller.filter.EnvironmentFilter;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
 
@@ -47,10 +50,12 @@ public class SessionListenerTest {
 	private static Map<String, Object> platformMap;
 
 	private static SessionListener sessionListener;
+	private static EnvironmentFilter environmentFilter;
 
 	@BeforeClass
 	public static void setup() {
 		sessionListener = new SessionListener();
+		environmentFilter = new EnvironmentFilter();
 
 		platformMap = new ConcurrentHashMap<>();
 
@@ -62,13 +67,13 @@ public class SessionListenerTest {
 		Site site = Mockito.mock(Site.class);
 		Mockito.when(site.getDomain()).thenReturn("http://localhost:8080");
 		Mockito.when(site.getHost()).thenReturn("localhost");
+		Mockito.when(site.getName()).thenReturn("localhost");
 		Properties siteProps = Mockito.mock(Properties.class);
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(siteProps.getBoolean(SiteProperties.SESSION_TRACKING_ENABLED, false)).thenReturn(true);
 		sitemap.put(site.getHost(), site);
 		platformMap.put(Platform.Environment.SITES, sitemap);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformMap);
-		sessionListener.contextInitialized(new ServletContextEvent(servletContext));
 	}
 
 	@Test
@@ -91,23 +96,10 @@ public class SessionListenerTest {
 		Assert.assertNotNull(session2.getAttribute(SessionListener.META_DATA));
 	}
 
-	@Test
-	public void testSessionFilter() {
-		MockHttpSession session = new MockHttpSession(servletContext);
-		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-		request.setSession(session);
-		request.addHeader(HttpHeaders.USER_AGENT, "this is test");
-		session.setNew(true); // This has to be called after request.setSession
-		ServletRequestEvent requestEvent = new ServletRequestEvent(servletContext, request);
-		sessionListener.requestDestroyed(requestEvent);
-		Assert.assertTrue(session.isInvalid());
-	}
-
 	private void addRequest(HttpSession session) {
 		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-		ServletRequestEvent requestEvent = new ServletRequestEvent(servletContext, request);
 		request.setSession(session);
-		sessionListener.requestInitialized(requestEvent);
+		environmentFilter.requestInitialized(request, DefaultEnvironment.get(request, new MockHttpServletResponse()));
 	}
 
 }

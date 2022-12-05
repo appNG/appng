@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -49,6 +53,7 @@ import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.Webservice;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
@@ -74,6 +79,9 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockServletConfig;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,6 +90,7 @@ public class ControllerTest extends Controller {
 
 	TestSupport base;
 	DefaultEnvironment env;
+	ConcurrentMap<Object, Object> siteEnv = new ConcurrentHashMap<>();
 
 	@Before
 	public void initTest() throws Exception {
@@ -95,11 +104,45 @@ public class ControllerTest extends Controller {
 		ApplicationRequest applicationRequest = Mockito.mock(ApplicationRequest.class);
 		Mockito.when(applicationRequest.getEnvironment()).thenReturn(Mockito.mock(DefaultEnvironment.class));
 		base.provider.registerBean("request", applicationRequest);
-		env = Mockito.spy(DefaultEnvironment.get(base.ctx));
+		DefaultEnvironment.initGlobal(base.ctx);
+		siteEnv.put("site", base.site);
+		mockSiteEnv(siteEnv);
+		env = Mockito.spy(DefaultEnvironment.get(base.request, base.response));
+		ServletRequestAttributes attributes = new ServletRequestAttributes(base.request, base.response);
+		attributes.setAttribute(Environment.class.getName(), env, RequestAttributes.SCOPE_REQUEST);
+		RequestContextHolder.setRequestAttributes(attributes);
+		Mockito.when(base.request.getAttribute(Environment.class.getName())).thenReturn(env);
 		base.provider.registerBean("environment", (Environment) env);
 		Mockito.when(base.ctx.getAttribute(PlatformStartup.APPNG_STARTED)).thenReturn(true);
 		Mockito.when(base.ctx.getAttribute(Globals.RESOURCES_ATTR)).thenReturn(Mockito.mock(WebResourceRoot.class));
 		init(new MockServletConfig(base.ctx));
+
+		Messaging.getNodeId(getEnvironment());
+		env.setAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION, "latest-and-hottest");
+		final Map<String, String> headers = new HashMap<>();
+		Mockito.when(base.response.getHeader(Mockito.any())).then(i -> headers.get(i.getArgumentAt(0, String.class)));
+		Mockito.doAnswer(i -> headers.put(i.getArgumentAt(0, String.class), i.getArgumentAt(1, String.class)))
+				.when(base.response).setHeader(Mockito.any(), Mockito.any());
+	}
+
+	@Override
+	protected void doGet(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+			throws ServletException, IOException {
+		super.doGet(base.request, base.response);
+		assertHeaders(base.response);
+	}
+
+	@Override
+	protected void doPut(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+			throws ServletException, IOException {
+		super.doPut(servletRequest, servletResponse);
+		assertHeaders(servletResponse);
+	}
+
+	private void assertHeaders(HttpServletResponse response) {
+		Assert.assertEquals(base.site.getName(), response.getHeader(HEADER_SITE));
+		Assert.assertNotNull(response.getHeader(HEADER_NODE));
+		Assert.assertEquals("latest-and-hottest", response.getHeader(HEADER_VERSION));
 	}
 
 	@Test
@@ -292,7 +335,7 @@ public class ControllerTest extends Controller {
 	public void testStaticPut() {
 		when(base.request.getServletPath()).thenReturn("/test.txt");
 		try {
-			doPut(base.request, base.response);
+			super.doPut(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
 			Mockito.verify(base.response).sendError(HttpStatus.FORBIDDEN.value());
 		} catch (Exception e) {
@@ -461,15 +504,17 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testDocNoSite() {
+		mockSiteEnv(new ConcurrentHashMap<>());
 		when(base.request.getServerName()).thenReturn("localhost");
 		when(base.request.getServletPath()).thenReturn("/de");
 		try {
-			doGet(base.request, base.response);
+			super.doGet(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
 			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
+		mockSiteEnv(siteEnv);
 	}
 
 	@Test
@@ -499,16 +544,22 @@ public class ControllerTest extends Controller {
 
 	@Test
 	public void testStaticNoSite() {
+		mockSiteEnv(new ConcurrentHashMap<>());
 		when(base.request.getServerName()).thenReturn("localhost");
 		when(base.request.getServletPath()).thenReturn("/repository/manager/www/de/test.txt");
 		try {
-			doGet(base.request, base.response);
+			super.doGet(base.request, base.response);
 			Assert.assertEquals(0, base.out.toByteArray().length);
 			Mockito.verify(base.response).setStatus(HttpStatus.NOT_FOUND.value());
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
+		mockSiteEnv(siteEnv);
+	}
+
+	protected void mockSiteEnv(ConcurrentMap<Object, Object> value) {
+		Mockito.when(base.ctx.getAttribute(Scope.SITE.forSite(base.site.getName()))).thenReturn(value);
 	}
 
 	@Test
@@ -609,7 +660,7 @@ public class ControllerTest extends Controller {
 	}
 
 	@Override
-	protected Environment getEnvironment(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+	protected Environment getEnvironment() {
 		return env;
 	}
 

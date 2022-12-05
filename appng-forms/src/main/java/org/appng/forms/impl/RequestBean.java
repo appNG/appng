@@ -264,11 +264,16 @@ public class RequestBean implements Request {
 	}
 
 	public void addParameter(String key, String value) {
+		addParameters(key, Arrays.asList(value));
+	}
+
+	public void addParameters(String key, List<String> values) {
 		if (!parameters.containsKey(key)) {
-			List<String> list = new ArrayList<>();
-			list.add(value);
-			parameters.put(key, Collections.unmodifiableList(list));
-			LOGGER.debug("adding parameter {}:{}", key, value);
+			parameters.put(key, Collections.unmodifiableList(values));
+			LOGGER.debug("adding parameter {}:{}", key, values);
+		} else {
+			LOGGER.warn("parameter {} is alread present with value {}, tried to add {}", key, parameters.get(key),
+					values);
 		}
 	}
 

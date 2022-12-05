@@ -16,13 +16,18 @@
 package org.appng.appngizer;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import javax.validation.ValidatorFactory;
 import javax.xml.bind.JAXBException;
 
+import org.appng.api.support.validation.LocalizedMessageInterpolator;
 import org.appng.appngizer.controller.AppNGizerConfigurer;
 import org.appng.appngizer.controller.Jaxb2Marshaller;
 import org.appng.appngizer.controller.SessionInterceptor;
@@ -53,8 +58,8 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
@@ -115,18 +120,25 @@ public class AppNGizer extends WebMvcConfigurationSupport {
 
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource,
-			@Value("${hibernate.dialect}") String hibernateDialect) {
+			ValidatorFactory validatorFactory, @Value("${hibernate.dialect}") String hibernateDialect) {
 		LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
 		emfb.setPersistenceUnitName("appNGizer");
 		emfb.setPersistenceProviderClass(HibernatePersistenceProvider.class);
 		emfb.setDataSource(dataSource);
 		emfb.setJpaDialect(new HibernateJpaDialect());
-		Properties jpaProperties = new Properties();
+		Map<String, Object> jpaProperties = new HashMap<>();
 		jpaProperties.put(org.hibernate.cfg.AvailableSettings.DIALECT, hibernateDialect);
-		emfb.setJpaProperties(jpaProperties);
-		emfb.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+		jpaProperties.put(org.hibernate.cfg.AvailableSettings.JPA_VALIDATION_FACTORY, validatorFactory);
+		emfb.setJpaPropertyMap(jpaProperties);
 		emfb.setPackagesToScan("org.appng.core.domain");
 		return emfb;
+	}
+
+	@Bean
+	public ValidatorFactory validatorFactoryBean(MessageSource messageSource) {
+		LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
+		validatorFactoryBean.setMessageInterpolator(new LocalizedMessageInterpolator(Locale.ENGLISH, messageSource));
+		return validatorFactoryBean;
 	}
 
 	@Bean
@@ -160,6 +172,8 @@ public class AppNGizer extends WebMvcConfigurationSupport {
 	public ConversionServiceFactoryBean conversionService() {
 		return new ConversionServiceFactoryBean();
 	}
+
+	
 
 	@Bean
 	public DatabaseService databaseService() {

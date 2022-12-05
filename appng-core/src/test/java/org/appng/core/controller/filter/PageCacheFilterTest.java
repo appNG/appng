@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -86,21 +84,20 @@ public class PageCacheFilterTest {
 		final Map<String, CachedResponse> innerCache = new HashMap<>();
 		AtomicReference<CachedResponse> actual = new AtomicReference<>();
 		Mockito.doAnswer(i -> {
-			CachedResponse element = i.getArgument(1, CachedResponse.class);
+			CachedResponse element = i.getArgumentAt(1, CachedResponse.class);
 			actual.set(element);
-			innerCache.put(i.getArgument(0, String.class), element);
+			innerCache.put(i.getArgumentAt(0, String.class), element);
 			return null;
 
 		}).when(cache).put(Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.doAnswer(i -> innerCache.get(i.getArgument(0, String.class))).when(cache).get(Mockito.anyString());
+		Mockito.doAnswer(i -> innerCache.get(i.getArgumentAt(0, String.class))).when(cache).get(Mockito.anyString());
 
 		Site site = Mockito.mock(Site.class);
 		org.appng.api.model.Properties siteProps = Mockito.mock(org.appng.api.model.Properties.class);
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(siteProps.getBoolean("cacheHitStats", false)).thenReturn(true);
 
-		ExpiryPolicy expiryPolicy = new CreatedExpiryPolicy(Duration.ONE_DAY);
-		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, expiryPolicy);
+		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(pageInfo, actual.get());
 		Assert.assertEquals(0, actual.get().getHitCount());
@@ -108,7 +105,7 @@ public class PageCacheFilterTest {
 		Assert.assertEquals(lastModifiedSeconds, resp.getDateHeader(HttpHeaders.LAST_MODIFIED));
 		Assert.assertEquals(false, req.getAttribute(PageCacheFilter.CACHE_HIT));
 
-		CachedResponse cacheHit = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, expiryPolicy);
+		CachedResponse cacheHit = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
 		Assert.assertEquals(pageInfo, cacheHit);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Mockito.verify(cache, Mockito.times(1)).replaceAsync(Mockito.any(), Mockito.any(), Mockito.any(ExpiryPolicy.class));
@@ -149,6 +146,18 @@ public class PageCacheFilterTest {
 		Assert.assertTrue(PageCacheFilter.isException("/foo/bar", servletPath));
 		Assert.assertTrue(PageCacheFilter.isException("/foo/", servletPath));
 		Assert.assertTrue(PageCacheFilter.isException("/", servletPath));
+	}
+
+	@Test
+	public void testIsExceptionPathMatch() {
+		String servletPath = "/foo/bar/lore/ipsum";
+		Assert.assertTrue(PageCacheFilter.isException(servletPath, servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/bar/lore/ip?um", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/bar/*/*", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/bar/**", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/**", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/*/lore/*", servletPath));
+		Assert.assertTrue(PageCacheFilter.isException("/foo/**/ipsum", servletPath));
 	}
 
 	@Test

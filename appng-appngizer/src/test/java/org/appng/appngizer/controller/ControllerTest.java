@@ -37,6 +37,7 @@ import org.appng.api.VHostMode;
 import org.appng.api.model.Property;
 import org.appng.api.model.SimpleProperty;
 import org.appng.api.support.PropertyHolder;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.appngizer.model.xml.PackageType;
 import org.appng.appngizer.model.xml.Repository;
 import org.appng.appngizer.model.xml.RepositoryMode;
@@ -144,6 +145,7 @@ public abstract class ControllerTest {
 			defaultOverrides.put(PropertySupport.PREFIX_PLATFORM + Platform.Property.MESSAGING_ENABLED, "false");
 			wac.getBean(CoreService.class).initPlatformConfig(defaultOverrides, "target/webapps/ROOT", false, true,
 					false);
+			DefaultEnvironment.initGlobal(this.wac.getServletContext());
 			platformInitialized = true;
 		}
 	}
@@ -156,13 +158,13 @@ public abstract class ControllerTest {
 	protected MockHttpServletResponse postAndVerify(String uri, String controlSource, Object content, HttpStatus status)
 			throws Exception {
 		MockHttpServletRequestBuilder post = MockMvcRequestBuilders.post(new URI(uri));
-		return sendBodyAndVerify(post, content, status, controlSource);
+		return sendAndVerify(post, content, status, controlSource);
 	}
 
 	protected MockHttpServletResponse putAndVerify(String uri, String controlSource, Object content, HttpStatus status)
 			throws Exception {
 		MockHttpServletRequestBuilder post = MockMvcRequestBuilders.put(new URI(uri));
-		return sendBodyAndVerify(post, content, status, controlSource);
+		return sendAndVerify(post, content, status, controlSource);
 	}
 
 	protected MockHttpServletResponse getAndVerify(String uri, String controlSource, HttpStatus status)
@@ -179,10 +181,10 @@ public abstract class ControllerTest {
 	protected MockHttpServletResponse deleteAndVerify(String uri, String controlSource, Object content,
 			HttpStatus status) throws Exception {
 		MockHttpServletRequestBuilder delete = MockMvcRequestBuilders.delete(new URI(uri));
-		return sendBodyAndVerify(delete, content, status, controlSource);
+		return sendAndVerify(delete, content, status, controlSource);
 	}
 
-	protected MockHttpServletResponse sendBodyAndVerify(MockHttpServletRequestBuilder builder, Object content,
+	protected MockHttpServletResponse sendAndVerify(MockHttpServletRequestBuilder builder, Object content,
 			HttpStatus status, String controlSource)
 			throws Exception, UnsupportedEncodingException, SAXException, IOException {
 		if (null != content) {

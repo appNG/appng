@@ -103,11 +103,11 @@ public class RepositoryControllerTest extends ControllerTest {
 		MockMultipartHttpServletRequestBuilder post = MockMvcRequestBuilders
 				.multipart(new URI("/repository/local/upload"));
 		post.file(new MockMultipartFile("file", originalFilename, null, FileUtils.readFileToByteArray(file)));
-		sendBodyAndVerify(post, null, HttpStatus.OK, "xml/archive-upload.xml");
+		sendAndVerify(post, null, HttpStatus.OK, "xml/archive-upload.xml");
 
 		MockHttpServletRequestBuilder delete = MockMvcRequestBuilders
 				.delete(new URI("/repository/local/" + name + "/" + version + "/" + timestamp));
-		sendBodyAndVerify(delete, null, HttpStatus.OK, "xml/archive-delete.xml");
+		sendAndVerify(delete, null, HttpStatus.OK, "xml/archive-delete.xml");
 	}
 
 	@Test

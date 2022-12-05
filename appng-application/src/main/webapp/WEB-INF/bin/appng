@@ -1,9 +1,6 @@
-<#!/bin/sh
+#!/usr/bin/env sh
 
-# Directory where the Tomcat binary distribution resides
-# export CATALINA_HOME=/usr/share/tomcat7
+cd "$(dirname $0)"
+. ./setenv.sh
 
-# Root directory of the appNG web application
-export APPNG_HOME="$( cd "$( dirname "$0" )" && pwd )"/../../
-
-java -cp $APPNG_HOME/WEB-INF/lib/*:$CATALINA_HOME/lib/* -Dlog4j2.configuration=file:$APPNG_HOME/WEB-INF/conf/log4j2-cli.xml org.appng.cli.CliBootstrap "$@"
+java -cp "${APPNG_HOME}/WEB-INF/lib/*:${CATALINA_HOME}/lib/*" -Dlog4j.configuration="file:${APPNG_HOME}/WEB-INF/conf/log4j-cli.properties" -Dappng.home="${APPNG_HOME}" org.appng.cli.CliBootstrap "$@"

@@ -29,6 +29,12 @@ import org.appng.xml.ApplicationPropertyConstantCreator;
 public class GenerateApplicationConstantsMojo extends AbstractGeneratorMojo {
 
 	/**
+	 * the fully qualified name of the target class to generate
+	 */
+	@Parameter(property = "targetClass", required = true)
+	protected String targetClass;
+
+	/**
 	 * a prefix for the name of the generated constants (optional)
 	 */
 	@Parameter(property = "prefix", defaultValue = "", required = false)

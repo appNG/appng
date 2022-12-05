@@ -136,7 +136,8 @@
 		<dependency>
 			<groupId>org.appng</groupId>
 			<artifactId>appng-core</artifactId>
-		</dependency>
+			<scope>provided</scope>
+		</dependency>		
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>

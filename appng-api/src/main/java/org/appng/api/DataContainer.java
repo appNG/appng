@@ -23,10 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
-import org.apache.commons.lang3.StringUtils;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.FieldDef;
-import org.appng.xml.platform.FieldType;
 import org.appng.xml.platform.Result;
 import org.appng.xml.platform.Resultset;
 import org.appng.xml.platform.Selection;
@@ -94,7 +92,6 @@ public final class DataContainer {
 	public void setItem(Object item) {
 		this.item = item;
 		setSingleResult(true);
-		initItem();
 	}
 
 	/**
@@ -130,7 +127,6 @@ public final class DataContainer {
 	public void setItems(Collection<?> items) {
 		this.items = items;
 		setSingleResult(false);
-		initItems(items);
 		setPageable(null);
 	}
 
@@ -192,6 +188,7 @@ public final class DataContainer {
 		if (!Sort.unsorted().equals(sort) && !items.isEmpty()) {
 			ComparatorChain comparatorChain = new ComparatorChain();
 			Iterator<Order> iterator = sort.iterator();
+
 			while (iterator.hasNext()) {
 				final Order order = iterator.next();
 				final int factor = order.isAscending() ? 1 : -1;
@@ -263,7 +260,6 @@ public final class DataContainer {
 	public void setPage(Page<?> page) {
 		this.page = page;
 		setSingleResult(false);
-		initItems(page);
 	}
 
 	/**
@@ -295,52 +291,6 @@ public final class DataContainer {
 	 */
 	public Data getWrappedData() {
 		return data;
-	}
-
-	private void initItems(Iterable<?> items) {
-		for (Object item : items) {
-			initItem(item);
-		}
-	}
-
-	private void initItem() {
-		initItem(item);
-	}
-
-	private void initItem(Object item) {
-		if (null != fieldProcessor) {
-			List<FieldDef> fields = fieldProcessor.getFields();
-			initFields(null, fields, new BeanWrapperImpl(item));
-		}
-	}
-
-	/**
-	 * This is needed because a LazyInitializationException occurs otherwise when accessing uninitialized fields during
-	 * result-transformation
-	 * 
-	 * @param parentName
-	 * @param fields
-	 * @param wrapper
-	 */
-	private void initFields(String parentName, List<FieldDef> fields, BeanWrapper wrapper) {
-		if (null != fields) {
-			for (FieldDef fieldDef : fields) {
-				if (!FieldType.LINKPANEL.equals(fieldDef.getType())) {
-					String name = fieldDef.getName();
-					if (StringUtils.isNotEmpty(parentName)) {
-						name = parentName + "." + name;
-					}
-					boolean readable = wrapper.isReadableProperty(name);
-					if (readable) {
-						Object propertyValue = wrapper.getPropertyValue(name);
-						if (propertyValue instanceof Collection<?>) {
-							((Collection<?>) propertyValue).size();
-						}
-					}
-					initFields(name, fieldDef.getFields(), wrapper);
-				}
-			}
-		}
 	}
 
 	/**

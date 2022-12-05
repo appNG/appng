@@ -1,0 +1,10 @@
+Dockerfile
+docker-compose.yml
+.classpath
+.project
+.settings
+target
+*/target
+**/.factorypath
+**/.sts4-cache
+.git

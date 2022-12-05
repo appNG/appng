@@ -81,7 +81,7 @@ public class RepositoryWatcherTest {
 
 		int size = getCacheSize(cache);
 		Assert.assertEquals(4, size);
-		repositoryWatcher.init(cache, rootDir, new File(urlrewrite), RepositoryWatcher.DEFAULT_RULE_SUFFIX,
+		repositoryWatcher.init(site, rootDir, new File(urlrewrite), RepositoryWatcher.DEFAULT_RULE_SUFFIX,
 				Arrays.asList("de"));
 		Long forwardsUpdatedAt = repositoryWatcher.forwardsUpdatedAt;
 		ThreadFactory tf = new ThreadFactoryBuilder().setNameFormat("repositoryWatcher").setDaemon(true).build();

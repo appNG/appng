@@ -119,6 +119,7 @@ public class SearchTest extends Search {
 		platformEnv.put("sites", siteMap);
 		
 		Mockito.when(site.getHost()).thenReturn(LOCALHOST);
+		Mockito.when(site.getName()).thenReturn(LOCALHOST);
 		Mockito.when(site.getProperties()).thenReturn(siteProperties);
 
 		Mockito.when(servletRequest.getServerName()).thenReturn(LOCALHOST);

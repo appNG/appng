@@ -189,6 +189,9 @@ public class CoreService {
 	@Autowired
 	protected PlatformEventListener auditableListener;
 
+	@Autowired
+	private MessageSource messageSource;
+
 	public Subject createSubject(SubjectImpl subject) {
 		boolean changePasswordAllowed = UserType.LOCAL_USER.equals(subject.getUserType());
 		subject.setPasswordChangePolicy(
@@ -413,6 +416,59 @@ public class CoreService {
 			siteRepository.detach((SiteImpl) site);
 			initSiteProperties((SiteImpl) site, true);
 		}
+	}
+
+	public boolean checkSiteNameConflicts(Site site, String check, Locale locale, List<String> problems) {
+		boolean onlyOne = !"all".equals(check);
+		boolean problemSpotted = false;
+		switch (check) {
+		case "all":
+		case "name":
+			Site collidingSite = siteRepository.findByName(site.getName());
+			if (collidingSite != null) {
+				problems.add(messageSource.getMessage(MessageConstants.SITE_NAME_EXISTS,
+						new Object[] { site.getName() }, locale));
+				problemSpotted = true;
+			}
+			if (onlyOne)
+				break;
+		case "host":
+			List<SiteImpl> hostOverlapSites = siteRepository.findSitesForHostName(site.getHost());
+			for (SiteImpl ovlpSite : hostOverlapSites) {
+				if (site.getId() != ovlpSite.getId()) {
+					problems.add(messageSource.getMessage(MessageConstants.SITE_HOST_IN_USE,
+							new Object[] { site.getHost(), ovlpSite.getName() }, locale));
+					problemSpotted = true;
+				}
+			}
+			if (onlyOne)
+				break;
+		case "hostAliases":
+			List<SiteImpl> aliasOverlapSites = siteRepository.findSitesForHostNames(site.getHostAliases());
+			for (SiteImpl ovlpSite : aliasOverlapSites) {
+				if (site.getId() != ovlpSite.getId()) {
+					HashSet<String> intersection = new HashSet<>(ovlpSite.getHostAliases());
+					intersection.add(ovlpSite.getHost());
+					intersection.retainAll(site.getHostAliases());
+					String conflictAliases = intersection.stream().sorted().collect(Collectors.joining(", "));
+					problems.add(messageSource.getMessage(MessageConstants.SITE_HOSTALIAS_IN_USE,
+							new Object[] { ovlpSite.getName(), conflictAliases }, locale));
+					problemSpotted = true;
+				}
+			}
+			if (onlyOne)
+				break;
+		case "domain":
+			if (!siteRepository.isUnique(site.getId(), "domain", site.getDomain())) {
+				problems.add(messageSource.getMessage(MessageConstants.SITE_DOMAIN_EXISTS,
+						new Object[] { site.getDomain() }, locale));
+				problemSpotted = true;
+			}
+			break;
+		default:
+			throw new UnsupportedOperationException("Name collision check for '" + check + "' is not implemented");
+		}
+		return problemSpotted;
 	}
 
 	public PropertyImpl saveProperty(PropertyImpl property) {
@@ -641,17 +697,20 @@ public class CoreService {
 
 	public boolean loginGroup(Environment env, AuthSubject authSubject, String password, Integer groupId) {
 		Group group = groupRepository.getGroup(groupId);
-		if (isValidPassword(authSubject, password)) {
-			SubjectImpl subject = new SubjectImpl();
-			subject.getGroups().add(group);
-			subject.setLanguage(authSubject.getLanguage());
-			subject.setTimeZone(authSubject.getTimeZone());
-			subject.setRealname(authSubject.getRealname());
-			subject.setName(authSubject.getAuthName());
-			subject.setEmail(authSubject.getEmail());
-			return login(env, subject);
+		if (null != group) {
+			if (isValidPassword(authSubject, password)) {
+				SubjectImpl subject = new SubjectImpl();
+				subject.getGroups().add(group);
+				subject.setLanguage(authSubject.getLanguage());
+				subject.setTimeZone(authSubject.getTimeZone());
+				subject.setRealname(authSubject.getRealname());
+				subject.setName(authSubject.getAuthName());
+				subject.setEmail(authSubject.getEmail());
+				return login(env, subject);
+			}
+		} else {
+			LOGGER.warn("no such group: {}", groupId);
 		}
-
 		return false;
 	}
 
@@ -2161,11 +2220,20 @@ public class CoreService {
 	}
 
 	public void refreshTemplate(Site site, PlatformProperties platformConfig) {
+		refreshTemplate(site, platformConfig, true);
+	}
+
+	public void refreshTemplate(Site site, PlatformProperties platformConfig, boolean sendEvent) {
 		reloadTemplate(site, platformConfig);
-		site.sendEvent(new ReloadTemplateEvent(site.getName()));
+		if (sendEvent) {
+			ReloadTemplateEvent event = new ReloadTemplateEvent(site.getName());
+			LOGGER.debug("Sending {}", event);
+			site.sendEvent(event);
+		}
 	}
 
 	public void reloadTemplate(Site site, PlatformProperties platformConfig) {
+		LOGGER.debug("Refreshing template for '{}'", site);
 		Properties siteProps = site.getProperties();
 		Template template = templateService.getTemplateByDisplayName(siteProps.getString(SiteProperties.TEMPLATE));
 		if (null == template) {

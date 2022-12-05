@@ -1,0 +1,34 @@
+services:
+  appng:
+    image: appng
+    container_name: appng_dev
+    build:
+      args:
+        - APPNG_MANAGER_VERSION
+        - APPNG_AUTHENTICATION_VERSION
+        - APPNG_SCHEDULER_VERSION
+    environment:
+      CATALINA_OPTS: -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n 
+    volumes:
+      - appng-init:/init
+    command: bash -c "if [ ! -f /init/done ]; then $${APPNG_HOME}/WEB-INF/bin/appng batch -f $${APPNG_HOME}/WEB-INF/conf/install.list && touch /init/done; fi && exec catalina.sh run"
+    depends_on:
+      - mariadb
+    ports:
+      - 8080:8080
+      - 8000:8000
+
+  mariadb:
+    image: mariadb:10.6
+    container_name: appng_dev_mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: mysql
+      MARIADB_DATABASE: appng
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+volumes:
+  appng-init:
+  mariadb-data:

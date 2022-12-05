@@ -16,6 +16,7 @@
 package org.appng.api.support;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.appng.api.ActionProvider;
@@ -51,11 +53,11 @@ import org.appng.xml.platform.Condition;
 import org.appng.xml.platform.Data;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datafield;
-import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
 import org.appng.xml.platform.Event;
 import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.FieldType;
+import org.appng.xml.platform.Message;
 import org.appng.xml.platform.MessageType;
 import org.appng.xml.platform.Messages;
 import org.appng.xml.platform.MetaData;
@@ -162,7 +164,7 @@ public class CallableAction {
 				boolean clientValidation = pageExpressionEvaluator.getBoolean(actionRef.getClientValidation());
 				this.action.setClientValidation(String.valueOf(clientValidation));
 			}
-			this.elementHelper = new ElementHelper(site, application);
+			this.elementHelper = new ElementHelper(applicationRequest.getEnvironment(), site, application, null);
 			DataConfig config = getAction().getConfig();
 			getAction().setEventId(eventId);
 			getAction().setMode(actionRef.getMode());
@@ -180,7 +182,8 @@ public class CallableAction {
 				Map<String, Object> conditionParams = new HashMap<>(applicationRequest.getParameters());
 				conditionParams.put(ApplicationPath.PATH_VAR, applicationRequest.applicationPath());
 				ExpressionEvaluator conditionEvaluator = new ExpressionEvaluator(conditionParams);
-				this.include = elementHelper.conditionMatches(conditionEvaluator, includeCondition);
+				this.include = new ElementHelper(applicationRequest.getEnvironment(), site, application,
+						conditionEvaluator).conditionMatches(includeCondition);
 			}
 			if (include) {
 				elementHelper.processConfig(applicationRequest.getApplicationConfig(), applicationRequest,
@@ -223,21 +226,40 @@ public class CallableAction {
 			CallableDataSource datasourceElement = new CallableDataSource(site, application, applicationRequest,
 					actionParamSupport, datasourceRef);
 			if (datasourceElement.doInclude()) {
-				Data data = datasourceElement.perform(null, setBeanNull, true);
+
+				List<Message> before = new ArrayList<>();
+				Environment environment = applicationRequest.getEnvironment();
+				Messages envMessages = elementHelper.getMessages();
+				if (elementHelper.hasMessages()) {
+					before.addAll(envMessages.getMessageList());
+				}
+
+				Data data = datasourceElement.perform(null, setBeanNull, true, true);
 				action.setData(data);
-				Datasource datasource = datasourceElement.getDatasource();
-				DataConfig dsConfig = datasource.getConfig();
+				DataConfig dsConfig = datasourceElement.getDatasource().getConfig();
 				elementHelper.addTemplates(applicationRequest.getApplicationConfig(), dsConfig);
 				action.getConfig().setMetaData(dsConfig.getMetaData());
 
-				Messages datasourceMessages = datasource.getMessages();
-				if (null != datasourceMessages && !datasourceMessages.getMessageList().isEmpty()) {
-					dataOk = !datasourceMessages.getMessageList().stream()
-							.filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny().isPresent();
-					Messages messages = new Messages();
-					messages.setRef(action.getId());
-					messages.getMessageList().addAll(datasourceMessages.getMessageList());
-					getAction().setMessages(messages);
+				List<Message> after = new ArrayList<>();
+				if (elementHelper.hasMessages()) {
+					envMessages = elementHelper.getMessages();
+					after.addAll(envMessages.getMessageList());
+				}
+
+				@SuppressWarnings("unchecked")
+				Collection<Message> dataSourceMessages = CollectionUtils.disjunction(before, after);
+
+				if (!dataSourceMessages.isEmpty()) {
+					dataOk = !dataSourceMessages.stream().filter(m -> MessageType.ERROR.equals(m.getClazz())).findAny()
+							.isPresent();
+
+					envMessages.getMessageList().removeAll(dataSourceMessages);
+					if (envMessages.getMessageList().isEmpty()) {
+						elementHelper.removeMessages(environment);
+					}
+					Messages actionMessages = new Messages();
+					actionMessages.getMessageList().addAll(dataSourceMessages);
+					getAction().setMessages(actionMessages);
 				}
 
 				if (null != data && null != data.getResult()) {
@@ -309,36 +331,35 @@ public class CallableAction {
 	 */
 	public FieldProcessor perform(boolean isSectionHidden) throws ProcessingException {
 		FieldProcessor fp = null;
-		Environment env = applicationRequest.getEnvironment();
 		if (doExecute()) {
 			execute = retrieveData(false);
 			if (doExecute()) {
 				fp = execute();
-				Messages messages = null;
-				if (null != fp) {
-					messages = fp.getMessages();
-				}
 				if (doForward() || forceForward()) {
-					String outputPrefix = elementHelper.getOutputPrefix(env);
+					String outputPrefix = elementHelper.getOutputPrefix();
 					StringBuilder target = new StringBuilder();
 					if (null != outputPrefix) {
 						target.append(outputPrefix);
 					}
 					target.append(getOnSuccess());
+					site.sendRedirect(applicationRequest.getEnvironment(), target.toString(), HttpStatus.FOUND.value());
 					getAction().setOnSuccess(target.toString());
-					if (null != messages) {
-						ElementHelper.addMessages(env, messages);
-					}
 					applicationRequest.setRedirectTarget(target.toString());
-					site.sendRedirect(env, target.toString(), HttpStatus.FOUND.value());
-				} else if (null != messages && !messages.getMessageList().isEmpty()) {
-					action.setMessages(messages);
 				}
 			}
 		}
 		if (doInclude() && !(doExecute() && doForward())) {
-			retrieveData(false);
-			handleSelections();
+				retrieveData(false);
+				handleSelections();
+				if (!isSectionHidden && elementHelper.hasMessages()) {
+					Messages messages = elementHelper.removeMessages();
+					Messages actionMessages = action.getMessages();
+					if (null == actionMessages) {
+						action.setMessages(messages);
+					} else {
+						actionMessages.getMessageList().addAll(0, messages.getMessageList());
+					}
+				}
 		}
 		return fp;
 	}
@@ -424,6 +445,7 @@ public class CallableAction {
 					}
 				}
 				errors = fieldProcessor.hasErrors();
+				ElementHelper.addMessages(env, fieldProcessor.getMessages());
 				if (errors) {
 					LOGGER.debug("validation returned errors");
 					addUserdata(metaData.getFields());

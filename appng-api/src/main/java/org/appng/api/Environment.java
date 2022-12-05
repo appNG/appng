@@ -19,8 +19,16 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.appng.api.model.Application;
+import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
+import org.appng.api.support.environment.ScopedEnvironment;
 
 /**
  * The {@link Environment} is able to set, read and remove attributes of a certain {@link Scope}. The main purposes are:
@@ -39,6 +47,18 @@ import org.appng.api.model.Subject;
  * @see Scope
  */
 public interface Environment {
+
+	/**
+	 * Returns a {@link ScopedEnvironment} for the given {@link Scope}
+	 * 
+	 * @param scope
+	 *              the {@link Scope} to use
+	 * 
+	 * @return the {@link ScopedEnvironment}, if scope is available, {@code null} otherwise.
+	 */
+	default ScopedEnvironment getEnvironment(Scope scope) {
+		return null;
+	}
 
 	/**
 	 * Sets an attribute for the given {@link Scope} to the given value.
@@ -132,5 +152,17 @@ public interface Environment {
 	 * @return {@code true} if the current {@link Subject} is authenticated, {@code false} otherwise
 	 */
 	boolean isSubjectAuthenticated();
+
+
+	/**
+	 * Returns the current {@link Site}, if this environment has been created from a {@link HttpServletRequest}
+	 * 
+	 * @return the site
+	 * 
+	 * @since 1.25
+	 */
+	default Site getSite() {
+		return null;
+	}
 
 }

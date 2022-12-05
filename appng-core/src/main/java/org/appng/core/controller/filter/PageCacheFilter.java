@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,6 @@ import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -43,9 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
-import org.appng.api.Environment;
 import org.appng.api.Path;
-import org.appng.api.RequestUtil;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
@@ -76,11 +74,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	protected static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
-	private Environment env;
 
-	public void init(FilterConfig filterConfig) throws ServletException {
-		this.env = DefaultEnvironment.get(filterConfig.getServletContext());
-	}
+	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
 	public void destroy() {
 	}
@@ -97,11 +92,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		boolean isCacheableRequest = isCacheableRequest(httpServletRequest);
 		boolean cacheEnabled = false;
 		boolean isException = false;
-		Site site = null;
 		ExpiryPolicy expiryPolicy = null;
+		DefaultEnvironment env = EnvironmentFilter.environment();
+		Site site = env.getSite();
 
 		if (isCacheableRequest) {
-			site = RequestUtil.getSite(env, request);
 			if (null != site) {
 				org.appng.api.model.Properties siteProps = site.getProperties();
 				cacheEnabled = siteProps.getBoolean(SiteProperties.CACHE_ENABLED);
@@ -289,8 +284,16 @@ public class PageCacheFilter implements javax.servlet.Filter {
 
 	static boolean isException(String exceptionsProp, String servletPath) {
 		if (null != exceptionsProp) {
-			return Arrays.asList(exceptionsProp.split(StringUtils.LF)).stream()
-					.filter(e -> servletPath.startsWith(e.trim())).findFirst().isPresent();
+			Optional<String> matchingRule = Arrays.asList(exceptionsProp.split(StringUtils.LF)).stream()
+					.filter(e -> PATH_MATCHER.isPattern(e.trim()) ? PATH_MATCHER.match(e.trim(), servletPath)
+							: servletPath.startsWith(e.trim()))
+					.findFirst();
+			if (matchingRule.isPresent()) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("'{}' matched exception '{}'", servletPath, matchingRule.get());
+				}
+				return true;
+			}
 		}
 		return false;
 	}
@@ -300,8 +303,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		if (null != cachingTimes && !cachingTimes.isEmpty()) {
 			if (antStylePathMatching) {
 				for (Object path : cachingTimes.keySet()) {
-					AntPathMatcher matcher = new AntPathMatcher();
-					if (matcher.match(path.toString(), servletPath)) {
+					if (PATH_MATCHER.match(path.toString(), servletPath)) {
 						Object entry = cachingTimes.get(path);
 						return Integer.valueOf(entry.toString().trim());
 					}

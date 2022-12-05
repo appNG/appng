@@ -15,6 +15,7 @@
  */
 package org.appng.core.controller.handler;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -76,12 +77,14 @@ public class RestService {
 			rmhm.setApplicationContext(context);
 			UrlPathHelper urlPathHelper = new UrlPathHelper();
 			urlPathHelper.setRemoveSemicolonContent(false);
+			urlPathHelper.setAlwaysUseFullPath(true);
+			urlPathHelper.setDefaultEncoding(StandardCharsets.UTF_8.name());
 			rmhm.setUrlPathHelper(urlPathHelper);
 			rmhm.afterPropertiesSet();
 
 			HandlerExecutionChain handler = rmhm.getHandler(wrapped);
 			if (null == handler) {
-				LOGGER.warn("no @RestController found for {}", servletRequest.getServletPath());
+				LOGGER.warn("no @RestController found for {}", servletRequest.getRequestURI());
 				servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 				return;
 			}
