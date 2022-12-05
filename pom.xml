@@ -63,10 +63,10 @@
 		<appNG.template.version>1.14.4</appNG.template.version>
 		<bouncycastle.version>1.69</bouncycastle.version>
 		<esapi.version>2.2.3.1</esapi.version>
-		<flyway.version>8.4.3</flyway.version>
+		<flyway.version>8.5.13</flyway.version>
 		<hazelcast.version>5.0.2</hazelcast.version>
 		<hibernate.version>5.4.32.Final</hibernate.version>
-		<jackson.version>2.13.0</jackson.version>
+		<jackson.version>2.14.1</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
 		<lucene.version>8.10.0</lucene.version>
 		<pdfBox.version>2.0.24</pdfBox.version>
@@ -961,7 +961,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.9</version>
+				<version>1.10</version>
 			</dependency>
 			<dependency>
 				<groupId>org.dom4j</groupId>
@@ -1146,7 +1146,7 @@
 			<dependency>
 				<groupId>org.owasp.antisamy</groupId>
 				<artifactId>antisamy</artifactId>
-				<version>1.6.4</version>
+				<version>1.6.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.owasp.esapi</groupId>
