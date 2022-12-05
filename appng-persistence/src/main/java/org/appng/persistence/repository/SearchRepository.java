@@ -18,6 +18,7 @@ package org.appng.persistence.repository;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -47,15 +48,34 @@ public interface SearchRepository<T, ID extends Serializable>
 		extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
 
 	/**
-	 * Retrieves an entity by its id.
-	 *
-	 * @param id must not be {@literal null}.
-	 * @return the entity with the given id or {@literal null} if none found.
-	 * @throws IllegalArgumentException if {@literal id} is {@literal null}.
-	 * @deprecated This is just a temporary methed to make migration to {@link #findById(Object)} more smooth.
+	 * Retrieves an entity by its id, throws the given {@link Throwable} if not found.
+	 * 
+	 * @param  <X>
+	 *                   type of the {@link Throwable}
+	 * @param  id
+	 *                   the id of the entity
+	 * @param  throwable
+	 *                   the {@link Throwable} to throw if entity is not found
+	 * 
+	 * @return           the entity
+	 * 
+	 * @throws X
+	 *                   the type of {@link Throwable}
 	 */
-	@Deprecated
-	T getOne(ID id);
+	<X extends Throwable> T findOneOrThrow(ID id, X throwable) throws X;
+
+	/**
+	 * Retrieves an entity by its id, throws {@link NoSuchElementException} if not found.
+	 * 
+	 * @param  id
+	 *                                the id of the entity
+	 * 
+	 * @return                        the entity
+	 * 
+	 * @throws NoSuchElementException
+	 *                                if no value is present
+	 */
+	T findOneOrThrow(ID id);
 
 	/**
 	 * Checks whether the given property is unique for this domain type.

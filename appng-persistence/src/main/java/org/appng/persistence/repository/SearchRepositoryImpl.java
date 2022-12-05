@@ -80,8 +80,13 @@ public class SearchRepositoryImpl<T, ID extends Serializable> extends SimpleJpaR
 	}
 
 	@Override
-	public T getOne(ID id) {
-		return super.findById(id).orElse(null);
+	public <X extends Throwable> T findOneOrThrow(ID id, X throwable) throws X {
+		return findById(id).orElseThrow(() -> throwable);
+	}
+
+	@Override
+	public T findOneOrThrow(ID id) {
+		return findById(id).orElseThrow();
 	}
 
 	@Override

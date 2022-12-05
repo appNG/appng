@@ -44,6 +44,7 @@ import java.util.concurrent.Executors;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.appng.api.ApplicationException;
 import org.appng.api.BusinessException;
 import org.appng.api.FieldProcessor;
 import org.appng.api.Platform;
@@ -450,7 +451,12 @@ public class CoreServiceTest {
 	public void testDeleteSubject() {
 		Subject subject = coreService.getSubjectByName("john", false);
 		coreService.deleteSubject(subject);
-		assertNull(coreService.getSubjectById(subject.getId(), false));
+	}
+
+	@Rollback
+	@Test(expected = ApplicationException.class)
+	public void testGetSubjectException() {
+		coreService.getSubjectById(42, false);
 	}
 
 	@Test

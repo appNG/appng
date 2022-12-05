@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.appng.api.ApplicationController;
+import org.appng.api.ApplicationException;
 import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
@@ -257,8 +259,8 @@ public class CoreService {
 	}
 
 	protected Page<PropertyImpl> getProperties(Integer siteId, Integer applicationId, Pageable pageable) {
-		Site site = siteId == null ? null : siteRepository.getOne(siteId);
-		Application application = applicationId == null ? null : applicationRepository.getOne(applicationId);
+		Site site = siteId == null ? null : siteRepository.findOneOrThrow(siteId, notFound(siteId, "Site"));
+		Application application = applicationId == null ? null : applicationRepository.findOneOrThrow(applicationId, notFound(applicationId, "Application"));
 		return getProperties(site, application, pageable);
 	}
 
@@ -321,10 +323,10 @@ public class CoreService {
 		Site site = null;
 		Application application = null;
 		if (null != siteId) {
-			site = siteRepository.getOne(siteId);
+			site = siteRepository.findOneOrThrow(siteId, notFound(siteId, "Site"));
 		}
 		if (null != applicationId) {
-			application = applicationRepository.getOne(applicationId);
+			application = applicationRepository.findOneOrThrow(applicationId, notFound(applicationId, "Application"));
 		}
 		return createProperty(site, application, property);
 	}
@@ -357,8 +359,9 @@ public class CoreService {
 	}
 
 	protected boolean checkPropertyExists(Integer siteId, Integer applicationId, PropertyImpl property) {
-		Site site = null == siteId ? null : siteRepository.getOne(siteId);
-		Application application = null == applicationId ? null : applicationRepository.getOne(applicationId);
+		Site site = null == siteId ? null : siteRepository.findOneOrThrow(siteId, notFound(siteId, "Site"));
+		Application application = null == applicationId ? null
+				: applicationRepository.findOneOrThrow(applicationId, notFound(applicationId, "Application"));
 		String prefix = PropertySupport.getPropertyPrefix(site, application);
 		String propertyPrefix = prefix;
 		String propertyName = propertyPrefix + property.getName();
@@ -371,9 +374,18 @@ public class CoreService {
 	}
 
 	public SiteImpl getSite(Integer id) {
-		SiteImpl site = siteRepository.getOne(id);
+		SiteImpl site = siteRepository.findOneOrThrow(id, notFound(id, "Site"));
 		initSite(site);
 		return site;
+	}
+
+//	private Supplier<? extends ApplicationException> throwNotFound(Serializable id, String type) {
+//		return () -> notFound(id, type);
+//	}
+
+	public ApplicationException notFound(Serializable id, String type) {
+		return new ApplicationException(String.format("%s with ID #%s not found!", type, id),
+				"core.error.notfound." + type.toLowerCase(), id);
 	}
 
 	public SiteImpl getSiteByName(String name) {
@@ -629,20 +641,17 @@ public class CoreService {
 
 	public boolean loginGroup(Environment env, AuthSubject authSubject, String password, Integer groupId) {
 		Group group = groupRepository.getGroup(groupId);
-		if (null != group) {
-			if (isValidPassword(authSubject, password)) {
-				SubjectImpl subject = new SubjectImpl();
-				subject.getGroups().add(group);
-				subject.setLanguage(authSubject.getLanguage());
-				subject.setTimeZone(authSubject.getTimeZone());
-				subject.setRealname(authSubject.getRealname());
-				subject.setName(authSubject.getAuthName());
-				subject.setEmail(authSubject.getEmail());
-				return login(env, subject);
-			}
-		} else {
-			LOGGER.warn("no such group: {}", groupId);
+		if (isValidPassword(authSubject, password)) {
+			SubjectImpl subject = new SubjectImpl();
+			subject.getGroups().add(group);
+			subject.setLanguage(authSubject.getLanguage());
+			subject.setTimeZone(authSubject.getTimeZone());
+			subject.setRealname(authSubject.getRealname());
+			subject.setName(authSubject.getAuthName());
+			subject.setEmail(authSubject.getEmail());
+			return login(env, subject);
 		}
+
 		return false;
 	}
 
@@ -693,7 +702,7 @@ public class CoreService {
 	}
 
 	public PropertyImpl getProperty(String propertyId) {
-		return propertyRepository.getOne(propertyId);
+		return propertyRepository.findOneOrThrow(propertyId, notFound(propertyId, "Property"));
 	}
 
 	protected void createSite(SiteImpl site, Environment env) {
@@ -963,7 +972,7 @@ public class CoreService {
 	private PackageArchive getArchive(final Integer repositoryId, final String applicationName,
 			final String applicationVersion, String applicationTimestamp) throws BusinessException {
 		if (null != repositoryId && null != applicationName && null != applicationVersion) {
-			RepositoryImpl repository = repoRepository.getOne(repositoryId);
+			RepositoryImpl repository = repoRepository.findOneOrThrow(repositoryId, notFound(repositoryId, "Repository"));
 			if (null != repository) {
 				LOGGER.info("retrieving '{}-{}' from repository {}", applicationName, applicationVersion,
 						repository.getUri());
@@ -1042,7 +1051,7 @@ public class CoreService {
 	protected void deletePackageVersion(Integer repositoryId, String packageName, String packageVersion,
 			String packageTimestamp) throws BusinessException {
 		if (null != repositoryId && null != packageName && null != packageVersion) {
-			RepositoryImpl repository = repoRepository.getOne(repositoryId);
+			RepositoryImpl repository = repoRepository.findOneOrThrow(repositoryId, notFound(repositoryId, "Repository"));
 			if (null != repository) {
 				try {
 					repository.deletePackageVersion(packageName, packageVersion, packageTimestamp);
@@ -1060,7 +1069,7 @@ public class CoreService {
 
 	protected void reloadRepository(Integer repositoryId) throws BusinessException {
 		if (null != repositoryId) {
-			RepositoryImpl repository = repoRepository.getOne(repositoryId);
+			RepositoryImpl repository = repoRepository.findOneOrThrow(repositoryId, notFound(repositoryId, "Repository"));
 			if (null != repository) {
 				try {
 					repository.reload();
@@ -1107,7 +1116,7 @@ public class CoreService {
 			List<SiteImpl> applicationSites = siteRepository.findSitesForApplication(application.getId());
 			for (org.appng.xml.application.Property prop : properties.getProperty()) {
 				String propName = PropertySupport.getPropertyName(null, application, prop.getId());
-				PropertyImpl property = propertyRepository.getOne(propName);
+				PropertyImpl property = propertyRepository.findById(propName).orElse(null);
 				if (null == property) {
 					property = new PropertyImpl(prop.getId(), null, null);
 					createProperty(null, application, property);
@@ -1116,7 +1125,7 @@ public class CoreService {
 
 				for (Site site : applicationSites) {
 					propName = PropertySupport.getPropertyName(site, application, prop.getId());
-					PropertyImpl siteProperty = propertyRepository.getOne(propName);
+					PropertyImpl siteProperty = propertyRepository.findById(propName).orElse(null);
 					boolean forceValue = null == siteProperty;
 					if (forceValue) {
 						siteProperty = new PropertyImpl(prop.getId(), null, null);
@@ -1202,7 +1211,7 @@ public class CoreService {
 
 	protected String deleteResource(Environment env, Integer applicationId, Integer resourceId)
 			throws BusinessException {
-		Application application = applicationRepository.getOne(applicationId);
+		Application application = applicationRepository.findOneOrThrow(applicationId, notFound(applicationId, "Application"));
 		try {
 			Resources applicationResourceHolder = getResources(application, null, getApplicationRootFolder(env));
 			Resource applicationResource = applicationResourceHolder.getResource(resourceId);
@@ -1225,7 +1234,7 @@ public class CoreService {
 			throws BusinessException {
 		String convertDirection = "";
 		try {
-			Application currentApplication = applicationRepository.getOne(application.getId());
+			Application currentApplication = applicationRepository.findOneOrThrow(application.getId(), notFound(application.getId(), "Application"));
 			File applicationFolder = getApplicationFolder(env, currentApplication);
 			if (currentApplication.isFileBased() && !isFileBased) {
 				convertDirection = "filebased to database";
@@ -1458,8 +1467,8 @@ public class CoreService {
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public MigrationStatus unlinkApplicationFromSite(Integer siteId, Integer applicationId) {
-		SiteApplication siteApplication = siteApplicationRepository
-				.getOne(new SiteApplicationPK(siteId, applicationId));
+		SiteApplicationPK id = new SiteApplicationPK(siteId, applicationId);
+		SiteApplication siteApplication = siteApplicationRepository.findOneOrThrow(id, notFound(id, "SiteApplication"));
 		return unlinkApplicationFromSite(siteApplication);
 	}
 
@@ -1478,7 +1487,7 @@ public class CoreService {
 	 */
 	protected void deleteRole(Integer roleId, final String roleDeleteError, final String roleErrorInvalid)
 			throws BusinessException {
-		RoleImpl applicationRole = roleRepository.getOne(roleId);
+		RoleImpl applicationRole = roleRepository.findById(roleId).orElse(null);
 		if (null != applicationRole) {
 			List<GroupImpl> groups = groupRepository.findGroupsForApplicationRole(roleId);
 			for (Group group : groups) {
@@ -1509,7 +1518,7 @@ public class CoreService {
 			final String applicationroleErrorInvalid) throws BusinessException {
 
 		try {
-			Application application = applicationRepository.getOne(applicationId);
+			Application application = applicationRepository.findOneOrThrow(applicationId, notFound(applicationId, "Application"));
 			if (null == application) {
 				throw new BusinessException("no such application " + applicationId, applicationErrorInvalid,
 						applicationId);
@@ -1611,7 +1620,7 @@ public class CoreService {
 			}
 		}
 		for (Integer roleId : applicationRoleIds) {
-			Role role = roleRepository.getOne(roleId);
+			Role role = roleRepository.findOneOrThrow(roleId, notFound(roleId, "Role"));
 			applicationRoles.add(role);
 		}
 	}
@@ -1635,7 +1644,7 @@ public class CoreService {
 	}
 
 	protected void assignGroupsToSubject(Integer subjectId, List<Integer> groupIds, boolean clear) {
-		Subject subject = subjectRepository.getOne(subjectId);
+		Subject subject = subjectRepository.findOneOrThrow(subjectId, notFound(subjectId, "Subject"));
 		if (clear) {
 			subject.getGroups().clear();
 		}
@@ -1702,7 +1711,7 @@ public class CoreService {
 	}
 
 	public DatabaseConnection getDatabaseConnection(Integer dcId, boolean clearPassword) {
-		DatabaseConnection conn = databaseConnectionRepository.getOne(dcId);
+		DatabaseConnection conn = databaseConnectionRepository.findOneOrThrow(dcId, notFound(dcId, "DatabaseConnection"));
 		CacheProvider cacheProvider = null == conn.getSite() ? null : new CacheProvider(getPlatformProperties());
 		prepareConnection(conn, clearPassword, cacheProvider);
 		return conn;
@@ -1874,7 +1883,9 @@ public class CoreService {
 
 	public void unsetReloadRequired(SiteApplication siteApplication) {
 		siteApplication.setReloadRequired(false);
-		siteApplicationRepository.getOne(siteApplication.getSiteApplicationId()).setReloadRequired(false);
+		SiteApplicationPK id = siteApplication.getSiteApplicationId();
+		siteApplicationRepository.findOneOrThrow(id, notFound(id, "SiteApplication"))
+				.setReloadRequired(false);
 	}
 
 	public void setSiteStartUpTime(SiteImpl site, Date date) {
@@ -1883,7 +1894,7 @@ public class CoreService {
 
 	public Collection<ApplicationSubject> getApplicationSubjects(Integer applicationId, Site site) {
 		List<ApplicationSubject> applicationSubjects = new ArrayList<>();
-		ApplicationImpl application = applicationRepository.getOne(applicationId);
+		ApplicationImpl application = applicationRepository.findOneOrThrow(applicationId, notFound(applicationId, "Application"));
 		List<SubjectImpl> subjects = subjectRepository.findSubjectsForApplication(applicationId);
 		String siteTimeZone = site.getProperties().getString(Platform.Property.TIME_ZONE);
 		for (SubjectImpl subject : subjects) {
@@ -1926,7 +1937,7 @@ public class CoreService {
 	}
 
 	public Subject getSubjectById(Integer id, boolean initialize) {
-		SubjectImpl subject = subjectRepository.getOne(id);
+		SubjectImpl subject = subjectRepository.findOneOrThrow(id, notFound(id, "Subject"));
 		if (initialize) {
 			initializeSubject(subject);
 		}
@@ -2088,7 +2099,7 @@ public class CoreService {
 	}
 
 	public List<CachedResponse> getCacheEntries(Integer siteId) {
-		SiteImpl site = siteRepository.getOne(siteId);
+		SiteImpl site = siteRepository.findOneOrThrow(siteId, notFound(siteId, "Site"));
 		return CacheService.getCacheEntries(site);
 	}
 
@@ -2146,7 +2157,7 @@ public class CoreService {
 	}
 
 	public void setSiteReloadCount(SiteImpl site) {
-		siteRepository.getOne(site.getId()).setReloadCount(site.getReloadCount());
+		siteRepository.findOneOrThrow(site.getId(), notFound(site.getId(), "Site")).setReloadCount(site.getReloadCount());
 	}
 
 	public void refreshTemplate(Site site, PlatformProperties platformConfig) {
