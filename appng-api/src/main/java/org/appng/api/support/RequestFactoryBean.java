@@ -100,8 +100,7 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 				Integer maxUploadSize = platformProperties.getInteger(Platform.Property.MAX_UPLOAD_SIZE);
 				File uploadDir = getUploadDir(platformProperties);
 				if (!uploadDir.exists()) {
-					LOGGER.warn("invalid value for platform property '{}', folder '{}' does not exist!",
-							Platform.Property.UPLOAD_DIR, uploadDir);
+					uploadDir.mkdirs();
 				} else {
 					formRequest.setTempDir(uploadDir);
 				}

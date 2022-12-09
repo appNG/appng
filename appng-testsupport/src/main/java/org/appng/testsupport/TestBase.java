@@ -536,7 +536,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.CACHE_FOLDER, "cache"));
 		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.APPLICATION_CACHE_FOLDER, "application"));
 		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.PLATFORM_CACHE_FOLDER, "platform"));
-		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.UPLOAD_DIR, "/target/uploads"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.UPLOAD_DIR, "target/uploads"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.APPNG_DATA, "."));
 		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.MAX_UPLOAD_SIZE, "10485760"));
 		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.XSS_PROTECT, "false"));
 		return props;
