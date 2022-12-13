@@ -48,15 +48,6 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 
 	}
 
-	public HikariCPConfigurer(DatabaseConnection connection) {
-		configure(connection);
-	}
-
-	public HikariCPConfigurer(DatabaseConnection connection, boolean logPerformance) {
-		this.logPerformance = logPerformance;
-		configure(connection);
-	}
-
 	public void configure(DatabaseConnection connection) {
 		HikariConfig configuration = new HikariConfig();
 

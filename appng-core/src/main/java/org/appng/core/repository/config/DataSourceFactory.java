@@ -38,9 +38,9 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 	private @Getter @Setter String configurerClass;
 	private @Setter boolean autoCommit = false;
 	private @Getter @Setter boolean logPerformance = false;
-	private @Getter @Setter long connectionTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
-	private @Setter long validationTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
-	private @Setter long maxLifetime = DatasourceConfigurer.DEFAULT_LIFE_TIME;
+	private @Getter @Setter long connectionTimeout = DEFAULT_TIMEOUT;
+	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
+	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
 
 	public DataSourceFactory() {
 

@@ -119,12 +119,15 @@ public class PlatformConfig {
 		connection.setMaxConnections(maxConnections);
 		connection.setValidationPeriod(validationPeriod);
 		connection.setName("appNG ROOT connection");
-		HikariCPConfigurer configurer = new HikariCPConfigurer(connection, logPerformance);
-		configurer.setMaxLifetime(maxLifetime);
-		configurer.setValidationTimeout(validationTimeout);
-		configurer.setConnectionTimeout(connectionTimeout);
-		configurer.setAutoCommit(autoCommit);
-		return new DataSourceFactory(configurer);
+		DataSourceFactory dataSourceFactory = new DataSourceFactory();
+		dataSourceFactory.setConfigurerClass(HikariCPConfigurer.class.getName());
+		dataSourceFactory.setLogPerformance(logPerformance);
+		dataSourceFactory.setMaxLifetime(maxLifetime);
+		dataSourceFactory.setValidationTimeout(validationTimeout);
+		dataSourceFactory.setConnectionTimeout(connectionTimeout);
+		dataSourceFactory.setAutoCommit(autoCommit);
+		dataSourceFactory.configure(connection);
+		return dataSourceFactory;
 	}
 
 	@Bean

@@ -17,6 +17,8 @@ package org.appng.core.controller;
 
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.DatabaseService;
 import org.junit.Assert;
@@ -24,6 +26,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 public class PlatformConfigTest {
 
@@ -42,6 +46,9 @@ public class PlatformConfigTest {
 		ctx.addBeanFactoryPostProcessor(ppc);
 		ctx.refresh();
 		DatabaseConnection platformConnection = ctx.getBean(DatabaseService.class).getPlatformConnection(props);
+		DataSource dataSource = ctx.getBean(javax.sql.DataSource.class);
+		HikariDataSource hikariDataSource = HikariDataSource.class.cast(dataSource);
+		Assert.assertEquals(50000L, hikariDataSource.getMaxLifetime());
 		StringBuilder dbInfo = new StringBuilder();
 		platformConnection.testConnection(dbInfo);
 		Assert.assertTrue(dbInfo.toString().contains("HSQL Database Engine 2.5"));
