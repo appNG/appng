@@ -152,7 +152,10 @@ public class AppNGizer extends WebMvcConfigurationSupport {
 		connection.setName("appNGizer Root Connection");
 		connection.setMinConnections(Integer.valueOf(props.getProperty("database.minConnections", "3")));
 		connection.setMaxConnections(Integer.valueOf(props.getProperty("database.maxConnections", "10")));
-		return new DataSourceFactory(new HikariCPConfigurer(connection));
+		DataSourceFactory dataSourceFactory = new DataSourceFactory();
+		dataSourceFactory.setConfigurerClass(HikariCPConfigurer.class.getName());
+		dataSourceFactory.configure(connection);
+		return dataSourceFactory;
 	}
 
 	@Bean
@@ -172,8 +175,6 @@ public class AppNGizer extends WebMvcConfigurationSupport {
 	public ConversionServiceFactoryBean conversionService() {
 		return new ConversionServiceFactoryBean();
 	}
-
-	
 
 	@Bean
 	public DatabaseService databaseService() {
