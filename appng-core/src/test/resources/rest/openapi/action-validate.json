@@ -155,7 +155,7 @@
       "value" : false
     } ],
     "appNGVersion" : "1.25.x",
-    "appVersion" : "1.5.2"
+    "appVersion" : "1.5.2-2012-11-27-1305"
   },
   "statusCode" : "UNPROCESSABLE_ENTITY",
   "statusCodeValue" : 422

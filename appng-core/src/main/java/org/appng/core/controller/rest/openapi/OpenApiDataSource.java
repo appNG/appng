@@ -227,7 +227,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 			datasource.setMessages(getMessages(messages));
 		}
 		datasource.setAppNGVersion(getAppNGVersion(environment));
-		datasource.setAppVersion(application.getPackageVersion());
+		datasource.setAppVersion(getApplicationVersion());
 		return datasource;
 	}
 

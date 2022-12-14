@@ -301,7 +301,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		action.setSelf(self.toString());
 		action.setExecute(action.getSelf().replace("/action/", "/action/multipart/"));
 		action.setAppNGVersion(getAppNGVersion(environment));
-		action.setAppVersion(application.getPackageVersion());
+		action.setAppVersion(getApplicationVersion());
 		return action;
 	}
 

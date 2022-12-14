@@ -417,7 +417,11 @@ abstract class OpenApiOperation {
 		}
 		return messages.getMessage(code, params, code, locale);
 	}
-	
+
+	protected String getApplicationVersion() {
+		return String.format("%s-%s", application.getPackageVersion(), application.getTimestamp());
+	}
+
 	protected String getAppNGVersion(Environment env) {
 		return env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
 	}
