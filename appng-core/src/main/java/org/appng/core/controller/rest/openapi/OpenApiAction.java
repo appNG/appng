@@ -123,14 +123,14 @@ abstract class OpenApiAction extends OpenApiOperation {
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(httpServletResponse, false,
 				initialRequest, actionId, eventId, marshallService);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
-		}
-
 		if (!(HttpStatus.OK.value() == httpServletResponse.getStatus())) {
 			LOGGER.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
 					application.getName(), site.getName(), httpServletResponse.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(httpServletResponse.getStatus()));
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
 		}
 
 		Action action = getAction(application, initialRequest, initialAction, env, null, false, null);

@@ -130,14 +130,14 @@ abstract class RestActionBase extends RestOperation {
 		org.appng.xml.platform.Action initialAction = applicationProvider.processAction(servletResp, false,
 				initialRequest, actionId, eventId, marshallService);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
-		}
-
 		if (servletResp.getStatus() != HttpStatus.OK.value()) {
 			LOGGER.debug("Action {}:{} on application {} of site {} returned status {}", eventId, actionId,
 					application.getName(), site.getName(), servletResp.getStatus());
 			return new ResponseEntity<>(HttpStatus.valueOf(servletResp.getStatus()));
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processed action: {}", marshallService.marshallNonRoot(initialAction));
 		}
 
 		Action action = getAction(initialRequest, initialAction, env, null);
