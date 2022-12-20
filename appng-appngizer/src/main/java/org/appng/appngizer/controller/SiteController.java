@@ -95,6 +95,11 @@ public class SiteController extends ControllerBase {
 		protected void setNodeId(String nodeId) {
 			super.setNodeId(nodeId + "_appNGizer");
 		}
+
+		@Override
+		protected boolean delayed() {
+			return false;
+		}
 	}
 
 	@PutMapping(value = "/site/{name}/reload")
