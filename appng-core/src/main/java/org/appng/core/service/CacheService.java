@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.cache.Cache;
@@ -70,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CacheService {
 
-	private static final String CACHE_USE_ENTRY_LISTENER = "cacheUseEntryListener";
+	static final String CACHE_USE_ENTRY_LISTENER = "cacheUseEntryListener";
 	public static final String PAGE_CACHE = "pageCache";
 	public static final String DASH = "-";
 	// hidden site property
@@ -116,10 +117,10 @@ public class CacheService {
 	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a cache instance
 	 * which already must exists.
 	 * 
-	 * @param site
-	 *             The {@link Site} to get the cache for
+	 * @param  site
+	 *              The {@link Site} to get the cache for
 	 * 
-	 * @return The {@link Cache} instance for the specified site.
+	 * @return      The {@link Cache} instance for the specified site.
 	 */
 	public static Cache<String, CachedResponse> getCache(Site site) {
 		return cacheManager.getCache(getCacheKey(site));
@@ -140,10 +141,10 @@ public class CacheService {
 	 * Returns the {@link Cache} instance for the selected {@link Site}. Use this method to retrieve a new cache
 	 * instance. Should be only used in {@link InitializerService}
 	 * 
-	 * @param site
-	 *             The site.
+	 * @param  site
+	 *              The site.
 	 * 
-	 * @return The {@link Cache} instance for the specified site.
+	 * @return      The {@link Cache} instance for the specified site.
 	 */
 	public synchronized static Cache<String, CachedResponse> createCache(Site site) {
 		String cacheKey = getCacheKey(site);
@@ -264,14 +265,14 @@ public class CacheService {
 	/**
 	 * Expires cache elements by path prefix
 	 * 
-	 * @param site
-	 *                           the {@link Site} to retrieve the cache for
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
+	 * @param      site
+	 *                                the {@link Site} to retrieve the cache for
+	 * @param      cacheElementPrefix
+	 *                                the prefix to use
 	 * 
-	 * @return always {@code 0}, as the execution is asynchronous
+	 * @return                        always {@code 0}, as the execution is asynchronous
 	 * 
-	 * @deprecated use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
+	 * @deprecated                    use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
 	 */
 	@Deprecated
 	public static int expireCacheElementsStartingWith(Site site, String cacheElementPrefix) {
@@ -282,14 +283,14 @@ public class CacheService {
 	/**
 	 * Expires cache elements by path prefix
 	 * 
-	 * @param cache
-	 *                           the cache to use
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
+	 * @param      cache
+	 *                                the cache to use
+	 * @param      cacheElementPrefix
+	 *                                the prefix to use
 	 * 
-	 * @return always {@code 0}, as the execution is asynchronous
+	 * @return                        always {@code 0}, as the execution is asynchronous
 	 * 
-	 * @deprecated Use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
+	 * @deprecated                    Use {@link #expireCacheElementsByPrefix(Cache, String)} instead.
 	 */
 	@Deprecated
 	public static int expireCacheElementsStartingWith(Cache<String, CachedResponse> cache, String cacheElementPrefix) {
@@ -300,12 +301,12 @@ public class CacheService {
 	/**
 	 * Expires cache elements by path prefix
 	 * 
-	 * @param cache
-	 *                           the cache to use
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
+	 * @param  cache
+	 *                            the cache to use
+	 * @param  cacheElementPrefix
+	 *                            the prefix to use
 	 * 
-	 * @return a {@link Future} holding the number of removed elements
+	 * @return                    a {@link Future} holding the number of removed elements
 	 */
 	public static Future<Integer> expireCacheElementsByPrefix(Cache<String, CachedResponse> cache,
 			String cacheElementPrefix) {
@@ -315,12 +316,12 @@ public class CacheService {
 	/**
 	 * Expires cache elements by path prefix
 	 * 
-	 * @param site
-	 *                           the {@link Site} to retrieve the cache for
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
+	 * @param  site
+	 *                            the {@link Site} to retrieve the cache for
+	 * @param  cacheElementPrefix
+	 *                            the prefix to use
 	 * 
-	 * @return a {@link Future} holding the number of removed elements
+	 * @return                    a {@link Future} holding the number of removed elements
 	 */
 	public static Future<Integer> expireCacheElementsByPrefix(Site site, String cacheElementPrefix) {
 		Cache<String, CachedResponse> cache = getCache(site);
@@ -331,7 +332,6 @@ public class CacheService {
 					.newSingleThreadExecutor(new BasicThreadFactory.Builder().namingPattern(cache.getName()).build());
 			Future<Integer> removedFuture = clearCache.submit(() -> {
 				final long start = System.currentTimeMillis();
-				int removed = 0;
 				int count = 0;
 				final String completePrefix = HttpMethod.GET.name() + cacheElementPrefix;
 
@@ -348,16 +348,17 @@ public class CacheService {
 					keys = listener.getKeys(completePrefix);
 				}
 
-				for (String key : keys) {
+				AtomicInteger removed = new AtomicInteger();
+				keys.parallelStream().forEach(key -> {
 					if (cache.remove(key)) {
 						LOGGER.debug("removed from cache: {}", key);
-						removed++;
+						removed.getAndIncrement();
 					}
-				}
+				});
 
 				LOGGER.info("removed {} cache elements for {} in {}ms (previous cache size: {})", removed,
 						cacheElementPrefix, System.currentTimeMillis() - start, count);
-				return removed;
+				return removed.get();
 			});
 			clearCache.shutdown();
 			return removedFuture;
@@ -365,17 +366,16 @@ public class CacheService {
 		return null;
 	}
 
-	private static CacheEntryListener getCacheEntryListener(Cache<String, CachedResponse> cache) {
-		CacheEntryListener listener = null;
-		@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
+	static CacheEntryListener getCacheEntryListener(Cache<String, CachedResponse> cache) {
 		CacheConfig<String, CachedResponse> configuration = (CacheConfig<String, CachedResponse>) cache
 				.getConfiguration(CacheConfig.class);
 		Iterator<CacheEntryListenerConfiguration<String, CachedResponse>> listenerConfigs = configuration
 				.getListenerConfigurations().iterator();
 		if (listenerConfigs.hasNext()) {
-			listener = (CacheEntryListener) listenerConfigs.next().getCacheEntryListenerFactory().create();
+			return (CacheEntryListener) listenerConfigs.next().getCacheEntryListenerFactory().create();
 		}
-		return listener;
+		return null;
 	}
 
 	private static Boolean useCacheEntryListener(Site site) {
