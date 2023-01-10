@@ -35,13 +35,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StopWatch;
 
-import com.hazelcast.core.Hazelcast;
-
 public class CacheServiceTest {
 
 	@Test
 	public void test() throws Exception {
-		CacheService.createCacheManager(Hazelcast.newHazelcastInstance(), false);
+		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null), false);
 		SiteImpl site = new SiteImpl();
 		site.setHost("appng");
 		PropertyHolder properties = new PropertyHolder("",
