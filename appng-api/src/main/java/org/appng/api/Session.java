@@ -35,6 +35,9 @@ public final class Session {
 
 	public static class Environment {
 
+		/** A list of the user's roles */
+		public static final String APPNG_ROLES = "appng-roles";
+
 		/**
 		 * The start time of the current session as unix-time, return type is {@code long}
 		 */

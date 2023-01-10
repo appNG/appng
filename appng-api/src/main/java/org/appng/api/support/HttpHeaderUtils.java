@@ -48,6 +48,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HttpHeaderUtils {
 
+	/** Use this header in your {@link HttpServletResponse} to allow role based access control for cached resources */
+	public static final String X_APPNG_REQUIRED_ROLE = "x-appng-required-role";
+
 	private static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	protected static final FastDateFormat HTTP_DATE = FastDateFormat.getInstance(HTTP_DATE_FORMAT,
 			TimeZone.getTimeZone("GMT"), Locale.ENGLISH);

@@ -21,8 +21,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -42,8 +44,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.ClientAbortException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Path;
+import org.appng.api.Scope;
+import org.appng.api.Session;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
@@ -138,13 +143,16 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					throw new ServletException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
-				long lastModified = cachedResponse.getHeaders().getLastModified();
-				boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
-
-				if (hasModifiedSince && lastModified > 0) {
-					handleLastModified(request, response, cachedResponse, lastModified);
+				if (cachedResponse.getStatus().is4xxClientError()) {
+					response.setStatus(cachedResponse.getStatus().value());
 				} else {
-					writeResponse(request, response, cachedResponse);
+					long lastModified = cachedResponse.getHeaders().getLastModified();
+					boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
+					if (hasModifiedSince && lastModified > 0) {
+						handleLastModified(request, response, cachedResponse, lastModified);
+					} else {
+						writeResponse(request, response, cachedResponse);
+					}
 				}
 				return cachedResponse;
 			}
@@ -189,7 +197,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	private void writeCachedHeaders(HttpServletResponse response, CachedResponse pageInfo) {
-		pageInfo.getHeaders().forEach((n, vs) -> vs.forEach(v -> response.setHeader(n, v)));
+		pageInfo.getHeaders().entrySet().stream().filter(e -> !e.getKey().equals(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE))
+				.forEach(e -> e.getValue().forEach(v -> response.setHeader(e.getKey(), v)));
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
@@ -247,6 +256,29 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				LOGGER.debug("Response has status: {}, size: {} for key {}", cachedResponse.getStatus(), size, key);
 			}
 		} else {
+			HttpStatus status = cachedResponse.getStatus();
+			List<String> requiredRoles = cachedResponse.getHeaders().get(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE);
+			if (null != requiredRoles) {
+				List<String> roles = EnvironmentFilter.environment().getAttribute(Scope.SESSION,
+						Session.Environment.APPNG_ROLES);
+				if (null != roles) {
+					if (!roles.containsAll(requiredRoles)) {
+						Collection<String> missing = CollectionUtils.subtract(requiredRoles, roles);
+						LOGGER.debug("Resource requires role(s) [{}], missing role(s) [{}].",
+								StringUtils.join(requiredRoles, ", "), StringUtils.join(missing, ", "));
+						status = HttpStatus.FORBIDDEN;
+					}
+				} else {
+					LOGGER.debug("Resource requires role(s) [{}], but no roles where found.",
+							StringUtils.join(requiredRoles, ", "));
+					status = HttpStatus.UNAUTHORIZED;
+				}
+				if (status.is4xxClientError()) {
+					return new CachedResponse(cachedResponse.getId(), site, request, status.value(), null, new byte[0],
+							null, 0);
+				}
+			}
+
 			cacheHit = true;
 			long hits = cachedResponse.incrementHit();
 			if (site.getProperties().getBoolean("cacheHitStats", false)) {
