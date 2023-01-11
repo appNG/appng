@@ -91,6 +91,9 @@ public class DatabaseServiceTest extends TestInitializer {
 			switch (connection.getType()) {
 			case HSQL:
 				Assert.assertTrue(connection.isActive());
+				connection.testConnection(new StringBuilder());
+				Assert.assertEquals("HSQL Database Engine", connection.getProductName());
+				Assert.assertEquals("2.5.0", connection.getProductVersion());
 				break;
 			default:
 				Assert.assertFalse(connection.isActive());

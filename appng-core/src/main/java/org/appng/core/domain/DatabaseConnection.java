@@ -49,7 +49,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.ValidationMessages;
 import org.appng.api.model.Site;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -64,7 +63,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Müller
  * 
- * @see SiteApplication#getDatabaseConnection()
+ * @see    SiteApplication#getDatabaseConnection()
  */
 @Slf4j
 @Entity
@@ -88,6 +87,7 @@ public class DatabaseConnection implements Auditable<Integer> {
 			MYSQL_DATASOURCE = MARIADB_DATASOURCE;
 			MYSQL_DRIVER = MARIADB_DRIVER;
 			MYSQL_URL = MARIADB_URL;
+			LOGGER.info("Found {} in classpath, using {}", MARIADB_DATASOURCE, MARIADB_DRIVER);
 		}
 	}
 
@@ -186,6 +186,8 @@ public class DatabaseConnection implements Auditable<Integer> {
 	private String validationQuery;
 	private Integer validationPeriod;
 	private Double databaseSize;
+	private String productName;
+	private String productVersion;
 
 	private MigrationInfoService migrationInfoService;
 
@@ -393,17 +395,14 @@ public class DatabaseConnection implements Auditable<Integer> {
 	}
 
 	public boolean testConnection(StringBuilder dbInfo, boolean determineSize) {
-		ConnectionCallback<Void> infoCallback = new ConnectionCallback<Void>() {
-			public Void doInConnection(Connection con) throws SQLException, DataAccessException {
-				if (null != dbInfo) {
-					DatabaseMetaData metaData = con.getMetaData();
-					dbInfo.append(metaData.getDatabaseProductName() + StringUtils.SPACE
-							+ metaData.getDatabaseProductVersion());
-				}
-				return null;
+		return testConnection(determineSize, con -> {
+			if (null != dbInfo) {
+				DatabaseMetaData metaData = con.getMetaData();
+				dbInfo.append(
+						metaData.getDatabaseProductName() + StringUtils.SPACE + metaData.getDatabaseProductVersion());
 			}
-		};
-		return testConnection(determineSize, infoCallback);
+			return null;
+		});
 	}
 
 	public boolean testConnection(boolean determineSize, ConnectionCallback<?>... callbacks) {
@@ -426,6 +425,10 @@ public class DatabaseConnection implements Auditable<Integer> {
 						}
 					});
 				}
+			}
+			try (Connection con = jdbcTemplate.getDataSource().getConnection()) {
+				this.productName = con.getMetaData().getDatabaseProductName();
+				this.productVersion = con.getMetaData().getDatabaseProductVersion();
 			}
 			return true;
 		} catch (Exception e) {
@@ -488,6 +491,16 @@ public class DatabaseConnection implements Auditable<Integer> {
 
 	public void setDatabaseSize(Double databaseSize) {
 		this.databaseSize = databaseSize;
+	}
+
+	@Transient
+	public String getProductName() {
+		return productName;
+	}
+
+	@Transient
+	public String getProductVersion() {
+		return productVersion;
 	}
 
 	@Override
