@@ -70,7 +70,7 @@
 								<meta-data bindClass="org.appng.testapplication.TestEntity">
 									<field name="id" type="int" format="#" hidden="true" binding="id">
 										<label id="id">ID</label>
-										<condition expression="true" />
+										<condition expression="${1==1}" />
 									</field>
 									<field name="name" type="text" readonly="true" hidden="true" binding="name">
 										<sort order="asc" prio="0" />
