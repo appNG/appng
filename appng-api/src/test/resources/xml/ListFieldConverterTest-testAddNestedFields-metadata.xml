@@ -7,10 +7,10 @@
             </field>
         </field>
         <field name="name" type="text" binding="offsprings[0].name">
-            <condition expression="false"/>
+            <condition expression="${1 &gt; 2}"/>
         </field>
         <field name="name" type="text" binding="offsprings[0].name">
-            <condition expression="true"/>
+            <condition expression="${2 &gt; 1}"/>
         </field>
     </field>
     <field name="offsprings[1]" type="object" binding="offsprings[1]">
@@ -20,10 +20,10 @@
             </field>
         </field>
         <field name="name" type="text" binding="offsprings[1].name">
-            <condition expression="false"/>
+            <condition expression="${1 &gt; 2}"/>
         </field>
         <field name="name" type="text" binding="offsprings[1].name">
-            <condition expression="true"/>
+            <condition expression="${2 &gt; 1}"/>
         </field>
     </field>
 </metaData>

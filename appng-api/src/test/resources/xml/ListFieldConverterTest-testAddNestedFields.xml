@@ -8,7 +8,7 @@
 				</field>
 			</field>
 			<field name="name" type="text" binding="offsprings[].name">
-				<condition expression="${1 > 2 }" />
+				<condition expression="${1 > 2}" />
 			</field>
 			<field name="name" type="text" binding="offsprings[].name">
 				<condition expression="${2 > 1}" />

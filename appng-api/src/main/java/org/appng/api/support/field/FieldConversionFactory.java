@@ -38,8 +38,8 @@ import org.springframework.core.convert.ConversionService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link FieldConverter} encapsulating all the other {@link FieldConverter}s, thus providing the ability to convert
- * any {@link FieldType}.
+ * A {@link FieldConverter} encapsulating all the other {@link FieldConverter}s,
+ * thus providing the ability to convert any {@link FieldType}.
  * 
  * @author Matthias Müller
  */
@@ -75,7 +75,7 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 		boolean addField = true;
 		if (condition != null) {
 			addField = ElementHelper.conditionMatches(expressionEvaluator, condition);
-			condition.setExpression(String.valueOf(addField));
+//			condition.setExpression(String.valueOf(addField));
 		}
 
 		fieldWrapper.setReadonly(expressionEvaluator.getString(fieldWrapper.getReadonly()));

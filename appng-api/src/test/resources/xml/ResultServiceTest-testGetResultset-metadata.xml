@@ -10,10 +10,10 @@
     <field binding="size" format="#.##" type="decimal" name="size"/>
     <field binding="savings" format="###,###.###" type="decimal" name="savings"/>
     <field binding="age" type="long" name="age">
-        <condition expression="false"/>
+        <condition expression="${1 eq 2}"/>
     </field>
     <field binding="offsprings" type="list:select" name="offsprings">
-        <condition expression="false"/>
+        <condition expression="${not empty current.offsprings}"/>
     </field>
     <field binding="integerList" type="list:checkbox" name="integerList"/>
     <field binding="picture" type="file" name="picture"/>
