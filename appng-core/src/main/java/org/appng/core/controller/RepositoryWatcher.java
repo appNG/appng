@@ -43,9 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- * A service that watches for modified/deleted files in a {@link Site}'s
- * www-directory (see {@link SiteProperties#WWW_DIR}) using a
- * {@link WatchService}.
+ * A service that watches for modified/deleted files in a {@link Site}'s www-directory (see
+ * {@link SiteProperties#WWW_DIR}) using a {@link WatchService}.
  * </p>
  * If caching for the site is active (see {@link SiteProperties#CACHE_ENABLED}), cache entries for the modified/deleted
  * files are removed from the cache. Since there could be some forwarding rules defined in the site's
@@ -88,20 +87,18 @@ public class RepositoryWatcher implements Runnable {
 	RepositoryWatcher() {
 	}
 
-	void init(Site site, String wwwDir, File configFile, String ruleSourceSuffix,
-			List<String> documentDirs) throws Exception {
+	void init(Site site, String wwwDir, File configFile, String ruleSourceSuffix, List<String> documentDirs)
+			throws Exception {
 		this.site = site;
 		this.watcher = FileSystems.getDefault().newWatchService();
 		this.wwwDir = FilenameUtils.normalize(wwwDir, true);
 		this.configFile = configFile;
 		this.ruleSourceSuffix = ruleSourceSuffix;
-		readUrlRewrites(configFile);
+		readUrlRewrites();
 		watch(configFile.getParentFile());
-
 		for (String docDir : documentDirs) {
 			watch(new File(wwwDir, docDir));
 		}
-
 	}
 
 	private void watch(File file) throws IOException {
@@ -133,7 +130,7 @@ public class RepositoryWatcher implements Runnable {
 					File absoluteFile = new File(eventPath.toFile(), String.valueOf(event.context()));
 					LOGGER.info("({}) received {} for {}", key.watchable(), event.kind(), event.context());
 					if (absoluteFile.equals(configFile)) {
-						readUrlRewrites(absoluteFile);
+						readUrlRewrites();
 					} else {
 						String absolutePath = FilenameUtils.normalize(absoluteFile.getPath(), true);
 						String relativePathName = absolutePath.substring(wwwDir.length());
@@ -164,32 +161,36 @@ public class RepositoryWatcher implements Runnable {
 		return needsToBeWatched;
 	}
 
-	private void readUrlRewrites(File configFile) {
+	private void readUrlRewrites() {
 		forwardMap = new HashMap<>();
 		if (configFile.exists()) {
-			try {
-				Document parseconfigFile = RedirectFilter.parseConfig(configFile.toURI().toURL());
-				XPathProcessor xPathProcessor = new XPathProcessor(parseconfigFile);
-				NodeList forwardRules = xPathProcessor.getNodes(XPATH_FORWARD_RULE);
-				for (int i = 0; i < forwardRules.getLength(); i++) {
-					org.w3c.dom.Element rule = (org.w3c.dom.Element) forwardRules.item(i);
-					String from = rule.getElementsByTagName("from").item(0).getTextContent();
-					from = from.replace("^", StringUtils.EMPTY).replace("$", StringUtils.EMPTY);
-					from = from.replace(ruleSourceSuffix, StringUtils.EMPTY);
-					String to = rule.getElementsByTagName("to").item(0).getTextContent();
-					if (to.contains(jspExtension)) {
-						to = to.substring(0, to.indexOf(jspExtension));
+			if (configFile.canRead()) {
+				try {
+					Document parseconfigFile = RedirectFilter.parseConfig(configFile.toURI().toURL());
+					XPathProcessor xPathProcessor = new XPathProcessor(parseconfigFile);
+					NodeList forwardRules = xPathProcessor.getNodes(XPATH_FORWARD_RULE);
+					for (int i = 0; i < forwardRules.getLength(); i++) {
+						org.w3c.dom.Element rule = (org.w3c.dom.Element) forwardRules.item(i);
+						String from = rule.getElementsByTagName("from").item(0).getTextContent();
+						from = from.replace("^", StringUtils.EMPTY).replace("$", StringUtils.EMPTY);
+						from = from.replace(ruleSourceSuffix, StringUtils.EMPTY);
+						String to = rule.getElementsByTagName("to").item(0).getTextContent();
+						if (to.contains(jspExtension)) {
+							to = to.substring(0, to.indexOf(jspExtension));
+						}
+						if (!forwardMap.containsKey(to)) {
+							forwardMap.put(to, new ArrayList<>());
+						}
+						forwardMap.get(to).add(from);
 					}
-					if (!forwardMap.containsKey(to)) {
-						forwardMap.put(to, new ArrayList<>());
-					}
-					forwardMap.get(to).add(from);
+					LOGGER.info("{} has been read, {} forward rules have been processed", configFile.getAbsolutePath(),
+							forwardRules.getLength());
+					forwardsUpdatedAt = System.currentTimeMillis();
+				} catch (Exception e) {
+					LOGGER.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
 				}
-				LOGGER.info("{} has been read, {} forward rules have been processed", configFile.getAbsolutePath(),
-						forwardRules.getLength());
-				forwardsUpdatedAt = System.currentTimeMillis();
-			} catch (Exception e) {
-				LOGGER.error(String.format("error reading %s", configFile.getAbsolutePath()), e);
+			} else {
+				LOGGER.warn("Can not read {}, please check file permissions!", configFile.getAbsolutePath());
 			}
 		} else {
 			LOGGER.info("config file for reading rewrite rules does not exist: {}", configFile.getAbsolutePath());

@@ -219,20 +219,25 @@ public class RedirectFilter extends UrlRewriteFilter {
 			if (reload) {
 				File confFile = getConfFile(site);
 				if (confFile.exists()) {
-					try (FileInputStream is = new FileInputStream(confFile)) {
-						UrlRewriteConfig conf = new UrlRewriteConfig(is, confFile.getName(), confFile.toURI().toURL());
-						checkConf(conf);
-						if (conf.isOk()) {
-							CachedUrlRewriter cachedUrlRewriter = new CachedUrlRewriter(conf, site.getDomain(),
-									jspType);
-							REWRITERS.put(siteName, cachedUrlRewriter);
-							LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, confFile,
-									conf.getRules().size());
-						} else {
-							LOGGER.warn("invalid config-file for site '{}': {}", siteName, confFile);
+					if (confFile.canRead()) {
+						try (FileInputStream is = new FileInputStream(confFile)) {
+							UrlRewriteConfig conf = new UrlRewriteConfig(is, confFile.getName(),
+									confFile.toURI().toURL());
+							checkConf(conf);
+							if (conf.isOk()) {
+								CachedUrlRewriter cachedUrlRewriter = new CachedUrlRewriter(conf, site.getDomain(),
+										jspType);
+								REWRITERS.put(siteName, cachedUrlRewriter);
+								LOGGER.debug("reloaded config for site {} from {}, {} rules found", siteName, confFile,
+										conf.getRules().size());
+							} else {
+								LOGGER.warn("invalid config-file for site '{}': {}", siteName, confFile);
+							}
+						} catch (IOException | SAXException | ParserConfigurationException e) {
+							LOGGER.error("error processing {}", confFile);
 						}
-					} catch (IOException | SAXException | ParserConfigurationException e) {
-						LOGGER.error("error processing {}", confFile);
+					} else {						
+						LOGGER.warn("Can not read {}, please check file permissions!", confFile.getAbsolutePath());
 					}
 				} else {
 					LOGGER.debug("Configuration file does not exist: {}", confFile);
