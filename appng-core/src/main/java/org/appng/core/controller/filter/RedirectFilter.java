@@ -236,7 +236,7 @@ public class RedirectFilter extends UrlRewriteFilter {
 						} catch (IOException | SAXException | ParserConfigurationException e) {
 							LOGGER.error("error processing {}", confFile);
 						}
-					} else {						
+					} else {
 						LOGGER.warn("Can not read {}, please check file permissions!", confFile.getAbsolutePath());
 					}
 				} else {
