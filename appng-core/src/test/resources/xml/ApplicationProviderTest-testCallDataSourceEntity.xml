@@ -12,7 +12,7 @@
 		<meta-data bindClass="org.appng.testapplication.TestEntity">
 			<field name="id" type="int" format="#" readonly="true" hidden="true" binding="id">
 				<label id="id">ID</label>
-				<condition expression="${1==1}" />
+				<condition expression="true" />
 			</field>
 			<field name="name" type="text" binding="name">
 				<label id="name">Name</label>
