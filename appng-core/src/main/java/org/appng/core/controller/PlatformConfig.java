@@ -104,7 +104,7 @@ public class PlatformConfig {
 			@Value("${database.type}") String type,
 			@Value("${database.minConnections:3}") Integer minConnections,
 			@Value("${database.maxConnections:10}") Integer maxConnections,
-			@Value("${database.maxLifetime:90000}") Integer maxLifetime,
+			@Value("${database.maxLifetime:900000}") Integer maxLifetime,
 			@Value("${database.validationQuery:}") String validationQuery,
 			@Value("${database.validationPeriod:}") Integer validationPeriod,
 			@Value("${database.validationTimeout:5000}") Integer validationTimeout,
