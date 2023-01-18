@@ -52,7 +52,7 @@ public class ReloadSiteEvent extends SiteEvent {
 				Properties nodeConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG);
 				Integer delay = nodeConfig.getInteger(Platform.Property.SITE_RELOAD_DELAY, 0);
 				if (delay > 0) {
-					logger.info("Waiting %s before reloading site %s on node %s", delay, siteByName.getName(),
+					logger.info("Waiting {}s before reloading site {} on node {}", delay, siteByName.getName(),
 							org.appng.api.messaging.Messaging.getNodeId(env));
 					try {
 						Thread.sleep(TimeUnit.SECONDS.toMillis(delay));
