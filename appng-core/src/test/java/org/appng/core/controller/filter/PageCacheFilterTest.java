@@ -136,12 +136,12 @@ public class PageCacheFilterTest {
 		Assert.assertEquals(HttpStatus.UNAUTHORIZED, unauthorizde.getStatus());
 
 		// test insufficient roles
-		env.setAttribute(Scope.SESSION, Session.Environment.APPNG_ROLES, Arrays.asList("viewer"));
+		env.setAttribute(Scope.SESSION, Session.Environment.APPNG_ROLES, Arrays.asList("notallowed"));
 		CachedResponse insufficient = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
 		Assert.assertEquals(HttpStatus.FORBIDDEN, insufficient.getStatus());
 
 		// test hit
-		env.setAttribute(Scope.SESSION, Session.Environment.APPNG_ROLES, Arrays.asList("user", "viewer"));
+		env.setAttribute(Scope.SESSION, Session.Environment.APPNG_ROLES, Arrays.asList("user"));
 		CachedResponse cacheHit = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
 		Assert.assertEquals(pageInfo, cacheHit);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));

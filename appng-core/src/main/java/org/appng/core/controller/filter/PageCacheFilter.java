@@ -262,14 +262,18 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				List<String> roles = EnvironmentFilter.environment().getAttribute(Scope.SESSION,
 						Session.Environment.APPNG_ROLES);
 				if (null != roles) {
-					if (!roles.containsAll(requiredRoles)) {
-						Collection<String> missing = CollectionUtils.subtract(requiredRoles, roles);
-						LOGGER.debug("Resource requires role(s) [{}], missing role(s) [{}].",
-								StringUtils.join(requiredRoles, ", "), StringUtils.join(missing, ", "));
+					Collection<String> matchedRoles = CollectionUtils.intersection(requiredRoles, roles);
+					if (matchedRoles.isEmpty()) {
+						LOGGER.debug("Resource required one of the role(s) [{}], none of the current role(s) [{}] did match!",
+								StringUtils.join(requiredRoles, ", "), StringUtils.join(roles, ", "));
 						status = HttpStatus.FORBIDDEN;
+					} else {
+						LOGGER.debug("Resource required one of the role(s) [{}], current role(s) [{}], matched [{}].",
+								StringUtils.join(requiredRoles, ", "), StringUtils.join(roles, ", "),
+								StringUtils.join(matchedRoles, ", "));
 					}
 				} else {
-					LOGGER.debug("Resource requires role(s) [{}], but no roles where found.",
+					LOGGER.debug("Resource required one of the role(s) [{}], but no roles where found.",
 							StringUtils.join(requiredRoles, ", "));
 					status = HttpStatus.UNAUTHORIZED;
 				}
