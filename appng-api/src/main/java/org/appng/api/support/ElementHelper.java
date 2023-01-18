@@ -471,7 +471,7 @@ public class ElementHelper {
 	/**
 	 * Returns the messages for the current session.
 	 * 
-	 * @return             the messages for the current session, if any
+	 * @return the messages for the current session, if any
 	 */
 	public Messages removeMessages() {
 		return removeMessagesInternal(environment);
@@ -500,7 +500,7 @@ public class ElementHelper {
 	/**
 	 * Returns the messages for the current session.
 	 * 
-	 * @return             the messages for the current session, if any
+	 * @return the messages for the current session, if any
 	 */
 	public Messages getMessages() {
 		return getMessagesInternal(environment);
@@ -558,6 +558,7 @@ public class ElementHelper {
 			Object item = container.getItem();
 			verifyItemType(fieldProcessor.getMetaData(), item, callerName);
 			Result result = resultService.getResult(fieldProcessor, item);
+			evaluateActionFieldConditions(fieldProcessor.getFields());
 			data.setResult(result);
 		} else {
 			Resultset resultset = null;
@@ -577,6 +578,17 @@ public class ElementHelper {
 				verifyItemType(fieldProcessor.getMetaData(), items.iterator().next(), callerName);
 			}
 			data.setResultset(resultset);
+		}
+	}
+
+	private void evaluateActionFieldConditions(List<FieldDef> fields) {
+		// for actions, FE doesn't like ${..} in expressions, these must be 'true' or 'false'
+		for (FieldDef fieldDef : fields) {
+			Condition condition = fieldDef.getCondition();
+			if (null != condition && StringUtils.isNotBlank(condition.getExpression())) {
+				condition.setExpression(expressionEvaluator.getString(condition.getExpression()));
+			}
+			evaluateActionFieldConditions(fieldDef.getFields());
 		}
 	}
 
