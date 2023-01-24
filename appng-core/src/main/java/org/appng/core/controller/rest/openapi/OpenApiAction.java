@@ -492,7 +492,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 				params.getParam().forEach(originalParam -> {
 					String name = originalParam.getName();
 					String value = receivedData.getParameters().get(name);
-					if (null != value) {
+					if (null != value && !formRequest.getParameterList(name).contains(value)) {
 						formRequest.addParameter(name, value);
 					}
 
