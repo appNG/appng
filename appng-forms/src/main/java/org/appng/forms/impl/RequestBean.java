@@ -270,10 +270,9 @@ public class RequestBean implements Request {
 	public void addParameters(String key, List<String> values) {
 		if (!parameters.containsKey(key)) {
 			parameters.put(key, Collections.unmodifiableList(values));
-			LOGGER.debug("adding parameter {}:{}", key, values);
+			LOGGER.debug("adding {} new value(s) for parameter '{}'", values.size(), key);
 		} else {
-			LOGGER.warn("parameter {} is alread present with value {}, tried to add {}", key, parameters.get(key),
-					values);
+			LOGGER.warn("parameter '{}' is alread present , not adding {} new value(s)", key, values.size());
 		}
 	}
 
