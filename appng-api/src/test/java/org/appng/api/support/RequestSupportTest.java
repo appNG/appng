@@ -35,6 +35,9 @@ import org.appng.api.FieldWrapper;
 import org.appng.api.MetaDataProvider;
 import org.appng.api.Person;
 import org.appng.api.Request;
+import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
+import org.appng.api.model.Site;
 import org.appng.api.support.validation.DefaultValidationProvider;
 import org.appng.el.ExpressionEvaluator;
 import org.appng.forms.FormUpload;
@@ -63,10 +66,28 @@ public class RequestSupportTest extends RequestSupportImpl {
 	private Request request;
 	@Mock
 	private Environment env;
+
+	@Mock
+	private Application mockApp;
+
+	@Mock
+	private Site mockSite;
+
+	@Mock
+	private Properties properties;
+
 	private static ExpressionEvaluator params = new ExpressionEvaluator(new HashMap<>());
 
 	final @Before public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
+		Mockito.when(mockSite.getProperties()).thenReturn(properties);
+		Mockito.when(mockApp.getProperties()).thenReturn(properties);
+		java.util.Properties props = new java.util.Properties();
+		props.put("foo", 42);
+		Mockito.when(properties.getPlainProperties()).thenReturn(props);
+
+		this.application = mockApp;
+		this.site = mockSite;
 		ConversionServiceFactoryBean conversionServiceFactoryBean = new ConversionServiceFactoryBean();
 		conversionServiceFactoryBean.afterPropertiesSet();
 		ConversionService conversionService = conversionServiceFactoryBean.getObject();
@@ -351,8 +372,8 @@ public class RequestSupportTest extends RequestSupportImpl {
 		List<FieldDef> fields = metaData.getFields();
 		fields.add(MetaDataProvider.getField("firstname", FieldType.TEXT));
 		fields.add(MetaDataProvider.getField("name", FieldType.TEXT));
-		fields.add(MetaDataProvider.getField("savings", FieldType.DECIMAL, "${current.savings > 1000}"));
-		fields.add(MetaDataProvider.getField("size", FieldType.DECIMAL, "${current.size > 1.8}"));
+		fields.add(MetaDataProvider.getField("savings", FieldType.DECIMAL, "${current.savings > 1000 and SITE.foo eq 42}"));
+		fields.add(MetaDataProvider.getField("size", FieldType.DECIMAL, "${current.size > 1.8 and APP.foo ge 42}"));
 
 		Person p2 = new Person();
 		setPropertyValues(p1, p2, metaData);

@@ -1,0 +1,35 @@
+=== appNGizer setup
+
+==== Shared secret
+
+REST clients that use appNGizer must establish a session. This is done by sending a `sharedSecret` via POST request to the <<login,login URL>>. A successful login response will contain a session cookie, that the client must accept and provide in all subsequent requests.
+
+The `sharedSecret` will be preset to a default value during the first start of the appNG platform. If the manager application is installed, administrators can look up the value in the `Platform properties` tab.
+
+In headless installations an individual value can be set with the appNG CLI.
+[source,shell]
+----
+% ./appng update-property -n platform.sharedSecret -v <sharedSecret>
+----
+
+==== Login
+
+*URL:* http://localhost:8080/appNGizer/
+
+*Method:* POST
+
+IMPORTANT: The tailing slash is mandatory otherwise the request gets redirected as GET request to that location and the authentication procedure is not performed!
+
+IMPORTANT: The login request is the only one, that must be sent with `Content-Type=text/xml`. All other *PUT* and *POST* requests have to use the header `Content-Type=text/xml`.
+
+*Request Body:* (plain text format!)
+[source,text,indent=0]
+----
+<sharedSecret>
+----
+
+*Response Body:*
+[source,xml,indent=0]
+----
+include::../xml/home_response.xml[]
+----

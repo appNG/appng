@@ -40,6 +40,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;

@@ -212,6 +212,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 
 	private static final String SITE_SERVICE_PATH = "/service";
 
+	private static String PLATFORM_PREFIX = "platform.";
+
 	@Autowired
 	protected ServletContext servletContext;
 
@@ -477,9 +479,8 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 	}
 
 	protected void initEnvironment() {
-		ConcurrentHashMap<String, Object> platformEnv = new ConcurrentHashMap<>();
-		List<Property> platformProperties = getPlatformProperties("platform.");
-		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, new PropertyHolder("platform.", platformProperties));
+		Map<String, Object> platformEnv = new ConcurrentHashMap<>();
+		platformEnv.put(Platform.Environment.PLATFORM_CONFIG, getPlatformConfig());
 
 		mockSite(null);
 		Map<String, Site> sites = new HashMap<>();
@@ -506,19 +507,50 @@ public class TestBase implements ApplicationContextInitializer<GenericApplicatio
 		return siteProperties;
 	}
 
+	/**
+	 * Returns a list of the platform's essential {@link Property}s.
+	 * 
+	 * @param prefix
+	 *               the prefix to use
+	 * 
+	 * @return a list of the platform's {@link Property}s
+	 * 
+	 * @deprecated use {@link #getPlatformProperties()}
+	 */
+	@Deprecated
 	protected List<Property> getPlatformProperties(String prefix) {
-		List<Property> platformProperties = new ArrayList<>();
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.VHOST_MODE, VHostMode.NAME_BASED.name()));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.LOCALE, "en"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.TIME_ZONE, "Europe/Berlin"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.PLATFORM_ROOT_PATH, "target/ROOT"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.CACHE_FOLDER, "cache"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.APPLICATION_CACHE_FOLDER, "application"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.PLATFORM_CACHE_FOLDER, "platform"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.UPLOAD_DIR, "/target/uploads"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.MAX_UPLOAD_SIZE, "10485760"));
-		platformProperties.add(new SimpleProperty(prefix + Platform.Property.XSS_PROTECT, "false"));
-		return platformProperties;
+		return getPlatformProperties();
+	}
+
+	/**
+	 * Returns a list of the platform's essential {@link Property}s.
+	 * 
+	 * @return a list of the platform's {@link Property}s
+	 */
+	protected static List<Property> getPlatformProperties() {
+		List<Property> props = new ArrayList<>();
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.VHOST_MODE, VHostMode.NAME_BASED.name()));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.LOCALE, "en"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.TIME_ZONE, "Europe/Berlin"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.PLATFORM_ROOT_PATH, "target/ROOT"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.CACHE_FOLDER, "cache"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.APPLICATION_CACHE_FOLDER, "application"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.PLATFORM_CACHE_FOLDER, "platform"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.UPLOAD_DIR, "target/uploads"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.APPNG_DATA, "."));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.MAX_UPLOAD_SIZE, "10485760"));
+		props.add(new SimpleProperty(PLATFORM_PREFIX + Platform.Property.XSS_PROTECT, "false"));
+		return props;
+	}
+
+	/**
+	 * Returns the platform's {@link org.appng.api.model.Properties}.
+	 * 
+	 * @return the platform's {@link org.appng.api.model.Properties}
+	 */
+	public static org.appng.api.model.Properties getPlatformConfig() {
+		List<Property> platformProperties = getPlatformProperties();
+		return new PropertyHolder(PLATFORM_PREFIX, platformProperties);
 	}
 
 	public void validate(BaseObject object) throws IOException {

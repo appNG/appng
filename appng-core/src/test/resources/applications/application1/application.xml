@@ -15,6 +15,8 @@
 			<description>Administrator with all permissions</description>
 			<permission id="output-format.html" />
 			<permission id="output-type.webgui" />
+			<permission id="create.entity"/>
+			<permission id="update.entity"/>
 		</role>
 		<role>
 			<name>Debugger</name>
@@ -27,7 +29,8 @@
 		<permission id="debug">debug view</permission>
 		<permission id="output-format.html">HTML Format</permission>
 		<permission id="output-type.webgui">Web-GUI type</permission>
-
+		<permission id="create.entity">Create an entity</permission>
+		<permission id="update.entity">Update an entity</permission>
 	</permissions>
 
 	<properties>

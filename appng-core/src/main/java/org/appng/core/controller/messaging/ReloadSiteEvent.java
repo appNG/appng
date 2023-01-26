@@ -15,9 +15,14 @@
  */
 package org.appng.core.controller.messaging;
 
+import java.util.concurrent.TimeUnit;
+
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
+import org.appng.api.Platform;
+import org.appng.api.Scope;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.core.domain.SiteImpl;
@@ -37,16 +42,32 @@ public class ReloadSiteEvent extends SiteEvent {
 		super(siteName, targetNode);
 	}
 
-	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
+	public void perform(Environment env, Site site) throws InvalidConfigurationException {
 		Logger logger = LoggerFactory.getLogger(ReloadSiteEvent.class);
-		if (isTargetNode(environment)) {
+		if (isTargetNode(env)) {
 			logger.info("about to start site: {}", getSiteName());
-			SiteImpl siteByName = getPlatformContext(environment).getBean(CoreService.class)
-					.getSiteByName(getSiteName());
+			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
 			FieldProcessor fp = new FieldProcessorImpl("start");
-			getInitializerService(environment).loadSite(siteByName, environment, false, fp, false);
+			if (delayed()) {
+				Properties nodeConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG);
+				Integer delay = nodeConfig.getInteger(Platform.Property.SITE_RELOAD_DELAY, 0);
+				if (delay > 0) {
+					logger.info("Waiting {}s before reloading site {} on node {}", delay, siteByName.getName(),
+							org.appng.api.messaging.Messaging.getNodeId(env));
+					try {
+						Thread.sleep(TimeUnit.SECONDS.toMillis(delay));
+					} catch (InterruptedException e) {
+						//
+					}
+				}
+			}
+			getInitializerService(env).loadSite(siteByName, env, false, fp, false);
 		} else {
 			logIgnoreMessage(logger);
 		}
+	}
+
+	protected boolean delayed() {
+		return true;
 	}
 }

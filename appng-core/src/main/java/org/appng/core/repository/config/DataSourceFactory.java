@@ -21,7 +21,6 @@ import org.appng.core.domain.DatabaseConnection;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,12 +34,12 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 
 	private DatasourceConfigurer configurer;
 
-	private @Getter @Setter String configurerClass;
+	private @Setter String configurerClass;
 	private @Setter boolean autoCommit = false;
-	private @Getter @Setter boolean logPerformance = false;
-	private @Getter @Setter long connectionTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
-	private @Setter long validationTimeout = DatasourceConfigurer.DEFAULT_LIFE_TIME;
-	private @Setter long maxLifetime = DatasourceConfigurer.DEFAULT_LIFE_TIME;
+	private @Setter boolean logPerformance = false;
+	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
+	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
+	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
 
 	public DataSourceFactory() {
 

@@ -26,10 +26,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Request;
-import org.appng.api.RequestUtil;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.ValidationProvider;
+import org.appng.api.model.Application;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
@@ -39,7 +39,6 @@ import org.appng.forms.XSSUtil;
 import org.appng.forms.impl.RequestBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.convert.ConversionService;
 
@@ -59,13 +58,17 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 	private ConversionService conversionService;
 	private HttpServletRequest httpServletRequest;
 	private ApplicationRequest request;
+	private Site site;
+	private Application application;
 
 	RequestFactoryBean() {
 	}
 
-	public RequestFactoryBean(HttpServletRequest httpServletRequest, Environment environment,
-			ConversionService conversionService, MessageSource messageSource) {
+	public RequestFactoryBean(HttpServletRequest httpServletRequest, Environment environment, Site site,
+			Application app, ConversionService conversionService, MessageSource messageSource) {
 		this.request = new ApplicationRequest();
+		this.site = site;
+		this.application = app;
 		this.httpServletRequest = httpServletRequest;
 		this.environment = environment;
 		this.conversionService = conversionService;
@@ -78,6 +81,8 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 
 	public void afterPropertiesSet() {
 		RequestSupportImpl requestSupport = new RequestSupportImpl(conversionService, environment, messageSource);
+		requestSupport.setSite(site);
+		requestSupport.setApplication(application);
 		requestSupport.afterPropertiesSet();
 		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		boolean isPlatformPresent = null != platformProperties;
@@ -95,13 +100,11 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 				Integer maxUploadSize = platformProperties.getInteger(Platform.Property.MAX_UPLOAD_SIZE);
 				File uploadDir = getUploadDir(platformProperties);
 				if (!uploadDir.exists()) {
-					LOGGER.warn("invalid value for platform property '{}', folder '{}' does not exist!",
-							Platform.Property.UPLOAD_DIR, uploadDir);
+					uploadDir.mkdirs();
 				} else {
 					formRequest.setTempDir(uploadDir);
 				}
 				formRequest.setMaxSize(maxUploadSize);
-				Site site = RequestUtil.getSite(environment, httpServletRequest);
 				if (null != site) {
 					String xssExceptions = site.getProperties().getClob(SiteProperties.XSS_EXCEPTIONS);
 					String[] exceptions = StringUtils.isNotBlank(xssExceptions) ? xssExceptions.split(StringUtils.LF)
@@ -126,7 +129,7 @@ public class RequestFactoryBean implements FactoryBean<Request>, InitializingBea
 	}
 
 	public boolean isSingleton() {
-		return true;
+		return false;
 	}
 
 	private File getUploadDir(Properties properties) {

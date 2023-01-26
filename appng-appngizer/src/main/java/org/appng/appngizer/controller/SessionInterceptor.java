@@ -43,7 +43,7 @@ public class SessionInterceptor implements WebRequestInterceptor {
 		if (!Home.ROOT.equals(pathInfo)) {
 			HttpSession session = httpServletRequest.getSession();
 
-			Properties platformConfig = DefaultEnvironment.get(httpServletRequest.getServletContext())
+			Properties platformConfig = DefaultEnvironment.getGlobal()
 					.getAttribute(Scope.PLATFORM, org.appng.api.Platform.Environment.PLATFORM_CONFIG);
 			String sharedSecret = platformConfig.getString(org.appng.api.Platform.Property.SHARED_SECRET);
 

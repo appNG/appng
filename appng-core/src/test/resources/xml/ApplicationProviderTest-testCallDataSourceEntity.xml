@@ -26,6 +26,19 @@
 			<field name="booleanValue" type="checkbox" binding="booleanValue">
 				<label id="booleanValue">boolean value</label>
 			</field>
+			<field name="enumValue" type="list:radio" binding="enumValue">
+				<label id="enumValue">enumValue</label>
+			</field>
+			<field name="parent" type="object" binding="parent">
+				<field name="name" type="text" binding="parent.name" />
+				<field name="integerValue" type="int" format="#" binding="parent.integerValue" />
+			</field>
+			<field name="children" type="list:object" binding="children">
+				<field name="children[]" type="object" binding="children.children[]">
+					<field name="name" type="text" binding="children.children[].name" />
+					<field name="integerValue" type="int" format="#" binding="children.children[].integerValue" />
+				</field>
+			</field>
 		</meta-data>
 	</config>
 	<data>
@@ -37,12 +50,16 @@
 			<option value="4" name="4" selected="false" />
 			<option value="5" name="5" selected="true" />
 		</selection>
+		<selection id="enumValue">
+			<option value="ACME" name="acme" selected="true" />
+			<option value="WARNER" name="warner" selected="false" />
+		</selection>
 		<result>
 			<field name="id" type="int">
 				<value>1</value>
 			</field>
 			<field name="name" type="text">
-				<value>new name</value>
+				<value>Anakin</value>
 			</field>
 			<field name="integerValue" type="list:checkbox">
 				<value>5</value>
@@ -52,6 +69,38 @@
 			</field>
 			<field name="booleanValue" type="checkbox">
 				<value>false</value>
+			</field>
+			<field name="enumValue" type="list:radio">
+				<value>ACME</value>
+			</field>
+			<field name="parent" type="object">
+				<field name="name" type="text">
+					<value>Anakin</value>
+				</field>
+				<field name="integerValue" type="int">
+					<value>5</value>
+				</field>
+				<value></value>
+			</field>
+			<field name="children" type="list:object">
+				<field name="children[0]" type="object">
+					<field name="name" type="text">
+						<value>Luke</value>
+					</field>
+					<field name="integerValue" type="int">
+						<value></value>
+					</field>
+					<value></value>
+				</field>
+				<field name="children[1]" type="object">
+					<field name="name" type="text">
+						<value>Lea</value>
+					</field>
+					<field name="integerValue" type="int">
+						<value></value>
+					</field>
+					<value></value>
+				</field>
 			</field>
 		</result>
 	</data>

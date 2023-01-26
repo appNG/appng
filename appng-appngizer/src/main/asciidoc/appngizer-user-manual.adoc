@@ -6,10 +6,9 @@ Build Version  {project-version} created {localdate}
 
 == General
 
-This document describes the RESTful API for appNGizer, a tool for remote managing appNG installations.
+This guide describes how to manage an already installed appNG platform with appNGizer.
 
-All operations that require a request body must use the HTTP Header *Content-Type* *application/xml*.
-The only exception is the POST-request used for authentication (see <<Authenticate>>), where *text/plain* must be used.
+include::parts/setup.adoc[]
 
 === HTTP methods and return codes
 ==== GET

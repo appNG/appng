@@ -34,6 +34,7 @@ import org.appng.api.ProcessingException;
 import org.appng.api.Scope;
 import org.appng.api.Session;
 import org.appng.api.model.Application;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Subject;
 import org.appng.api.support.validation.DefaultValidationProvider;
@@ -42,6 +43,7 @@ import org.appng.xml.platform.ActionRef;
 import org.appng.xml.platform.ApplicationConfig;
 import org.appng.xml.platform.ApplicationRootConfig;
 import org.appng.xml.platform.Bean;
+import org.appng.xml.platform.Condition;
 import org.appng.xml.platform.DataConfig;
 import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
@@ -109,6 +111,9 @@ public class CallableActionTest {
 	private Application application;
 
 	@Mock
+	private Properties properties;
+
+	@Mock
 	private ApplicationConfigProvider applicationConfigProvider;
 
 	@Mock
@@ -154,9 +159,11 @@ public class CallableActionTest {
 		}).when(dataProvider).getData(Mockito.eq(site), Mockito.eq(application), Mockito.eq(environment), Mockito.any(),
 				Mockito.eq(applicationRequest), Mockito.any());
 
+		Mockito.when(environment.removeAttribute(Scope.SESSION, Session.Environment.MESSAGES))
+				.thenReturn(new Messages());
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
-		Assert.assertNull(envMessages.get());
+		Assert.assertNotNull(envMessages.get());
 		Assert.assertNotNull(actionMessages.get());
 		Message message = actionMessages.get().getMessageList().get(0);
 		Assert.assertEquals("Error!", message.getContent());
@@ -203,7 +210,7 @@ public class CallableActionTest {
 
 		AtomicReference<Messages> envMessages = new AtomicReference<Messages>(new Messages());
 		AtomicReference<Messages> actionMessages = new AtomicReference<Messages>(new Messages());
-		mockMessages(envMessages, actionMessages, false);
+		mockMessages(envMessages, actionMessages, true);
 
 		Mockito.doAnswer(i -> {
 			FieldProcessor fp = i.getArgumentAt(5, FieldProcessor.class);
@@ -223,13 +230,20 @@ public class CallableActionTest {
 		Mockito.when(actionRef.getMode()).thenReturn("awesome");
 		CallableAction action = new CallableAction(site, application, applicationRequest, actionRef);
 		action.perform();
-		Assert.assertNotNull(envMessages.get());
-		Assert.assertNull(actionMessages.get());
-		List<Message> messageList = envMessages.get().getMessageList();
-		Assert.assertEquals("Done!", messageList.get(0).getContent());
-		Assert.assertEquals(MessageType.OK, messageList.get(0).getClazz());
-		Assert.assertEquals("ACTION!", messageList.get(1).getContent());
-		Assert.assertEquals(MessageType.OK, messageList.get(1).getClazz());
+
+		Assert.assertNull(envMessages.get());
+
+		Assert.assertNotNull(actionMessages.get());
+		List<Message> messageList = actionMessages.get().getMessageList();
+
+		Message fromAction = messageList.get(0);
+		Assert.assertEquals("ACTION!", fromAction.getContent());
+		Assert.assertEquals(MessageType.OK, fromAction.getClazz());
+
+		Message fromDataSource = messageList.get(1);
+		Assert.assertEquals("Done!", fromDataSource.getContent());
+		Assert.assertEquals(MessageType.OK, fromDataSource.getClazz());
+
 		Mockito.verify(action.getAction()).setMode(actionRef.getMode());
 	}
 
@@ -249,10 +263,15 @@ public class CallableActionTest {
 			return returnRemoved ? messages : null;
 		}).when(environment).removeAttribute(Scope.SESSION, Session.Environment.MESSAGES);
 
+		Mockito.when(environment.getAttribute(Scope.SESSION, Session.Environment.MESSAGES))
+				.thenReturn(envMessages.get());
+
 		Mockito.doAnswer(i -> {
 			actionMessages.set(i.getArgumentAt(0, Messages.class));
 			return null;
 		}).when(action).setMessages(Mockito.any());
+
+		Mockito.doAnswer(i -> actionMessages.get()).when(action).getMessages();
 	}
 
 	public ApplicationRequest initApplication(boolean withDataSource) {
@@ -277,6 +296,9 @@ public class CallableActionTest {
 		Mockito.when(action.getConfig()).thenReturn(config);
 		Mockito.when(action.getBean()).thenReturn(bean);
 		Mockito.when(action.getId()).thenReturn(MY_ACTION);
+		Condition condition = new Condition();
+		condition.setExpression("${APP.foo < 42.01}");
+		Mockito.when(action.getCondition()).thenReturn(condition);
 		Mockito.when(actionRef.getEventId()).thenReturn(MY_EVENT);
 		Mockito.when(actionRef.getId()).thenReturn(MY_ACTIONREF);
 		Mockito.when(actionRef.getParams()).thenReturn(new Params());
@@ -296,6 +318,11 @@ public class CallableActionTest {
 		Mockito.when(event.getConfig()).thenReturn(config);
 		Mockito.when(event.getId()).thenReturn(MY_EVENT);
 		Mockito.when(application.getBean(TEST_BEAN, ActionProvider.class)).thenReturn(actionProvider);
+		Mockito.when(site.getProperties()).thenReturn(properties);
+		Mockito.when(application.getProperties()).thenReturn(properties);
+		java.util.Properties props = new java.util.Properties();
+		props.put("foo", 42d);
+		Mockito.when(properties.getPlainProperties()).thenReturn(props);
 		Mockito.when(application.getBean(MessageSource.class)).thenReturn(messageSource);
 		Mockito.when(applicationConfigProvider.getAction(MY_EVENT, MY_ACTIONREF)).thenReturn(action);
 		Mockito.when(applicationConfigProvider.getEvent(MY_EVENT)).thenReturn(event);
@@ -325,16 +352,16 @@ public class CallableActionTest {
 	public void testNoForward() throws ProcessingException {
 		CallableAction callableAction = getCallableAction(false, null);
 		callableAction.perform(false);
-		Assert.assertNotNull(callableAction.getAction().getMessages());
+		Assert.assertNull(callableAction.getAction().getMessages());
 		Assert.assertNull(callableAction.getAction().getOnSuccess());
 	}
 
 	private CallableAction getCallableAction(boolean forward, String onSuccess) {
 		Action action = new Action();
 		action.setOnSuccess(onSuccess);
-		ElementHelper elementHelper = new ElementHelper(null, null) {
+		ElementHelper elementHelper = new ElementHelper(null, null, null, null) {
 			@Override
-			public Messages removeMessages(Environment environment) {
+			public Messages removeMessages() {
 				Messages messages = new Messages();
 				Message message = new Message();
 				message.setClazz(MessageType.ERROR);
@@ -344,7 +371,7 @@ public class CallableActionTest {
 			}
 
 			@Override
-			public String getOutputPrefix(Environment env) {
+			public String getOutputPrefix() {
 				return "/prefix/";
 			}
 		};

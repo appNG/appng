@@ -31,13 +31,10 @@ import org.thymeleaf.templatemode.TemplateMode;
  */
 public class AppNGThymeleafDialect extends SpringStandardDialect {
 
-	private Collection<ThymeleafReplaceInterceptor> interceptors;
+	private final Collection<ThymeleafReplaceInterceptor> interceptors;
 
 	public AppNGThymeleafDialect(Collection<ThymeleafReplaceInterceptor> interceptors) {
 		this.interceptors = interceptors;
-	}
-
-	public AppNGThymeleafDialect() {
 	}
 
 	/**

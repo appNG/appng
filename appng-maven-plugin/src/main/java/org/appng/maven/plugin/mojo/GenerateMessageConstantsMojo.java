@@ -19,11 +19,18 @@ import java.io.IOException;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.appng.tools.file.PropertyConstantCreator;
 
 @Mojo(name = "generateMessageConstants", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresProject = true)
 public class GenerateMessageConstantsMojo extends AbstractGeneratorMojo {
+	
+	/**
+	 * the fully qualified name of the target class to generate
+	 */
+	@Parameter(property = "targetClass", required = true)
+	protected String targetClass;
 
 	@Override
 	protected void createConstantClass() throws IOException {

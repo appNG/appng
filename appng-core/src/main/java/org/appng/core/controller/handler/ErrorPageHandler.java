@@ -38,6 +38,7 @@ import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.HttpHeaders;
 import org.appng.core.service.TemplateService;
+import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,7 +54,6 @@ public class ErrorPageHandler implements RequestHandler {
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment env,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
-
 		if (!pathInfo.getDocumentDirectories().isEmpty()) {
 			String extension = pathInfo.getExtension();
 			String uri = (String) servletRequest.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
@@ -99,6 +99,7 @@ public class ErrorPageHandler implements RequestHandler {
 						LOGGER.error("The template \"{}\" contains no 404 error page. Expected path: {}", template,
 								error404);
 					}
+					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 					writer.write(errorPage);
 				}
 			} else {

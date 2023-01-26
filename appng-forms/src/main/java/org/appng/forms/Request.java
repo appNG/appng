@@ -164,11 +164,22 @@ public interface Request extends RequestContainer {
 	 * Adds the given parameter to this {@link Request}, but only if such a parameter not already exists. This prevents
 	 * overwriting a parameter which is already present in the original {@link HttpServletRequest}.
 	 * 
-	 * @param key
+	 * @param name
 	 *              the parameter name
 	 * @param value
 	 *              the parameter value
 	 */
-	void addParameter(String key, String value);
+	void addParameter(String name, String value);
+
+	/**
+	 * Adds the given parameters to this {@link Request}, but only if such a parameter not already exists. This prevents
+	 * overwriting a parameter which is already present in the original {@link HttpServletRequest}.
+	 * 
+	 * @param name
+	 *              the parameter name
+	 * @param values
+	 *              the parameter values
+	 */
+	void addParameters(String name, List<String> values);
 
 }

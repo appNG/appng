@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasource xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform http://www.appng.org/schema/platform/appng-platform.xsd ">
+	<config>
+		<title />
+		<meta-data bindClass="dummy">
+		</meta-data>
+	</config>
+	<bean id="beanWithOptions">
+		<option name="opt1" foo="bar" lore="ipsum" />
+		<option name="opt2" answer="42" />
+	</bean>
+</datasource>

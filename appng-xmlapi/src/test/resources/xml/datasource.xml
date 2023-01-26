@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasources xmlns="http://www.appng.org/schema/platform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appng.org/schema/platform ../../../main/xsd/appng-platform.xsd">
+
+	<datasource id="myDatasource">
+		<config>
+			<linkpanel location="inline" id="panel">
+				<link target="foo/bar" mode="webservice">
+					<label id="foo" />
+				</link>
+				<action id="myaction" event-id="myevent" interactive="false">
+					<label id="mylabel" />
+					<confirmation id="myConfirmation" />
+					<params>
+						<param name="foo">bar</param>
+					</params>
+				</action>
+				<link target="foo/bar" mode="webservice">
+					<label id="foo" />
+				</link>
+				<action id="myaction" event-id="myevent" interactive="true">
+					<label id="mylabel" />
+					<params>
+						<param name="foo">bar</param>
+					</params>
+				</action>
+			</linkpanel>
+		</config>
+		<bean id="mybean" />
+	</datasource>
+</datasources>

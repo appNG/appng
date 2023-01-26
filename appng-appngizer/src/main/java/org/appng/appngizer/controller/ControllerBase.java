@@ -16,15 +16,19 @@
 package org.appng.appngizer.controller;
 
 import java.net.URI;
+import java.util.Iterator;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import org.appng.api.BusinessException;
 import org.appng.api.Platform;
 import org.appng.api.model.Properties;
+import org.appng.appngizer.model.xml.Error;
+import org.appng.appngizer.model.xml.Errors;
 import org.appng.appngizer.model.xml.Nameable;
 import org.appng.core.domain.ApplicationImpl;
 import org.appng.core.domain.DatabaseConnection;
@@ -42,7 +46,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -67,20 +70,49 @@ public abstract class ControllerBase {
 	@Autowired
 	protected AppNGizerConfigurer configurer;
 
-	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(BusinessException.class)
-	public void onBusinessException(HttpServletRequest request, BusinessException e) {
+	public ResponseEntity<Errors> onBusinessException(HttpServletRequest request, BusinessException e) {
 		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
 				request.getMethod(), request.getRequestURI());
 		logger().error(message, e);
+		Errors errors = new Errors();
+		Error error = new Error();
+		error.setPath(e.getClass().getName());
+		error.setValue(e.getMessage());
+		errors.getError().add(error);
+		return new ResponseEntity<Errors>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(ConstraintViolationException.class)
-	public void onConstraintViolationException(HttpServletRequest request, ConstraintViolationException e) {
+	public ResponseEntity<Errors> onConstraintViolationException(HttpServletRequest request,
+			ConstraintViolationException e) {
 		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
 				request.getMethod(), request.getRequestURI());
 		logger().error(message, e);
+		Errors errors = new Errors();
+		Iterator<ConstraintViolation<?>> iterator = e.getConstraintViolations().iterator();
+		while (iterator.hasNext()) {
+			ConstraintViolation<?> cv = (ConstraintViolation<?>) iterator.next();
+			Error error = new Error();
+			error.setPath(cv.getPropertyPath().toString());
+			error.setValue(cv.getMessage());
+			errors.getError().add(error);
+		}
+		return new ResponseEntity<Errors>(errors, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(ConflictException.class)
+	public ResponseEntity<Errors> onConflictException(HttpServletRequest request, ConflictException e) {
+		String message = String.format("[%s] error while processing [%s] on %s", request.getSession().getId(),
+				request.getMethod(), request.getRequestURI());
+		logger().error(message, e);
+		Errors errors = new Errors();
+		for (String cn : e.getConflicts()) {
+			Error error = new Error();
+			error.setValue(cn);
+			errors.getError().add(error);
+		}
+		return new ResponseEntity<Errors>(errors, HttpStatus.CONFLICT);
 	}
 
 	abstract Logger logger();

@@ -28,6 +28,19 @@
 				<field name="booleanValue" type="checkbox">
 					<label>booleanValue</label>
 				</field>
+				<field name="enumValue" type="list:radio">
+					<label>enumValue</label>
+				</field>
+				<field name="parent" type="object">
+					<field name="name" type="text" />
+					<field name="integerValue" type="int" format="#"/>
+				</field>
+				<field name="children" type="list:object">
+					<field name="children[]" type="object">
+						<field name="name" type="text" />
+						<field name="integerValue" type="int" format="#"/>
+					</field>
+				</field>
 			</meta-data>
 		</config>
 		<bean id="entities">
@@ -49,7 +62,7 @@
 				<field name="name" type="text">
 					<label>name</label>
 				</field>
-				<field name="integerValue" type="int">
+				<field name="integerValue" type="list:checkbox">
 					<label>integerValue</label>
 				</field>
 				<field name="doubleValue" type="decimal">
@@ -57,6 +70,16 @@
 				</field>
 				<field name="booleanValue" type="checkbox">
 					<label>booleanValue</label>
+				</field>
+				<field name="parent" type="object">
+					<field name="name" type="text" />
+					<field name="integerValue" type="int" format="#"/>
+				</field>
+				<field name="children" type="list:object">
+					<field name="children[]" type="object">
+						<field name="name" type="text" />
+						<field name="integerValue" type="int" format="#"/>
+					</field>
 				</field>
 			</meta-data>
 		</config>

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.appng.api.model.Property;
+import org.appng.api.model.Property.Type;
 import org.appng.api.model.SimpleProperty;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,6 +36,7 @@ public class PropertyHolderTest {
 	@Test
 	public void testInteger() {
 		Assert.assertEquals(Integer.valueOf(1), propertyHolder.getInteger("integer"));
+		Assert.assertEquals(Integer.valueOf(1), propertyHolder.getObject("integer"));
 		Assert.assertEquals("the property integer", propertyHolder.getDescriptionFor("integer"));
 		Assert.assertEquals(Integer.valueOf(2), propertyHolder.getInteger("bla", 2));
 	}
@@ -42,6 +44,7 @@ public class PropertyHolderTest {
 	@Test
 	public void testString() {
 		Assert.assertEquals("string", propertyHolder.getString("string"));
+		Assert.assertEquals("string", propertyHolder.getObject("string"));
 		Assert.assertEquals("the property string", propertyHolder.getDescriptionFor("string"));
 		Assert.assertEquals("bla", propertyHolder.getString("bla", "bla"));
 	}
@@ -55,6 +58,7 @@ public class PropertyHolderTest {
 	@Test
 	public void testBoolean() {
 		Assert.assertEquals(true, propertyHolder.getBoolean("boolean"));
+		Assert.assertEquals(Boolean.TRUE, propertyHolder.getObject("boolean"));
 		Assert.assertEquals(false, propertyHolder.getBoolean("bla", false));
 	}
 
@@ -62,11 +66,13 @@ public class PropertyHolderTest {
 	public void testFloat() {
 		Assert.assertEquals(Float.valueOf(4.5f), propertyHolder.getFloat("float"));
 		Assert.assertEquals(Float.valueOf(1.2f), propertyHolder.getFloat("bla", 1.2f));
+		Assert.assertEquals(Double.valueOf(4.5f), propertyHolder.getObject("float"));
 	}
 
 	@Test
 	public void testDouble() {
 		Assert.assertEquals(Double.valueOf(7.9d), propertyHolder.getDouble("double"));
+		Assert.assertEquals(Double.valueOf(7.9d), propertyHolder.getObject("double"));
 		Assert.assertEquals(Double.valueOf(1.2d), propertyHolder.getDouble("bla", 1.2d));
 	}
 
@@ -94,13 +100,13 @@ public class PropertyHolderTest {
 	@Before
 	public void setup() {
 		this.plainProperties = new Properties();
-		plainProperties.put("integer", "1");
+		plainProperties.put("integer",1);
 		plainProperties.put("string", "string");
 		plainProperties.put("emptyCustomString", "string");
 		plainProperties.put("customString", "string");
-		plainProperties.put("float", "4.5");
-		plainProperties.put("double", "7.9");
-		plainProperties.put("boolean", "true");
+		plainProperties.put("float", 4.5f);
+		plainProperties.put("double", 7.9d);
+		plainProperties.put("boolean", true);
 		plainProperties.put("list", "1,2");
 		plainProperties.put("properties", "a = 1\r\nb=2");
 
@@ -118,14 +124,16 @@ public class PropertyHolderTest {
 	}
 
 	private void addProperty(List<Property> properties, String name, boolean clob, String customValue) {
-		String value = (String) plainProperties.get(name);
+		Object value = plainProperties.get(name);
 		SimpleProperty prop = new SimpleProperty();
 		prop.setName(PREFIX + name);
 		if (clob) {
-			prop.setClob(value);
+			prop.setClob(value.toString());
+			prop.setType(Type.MULTILINE);
 		} else {
-			prop.setDefaultString(value);
+			prop.setDefaultString(value.toString());
 			prop.setString(customValue);
+			prop.setType(Type.forObject(value));
 		}
 		prop.setDescription("the property " + name);
 		properties.add(prop);

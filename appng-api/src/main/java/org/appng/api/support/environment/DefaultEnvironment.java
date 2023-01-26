@@ -59,6 +59,15 @@ public class DefaultEnvironment implements Environment {
 	private Locale locale = Locale.getDefault();
 	private TimeZone timeZone = TimeZone.getDefault();
 	private Map<Scope, Boolean> scopeEnabled = new ConcurrentHashMap<>(4);
+	private static DefaultEnvironment global;
+
+	public static DefaultEnvironment initGlobal(ServletContext ctx) {
+		return global = DefaultEnvironment.get(ctx);
+	}
+
+	public static DefaultEnvironment getGlobal() {
+		return global;
+	}
 
 	protected DefaultEnvironment() {
 
@@ -130,7 +139,7 @@ public class DefaultEnvironment implements Environment {
 				enable(Scope.SESSION);
 
 				if (null != currentSite) {
-					site = new SiteEnvironment(servletContext, currentSite.getHost());
+					site = new SiteEnvironment(servletContext, currentSite);
 					enable(Scope.SITE);
 				} else if (null == scopeEnabled.get(Scope.SITE)) {
 					disable(Scope.SITE);
@@ -203,7 +212,10 @@ public class DefaultEnvironment implements Environment {
 	 *                a {@link ServletRequest}
 	 * 
 	 * @return a new {@link DefaultEnvironment}
+	 * 
+	 * @deprecated use {@link #get(ServletRequest, ServletResponse)} instead!
 	 */
+	@Deprecated
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request) {
 		return get(request, null);
 	}
@@ -233,7 +245,10 @@ public class DefaultEnvironment implements Environment {
 	 *                 a {@link ServletResponse}
 	 * 
 	 * @return a new {@link DefaultEnvironment}
+	 * 
+	 * @deprecated use {@link #get(ServletRequest, ServletResponse)} instead!
 	 */
+	@Deprecated
 	public static DefaultEnvironment get(ServletContext context, ServletRequest request, ServletResponse response) {
 		return get(request, response);
 	}
@@ -297,29 +312,31 @@ public class DefaultEnvironment implements Environment {
 		return null;
 	}
 
-	private ScopedEnvironment getEnvironment(Scope scope) {
-		ScopedEnvironment env = null;
-		switch (scope) {
-		case PLATFORM:
-			env = platform;
-			break;
-		case SITE:
-			env = site;
-			break;
-		case SESSION:
-			env = session;
-			break;
-		case REQUEST:
-			env = request;
-			break;
-		default:
-			LOGGER.warn("no environment found for scope {}", scope);
-		}
-		if (null != env && scopeEnabled.get(scope)) {
+	public ScopedEnvironment getEnvironment(Scope scope) {
+		if (Boolean.TRUE.equals(scopeEnabled.get(scope))) {
+			ScopedEnvironment env = null;
+			switch (scope) {
+			case PLATFORM:
+				env = platform;
+				break;
+			case SITE:
+				env = site;
+				break;
+			case SESSION:
+				env = session;
+				break;
+			case REQUEST:
+				env = request;
+				break;
+			case URL:
+				break;
+			}
+			if (null == env) {
+				LOGGER.warn("Scope {} is not available!", scope);
+			}
 			return env;
-		}
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("scope {} is not available", scope);
+		} else {
+			LOGGER.warn("Scope {} is not enabled!", scope);
 		}
 		return null;
 	}
@@ -331,7 +348,7 @@ public class DefaultEnvironment implements Environment {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Returns the current {@link ServletContext}.
 	 * 
@@ -446,6 +463,11 @@ public class DefaultEnvironment implements Environment {
 		}
 	}
 
+	@Override
+	public Site getSite() {
+		return getAttribute(Scope.SITE, SiteEnvironment.SITE);
+	}
+
 	public Subject getSubject() {
 		return getAttribute(Scope.SESSION, Session.Environment.SUBJECT);
 	}
@@ -545,6 +567,14 @@ public class DefaultEnvironment implements Environment {
 		return initialized;
 	}
 
+	public void initSiteScope(Site site) {
+		clearSiteScope(site);
+		ServletContext servletContext = ((PlatformEnvironment) global.getEnvironment(Scope.PLATFORM))
+				.getServletContext();
+		this.site = new SiteEnvironment(servletContext,  site);
+		enable(Scope.SITE);
+	}
+
 	/**
 	 * Clears the site-scoped attributes for the given {@link Site}.
 	 * 
@@ -552,8 +582,7 @@ public class DefaultEnvironment implements Environment {
 	 *             The {@link Site} to clear the site-scope for.
 	 */
 	public void clearSiteScope(Site site) {
-		String identifier = Scope.SITE.forSite(site.getHost());
-		platform.getServletContext().removeAttribute(identifier);
+		String identifier = SiteEnvironment.remove(platform.getServletContext(), site);
 		LOGGER.info("Clearing site scope with identifier '{}'", identifier);
 	}
 

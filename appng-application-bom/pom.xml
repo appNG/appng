@@ -5,7 +5,7 @@
 	<artifactId>appng-application-bom</artifactId>
 	<packaging>pom</packaging>
 	<name>appNG application BOM</name>
-	<version>1.24.1.1</version>
+	<version>1.25.0</version>
 	<description>the bill of materials for an appNG application, defining all provided dependencies</description>
 	<organization>
 		<name>aiticon GmbH</name>
@@ -142,25 +142,25 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>2.13.0</version>
+				<version>2.14.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.13.0</version>
+				<version>2.14.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.13.0</version>
+				<version>2.14.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-jsr310</artifactId>
-				<version>2.13.0</version>
+				<version>2.14.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -670,7 +670,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.9</version>
+				<version>1.10.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -988,7 +988,7 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>8.4.3</version>
+				<version>8.5.13</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -1144,7 +1144,7 @@
 			<dependency>
 				<groupId>org.owasp.antisamy</groupId>
 				<artifactId>antisamy</artifactId>
-				<version>1.6.4</version>
+				<version>1.6.7</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

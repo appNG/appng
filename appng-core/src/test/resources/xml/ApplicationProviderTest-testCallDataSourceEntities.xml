@@ -14,7 +14,7 @@
 		<meta-data bindClass="org.appng.testapplication.TestEntity">
 			<field name="id" type="int" format="#" hidden="true" binding="id">
 				<label id="id">ID</label>
-				<condition expression="true" />
+				<condition expression="${1==1}" />
 			</field>
 			<field name="name" type="text" readonly="true" hidden="true" binding="name">
 				<sort />
@@ -35,20 +35,25 @@
 			</field>
 		</meta-data>
 		<linkpanel id="actions" location="inline">
-			<link id="actions[1]" mode="intern" target="/${current.id}_edit" default="true">
+			<link id="actions[1]" target="/${current.id}_edit" mode="intern" default="true">
 				<label id="edit">Edit</label>
 				<icon>edit</icon>
 			</link>
-			<link id="actions[2]" mode="intern" target="/${current.id}_delete" default="true">
+			<link id="actions[2]" target="/${current.id}_delete" mode="intern" default="true">
 				<label id="delete">Delete</label>
 				<icon>delete</icon>
 				<confirmation id="confirm.delete" params="#{name}">Really delete #{name}?</confirmation>
 			</link>
 		</linkpanel>
 	</config>
+	<messages ref="entities">
+		<message ref="entities" class="NOTICE">Notice!</message>
+		<message ref="entities" class="OK">OK!</message>
+		<message ref="entities" class="ERROR">Error!</message>
+		<message ref="entities" class="INVALID">Invalid!</message>
+	</messages>
 	<data>
-		<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0"
-			lastchunk="0" hits="2">
+		<resultset chunk="0" chunkname="entities" chunksize="2" nextchunk="0" previouschunk="0" firstchunk="0" lastchunk="0" hits="2">
 			<result>
 				<field name="id" type="int">
 					<value>1</value>
@@ -66,11 +71,11 @@
 					<value>false</value>
 				</field>
 				<linkpanel id="actions" location="inline">
-					<link id="actions[1]" mode="intern" target="/1_edit" default="true">
+					<link id="actions[1]" target="/1_edit" mode="intern" default="true">
 						<label id="edit">Edit</label>
 						<icon>edit</icon>
 					</link>
-					<link id="actions[2]" mode="intern" target="/1_delete" default="true">
+					<link id="actions[2]" target="/1_delete" mode="intern" default="true">
 						<label id="delete">Delete</label>
 						<icon>delete</icon>
 						<confirmation id="confirm.delete" params="#{name}">Really delete new name?</confirmation>
@@ -82,10 +87,10 @@
 					<value>2</value>
 				</field>
 				<field name="name" type="text">
-					<value>entity2</value>
+					<value>Lea</value>
 				</field>
 				<field name="integerValue" type="int">
-					<value>7</value>
+					<value></value>
 				</field>
 				<field name="doubleValue" type="decimal">
 					<value>7.8</value>
@@ -94,14 +99,14 @@
 					<value>true</value>
 				</field>
 				<linkpanel id="actions" location="inline">
-					<link id="actions[1]" mode="intern" target="/2_edit" default="true">
+					<link id="actions[1]" target="/2_edit" mode="intern" default="true">
 						<label id="edit">Edit</label>
 						<icon>edit</icon>
 					</link>
-					<link id="actions[2]" mode="intern" target="/2_delete" default="true">
+					<link id="actions[2]" target="/2_delete" mode="intern" default="true">
 						<label id="delete">Delete</label>
 						<icon>delete</icon>
-						<confirmation id="confirm.delete" params="#{name}">Really delete entity2?</confirmation>
+						<confirmation id="confirm.delete" params="#{name}">Really delete Lea?</confirmation>
 					</link>
 				</linkpanel>
 			</result>

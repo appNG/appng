@@ -3,27 +3,25 @@
 	<property name="DatasourceConfigurer" self="http://localhost/appNGizer/site/localhost/property/DatasourceConfigurer">
 		<value>org.appng.core.repository.config.HikariCPConfigurer</value>
 		<defaultValue>org.appng.core.repository.config.HikariCPConfigurer</defaultValue>
-		<description>The fully qualified name of a class implementing org.appng.core.repository.config.DatasourceConfigurer,
-			which is responsible for JDBC connection-pooling. Supported are 'org.appng.core.repository.config.HikariCPConfigurer'
-			and 'org.appng.core.repository.config.TomcatJdbcConfigurer'</description>
+		<description>The fully qualified name of a class implementing org.appng.core.repository.config.DatasourceConfigurer, which is responsible for JDBC
+			connection-pooling. Supported are 'org.appng.core.repository.config.HikariCPConfigurer' and 'org.appng.core.repository.config.TomcatJdbcConfigurer'
+		</description>
 	</property>
 	<property name="allowSkipRender" self="http://localhost/appNGizer/site/localhost/property/allowSkipRender">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
-		<description>Allow skipping of the render phase using render=false for the manager GUI or the XSLT based rendering of
-			taglets.</description>
+		<description>Allow skipping of the render phase using render=false for the manager GUI or the XSLT based rendering of taglets.</description>
 	</property>
 	<property name="appendTabId" self="http://localhost/appNGizer/site/localhost/property/appendTabId">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
-		<description>If set to true, the name of the currently selected tab is being appended to the URL as a get-parameter.
-			Addresses the issue that IE loses the anchor on a redirect.</description>
+		<description>If set to true, the name of the currently selected tab is being appended to the URL as a get-parameter. Addresses the issue that IE loses the
+			anchor on a redirect.</description>
 	</property>
 	<property name="assetsDir" self="http://localhost/appNGizer/site/localhost/property/assetsDir">
 		<value>/assets</value>
 		<defaultValue>/assets</defaultValue>
-		<description>A semicolon-separated list of folder-names (relative to 'wwwDir') containing static resources such as
-			images or pdfs</description>
+		<description>A semicolon-separated list of folder-names (relative to 'wwwDir') containing static resources such as images or pdfs</description>
 	</property>
 	<property name="authApplication" self="http://localhost/appNGizer/site/localhost/property/authApplication">
 		<value>appng-authentication</value>
@@ -33,16 +31,14 @@
 	<property name="authLoginPage" self="http://localhost/appNGizer/site/localhost/property/authLoginPage">
 		<value>webform</value>
 		<defaultValue>webform</defaultValue>
-		<description>The names of the login-pages (comma-separated) within the application defined in 'authApplication'. The
-			number of comma-separated pages must be the same as in 'authLoginRef', because 'authLoginRef[n]' refers to
-			'authLoginPage[n]'!</description>
+		<description>The names of the login-pages (comma-separated) within the application defined in 'authApplication'. The number of comma-separated pages must be
+			the same as in 'authLoginRef', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!</description>
 	</property>
 	<property name="authLoginRef" self="http://localhost/appNGizer/site/localhost/property/authLoginRef">
 		<value>webform</value>
 		<defaultValue>webform</defaultValue>
-		<description>The action names (comma-separated) for the pages defined in 'authLoginPage'. The number of
-			comma-separated names must be the same as in 'authLoginPage', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!
-		</description>
+		<description>The action names (comma-separated) for the pages defined in 'authLoginPage'. The number of comma-separated names must be the same as in
+			'authLoginPage', because 'authLoginRef[n]' refers to 'authLoginPage[n]'!</description>
 	</property>
 	<property name="authLogoutActionName" self="http://localhost/appNGizer/site/localhost/property/authLogoutActionName">
 		<value>action</value>
@@ -87,8 +83,7 @@
 	<property name="cacheTimeToLive" self="http://localhost/appNGizer/site/localhost/property/cacheTimeToLive">
 		<value>1800</value>
 		<defaultValue>1800</defaultValue>
-		<description>The default TTL for a cache entry in seconds, if there's no matching path defined in 'cacheTimeouts'.
-		</description>
+		<description>The default TTL for a cache entry in seconds, if there's no matching path defined in 'cacheTimeouts'.</description>
 	</property>
 	<property clob="true" name="cacheTimeouts" self="http://localhost/appNGizer/site/localhost/property/cacheTimeouts">
 		<value></value>
@@ -122,8 +117,7 @@
 	<property name="defaultPage" self="http://localhost/appNGizer/site/localhost/property/defaultPage">
 		<value>index</value>
 		<defaultValue>index</defaultValue>
-		<description>The name of the default-page (without extension) relative to one of the directories defined in
-			'documentDir'</description>
+		<description>The name of the default-page (without extension) relative to one of the directories defined in 'documentDir'</description>
 	</property>
 	<property name="defaultPageSize" self="http://localhost/appNGizer/site/localhost/property/defaultPageSize">
 		<value>25</value>
@@ -133,8 +127,7 @@
 	<property name="documentDir" self="http://localhost/appNGizer/site/localhost/property/documentDir">
 		<value>/de</value>
 		<defaultValue>/de</defaultValue>
-		<description>A semicolon-separated list of folder-names (relative to 'wwwDir') containing JSP-files and static
-			resources</description>
+		<description>A semicolon-separated list of folder-names (relative to 'wwwDir') containing JSP-files and static resources</description>
 	</property>
 	<property name="encoding" self="http://localhost/appNGizer/site/localhost/property/encoding">
 		<value>UTF-8</value>
@@ -154,8 +147,7 @@
 	<property name="errorPages" self="http://localhost/appNGizer/site/localhost/property/errorPages">
 		<value>/de=fehler|/en=error</value>
 		<defaultValue>/de=fehler|/en=error</defaultValue>
-		<description>The name of the error-page per document-directory (see 'documentDir'), multiple entries separated by a
-			pipe (|)</description>
+		<description>The name of the error-page per document-directory (see 'documentDir'), multiple entries separated by a pipe (|)</description>
 	</property>
 	<property name="host" self="http://localhost/appNGizer/site/localhost/property/host">
 		<value>localhost</value>
@@ -165,16 +157,14 @@
 	<property name="indexConfig" self="http://localhost/appNGizer/site/localhost/property/indexConfig">
 		<value>/de;de;GermanAnalyzer|/assets;de;GermanAnalyzer</value>
 		<defaultValue>/de;de;GermanAnalyzer|/assets;de;GermanAnalyzer</defaultValue>
-		<description>For each directory defined in 'documentDir', there can be defined which locale and which Lucene-analyzer
-			to use for indexing.</description>
+		<description>For each directory defined in 'documentDir', there can be defined which locale and which Lucene-analyzer to use for indexing.</description>
 	</property>
 	<property name="indexDir" self="http://localhost/appNGizer/site/localhost/property/indexDir">
 		<value>/index</value>
 		<defaultValue>/index</defaultValue>
 		<description>The folder containing the Lucene-Index, relative to 'wwwDir'</description>
 	</property>
-	<property name="indexFileSystemQueueSize"
-		self="http://localhost/appNGizer/site/localhost/property/indexFileSystemQueueSize">
+	<property name="indexFileSystemQueueSize" self="http://localhost/appNGizer/site/localhost/property/indexFileSystemQueueSize">
 		<value>2500</value>
 		<defaultValue>2500</defaultValue>
 		<description>the queue size used per directory when indexing the file system</description>
@@ -197,8 +187,7 @@
 	<property name="jdbcConnectionTimeout" self="http://localhost/appNGizer/site/localhost/property/jdbcConnectionTimeout">
 		<value>5000</value>
 		<defaultValue>5000</defaultValue>
-		<description>The maximum number of milliseconds that a client will wait for a connection from the connection pool
-		</description>
+		<description>The maximum number of milliseconds that a client will wait for a connection from the connection pool</description>
 	</property>
 	<property name="jdbcLogPerformance" self="http://localhost/appNGizer/site/localhost/property/jdbcLogPerformance">
 		<value>false</value>
@@ -213,8 +202,7 @@
 	<property name="jdbcValidationTimeout" self="http://localhost/appNGizer/site/localhost/property/jdbcValidationTimeout">
 		<value>5000</value>
 		<defaultValue>5000</defaultValue>
-		<description>The maximum number of milliseconds that the connection pool will wait for a connection to be validated as
-			alive.</description>
+		<description>The maximum number of milliseconds that the connection pool will wait for a connection to be validated as alive.</description>
 	</property>
 	<property name="ldapDisabled" self="http://localhost/appNGizer/site/localhost/property/ldapDisabled">
 		<value>false</value>
@@ -232,10 +220,10 @@
 		<description>The base-DN for LDAP-groups</description>
 	</property>
 	<property name="ldapHost" self="http://localhost/appNGizer/site/localhost/property/ldapHost">
-		<value>ldap(s):&lt;host&gt;:&lt;port&gt;</value>
-		<defaultValue>ldap(s):&lt;host&gt;:&lt;port&gt;</defaultValue>
-		<description>The LDAP host in provider URL format ("ldap(s)://&lt;host&gt;:&lt;port&gt;"). Note that you might need to
-			add CA certificates to the truststore of the executing JVM if you enable "ldaps://".</description>
+		<value>ldap://localhost:389</value>
+		<defaultValue>ldap://localhost:389</defaultValue>
+		<description>The LDAP host in provider URL format ("ldap(s)://&lt;host&gt;:&lt;port&gt;"). Note that you might need to add CA certificates to the truststore
+			of the executing JVM if you enable "ldaps://".</description>
 	</property>
 	<property name="ldapIdAttribute" self="http://localhost/appNGizer/site/localhost/property/ldapIdAttribute">
 		<value>sAMAccountName</value>
@@ -251,29 +239,27 @@
 		<value>SAM</value>
 		<defaultValue>SAM</defaultValue>
 		<description>How the LDAP principal is built from a given username when logging in. ["DN": results in
-			"${site.ldapIdAttribute}=&lt;username&gt;,${site.ldapUserBaseDn}" - "UPN": results in
-			"&lt;username&gt;@${site.ldapDomain}" - "SAM": results in "${site.ldapDomain}\\&lt;username&gt;"]. "UPN" and "SAM"
-			are ActiveDirectory specific and "SAM" is the default to stay backward compatible.</description>
+			"${site.ldapIdAttribute}=&lt;username&gt;,${site.ldapUserBaseDn}" - "UPN": results in "&lt;username&gt;@${site.ldapDomain}" - "SAM": results in
+			"${site.ldapDomain}\\&lt;username&gt;"]. "UPN" and "SAM" are ActiveDirectory specific and "SAM" is the default to stay backward compatible.</description>
 	</property>
 	<property name="ldapStartTls" self="http://localhost/appNGizer/site/localhost/property/ldapStartTls">
 		<value>false</value>
 		<defaultValue>false</defaultValue>
-		<description>Use STARTTLS for the LDAP connection. If you set this to "true" the value of ${site.ldapHost} should
-			begin with "ldap://" (not "ldaps://"), because STARTTLS and LDAP over SSL (which is used when "ldaps://" is in place)
-			are mutually exclusive.</description>
+		<description>Use STARTTLS for the LDAP connection. If you set this to "true" the value of ${site.ldapHost} should begin with "ldap://" (not "ldaps://"),
+			because STARTTLS and LDAP over SSL (which is used when "ldaps://" is in place) are mutually exclusive.</description>
 	</property>
 	<property name="ldapUser" self="http://localhost/appNGizer/site/localhost/property/ldapUser">
 		<value>serviceUser</value>
 		<defaultValue>serviceUser</defaultValue>
-		<description>The name of the LDAP service-user for general LDAP lookups. If the value is a Distinguished Name (e.g.
-			"cn=Service User,dc=mycompany,dc=com") it will be used directly as LDAP principal. Otherwise the principal will be
-			derived according to the value specified for ${site.ldapPrincipalScheme}.</description>
+		<description>The name of the LDAP service-user for general LDAP lookups. If the value is a Distinguished Name (e.g. "cn=Service User,dc=mycompany,dc=com") it
+			will be used directly as LDAP principal. Otherwise the principal will be derived according to the value specified for ${site.ldapPrincipalScheme}.
+		</description>
 	</property>
 	<property name="ldapUserBaseDn" self="http://localhost/appNGizer/site/localhost/property/ldapUserBaseDn">
 		<value>OU=Users,DC=example,DC=com</value>
 		<defaultValue>OU=Users,DC=example,DC=com</defaultValue>
-		<description>The base-DN which is used to map a plain username to a Distinguished Name, if "DN" is used as principal
-			scheme (see property "ldapPrincipalScheme").</description>
+		<description>The base-DN which is used to map a plain username to a Distinguished Name, if "DN" is used as principal scheme (see property
+			"ldapPrincipalScheme").</description>
 	</property>
 	<property name="locale" self="http://localhost/appNGizer/site/localhost/property/locale">
 		<value>en</value>
@@ -308,8 +294,7 @@
 	<property name="rewriteConfig" self="http://localhost/appNGizer/site/localhost/property/rewriteConfig">
 		<value>/meta/conf/urlrewrite.xml</value>
 		<defaultValue>/meta/conf/urlrewrite.xml</defaultValue>
-		<description>the location of the rewrite rules for UrlRewriteFilter (http://tuckey.org/urlrewrite), relative to
-			'siteRootDir'.</description>
+		<description>the location of the rewrite rules for UrlRewriteFilter (http://tuckey.org/urlrewrite), relative to 'siteRootDir'.</description>
 	</property>
 	<property name="searchChunkSize" self="http://localhost/appNGizer/site/localhost/property/searchChunkSize">
 		<value>20</value>
@@ -324,8 +309,7 @@
 	<property name="service-path" self="http://localhost/appNGizer/site/localhost/property/service-path">
 		<value>/service</value>
 		<defaultValue>/service</defaultValue>
-		<description>The path-suffix for the services offered by appNG (such as Webservices, SOAP, Actions, Datasources)
-		</description>
+		<description>The path-suffix for the services offered by appNG (such as Webservices, SOAP, Actions, Datasources)</description>
 	</property>
 	<property name="serviceOutputFormat" self="http://localhost/appNGizer/site/localhost/property/serviceOutputFormat">
 		<value>html</value>
@@ -337,11 +321,15 @@
 		<defaultValue>service</defaultValue>
 		<description>The output type to be used when actions/datasources are being called through service URLs</description>
 	</property>
-	<property name="sessionTrackingEnabled"
-		self="http://localhost/appNGizer/site/localhost/property/sessionTrackingEnabled">
+	<property name="sessionTrackingEnabled" self="http://localhost/appNGizer/site/localhost/property/sessionTrackingEnabled">
 		<value>true</value>
 		<defaultValue>true</defaultValue>
 		<description>Track usage of HTTP sessions?</description>
+	</property>
+	<property name="setDebugHeaders" self="http://localhost/appNGizer/site/localhost/property/setDebugHeaders">
+		<value>false</value>
+		<defaultValue>false</defaultValue>
+		<description>Send some X-appNG-* response headers for debugging purposes.</description>
 	</property>
 	<property name="siteRootDir" self="http://localhost/appNGizer/site/localhost/property/siteRootDir">
 		<value>target/webapps/ROOT/repository/localhost</value>
@@ -351,8 +339,7 @@
 	<property name="supportReloadFile" self="http://localhost/appNGizer/site/localhost/property/supportReloadFile">
 		<value>true</value>
 		<defaultValue>true</defaultValue>
-		<description>If true, a site reload is performed when a file named .reload is created in the site's root directory.
-		</description>
+		<description>If true, a site reload is performed when a file named .reload is created in the site's root directory.</description>
 	</property>
 	<property name="supportedLanguages" self="http://localhost/appNGizer/site/localhost/property/supportedLanguages">
 		<value>en, de</value>
@@ -377,8 +364,7 @@
 	<property name="wwwDir" self="http://localhost/appNGizer/site/localhost/property/wwwDir">
 		<value>/www</value>
 		<defaultValue>/www</defaultValue>
-		<description>The name of the folder containing the web-contents, relative to 'repositoryPath' configured at the
-			platform</description>
+		<description>The name of the folder containing the web-contents, relative to 'repositoryPath' configured at the platform</description>
 	</property>
 	<property clob="true" name="xssExceptions" self="http://localhost/appNGizer/site/localhost/property/xssExceptions">
 		<value><![CDATA[# template
@@ -386,7 +372,7 @@
 # appng-manager
 /manager/localhost/appng-manager
 ]]></value>
-		<description>URL path prefixes where XSS protection is omitted. Contains one prefix per line (multiline value).
-			Supports blank lines and comments (#).</description>
+		<description>URL path prefixes where XSS protection is omitted. Contains one prefix per line (multiline value). Supports blank lines and comments (#).
+		</description>
 	</property>
 </properties>

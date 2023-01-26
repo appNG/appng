@@ -22,6 +22,7 @@ import java.util.Map;
 import org.appng.api.Environment;
 import org.appng.api.FieldConverter;
 import org.appng.api.FieldWrapper;
+import org.appng.api.support.ElementHelper;
 import org.appng.el.ExpressionEvaluator;
 import org.appng.forms.RequestContainer;
 import org.appng.xml.platform.Condition;
@@ -37,8 +38,8 @@ import org.springframework.core.convert.ConversionService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link FieldConverter} encapsulating all the other {@link FieldConverter}s, thus providing the ability to convert
- * any {@link FieldType}.
+ * A {@link FieldConverter} encapsulating all the other {@link FieldConverter}s,
+ * thus providing the ability to convert any {@link FieldType}.
  * 
  * @author Matthias Müller
  */
@@ -73,8 +74,7 @@ public class FieldConversionFactory implements FieldConverter, InitializingBean 
 		Condition condition = fieldWrapper.getCondition();
 		boolean addField = true;
 		if (condition != null) {
-			addField = expressionEvaluator.evaluate(condition.getExpression());
-			condition.setExpression(String.valueOf(addField));
+			addField = ElementHelper.conditionMatches(expressionEvaluator, condition);
 		}
 
 		fieldWrapper.setReadonly(expressionEvaluator.getString(fieldWrapper.getReadonly()));

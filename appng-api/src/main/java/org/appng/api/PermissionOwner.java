@@ -26,6 +26,7 @@ import org.appng.xml.platform.Datasource;
 import org.appng.xml.platform.DatasourceRef;
 import org.appng.xml.platform.Event;
 import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.OutputFormat;
 import org.appng.xml.platform.OutputType;
@@ -128,13 +129,13 @@ public final class PermissionOwner {
 	}
 
 	/**
-	 * Creates a new PermissionOwner from a {@link Link}.
+	 * Creates a new PermissionOwner from a {@link Linkable}.
 	 * 
-	 * @param link
-	 *             the {@link Link}
+	 * @param linkable
+	 *             the {@link PermissionOwner}
 	 */
-	public PermissionOwner(Link link) {
-		this("link:" + link.getLabel().getValue(), link.getPermissions());
+	public PermissionOwner(Linkable linkable) {
+		this("link:" + linkable.getLabel().getValue(), linkable.getPermissions());
 	}
 
 	/**

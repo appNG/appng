@@ -15,21 +15,19 @@
  */
 package org.appng.core.templating;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
 /**
- * An custom template engine to set a custom thymeleaf dialect
+ * An custom template engine to set a custom Thymeleaf dialect
  * 
  * @author Claus Stümke
  */
 public class ThymeleafTemplateEngine extends SpringTemplateEngine {
 
-	public ThymeleafTemplateEngine(Collection<ThymeleafReplaceInterceptor> interceptors) {
-		super();
-		AppNGThymeleafDialect appNGDialect = new AppNGThymeleafDialect(interceptors);
-		super.setDialect(appNGDialect);
+	public void withInterceptors(List<ThymeleafReplaceInterceptor> interceptors) {
+		super.setDialect(new AppNGThymeleafDialect(interceptors));
 	}
 
 }

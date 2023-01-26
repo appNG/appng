@@ -21,6 +21,7 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 import org.appng.api.DataContainer;
 import org.appng.api.Environment;
@@ -82,9 +83,11 @@ public class TagletProcessorTest {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(request.getEnvironment()).thenReturn(environment);
 		Mockito.when(site.getSiteClassLoader()).thenReturn(new URLClassLoader(new URL[0]));
-		org.appng.api.model.Properties siteProps = Mockito.mock(org.appng.api.model.Properties.class);
-		Mockito.when(site.getProperties()).thenReturn(siteProps);
-		Mockito.when(siteProps.getBoolean(SiteProperties.ALLOW_SKIP_RENDER)).thenReturn(true);
+		org.appng.api.model.Properties props = Mockito.mock(org.appng.api.model.Properties.class);
+		Mockito.when(site.getProperties()).thenReturn(props);
+		Mockito.when(application.getProperties()).thenReturn(props);
+		Mockito.when(props.getPlainProperties()).thenReturn(new Properties());
+		Mockito.when(props.getBoolean(SiteProperties.ALLOW_SKIP_RENDER)).thenReturn(true);
 		Mockito.when(environment.getLocale()).thenReturn(Locale.ENGLISH);
 	}
 

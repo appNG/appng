@@ -21,8 +21,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +37,6 @@ import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -42,10 +44,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.ClientAbortException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.appng.api.Environment;
 import org.appng.api.Path;
-import org.appng.api.RequestUtil;
+import org.appng.api.Scope;
+import org.appng.api.Session;
 import org.appng.api.SiteProperties;
 import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
@@ -76,11 +79,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	protected static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
-	private Environment env;
 
-	public void init(FilterConfig filterConfig) throws ServletException {
-		this.env = DefaultEnvironment.get(filterConfig.getServletContext());
-	}
+	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
 	public void destroy() {
 	}
@@ -97,11 +97,11 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		boolean isCacheableRequest = isCacheableRequest(httpServletRequest);
 		boolean cacheEnabled = false;
 		boolean isException = false;
-		Site site = null;
 		ExpiryPolicy expiryPolicy = null;
+		DefaultEnvironment env = EnvironmentFilter.environment();
+		Site site = env.getSite();
 
 		if (isCacheableRequest) {
-			site = RequestUtil.getSite(env, request);
 			if (null != site) {
 				org.appng.api.model.Properties siteProps = site.getProperties();
 				cacheEnabled = siteProps.getBoolean(SiteProperties.CACHE_ENABLED);
@@ -143,13 +143,16 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					throw new ServletException("Response already committed after doing buildPage"
 							+ " but before writing response from PageInfo.");
 				}
-				long lastModified = cachedResponse.getHeaders().getLastModified();
-				boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
-
-				if (hasModifiedSince && lastModified > 0) {
-					handleLastModified(request, response, cachedResponse, lastModified);
+				if (cachedResponse.getStatus().is4xxClientError()) {
+					response.setStatus(cachedResponse.getStatus().value());
 				} else {
-					writeResponse(request, response, cachedResponse);
+					long lastModified = cachedResponse.getHeaders().getLastModified();
+					boolean hasModifiedSince = StringUtils.isNotBlank(request.getHeader(HttpHeaders.IF_MODIFIED_SINCE));
+					if (hasModifiedSince && lastModified > 0) {
+						handleLastModified(request, response, cachedResponse, lastModified);
+					} else {
+						writeResponse(request, response, cachedResponse);
+					}
 				}
 				return cachedResponse;
 			}
@@ -194,7 +197,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	private void writeCachedHeaders(HttpServletResponse response, CachedResponse pageInfo) {
-		pageInfo.getHeaders().forEach((n, vs) -> vs.forEach(v -> response.setHeader(n, v)));
+		pageInfo.getHeaders().entrySet().stream().filter(e -> !e.getKey().equals(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE))
+				.forEach(e -> e.getValue().forEach(v -> response.setHeader(e.getKey(), v)));
 	}
 
 	private void handleLastModified(final HttpServletRequest request, final HttpServletResponse response,
@@ -252,6 +256,33 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				LOGGER.debug("Response has status: {}, size: {} for key {}", cachedResponse.getStatus(), size, key);
 			}
 		} else {
+			HttpStatus status = cachedResponse.getStatus();
+			List<String> requiredRoles = cachedResponse.getHeaders().get(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE);
+			if (null != requiredRoles) {
+				List<String> roles = EnvironmentFilter.environment().getAttribute(Scope.SESSION,
+						Session.Environment.APPNG_ROLES);
+				if (null != roles) {
+					Collection<String> matchedRoles = CollectionUtils.intersection(requiredRoles, roles);
+					if (matchedRoles.isEmpty()) {
+						LOGGER.debug("Resource required one of the role(s) [{}], none of the current role(s) [{}] did match!",
+								StringUtils.join(requiredRoles, ", "), StringUtils.join(roles, ", "));
+						status = HttpStatus.FORBIDDEN;
+					} else {
+						LOGGER.debug("Resource required one of the role(s) [{}], current role(s) [{}], matched [{}].",
+								StringUtils.join(requiredRoles, ", "), StringUtils.join(roles, ", "),
+								StringUtils.join(matchedRoles, ", "));
+					}
+				} else {
+					LOGGER.debug("Resource required one of the role(s) [{}], but no roles where found.",
+							StringUtils.join(requiredRoles, ", "));
+					status = HttpStatus.UNAUTHORIZED;
+				}
+				if (status.is4xxClientError()) {
+					return new CachedResponse(cachedResponse.getId(), site, request, status.value(), null, new byte[0],
+							null, 0);
+				}
+			}
+
 			cacheHit = true;
 			long hits = cachedResponse.incrementHit();
 			if (site.getProperties().getBoolean("cacheHitStats", false)) {
@@ -289,8 +320,16 @@ public class PageCacheFilter implements javax.servlet.Filter {
 
 	static boolean isException(String exceptionsProp, String servletPath) {
 		if (null != exceptionsProp) {
-			return Arrays.asList(exceptionsProp.split(StringUtils.LF)).stream()
-					.filter(e -> servletPath.startsWith(e.trim())).findFirst().isPresent();
+			Optional<String> matchingRule = Arrays.asList(exceptionsProp.split(StringUtils.LF)).stream()
+					.filter(e -> PATH_MATCHER.isPattern(e.trim()) ? PATH_MATCHER.match(e.trim(), servletPath)
+							: servletPath.startsWith(e.trim()))
+					.findFirst();
+			if (matchingRule.isPresent()) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("'{}' matched exception '{}'", servletPath, matchingRule.get());
+				}
+				return true;
+			}
 		}
 		return false;
 	}
@@ -300,8 +339,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		if (null != cachingTimes && !cachingTimes.isEmpty()) {
 			if (antStylePathMatching) {
 				for (Object path : cachingTimes.keySet()) {
-					AntPathMatcher matcher = new AntPathMatcher();
-					if (matcher.match(path.toString(), servletPath)) {
+					if (PATH_MATCHER.match(path.toString(), servletPath)) {
 						Object entry = cachingTimes.get(path);
 						return Integer.valueOf(entry.toString().trim());
 					}

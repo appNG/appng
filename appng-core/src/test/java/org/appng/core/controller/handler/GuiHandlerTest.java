@@ -80,7 +80,7 @@ public class GuiHandlerTest {
 		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG, platformProperties);
 		initialEnv.setAttribute(Scope.PLATFORM, Platform.Environment.SITES, new HashMap<>());
 
-		DefaultEnvironment env = DefaultEnvironment.get(servletContext, servletRequest);
+		DefaultEnvironment env = DefaultEnvironment.get(servletRequest, servletResponse);
 		Mockito.when(siteProperties.getString(SiteProperties.TEMPLATE, null)).thenReturn("appng");
 		Mockito.when(siteProperties.getString(SiteProperties.DEFAULT_APPLICATION)).thenReturn("manager");
 		Mockito.when(siteProperties.getString(SiteProperties.MANAGER_PATH)).thenReturn("/manager");

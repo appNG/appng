@@ -15,82 +15,54 @@
  */
 package org.appng.testapplication;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
+import javax.persistence.Transient;
+import javax.validation.Valid;
 
+import org.appng.api.NotBlank;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 public class TestEntity {
 
+	public enum TestEnum {
+		ACME, WARNER;
+	}
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-
-	private String name;
-
+	private @NotBlank String name;
 	private Integer integerValue;
-
 	private Double doubleValue;
-
 	private Boolean booleanValue;
+	private @Transient @Valid TestEntity parent;
+	private @Transient @Valid List<TestEntity> children;
+
+	private @Transient @Valid TestEnum enumValue = TestEnum.ACME;
 
 	public TestEntity() {
 
-	}
-
-	public TestEntity(Integer id, String name, Integer integerValue, Double doubleValue, Boolean booleanValue) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.integerValue = integerValue;
-		this.doubleValue = doubleValue;
-		this.booleanValue = booleanValue;
 	}
 
 	public TestEntity(String name) {
 		this.name = name;
 	}
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
+	public TestEntity(Integer id, String name, Integer integerValue, Double doubleValue, Boolean booleanValue) {
 		this.id = id;
-	}
-
-	@NotNull
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
 		this.name = name;
-	}
-
-	public Integer getIntegerValue() {
-		return integerValue;
-	}
-
-	public void setIntegerValue(Integer integerValue) {
 		this.integerValue = integerValue;
-	}
-
-	public Double getDoubleValue() {
-		return doubleValue;
-	}
-
-	public void setDoubleValue(Double doubleValue) {
 		this.doubleValue = doubleValue;
-	}
-
-	public Boolean getBooleanValue() {
-		return booleanValue;
-	}
-
-	public void setBooleanValue(Boolean booleanValue) {
 		this.booleanValue = booleanValue;
 	}
 

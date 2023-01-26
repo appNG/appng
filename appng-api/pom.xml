@@ -11,9 +11,57 @@
 	<parent>
 		<groupId>org.appng</groupId>
 		<artifactId>appng-parent</artifactId>
-		<version>1.24.1.1</version>
+		<version>1.25.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.appng</groupId>
+				<artifactId>appng-maven-plugin</artifactId>
+				<version>1.24.5</version>
+				<executions>
+					<execution>
+						<id>messageConstants</id>
+						<goals>
+							<goal>generateMessageConstants</goal>
+						</goals>
+						<configuration>
+							<filePath>src/main/resources/messages-core.properties</filePath>
+							<targetClass>org.appng.api.MessageConstants</targetClass>
+							<outfolder>target/generated-sources/constants</outfolder>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>2.3.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-sources/constants</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<!-- BEGIN DEPENDENCY MANAGEMENT -->
 	<dependencies>

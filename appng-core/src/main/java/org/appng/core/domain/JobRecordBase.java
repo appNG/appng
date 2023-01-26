@@ -38,6 +38,7 @@ public abstract class JobRecordBase {
 	private String result;
 	private String triggername;
 	private Integer duration;
+	private String node;
 	@Column(name = "run_once")
 	private boolean runOnce;
 	@Column(name = "start_time")

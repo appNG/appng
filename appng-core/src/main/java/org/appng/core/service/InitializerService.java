@@ -81,6 +81,7 @@ import org.appng.core.controller.RepositoryWatcher;
 import org.appng.core.controller.handler.GuiHandler;
 import org.appng.core.controller.messaging.ReloadSiteEvent;
 import org.appng.core.controller.rest.RestPostProcessor;
+import org.appng.core.controller.rest.openapi.OpenApiPostProcessor;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.PlatformEvent.Type;
 import org.appng.core.domain.PlatformEventListener;
@@ -304,7 +305,7 @@ public class InitializerService {
 
 		final int heartBeatSleepTime = platformConfig.getInteger(Platform.Property.HEART_BEAT_INTERVAL, 60) * 1000;
 		if (null != sender) {
-			new HeartBeat(heartBeatSleepTime, ((DefaultEnvironment) env).getServletContext()).start();
+			new HeartBeat(heartBeatSleepTime).start();
 		}
 
 		int activeSites = 0;
@@ -503,7 +504,7 @@ public class InitializerService {
 	 */
 	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(siteToLoad, DefaultEnvironment.get(servletContext), true, fp, false);
+		loadSite(siteToLoad, DefaultEnvironment.getGlobal(), true, fp, false);
 	}
 
 	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp,
@@ -548,11 +549,20 @@ public class InitializerService {
 					site.setReloadCount(site.getReloadCount() + 1);
 				}
 
-				Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
-				site.setSender(sender);
+				boolean isClustered = Messaging.isEnabled(env);
+				if (isClustered) {
+					Sender sender = Messaging.getMessageSender(env);
+					if (null == sender) {
+						LOGGER.warn("Failed to retrieve {} although messaging is enabled!", Sender.class.getName());
+					} else {
+						site.setSender(sender);
+					}
+				}
+
 				List<? extends Group> groups = coreService.getGroups();
 				site.setGroups(new HashSet<>(groups));
 
+				((DefaultEnvironment)env).initSiteScope(site);
 				site.setState(SiteState.STARTING, env);
 				siteMap.put(site.getName(), site);
 
@@ -596,7 +606,7 @@ public class InitializerService {
 				File applicationRootFolder = platformConfig.getApplicationDir();
 				File imageMagickPath = new File(platformConfig.getString(Platform.Property.IMAGEMAGICK_PATH));
 
-				coreService.refreshTemplate(site, platformConfig);
+				coreService.refreshTemplate(site, platformConfig, false);
 				Integer validationPeriod = platformConfig.getInteger(Platform.Property.DATABASE_VALIDATION_PERIOD);
 
 				// Step 1: Load applications for the current site,
@@ -792,7 +802,10 @@ public class InitializerService {
 								application, dbc, platformCacheManager, dictionaryNames);
 						applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
-						applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
+						if (application.getProperties().getBoolean("enableLegacyRest", false)) {
+							applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
+						}
+						applicationContext.addBeanFactoryPostProcessor(new OpenApiPostProcessor());
 
 						applicationContext.refresh();
 
@@ -856,6 +869,7 @@ public class InitializerService {
 				}
 				site.setState(SiteState.STARTED, env);
 				siteMap.put(site.getName(), site);
+				
 				debugPlatformContext(platformContext);
 				auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
 
@@ -866,6 +880,7 @@ public class InitializerService {
 					}
 				}
 			} catch (Throwable t) {
+				((DefaultEnvironment)env).clearSiteScope(site);
 				site.setState(SiteState.INACTIVE);
 				throw new SiteLoadingException("Error while loading site " + siteToLoad.getName(), t);
 			} finally {
@@ -941,7 +956,7 @@ public class InitializerService {
 	 * @see #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
-		Environment env = DefaultEnvironment.get(ctx);
+		Environment env = DefaultEnvironment.getGlobal();
 		Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 		if (null == siteMap) {
 			LOGGER.info("no sites found, must be boot sequence");

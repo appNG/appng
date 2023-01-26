@@ -37,12 +37,6 @@ abstract class AbstractGeneratorMojo extends AbstractMojo {
 	protected File filePath;
 
 	/**
-	 * the fully qualified name of the target class to generate
-	 */
-	@Parameter(property = "targetClass", required = true)
-	protected String targetClass;
-
-	/**
 	 * the output-folder for the generated class
 	 */
 	@Parameter(property = "outFolder", defaultValue = "target/generated-sources/constants", required = false)

@@ -15,53 +15,84 @@
  */
 package org.appng.appngizer.controller;
 
+import java.net.URI;
+
 import org.appng.appngizer.model.xml.Site;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SiteControllerTest extends ControllerTest {
 
 	@Test
-	public void testCreateRetrieveAndUpdate() throws Exception {
-		Site created = new Site();
-		created.setName("localhost");
-		created.setHost("localhost");
-		created.setDomain("http://localhost:8081");
-		created.setDescription("none");
-		created.setActive(false);
-		created.setCreateRepositoryPath(true);
+	public void test01_SiteCreate() throws Exception {
+		// Null where xsd allows it.
+		Site siteNoOptionals = getAppNGizerSite("naked1", "nakedhost", null, "http://nakedhost:8081", null, false,
+				true);
+		postAndVerify("/site", "xml/site-create-nakedhost.xml", siteNoOptionals, HttpStatus.CREATED);
 
-		postAndVerify("/site", "xml/site-create.xml", created, HttpStatus.CREATED);
-		postAndVerify("/site", null, created, HttpStatus.CONFLICT);
-
-		Site updated = new Site();
-		updated.setName("localhost");
-		updated.setHost("localhost");
-		updated.setDomain("http://localhost:8080");
-		updated.setDescription("the local host");
-		updated.setActive(true);
-		putAndVerify("/site/localhost", "xml/site-update.xml", updated, HttpStatus.OK);
-
+		// A regular site (not active yet).
+		Site siteRegular = getAppNGizerSite("regular1", "regularhost",
+				new String[] { "KillEmAllHost", "RidetheLightningHost", "MasterofPuppetsHost" },
+				"http://regularhost:8081", "36:38 regular fit", false, true);
+		postAndVerify("/site", "xml/site-create-regularhost.xml", siteRegular, HttpStatus.CREATED);
 	}
 
 	@Test
-	public void testDelete() throws Exception {
-		Site created = new Site();
-		created.setName("deleteme");
-		created.setHost("deleteme");
-		created.setDomain("http://deleteme:8080");
-		created.setDescription("deleteme");
-		created.setActive(false);
+	public void test02_SiteConflicts() throws Exception {
+		// Post the same site again. Should trigger conflict tests.
+		Site siteNameConflict = getAppNGizerSite("regular1", "regularhost", null, "http://regularhost:8081", null, true,
+				true);
+		sendAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteNameConflict, HttpStatus.CONFLICT,
+				"xml/site-test-sitename-conflict.xml");
+		// New Site with conflict between aliases. (Only one combination of
+		// Alias/Host<-conflict->Alias/Host. Rest is tested in Manager.)
+		Site siteAliasConflict = getAppNGizerSite("newnamehost", "newnamehost",
+				new String[] { "RidetheLightningHost", "MasterofPuppetsHost" }, "http://newnamehost:8081", null, true,
+				true);
+		sendAndVerify(MockMvcRequestBuilders.post(new URI("/site")), siteAliasConflict, HttpStatus.CONFLICT,
+				"xml/site-test-alias-conflict.xml");
+	}
 
-		postAndVerify("/site", null, created, HttpStatus.CREATED);
+	@Test
+	public void test03_SiteUpdate() throws Exception {
+		Site siteUpdate = getAppNGizerSite("naked1", "NotSoNakedAnyMoreHost", new String[] { "CoverMeInAliasesHost" },
+				"http://nakedhost:8081", "Descriptive clothing", true, true);
+		putAndVerify("/site/naked1", "xml/site-update-nakedhost.xml", siteUpdate, HttpStatus.OK);
+	}
+
+	@Test
+	public void test04_SiteDelete() throws Exception {
+		Site siteDeleteDummy = getAppNGizerSite("deleteme", "deleteme", null, "http://deleteme:8080", "deleteme", false,
+				true);
+		postAndVerify("/site", null, siteDeleteDummy, HttpStatus.CREATED);
 		deleteAndVerify("/site/deleteme", "", HttpStatus.NO_CONTENT);
 	}
 
 	@Test
-	public void testList() throws Exception {
+	public void test05_SiteList() throws Exception {
 		getAndVerify("/site", "xml/site-list.xml", HttpStatus.OK);
+	}
+
+	private Site getAppNGizerSite(String name, String host, String[] aliasNames, String domain, String description,
+			boolean active, boolean repoPath) {
+		Site site = new Site();
+		site.setName(name);
+		site.setHost(host);
+		if (null != aliasNames) {
+			Site.HostAliases hostAliases = new Site.HostAliases();
+			for (String aliasName : aliasNames) {
+				hostAliases.getAlias().add(aliasName);
+			}
+			site.setHostAliases(hostAliases);
+		}
+		site.setDomain(domain);
+		site.setDescription(description);
+		site.setActive(active);
+		site.setCreateRepositoryPath(repoPath);
+		return site;
 	}
 }

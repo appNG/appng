@@ -23,7 +23,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,7 +64,7 @@ import org.appng.xml.platform.FieldDef;
 import org.appng.xml.platform.GetParams;
 import org.appng.xml.platform.Label;
 import org.appng.xml.platform.Labels;
-import org.appng.xml.platform.Link;
+import org.appng.xml.platform.Linkable;
 import org.appng.xml.platform.Linkpanel;
 import org.appng.xml.platform.Message;
 import org.appng.xml.platform.MessageType;
@@ -149,7 +148,8 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * </li>
  * <li>{@code PLATFORM}<br/>
- * Provides the platform properties as {@link Properties}. See {@link Platform.Property} for a list of available properties.<br/>
+ * Provides the platform properties as {@link Properties}. See {@link Platform.Property} for a list of available
+ * properties.<br/>
  * Example:
  * 
  * <pre>
@@ -195,44 +195,14 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		String platformXML = null;
 		ApplicationProvider applicationProvider = getApplicationProvider(applicationSite);
 		ConfigurableApplicationContext context = applicationProvider.getContext();
-		ThymeleafTemplateEngine templateEngine = prepareEngine(context);
+
+		ThymeleafTemplateEngine templateEngine = prepareEngine(context, platformProperties, applicationSite,
+				applicationProvider, charset);
 		File debugFolder = new File(debugRootFolder, getDebugFilePrefix(new Date()));
 
 		try {
 			sw.start("build platform.xml");
 			platformXML = marshallService.marshal(platform);
-			sw.stop();
-
-			sw.start("build engine");
-			String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
-			Boolean devMode = platformProperties.getBoolean(Platform.Property.DEV_MODE);
-
-			if (!templates.isEmpty()) {
-				CacheProvider cacheProvider = new CacheProvider(platformProperties);
-				File platformCache = cacheProvider.getPlatformCache(applicationSite, applicationProvider);
-				File tplFolder = new File(platformCache, ResourceType.TPL.getFolder()).getAbsoluteFile();
-
-				Set<String> patterns = templates.parallelStream().map(t -> new File(tplFolder, t.getPath()))
-						.filter(f -> f.exists()).map(f -> f.getName()).collect(Collectors.toSet());
-
-				ITemplateResolver applicationTemplateResolver = getApplicationTemplateResolver(
-						applicationProvider.getName(), charset, devMode, tplFolder, patterns);
-				templateEngine.addTemplateResolver(applicationTemplateResolver);
-
-				ILinkBuilder appLinkBuilder = getLinkBuilder(applicationProvider, templatePrefix, tplFolder);
-				templateEngine.addLinkBuilder(appLinkBuilder);
-			}
-
-			ILinkBuilder globalLinkBuilder = getGlobalLinkBuilder(templatePrefix);
-			templateEngine.addLinkBuilder(globalLinkBuilder);
-
-			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(charset, devMode);
-			templateEngine.addTemplateResolver(globalTemplateResolver);
-
-			if (null != context) {
-				MessageSource ms = context.getBean(MessageSource.class);
-				templateEngine.setTemplateEngineMessageSource(ms);
-			}
 
 			if (writeDebugFiles) {
 				sw.stop();
@@ -337,16 +307,17 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		variables.put("platform", platform);
 		variables.put("SESSION", env.getSession());
 		variables.put("APP", applicationProvider.getProperties());
-		variables.put("SITE", applicationProvider.getSite().getProperties());
+		Site site = applicationProvider.getSite();
+		variables.put("SITE", site.getProperties());
 		variables.put("PLATFORM", env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG));
 		try {
 			Document doc = dbf.newDocumentBuilder().newDocument();
 			AppNGSchema.PLATFORM.getContext().createMarshaller().marshal(platform, doc);
 			XPathProcessor xpath = new XPathProcessor(doc);
 			xpath.setNamespace("appng", AppNGSchema.PLATFORM.getNamespace());
-			variables.put("appNG", new AppNG(platform, xpath));
+			variables.put("appNG", new AppNG(platform, xpath, site.getName(), applicationProvider.getName()));
 		} catch (Exception e) {
-			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage());
+			throw new InvalidConfigurationException(applicationProvider.getName(), e.getMessage(), e);
 		}
 		return new WebContext(env.getServletRequest(), env.getServletResponse(), env.getServletContext(),
 				env.getLocale(), variables);
@@ -380,36 +351,76 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		return appLinkBuilder;
 	}
 
-	protected ThymeleafTemplateEngine prepareEngine(ConfigurableApplicationContext context) {
-		List<ThymeleafReplaceInterceptor> interceptors = null;
-		if (null != context) {
-			interceptors = new ArrayList<>(context.getBeansOfType(ThymeleafReplaceInterceptor.class).values());
-			Collections.sort(interceptors, new Comparator<ThymeleafReplaceInterceptor>() {
-				public int compare(ThymeleafReplaceInterceptor o1, ThymeleafReplaceInterceptor o2) {
-					return Integer.compare(o1.getPriority(), o2.getPriority());
-				}
-			});
+	protected ThymeleafTemplateEngine prepareEngine(ConfigurableApplicationContext context,
+			Properties platformProperties, Site site, ApplicationProvider applicationProvider, Charset charset) {
+
+		Boolean devMode = platformProperties.getBoolean(Platform.Property.DEV_MODE);
+		ThymeleafTemplateEngine templateEngine = null;
+		String siteScopedKey = String.format("templateEngine.%s", applicationProvider.getName());
+
+		if (!devMode) {
+			templateEngine = env.getAttribute(Scope.SITE, siteScopedKey);
 		}
 
-		ThymeleafTemplateEngine templateEngine = new ThymeleafTemplateEngine(interceptors);
-		StandardCacheManager cacheManager = new StandardCacheManager();
-		cacheManager.setExpressionCacheInitialSize(500);
-		cacheManager.setExpressionCacheMaxSize(1000);
-		templateEngine.setCacheManager(cacheManager);
-		if (null != interceptors) {
-			for (ThymeleafReplaceInterceptor interceptor : interceptors) {
-				// An interceptor can define some template resource to be added to the template
-				// resolver
-				if (null != interceptor.getAdditionalTemplateResourceNames()) {
-					for (String resource : interceptor.getAdditionalTemplateResourceNames()) {
-						Template template = new Template();
-						template.setPath(resource);
-						templates.add(template);
-					}
-				}
+		if (null == templateEngine) {
 
+			templateEngine = new ThymeleafTemplateEngine();
+
+			StandardCacheManager cacheManager = new StandardCacheManager();
+			cacheManager.setExpressionCacheInitialSize(500);
+			cacheManager.setExpressionCacheMaxSize(1000);
+			templateEngine.setCacheManager(cacheManager);
+
+			String templatePrefix = platformProperties.getString(Platform.Property.TEMPLATE_PREFIX);
+
+			if (!templates.isEmpty()) {
+				CacheProvider cacheProvider = new CacheProvider(platformProperties);
+				File platformCache = cacheProvider.getPlatformCache(site, applicationProvider);
+				File tplFolder = new File(platformCache, ResourceType.TPL.getFolder()).getAbsoluteFile();
+
+				Set<String> patterns = templates.parallelStream().map(t -> new File(tplFolder, t.getPath()))
+						.filter(f -> f.exists()).map(f -> f.getName()).collect(Collectors.toSet());
+
+				ITemplateResolver applicationTemplateResolver = getApplicationTemplateResolver(
+						applicationProvider.getName(), charset, devMode, tplFolder, patterns);
+				templateEngine.addTemplateResolver(applicationTemplateResolver);
+
+				ILinkBuilder appLinkBuilder = getLinkBuilder(applicationProvider, templatePrefix, tplFolder);
+				templateEngine.addLinkBuilder(appLinkBuilder);
 			}
+
+			ILinkBuilder globalLinkBuilder = getGlobalLinkBuilder(templatePrefix);
+			templateEngine.addLinkBuilder(globalLinkBuilder);
+
+			ITemplateResolver globalTemplateResolver = getGlobalTemplateResolver(charset, devMode);
+			templateEngine.addTemplateResolver(globalTemplateResolver);
+
+			if (null != context) {
+				List<ThymeleafReplaceInterceptor> interceptors = new ArrayList<>(
+						context.getBeansOfType(ThymeleafReplaceInterceptor.class).values());
+				Collections.sort(interceptors, (o1, o2) -> Integer.compare(o1.getPriority(), o2.getPriority()));
+				for (ThymeleafReplaceInterceptor interceptor : interceptors) {
+					// An interceptor can define some template resource to be added
+					// to the template resolver
+					if (null != interceptor.getAdditionalTemplateResourceNames()) {
+						for (String resource : interceptor.getAdditionalTemplateResourceNames()) {
+							Template template = new Template();
+							template.setPath(resource);
+							templates.add(template);
+						}
+					}
+
+				}
+				MessageSource ms = context.getBean(MessageSource.class);
+				templateEngine.setTemplateEngineMessageSource(ms);
+				templateEngine.withInterceptors(interceptors);
+			}
+
+			env.setAttribute(Scope.SITE, siteScopedKey, templateEngine);
+		} else {
+			LOGGER.info("Engine from context: {}", templateEngine);
 		}
+
 		return templateEngine;
 	}
 
@@ -422,6 +433,7 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		globalTemplateResolver.setCharacterEncoding(charset.name());
 		globalTemplateResolver.setCacheable(!devMode);
 		globalTemplateResolver.setOrder(1);
+
 		return globalTemplateResolver;
 	}
 
@@ -492,25 +504,16 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		private String applicationName;
 		private XPathProcessor xpath;
 
-		public AppNG(org.appng.xml.platform.Platform platform, XPathProcessor xpath) {
+		public AppNG(org.appng.xml.platform.Platform platform, XPathProcessor xpath, String siteName,
+				String applicationName) {
 			this.platform = platform;
 			this.xpath = xpath;
+			this.siteName = siteName;
+			this.applicationName = applicationName;
 			parse();
 		}
 
 		private void parse() {
-			List<NavigationItem> siteNavigation = getSiteNavigation();
-			for (NavigationItem site : siteNavigation) {
-				if (Boolean.TRUE.equals(site.isSelected())) {
-					siteName = site.getLabel();
-					for (NavigationItem app : site.getItem()) {
-						if (Boolean.TRUE.equals(app.isSelected())) {
-							applicationName = app.getLabel();
-						}
-					}
-				}
-			}
-
 			ApplicationReference application = platform.getContent().getApplication();
 			if (null != application) {
 				PagesReference pages = application.getPages();
@@ -606,6 +609,10 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 		public List<NavigationItem> getSiteNavigation() {
 			return platform.getNavigation().getItem().stream()
 					.filter(n -> org.appng.xml.platform.ItemType.SITE.equals(n.getType())).collect(Collectors.toList());
+		}
+
+		public String getSiteId() {
+			return siteName;
 		}
 
 		public String getSiteName() {
@@ -832,9 +839,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			return null;
 		}
 
-		public Link defaultLink(Linkpanel panel) {
+		public Linkable defaultLink(Linkpanel panel) {
 			if (null != panel) {
-				for (Link l : panel.getLinks()) {
+				for (Linkable l : panel.getLinks()) {
 					if (Boolean.parseBoolean(l.getDefault())) {
 						return l;
 					}
@@ -843,9 +850,9 @@ public class ThymeleafProcessor extends AbstractRequestProcessor {
 			return null;
 		}
 
-		public Link defaultLink(List<Linkpanel> panels) {
+		public Linkable defaultLink(List<Linkpanel> panels) {
 			for (Linkpanel panel : panels) {
-				Link defaultLink = defaultLink(panel);
+				Linkable defaultLink = defaultLink(panel);
 				if (null != defaultLink) {
 					return defaultLink;
 				}

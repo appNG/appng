@@ -14,7 +14,26 @@ Expressions can be used to
 * set the `async`-attribute of an `<action>`
 * set the `default` and `active`-attribute of a `<link>`
 * write a `condition` for an `<icon>`
-* pass a parameter to the `params`-attribute of a `<label>`, `<title>`, `<description>`, `<confirmation>`
+* pass a parameter to the `params`-attribute of a `<label>`, `<title>`, `<description>`, `<confirmation>` 
+
+
+=== Accessing site and application properties
+
+Within an expression, the variables `SITE` and `APP` can be used to access any site- or application property.
+
+[source,xml]
+----
+<condition expression="${SITE.coolFeatureEnabled and APP.supportsCoolFeature}" />
+----
+
+
+=== Accessing the session
+
+Also, session variables can be accessed using the `SESSION` variable in an expression.
+[source,xml]
+----
+<condition expression="${SESSION.useCoolFeature or SESSION.features eq 'all'}" />
+----
 
 == Permissions
 
