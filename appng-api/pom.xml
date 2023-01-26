@@ -20,7 +20,7 @@
 			<plugin>
 				<groupId>org.appng</groupId>
 				<artifactId>appng-maven-plugin</artifactId>
-				<version>${project.version}</version>
+				<version>1.24.5</version>
 				<executions>
 					<execution>
 						<id>messageConstants</id>
