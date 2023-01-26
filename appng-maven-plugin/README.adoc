@@ -1,6 +1,6 @@
-:snapshot: 1.25.0-SNAPSHOT
+:snapshot: 1.25.1-SNAPSHOT
 :stable: 1.24.1
-:current: {snapshot}
+:current: {stable}
 
 = appNG maven plugin
 
