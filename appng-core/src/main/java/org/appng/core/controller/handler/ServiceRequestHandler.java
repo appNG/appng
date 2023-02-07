@@ -141,7 +141,7 @@ public class ServiceRequestHandler implements RequestHandler {
 							path.getServletPath());
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 					return;
-				} else if (!siteToUse.hasState(SiteState.STARTED, SiteState.RESTART_SCHEDULED)) {
+				} else if (!siteToUse.hasState(SiteState.STARTED, SiteState.STANDBY)) {
 					LOGGER.warn("Site '{}' is in state {}, returning {} (path: {})", siteName, siteToUse.getState(),
 							HttpStatus.SERVICE_UNAVAILABLE.value(), path.getServletPath());
 					servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());

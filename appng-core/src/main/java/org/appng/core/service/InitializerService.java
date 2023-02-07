@@ -547,12 +547,12 @@ public class InitializerService {
 				Site currentSite = siteMap.get(site.getName());
 				boolean isReload = null != currentSite;
 				if (isReload) {
-					Integer siteScheduleReloadOffset = platformConfig.getInteger("siteScheduleReloadOffset", 10);
-					if (siteScheduleReloadOffset > 0) {
-						((SiteImpl) currentSite).setState(SiteState.RESTART_SCHEDULED);
+					Integer siteStandbyOffset = platformConfig.getInteger("siteStandbyOffset", 10);
+					if (siteStandbyOffset > 0) {
+						((SiteImpl) currentSite).setState(SiteState.STANDBY);
 						LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading",
-								currentSite.getState(), currentSite.getName(), siteScheduleReloadOffset);
-						Thread.sleep(TimeUnit.SECONDS.toMillis(siteScheduleReloadOffset));
+								currentSite.getState(), currentSite.getName(), siteStandbyOffset);
+						Thread.sleep(TimeUnit.SECONDS.toMillis(siteStandbyOffset));
 					}
 
 					LOGGER.info("prepare reload of site {}, shutting down first", currentSite);

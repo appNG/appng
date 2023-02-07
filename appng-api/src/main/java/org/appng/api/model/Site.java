@@ -38,7 +38,7 @@ public interface Site extends Named<Integer> {
 	 * The different states a site can have
 	 */
 	enum SiteState {
-		STARTING, STARTED, RESTART_SCHEDULED, STOPPING, STOPPED, INACTIVE, DELETED;
+		STARTING, STARTED, STANDBY, STOPPING, STOPPED, INACTIVE, DELETED;
 	}
 
 	/**

@@ -1928,7 +1928,7 @@ public class CoreService {
 				}
 
 				LOGGER.info("destroying site {}", shutdownSite);
-				if (shutdownSite.hasState(SiteState.STARTED, SiteState.RESTART_SCHEDULED)) {
+				if (shutdownSite.hasState(SiteState.STARTED, SiteState.STANDBY)) {
 					shutdownSite.setState(SiteState.STOPPING, env);
 					for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
 						shutdownApplication(siteApplication, env);

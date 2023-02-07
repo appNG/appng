@@ -243,6 +243,23 @@ public class ControllerTest extends Controller {
 			Mockito.verify(base.response).setContentType(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON);
 			Assert.assertTrue(actual.contains("\"name\" : \"manager\""));
 			Assert.assertTrue(actual.contains("\"state\" : \"STARTED\""));
+			Mockito.verify(base.response).setStatus(HttpStatus.OK.value());
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testMonitoringStandby() {
+		base.site.setState(SiteState.STANDBY);
+		prepareMonitoring("/health");
+		try {
+			doGet(base.request, base.response);
+			String actual = new String(base.out.toByteArray());
+			Mockito.verify(base.response).setContentType(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON);
+			Assert.assertTrue(actual.contains("\"name\" : \"manager\""));
+			Assert.assertTrue(actual.contains("\"state\" : \"STANDBY\""));
+			Mockito.verify(base.response).setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 		} catch (Exception e) {
 			fail(e);
 		}
