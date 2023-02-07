@@ -208,7 +208,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			return;
 		}
 
-		if (!SiteState.STARTED.equals(site.getState())) {
+		if (!site.hasState(SiteState.STARTED, SiteState.RESTART_SCHEDULED)) {
 			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 			String maintenanceScreen = site.getProperties().getClob(Platform.Property.MAINTENANCE_SCREEN,
 					platformProperties.getClob(Platform.Property.MAINTENANCE_SCREEN));
@@ -262,7 +262,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 
 			if (null != requestHandler) {
-				if (site.hasState(SiteState.STARTED)) {
+				if (site.hasState(SiteState.STARTED, SiteState.RESTART_SCHEDULED)) {
 					setRequestAttributes(servletRequest, env, pathInfo);
 					requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
 					if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {

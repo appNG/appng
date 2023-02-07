@@ -538,13 +538,13 @@ public class CoreService {
 	 * only relevant if {@link Subject}s exist which still use passwords hashed with an older {@link PasswordHandler}.
 	 * This method may be removed in the future.
 	 *
-	 * @param authSubject
-	 *                    The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
-	 *                    determine which implementation of the {@link PasswordHandler} interface will be returned.
+	 * @param      authSubject
+	 *                         The {@link AuthSubject} which is used to initialize the {@link PasswordHandler} and to
+	 *                         determine which implementation of the {@link PasswordHandler} interface will be returned.
 	 * 
-	 * @return the {@link PasswordHandler} for the {@link AuthSubject}
+	 * @return                 the {@link PasswordHandler} for the {@link AuthSubject}
 	 * 
-	 * @deprecated will be removed in 2.x
+	 * @deprecated             will be removed in 2.x
 	 */
 	@Deprecated
 	public PasswordHandler getPasswordHandler(AuthSubject authSubject) {
@@ -558,10 +558,10 @@ public class CoreService {
 	/**
 	 * Returns the default password manager which should be used to handle all passwords.
 	 *
-	 * @param authSubject
-	 *                    The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
+	 * @param  authSubject
+	 *                     The {@link AuthSubject} which is used for initializing the {@link PasswordHandler}.
 	 * 
-	 * @return the default {@link PasswordHandler} for the {@link AuthSubject}
+	 * @return             the default {@link PasswordHandler} for the {@link AuthSubject}
 	 */
 	public PasswordHandler getDefaultPasswordHandler(AuthSubject authSubject) {
 		return new BCryptPasswordHandler(authSubject);
@@ -1071,15 +1071,15 @@ public class CoreService {
 	/**
 	 * Deletes a {@link Template}
 	 *
-	 * @param name
-	 *             the name of the template to delete
+	 * @param  name
+	 *              the name of the template to delete
 	 * 
 	 * @return
-	 *         <ul>
-	 *         <li>0 - if everything went OK
-	 *         <li>-1 - if no such template exists
-	 *         <li>-2 - if the template is still in use
-	 *         </ul>
+	 *              <ul>
+	 *              <li>0 - if everything went OK
+	 *              <li>-1 - if no such template exists
+	 *              <li>-2 - if the template is still in use
+	 *              </ul>
 	 */
 	public Integer deleteTemplate(String name) {
 		Template template = templateService.getTemplateByName(name);
@@ -1928,7 +1928,7 @@ public class CoreService {
 				}
 
 				LOGGER.info("destroying site {}", shutdownSite);
-				if (SiteState.STARTED.equals(shutdownSite.getState())) {
+				if (shutdownSite.hasState(SiteState.STARTED, SiteState.RESTART_SCHEDULED)) {
 					shutdownSite.setState(SiteState.STOPPING, env);
 					for (SiteApplication siteApplication : shutdownSite.getSiteApplications()) {
 						shutdownApplication(siteApplication, env);
@@ -2194,17 +2194,17 @@ public class CoreService {
 	/**
 	 * Expires cache elements for a site by path prefix
 	 *
-	 * @param siteId
-	 *                           the id of the {@link Site} to retrieve the cache for
-	 * @param cacheElementPrefix
-	 *                           the prefix to use
+	 * @param      siteId
+	 *                                the id of the {@link Site} to retrieve the cache for
+	 * @param      cacheElementPrefix
+	 *                                the prefix to use
 	 * 
-	 * @return always {@code 0}, as the execution is asynchronous
+	 * @return                        always {@code 0}, as the execution is asynchronous
 	 * 
-	 * @throws BusinessException
+	 * @throws     BusinessException
 	 * 
-	 * @deprecated Use {@link CacheService#expireCacheElementsByPrefix(javax.cache.Cache, String)} or
-	 *             {@link CacheService#expireCacheElementsByPrefix(Site, String)}.
+	 * @deprecated                    Use {@link CacheService#expireCacheElementsByPrefix(javax.cache.Cache, String)} or
+	 *                                {@link CacheService#expireCacheElementsByPrefix(Site, String)}.
 	 */
 	@Deprecated
 	public int expireCacheElementsStartingWith(Integer siteId, String cacheElementPrefix) throws BusinessException {
