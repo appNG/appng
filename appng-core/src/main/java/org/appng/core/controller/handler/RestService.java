@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Path;
@@ -50,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
  * Adds support for detecting and handling {@link RestController}s. Also detects {@link ExceptionHandler}s on beans
  * annotated with {@link ControllerAdvice}.
  * 
- * @see ServiceRequestHandler
+ * @see    ServiceRequestHandler
  * 
  * @author Matthias Müller
  */
@@ -71,7 +72,7 @@ public class RestService {
 
 		HandlerMethod handlerMethod = null;
 		List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(context);
-		List<HandlerMethodArgumentResolver> argumentResolvers =  RestConfig.getArgumentResolvers(context);
+		List<HandlerMethodArgumentResolver> argumentResolvers = RestConfig.getArgumentResolvers(context);
 		try {
 			RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
 			rmhm.setApplicationContext(context);
@@ -96,6 +97,8 @@ public class RestService {
 			rmha.setMessageConverters(messageConverters);
 			rmha.afterPropertiesSet();
 			rmha.handle(wrapped, servletResponse, handlerMethod);
+		} catch (ClientAbortException ca) {
+			LOGGER.debug("Request aborted by client");
 		} catch (Exception e) {
 			servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			ExceptionHandlerExceptionResolver eher = new ExceptionHandlerExceptionResolver();
