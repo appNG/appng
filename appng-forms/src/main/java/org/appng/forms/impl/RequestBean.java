@@ -272,7 +272,7 @@ public class RequestBean implements Request {
 			parameters.put(key, Collections.unmodifiableList(values));
 			LOGGER.debug("adding {} new value(s) for parameter '{}'", values.size(), key);
 		} else {
-			LOGGER.warn("parameter '{}' is alread present , not adding {} new value(s)", key, values.size());
+			LOGGER.warn("parameter '{}' is alread present, tried to add {} new value(s)", key, values.size());
 		}
 	}
 
