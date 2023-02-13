@@ -69,7 +69,7 @@ public class MultiSiteSupport {
 				LOGGER.debug("site '{}' is granting site '{}' access to application '{}'", site.getName(),
 						callingSite.getName(), application);
 				executingSite = (SiteImpl) RequestUtil.waitForSite(env, site.getName());
-				if (null != executingSite && executingSite.hasState(SiteState.STARTED, SiteState.STANDBY)) {
+				if (null != executingSite && executingSite.hasState(SiteState.STARTED, SiteState.SUSPENDED)) {
 					applicationProvider = (ApplicationProvider) executingSite.getSiteApplication(application);
 					if (null == applicationProvider) {
 						throw new JspException(String.format(

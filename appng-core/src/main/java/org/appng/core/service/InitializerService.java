@@ -549,7 +549,7 @@ public class InitializerService {
 				if (isReload) {
 					Integer siteStandbyOffset = platformConfig.getInteger("siteStandbyOffset", 10);
 					if (siteStandbyOffset > 0) {
-						((SiteImpl) currentSite).setState(SiteState.STANDBY);
+						((SiteImpl) currentSite).setState(SiteState.SUSPENDED);
 						LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading",
 								currentSite.getState(), currentSite.getName(), siteStandbyOffset);
 						Thread.sleep(TimeUnit.SECONDS.toMillis(siteStandbyOffset));
