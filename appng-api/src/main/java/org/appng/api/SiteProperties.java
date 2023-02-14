@@ -191,7 +191,7 @@ public class SiteProperties {
 	/** Track usage of HTTP sessions? **/
 	public static final String SESSION_TRACKING_ENABLED = "sessionTrackingEnabled";
 	/** Set debug headers in HTTP response? */
-	public static final String  SET_DEBUG_HEADERS = "setDebugHeaders";
+	public static final String SET_DEBUG_HEADERS = "setDebugHeaders";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
 	/**
@@ -199,6 +199,8 @@ public class SiteProperties {
 	 * directory
 	 */
 	public static final String SUPPORT_RELOAD_FILE = "supportReloadFile";
+	/** Seconds to wait before performing a site reload, the site while be in state {@link Site.SiteState#SUSPENDED} meanwhile */
+	public static final String SUSPEND_ON_RELOAD = "suspendOnReload";
 	/** The prefix used for the appNG JSP-tags. */
 	public static final String TAG_PREFIX = "tagPrefix";
 	/** The name of the template to use */

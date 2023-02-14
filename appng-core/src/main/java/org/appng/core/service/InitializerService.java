@@ -41,8 +41,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -74,6 +76,7 @@ import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationConfigProviderImpl;
 import org.appng.api.support.ConfigValidator;
+import org.appng.api.support.ElementHelper;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
@@ -127,6 +130,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InitializerService {
 
+	private static final int SITE_SUSPEND_DEFAULT = 5;
 	private static final int THREAD_PRIORITY_LOW = 3;
 
 	private static final String LIB_LOCATION = "/WEB-INF/lib";
@@ -224,7 +228,7 @@ public class InitializerService {
 		}
 	}
 
-	private void startSiteThread(Site site, String threadName, int priority, Runnable runnable) {
+	private Future<?> startSiteThread(Site site, String threadName, int priority, Runnable runnable) {
 		if (!siteThreads.containsKey(site.getName())) {
 			siteThreads.put(site.getName(), new ArrayList<>());
 		}
@@ -232,8 +236,9 @@ public class InitializerService {
 				.setNameFormat(threadName).build();
 		ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
 		siteThreads.get(site.getName()).add(executor);
-		executor.execute(runnable);
+		Future<?> submitted = executor.submit(runnable);
 		LOGGER.info("started site thread [{}] with runnable of type {}", threadName, runnable.getClass().getName());
+		return submitted;
 	}
 
 	@Deprecated
@@ -473,7 +478,40 @@ public class InitializerService {
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(env, siteToLoad, true, fp);
+		if (siteToLoad.getProperties().getBoolean("asyncSiteReloads", false)) {
+			loadSiteAsync(env, siteToLoad, fp);
+		} else {
+			loadSite(env, siteToLoad, true, fp);
+		}
+	}
+
+	public synchronized void loadSiteAsync(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
+			throws InvalidConfigurationException {
+		Integer suspendOnReload = siteToLoad.getProperties().getInteger(SiteProperties.SUSPEND_ON_RELOAD, SITE_SUSPEND_DEFAULT);
+		String message;
+		if (suspendOnReload.intValue() == 0) {
+			message = String.format("Site %s will be loaded in the background.", siteToLoad.getName());
+		} else {
+			message = String.format("Site %s wil be suspended for %s seconds and then be loadded in the background.",
+					siteToLoad.getName(), suspendOnReload);
+		}
+		fp.addOkMessage(message);
+
+		FieldProcessorImpl asyncFp = new FieldProcessorImpl(fp.getReference());
+		Runnable siteLoader = getSiteLoader(siteToLoad, env, true, asyncFp, false);
+		String siteLoaderThreadName = getSiteLoaderThreadName(siteToLoad);
+		final Future<?> reloadTask = startSiteThread(siteToLoad, siteLoaderThreadName, Thread.MAX_PRIORITY, siteLoader);
+		startSiteThread(siteToLoad, siteLoaderThreadName + "-done", Thread.MAX_PRIORITY, () -> {
+			try {
+				reloadTask.get();
+			} catch (InterruptedException | ExecutionException e) {
+				String error = String.format("Error while loading site %s", siteToLoad.getName());
+				asyncFp.addErrorMessage(error);
+				LOGGER.error(error, e);
+			}
+			Messages messages = asyncFp.getMessages();
+			ElementHelper.addMessages(env, messages);
+		});
 	}
 
 	/**
@@ -536,7 +574,7 @@ public class InitializerService {
 			StopWatch sw = new StopWatch("Loading site " + siteToLoad.getName());
 			sw.start("Setup");
 			if (setThreadName) {
-				Thread.currentThread().setName("siteloader-" + siteToLoad.getName());
+				Thread.currentThread().setName(getSiteLoaderThreadName(siteToLoad));
 			}
 			SiteImpl site = siteToLoad;
 			try {
@@ -547,12 +585,13 @@ public class InitializerService {
 				Site currentSite = siteMap.get(site.getName());
 				boolean isReload = null != currentSite;
 				if (isReload) {
-					Integer siteStandbyOffset = platformConfig.getInteger("siteStandbyOffset", 10);
-					if (siteStandbyOffset > 0) {
-						((SiteImpl) currentSite).setState(SiteState.SUSPENDED);
+					Integer siteSuspendOffset = currentSite.getProperties().getInteger(SiteProperties.SUSPEND_ON_RELOAD,
+							SITE_SUSPEND_DEFAULT);
+					if (siteSuspendOffset > 0) {
+						((SiteImpl) currentSite).setState(SiteState.SUSPENDED, env);
 						LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading",
-								currentSite.getState(), currentSite.getName(), siteStandbyOffset);
-						Thread.sleep(TimeUnit.SECONDS.toMillis(siteStandbyOffset));
+								currentSite.getState(), currentSite.getName(), siteSuspendOffset);
+						Thread.sleep(TimeUnit.SECONDS.toMillis(siteSuspendOffset));
 					}
 
 					LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
@@ -899,6 +938,10 @@ public class InitializerService {
 				}
 			}
 		};
+	}
+
+	private String getSiteLoaderThreadName(SiteImpl siteToLoad) {
+		return "siteloader-" + siteToLoad.getName();
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {
