@@ -20,7 +20,7 @@ In headless installations an individual value can be set with the appNG CLI.
 
 IMPORTANT: The tailing slash is mandatory otherwise the request gets redirected as GET request to that location and the authentication procedure is not performed!
 
-IMPORTANT: The login request is the only one, that must be sent with `Content-Type=text/xml`. All other *PUT* and *POST* requests have to use the header `Content-Type=text/xml`.
+IMPORTANT: The login request is the only one, that must be sent with the header `Content-Type=text/plain`. All other *PUT* and *POST* requests have to use the header `Content-Type=text/xml`.
 
 *Request Body:* (plain text format!)
 [source,text,indent=0]
