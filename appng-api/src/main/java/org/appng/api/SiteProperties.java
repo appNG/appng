@@ -199,6 +199,8 @@ public class SiteProperties {
 	 * directory
 	 */
 	public static final String SUPPORT_RELOAD_FILE = "supportReloadFile";
+	/** The maximum time (in seconds) to wait for a suspended site to finish its requests */
+	public static final String SUSPEND_MAX_WAIT ="suspendMaxWait";
 	/** Seconds to wait before performing a site reload, the site while be in state {@link Site.SiteState#SUSPENDED} meanwhile */
 	public static final String SUSPEND_ON_RELOAD = "suspendOnReload";
 	/** The prefix used for the appNG JSP-tags. */
