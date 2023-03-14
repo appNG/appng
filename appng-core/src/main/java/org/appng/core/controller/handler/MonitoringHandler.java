@@ -27,7 +27,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -49,6 +48,7 @@ import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.service.HazelcastConfigurer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -62,6 +62,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hazelcast.core.HazelcastInstance;
 import com.zaxxer.hikari.HikariDataSource;
 
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.exporter.common.TextFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -84,7 +86,7 @@ import lombok.NoArgsConstructor;
  * </ul>
  * </p>
  * 
- * @see Platform.Property#MONITORING_PATH
+ * @see    Platform.Property#MONITORING_PATH
  * 
  * @author Matthias Müller
  */
@@ -119,9 +121,19 @@ public class MonitoringHandler implements RequestHandler {
 				result = env.getAttribute(Scope.PLATFORM, site.getName() + "." + EnvironmentKeys.JAR_INFO_MAP);
 			} else if ("platform".equals(pathsegment)) {
 				result = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG + "." + JAR_INFO_MAP);
+			} else if ("metrics".equals(pathsegment)) {
+				CollectorRegistry registry = env.getAttribute(Scope.SITE, MetricsFilter.REGISTRY);
+				if (null == registry) {
+					servletResponse.setStatus(HttpStatus.NOT_IMPLEMENTED.value());
+				} else {
+					servletResponse.setContentType(TextFormat.CONTENT_TYPE_OPENMETRICS_100);
+					TextFormat.writeOpenMetrics100(servletResponse.getWriter(), registry.metricFamilySamples());
+				}
 			}
-			servletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			writer.writeValue(servletResponse.getOutputStream(), result);
+			if (null != result) {
+				servletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
+				writer.writeValue(servletResponse.getOutputStream(), result);
+			}
 		} else {
 			servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 		}

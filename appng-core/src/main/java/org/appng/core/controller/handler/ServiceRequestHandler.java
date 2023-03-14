@@ -225,11 +225,14 @@ public class ServiceRequestHandler implements RequestHandler {
 				} else if (SERVICE_TYPE_WEBSERVICE.equals(serviceType)) {
 					path.checkPathLength(6);
 					String webserviceName = path.getService();
+					servletRequest.setAttribute(MetricsFilter.SERVICE_NAME, webserviceName);
 					servletRequest.setAttribute("service_webservice_id", webserviceName);
 					callWebservice(servletRequest, servletResponse, applicationRequest, environment, siteToUse,
 							application, webserviceName);
 				} else if (SERVICE_TYPE_SOAP.equals(serviceType)) {
 					path.checkPathLength(5);
+					String serviceName = path.getService();
+					servletRequest.setAttribute(MetricsFilter.SERVICE_NAME, serviceName);
 					handleSoap(siteToUse, application, environment, servletRequest, servletResponse);
 				} else if (SERVICE_TYPE_REST.equals(serviceType)) {
 					path.checkPathLength(6);

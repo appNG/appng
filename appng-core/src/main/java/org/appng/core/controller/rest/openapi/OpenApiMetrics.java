@@ -20,33 +20,36 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 
-import org.appng.api.Request;
 import org.appng.api.model.Application;
-import org.appng.api.model.Site;
-import org.slf4j.Logger;
-import org.springframework.context.MessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Lazy
 @RestController
-abstract class OpenApiMetrics extends OpenApiOperation {
+class OpenApiMetrics {
 
-	public OpenApiMetrics(Site site, Application application, Request request, MessageSource messageSource) throws JAXBException {
-		super(site, application, request, messageSource);
+	private Application application;
+
+	@Autowired
+	public OpenApiMetrics(Application application) throws JAXBException {
+		this.application = application;
 	}
 
-	@GetMapping(path = "/openapi/metrics}")
+	@GetMapping(path = "/openapi/metrics")
 	public void metrics(HttpServletResponse response) throws IOException {
-		TextFormat.write004(response.getWriter(), CollectorRegistry.defaultRegistry.metricFamilySamples());
+		CollectorRegistry registry = application.getBean(CollectorRegistry.class);
+		if (null != registry) {
+			response.setContentType(TextFormat.CONTENT_TYPE_OPENMETRICS_100);
+			TextFormat.writeOpenMetrics100(response.getWriter(), registry.metricFamilySamples());
+			return;
+		}
+		response.setStatus(HttpStatus.NOT_IMPLEMENTED.value());
 	}
 
-	@Override
-	Logger getLogger() {
-		return LOGGER;
-	}
 }

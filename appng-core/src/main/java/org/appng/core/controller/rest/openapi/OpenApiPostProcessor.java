@@ -40,6 +40,7 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 		registerRequestScoped(registry, OpenApiDataSourceImpl.class);
 		registerRequestScoped(registry, OpenApiPageImpl.class);
 		registerRequestScoped(registry, OpenApiNavigationImpl.class);
+		registry.registerBeanDefinition(OpenApiMetrics.class.getSimpleName(), getBeanDefinition(OpenApiMetrics.class));
 		registry.registerBeanDefinition(SwaggerUI.class.getSimpleName(), getBeanDefinition(SwaggerUI.class));
 		registry.registerBeanDefinition(RestErrorHandler.class.getSimpleName(),
 				getBeanDefinition(RestErrorHandler.class));
@@ -86,6 +87,8 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 			super(site, application, request, messageSource);
 		}
 	}
+
+	
 
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;

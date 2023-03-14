@@ -18,18 +18,20 @@ package org.appng.core.controller.filter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.appng.api.messaging.Messaging;
-import org.appng.api.support.environment.DefaultEnvironment;
+import org.apache.commons.lang3.StringUtils;
+import org.appng.api.Environment;
+import org.appng.api.Scope;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Histogram;
-import io.prometheus.client.Histogram.Timer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,9 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetricsFilter extends OncePerRequestFilter {
 
-	private Histogram metrics;
-	private String nodeId;
-
 	private static String PREFIX = "org.appng.metrics";
 	public static String SITE = PREFIX + "site";
 	public static String APPLICATION = PREFIX + "application";
@@ -48,46 +47,61 @@ public class MetricsFilter extends OncePerRequestFilter {
 	public static String DATASOURCE_ID = PREFIX + "metrics_datasource_id";
 	public static String ACTION_ID = PREFIX + "metrics_action_id";
 	public static String SERVICE_TYPE = PREFIX + "serviceType";
-
-	@Override
-	protected void initFilterBean() throws ServletException {
-		this.metrics = Histogram.build().name("appng_metrics").help("appNG Metrics").register();
-		this.nodeId = Messaging.getNodeId(DefaultEnvironment.getGlobal());
-	}
+	public static String SERVICE_NAME = PREFIX + "serviceName";
+	private static final Map<String, Histogram> METRICS = new ConcurrentHashMap<>();
+	public static final String REGISTRY = "CollectorRegistry";
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-		Timer timer = metrics.startTimer();
+		long start = System.currentTimeMillis();
 		chain.doFilter(request, response);
-		commitTimer(request, response, timer);
+		getHistogramm(request).observeWithExemplar(System.currentTimeMillis() - start);
 	}
 
-	private void commitTimer(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Timer timer) {
-		if (null != timer) {
-			Map<String, String> labels = new HashMap<>();
-			addIfNotNull(labels, "site", (String) servletRequest.getAttribute(SITE));
-			addIfNotNull(labels, "application", (String) servletRequest.getAttribute(APPLICATION));
-			addIfNotNull(labels, "method", servletRequest.getMethod());
-			addIfNotNull(labels, "content-type", servletResponse.getContentType());
-			addIfNotNull(labels, "sessionId", servletRequest.getRequestedSessionId());
-			addIfNotNull(labels, "nodeId", nodeId);
-			addIfNotNull(labels, "servletPath", servletRequest.getServletPath());
-			addIfNotNull(labels, "actionId", (String) servletRequest.getAttribute(ACTION_ID));
-			addIfNotNull(labels, "eventId", (String) servletRequest.getAttribute(EVENT_ID));
-			addIfNotNull(labels, "datasourceId", (String) servletRequest.getAttribute(DATASOURCE_ID));
-			addIfNotNull(labels, "serviceType", (String) servletRequest.getAttribute(SERVICE_TYPE));
-			double duration = timer.observeDurationWithExemplar(labels);
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("{} ms with labels: {}", duration, labels);
+	private Histogram getHistogramm(HttpServletRequest servletRequest) {
+		String site = (String) servletRequest.getAttribute(SITE);
+		String application = (String) servletRequest.getAttribute(APPLICATION);
+		String actionId = (String) servletRequest.getAttribute(ACTION_ID);
+		String eventId = (String) servletRequest.getAttribute(EVENT_ID);
+		String datasourceId = (String) servletRequest.getAttribute(DATASOURCE_ID);
+
+		StringBuilder key = buildMetricsKey(site, application);
+		if (StringUtils.isNotBlank(actionId)) {
+			key.append(eventId).append("_").append(actionId);
+		} else if (StringUtils.isNotBlank(datasourceId)) {
+			key.append(datasourceId);
+		} else {
+			String serviceType = (String) servletRequest.getAttribute(SERVICE_TYPE);
+			String serviceName = (String) servletRequest.getAttribute(SERVICE_NAME);
+			key.append(serviceType);
+			if (StringUtils.isNotBlank(serviceName)) {
+				key.append("_").append(serviceName);
 			}
 		}
+
+		String metricsKey = key.toString();
+		if (!METRICS.containsKey(metricsKey)) {
+			Environment env = EnvironmentFilter.environment();
+			CollectorRegistry registry = env.getAttribute(Scope.SITE, REGISTRY);
+			if (null == registry) {
+				registry = getRegistry(env);
+			}
+			METRICS.put(metricsKey,
+					Histogram.build().name(metricsKey).help(metricsKey.replace('_', ' ')).register(registry));
+			LOGGER.debug("Created new histogramm: {}", metricsKey);
+		}
+		return METRICS.get(metricsKey);
 	}
 
-	private void addIfNotNull(Map<String, String> labels, String name, String value) {
-		if (null != value) {
-			labels.put(name, value);
-		}
+	public static StringBuilder buildMetricsKey(String site, String application) {
+		return new StringBuilder().append(site).append("_").append(application).append("_");
+	}
+
+	public static synchronized CollectorRegistry getRegistry(Environment env) {
+		CollectorRegistry registry = new CollectorRegistry(true);
+		env.setAttribute(Scope.SITE, REGISTRY, registry);
+		return registry;
 	}
 
 }

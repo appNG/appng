@@ -60,6 +60,7 @@ import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.controller.handler.JspHandler;
 import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
@@ -80,6 +81,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Histogram;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -120,6 +123,14 @@ public class ControllerTest extends Controller {
 		Mockito.when(base.response.getHeader(Mockito.any())).then(i -> headers.get(i.getArgumentAt(0, String.class)));
 		Mockito.doAnswer(i -> headers.put(i.getArgumentAt(0, String.class), i.getArgumentAt(1, String.class)))
 				.when(base.response).setHeader(Mockito.any(), Mockito.any());
+
+		CollectorRegistry registry = MetricsFilter.getRegistry(env);
+		Histogram metrics = Histogram.build("appng_metrics_manager", "appng_metrics_manager").register(registry);
+		metrics.observeWithExemplar(0.5);
+		metrics.observeWithExemplar(1);
+		metrics.observeWithExemplar(5);
+		metrics.observeWithExemplar(10);
+		metrics.observeWithExemplar(30);
 	}
 
 	@Override
@@ -291,6 +302,23 @@ public class ControllerTest extends Controller {
 				Assert.assertTrue(actual.contains("USERNAME"));
 				Assert.assertTrue(actual.contains("Path"));
 			}
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testMonitoringMetrics() {
+		prepareMonitoring("/health/metrics");
+		try {
+			doGet(base.request, base.response);
+			PrintWriter writer = base.response.getWriter();
+			writer.flush();
+			String actual = new String(base.out.toByteArray());
+			Assert.assertTrue(actual.contains("TYPE appng_metrics_manager histogram"));
+			Assert.assertTrue(actual.contains("appng_metrics_manager_bucket"));
+			Assert.assertTrue(actual.contains("appng_metrics_manager_count"));
+			Assert.assertTrue(actual.contains("appng_metrics_manager_sum"));
 		} catch (Exception e) {
 			fail(e);
 		}
