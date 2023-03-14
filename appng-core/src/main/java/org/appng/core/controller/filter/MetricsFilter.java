@@ -16,7 +16,6 @@
 package org.appng.core.controller.filter;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,7 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
+import org.appng.api.Path;
 import org.appng.api.Scope;
+import org.appng.api.support.environment.EnvironmentKeys;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.prometheus.client.CollectorRegistry;
@@ -41,8 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MetricsFilter extends OncePerRequestFilter {
 
 	private static String PREFIX = "org.appng.metrics";
-	public static String SITE = PREFIX + "site";
-	public static String APPLICATION = PREFIX + "application";
 	public static String EVENT_ID = PREFIX + "metrics_event_id";
 	public static String DATASOURCE_ID = PREFIX + "metrics_datasource_id";
 	public static String ACTION_ID = PREFIX + "metrics_action_id";
@@ -60,8 +59,11 @@ public class MetricsFilter extends OncePerRequestFilter {
 	}
 
 	private Histogram getHistogramm(HttpServletRequest servletRequest) {
-		String site = (String) servletRequest.getAttribute(SITE);
-		String application = (String) servletRequest.getAttribute(APPLICATION);
+		Environment env = EnvironmentFilter.environment();
+		Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
+
+		String site = path.getSiteName();
+		String application = path.getApplicationName();
 		String actionId = (String) servletRequest.getAttribute(ACTION_ID);
 		String eventId = (String) servletRequest.getAttribute(EVENT_ID);
 		String datasourceId = (String) servletRequest.getAttribute(DATASOURCE_ID);
@@ -82,7 +84,6 @@ public class MetricsFilter extends OncePerRequestFilter {
 
 		String metricsKey = key.toString();
 		if (!METRICS.containsKey(metricsKey)) {
-			Environment env = EnvironmentFilter.environment();
 			CollectorRegistry registry = env.getAttribute(Scope.SITE, REGISTRY);
 			if (null == registry) {
 				registry = getRegistry(env);
