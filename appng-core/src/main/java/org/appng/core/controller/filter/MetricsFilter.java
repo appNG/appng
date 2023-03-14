@@ -31,6 +31,7 @@ import org.appng.api.Scope;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Histogram;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetricsFilter extends OncePerRequestFilter {
 
+	private static final String SEPARATOR = "::";
 	private static String PREFIX = "org.appng.metrics";
 	public static String EVENT_ID = PREFIX + "metrics_event_id";
 	public static String DATASOURCE_ID = PREFIX + "metrics_datasource_id";
@@ -70,7 +72,7 @@ public class MetricsFilter extends OncePerRequestFilter {
 
 		StringBuilder key = buildMetricsKey(site, application);
 		if (StringUtils.isNotBlank(actionId)) {
-			key.append(eventId).append("_").append(actionId);
+			key.append(eventId).append(SEPARATOR).append(actionId);
 		} else if (StringUtils.isNotBlank(datasourceId)) {
 			key.append(datasourceId);
 		} else {
@@ -78,25 +80,25 @@ public class MetricsFilter extends OncePerRequestFilter {
 			String serviceName = (String) servletRequest.getAttribute(SERVICE_NAME);
 			key.append(serviceType);
 			if (StringUtils.isNotBlank(serviceName)) {
-				key.append("_").append(serviceName);
+				key.append(SEPARATOR).append(serviceName);
 			}
 		}
 
-		String metricsKey = key.toString();
+		String metricsKey = Collector.sanitizeMetricName(key.toString());
 		if (!METRICS.containsKey(metricsKey)) {
 			CollectorRegistry registry = env.getAttribute(Scope.SITE, REGISTRY);
 			if (null == registry) {
 				registry = getRegistry(env);
 			}
-			METRICS.put(metricsKey,
-					Histogram.build().name(metricsKey).help(metricsKey.replace('_', ' ')).register(registry));
+			METRICS.put(metricsKey, Histogram.build().name(metricsKey)
+					.help(metricsKey.replaceAll(SEPARATOR, StringUtils.SPACE)).register(registry));
 			LOGGER.debug("Created new histogramm: {}", metricsKey);
 		}
 		return METRICS.get(metricsKey);
 	}
 
 	public static StringBuilder buildMetricsKey(String site, String application) {
-		return new StringBuilder().append(site).append("_").append(application).append("_");
+		return new StringBuilder().append(site).append(SEPARATOR).append(application).append(SEPARATOR);
 	}
 
 	public static synchronized CollectorRegistry getRegistry(Environment env) {
