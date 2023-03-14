@@ -27,6 +27,7 @@ import org.apache.jasper.servlet.JspServlet;
 import org.appng.api.Environment;
 import org.appng.api.PathInfo;
 import org.appng.api.model.Site;
+import org.appng.core.controller.filter.MetricsFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +49,7 @@ public class JspHandler implements RequestHandler {
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
+		servletRequest.setAttribute(MetricsFilter.SERVICE_TYPE, "jsp");
 		String servletPath = servletRequest.getServletPath();
 		LOGGER.debug("serving jsp {}", servletPath);
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
