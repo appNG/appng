@@ -122,11 +122,11 @@ public class MonitoringHandler implements RequestHandler {
 			} else if ("platform".equals(pathsegment)) {
 				result = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG + "." + JAR_INFO_MAP);
 			} else if ("metrics".equals(pathsegment)) {
+				servletResponse.setContentType(TextFormat.CONTENT_TYPE_OPENMETRICS_100);
 				CollectorRegistry registry = env.getAttribute(Scope.SITE, MetricsFilter.REGISTRY);
 				if (null == registry) {
-					servletResponse.setStatus(HttpStatus.NOT_IMPLEMENTED.value());
+					servletResponse.getWriter().write("# EOF\n");
 				} else {
-					servletResponse.setContentType(TextFormat.CONTENT_TYPE_OPENMETRICS_100);
 					TextFormat.writeOpenMetrics100(servletResponse.getWriter(), registry.metricFamilySamples());
 				}
 			}

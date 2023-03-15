@@ -44,9 +44,9 @@ public class MetricsFilter extends OncePerRequestFilter {
 
 	private static final String SEPARATOR = "::";
 	private static String PREFIX = "org.appng.metrics";
-	public static String EVENT_ID = PREFIX + "metrics_event_id";
-	public static String DATASOURCE_ID = PREFIX + "metrics_datasource_id";
-	public static String ACTION_ID = PREFIX + "metrics_action_id";
+	public static String EVENT_ID = PREFIX + "event_id";
+	public static String DATASOURCE_ID = PREFIX + "datasource_id";
+	public static String ACTION_ID = PREFIX + "action_id";
 	public static String SERVICE_TYPE = PREFIX + "serviceType";
 	public static String SERVICE_NAME = PREFIX + "serviceName";
 	private static final ConcurrentMap<String, Histogram> METRICS = new ConcurrentHashMap<>();
@@ -69,22 +69,21 @@ public class MetricsFilter extends OncePerRequestFilter {
 			String actionId = (String) servletRequest.getAttribute(ACTION_ID);
 			String eventId = (String) servletRequest.getAttribute(EVENT_ID);
 			String datasourceId = (String) servletRequest.getAttribute(DATASOURCE_ID);
+			String serviceType = (String) servletRequest.getAttribute(SERVICE_TYPE);
+			String serviceName = (String) servletRequest.getAttribute(SERVICE_NAME);
 
 			StringBuilder key = new StringBuilder().append(site).append(SEPARATOR);
 			if (StringUtils.isNotBlank(application)) {
 				key.append(application).append(SEPARATOR);
 			}
+			key.append(serviceType).append(SEPARATOR);
+
 			if (StringUtils.isNotBlank(actionId)) {
-				key.append(eventId).append(SEPARATOR).append(actionId);
+				key.append("act").append(SEPARATOR).append(eventId).append(SEPARATOR).append(actionId);
 			} else if (StringUtils.isNotBlank(datasourceId)) {
-				key.append(datasourceId);
-			} else {
-				String serviceType = (String) servletRequest.getAttribute(SERVICE_TYPE);
-				String serviceName = (String) servletRequest.getAttribute(SERVICE_NAME);
-				key.append(serviceType);
-				if (StringUtils.isNotBlank(serviceName)) {
-					key.append(SEPARATOR).append(serviceName);
-				}
+				key.append("dat").append(SEPARATOR).append(datasourceId);
+			} else if (StringUtils.isNotBlank(serviceName)) {
+				key.append(serviceName);
 			}
 
 			String metricsKey = Collector.sanitizeMetricName(key.toString());
