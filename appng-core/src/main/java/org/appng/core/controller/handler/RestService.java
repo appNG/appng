@@ -30,6 +30,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Path;
 import org.appng.api.config.RestConfig;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.model.AccessibleApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -90,6 +91,8 @@ public class RestService {
 				return;
 			}
 			handlerMethod = (HandlerMethod) handler.getHandler();
+			Class<?> beanType = handlerMethod.getBeanType();
+			servletRequest.setAttribute(MetricsFilter.SERVICE_NAME, beanType.getSimpleName());
 
 			RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
 			rmha.setApplicationContext(context);
