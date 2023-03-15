@@ -57,10 +57,10 @@ public class MetricsFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		long start = System.currentTimeMillis();
 		chain.doFilter(request, response);
-		observe(request, System.currentTimeMillis() - start);
+		observe(request, (System.currentTimeMillis() - start) / 1000.0);
 	}
 
-	private void observe(HttpServletRequest servletRequest, long duration) {
+	private void observe(HttpServletRequest servletRequest, double duration) {
 		Environment env = EnvironmentFilter.environment();
 		Path path = env.getAttribute(Scope.REQUEST, EnvironmentKeys.PATH_INFO);
 		if (null != path) {
@@ -98,8 +98,6 @@ public class MetricsFilter extends OncePerRequestFilter {
 				LOGGER.debug("Created new histogramm: {}", metricsKey);
 			}
 			METRICS.get(metricsKey).observeWithExemplar(duration);
-		} else {
-			LOGGER.warn("No path found for {}", servletRequest.getServletPath());
 		}
 	}
 
