@@ -15,6 +15,8 @@
  */
 package org.appng.core.controller.messaging;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.appng.api.Environment;
@@ -24,7 +26,9 @@ import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.FieldProcessorImpl;
+import org.appng.core.controller.messaging.NodeEvent.NodeState;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
@@ -60,6 +64,49 @@ public class ReloadSiteEvent extends SiteEvent {
 						//
 					}
 				}
+
+				Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+				if (platformConfig.getBoolean("waitForSitesStarted", false)) {
+					Map<String, NodeState> nodeStates = NodeEvent.nodeStates(env);
+					int numNodes = nodeStates.size();
+					int minActiveNodes = numNodes / 2;
+					int waited = 0;
+					int waitTime = platformConfig.getInteger("waitForSitesStartedWaitTime", 5);
+					int maxWaittime = platformConfig.getInteger("waitForSitesStartedMaxWaitTime", 30);
+					int activeNodes = 0;
+
+					do {
+						for (Entry<String, NodeState> state : nodeStates.entrySet()) {
+							String otherNode = state.getKey();
+							if (!getNodeId().equals(otherNode)) {
+								SiteState siteState = state.getValue().getSiteStates().get(site.getName());
+								if (SiteState.STARTED.equals(siteState)) {
+									activeNodes++;
+								}
+								logger.debug("Site {} is in state {} on node {}", site.getName(), siteState, otherNode);
+							}
+						}
+						if (activeNodes < minActiveNodes) {
+							try {
+								logger.debug(
+										"Site {} is active on {} of {} nodes, waiting {}s for site to start on {} other nodes.",
+										site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
+								waited += waitTime;
+								Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
+							} catch (InterruptedException e) {
+								//
+							}
+						}
+					} while (activeNodes < minActiveNodes && waited < maxWaittime);
+					if (waited >= maxWaittime) {
+						logger.info("Reached maximum waiting time of {}s, now reloading site {}.", maxWaittime,
+								site.getName());
+					} else {
+						logger.info("Site {} is active on {} of {} nodes, reloading now.", site.getName(), activeNodes,
+								numNodes);
+					}
+				}
+
 			}
 			getInitializerService(env).loadSite(siteByName, env, false, fp, false);
 		} else {

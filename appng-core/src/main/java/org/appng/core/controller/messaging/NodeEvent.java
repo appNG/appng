@@ -67,12 +67,16 @@ public class NodeEvent extends Event {
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
-		Map<String, NodeState> stateMap = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
+		Map<String, NodeState> stateMap = nodeStates(environment);
 		if (null == stateMap) {
 			stateMap = new ConcurrentHashMap<>();
 			environment.setAttribute(Scope.PLATFORM, NODE_STATE, stateMap);
 		}
 		stateMap.put(getNodeId(), this.nodeState);
+	}
+
+	static Map<String, NodeState> nodeStates(Environment environment){
+		return environment.getAttribute(Scope.PLATFORM, NODE_STATE);
 	}
 
 	@Getter
