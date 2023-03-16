@@ -42,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetricsFilter extends OncePerRequestFilter {
 
+	private static final double[] BUCKET_THRESHOLS = new double[] { 0.1, 0.25, 0.5, 1, 2, 3, 5, 8, 30 };
 	private static final String SEPARATOR = "::";
 	private static String PREFIX = "org.appng.metrics";
 	public static String EVENT_ID = PREFIX + "event_id";
@@ -76,14 +77,15 @@ public class MetricsFilter extends OncePerRequestFilter {
 			if (StringUtils.isNotBlank(application)) {
 				key.append(application).append(SEPARATOR);
 			}
-			key.append(serviceType).append(SEPARATOR);
+			key.append(serviceType);
 
 			if (StringUtils.isNotBlank(actionId)) {
-				key.append("act").append(SEPARATOR).append(eventId).append(SEPARATOR).append(actionId);
+				key.append(SEPARATOR).append("act").append(SEPARATOR).append(eventId).append(SEPARATOR)
+						.append(actionId);
 			} else if (StringUtils.isNotBlank(datasourceId)) {
-				key.append("dat").append(SEPARATOR).append(datasourceId);
+				key.append(SEPARATOR).append("dat").append(SEPARATOR).append(datasourceId);
 			} else if (StringUtils.isNotBlank(serviceName)) {
-				key.append(serviceName);
+				key.append(SEPARATOR).append(serviceName);
 			}
 
 			String metricsKey = Collector.sanitizeMetricName(key.toString());
@@ -92,9 +94,8 @@ public class MetricsFilter extends OncePerRequestFilter {
 				if (null == registry) {
 					registry = getRegistry(env);
 				}
-				METRICS.put(metricsKey, Histogram.build().name(metricsKey)
+				METRICS.put(metricsKey, Histogram.build().name(metricsKey).buckets(BUCKET_THRESHOLS)
 						.help(metricsKey.replaceAll(SEPARATOR, StringUtils.SPACE)).register(registry));
-				LOGGER.debug("Created new histogramm: {}", metricsKey);
 			}
 			METRICS.get(metricsKey).observeWithExemplar(duration);
 		}
