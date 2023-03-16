@@ -27,11 +27,19 @@ import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarInputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -53,6 +61,7 @@ import org.appng.core.service.HsqlStarter;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.MigrationService;
 import org.appng.core.service.PlatformProperties;
+import org.appng.el.ExpressionEvaluator;
 import org.hsqldb.Server;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -75,6 +84,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PlatformStartup implements ServletContextListener {
 
+	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(sys|env)(\\.|\\[).*}");
 	static final String APPNG_STARTED = "APPNG_STARTED";
 	public static final String APPNG_CONTEXT = "appNG platform context";
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
@@ -103,6 +113,7 @@ public class PlatformStartup implements ServletContextListener {
 			Properties config = new Properties();
 			config.load(configIs);
 			configIs.close();
+			applySystem(config);
 
 			Server hsqlServer = HsqlStarter.startHsql(config, ctx.getRealPath(""));
 			if (null != hsqlServer) {
@@ -139,6 +150,26 @@ public class PlatformStartup implements ServletContextListener {
 		} catch (Exception e) {
 			LOGGER.error("error during platform startup", e);
 			contextDestroyed(sce);
+		}
+	}
+
+	void applySystem(Properties config) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("env", System.getenv());
+		params.put("sys", System.getProperties());
+		ExpressionEvaluator ee = new ExpressionEvaluator(params);
+		for (Entry<Object, Object> entry : config.entrySet()) {
+			String value = (String) entry.getValue();
+			if (value.contains("${")) {
+				entry.setValue(ee.evaluate((String) value, String.class));
+				if (LOGGER.isDebugEnabled()) {
+					Matcher matcher = PLACEHOLDER_PATTERN.matcher(value);
+					while (matcher.find()) {
+						LOGGER.debug("Replacing {} with system provided value for key '{}'", matcher.group(),
+								entry.getKey());
+					}
+				}
+			}
 		}
 	}
 
