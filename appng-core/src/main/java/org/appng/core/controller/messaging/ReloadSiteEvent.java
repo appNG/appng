@@ -50,67 +50,78 @@ public class ReloadSiteEvent extends SiteEvent {
 		Logger logger = LoggerFactory.getLogger(ReloadSiteEvent.class);
 		if (isTargetNode(env)) {
 			logger.info("about to start site: {}", getSiteName());
-			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
 			FieldProcessor fp = new FieldProcessorImpl("start");
-			if (delayed()) {
-				Properties nodeConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG);
-				Integer delay = nodeConfig.getInteger(Platform.Property.SITE_RELOAD_DELAY, 0);
-				if (delay > 0) {
-					logger.info("Waiting {}s before reloading site {} on node {}", delay, siteByName.getName(),
-							org.appng.api.messaging.Messaging.getNodeId(env));
+			wait(env, site, logger);
+			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
+			getInitializerService(env).loadSite(siteByName, env, false, fp, false);
+		} else {
+			logIgnoreMessage(logger);
+		}
+	}
+
+	public void wait(Environment env, Site site, Logger logger) {
+		if (delayed()) {
+			Properties nodeConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG);
+			Integer delay = nodeConfig.getInteger(Platform.Property.SITE_RELOAD_DELAY, 0);
+			long delayMillis;
+			if (delay > 0) {
+				delayMillis = TimeUnit.SECONDS.toMillis(delay);
+			} else {
+				Integer siteReloadMaxDelay = nodeConfig.getInteger("siteReloadMaxRandomDelay", 10);
+				delayMillis = (long) Math.random() * TimeUnit.SECONDS.toMillis(siteReloadMaxDelay);
+			}
+			try {
+				logger.info("Waiting {}ms before reloading site {} on node {}", delayMillis, site.getName(),
+						org.appng.api.messaging.Messaging.getNodeId(env));
+				Thread.sleep(delayMillis);
+			} catch (InterruptedException e) {
+				//
+			}
+		}
+		waitForClusterState(env, site, logger);
+	}
+
+	public void waitForClusterState(Environment env, Site site, Logger logger) {
+		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		if (platformConfig.getBoolean("waitForSitesStarted", false)) {
+			Map<String, NodeState> nodeStates = NodeEvent.nodeStates(env);
+			int numNodes = nodeStates.size();
+			int minActiveNodes = numNodes / 2;
+			int waited = 0;
+			int waitTime = platformConfig.getInteger("waitForSitesStartedWaitTime", 5);
+			int maxWaittime = platformConfig.getInteger("waitForSitesStartedMaxWaitTime", 30);
+			int activeNodes = 0;
+
+			do {
+				for (Entry<String, NodeState> state : nodeStates.entrySet()) {
+					String otherNode = state.getKey();
+					if (!getNodeId().equals(otherNode)) {
+						SiteState siteState = state.getValue().getSiteStates().get(site.getName());
+						if (SiteState.STARTED.equals(siteState)) {
+							activeNodes++;
+						}
+						logger.debug("Site {} is in state {} on node {}", site.getName(), siteState, otherNode);
+					}
+				}
+				if (activeNodes < minActiveNodes) {
 					try {
-						Thread.sleep(TimeUnit.SECONDS.toMillis(delay));
+						logger.debug(
+								"Site {} is active on {} of {} nodes, waiting {}s for site to start on {} other nodes.",
+								site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
+						waited += waitTime;
+						Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
 					} catch (InterruptedException e) {
 						//
 					}
 				}
-
-				Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-				if (platformConfig.getBoolean("waitForSitesStarted", false)) {
-					Map<String, NodeState> nodeStates = NodeEvent.nodeStates(env);
-					int numNodes = nodeStates.size();
-					int minActiveNodes = numNodes / 2;
-					int waited = 0;
-					int waitTime = platformConfig.getInteger("waitForSitesStartedWaitTime", 5);
-					int maxWaittime = platformConfig.getInteger("waitForSitesStartedMaxWaitTime", 30);
-					int activeNodes = 0;
-
-					do {
-						for (Entry<String, NodeState> state : nodeStates.entrySet()) {
-							String otherNode = state.getKey();
-							if (!getNodeId().equals(otherNode)) {
-								SiteState siteState = state.getValue().getSiteStates().get(site.getName());
-								if (SiteState.STARTED.equals(siteState)) {
-									activeNodes++;
-								}
-								logger.debug("Site {} is in state {} on node {}", site.getName(), siteState, otherNode);
-							}
-						}
-						if (activeNodes < minActiveNodes) {
-							try {
-								logger.debug(
-										"Site {} is active on {} of {} nodes, waiting {}s for site to start on {} other nodes.",
-										site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
-								waited += waitTime;
-								Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
-							} catch (InterruptedException e) {
-								//
-							}
-						}
-					} while (activeNodes < minActiveNodes && waited < maxWaittime);
-					if (waited >= maxWaittime) {
-						logger.info("Reached maximum waiting time of {}s, now reloading site {}.", maxWaittime,
-								site.getName());
-					} else {
-						logger.info("Site {} is active on {} of {} nodes, reloading now.", site.getName(), activeNodes,
-								numNodes);
-					}
-				}
-
+			} while (activeNodes < minActiveNodes && waited < maxWaittime);
+			if (waited >= maxWaittime) {
+				logger.info("Reached maximum waiting time of {}s, now reloading site {}.", maxWaittime,
+						site.getName());
+			} else {
+				logger.info("Site {} is active on {} of {} nodes, reloading now.", site.getName(), activeNodes,
+						numNodes);
 			}
-			getInitializerService(env).loadSite(siteByName, env, false, fp, false);
-		} else {
-			logIgnoreMessage(logger);
 		}
 	}
 
