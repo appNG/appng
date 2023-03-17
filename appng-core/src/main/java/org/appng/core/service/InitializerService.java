@@ -587,34 +587,7 @@ public class InitializerService {
 				SiteImpl currentSite = (SiteImpl) siteMap.get(site.getName());
 				boolean isReload = null != currentSite;
 				if (isReload) {
-					Properties siteProps = currentSite.getProperties();
-					int siteSuspendOffset = siteProps.getInteger(SiteProperties.SUSPEND_ON_RELOAD,
-							SITE_SUSPEND_DEFAULT);
-					if (siteSuspendOffset > 0) {
-						((SiteImpl) currentSite).setState(SiteState.SUSPENDED, env);
-						LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading",
-								currentSite.getState(), currentSite.getName(), siteSuspendOffset);
-						Thread.sleep(TimeUnit.SECONDS.toMillis(siteSuspendOffset));
-
-						int suspendMaxWait = siteProps.getInteger(SiteProperties.SUSPEND_MAX_WAIT,
-								SITE_SUSPEND_MAXWAIT);
-						int waited = 0;
-						int requests = 0;
-						while ((requests = currentSite.getRequests()) > 1 && waited < suspendMaxWait) {
-							LOGGER.info("Site {} is still processing {} requests, waiting 1s", currentSite.getName(),
-									requests);
-							Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-							waited += 1;
-						}
-						if (waited >= suspendMaxWait) {
-							LOGGER.warn(
-									"Waited {}s for {} site {} to finsh request processing, but there are {} requests remaining.",
-									suspendMaxWait, currentSite.getState(), currentSite.getName(), requests);
-						}
-					}
-
-					LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
-					shutDownSite(env, currentSite, false);
+					handleReload(env, sendReloadEvent, currentSite);
 					site.setReloadCount(site.getReloadCount() + 1);
 				}
 
@@ -957,6 +930,39 @@ public class InitializerService {
 				}
 			}
 		};
+	}
+
+	private void handleReload(Environment env, boolean sendReloadEvent, SiteImpl currentSite)
+			throws InterruptedException {
+		Properties siteProps = currentSite.getProperties();
+		int siteSuspendOffset = siteProps.getInteger(SiteProperties.SUSPEND_ON_RELOAD,
+				SITE_SUSPEND_DEFAULT);
+		if (siteSuspendOffset > 0) {
+			((SiteImpl) currentSite).setState(SiteState.SUSPENDED, env);
+			LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading.",
+					currentSite.getState(), currentSite.getName(), siteSuspendOffset);
+			Thread.sleep(TimeUnit.SECONDS.toMillis(siteSuspendOffset));
+
+			int suspendMaxWait = siteProps.getInteger(SiteProperties.SUSPEND_MAX_WAIT,
+					SITE_SUSPEND_MAXWAIT);
+			int waited = 0;
+			int requests = 0;
+			int maxRequest = sendReloadEvent ? 1 : 0;
+			while ((requests = currentSite.getRequests()) > maxRequest && waited < suspendMaxWait) {
+				LOGGER.info("Site {} is still processing {} requests, waiting 1s.", currentSite.getName(),
+						requests);
+				Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+				waited += 1;
+			}
+			if (waited >= suspendMaxWait) {
+				LOGGER.warn(
+						"Waited {}s for {} site {} to finish request processing, but there are {} requests remaining.",
+						suspendMaxWait, currentSite.getState(), currentSite.getName(), requests);
+			}
+		}
+
+		LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
+		shutDownSite(env, currentSite, false);
 	}
 
 	private String getSiteLoaderThreadName(SiteImpl siteToLoad) {

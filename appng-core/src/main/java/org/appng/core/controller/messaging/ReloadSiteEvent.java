@@ -95,18 +95,16 @@ public class ReloadSiteEvent extends SiteEvent {
 			do {
 				for (Entry<String, NodeState> state : nodeStates.entrySet()) {
 					String otherNode = state.getKey();
-					if (!getNodeId().equals(otherNode)) {
-						SiteState siteState = state.getValue().getSiteStates().get(site.getName());
-						if (SiteState.STARTED.equals(siteState)) {
-							activeNodes++;
-						}
-						logger.debug("Site {} is in state {} on node {}", site.getName(), siteState, otherNode);
+					SiteState siteState = state.getValue().getSiteStates().get(site.getName());
+					if (SiteState.STARTED.equals(siteState)) {
+						activeNodes++;
 					}
+					logger.debug("Site {} is in state {} on node {}", site.getName(), siteState, otherNode);
 				}
 				if (activeNodes < minActiveNodes) {
 					try {
 						logger.debug(
-								"Site {} is active on {} of {} nodes, waiting {}s for site to start on {} other nodes.",
+								"Site {} is active on {} of {} other nodes, waiting {}s for site to start on {} nodes.",
 								site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
 						waited += waitTime;
 						Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
@@ -116,10 +114,9 @@ public class ReloadSiteEvent extends SiteEvent {
 				}
 			} while (activeNodes < minActiveNodes && waited < maxWaittime);
 			if (waited >= maxWaittime) {
-				logger.info("Reached maximum waiting time of {}s, now reloading site {}.", maxWaittime,
-						site.getName());
+				logger.info("Reached maximum waiting time of {}s, now reloading site {}.", maxWaittime, site.getName());
 			} else {
-				logger.info("Site {} is active on {} of {} nodes, reloading now.", site.getName(), activeNodes,
+				logger.info("Site {} is active on {} of {} other nodes, reloading now.", site.getName(), activeNodes,
 						numNodes);
 			}
 		}
