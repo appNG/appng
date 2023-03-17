@@ -49,7 +49,7 @@ public class NodeEvent extends Event {
 
 	public NodeEvent(Environment environment, String siteName) {
 		super(siteName);
-		Map<String, SiteState> stateMap = SiteStateEvent.getStateMap(environment);
+		Map<String, SiteState> stateMap = getStateMap(environment, getNodeId());
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 		for (String site : siteMap.keySet()) {
 			SiteState state = siteMap.get(site).getState();
@@ -68,15 +68,22 @@ public class NodeEvent extends Event {
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
 		Map<String, NodeState> stateMap = nodeStates(environment);
+		stateMap.put(getNodeId(), this.nodeState);
+	}
+
+	static Map<String, NodeState> nodeStates(Environment environment) {
+		Map<String, NodeState> stateMap = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
 		if (null == stateMap) {
 			stateMap = new ConcurrentHashMap<>();
 			environment.setAttribute(Scope.PLATFORM, NODE_STATE, stateMap);
 		}
-		stateMap.put(getNodeId(), this.nodeState);
+		return stateMap;
 	}
 
-	static Map<String, NodeState> nodeStates(Environment environment){
-		return environment.getAttribute(Scope.PLATFORM, NODE_STATE);
+	static Map<String, SiteState> getStateMap(Environment env, String nodeId) {
+		Map<String, NodeState> stateMap = nodeStates(env);
+		NodeState currentNode = stateMap.get(nodeId);
+		return currentNode.getSiteStates();
 	}
 
 	@Getter

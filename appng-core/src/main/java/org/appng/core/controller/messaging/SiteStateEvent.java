@@ -16,14 +16,15 @@
 package org.appng.core.controller.messaging;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.appng.api.Environment;
 import org.appng.api.InvalidConfigurationException;
-import org.appng.api.Scope;
 import org.appng.api.messaging.Event;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * An {@link Event} to be fired when a {@link Site}'s {@link SiteState} changes. Triggers a {@link NodeEvent}.
@@ -34,7 +35,7 @@ public class SiteStateEvent extends Event {
 
 	public static final String SITE_STATE = "siteState";
 
-	private SiteState state;
+	private @Getter @Setter SiteState state;
 
 	public SiteStateEvent(String siteName, SiteState state) {
 		super(siteName);
@@ -47,7 +48,7 @@ public class SiteStateEvent extends Event {
 	}
 
 	public void handleSiteState(Environment environment) {
-		Map<String, SiteState> stateMap = getStateMap(environment);
+		Map<String, SiteState> stateMap = NodeEvent.getStateMap(environment, getNodeId());
 		if (SiteState.DELETED.equals(this.state)) {
 			stateMap.remove(getSiteName());
 		} else {
@@ -55,26 +56,9 @@ public class SiteStateEvent extends Event {
 		}
 	}
 
-	public SiteState getState() {
-		return state;
-	}
-
-	public void setState(SiteState state) {
-		this.state = state;
-	}
-
 	@Override
 	public String toString() {
 		return super.toString() + " - State: " + state;
-	}
-
-	static Map<String, SiteState> getStateMap(Environment env) {
-		Map<String, SiteState> stateMap = env.getAttribute(Scope.PLATFORM, SITE_STATE);
-		if (null == stateMap) {
-			stateMap = new ConcurrentHashMap<>();
-			env.setAttribute(Scope.PLATFORM, SITE_STATE, stateMap);
-		}
-		return stateMap;
 	}
 
 }
