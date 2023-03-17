@@ -68,7 +68,7 @@ public class ReloadSiteEvent extends SiteEvent {
 				delayMillis = TimeUnit.SECONDS.toMillis(delay);
 			} else {
 				Integer siteReloadMaxDelay = nodeConfig.getInteger("siteReloadMaxRandomDelay", 10);
-				delayMillis = (long) Math.random() * TimeUnit.SECONDS.toMillis(siteReloadMaxDelay);
+				delayMillis = (long) (Math.random() * TimeUnit.SECONDS.toMillis(siteReloadMaxDelay));
 			}
 			try {
 				logger.info("Waiting {}ms before reloading site {} on node {}", delayMillis, site.getName(),
