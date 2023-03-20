@@ -122,6 +122,7 @@ public class PlatformStartup implements ServletContextListener {
 
 			DatabaseConnection platformConnection = new MigrationService().initDatabase(config);
 			LOGGER.info("Platform connection: {}", platformConnection);
+			String nodeId = Messaging.init();
 
 			initPlatformContext(ctx, env, config, platformConnection);
 			InitializerService service = getService(env);
@@ -132,7 +133,6 @@ public class PlatformStartup implements ServletContextListener {
 				LOGGER.warn("Failed to create debig folder at {}", debugFolder.getPath());
 			}
 
-			String nodeId = Messaging.init();
 			messagingExecutor = Executors.newSingleThreadExecutor(
 					new ThreadFactoryBuilder().setDaemon(true).setNameFormat(nodeId).build());
 			startUpExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
