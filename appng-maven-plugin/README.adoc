@@ -1,4 +1,4 @@
-:snapshot: 1.25.1-SNAPSHOT
+:snapshot: 1.26.0-SNAPSHOT
 :stable: 1.24.1
 :current: {snapshot}
 
