@@ -32,7 +32,7 @@ public class HeartBeat extends Thread {
 	private final long heartBeatInterval;
 
 	public HeartBeat(long heartBeatInterval) {
-		super("appng-heartbeat");		
+		super("appng-heartbeat");
 		this.heartBeatInterval = heartBeatInterval;
 	}
 
@@ -41,7 +41,7 @@ public class HeartBeat extends Thread {
 		DefaultEnvironment env = DefaultEnvironment.getGlobal();
 		Sender sender = Messaging.getMessageSender(env);
 		while (!isInterrupted()) {
-			boolean sent = sender.send(new NodeEvent(env, StringUtils.EMPTY));
+			boolean sent = sender.send(new NodeEvent(env, StringUtils.EMPTY, Messaging.getNodeId()));
 			if (!sent) {
 				LOGGER.warn("NodeEvent could not be sent, please check messaging configuration.");
 			}

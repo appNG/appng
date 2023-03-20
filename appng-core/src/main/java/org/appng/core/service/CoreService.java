@@ -229,8 +229,8 @@ public class CoreService {
 		return PlatformProperties.get(platformConfig);
 	}
 
-	public Properties initNodeConfig(Environment env) {
-		String nodeId = Messaging.getNodeId(env);
+	public Properties initNodeConfig() {
+		String nodeId = Messaging.getNodeId();
 		PropertyHolder nodeConfig = getNodeProperties(nodeId);
 		new PropertySupport(nodeConfig).initNodeConfig(true);
 		saveProperties(nodeConfig);

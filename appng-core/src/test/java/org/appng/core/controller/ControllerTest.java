@@ -117,7 +117,7 @@ public class ControllerTest extends Controller {
 		Mockito.when(base.ctx.getAttribute(Globals.RESOURCES_ATTR)).thenReturn(Mockito.mock(WebResourceRoot.class));
 		init(new MockServletConfig(base.ctx));
 
-		Messaging.getNodeId(getEnvironment());
+		Messaging.init();
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION, "latest-and-hottest");
 		final Map<String, String> headers = new HashMap<>();
 		Mockito.when(base.response.getHeader(Mockito.any())).then(i -> headers.get(i.getArgumentAt(0, String.class)));

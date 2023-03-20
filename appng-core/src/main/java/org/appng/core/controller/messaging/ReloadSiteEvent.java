@@ -24,6 +24,7 @@ import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
@@ -72,7 +73,7 @@ public class ReloadSiteEvent extends SiteEvent {
 			}
 			try {
 				logger.info("Waiting {}ms before reloading site {} on node {}", delayMillis, site.getName(),
-						org.appng.api.messaging.Messaging.getNodeId(env));
+						Messaging.getNodeId());
 				Thread.sleep(delayMillis);
 			} catch (InterruptedException e) {
 				//
@@ -84,7 +85,7 @@ public class ReloadSiteEvent extends SiteEvent {
 	public void waitForClusterState(Environment env, Site site, Logger logger) {
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		if (platformConfig.getBoolean("waitForSitesStarted", false)) {
-			Map<String, NodeState> nodeStates = NodeEvent.nodeStates(env);
+			Map<String, NodeState> nodeStates = NodeEvent.clusterState(env, Messaging.getNodeId());
 			int numNodes = nodeStates.size();
 			int minActiveNodes = numNodes / 2;
 			int waited = 0;

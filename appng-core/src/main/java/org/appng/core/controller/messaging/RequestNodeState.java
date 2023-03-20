@@ -32,13 +32,14 @@ import org.appng.api.model.Site;
  */
 public class RequestNodeState extends Event {
 
-	public RequestNodeState(String siteName) {
+	public RequestNodeState(String siteName, String nodeId) {
 		super(siteName);
+		setNodeId(nodeId);
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
 		Sender sender = environment.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
-		sender.send(new NodeEvent(environment, getSiteName()));
+		sender.send(new NodeEvent(environment, getSiteName(), getNodeId()));
 	}
 
 }

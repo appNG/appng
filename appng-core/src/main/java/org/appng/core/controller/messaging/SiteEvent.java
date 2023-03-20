@@ -39,7 +39,7 @@ abstract class SiteEvent extends Event {
 	}
 
 	protected boolean isTargetNode(Environment environment) {
-		this.currentNode = org.appng.api.messaging.Messaging.getNodeId(environment);
+		this.currentNode = org.appng.api.messaging.Messaging.getNodeId();
 		return StringUtils.isBlank(targetNode) || currentNode.equals(targetNode);
 	}
 

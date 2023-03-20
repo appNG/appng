@@ -47,17 +47,18 @@ public class NodeEvent extends Event {
 	public static final String NODE_STATE = "nodeState";
 	private NodeState nodeState;
 
-	public NodeEvent(Environment environment, String siteName) {
+	public NodeEvent(Environment environment, String siteName, String nodeId) {
 		super(siteName);
-		Map<String, SiteState> stateMap = getStateMap(environment, getNodeId());
+		Map<String, SiteState> siteState = siteState(environment, nodeId);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 		for (String site : siteMap.keySet()) {
 			SiteState state = siteMap.get(site).getState();
-			if (!(stateMap.containsKey(site) || SiteState.DELETED.equals(state))) {
-				stateMap.put(site, state);
+			if (!(siteState.containsKey(site) || SiteState.DELETED.equals(state))) {
+				siteState.put(site, state);
 			}
 		}
-		this.nodeState = new NodeState(getNodeId(), stateMap);
+		this.nodeState = new NodeState(null, siteState);
+		setNodeId(nodeId);
 	}
 
 	@Override
@@ -67,28 +68,30 @@ public class NodeEvent extends Event {
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
-		Map<String, NodeState> stateMap = nodeStates(environment);
+		Map<String, NodeState> stateMap = clusterState(environment, getNodeId());
 		stateMap.put(getNodeId(), this.nodeState);
 	}
 
-	static Map<String, NodeState> nodeStates(Environment environment) {
-		Map<String, NodeState> stateMap = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
-		if (null == stateMap) {
-			stateMap = new ConcurrentHashMap<>();
-			environment.setAttribute(Scope.PLATFORM, NODE_STATE, stateMap);
+	static Map<String, NodeState> clusterState(Environment environment, String nodeId) {
+		Map<String, NodeState> clusterState = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
+		if (null == clusterState) {
+			clusterState = new ConcurrentHashMap<>();
+			environment.setAttribute(Scope.PLATFORM, NODE_STATE, clusterState);
 		}
-		return stateMap;
+		if (!clusterState.containsKey(nodeId)) {
+			clusterState.put(nodeId, new NodeState(nodeId, new HashMap<String, SiteState>()));
+		}
+		return clusterState;
 	}
 
-	static Map<String, SiteState> getStateMap(Environment env, String nodeId) {
-		Map<String, NodeState> stateMap = nodeStates(env);
-		NodeState currentNode = stateMap.get(nodeId);
-		return currentNode.getSiteStates();
+	static Map<String, SiteState> siteState(Environment env, String nodeId) {
+		Map<String, NodeState> clusterState = clusterState(env, nodeId);
+		return clusterState.get(nodeId).getSiteStates();
 	}
 
 	@Getter
 	@Setter
-	public class MemoryUsage implements Serializable {
+	public static class MemoryUsage implements Serializable {
 		private long size;
 		private long max;
 		private long used;
@@ -105,7 +108,7 @@ public class NodeEvent extends Event {
 
 	@Getter
 	@Setter
-	public class NodeState implements Serializable {
+	public static class NodeState implements Serializable {
 		private String nodeId;
 		private Date date;
 		private MemoryUsage heap;

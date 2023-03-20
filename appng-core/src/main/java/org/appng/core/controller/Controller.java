@@ -285,7 +285,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	private void addDebugHeaders(HttpServletResponse servletResponse, Environment env, Site site) {
 		if (site.getProperties().getBoolean(SiteProperties.SET_DEBUG_HEADERS, false)) {
-			servletResponse.setHeader(HEADER_NODE, Messaging.getNodeId(env));
+			servletResponse.setHeader(HEADER_NODE, Messaging.getNodeId());
 			servletResponse.setHeader(HEADER_VERSION,
 					env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
 			servletResponse.setHeader(HEADER_SITE, site.getName());

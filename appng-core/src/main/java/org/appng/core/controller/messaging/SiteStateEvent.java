@@ -37,22 +37,23 @@ public class SiteStateEvent extends Event {
 
 	private @Getter @Setter SiteState state;
 
-	public SiteStateEvent(String siteName, SiteState state) {
+	public SiteStateEvent(String siteName, SiteState state, String nodeId) {
 		super(siteName);
 		this.state = state;
+		setNodeId(nodeId);
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
 		handleSiteState(environment);
-		new RequestNodeState(getSiteName()).perform(environment, site);
+		new RequestNodeState(getSiteName(), getNodeId()).perform(environment, site);
 	}
 
 	public void handleSiteState(Environment environment) {
-		Map<String, SiteState> stateMap = NodeEvent.getStateMap(environment, getNodeId());
+		Map<String, SiteState> siteState = NodeEvent.siteState(environment, getNodeId());
 		if (SiteState.DELETED.equals(this.state)) {
-			stateMap.remove(getSiteName());
+			siteState.remove(getSiteName());
 		} else {
-			stateMap.put(getSiteName(), this.state);
+			siteState.put(getSiteName(), this.state);
 		}
 	}
 

@@ -132,8 +132,9 @@ public class PlatformStartup implements ServletContextListener {
 				LOGGER.warn("Failed to create debig folder at {}", debugFolder.getPath());
 			}
 
+			String nodeId = Messaging.init();
 			messagingExecutor = Executors.newSingleThreadExecutor(
-					new ThreadFactoryBuilder().setDaemon(true).setNameFormat(Messaging.getNodeId(env)).build());
+					new ThreadFactoryBuilder().setDaemon(true).setNameFormat(nodeId).build());
 			startUpExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
 					new ThreadFactoryBuilder().setNameFormat("appng-startup-%d").setUncaughtExceptionHandler((t, e) -> {
 						LOGGER.error("Uncaught exception was thrown!", e);

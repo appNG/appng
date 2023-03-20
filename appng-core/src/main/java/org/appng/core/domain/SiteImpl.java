@@ -55,6 +55,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.ValidationMessages;
 import org.appng.api.auth.PasswordPolicy;
 import org.appng.api.messaging.Event;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.messaging.Sender;
 import org.appng.api.model.Application;
 import org.appng.api.model.Named;
@@ -421,7 +422,7 @@ public class SiteImpl implements Site, Auditable<Integer> {
 		SiteState oldState = getState();
 		this.state.set(state);
 		LOGGER.debug("set state for site {} (was: {})", toString(), oldState);
-		SiteStateEvent event = new SiteStateEvent(getName(), state);
+		SiteStateEvent event = new SiteStateEvent(getName(), state, Messaging.getNodeId());
 		if (null != env) {
 			event.handleSiteState(env);
 		}

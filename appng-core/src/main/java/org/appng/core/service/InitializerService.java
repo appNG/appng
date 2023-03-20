@@ -284,7 +284,7 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
+		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId());
 		CacheService.createCacheManager(hazelcast, HazelcastConfigurer.isClient());
 		HazelcastInstance hazelcastInstance = ((HazelcastCacheManager) CacheService.getCacheManager())
 				.getHazelcastInstance();
@@ -369,7 +369,7 @@ public class InitializerService {
 	}
 
 	public Properties loadNodeProperties(Environment env) {
-		Properties nodeConfig = getCoreService().initNodeConfig(env);
+		Properties nodeConfig = getCoreService().initNodeConfig();
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG, nodeConfig);
 		return nodeConfig;
 	}
