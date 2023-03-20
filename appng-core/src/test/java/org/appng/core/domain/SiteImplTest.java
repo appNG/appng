@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.appng.api.Path;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.SiteClassLoader;
@@ -114,7 +115,8 @@ public class SiteImplTest {
 	public void testSetSiteState() {
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE))
 				.thenReturn(new HashMap<String, NodeState>());
-		NodeState nodeState = NodeEvent.clusterState(environment, "4711").get("4711");
+		String nodeId = Messaging.getNodeId();
+		NodeState nodeState = NodeEvent.clusterState(environment, nodeId).get(nodeId);
 		Map<String, SiteState> stateMap = nodeState.getSiteStates();
 		site.setState(SiteState.STARTED, environment);
 		Assert.assertEquals(SiteState.STARTED, stateMap.get(site.getName()));
