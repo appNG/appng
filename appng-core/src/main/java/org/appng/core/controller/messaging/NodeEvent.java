@@ -72,7 +72,7 @@ public class NodeEvent extends Event {
 		stateMap.put(getNodeId(), this.nodeState);
 	}
 
-	static Map<String, NodeState> clusterState(Environment environment, String nodeId) {
+	public static Map<String, NodeState> clusterState(Environment environment, String nodeId) {
 		Map<String, NodeState> clusterState = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
 		if (null == clusterState) {
 			clusterState = new ConcurrentHashMap<>();
@@ -84,7 +84,7 @@ public class NodeEvent extends Event {
 		return clusterState;
 	}
 
-	static Map<String, SiteState> siteState(Environment env, String nodeId) {
+	public static Map<String, SiteState> siteState(Environment env, String nodeId) {
 		Map<String, NodeState> clusterState = clusterState(env, nodeId);
 		return clusterState.get(nodeId).getSiteStates();
 	}

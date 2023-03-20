@@ -35,7 +35,8 @@ import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.HttpHeaders;
-import org.appng.core.controller.messaging.SiteStateEvent;
+import org.appng.core.controller.messaging.NodeEvent;
+import org.appng.core.controller.messaging.NodeEvent.NodeState;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,9 +112,10 @@ public class SiteImplTest {
 
 	@Test
 	public void testSetSiteState() {
-		Map<String, SiteState> stateMap = new HashMap<String, SiteState>();
-		stateMap.put(site.getName(), SiteState.STARTING);
-		Mockito.when(environment.getAttribute(Scope.PLATFORM, SiteStateEvent.SITE_STATE)).thenReturn(stateMap);
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE))
+				.thenReturn(new HashMap<String, NodeState>());
+		NodeState nodeState = NodeEvent.clusterState(environment, "4711").get("4711");
+		Map<String, SiteState> stateMap = nodeState.getSiteStates();
 		site.setState(SiteState.STARTED, environment);
 		Assert.assertEquals(SiteState.STARTED, stateMap.get(site.getName()));
 		site.setState(SiteState.DELETED, environment);
