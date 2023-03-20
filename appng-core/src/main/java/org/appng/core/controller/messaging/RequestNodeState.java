@@ -20,6 +20,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.messaging.Event;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Sender;
 import org.appng.api.model.Site;
@@ -31,6 +32,10 @@ import org.appng.api.model.Site;
  * @author Matthias Müller
  */
 public class RequestNodeState extends Event {
+
+	public RequestNodeState(String siteName) {
+		this(siteName, Messaging.getNodeId());
+	}
 
 	public RequestNodeState(String siteName, String nodeId) {
 		super(siteName);

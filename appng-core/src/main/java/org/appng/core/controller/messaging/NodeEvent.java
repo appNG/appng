@@ -30,6 +30,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.messaging.Event;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 
@@ -47,6 +48,10 @@ public class NodeEvent extends Event {
 	public static final String NODE_STATE = "nodeState";
 	private NodeState nodeState;
 
+	public NodeEvent(Environment environment, String siteName) {
+		this(environment, siteName, Messaging.getNodeId());
+	}
+
 	public NodeEvent(Environment environment, String siteName, String nodeId) {
 		super(siteName);
 		Map<String, SiteState> siteState = siteState(environment, nodeId);
@@ -59,6 +64,10 @@ public class NodeEvent extends Event {
 		}
 		this.nodeState = new NodeState(null, siteState);
 		setNodeId(nodeId);
+	}
+
+	private NodeEvent() {
+
 	}
 
 	@Override
@@ -79,7 +88,7 @@ public class NodeEvent extends Event {
 			environment.setAttribute(Scope.PLATFORM, NODE_STATE, clusterState);
 		}
 		if (!clusterState.containsKey(nodeId)) {
-			clusterState.put(nodeId, new NodeState(nodeId, new HashMap<String, SiteState>()));
+			clusterState.put(nodeId, new NodeEvent().new NodeState(nodeId, new HashMap<String, SiteState>()));
 		}
 		return clusterState;
 	}
@@ -91,7 +100,7 @@ public class NodeEvent extends Event {
 
 	@Getter
 	@Setter
-	public static class MemoryUsage implements Serializable {
+	public class MemoryUsage implements Serializable {
 		private long size;
 		private long max;
 		private long used;
@@ -108,7 +117,7 @@ public class NodeEvent extends Event {
 
 	@Getter
 	@Setter
-	public static class NodeState implements Serializable {
+	public class NodeState implements Serializable {
 		private String nodeId;
 		private Date date;
 		private MemoryUsage heap;
