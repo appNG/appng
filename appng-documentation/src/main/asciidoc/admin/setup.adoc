@@ -2,4 +2,91 @@
 
 === Requirements
 
-=== Separating ${appngData}
+=== Configuring the database
+
+The  database connection and pool used by appnG must be configured in `WEB-INF/conf/appNG.properties`.
+
+==== Configuring the database pool
+
+* `database.type` +
+The type of the database. Must be one of `mysql`, `mssql`, `hsql` or `mariadb` +
+
+NOTE: If you want to use MariaDB, please choose `mysql` here and add the MariaDB JDBC Driver to the classpath. +
+Then set `hibernate.connection.url`, `hibernate.connection.driver_class` and `hibernate.dialect` accordingly. 
+
+* `database.minConnections` +
+The minimum number of connections to keep in the connection pool +
+Default: `3`
+
+* `database.maxConnections` +
+The maximum number of connections to keep in the connection pool +
+Default: `10`
+
+* `database.maxLifetime:` +
+The maximum lifetime in milliseconds of a connection in the pool +
+Default: `90000` 
+
+* `database.validationQuery` +
+A query used to validate the connection from the pool +
+*No* default, in favor of `Connection.isValid()` introduced in JDBC4
+
+* `database.validationPeriod` +
+The period, in minutes, to execute the validation query. +
+*No* default, obsolete if `database.validationQuery` is not set.
+
+* `database.validationTimeout` +
+The maximum number of milliseconds that the pool will wait for a connection to be validated as alive. +
+Default: `5000` 
+
+* `database.connectionTimeout` +
+The maximum number of milliseconds that a appNG wait for a connection from the pool. +
+Default: `5000` 
+
+* `database.logPerformance` +
+Set to `true` to enable performance logging provided by  https://github.com/sylvainlaurent/JDBC-Performance-Logger[JDBC Performance Logger^] +
+Default: `false`
+
+==== Configuring the database connection
+
+ * `hibernate.connection.url` +
+The JDBC connection URL
+
+* `hibernate.dialect` +
+The Hibernate Dialect to use
+
+* `hibernate.connection.driver_class` +
+The JDBC driver class to use
+
+* `hibernate.connection.username` +
+The username for the database
+
+* `hibernate.connection.password` +
+The password for the database
+
+==== Full example
+This example shows how the connect to a mysql database:
+
+```
+database.type = mysql
+database.minConnections=10
+database.maxConnections=20
+database.validationQuery =
+database.validationPeriod =
+
+hibernate.connection.url = jdbc:mysql://localhost:3306/appng
+hibernate.dialect = org.hibernate.dialect.MySQL8Dialect
+hibernate.connection.driver_class = com.mysql.jdbc.Driver
+hibernate.connection.username = john
+hibernate.connection.password = secret
+``` 
+
+=== System and environment variables
+In `appNG.properties`, you can use the system's environment variables with the syntax `${sys.<variable>}`. Additionally, also system properties can be used with the syntax `${env.<variable>}`.
+
+Check out the following example:
+
+```
+database.type = ${sys.DB_TYPE}
+hibernate.connection.username  = ${env.DB_USER}
+hibernate.connection.password  = ${env.DB_PASSWORD}
+```
