@@ -81,7 +81,7 @@ hibernate.connection.password = secret
 ``` 
 
 === System and environment variables
-In `appNG.properties`, you can use the system's environment variables with the syntax `${sys.<variable>}`. Additionally, also system properties can be used with the syntax `${env.<variable>}`.
+In `appNG.properties`, you can use the system's environment variables with the syntax `${env.<variable>}`. Additionally, also system properties can be used with the syntax `${sys.<variable>}`.
 
 Check out the following example:
 
