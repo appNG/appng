@@ -27,11 +27,8 @@ import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -84,7 +81,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PlatformStartup implements ServletContextListener {
 
-	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(sys|env)(\\.|\\[).*}");
+	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(sys|env)(\\.|\\[).*\\}");
 	static final String APPNG_STARTED = "APPNG_STARTED";
 	public static final String APPNG_CONTEXT = "appNG platform context";
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
@@ -154,7 +151,7 @@ public class PlatformStartup implements ServletContextListener {
 		}
 	}
 
-	void applySystem(Properties config) {
+	public static void applySystem(Properties config) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("env", System.getenv());
 		params.put("sys", System.getProperties());
