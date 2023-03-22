@@ -124,7 +124,8 @@ public class ControllerTest extends Controller {
 		Mockito.doAnswer(i -> headers.put(i.getArgumentAt(0, String.class), i.getArgumentAt(1, String.class)))
 				.when(base.response).setHeader(Mockito.any(), Mockito.any());
 
-		CollectorRegistry registry = MetricsFilter.getRegistry(env, "localhost");
+		new MetricsFilter().setServletContext(base.ctx);
+		CollectorRegistry registry = MetricsFilter.getRegistry(env, "manager");
 		Histogram metrics = Histogram.build("appng_metrics_manager", "appng_metrics_manager").register(registry);
 		metrics.observeWithExemplar(0.5);
 		metrics.observeWithExemplar(1);
