@@ -85,7 +85,8 @@ public class ReloadSiteEvent extends SiteEvent {
 	public void waitForClusterState(Environment env, Site site, Logger logger) {
 		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		if (platformConfig.getBoolean("waitForSitesStarted", false)) {
-			Map<String, NodeState> nodeStates = NodeEvent.clusterState(env, Messaging.getNodeId());
+			String nodeId = Messaging.getNodeId();
+			Map<String, NodeState> nodeStates = NodeEvent.clusterState(env, nodeId);
 			int numNodes = nodeStates.size();
 			int minActiveNodes = numNodes / 2;
 			int waited = 0;
@@ -96,16 +97,18 @@ public class ReloadSiteEvent extends SiteEvent {
 			do {
 				for (Entry<String, NodeState> state : nodeStates.entrySet()) {
 					String otherNode = state.getKey();
-					SiteState siteState = state.getValue().getSiteStates().get(site.getName());
-					if (SiteState.STARTED.equals(siteState)) {
-						activeNodes++;
+					if (!nodeId.equals(otherNode)) {
+						SiteState siteState = state.getValue().getSiteStates().get(site.getName());
+						if (SiteState.STARTED.equals(siteState)) {
+							activeNodes++;
+						}
+						logger.debug("Site {} is {} on node {}", site.getName(), siteState, otherNode);
 					}
-					logger.debug("Site {} is in state {} on node {}", site.getName(), siteState, otherNode);
 				}
 				if (activeNodes < minActiveNodes) {
 					try {
 						logger.debug(
-								"Site {} is active on {} of {} other nodes, waiting {}s for site to start on {} nodes.",
+								"Site {} is active on {} of {} nodes, waiting {}s for site to start on {} nodes.",
 								site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
 						waited += waitTime;
 						Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
@@ -117,7 +120,7 @@ public class ReloadSiteEvent extends SiteEvent {
 			if (waited >= maxWaittime) {
 				logger.info("Reached maximum waiting time of {}s, now reloading site {}.", maxWaittime, site.getName());
 			} else {
-				logger.info("Site {} is active on {} of {} other nodes, reloading now.", site.getName(), activeNodes,
+				logger.info("Site {} is active on {} of {} nodes, reloading now.", site.getName(), activeNodes,
 						numNodes);
 			}
 		}
