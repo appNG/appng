@@ -62,14 +62,12 @@ public class ReloadSiteEvent extends SiteEvent {
 
 	public void wait(Environment env, Site site, Logger logger) {
 		if (delayed()) {
-			Properties nodeConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG);
-			Integer delay = nodeConfig.getInteger(Platform.Property.SITE_RELOAD_DELAY, 0);
-			long delayMillis;
-			if (delay > 0) {
-				delayMillis = TimeUnit.SECONDS.toMillis(delay);
-			} else {
-				Integer siteReloadMaxDelay = nodeConfig.getInteger("siteReloadMaxRandomDelay", 10);
-				delayMillis = (long) (Math.random() * TimeUnit.SECONDS.toMillis(siteReloadMaxDelay));
+			Properties nodeCfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG);
+			long delayMillis = nodeCfg.getInteger(Platform.Property.SITE_RELOAD_DELAY, 0);
+			if (delayMillis <= 0) {
+				Properties cfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+				Integer siteReloadMaxDelay = cfg.getInteger(Platform.Property.SITE_RELOAD_MAX_RANDOM_DELAY, 10000);
+				delayMillis = (long) (Math.random() * siteReloadMaxDelay);
 			}
 			try {
 				logger.info("Waiting {}ms before reloading site {} on node {}", delayMillis, site.getName(),
@@ -83,15 +81,15 @@ public class ReloadSiteEvent extends SiteEvent {
 	}
 
 	public void waitForClusterState(Environment env, Site site, Logger logger) {
-		Properties platformConfig = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		if (platformConfig.getBoolean("waitForSitesStarted", false)) {
+		Properties cfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+		if (cfg.getBoolean("waitForSitesStarted", false)) {
 			String nodeId = Messaging.getNodeId();
 			Map<String, NodeState> nodeStates = NodeEvent.clusterState(env, nodeId);
 			int numNodes = nodeStates.size();
 			int minActiveNodes = numNodes / 2;
 			int waited = 0;
-			int waitTime = platformConfig.getInteger("waitForSitesStartedWaitTime", 5);
-			int maxWaittime = platformConfig.getInteger("waitForSitesStartedMaxWaitTime", 30);
+			int waitTime = cfg.getInteger("waitForSitesStartedWaitTime", 5);
+			int maxWaittime = cfg.getInteger("waitForSitesStartedMaxWaitTime", 30);
 			int activeNodes = 0;
 
 			do {
@@ -107,8 +105,7 @@ public class ReloadSiteEvent extends SiteEvent {
 				}
 				if (activeNodes < minActiveNodes) {
 					try {
-						logger.debug(
-								"Site {} is active on {} of {} nodes, waiting {}s for site to start on {} nodes.",
+						logger.debug("Site {} is active on {} of {} nodes, waiting {}s for site to start on {} nodes.",
 								site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
 						waited += waitTime;
 						Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
