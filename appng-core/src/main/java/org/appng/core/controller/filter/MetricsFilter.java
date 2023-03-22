@@ -92,18 +92,22 @@ public class MetricsFilter extends OncePerRequestFilter {
 			if (!METRICS.containsKey(metricsKey)) {
 				CollectorRegistry registry = env.getAttribute(Scope.SITE, REGISTRY);
 				if (null == registry) {
-					registry = getRegistry(env);
+					registry = getRegistry(env, site);
 				}
 				METRICS.put(metricsKey, Histogram.build().name(metricsKey).buckets(BUCKET_THRESHOLS)
 						.help(metricsKey.replaceAll(SEPARATOR, StringUtils.SPACE)).register(registry));
 			}
 			METRICS.get(metricsKey).observeWithExemplar(duration);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Observed {} with {}ms", metricsKey, duration);
+			}
 		}
 	}
 
-	public static synchronized CollectorRegistry getRegistry(Environment env) {
+	public static synchronized CollectorRegistry getRegistry(Environment env, String site) {
 		CollectorRegistry registry = new CollectorRegistry(true);
 		env.setAttribute(Scope.SITE, REGISTRY, registry);
+		LOGGER.info("Created new CollectorRegistry#{} for site {}", registry.hashCode(), site);
 		return registry;
 	}
 
