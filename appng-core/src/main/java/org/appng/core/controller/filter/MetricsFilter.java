@@ -99,7 +99,7 @@ public class MetricsFilter extends OncePerRequestFilter {
 			}
 			METRICS.get(metricsKey).observeWithExemplar(duration);
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Observed {} with {}ms", metricsKey, duration);
+				LOGGER.debug("Observed {} with {}s", metricsKey, duration);
 			}
 		}
 	}
