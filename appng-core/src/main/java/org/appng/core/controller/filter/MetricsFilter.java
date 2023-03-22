@@ -16,10 +16,12 @@
 package org.appng.core.controller.filter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Path;
 import org.appng.api.Scope;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -51,7 +54,14 @@ public class MetricsFilter extends OncePerRequestFilter {
 	public static String SERVICE_TYPE = PREFIX + "serviceType";
 	public static String SERVICE_NAME = PREFIX + "serviceName";
 	private static final ConcurrentMap<String, Histogram> METRICS = new ConcurrentHashMap<>();
-	public static final String REGISTRY = "CollectorRegistry";
+	private static final String METRICS_REGISTRY = "metricsRegistry";
+
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		super.setServletContext(servletContext);
+		DefaultEnvironment.getGlobal().setAttribute(Scope.PLATFORM, METRICS_REGISTRY,
+				new ConcurrentHashMap<String, CollectorRegistry>());
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -90,10 +100,7 @@ public class MetricsFilter extends OncePerRequestFilter {
 
 			String metricsKey = Collector.sanitizeMetricName(key.toString());
 			if (!METRICS.containsKey(metricsKey)) {
-				CollectorRegistry registry = env.getAttribute(Scope.SITE, REGISTRY);
-				if (null == registry) {
-					registry = getRegistry(env, site);
-				}
+				CollectorRegistry registry = getRegistry(env, site);
 				METRICS.put(metricsKey, Histogram.build().name(metricsKey).buckets(BUCKET_THRESHOLS)
 						.help(metricsKey.replaceAll(SEPARATOR, StringUtils.SPACE)).register(registry));
 			}
@@ -104,11 +111,13 @@ public class MetricsFilter extends OncePerRequestFilter {
 		}
 	}
 
-	public static synchronized CollectorRegistry getRegistry(Environment env, String site) {
-		CollectorRegistry registry = new CollectorRegistry(true);
-		env.setAttribute(Scope.SITE, REGISTRY, registry);
-		LOGGER.info("Created new CollectorRegistry#{} for site {}", registry.hashCode(), site);
-		return registry;
+	public static CollectorRegistry getRegistry(Environment env, String site) {
+		Map<String, CollectorRegistry> registries = DefaultEnvironment.getGlobal().getAttribute(Scope.PLATFORM,
+				METRICS_REGISTRY);
+		if (!registries.containsKey(site)) {
+			registries.put(site, new CollectorRegistry(true));
+		}
+		return registries.get(site);
 	}
 
 }

@@ -123,7 +123,7 @@ public class MonitoringHandler implements RequestHandler {
 				result = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG + "." + JAR_INFO_MAP);
 			} else if ("metrics".equals(pathsegment)) {
 				servletResponse.setContentType(TextFormat.CONTENT_TYPE_OPENMETRICS_100);
-				CollectorRegistry registry = env.getAttribute(Scope.SITE, MetricsFilter.REGISTRY);
+				CollectorRegistry registry = MetricsFilter.getRegistry(env, site.getName());
 				if (null == registry) {
 					servletResponse.getWriter().write("# EOF\n");
 				} else {
