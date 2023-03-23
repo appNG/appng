@@ -76,6 +76,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -124,7 +125,7 @@ public class ControllerTest extends Controller {
 		Mockito.doAnswer(i -> headers.put(i.getArgumentAt(0, String.class), i.getArgumentAt(1, String.class)))
 				.when(base.response).setHeader(Mockito.any(), Mockito.any());
 
-		new MetricsFilter().setServletContext(base.ctx);
+		new MetricsFilter().init(new MockFilterConfig());
 		CollectorRegistry registry = MetricsFilter.getRegistry(env, "manager");
 		Histogram metrics = Histogram.build("appng_metrics_manager", "appng_metrics_manager").register(registry);
 		metrics.observeWithExemplar(0.5);
