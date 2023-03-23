@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,8 +56,7 @@ public class MetricsFilter extends OncePerRequestFilter {
 	private static final String METRICS_REGISTRY = "metricsRegistry";
 
 	@Override
-	public void setServletContext(ServletContext servletContext) {
-		super.setServletContext(servletContext);
+	protected void initFilterBean() throws ServletException {
 		DefaultEnvironment.getGlobal().setAttribute(Scope.PLATFORM, METRICS_REGISTRY,
 				new ConcurrentHashMap<String, CollectorRegistry>());
 	}
