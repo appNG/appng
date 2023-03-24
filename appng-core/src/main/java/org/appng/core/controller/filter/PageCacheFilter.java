@@ -245,12 +245,13 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			cachedResponse = performRequest(request, response, chain, site, expiryPolicy);
 			int size = cachedResponse.getContentLength();
 			if (cachedResponse.isOk()) {
+				Duration expiry = expiryPolicy.getExpiryForCreation();
+				long seconds = expiry.getTimeUnit().toSeconds(expiry.getDurationAmount());
+				response.addHeader(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", seconds));
 				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
 				if (LOGGER.isDebugEnabled()) {
-					Duration duration = expiryPolicy == null ? null : expiryPolicy.getExpiryForCreation();
 					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, ttl: {}s)", cache.getName(), key,
-							cachedResponse.getContentType(), size,
-							duration == null ? null : duration.getDurationAmount());
+							cachedResponse.getContentType(), size, seconds);
 				}
 			} else if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Response has status: {}, size: {} for key {}", cachedResponse.getStatus(), size, key);
@@ -264,7 +265,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				if (null != roles) {
 					Collection<String> matchedRoles = CollectionUtils.intersection(requiredRoles, roles);
 					if (matchedRoles.isEmpty()) {
-						LOGGER.debug("Resource required one of the role(s) [{}], none of the current role(s) [{}] did match!",
+						LOGGER.debug(
+								"Resource required one of the role(s) [{}], none of the current role(s) [{}] did match!",
 								StringUtils.join(requiredRoles, ", "), StringUtils.join(roles, ", "));
 						status = HttpStatus.FORBIDDEN;
 					} else {

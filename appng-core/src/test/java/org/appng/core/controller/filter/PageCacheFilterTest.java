@@ -21,8 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -123,7 +126,8 @@ public class PageCacheFilterTest {
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(siteProps.getBoolean("cacheHitStats", false)).thenReturn(true);
 
-		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
+		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache,
+				new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, 30)));
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(pageInfo, actual.get());
 		Assert.assertEquals(0, actual.get().getHitCount());
@@ -148,6 +152,7 @@ public class PageCacheFilterTest {
 		Mockito.verify(cache, Mockito.times(1)).replaceAsync(Mockito.any(), Mockito.any(),
 				Mockito.any(ExpiryPolicy.class));
 		Assert.assertEquals(1, actual.get().getHitCount());
+		Assert.assertEquals("max-age=30", resp.getHeader(HttpHeaders.CACHE_CONTROL));
 		Assert.assertEquals(true, req.getAttribute(PageCacheFilter.CACHE_HIT));
 
 		// test gzip
