@@ -110,10 +110,9 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					isException = isException(exceptions, servletPath);
 					Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
 					boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE);
-					Integer expireAfterSeconds = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-					expireAfterSeconds = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath,
-							expireAfterSeconds);
-					expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, expireAfterSeconds));
+					Integer defaultTtl = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+					Integer ttl = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath, defaultTtl);
+					expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, ttl));
 				}
 			} else {
 				LOGGER.info("no site found for path {} and host {}", servletPath, request.getServerName());
@@ -245,13 +244,10 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			cachedResponse = performRequest(request, response, chain, site, expiryPolicy);
 			int size = cachedResponse.getContentLength();
 			if (cachedResponse.isOk()) {
-				Duration expiry = expiryPolicy.getExpiryForCreation();
-				long seconds = expiry.getTimeUnit().toSeconds(expiry.getDurationAmount());
-				response.addHeader(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", seconds));
 				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, ttl: {}s)", cache.getName(), key,
-							cachedResponse.getContentType(), size, seconds);
+							cachedResponse.getContentType(), size, cachedResponse.getTimeToLive());
 				}
 			} else if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Response has status: {}, size: {} for key {}", cachedResponse.getStatus(), size, key);
@@ -309,11 +305,17 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		HttpHeaders headers = new HttpHeaders();
 		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
 				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
-		Integer siteTtl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-		Integer ttl = expiryPolicy == null ? siteTtl : (int) expiryPolicy.getExpiryForCreation().getDurationAmount();
 
+		int ttl = addCacheControl(headers, expiryPolicy);
 		return new CachedResponse(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
 				outstr.toByteArray(), headers, ttl);
+	}
+
+	protected int addCacheControl(HttpHeaders headers, ExpiryPolicy expiryPolicy) {
+		Duration expiry = expiryPolicy.getExpiryForCreation();
+		int ttl = (int) expiry.getTimeUnit().toSeconds(expiry.getDurationAmount());
+		headers.add(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", ttl));
+		return ttl;
 	}
 
 	private boolean isCacheableRequest(HttpServletRequest httpServletRequest) {

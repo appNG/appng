@@ -95,6 +95,7 @@ public class PageCacheFilterTest {
 				HttpHeaders headers = new HttpHeaders();
 				headers.add(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE, "user");
 				headers.add(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE, "viewer");
+				addCacheControl(headers, expiryPolicy);
 				headers.setLastModified(lastModifiedSeconds);
 				return new CachedResponse("GET/" + req.getServletPath(), site, request, 200, "text/plain",
 						content.getBytes(), headers, 1800);
@@ -136,28 +137,28 @@ public class PageCacheFilterTest {
 		Assert.assertEquals(false, req.getAttribute(PageCacheFilter.CACHE_HIT));
 
 		// test not authorized
-		CachedResponse unauthorizde = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
+		CachedResponse unauthorizde = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, expiryPolicy);
 		Assert.assertEquals(HttpStatus.UNAUTHORIZED, unauthorizde.getStatus());
 
 		// test insufficient roles
 		env.setAttribute(Scope.SESSION, Session.Environment.APPNG_ROLES, Arrays.asList("notallowed"));
-		CachedResponse insufficient = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
+		CachedResponse insufficient = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, expiryPolicy);
 		Assert.assertEquals(HttpStatus.FORBIDDEN, insufficient.getStatus());
 
 		// test hit
 		env.setAttribute(Scope.SESSION, Session.Environment.APPNG_ROLES, Arrays.asList("user"));
-		CachedResponse cacheHit = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, null);
+		CachedResponse cacheHit = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, expiryPolicy);
 		Assert.assertEquals(pageInfo, cacheHit);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Mockito.verify(cache, Mockito.times(1)).replaceAsync(Mockito.any(), Mockito.any(),
 				Mockito.any(ExpiryPolicy.class));
 		Assert.assertEquals(1, actual.get().getHitCount());
-		Assert.assertEquals("max-age=30", resp.getHeader(HttpHeaders.CACHE_CONTROL));
+		Assert.assertEquals("max-age=30", cacheHit.getHeaders().getCacheControl());
 		Assert.assertEquals(true, req.getAttribute(PageCacheFilter.CACHE_HIT));
 
 		// test gzip
 		req.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
-		pageCacheFilter.handleCaching(req, resp, site, chain, cache, null);
+		pageCacheFilter.handleCaching(req, resp, site, chain, cache, expiryPolicy);
 		Assert.assertEquals(HttpStatus.OK.value(), resp.getStatus());
 		Assert.assertEquals(26, resp.getContentLength());
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
@@ -165,7 +166,7 @@ public class PageCacheFilterTest {
 		// test if-modified-since
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		req.addHeader(HttpHeaders.IF_MODIFIED_SINCE, modifiedDate);
-		pageCacheFilter.handleCaching(req, response, site, chain, cache, null);
+		pageCacheFilter.handleCaching(req, response, site, chain, cache, expiryPolicy);
 		Assert.assertEquals(HttpStatus.NOT_MODIFIED.value(), response.getStatus());
 		Assert.assertEquals(0, response.getContentLength());
 		Mockito.verify(chain, Mockito.times(0)).doFilter(Mockito.any(), Mockito.eq(response));
