@@ -17,6 +17,7 @@ package org.appng.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -82,6 +83,14 @@ public class CliBootstrapTest {
 			Assert.assertEquals("APPNG_HOME is not defined!", e.getMessage());
 		}
 
+	}
+
+	@Test
+	public void testGetCliConfig() throws IOException {
+		Mockito.when(cliBootstrapEnvironment.getAbsoluteFile(Mockito.any(File.class)))
+				.thenReturn(new File("src/test/resources/conf/appNG.properties"));
+		Properties cliConfig = CliBootstrap.getCliConfig(cliBootstrapEnvironment, true, new File(""));
+		Assert.assertEquals(System.getenv("PATH"), cliConfig.get("path"));
 	}
 
 	@Test

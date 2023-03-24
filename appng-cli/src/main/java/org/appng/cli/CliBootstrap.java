@@ -198,6 +198,7 @@ public class CliBootstrap {
 			config.load(new FileReader(properties));
 			config.setProperty(Platform.Property.PLATFORM_ROOT_PATH, platformRootPath.getAbsolutePath());
 			config.put(DatabaseService.DATABASE_TYPE, config.getProperty(DatabaseService.DATABASE_TYPE).toUpperCase());
+			PlatformStartup.applySystem(config);
 			return config;
 		} else {
 			throw new FileNotFoundException("Configuration file not found: " + properties.getAbsolutePath());
