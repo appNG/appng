@@ -126,8 +126,8 @@ public class PageCacheFilterTest {
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(siteProps.getBoolean("cacheHitStats", false)).thenReturn(true);
 
-		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache,
-				new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, 30)));
+		CreatedExpiryPolicy expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, 30));
+		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, expiryPolicy);
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(pageInfo, actual.get());
 		Assert.assertEquals(0, actual.get().getHitCount());
@@ -174,7 +174,7 @@ public class PageCacheFilterTest {
 		MockHttpServletRequest aborted = new MockHttpServletRequest(servletContext);
 		aborted.setServletPath("/aborted");
 		MockHttpServletResponse abortedResponse = new MockHttpServletResponse();
-		pageCacheFilter.handleCaching(aborted, abortedResponse, Mockito.mock(Site.class), chain, cache, null);
+		pageCacheFilter.handleCaching(aborted, abortedResponse, Mockito.mock(Site.class), chain, cache, expiryPolicy);
 		Assert.assertEquals(HttpStatus.OK.value(), abortedResponse.getStatus());
 		Assert.assertEquals(0, abortedResponse.getContentLength());
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(abortedResponse));
