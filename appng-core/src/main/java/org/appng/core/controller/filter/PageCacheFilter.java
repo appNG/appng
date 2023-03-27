@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
@@ -112,7 +113,12 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE);
 					Integer defaultTtl = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
 					Integer ttl = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath, defaultTtl);
-					expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, ttl));
+					Duration expiryDuration = new Duration(TimeUnit.SECONDS, ttl);
+					if (siteProps.getBoolean(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, false)) {
+						expiryPolicy = new CreatedExpiryPolicy(expiryDuration);
+					} else {
+						expiryPolicy = new AccessedExpiryPolicy(expiryDuration);
+					}
 				}
 			} else {
 				LOGGER.info("no site found for path {} and host {}", servletPath, request.getServerName());

@@ -101,6 +101,8 @@ public class SiteProperties {
 	 * URL path prefixes which are never cached. Contains one prefix per line (multiline value).
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
+	/** Set to {@code true} to expire cache elements by creation time instead of accessed time */
+	public static final String CACHE_EXPIRE_ELEMENTS_BY_CREATION ="cacheExpireElementsByCreation";
 	/** @deprecated no more used */
 	@Deprecated
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
