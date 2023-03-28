@@ -43,6 +43,7 @@ import org.appng.api.support.HttpHeaderUtils;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.CachedResponse;
 import org.appng.core.service.CacheService;
+import org.appng.core.service.HazelcastConfigurer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -56,7 +57,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.hazelcast.config.CacheConfig;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 public class PageCacheFilterTest {
@@ -79,7 +79,7 @@ public class PageCacheFilterTest {
 		DefaultEnvironment env = new DefaultEnvironment(req, resp);
 		attributes.setAttribute(Environment.class.getName(), env, RequestAttributes.SCOPE_REQUEST);
 
-		HazelcastInstance hz = Hazelcast.newHazelcastInstance();
+		HazelcastInstance hz = HazelcastConfigurer.getInstance(null);
 		CacheConfig<String, CachedResponse> configuration = new CacheConfig<>("testcache");
 		CacheManager cacheManager = CacheService.createCacheManager(hz, false);
 		Cache<String, CachedResponse> cache = cacheManager.createCache("testcache", configuration);
