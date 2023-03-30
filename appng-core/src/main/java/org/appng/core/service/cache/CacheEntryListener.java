@@ -33,7 +33,7 @@ import org.appng.core.service.CacheService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link javax.cache.event.CacheEntryListener} that keeps track of the caches's keys. Used in {@link CacheService} to
+ * A {@link javax.cache.event.CacheEntryListener} that keeps track of the cache's keys. Used in {@link CacheService} to
  * make it possible to expire cache elements by their key without having to iterate over all the values (which is slow
  * for large caches).
  */

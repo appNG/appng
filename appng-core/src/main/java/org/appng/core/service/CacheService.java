@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,8 +33,10 @@ import javax.cache.Cache.Entry;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.CacheEntryListenerConfiguration;
+import javax.cache.configuration.Factory;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
+import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
@@ -43,6 +44,7 @@ import javax.cache.expiry.ExpiryPolicy;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.appng.api.BusinessException;
 import org.appng.api.SiteProperties;
+import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
 import org.appng.core.controller.CachedResponse;
 import org.appng.core.service.cache.CacheEntryListener;
@@ -95,7 +97,7 @@ public class CacheService {
 	private static final int MICROS_PER_MILLI = 1000;
 
 	public static CacheManager createCacheManager(HazelcastInstance instance, boolean isClient) {
-		Properties properties = new Properties();
+		java.util.Properties properties = new java.util.Properties();
 		properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_ITSELF, instance);
 		properties.put(HazelcastCachingProvider.HAZELCAST_CONFIG_LOCATION, "appNG configuration");
 		Class<?> cacheProviderClass = isClient ? HazelcastClientCachingProvider.class
@@ -146,42 +148,49 @@ public class CacheService {
 	 * 
 	 * @return      The {@link Cache} instance for the specified site.
 	 */
+	@SuppressWarnings("unchecked")
 	public synchronized static Cache<String, CachedResponse> createCache(Site site) {
+		Properties siteProps = site.getProperties();
+		Boolean statisticsEnabled = siteProps.getBoolean(SiteProperties.CACHE_STATISTICS);
+		Integer ttl = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+		Integer maxSize = siteProps.getInteger(CACHE_MAX_SIZE, DEFAULT_MAX_SIZE);
+		Duration duration = new Duration(TimeUnit.SECONDS, ttl);
+		Boolean expireByCreation = siteProps.getBoolean(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, false);
+		Factory<ExpiryPolicy> factory = expireByCreation ? CreatedExpiryPolicy.factoryOf(duration)
+				: AccessedExpiryPolicy.factoryOf(duration);
+
 		String cacheKey = getCacheKey(site);
 		Cache<String, CachedResponse> cache = cacheManager.getCache(cacheKey);
-		Boolean statisticsEnabled = site.getProperties().getBoolean(SiteProperties.CACHE_STATISTICS);
-		Integer ttl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-		Integer maxSize = site.getProperties().getInteger(CACHE_MAX_SIZE, DEFAULT_MAX_SIZE);
-
 		if (null != cache) {
-			@SuppressWarnings("unchecked")
 			CacheConfig<String, CachedResponse> configuration = (CacheConfig<String, CachedResponse>) cache
 					.getConfiguration(CacheConfig.class);
-			ExpiryPolicy ep = (ExpiryPolicy) configuration.getExpiryPolicyFactory().create();
+			ExpiryPolicy currentPolicy = configuration.getExpiryPolicyFactory().create();
 			if ((configuration.isStatisticsEnabled() ^ statisticsEnabled)
-					|| (ep.getExpiryForCreation().getDurationAmount() != ttl)
-					|| (configuration.getEvictionConfig().getSize() != maxSize)) {
+					|| (configuration.getEvictionConfig().getSize() != maxSize)
+					|| (currentPolicy.getExpiryForCreation().getDurationAmount() != ttl)
+					|| !(currentPolicy.getClass().equals(factory.create().getClass()))) {
 				cacheManager.destroyCache(cacheKey);
 				cache = null;
-				LOGGER.info("TTL,statistics or cache size has changed, destroyed cache '{}'.", cacheKey);
+				LOGGER.info("ttl, statistics, expiry policy or cache size has changed, destroyed cache '{}'.",
+						cacheKey);
 			}
 		}
 
 		if (null == cache) {
 			CacheConfig<String, CachedResponse> configuration = new CacheConfig<>(cacheKey);
-			configuration.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, ttl)));
+			configuration.setExpiryPolicyFactory(factory);
 			configuration.setStatisticsEnabled(statisticsEnabled);
 			configuration.setEvictionConfig(new EvictionConfig().setEvictionPolicy(EvictionPolicy.LRU).setSize(maxSize)
 					.setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT));
-			if (useCacheEntryListener(site)) {
+			if (useCacheEntryListener(siteProps)) {
 				CacheEntryListener cacheEntryListener = new CacheEntryListener();
 				CacheEntryListenerConfiguration<String, CachedResponse> listenerConfiguration = new MutableCacheEntryListenerConfiguration<>(
 						FactoryBuilder.factoryOf(cacheEntryListener), null, false, true);
 				configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
 			}
 			cache = cacheManager.createCache(cacheKey, configuration);
-			LOGGER.info("Created cache '{}' (ttl: {}s, maximum entries: {}, statistics: {})", cacheKey, ttl, maxSize,
-					statisticsEnabled);
+			LOGGER.info("Created cache '{}' (ttl: {}s (with {}), maximum entries: {}, statistics: {})", cacheKey, ttl,
+					factory.create().getClass().getSimpleName(), maxSize, statisticsEnabled);
 		}
 		return cache;
 	}
@@ -338,7 +347,7 @@ public class CacheService {
 				Set<String> keys = null;
 				CacheEntryListener listener = getCacheEntryListener(cache);
 
-				if (!useCacheEntryListener(site) || null == listener) {
+				if (!useCacheEntryListener(site.getProperties()) || null == listener) {
 					count = cache.unwrap(ICache.class).size();
 					keys = Streams.stream(cache.iterator()).map(Entry::getKey).filter(k -> k.startsWith(completePrefix))
 							.collect(Collectors.toSet());
@@ -378,8 +387,8 @@ public class CacheService {
 		return null;
 	}
 
-	private static Boolean useCacheEntryListener(Site site) {
-		return site.getProperties().getBoolean(CACHE_USE_ENTRY_LISTENER, true);
+	private static Boolean useCacheEntryListener(Properties siteProps) {
+		return siteProps.getBoolean(CACHE_USE_ENTRY_LISTENER, true);
 	}
 
 }

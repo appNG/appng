@@ -35,9 +35,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StopWatch;
 
+import com.hazelcast.config.CacheConfig;
+
 public class CacheServiceTest {
 
 	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void test() throws Exception {
 		CacheService.createCacheManager(HazelcastConfigurer.getInstance(null), false);
 		SiteImpl site = new SiteImpl();
@@ -47,11 +50,11 @@ public class CacheServiceTest {
 						new SimpleProperty(SiteProperties.CACHE_STATISTICS, "true"),
 						new SimpleProperty(CacheService.CACHE_USE_ENTRY_LISTENER, "true")));
 		site.setProperties(properties);
-		CacheService.createCache(site);
+		Cache<String, CachedResponse> cache = CacheService.createCache(site);
+		CacheConfig config = cache.getConfiguration(CacheConfig.class);
 		StopWatch sw = new StopWatch();
 		sw.start("Add entries");
 		byte[] data = Files.readAllBytes(new File("src/test/resources/hazelcast.xml").toPath());
-		Cache<String, CachedResponse> cache = CacheService.getCache(site);
 
 		CacheEntryListener listener = CacheService.getCacheEntryListener(cache);
 		Assert.assertEquals(0, listener.getKeys().size());
@@ -71,6 +74,17 @@ public class CacheServiceTest {
 		Assert.assertEquals(items, expired);
 		sw.stop();
 		Assert.assertEquals(0, listener.getKeys().size());
+
+		Assert.assertEquals(config, CacheService.createCache(site).getConfiguration(CacheConfig.class));
+
+		properties = new PropertyHolder("",
+				Arrays.asList(new SimpleProperty(SiteProperties.CACHE_TIME_TO_LIVE, "1800"),
+						new SimpleProperty(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, "true"),
+						new SimpleProperty(SiteProperties.CACHE_STATISTICS, "true"),
+						new SimpleProperty(CacheService.CACHE_USE_ENTRY_LISTENER, "true")));
+		site.setProperties(properties);
+		Assert.assertNotEquals(cache, CacheService.createCache(site).getConfiguration(CacheConfig.class));
+
 	}
 
 }

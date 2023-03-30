@@ -1,3 +1,118 @@
+Release Notes - appNG - Version 1.26.0 (2023-03-30)
+---------------------------------------------------
+** Feature
+    * [APPNG-2467] - Improve the availability of a site during reload
+    * [APPNG-2468] - Gently ignore ClientAbortException for REST services
+    * [APPNG-2469] - Support some Prometheus metrics
+    * [APPNG-2470] - Support system variables in appNG.properties
+    * [APPNG-2471] - Improvements for PageCacheFilter
+
+** Task
+    * [APPNG-2472] - Update license headers to 2023
+
+Release Notes - appNG - Version 1.25.0 (2023-02-16)
+---------------------------------------------------
+** Bug
+    * [APPNG-2427] - ApplicationTestConfig should set vHostMode property to avoid NPEs during testing
+    * [APPNG-2432] - Messages on a datasource must be displayed on it
+    * [APPNG-2434] - appNGizer does not correctly recognize multiline properties
+    * [APPNG-2435] - Platform Property "sessionFilter" not working for multiple lines
+    * [APPNG-2436] - Reloading only the template is not propagated to cluster
+    * [APPNG-2438] - CoreServiceTest.testLdapLogin fails with newer JDKs
+    * [APPNG-2448] - Setting properties for HikariCPConfigurer in PlatformConfig has no effect
+    * [APPNG-2453] - Default value for site property "ldapHost" causes Exceptions
+    * [APPNG-2463] - A field's condition is not correctly evaluated when datasource returns multiple items
+    * [APPNG-2464] - ErrorPageHandler must set HTTP Status 404
+
+** Feature
+    * [APPNG-2396] - Provide an OpenAPi v3
+    * [APPNG-2431] - Introduce an optional site-property defining a forward target for the root path
+    * [APPNG-2437] - Support a tooltip for selections
+    * [APPNG-2447] - Allow accessing site/application properties and the session in expressions
+    * [APPNG-2454] - Provide some debug headers in the HttpServletResponse
+    * [APPNG-2455] - Add information about the node where a job was executed
+    * [APPNG-2456] - Allow ant path matching in cache exceptions
+    * [APPNG-2457] - appNGizer should provide more detailed error messages instead of raw status codes
+    * [APPNG-2458] - Add a generator to improve the use of a bean's options
+    * [APPNG-2461] - Support role based access control for caching
+    * [APPNG-2462] - An active DataBaseConnection should provide product name and -version
+
+** Improvement
+    * [APPNG-2429] - PageCacheFilter: Avoid updating cached entry after each hit
+    * [APPNG-2442] - Host Alias support for appNG sites
+    * [APPNG-2446] - Allow to set items of DataContainer without initialization
+    * [APPNG-2449] - Avoid having multiple instances of DefaultEnvironment
+    * [APPNG-2450] - Iterating over each cache element is slow for large caches
+    * [APPNG-2451] - Provide the platform's essential properties in ApplicationTestConfig
+    * [APPNG-2460] - Support a node specific delay when performing a site reload triggered by an event
+    * [APPNG-2465] - Log a warning when urlrewrite.xml can not be read
+
+** Task
+    * [APPNG-2428] - RequestUtil.waitForSite should return immediately if state is INACTIVE or DELETED
+    * [APPNG-2430] - Dependency Updates
+    * [APPNG-2433] - Revert changes from APPNG-2386
+
+Release Notes - appNG - Version 1.24.6 (2023-01-25)
+---------------------------------------------------
+** Feature
+    * [APPNG-2437] - Support a tooltip for selections
+
+Release Notes - appNG - Version 1.24.5 (2022-06-21)
+---------------------------------------------------
+** Bug
+    * [APPNG-2438] - CoreServiceTest.testLdapLogin fails with newer JDKs
+
+** Feature
+    * [APPNG-2443] - Support reading JobExecutionRecords without custom data
+
+Release Notes - appNG - Version 1.24.4 (2022-04-04)
+---------------------------------------------------
+** Bug
+    * [APPNG-2434] - appNGizer does not correctly recognize multiline properties
+    * [APPNG-2435] - Platform Property "sessionFilter" not working for multiple lines
+
+Release Notes - appNG - Version 1.24.3 (2022-02-17)
+---------------------------------------------------
+** Task
+    * [APPNG-2433] - Revert changes from APPNG-2386
+
+Release Notes - appNG - Version 1.24.2 (2022-02-07)
+---------------------------------------------------
+** Bug
+    * [APPNG-2427] - ApplicationTestConfig should set vHostMode property to avoid NPEs during testing
+
+** Feature
+    * [APPNG-2431] - Introduce an optional site-property defining a forward target for the root path
+
+** Improvement
+    * [APPNG-2429] - PageCacheFilter: Avoid updating cached entry after each hit
+
+** Task
+    * [APPNG-2428] - RequestUtil.waitForSite should return immediately if state is INACTIVE or DELETED
+    * [APPNG-2430] - Dependency Updates
+
+Release Notes - appNG - Version 1.24.1 (2022-01-05)
+---------------------------------------------------
+** Bug
+    * [APPNG-2425] - MonitoringHandler must consider the state of Hazelcast
+    * [APPNG-2426] - Cache must be re-created if cache-size changed
+
+Release Notes - appNG - Version 1.24.0 (20211-12-21)
+---------------------------------------------------
+** Bug
+    * [APPNG-2420] - CacheService.createCache must set a custom EvictionConfig
+    * [APPNG-2421] - Removing elements from Cache by prefix should be asynchronous
+    * [APPNG-2422] - InitializerService#startApplication must catch any Exception, not only RuntimeException
+
+
+** Improvement
+    * [APPNG-2424] - Reduce loglevel of DefaultPermissionProcessor#hasPermission
+
+Release Notes - appNG - Version 1.23.4 (2021-12-07)
+---------------------------------------------------
+** Bug
+    * [APPNG-2419] - Controller returns empty 404 response instead of error-page
+
 Release Notes - appNG - Version 1.23.3 (2021-12-03)
 ---------------------------------------------------
 ** Bug
