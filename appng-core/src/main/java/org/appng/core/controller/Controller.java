@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -209,7 +209,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			return;
 		}
 
-		if (!SiteState.STARTED.equals(site.getState())) {
+		if (!site.hasState(SiteState.STARTED, SiteState.SUSPENDED)) {
 			servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 			String maintenanceScreen = siteProps.getClob(Platform.Property.MAINTENANCE_SCREEN,
 					platformProperties.getClob(Platform.Property.MAINTENANCE_SCREEN));
@@ -267,7 +267,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 			}
 
 			if (null != requestHandler) {
-				if (site.hasState(SiteState.STARTED)) {
+				if (site.hasState(SiteState.STARTED, SiteState.SUSPENDED)) {
 					setRequestAttributes(servletRequest, env, pathInfo);
 					requestHandler.handle(servletRequest, servletResponse, env, site, pathInfo);
 					if (pathInfo.isGui() && servletRequest.isRequestedSessionIdValid()) {
@@ -290,7 +290,7 @@ public class Controller extends DefaultServlet implements ContainerServlet {
 
 	private void addDebugHeaders(HttpServletResponse servletResponse, Environment env, Site site) {
 		if (site.getProperties().getBoolean(SiteProperties.SET_DEBUG_HEADERS, false)) {
-			servletResponse.setHeader(HEADER_NODE, Messaging.getNodeId(env));
+			servletResponse.setHeader(HEADER_NODE, Messaging.getNodeId());
 			servletResponse.setHeader(HEADER_VERSION,
 					env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION));
 			servletResponse.setHeader(HEADER_SITE, site.getName());

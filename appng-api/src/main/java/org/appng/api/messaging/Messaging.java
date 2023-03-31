@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Müller
  *
- * @see Sender
- * @see Receiver
+ * @see    Sender
+ * @see    Receiver
  */
 @Slf4j
 public class Messaging {
@@ -48,13 +48,13 @@ public class Messaging {
 	/**
 	 * Retrieves the previously created {@link Sender} from the {@link Environment}.
 	 * 
-	 * @param env
-	 *            the {@link Environment} to use
+	 * @param  env
+	 *             the {@link Environment} to use
 	 * 
-	 * @return the {@link Sender}, if available
+	 * @return     the {@link Sender}, if available
 	 * 
-	 * @see #createMessageSender(Environment, ExecutorService)
-	 * @see #createMessageSender(Environment, ExecutorService, String, EventHandler, Iterable)
+	 * @see        #createMessageSender(Environment, ExecutorService)
+	 * @see        #createMessageSender(Environment, ExecutorService, String, EventHandler, Iterable)
 	 */
 	public static Sender getMessageSender(Environment env) {
 		return env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
@@ -66,34 +66,32 @@ public class Messaging {
 	 * property {@value #APPNG_NODE_ID} to retrieve the node id for the {@link Serializer}. If this property is absent,
 	 * the local host name is used and the property is set.
 	 * 
-	 * @param env
-	 *                 the {@link Environment} to use
-	 * @param executor
-	 *                 the {@link ExecutorService} to run the {@link Receiver} with
+	 * @param  env
+	 *                  the {@link Environment} to use
+	 * @param  executor
+	 *                  the {@link ExecutorService} to run the {@link Receiver} with
 	 * 
 	 * @return
-	 *         <ul>
-	 *         <li>the {@link Sender} (if the platform property
-	 *         {@value org.appng.api.Platform.Property#MESSAGING_ENABLED} is {@code true}
-	 *         <li>{@code null} if messaging is disabled or an error occurred while creating the sender
-	 *         </ul>
+	 *                  <ul>
+	 *                  <li>the {@link Sender} (if the platform property
+	 *                  {@value org.appng.api.Platform.Property#MESSAGING_ENABLED} is {@code true}
+	 *                  <li>{@code null} if messaging is disabled or an error occurred while creating the sender
+	 *                  </ul>
 	 */
 	public static Sender createMessageSender(Environment env, ExecutorService executor) {
-		return createMessageSender(env, executor, getNodeId(env), null, null);
+		return createMessageSender(env, executor, getNodeId(), null, null);
 	}
 
 	/**
-	 * Determines the node id for this node. If the system property {@value #APPNG_NODE_ID} is set, this value is used.
-	 * Otherwise, the local host name is used (from {@code java.net.InetAddress.getLocalHost().getHostName()}}).
+	 * Determines and returns the node id for this node. If the system property {@value #APPNG_NODE_ID} is set, this
+	 * value is used. Otherwise, the local host name is used (from
+	 * {@code java.net.InetAddress.getLocalHost().getHostName()}}).
 	 * 
-	 * @param env
-	 *            the {@link Environment} to use
-	 * 
-	 * @return the node id for this node
+	 * @return the ID of this cluster node
 	 */
-	public static String getNodeId(Environment env) {
+	public static String init() {
 		String nodeId = System.getProperty(APPNG_NODE_ID);
-		if (null == nodeId && getPlatformConfig(env).getBoolean("messagingFallbackToHostName", Boolean.TRUE)) {
+		if (null == nodeId) {
 			try {
 				nodeId = InetAddress.getLocalHost().getHostName();
 				LOGGER.info("system property {} is not set, using local host name {} as fallback", APPNG_NODE_ID,
@@ -106,6 +104,30 @@ public class Messaging {
 		return nodeId;
 	}
 
+	/**
+	 * Returns the ID of this cluster node
+	 * 
+	 * @param      env
+	 *                 do not use
+	 * 
+	 * @return         the ID of this cluster node
+	 * 
+	 * @deprecated     use {@link #getNodeId()} instead
+	 */
+	@Deprecated
+	public static String getNodeId(Environment env) {
+		return getNodeId();
+	}
+
+	/**
+	 * Returns the ID of this cluster node
+	 * 
+	 * @return the ID of this cluster node
+	 */
+	public static String getNodeId() {
+		return System.getProperty(APPNG_NODE_ID);
+	}
+
 	protected static Properties getPlatformConfig(Environment env) {
 		return env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 	}
@@ -114,23 +136,23 @@ public class Messaging {
 	 * Creates and returns a new {@link Sender} and a corresponding {@link Receiver}. The class name for the receiver is
 	 * taken from the platform property {@value org.appng.api.Platform.Property#MESSAGING_RECEIVER}.
 	 * 
-	 * @param env
-	 *                       the {@link Environment} to use
-	 * @param executor
-	 *                       the {@link ExecutorService} to run the {@link Receiver} with
-	 * @param nodeId
-	 *                       the node id for the {@link Serializer}
-	 * @param defaultHandler
-	 *                       the default {@link EventHandler} for the {@link Receiver} (may be {@code null})
-	 * @param handlers
-	 *                       a list of {@link EventHandler}s to be registered at the {@link Receiver}
+	 * @param  env
+	 *                        the {@link Environment} to use
+	 * @param  executor
+	 *                        the {@link ExecutorService} to run the {@link Receiver} with
+	 * @param  nodeId
+	 *                        the node id for the {@link Serializer}
+	 * @param  defaultHandler
+	 *                        the default {@link EventHandler} for the {@link Receiver} (may be {@code null})
+	 * @param  handlers
+	 *                        a list of {@link EventHandler}s to be registered at the {@link Receiver}
 	 * 
 	 * @return
-	 *         <ul>
-	 *         <li>the {@link Sender} (if the platform property
-	 *         {@value org.appng.api.Platform.Property#MESSAGING_ENABLED} is {@code true}
-	 *         <li>{@code null} if messaging is disabled or an error occurred while creating the sender
-	 *         </ul>
+	 *                        <ul>
+	 *                        <li>the {@link Sender} (if the platform property
+	 *                        {@value org.appng.api.Platform.Property#MESSAGING_ENABLED} is {@code true}
+	 *                        <li>{@code null} if messaging is disabled or an error occurred while creating the sender
+	 *                        </ul>
 	 */
 	public static Sender createMessageSender(Environment env, ExecutorService executor, String nodeId,
 			EventHandler<? extends Event> defaultHandler, Iterable<EventHandler<? extends Event>> handlers) {

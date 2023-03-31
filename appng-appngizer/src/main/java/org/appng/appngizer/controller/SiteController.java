@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ public class SiteController extends ControllerBase {
 		Environment environment = DefaultEnvironment.getGlobal();
 		org.appng.api.model.Site site = RequestUtil.getSiteByName(environment, name);
 		if (site != null && (site.getState() == SiteState.STARTING || site.getState() == SiteState.STARTED
-				|| site.getState() == SiteState.STOPPING)) {
+				|| site.getState() == SiteState.SUSPENDED || site.getState() == SiteState.STOPPING)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		getCoreService().deleteSite(name, new FieldProcessorImpl("delete-site"));

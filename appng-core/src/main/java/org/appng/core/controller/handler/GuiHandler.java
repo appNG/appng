@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.appng.api.model.Subject;
 import org.appng.api.support.ElementHelper;
 import org.appng.core.Redirect;
 import org.appng.core.controller.HttpHeaders;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.domain.GroupImpl;
 import org.appng.core.model.RequestProcessor;
 import org.appng.core.service.TemplateService;
@@ -73,6 +74,7 @@ public class GuiHandler implements RequestHandler {
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
+		servletRequest.setAttribute(MetricsFilter.SERVICE_TYPE, "gui");
 		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {

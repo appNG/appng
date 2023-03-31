@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ import org.appng.api.support.ElementHelper;
 import org.appng.api.support.RequestFactoryBean;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.filter.CsrfSetupFilter;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.domain.SiteApplication;
 import org.appng.core.model.JarInfo.JarInfoBuilder;
@@ -1064,6 +1065,8 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		ApplicationConfigProvider applicationConfigProvider = getApplicationConfig().cloneConfig(marshallService);
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Action action = applicationConfigProvider.getAction(eventId, actionId);
+		applicationRequest.getWrappedRequest().getHttpServletRequest().setAttribute(MetricsFilter.EVENT_ID, eventId);
+		applicationRequest.getWrappedRequest().getHttpServletRequest().setAttribute(MetricsFilter.ACTION_ID, actionId);
 		if (null == action) {
 			LOGGER.debug("Action {}:{} not found on application {} of site {}", eventId, actionId,
 					application.getName(), site.getName());
@@ -1126,6 +1129,7 @@ public class ApplicationProvider extends SiteApplication implements AccessibleAp
 		ApplicationConfigProvider applicationConfigProvider = getApplicationConfig().cloneConfig(marshallService);
 		applicationRequest.setApplicationConfig(applicationConfigProvider);
 		Datasource dataSource = applicationConfigProvider.getDatasource(dataSourceId);
+		applicationRequest.getWrappedRequest().getHttpServletRequest().setAttribute(MetricsFilter.DATASOURCE_ID, dataSourceId);
 		if (null == dataSource) {
 			LOGGER.debug("DataSource {} not found on application {} of site {}", dataSource, application.getName(),
 					site.getName());

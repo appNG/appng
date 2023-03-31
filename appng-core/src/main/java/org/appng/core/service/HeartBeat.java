@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class HeartBeat extends Thread {
 	private final long heartBeatInterval;
 
 	public HeartBeat(long heartBeatInterval) {
-		super("appng-heartbeat");		
+		super("appng-heartbeat");
 		this.heartBeatInterval = heartBeatInterval;
 	}
 
@@ -41,7 +41,7 @@ public class HeartBeat extends Thread {
 		DefaultEnvironment env = DefaultEnvironment.getGlobal();
 		Sender sender = Messaging.getMessageSender(env);
 		while (!isInterrupted()) {
-			boolean sent = sender.send(new NodeEvent(env, StringUtils.EMPTY));
+			boolean sent = sender.send(new NodeEvent(env, StringUtils.EMPTY, Messaging.getNodeId()));
 			if (!sent) {
 				LOGGER.warn("NodeEvent could not be sent, please check messaging configuration.");
 			}

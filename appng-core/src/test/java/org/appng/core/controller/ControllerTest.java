@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2022 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.controller.handler.JspHandler;
 import org.appng.core.controller.handler.MonitoringHandler;
 import org.appng.core.controller.handler.RequestHandler;
@@ -78,11 +79,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Histogram;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -117,12 +121,21 @@ public class ControllerTest extends Controller {
 		Mockito.when(base.ctx.getAttribute(Globals.RESOURCES_ATTR)).thenReturn(Mockito.mock(WebResourceRoot.class));
 		init(new MockServletConfig(base.ctx));
 
-		Messaging.getNodeId(getEnvironment());
+		Messaging.init();
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION, "latest-and-hottest");
 		final Map<String, String> headers = new HashMap<>();
 		Mockito.when(base.response.getHeader(Mockito.any())).then(i -> headers.get(i.getArgumentAt(0, String.class)));
 		Mockito.doAnswer(i -> headers.put(i.getArgumentAt(0, String.class), i.getArgumentAt(1, String.class)))
 				.when(base.response).setHeader(Mockito.any(), Mockito.any());
+
+		new MetricsFilter().init(new MockFilterConfig());
+		CollectorRegistry registry = MetricsFilter.getRegistry(env, "manager");
+		Histogram metrics = Histogram.build("appng_metrics_manager", "appng_metrics_manager").register(registry);
+		metrics.observeWithExemplar(0.5);
+		metrics.observeWithExemplar(1);
+		metrics.observeWithExemplar(5);
+		metrics.observeWithExemplar(10);
+		metrics.observeWithExemplar(30);
 	}
 
 	@Override
@@ -246,6 +259,23 @@ public class ControllerTest extends Controller {
 			Mockito.verify(base.response).setContentType(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON);
 			Assert.assertTrue(actual.contains("\"name\" : \"manager\""));
 			Assert.assertTrue(actual.contains("\"state\" : \"STARTED\""));
+			Mockito.verify(base.response).setStatus(HttpStatus.OK.value());
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testMonitoringSiteSuspended() {
+		base.site.setState(SiteState.SUSPENDED);
+		prepareMonitoring("/health");
+		try {
+			doGet(base.request, base.response);
+			String actual = new String(base.out.toByteArray());
+			Mockito.verify(base.response).setContentType(HttpHeaders.CONTENT_TYPE_APPLICATION_JSON);
+			Assert.assertTrue(actual.contains("\"name\" : \"manager\""));
+			Assert.assertTrue(actual.contains("\"state\" : \"" + SiteState.SUSPENDED + "\""));
+			Mockito.verify(base.response).setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 		} catch (Exception e) {
 			fail(e);
 		}
@@ -277,6 +307,23 @@ public class ControllerTest extends Controller {
 				Assert.assertTrue(actual.contains("USERNAME"));
 				Assert.assertTrue(actual.contains("Path"));
 			}
+		} catch (Exception e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void testMonitoringMetrics() {
+		prepareMonitoring("/health/metrics");
+		try {
+			doGet(base.request, base.response);
+			PrintWriter writer = base.response.getWriter();
+			writer.flush();
+			String actual = new String(base.out.toByteArray());
+			Assert.assertTrue(actual.contains("TYPE appng_metrics_manager histogram"));
+			Assert.assertTrue(actual.contains("appng_metrics_manager_bucket"));
+			Assert.assertTrue(actual.contains("appng_metrics_manager_count"));
+			Assert.assertTrue(actual.contains("appng_metrics_manager_sum"));
 		} catch (Exception e) {
 			fail(e);
 		}

@@ -74,6 +74,12 @@
 		<dispatcher>REQUEST</dispatcher>
 	</filter-mapping>
 
+	<!-- MetricsFilter -->
+	<filter>
+		<filter-name>MetricsFilter</filter-name>
+		<filter-class>org.appng.core.controller.filter.MetricsFilter</filter-class>
+	</filter>
+
 	<!-- PageCacheFilter -->
 	<filter>
 		<filter-name>PageCacheFilter</filter-name>
@@ -114,6 +120,12 @@
 	</filter>
 
 	<!-- ##################### Filter mappings - order is important! ##################### -->
+
+	<filter-mapping>
+		<filter-name>MetricsFilter</filter-name>
+		<servlet-name>controller</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
 
 	<filter-mapping>
 		<filter-name>PageCacheFilter</filter-name>

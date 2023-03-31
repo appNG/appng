@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.apache.jasper.servlet.JspServlet;
 import org.appng.api.Environment;
 import org.appng.api.PathInfo;
 import org.appng.api.model.Site;
+import org.appng.core.controller.filter.MetricsFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +49,7 @@ public class JspHandler implements RequestHandler {
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
+		servletRequest.setAttribute(MetricsFilter.SERVICE_TYPE, "jsp");
 		String servletPath = servletRequest.getServletPath();
 		LOGGER.debug("serving jsp {}", servletPath);
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();

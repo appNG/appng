@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationRequest;
 import org.appng.api.support.ElementHelper;
 import org.appng.api.support.HttpHeaderUtils;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.domain.SiteImpl;
 import org.appng.core.model.AccessibleApplication;
 import org.appng.core.model.ApplicationProvider;
@@ -134,6 +135,7 @@ public class ServiceRequestHandler implements RequestHandler {
 				String siteName = path.getSiteName();
 				String applicationName = path.getApplicationName();
 				String serviceType = path.getElementAt(path.getApplicationIndex() + 1);
+				servletRequest.setAttribute(MetricsFilter.SERVICE_TYPE, serviceType);
 
 				Site siteToUse = RequestUtil.waitForSite(environment, siteName);
 				if (null == siteToUse) {
@@ -141,7 +143,7 @@ public class ServiceRequestHandler implements RequestHandler {
 							path.getServletPath());
 					servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
 					return;
-				} else if (!siteToUse.hasState(SiteState.STARTED)) {
+				} else if (!siteToUse.hasState(SiteState.STARTED, SiteState.SUSPENDED)) {
 					LOGGER.warn("Site '{}' is in state {}, returning {} (path: {})", siteName, siteToUse.getState(),
 							HttpStatus.SERVICE_UNAVAILABLE.value(), path.getServletPath());
 					servletResponse.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
@@ -171,6 +173,8 @@ public class ServiceRequestHandler implements RequestHandler {
 					String format = path.getElementAt(path.getApplicationIndex() + 2);
 					String eventId = path.getElementAt(path.getApplicationIndex() + 3);
 					String actionId = path.getElementAt(path.getApplicationIndex() + 4);
+					servletRequest.setAttribute(MetricsFilter.EVENT_ID, eventId);
+					servletRequest.setAttribute(MetricsFilter.ACTION_ID, actionId);
 					Action action = application.processAction(servletResponse, applyPermissionsOnServiceRef,
 							applicationRequest, actionId, eventId, marshallService);
 					if (null != action) {
@@ -193,6 +197,7 @@ public class ServiceRequestHandler implements RequestHandler {
 					path.checkPathLength(7);
 					String format = path.getElementAt(path.getApplicationIndex() + 2);
 					String dataSourceId = path.getElementAt(path.getApplicationIndex() + 3);
+					servletRequest.setAttribute(MetricsFilter.DATASOURCE_ID, dataSourceId);
 					Datasource datasource = application.processDataSource(servletResponse, applyPermissionsOnServiceRef,
 							applicationRequest, dataSourceId, marshallService);
 					if (null != datasource) {
@@ -220,10 +225,14 @@ public class ServiceRequestHandler implements RequestHandler {
 				} else if (SERVICE_TYPE_WEBSERVICE.equals(serviceType)) {
 					path.checkPathLength(6);
 					String webserviceName = path.getService();
+					servletRequest.setAttribute(MetricsFilter.SERVICE_NAME, webserviceName);
+					servletRequest.setAttribute("service_webservice_id", webserviceName);
 					callWebservice(servletRequest, servletResponse, applicationRequest, environment, siteToUse,
 							application, webserviceName);
 				} else if (SERVICE_TYPE_SOAP.equals(serviceType)) {
 					path.checkPathLength(5);
+					String serviceName = path.getService();
+					servletRequest.setAttribute(MetricsFilter.SERVICE_NAME, serviceName);
 					handleSoap(siteToUse, application, environment, servletRequest, servletResponse);
 				} else if (SERVICE_TYPE_REST.equals(serviceType)) {
 					path.checkPathLength(6);

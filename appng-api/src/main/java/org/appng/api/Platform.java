@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,8 +224,10 @@ public final class Platform {
 		public static final String SESSION_TIMEOUT = "sessionTimeout";
 		/** The shared secret used for digest authentication */
 		public static final String SHARED_SECRET = "sharedSecret";
-		/** The offset in seconds before reloading a site (node specific)*/
+		/** The offset in milliseconds before reloading a site (node specific)*/
 		public static final String SITE_RELOAD_DELAY = "siteReloadDelay";
+		/** The maximum random delay before reloading a site */
+		public static final String SITE_RELOAD_MAX_RANDOM_DELAY = "siteReloadMaxRandomDelay";
 		/** The folder used for templates, relative to the webapp-root */
 		public static final String TEMPLATE_FOLDER = "templateFolder";
 		/** The path under which the resources of the active template are beeing served. */

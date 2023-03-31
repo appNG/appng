@@ -12,7 +12,7 @@ https://docs.docker.com/engine/install/
 docker compose up --build
 ----
 
-After the container startetd, go to
+After the container started, go to
 
 http://localhost:8080/manager
 

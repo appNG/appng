@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class MultiSiteSupport {
 				LOGGER.debug("site '{}' is granting site '{}' access to application '{}'", site.getName(),
 						callingSite.getName(), application);
 				executingSite = (SiteImpl) RequestUtil.waitForSite(env, site.getName());
-				if (null != executingSite && executingSite.hasState(SiteState.STARTED)) {
+				if (null != executingSite && executingSite.hasState(SiteState.STARTED, SiteState.SUSPENDED)) {
 					applicationProvider = (ApplicationProvider) executingSite.getSiteApplication(application);
 					if (null == applicationProvider) {
 						throw new JspException(String.format(

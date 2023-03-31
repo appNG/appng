@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.messaging.Event;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.messaging.Receiver;
 import org.appng.api.messaging.Sender;
 import org.appng.api.model.Site;
@@ -33,12 +34,17 @@ import org.appng.api.model.Site;
 public class RequestNodeState extends Event {
 
 	public RequestNodeState(String siteName) {
+		this(siteName, Messaging.getNodeId());
+	}
+
+	public RequestNodeState(String siteName, String nodeId) {
 		super(siteName);
+		setNodeId(nodeId);
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
 		Sender sender = environment.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
-		sender.send(new NodeEvent(environment, getSiteName()));
+		sender.send(new NodeEvent(environment, getSiteName(), getNodeId()));
 	}
 
 }

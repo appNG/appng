@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,14 @@ public class PlatformStartupTest extends PlatformStartup {
 		Mockito.when(initializerService.loadPlatformProperties(Mockito.any(), Mockito.any())).thenReturn(value);
 
 		new Log4jConfigurer().contextInitialized(new ServletContextEvent(servContext));
+
+		System.setProperty("appNG", "appNG");
+		Properties testProps = new Properties();
+		testProps.put("env.path", "${env.PATH}");
+		testProps.put("sys.appNG", "${sys.appNG}");
+		applySystem(testProps);
+		Assert.assertEquals(System.getenv("PATH"), testProps.get("env.path"));
+		Assert.assertEquals(System.getProperty("appNG"), testProps.get("sys.appNG"));
 
 		contextInitialized(new ServletContextEvent(servContext));
 		Assert.assertTrue(platformEnv.get(Platform.Environment.CORE_PLATFORM_CONTEXT).equals(platformCtx));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.appng.appngizer.controller;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.appng.core.controller.PlatformStartup;
 import org.appng.core.service.MigrationService;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
@@ -28,6 +29,7 @@ public class AppNGizerConfigurer extends PropertyPlaceholderConfigurer {
 		super.loadProperties(props);
 		String dbType = props.getProperty(MigrationService.DATABASE_TYPE).toUpperCase();
 		props.put(MigrationService.DATABASE_TYPE, dbType);
+		PlatformStartup.applySystem(props);
 		setProperties(props);
 	}
 

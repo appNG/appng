@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Path;
 import org.appng.api.config.RestConfig;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.model.AccessibleApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -51,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
  * Adds support for detecting and handling {@link RestController}s. Also detects {@link ExceptionHandler}s on beans
  * annotated with {@link ControllerAdvice}.
  * 
- * @see ServiceRequestHandler
+ * @see    ServiceRequestHandler
  * 
  * @author Matthias Müller
  */
@@ -72,7 +74,7 @@ public class RestService {
 
 		HandlerMethod handlerMethod = null;
 		List<HttpMessageConverter<?>> messageConverters = RestConfig.getMessageConverters(context);
-		List<HandlerMethodArgumentResolver> argumentResolvers =  RestConfig.getArgumentResolvers(context);
+		List<HandlerMethodArgumentResolver> argumentResolvers = RestConfig.getArgumentResolvers(context);
 		try {
 			RequestMappingHandlerMapping rmhm = new RequestMappingHandlerMapping();
 			rmhm.setApplicationContext(context);
@@ -90,6 +92,8 @@ public class RestService {
 				return;
 			}
 			handlerMethod = (HandlerMethod) handler.getHandler();
+			Class<?> beanType = handlerMethod.getBeanType();
+			servletRequest.setAttribute(MetricsFilter.SERVICE_NAME, beanType.getSimpleName());
 
 			RequestMappingHandlerAdapter rmha = new RequestMappingHandlerAdapter();
 			rmha.setApplicationContext(context);
@@ -97,6 +101,8 @@ public class RestService {
 			rmha.setMessageConverters(messageConverters);
 			rmha.afterPropertiesSet();
 			rmha.handle(wrapped, servletResponse, handlerMethod);
+		} catch (ClientAbortException ca) {
+			LOGGER.debug("Request aborted by client");
 		} catch (Exception e) {
 			servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			ExceptionHandlerExceptionResolver eher = new ExceptionHandlerExceptionResolver();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
@@ -73,6 +76,7 @@ import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.ApplicationConfigProviderImpl;
 import org.appng.api.support.ConfigValidator;
+import org.appng.api.support.ElementHelper;
 import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
@@ -126,6 +130,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InitializerService {
 
+	private static final int SITE_SUSPEND_DEFAULT = 5;
+	private static final int SITE_SUSPEND_MAXWAIT = 30;
 	private static final int THREAD_PRIORITY_LOW = 3;
 
 	private static final String LIB_LOCATION = "/WEB-INF/lib";
@@ -158,23 +164,24 @@ public class InitializerService {
 	/**
 	 * Initializes and loads the platform, which includes logging some environment settings.
 	 * 
-	 * @param platformConfig
-	 *                          the current {@link PlatformProperties}
-	 * @param env
-	 *                          the current {@link Environment}
-	 * @param rootConnection
-	 *                          the root {@link DatabaseConnection}
-	 * @param ctx
-	 *                          the current {@link ServletContext}
-	 * @param messagingExecutor
-	 *                          an {@link ExecutorService} used for cluster communication threads
-	 * @param startupExecutor
-	 *                          an {@link ExecutorService} used for starting sites in parallel
+	 * @param  platformConfig
+	 *                                       the current {@link PlatformProperties}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  rootConnection
+	 *                                       the root {@link DatabaseConnection}
+	 * @param  ctx
+	 *                                       the current {@link ServletContext}
+	 * @param  messagingExecutor
+	 *                                       an {@link ExecutorService} used for cluster communication threads
+	 * @param  startupExecutor
+	 *                                       an {@link ExecutorService} used for starting sites in parallel
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 * 
-	 * @see #loadPlatform(PlatformProperties, Environment, String, String, ExecutorService)
+	 * @see                                  #loadPlatform(PlatformProperties, Environment, String, String,
+	 *                                       ExecutorService)
 	 */
 	@Transactional
 	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
@@ -188,15 +195,15 @@ public class InitializerService {
 	}
 
 	/**
-	 * @param config
-	 * @param env
-	 * @param siteName
-	 * @param target
-	 * @param messagingExecutor
+	 * @param      config
+	 * @param      env
+	 * @param      siteName
+	 * @param      target
+	 * @param      messagingExecutor
 	 * 
-	 * @deprecated will be removed with no replacement
+	 * @deprecated                               will be removed with no replacement
 	 * 
-	 * @throws InvalidConfigurationException
+	 * @throws     InvalidConfigurationException
 	 */
 	@Deprecated
 	public void reloadPlatform(java.util.Properties config, Environment env, String siteName, String target,
@@ -222,7 +229,7 @@ public class InitializerService {
 		}
 	}
 
-	private void startSiteThread(Site site, String threadName, int priority, Runnable runnable) {
+	private Future<?> startSiteThread(Site site, String threadName, int priority, Runnable runnable) {
 		if (!siteThreads.containsKey(site.getName())) {
 			siteThreads.put(site.getName(), new ArrayList<>());
 		}
@@ -230,8 +237,9 @@ public class InitializerService {
 				.setNameFormat(threadName).build();
 		ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
 		siteThreads.get(site.getName()).add(executor);
-		executor.execute(runnable);
+		Future<?> submitted = executor.submit(runnable);
 		LOGGER.info("started site thread [{}] with runnable of type {}", threadName, runnable.getClass().getName());
+		return submitted;
 	}
 
 	@Deprecated
@@ -243,18 +251,18 @@ public class InitializerService {
 	/**
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
-	 * @param platformConfig
-	 *                          the current {@link PlatformProperties}
-	 * @param env
-	 *                          the current {@link Environment}
-	 * @param siteName
-	 *                          the (optional) name of the {@link Site} that caused the platform reload
-	 * @param target
-	 *                          an (optional) target to redirect to after platform reload
-	 * @param messagingExecutor
-	 *                          an {@link ExecutorService} used for cluster communication threads
-	 * @param startupExecutor
-	 *                          an {@link ExecutorService} used for starting sites in parallel
+	 * @param  platformConfig
+	 *                                       the current {@link PlatformProperties}
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteName
+	 *                                       the (optional) name of the {@link Site} that caused the platform reload
+	 * @param  target
+	 *                                       an (optional) target to redirect to after platform reload
+	 * @param  messagingExecutor
+	 *                                       an {@link ExecutorService} used for cluster communication threads
+	 * @param  startupExecutor
+	 *                                       an {@link ExecutorService} used for starting sites in parallel
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -276,7 +284,7 @@ public class InitializerService {
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(env));
+		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId());
 		CacheService.createCacheManager(hazelcast, HazelcastConfigurer.isClient());
 		HazelcastInstance hazelcastInstance = ((HazelcastCacheManager) CacheService.getCacheManager())
 				.getHazelcastInstance();
@@ -361,7 +369,7 @@ public class InitializerService {
 	}
 
 	public Properties loadNodeProperties(Environment env) {
-		Properties nodeConfig = getCoreService().initNodeConfig(env);
+		Properties nodeConfig = getCoreService().initNodeConfig();
 		env.setAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG, nodeConfig);
 		return nodeConfig;
 	}
@@ -460,10 +468,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *                   the current {@link Environment}
-	 * @param siteToLoad
-	 *                   the {@link Site} to load
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -471,16 +479,50 @@ public class InitializerService {
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(env, siteToLoad, true, fp);
+		if (siteToLoad.getProperties().getBoolean("asyncSiteReloads", false)) {
+			loadSiteAsync(env, siteToLoad, fp);
+		} else {
+			loadSite(env, siteToLoad, true, fp);
+		}
+	}
+
+	public synchronized void loadSiteAsync(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
+			throws InvalidConfigurationException {
+		Integer suspendOnReload = siteToLoad.getProperties().getInteger(SiteProperties.SUSPEND_ON_RELOAD,
+				SITE_SUSPEND_DEFAULT);
+		String message;
+		if (suspendOnReload.intValue() == 0) {
+			message = String.format("Site %s will be loaded in the background.", siteToLoad.getName());
+		} else {
+			message = String.format("Site %s wil be suspended for %s seconds and then be loadded in the background.",
+					siteToLoad.getName(), suspendOnReload);
+		}
+		fp.addOkMessage(message);
+
+		FieldProcessorImpl asyncFp = new FieldProcessorImpl(fp.getReference());
+		Runnable siteLoader = getSiteLoader(siteToLoad, env, true, asyncFp, false);
+		String siteLoaderThreadName = getSiteLoaderThreadName(siteToLoad);
+		final Future<?> reloadTask = startSiteThread(siteToLoad, siteLoaderThreadName, Thread.MAX_PRIORITY, siteLoader);
+		startSiteThread(siteToLoad, siteLoaderThreadName + "-done", Thread.MAX_PRIORITY, () -> {
+			try {
+				reloadTask.get();
+			} catch (InterruptedException | ExecutionException e) {
+				String error = String.format("Error while loading site %s", siteToLoad.getName());
+				asyncFp.addErrorMessage(error);
+				LOGGER.error(error, e);
+			}
+			Messages messages = asyncFp.getMessages();
+			ElementHelper.addMessages(env, messages);
+		});
 	}
 
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param env
-	 *                   the current {@link Environment}
-	 * @param siteToLoad
-	 *                   the {@link Site} to load
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -494,10 +536,10 @@ public class InitializerService {
 	/**
 	 * Loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *                       the {@link Site} to load
-	 * @param servletContext
-	 *                       the current {@link ServletContext}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
+	 * @param  servletContext
+	 *                                       the current {@link ServletContext}
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -515,18 +557,18 @@ public class InitializerService {
 	/**
 	 * Returns a {@link Runnable} that loads the given {@link Site}.
 	 * 
-	 * @param siteToLoad
-	 *                        the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
-	 *                        {@link CoreService#getSiteByName(String)}
-	 * @param env
-	 *                        the current {@link Environment}
-	 * @param sendReloadEvent
-	 *                        whether or not a {@link ReloadSiteEvent} should be sent
-	 * @param fp
-	 *                        a {@link FieldProcessor} to attach messages to
-	 * @param setThreadName
+	 * @param  siteToLoad
+	 *                         the {@link Site} to load, freshly loaded with {@link CoreService#getSite(Integer)} or
+	 *                         {@link CoreService#getSiteByName(String)}
+	 * @param  env
+	 *                         the current {@link Environment}
+	 * @param  sendReloadEvent
+	 *                         whether or not a {@link ReloadSiteEvent} should be sent
+	 * @param  fp
+	 *                         a {@link FieldProcessor} to attach messages to
+	 * @param  setThreadName
 	 * 
-	 * @return the {@link Runnable}
+	 * @return                 the {@link Runnable}
 	 */
 	public Runnable getSiteLoader(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp,
 			boolean setThreadName) {
@@ -534,18 +576,18 @@ public class InitializerService {
 			StopWatch sw = new StopWatch("Loading site " + siteToLoad.getName());
 			sw.start("Setup");
 			if (setThreadName) {
-				Thread.currentThread().setName("siteloader-" + siteToLoad.getName());
+				Thread.currentThread().setName(getSiteLoaderThreadName(siteToLoad));
 			}
 			SiteImpl site = siteToLoad;
 			try {
 				ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
 				Map<String, Site> siteMap = env.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
+				PlatformProperties platformConfig = PlatformProperties.get(env);
 
-				Site currentSite = siteMap.get(site.getName());
+				SiteImpl currentSite = (SiteImpl) siteMap.get(site.getName());
 				boolean isReload = null != currentSite;
 				if (isReload) {
-					LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
-					shutDownSite(env, currentSite, false);
+					handleReload(env, sendReloadEvent, currentSite);
 					site.setReloadCount(site.getReloadCount() + 1);
 				}
 
@@ -562,7 +604,7 @@ public class InitializerService {
 				List<? extends Group> groups = coreService.getGroups();
 				site.setGroups(new HashSet<>(groups));
 
-				((DefaultEnvironment)env).initSiteScope(site);
+				((DefaultEnvironment) env).initSiteScope(site);
 				site.setState(SiteState.STARTING, env);
 				siteMap.put(site.getName(), site);
 
@@ -581,7 +623,6 @@ public class InitializerService {
 				SiteClassLoaderBuilder siteClassPath = new SiteClassLoaderBuilder();
 				Set<ApplicationProvider> applications = new HashSet<>();
 
-				PlatformProperties platformConfig = PlatformProperties.get(env);
 				// platform and application cache
 				CacheProvider cacheProvider = new CacheProvider(platformConfig, true);
 				cacheProvider.clearCache(site);
@@ -802,7 +843,7 @@ public class InitializerService {
 								application, dbc, platformCacheManager, dictionaryNames);
 						applicationContext.addBeanFactoryPostProcessor(applicationPostProcessor);
 
-						if (application.getProperties().getBoolean("enableLegacyRest", false)) {
+						if (site.getProperties().getBoolean("enableLegacyRest", false)) {
 							applicationContext.addBeanFactoryPostProcessor(new RestPostProcessor());
 						}
 						applicationContext.addBeanFactoryPostProcessor(new OpenApiPostProcessor());
@@ -869,7 +910,7 @@ public class InitializerService {
 				}
 				site.setState(SiteState.STARTED, env);
 				siteMap.put(site.getName(), site);
-				
+
 				debugPlatformContext(platformContext);
 				auditableListener.createEvent(Type.INFO, "Loaded site " + site.getName());
 
@@ -880,7 +921,7 @@ public class InitializerService {
 					}
 				}
 			} catch (Throwable t) {
-				((DefaultEnvironment)env).clearSiteScope(site);
+				((DefaultEnvironment) env).clearSiteScope(site);
 				site.setState(SiteState.INACTIVE);
 				throw new SiteLoadingException("Error while loading site " + siteToLoad.getName(), t);
 			} finally {
@@ -889,6 +930,43 @@ public class InitializerService {
 				}
 			}
 		};
+	}
+
+	private void handleReload(Environment env, boolean sendReloadEvent, SiteImpl currentSite)
+			throws InterruptedException {
+		Properties siteProps = currentSite.getProperties();
+		int siteSuspendOffset = siteProps.getInteger(SiteProperties.SUSPEND_ON_RELOAD,
+				SITE_SUSPEND_DEFAULT);
+		if (siteSuspendOffset > 0) {
+			((SiteImpl) currentSite).setState(SiteState.SUSPENDED, env);
+			LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading.",
+					currentSite.getState(), currentSite.getName(), siteSuspendOffset);
+			Thread.sleep(TimeUnit.SECONDS.toMillis(siteSuspendOffset));
+
+			int suspendMaxWait = siteProps.getInteger(SiteProperties.SUSPEND_MAX_WAIT,
+					SITE_SUSPEND_MAXWAIT);
+			int waited = 0;
+			int requests = 0;
+			int maxRequest = sendReloadEvent ? 1 : 0;
+			while ((requests = currentSite.getRequests()) > maxRequest && waited < suspendMaxWait) {
+				LOGGER.info("Site {} is still processing {} requests, waiting 1s.", currentSite.getName(),
+						requests);
+				Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+				waited += 1;
+			}
+			if (waited >= suspendMaxWait) {
+				LOGGER.warn(
+						"Waited {}s for {} site {} to finish request processing, but there are {} requests remaining.",
+						suspendMaxWait, currentSite.getState(), currentSite.getName(), requests);
+			}
+		}
+
+		LOGGER.info("prepare reload of site {}, shutting down first", currentSite);
+		shutDownSite(env, currentSite, false);
+	}
+
+	private String getSiteLoaderThreadName(SiteImpl siteToLoad) {
+		return "siteloader-" + siteToLoad.getName();
 	}
 
 	protected boolean startApplication(Environment env, SiteImpl site, ApplicationProvider application) {
@@ -953,7 +1031,7 @@ public class InitializerService {
 	 * @param ctx
 	 *            the current {@link ServletContext}
 	 * 
-	 * @see #shutDownSite(Environment, Site, boolean)
+	 * @see       #shutDownSite(Environment, Site, boolean)
 	 */
 	public void shutdownPlatform(ServletContext ctx) {
 		Environment env = DefaultEnvironment.getGlobal();

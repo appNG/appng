@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
@@ -110,10 +111,14 @@ public class PageCacheFilter implements javax.servlet.Filter {
 					isException = isException(exceptions, servletPath);
 					Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
 					boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE);
-					Integer expireAfterSeconds = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-					expireAfterSeconds = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath,
-							expireAfterSeconds);
-					expiryPolicy = new CreatedExpiryPolicy(new Duration(TimeUnit.SECONDS, expireAfterSeconds));
+					Integer defaultTtl = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+					Integer ttl = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath, defaultTtl);
+					Duration expiryDuration = new Duration(TimeUnit.SECONDS, ttl);
+					if (siteProps.getBoolean(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, false)) {
+						expiryPolicy = new CreatedExpiryPolicy(expiryDuration);
+					} else {
+						expiryPolicy = new AccessedExpiryPolicy(expiryDuration);
+					}
 				}
 			} else {
 				LOGGER.info("no site found for path {} and host {}", servletPath, request.getServerName());
@@ -247,10 +252,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			if (cachedResponse.isOk()) {
 				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
 				if (LOGGER.isDebugEnabled()) {
-					Duration duration = expiryPolicy == null ? null : expiryPolicy.getExpiryForCreation();
 					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, ttl: {}s)", cache.getName(), key,
-							cachedResponse.getContentType(), size,
-							duration == null ? null : duration.getDurationAmount());
+							cachedResponse.getContentType(), size, cachedResponse.getTimeToLive());
 				}
 			} else if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Response has status: {}, size: {} for key {}", cachedResponse.getStatus(), size, key);
@@ -264,7 +267,8 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				if (null != roles) {
 					Collection<String> matchedRoles = CollectionUtils.intersection(requiredRoles, roles);
 					if (matchedRoles.isEmpty()) {
-						LOGGER.debug("Resource required one of the role(s) [{}], none of the current role(s) [{}] did match!",
+						LOGGER.debug(
+								"Resource required one of the role(s) [{}], none of the current role(s) [{}] did match!",
 								StringUtils.join(requiredRoles, ", "), StringUtils.join(roles, ", "));
 						status = HttpStatus.FORBIDDEN;
 					} else {
@@ -307,11 +311,17 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		HttpHeaders headers = new HttpHeaders();
 		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
 				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
-		Integer siteTtl = site.getProperties().getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-		Integer ttl = expiryPolicy == null ? siteTtl : (int) expiryPolicy.getExpiryForCreation().getDurationAmount();
 
+		int ttl = addCacheControl(headers, expiryPolicy);
 		return new CachedResponse(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
 				outstr.toByteArray(), headers, ttl);
+	}
+
+	protected int addCacheControl(HttpHeaders headers, ExpiryPolicy expiryPolicy) {
+		Duration expiry = expiryPolicy.getExpiryForCreation();
+		int ttl = (int) expiry.getTimeUnit().toSeconds(expiry.getDurationAmount());
+		headers.add(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", ttl));
+		return ttl;
 	}
 
 	private boolean isCacheableRequest(HttpServletRequest httpServletRequest) {

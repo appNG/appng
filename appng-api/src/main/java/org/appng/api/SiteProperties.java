@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,8 @@ public class SiteProperties {
 	 * URL path prefixes which are never cached. Contains one prefix per line (multiline value).
 	 */
 	public static final String CACHE_EXCEPTIONS = "cacheExceptions";
+	/** Set to {@code true} to expire cache elements by creation time instead of accessed time */
+	public static final String CACHE_EXPIRE_ELEMENTS_BY_CREATION ="cacheExpireElementsByCreation";
 	/** @deprecated no more used */
 	@Deprecated
 	public static final String CACHE_BLOCKING_TIMEOUT = "cacheBlockingTimeout";
@@ -191,7 +193,7 @@ public class SiteProperties {
 	/** Track usage of HTTP sessions? **/
 	public static final String SESSION_TRACKING_ENABLED = "sessionTrackingEnabled";
 	/** Set debug headers in HTTP response? */
-	public static final String  SET_DEBUG_HEADERS = "setDebugHeaders";
+	public static final String SET_DEBUG_HEADERS = "setDebugHeaders";
 	/** The absolute path to the sites root-directory */
 	public static final String SITE_ROOT_DIR = "siteRootDir";
 	/**
@@ -199,6 +201,10 @@ public class SiteProperties {
 	 * directory
 	 */
 	public static final String SUPPORT_RELOAD_FILE = "supportReloadFile";
+	/** The maximum time (in seconds) to wait for a suspended site to finish its requests */
+	public static final String SUSPEND_MAX_WAIT ="suspendMaxWait";
+	/** Seconds to wait before performing a site reload, the site while be in state {@link Site.SiteState#SUSPENDED} meanwhile */
+	public static final String SUSPEND_ON_RELOAD = "suspendOnReload";
 	/** The prefix used for the appNG JSP-tags. */
 	public static final String TAG_PREFIX = "tagPrefix";
 	/** The name of the template to use */

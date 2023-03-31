@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.appng.api.Path;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site.SiteState;
 import org.appng.api.support.SiteClassLoader;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.controller.HttpHeaders;
-import org.appng.core.controller.messaging.SiteStateEvent;
+import org.appng.core.controller.messaging.NodeEvent;
+import org.appng.core.controller.messaging.NodeEvent.NodeState;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,9 +113,11 @@ public class SiteImplTest {
 
 	@Test
 	public void testSetSiteState() {
-		Map<String, SiteState> stateMap = new HashMap<String, SiteState>();
-		stateMap.put(site.getName(), SiteState.STARTING);
-		Mockito.when(environment.getAttribute(Scope.PLATFORM, SiteStateEvent.SITE_STATE)).thenReturn(stateMap);
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE))
+				.thenReturn(new HashMap<String, NodeState>());
+		String nodeId = Messaging.getNodeId();
+		NodeState nodeState = NodeEvent.clusterState(environment, nodeId).get(nodeId);
+		Map<String, SiteState> stateMap = nodeState.getSiteStates();
 		site.setState(SiteState.STARTED, environment);
 		Assert.assertEquals(SiteState.STARTED, stateMap.get(site.getName()));
 		site.setState(SiteState.DELETED, environment);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -272,7 +272,7 @@ public class RequestBean implements Request {
 			parameters.put(key, Collections.unmodifiableList(values));
 			LOGGER.debug("adding {} new value(s) for parameter '{}'", values.size(), key);
 		} else {
-			LOGGER.warn("parameter '{}' is alread present , not adding {} new value(s)", key, values.size());
+			LOGGER.warn("parameter '{}' is alread present, tried to add {} new value(s)", key, values.size());
 		}
 	}
 

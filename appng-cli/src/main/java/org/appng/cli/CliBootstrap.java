@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,7 @@ public class CliBootstrap {
 			config.load(new FileReader(properties));
 			config.setProperty(Platform.Property.PLATFORM_ROOT_PATH, platformRootPath.getAbsolutePath());
 			config.put(DatabaseService.DATABASE_TYPE, config.getProperty(DatabaseService.DATABASE_TYPE).toUpperCase());
+			PlatformStartup.applySystem(config);
 			return config;
 		} else {
 			throw new FileNotFoundException("Configuration file not found: " + properties.getAbsolutePath());

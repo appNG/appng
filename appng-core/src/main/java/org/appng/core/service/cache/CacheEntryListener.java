@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2022 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.appng.core.service.CacheService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A {@link javax.cache.event.CacheEntryListener} that keeps track of the caches's keys. Used in {@link CacheService} to
+ * A {@link javax.cache.event.CacheEntryListener} that keeps track of the cache's keys. Used in {@link CacheService} to
  * make it possible to expire cache elements by their key without having to iterate over all the values (which is slow
  * for large caches).
  */

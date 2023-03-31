@@ -3,4 +3,14 @@
 cd "$(dirname $0)"
 . ./setenv.sh
 
-java -cp "${APPNG_HOME}/WEB-INF/lib/*:${CATALINA_HOME}/lib/*" -Dlog4j.configuration="file:${APPNG_HOME}/WEB-INF/conf/log4j-cli.properties" -Dappng.home="${APPNG_HOME}" org.appng.cli.CliBootstrap "$@"
+JAVA_OPTS="${JAVA_OPTS} --add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
+JAVA_OPTS="${JAVA_OPTS} --add-opens java.base/java.lang=ALL-UNNAMED"
+JAVA_OPTS="${JAVA_OPTS} --add-opens java.base/java.net=ALL-UNNAMED"
+JAVA_OPTS="${JAVA_OPTS} --add-opens java.base/java.nio=ALL-UNNAMED"
+JAVA_OPTS="${JAVA_OPTS} --add-opens java.base/java.security=ALL-UNNAMED"
+JAVA_OPTS="${JAVA_OPTS} --add-opens java.base/sun.nio.ch=ALL-UNNAMED"
+JAVA_OPTS="${JAVA_OPTS} --add-opens java.management/sun.management=ALL-UNNAMED"
+JAVA_OPTS="${JAVA_OPTS} --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED"
+export JAVA_OPTS
+
+java ${JAVA_OPTS} -cp "${APPNG_HOME}/WEB-INF/lib/*:${CATALINA_HOME}/lib/*" -Dlog4j.configuration="file:${APPNG_HOME}/WEB-INF/conf/log4j-cli.properties" -Dappng.home="${APPNG_HOME}" org.appng.cli.CliBootstrap "$@"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.messaging.Event;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Site;
 import org.appng.api.model.Site.SiteState;
 
@@ -48,16 +49,25 @@ public class NodeEvent extends Event {
 	private NodeState nodeState;
 
 	public NodeEvent(Environment environment, String siteName) {
+		this(environment, siteName, Messaging.getNodeId());
+	}
+
+	public NodeEvent(Environment environment, String siteName, String nodeId) {
 		super(siteName);
-		Map<String, SiteState> stateMap = SiteStateEvent.getStateMap(environment);
+		Map<String, SiteState> siteState = siteState(environment, nodeId);
 		Map<String, Site> siteMap = environment.getAttribute(Scope.PLATFORM, Platform.Environment.SITES);
 		for (String site : siteMap.keySet()) {
 			SiteState state = siteMap.get(site).getState();
-			if (!(stateMap.containsKey(site) || SiteState.DELETED.equals(state))) {
-				stateMap.put(site, state);
+			if (!(siteState.containsKey(site) || SiteState.DELETED.equals(state))) {
+				siteState.put(site, state);
 			}
 		}
-		this.nodeState = new NodeState(getNodeId(), stateMap);
+		this.nodeState = new NodeState(null, siteState);
+		setNodeId(nodeId);
+	}
+
+	private NodeEvent() {
+
 	}
 
 	@Override
@@ -67,12 +77,25 @@ public class NodeEvent extends Event {
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
-		Map<String, NodeState> stateMap = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
-		if (null == stateMap) {
-			stateMap = new ConcurrentHashMap<>();
-			environment.setAttribute(Scope.PLATFORM, NODE_STATE, stateMap);
-		}
+		Map<String, NodeState> stateMap = clusterState(environment, getNodeId());
 		stateMap.put(getNodeId(), this.nodeState);
+	}
+
+	public static Map<String, NodeState> clusterState(Environment environment, String nodeId) {
+		Map<String, NodeState> clusterState = environment.getAttribute(Scope.PLATFORM, NODE_STATE);
+		if (null == clusterState) {
+			clusterState = new ConcurrentHashMap<>();
+			environment.setAttribute(Scope.PLATFORM, NODE_STATE, clusterState);
+		}
+		if (!clusterState.containsKey(nodeId)) {
+			clusterState.put(nodeId, new NodeEvent().new NodeState(nodeId, new HashMap<String, SiteState>()));
+		}
+		return clusterState;
+	}
+
+	public static Map<String, SiteState> siteState(Environment env, String nodeId) {
+		Map<String, NodeState> clusterState = clusterState(env, nodeId);
+		return clusterState.get(nodeId).getSiteStates();
 	}
 
 	@Getter

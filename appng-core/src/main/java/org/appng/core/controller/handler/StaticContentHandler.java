@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.appng.api.model.Site;
 import org.appng.api.support.environment.EnvironmentKeys;
 import org.appng.core.Redirect;
 import org.appng.core.controller.Controller;
+import org.appng.core.controller.filter.MetricsFilter;
 import org.appng.core.model.CacheProvider;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +66,7 @@ public class StaticContentHandler implements RequestHandler {
 
 	public void handle(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Environment environment,
 			Site site, PathInfo pathInfo) throws ServletException, IOException {
+		servletRequest.setAttribute(MetricsFilter.SERVICE_TYPE, "static");
 		Properties platformProperties = environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
 		String servletPath = pathInfo.getServletPath();
 		String repoPath = platformProperties.getString(Platform.Property.REPOSITORY_PATH);

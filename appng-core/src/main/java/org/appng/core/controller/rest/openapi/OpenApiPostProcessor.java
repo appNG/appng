@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 		registerRequestScoped(registry, OpenApiDataSourceImpl.class);
 		registerRequestScoped(registry, OpenApiPageImpl.class);
 		registerRequestScoped(registry, OpenApiNavigationImpl.class);
+		registry.registerBeanDefinition(OpenApiMetrics.class.getSimpleName(), getBeanDefinition(OpenApiMetrics.class));
 		registry.registerBeanDefinition(SwaggerUI.class.getSimpleName(), getBeanDefinition(SwaggerUI.class));
 		registry.registerBeanDefinition(RestErrorHandler.class.getSimpleName(),
 				getBeanDefinition(RestErrorHandler.class));
@@ -86,6 +87,8 @@ public class OpenApiPostProcessor implements BeanDefinitionRegistryPostProcessor
 			super(site, application, request, messageSource);
 		}
 	}
+
+	
 
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;
