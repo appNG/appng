@@ -104,7 +104,6 @@ Release Notes - appNG - Version 1.24.0 (20211-12-21)
     * [APPNG-2421] - Removing elements from Cache by prefix should be asynchronous
     * [APPNG-2422] - InitializerService#startApplication must catch any Exception, not only RuntimeException
 
-
 ** Improvement
     * [APPNG-2424] - Reduce loglevel of DefaultPermissionProcessor#hasPermission
 
