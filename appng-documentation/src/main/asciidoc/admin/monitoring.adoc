@@ -49,23 +49,23 @@ Offers some request-based https://opentelemetry.io/[OpenTelemetry^] metrics that
 
 *Path*: `/health/metrics`
 
-The available https://opentelemetry.io/docs/reference/specification/metrics/data-model/#histogram[histogramm] metrics are:
+The available https://opentelemetry.io/docs/reference/specification/metrics/data-model/#histogram[histogramm^] metrics are:
 
 * `<site>::<app>::<type>::act:<event>::<action>`
 * `<site>::<app>::<type>::dat:<datasource>`
-* `<site>::<app>::<type>::<service>` 
-
-The possible values for `<type>` are:
-
-* `gui` +
-Content provided by the appNG GUI
-* `jsp` +
+* `<site>::<app>::<type> +
+The possible values for `<type>` are: +
+** `gui` +
+Content provided by the appNG GUI (`<service>`-part not available)
+** `jsp` +
 A JSP file served from a content repository
-* `static` +
+** `static` +
 A static file served from a content repository
-* `webservice` +
-An  implementation of `org.appng.api.Webservice`
-* `soap` +
-An  implementation of `org.appng.api.SoapService`
-* `rest` +
-Any class implementing a  `org.springframework.web.bind.annotation.RestController` including call to the https://appng.org/appng/docs/{project-version}/reference/html/developerguide.html#openapi[appNG OpenAPI^]
+* `<site>::<app>::<type>::<service>` +
+The possible values for `<type>` are: +
+** `webservice` +
+With `<service>` being an implementation of `org.appng.api.Webservice`
+** `soap` +
+With `<service>` being an implementation of `org.appng.api.SoapService`
+** `rest` +
+With `<service>` being an implementation a  `org.springframework.web.bind.annotation.Controller`, which includes calls to the https://appng.org/appng/docs/{project-version}/reference/html/developerguide.html#openapi[appNG OpenAPI^]
