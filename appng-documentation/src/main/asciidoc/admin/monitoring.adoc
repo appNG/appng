@@ -38,7 +38,34 @@ Shows the system's environment as returned by `System.getenv()`.
 
 *Path*: `/health/environment`
 
-=== System properties
+==== System properties
 Shows the system's properties as returned by `System.getProperties()`.
 
 *Path*: `/health/system`
+
+=== Opentelemetry metrics
+
+Offers some request-based https://opentelemetry.io/[OpenTelemetry^] metrics that can be consumed by https://prometheus.io/[Prometheus^] and visualized with https://grafana.com/[Grafana^].
+
+*Path*: `/health/metrics`
+
+The available https://opentelemetry.io/docs/reference/specification/metrics/data-model/#histogram[histogramm] metrics are:
+
+* `<site>::<app>::<type>::act:<event>::<action>`
+* `<site>::<app>::<type>::dat:<datasource>`
+* `<site>::<app>::<type>::<service>` 
+
+The possible values for `<type>` are:
+
+* `gui` +
+Content provided by the appNG GUI
+* `jsp` +
+A JSP file served from a content repository
+* `static` +
+A static file served from a content repository
+* `webservice` +
+An  implementation of `org.appng.api.Webservice`
+* `soap` +
+An  implementation of `org.appng.api.SoapService`
+* `rest` +
+Any class implementing a  `org.springframework.web.bind.annotation.RestController` including call to the https://appng.org/appng/docs/{project-version}/reference/html/developerguide.html#openapi[appNG OpenAPI^]

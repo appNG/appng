@@ -1,0 +1,7 @@
+== OpenAPI
+
+Since version 1.25.0, appNG also provides an  https://spec.openapis.org/oas/v3.0.3[OpenApi] specification for interacting with an application.
+
+The specification can be found https://github.com/appNG/appng/blob/appng-{stable}/appng-rest-api/src/main/resources/org/appng/api/rest/appng-openapi.yaml[here^].
+
+The https://appng.org/appng/docs/{project-version}/javadoc/index.html?org/appng/openapi/AppNgApi.html[client implementation^] `org.appng.openapi.AppNgApi` can be found in the Maven artifact  `org.appng:appng-rest-api:{project-version}`. 
