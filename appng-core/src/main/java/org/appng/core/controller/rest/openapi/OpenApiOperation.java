@@ -316,7 +316,7 @@ abstract class OpenApiOperation {
 				Environment environment, HttpServletRequest request, HttpServletResponse response) throws Exception {
 			LOGGER.error("error in REST service", exception);
 			String message;
-			if (application.getProperties().getBoolean("restErrorPrintStackTrace", true)) {
+			if (site.getProperties().getBoolean("openApiAppendStackTrace", false)) {
 				StringWriter writer = new StringWriter();
 				exception.printStackTrace(new PrintWriter(writer));
 				message = writer.toString();
