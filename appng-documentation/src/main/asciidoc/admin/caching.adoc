@@ -35,13 +35,15 @@ URL path prefixes which are never cached, as a multiline value. Contains one pre
 /service/my-site
 ----
 * `cacheTimeouts` +
-The path specific cache timeouts, as a multiline value. The format is `path-prefix = TTL in seconds`. Contains one path-prefix per line. +
+The path specific cache timeouts, as a multilined value. The format is `path-prefix = TTL in seconds`. Optionally, with appending `,no-cache`, you  can force a browser to not cache the resource locally. +
+Contains one path-prefix per line. +
 *Example:*
 +
 [source,]
 ----
 /service/appng/cached-application = 7200
 /service/thesite = 3600
+/en/index.html = 1800,no-cache
 ----
 * `cacheTimeoutsAntStyle` +
 When set to `true`, the path-prefixes defined in `cacheTimeouts` can use https://ant.apache.org/manual/dirtasks.html#patterns[Ant-style path matching^].

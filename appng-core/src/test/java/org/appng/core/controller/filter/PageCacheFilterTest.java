@@ -42,6 +42,7 @@ import org.appng.api.model.Site;
 import org.appng.api.support.HttpHeaderUtils;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.CachedResponse;
+import org.appng.core.controller.filter.PageCacheFilter.Expiry;
 import org.appng.core.service.CacheService;
 import org.appng.core.service.HazelcastConfigurer;
 import org.junit.Assert;
@@ -197,64 +198,62 @@ public class PageCacheFilterTest {
 
 	@Test
 	public void testGetExpireAfterSeconds() {
-		Integer defaultCacheTime = Integer.valueOf(1800);
-		Integer oneMin = Integer.valueOf(60);
-		Integer tenMins = Integer.valueOf(600);
-		Integer oneHour = Integer.valueOf(3600);
+		Expiry defaultCacheTime = new Expiry(1800, false);
+		Expiry oneMin = new Expiry(60, false);
+		Expiry tenMins = new Expiry(600, false);
+		Expiry oneHour = new Expiry(3600, true);
 		Properties cachingTimes = new Properties();
 		String servletPath = "/foo/bar/lore/ipsum";
 
-		Integer expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath,
-				defaultCacheTime);
+		Expiry expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, false, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(defaultCacheTime, expireAfterSeconds);
 
-		cachingTimes.put("", oneMin);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
+		cachingTimes.put("", String.valueOf(oneMin.getTtl()));
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, false, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(oneMin, expireAfterSeconds);
 
-		cachingTimes.put(servletPath, oneMin);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
+		cachingTimes.put(servletPath, String.valueOf(oneMin.getTtl()));
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, false, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(oneMin, expireAfterSeconds);
 
 		cachingTimes.clear();
-		cachingTimes.put("/foo/bar/lore", tenMins);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
+		cachingTimes.put("/foo/bar/lore", String.valueOf(tenMins.getTtl()));
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, false, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(tenMins, expireAfterSeconds);
 
 		cachingTimes.clear();
-		cachingTimes.put("/foo", oneHour);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, false, servletPath, defaultCacheTime);
+		cachingTimes.put("/foo", oneHour.getTtl() + ",no-cache");
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, false, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(oneHour, expireAfterSeconds);
 	}
 
 	@Test
 	public void testGetExpireAfterSecondsAntStyle() {
-		Integer defaultCacheTime = Integer.valueOf(1800);
-		Integer oneMin = Integer.valueOf(60);
-		Integer tenMins = Integer.valueOf(600);
-		Integer oneHour = Integer.valueOf(3600);
+		Expiry defaultCacheTime = new Expiry(1800, false);
+		Expiry oneMin = new Expiry(60, false);
+		Expiry tenMins = new Expiry(600, false);
+		Expiry oneHour = new Expiry(3600, true);
 		Properties cachingTimes = new Properties();
 		String servletPath = "/foo/bar/lore/ipsum";
 
-		Integer expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath,
-				defaultCacheTime);
+		Expiry expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, true, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(defaultCacheTime, expireAfterSeconds);
 
-		cachingTimes.put("/**", oneMin);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
+		cachingTimes.put("/**", String.valueOf(oneMin.getTtl()));
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, true, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(oneMin, expireAfterSeconds);
 
-		cachingTimes.put(servletPath, oneMin);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
+		cachingTimes.put(servletPath, String.valueOf(oneMin.getTtl()));
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, true, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(oneMin, expireAfterSeconds);
 
 		cachingTimes.clear();
-		cachingTimes.put("/foo/bar/lore/**", tenMins);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
+		cachingTimes.put("/foo/bar/lore/**", String.valueOf(tenMins.getTtl()));
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, true, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(tenMins, expireAfterSeconds);
 		cachingTimes.clear();
-		cachingTimes.put("/foo/**", oneHour);
-		expireAfterSeconds = PageCacheFilter.getExpireAfterSeconds(cachingTimes, true, servletPath, defaultCacheTime);
+		cachingTimes.put("/foo/**", oneHour.getTtl() + ",no-cache");
+		expireAfterSeconds = PageCacheFilter.getExpiry(cachingTimes, true, servletPath, defaultCacheTime.ttl);
 		Assert.assertEquals(oneHour, expireAfterSeconds);
 	}
 

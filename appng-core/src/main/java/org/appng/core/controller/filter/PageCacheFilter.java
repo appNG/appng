@@ -29,6 +29,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -65,6 +67,8 @@ import org.tuckey.web.filters.urlrewrite.gzip.ResponseUtil;
 
 import com.hazelcast.cache.ICache;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -80,7 +84,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	protected static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
-
+	public static final Pattern EXPIRY_PATTERN = Pattern.compile("^(\\d+)(,(no-cache)?)?$");
 	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
 	public void destroy() {
@@ -101,6 +105,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		ExpiryPolicy expiryPolicy = null;
 		DefaultEnvironment env = EnvironmentFilter.environment();
 		Site site = env.getSite();
+		boolean processed = false;
 
 		if (isCacheableRequest) {
 			if (null != site) {
@@ -109,31 +114,37 @@ public class PageCacheFilter implements javax.servlet.Filter {
 				if (cacheEnabled) {
 					String exceptions = siteProps.getClob(SiteProperties.CACHE_EXCEPTIONS);
 					isException = isException(exceptions, servletPath);
-					Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
-					boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE);
-					Integer defaultTtl = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-					Integer ttl = getExpireAfterSeconds(cacheTimeouts, antStylePathMatching, servletPath, defaultTtl);
-					Duration expiryDuration = new Duration(TimeUnit.SECONDS, ttl);
-					if (siteProps.getBoolean(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, false)) {
-						expiryPolicy = new CreatedExpiryPolicy(expiryDuration);
-					} else {
-						expiryPolicy = new AccessedExpiryPolicy(expiryDuration);
+
+					if (!isException) {
+						long start = System.currentTimeMillis();
+						Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
+						boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE);
+						Integer defaultTtl = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
+						Expiry expiry = getExpiry(cacheTimeouts, antStylePathMatching, servletPath, defaultTtl);
+						Duration expiryDuration = new Duration(TimeUnit.SECONDS, expiry.ttl);
+						if (siteProps.getBoolean(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, false)) {
+							expiryPolicy = new CreatedExpiryPolicy(expiryDuration);
+						} else {
+							expiryPolicy = new AccessedExpiryPolicy(expiryDuration);
+						}
+						if (expiry.noCache) {
+							org.appng.core.controller.HttpHeaders.setNoCache(httpServletResponse);
+						}
+						CachedResponse cachedResponse = handleCaching(httpServletRequest, httpServletResponse, site,
+								chain, CacheService.getCache(site), expiryPolicy);
+						processed = true;
+						if (null != cachedResponse && LOGGER.isDebugEnabled()) {
+							LOGGER.debug("Cache handling took {}ms (hit: {}, status: {}) for {}",
+									System.currentTimeMillis() - start, httpServletRequest.getAttribute(CACHE_HIT),
+									HttpStatus.valueOf(httpServletResponse.getStatus()), cachedResponse.getId());
+						}
 					}
 				}
 			} else {
 				LOGGER.info("no site found for path {} and host {}", servletPath, request.getServerName());
 			}
 		}
-		if (cacheEnabled && isCacheableRequest && !isException) {
-			long start = System.currentTimeMillis();
-			CachedResponse cachedResponse = handleCaching(httpServletRequest, httpServletResponse, site, chain,
-					CacheService.getCache(site), expiryPolicy);
-			if (null != cachedResponse && LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Cache handling took {}ms (hit: {}, status: {}) for {}",
-						System.currentTimeMillis() - start, httpServletRequest.getAttribute(CACHE_HIT),
-						HttpStatus.valueOf(httpServletResponse.getStatus()), cachedResponse.getId());
-			}
-		} else {
+		if (!processed) {
 			chain.doFilter(request, response);
 		}
 	}
@@ -344,33 +355,48 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		return false;
 	}
 
-	static Integer getExpireAfterSeconds(Properties cachingTimes, boolean antStylePathMatching, String servletPath,
+	static Expiry getExpiry(Properties cachingTimes, boolean antStylePathMatching, String servletPath,
 			Integer defaultValue) {
-		if (null != cachingTimes && !cachingTimes.isEmpty()) {
+		Integer ttl = defaultValue;
+		boolean noCache = false;
+		Matcher matcher = null;
+		outer: if (null != cachingTimes && !cachingTimes.isEmpty()) {
 			if (antStylePathMatching) {
 				for (Object path : cachingTimes.keySet()) {
 					if (PATH_MATCHER.match(path.toString(), servletPath)) {
-						Object entry = cachingTimes.get(path);
-						return Integer.valueOf(entry.toString().trim());
+						String entry = (String) cachingTimes.get(path);
+						matcher = EXPIRY_PATTERN.matcher(entry);
+						break outer;
 					}
-
 				}
 			} else {
 				String[] pathSegements = servletPath.split(Path.SEPARATOR);
 				int len = pathSegements.length;
 				while (len > 0) {
 					String segment = StringUtils.join(Arrays.copyOfRange(pathSegements, 0, len--), Path.SEPARATOR);
-					Object entry = cachingTimes.get(segment);
+					String entry = (String) cachingTimes.get(segment);
 					if (null != entry) {
-						return Integer.valueOf(entry.toString().trim());
+						matcher = EXPIRY_PATTERN.matcher(entry);
+						break outer;
 					}
 				}
 			}
+
 		}
-
-		return defaultValue;
-
+		if (matcher != null && matcher.matches()) {
+			ttl = Integer.valueOf(matcher.group(1));
+			noCache = StringUtils.isNotBlank(matcher.group(3));
+		}
+		return new Expiry(ttl, noCache);
 	}
+
+	@Data
+	@AllArgsConstructor
+	static class Expiry {
+		final Integer ttl;
+		final boolean noCache;
+
+	};
 
 	protected String calculateKey(final HttpServletRequest request) {
 		StringBuilder keyBuilder = new StringBuilder(request.getMethod());

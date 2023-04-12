@@ -87,16 +87,14 @@ public class HttpHeaders extends org.springframework.http.HttpHeaders {
 	}
 
 	/**
-	 * Avoids caching of the page using {@value org.springframework.http.HttpHeaders#CACHE_CONTROL},
-	 * {@value org.springframework.http.HttpHeaders#PRAGMA} and {@value org.springframework.http.HttpHeaders#EXPIRES}
-	 * headers.
+	 * Avoids caching of the page using {@value org.springframework.http.HttpHeaders#CACHE_CONTROL} and
+	 * {@value org.springframework.http.HttpHeaders#EXPIRES} headers.
 	 * 
 	 * @param httpServletResponse
 	 *                            the HttpServletResponse
 	 */
 	public static void setNoCache(HttpServletResponse httpServletResponse) {
 		httpServletResponse.setHeader(CACHE_CONTROL, "no-cache,no-store,max-age=0");
-		httpServletResponse.setHeader(PRAGMA, "No-cache");
 		httpServletResponse.setHeader(EXPIRES, "Thu, 01 Jan 1970 00:00:00 GMT");
 	}
 

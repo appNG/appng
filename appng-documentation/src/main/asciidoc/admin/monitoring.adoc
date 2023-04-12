@@ -56,7 +56,7 @@ The available https://opentelemetry.io/docs/reference/specification/metrics/data
 * `<site>::<app>::<type> +
 The possible values for `<type>` are: +
 ** `gui` +
-Content provided by the appNG GUI (`<service>`-part not available)
+Content provided by the appNG GUI
 ** `jsp` +
 A JSP file served from a content repository
 ** `static` +
