@@ -54,12 +54,10 @@ import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.DatabaseService;
 import org.appng.core.service.HazelcastConfigurer;
-import org.appng.core.service.HsqlStarter;
 import org.appng.core.service.InitializerService;
 import org.appng.core.service.MigrationService;
 import org.appng.core.service.PlatformProperties;
 import org.appng.el.ExpressionEvaluator;
-import org.hsqldb.Server;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -111,11 +109,6 @@ public class PlatformStartup implements ServletContextListener {
 			config.load(configIs);
 			configIs.close();
 			applySystem(config);
-
-			Server hsqlServer = HsqlStarter.startHsql(config, ctx.getRealPath(""));
-			if (null != hsqlServer) {
-				ctx.setAttribute(HsqlStarter.CONTEXT, hsqlServer);
-			}
 
 			DatabaseConnection platformConnection = new MigrationService().initDatabase(config);
 			LOGGER.info("Platform connection: {}", platformConnection);
@@ -216,8 +209,6 @@ public class PlatformStartup implements ServletContextListener {
 			org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
 			platformCtx.close();
 		}
-
-		HsqlStarter.shutdown((Server) ctx.getAttribute(HsqlStarter.CONTEXT));
 
 		Enumeration<Driver> drivers = DriverManager.getDrivers();
 		while (drivers.hasMoreElements()) {
