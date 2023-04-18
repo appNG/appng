@@ -84,7 +84,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	protected static final String CACHE_HIT = PageCacheFilter.class.getSimpleName() + ".cacheHit";
 	private static final Set<String> CACHEABLE_HTTP_METHODS = new HashSet<>(
 			Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name()));
-	public static final Pattern EXPIRY_PATTERN = Pattern.compile("^(\\d+)(,(no-cache)?)?$");
+	public static final Pattern EXPIRY_PATTERN = Pattern.compile("^(\\d+)(,(\\d+)?)?$");
 	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
 	public void destroy() {
@@ -102,7 +102,6 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		boolean isCacheableRequest = isCacheableRequest(httpServletRequest);
 		boolean cacheEnabled = false;
 		boolean isException = false;
-		ExpiryPolicy expiryPolicy = null;
 		DefaultEnvironment env = EnvironmentFilter.environment();
 		Site site = env.getSite();
 		boolean processed = false;
@@ -120,18 +119,13 @@ public class PageCacheFilter implements javax.servlet.Filter {
 						Properties cacheTimeouts = siteProps.getProperties(SiteProperties.CACHE_TIMEOUTS);
 						boolean antStylePathMatching = siteProps.getBoolean(SiteProperties.CACHE_TIMEOUTS_ANT_STYLE);
 						Integer defaultTtl = siteProps.getInteger(SiteProperties.CACHE_TIME_TO_LIVE);
-						Expiry expiry = getExpiry(cacheTimeouts, antStylePathMatching, servletPath, defaultTtl);
-						Duration expiryDuration = new Duration(TimeUnit.SECONDS, expiry.ttl);
-						if (siteProps.getBoolean(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, false)) {
-							expiryPolicy = new CreatedExpiryPolicy(expiryDuration);
-						} else {
-							expiryPolicy = new AccessedExpiryPolicy(expiryDuration);
-						}
-						if (expiry.noCache) {
-							org.appng.core.controller.HttpHeaders.setNoCache(httpServletResponse);
-						}
+						boolean expireByCreation = siteProps
+								.getBoolean(SiteProperties.CACHE_EXPIRE_ELEMENTS_BY_CREATION, false);
+						Expiry expiry = getExpiry(cacheTimeouts, antStylePathMatching, expireByCreation, defaultTtl,
+								servletPath);
+
 						CachedResponse cachedResponse = handleCaching(httpServletRequest, httpServletResponse, site,
-								chain, CacheService.getCache(site), expiryPolicy);
+								chain, CacheService.getCache(site), expiry);
 						processed = true;
 						if (null != cachedResponse && LOGGER.isDebugEnabled()) {
 							LOGGER.debug("Cache handling took {}ms (hit: {}, status: {}) for {}",
@@ -150,10 +144,10 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected CachedResponse handleCaching(final HttpServletRequest request, final HttpServletResponse response,
-			Site site, final FilterChain chain, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
+			Site site, final FilterChain chain, Cache<String, CachedResponse> cache, Expiry expiry)
 			throws ServletException, IOException {
 		try {
-			CachedResponse cachedResponse = getCachedResponse(request, response, chain, site, cache, expiryPolicy);
+			CachedResponse cachedResponse = getCachedResponse(request, response, chain, site, cache, expiry);
 			if (null != cachedResponse) {
 				if (cachedResponse.isOk() && response.isCommitted()) {
 					throw new ServletException("Response already committed after doing buildPage"
@@ -252,16 +246,16 @@ public class PageCacheFilter implements javax.servlet.Filter {
 
 	@SuppressWarnings("unchecked")
 	protected CachedResponse getCachedResponse(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, Cache<String, CachedResponse> cache, ExpiryPolicy expiryPolicy)
+			final FilterChain chain, Site site, Cache<String, CachedResponse> cache, Expiry expiry)
 			throws ServletException, IOException {
 		final String key = calculateKey(request);
 		boolean cacheHit = false;
 		CachedResponse cachedResponse = cache.get(key);
 		if (cachedResponse == null) {
-			cachedResponse = performRequest(request, response, chain, site, expiryPolicy);
+			cachedResponse = performRequest(request, response, chain, site, expiry);
 			int size = cachedResponse.getContentLength();
 			if (cachedResponse.isOk()) {
-				cache.unwrap(ICache.class).put(key, cachedResponse, expiryPolicy);
+				cache.unwrap(ICache.class).put(key, cachedResponse, expiry.policy);
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Adding to cache {}: {} (type: {}, size: {}, ttl: {}s)", cache.getName(), key,
 							cachedResponse.getContentType(), size, cachedResponse.getTimeToLive());
@@ -301,7 +295,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 			cacheHit = true;
 			long hits = cachedResponse.incrementHit();
 			if (site.getProperties().getBoolean("cacheHitStats", false)) {
-				cache.unwrap(ICache.class).replaceAsync(key, cachedResponse, expiryPolicy);
+				cache.unwrap(ICache.class).replaceAsync(key, cachedResponse, expiry.policy);
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Hit in cache {}: {} (type: {}, size: {}, hits: {})", cache.getName(), key,
@@ -313,7 +307,7 @@ public class PageCacheFilter implements javax.servlet.Filter {
 	}
 
 	protected CachedResponse performRequest(final HttpServletRequest request, final HttpServletResponse response,
-			final FilterChain chain, Site site, ExpiryPolicy expiryPolicy) throws IOException, ServletException {
+			final FilterChain chain, Site site, Expiry expiry) throws IOException, ServletException {
 		final ByteArrayOutputStream outstr = new ByteArrayOutputStream();
 		final GenericResponseWrapper wrapper = new GenericResponseWrapper(response, outstr);
 		chain.doFilter(request, wrapper);
@@ -323,16 +317,19 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
 				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
 
-		int ttl = addCacheControl(headers, expiryPolicy);
+		addCacheControl(headers, expiry);
 		return new CachedResponse(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
-				outstr.toByteArray(), headers, ttl);
+				outstr.toByteArray(), headers, expiry.ttl);
 	}
 
-	protected int addCacheControl(HttpHeaders headers, ExpiryPolicy expiryPolicy) {
-		Duration expiry = expiryPolicy.getExpiryForCreation();
-		int ttl = (int) expiry.getTimeUnit().toSeconds(expiry.getDurationAmount());
-		headers.add(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", ttl));
-		return ttl;
+	protected void addCacheControl(HttpHeaders headers, Expiry expiry) {
+		int ttl = expiry.getClientTtl();
+		if (ttl <= 0) {
+			headers.add(HttpHeaders.CACHE_CONTROL, "no-cache,no-store,max-age=0");
+			headers.add(HttpHeaders.EXPIRES, "Thu, 01 Jan 1970 00:00:00 GMT");
+		} else {
+			headers.add(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", ttl));
+		}
 	}
 
 	private boolean isCacheableRequest(HttpServletRequest httpServletRequest) {
@@ -355,10 +352,10 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		return false;
 	}
 
-	static Expiry getExpiry(Properties cachingTimes, boolean antStylePathMatching, String servletPath,
-			Integer defaultValue) {
+	static Expiry getExpiry(Properties cachingTimes, boolean antStylePathMatching, boolean expireByCreation,
+			Integer defaultValue, String servletPath) {
 		Integer ttl = defaultValue;
-		boolean noCache = false;
+		Integer clientTtl = ttl;
 		Matcher matcher = null;
 		outer: if (null != cachingTimes && !cachingTimes.isEmpty()) {
 			if (antStylePathMatching) {
@@ -385,16 +382,20 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		}
 		if (matcher != null && matcher.matches()) {
 			ttl = Integer.valueOf(matcher.group(1));
-			noCache = StringUtils.isNotBlank(matcher.group(3));
+			clientTtl = StringUtils.isNotBlank(matcher.group(3)) ? Integer.valueOf(matcher.group(3)) : ttl;
 		}
-		return new Expiry(ttl, noCache);
+		Duration expiryDuration = new Duration(TimeUnit.SECONDS, ttl);
+		ExpiryPolicy expiryPolicy = expireByCreation ? new CreatedExpiryPolicy(expiryDuration)
+				: new AccessedExpiryPolicy(expiryDuration);
+		return new Expiry(ttl, clientTtl, expiryPolicy);
 	}
 
 	@Data
 	@AllArgsConstructor
 	static class Expiry {
-		final Integer ttl;
-		final boolean noCache;
+		final int ttl;
+		final int clientTtl;
+		final ExpiryPolicy policy;
 
 	};
 
