@@ -520,8 +520,11 @@ public class InitializerService implements InitializingBean {
 			} catch (Throwable e) {
 				String error = String.format("Error while loading site %s", siteToLoad.getName());
 				asyncFp.addErrorMessage(error);
+				LOGGER.error(error, e);
 			} finally {
 				Messages messages = asyncFp.getMessages();
+				LOGGER.info("Loading site {} finished with {} messages", siteToLoad.getName(),
+						messages.getMessageList().size());
 				ElementHelper.addMessages(env, messages);
 			}
 		});
