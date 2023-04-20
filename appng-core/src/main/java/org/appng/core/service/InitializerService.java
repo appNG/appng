@@ -471,7 +471,7 @@ public class InitializerService implements InitializingBean {
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(env, siteToLoad, false, fp);
+		loadSite(env, siteToLoad, true, fp);
 	}
 
 	/**
