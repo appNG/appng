@@ -41,7 +41,7 @@ abstract class HazelcastBase {
 	}
 
 	protected ITopic<byte[]> getTopic() {
-		return instance.getTopic(getTopicName());
+		return instance.getReliableTopic(getTopicName());
 	}
 
 	protected String getTopicName() {

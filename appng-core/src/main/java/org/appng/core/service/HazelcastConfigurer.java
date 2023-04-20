@@ -23,13 +23,11 @@ import java.io.InputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
 import org.appng.core.controller.messaging.HazelcastReceiver;
-import org.appng.core.controller.messaging.HazelcastSender;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.TopicConfig;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -84,14 +82,8 @@ public class HazelcastConfigurer {
 						InputStream cacheConfig = platformProps.getCacheConfig();
 						if (null != cacheConfig) {
 							Config config = new XmlConfigBuilder(cacheConfig).build();
-							String topicName = platformProps.getString(HazelcastSender.HAZELCAST_TOPIC_NAME,
-									HazelcastSender.DEFAULT_TOPIC_NAME);
-							boolean globalOrdering = platformProps.getBoolean("hazelcastTopicGlobalOrdering", true);
-							TopicConfig topicConfig = new TopicConfig().setName(topicName).setStatisticsEnabled(true)
-									.setMultiThreadingEnabled(!globalOrdering).setGlobalOrderingEnabled(globalOrdering);
-							config.addTopicConfig(topicConfig);
 							instance = Hazelcast.getOrCreateHazelcastInstance(config);
-							LOGGER.info("Using {} with {}", instance, topicConfig);
+							LOGGER.info("Using {}", instance);
 						}
 					}
 				} catch (IOException e) {

@@ -151,7 +151,7 @@ public class InitializerServiceTest extends TestSupport
 				.thenReturn(platformProperties);
 		PlatformProperties platformProperties = service.loadPlatformProperties(new Properties(), env);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-		service.loadPlatform(platformProperties, env, null, null, null, executor);
+		service.loadPlatform(platformProperties, env, null, null, executor);
 		executor.awaitTermination(5, TimeUnit. SECONDS);
 
 		Mockito.verify(ctx, Mockito.atLeastOnce()).getRealPath(Mockito.anyString());

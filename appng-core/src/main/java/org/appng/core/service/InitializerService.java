@@ -106,6 +106,7 @@ import org.appng.tools.ui.StringNormalizer;
 import org.appng.xml.MarshallService;
 import org.appng.xml.platform.Messages;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
@@ -128,7 +129,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Matthias Müller
  */
 @Slf4j
-public class InitializerService {
+public class InitializerService implements InitializingBean {
 
 	private static final int SITE_SUSPEND_DEFAULT = 5;
 	private static final int SITE_SUSPEND_MAXWAIT = 30;
@@ -153,12 +154,15 @@ public class InitializerService {
 
 	@Autowired
 	protected PlatformEventListener auditableListener;
+	private ExecutorService startupExecutor;
 
-	@Transactional
-	@Deprecated
-	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
-			ServletContext ctx, ExecutorService executor) throws InvalidConfigurationException {
-		initPlatform(platformConfig, env, rootConnection, ctx, executor, null);
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		this.startupExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+				new ThreadFactoryBuilder().setPriority(Thread.MAX_PRIORITY).setNameFormat("appng-startup-%d")
+						.setUncaughtExceptionHandler((t, e) -> {
+							LOGGER.error("Uncaught exception was thrown!", e);
+						}).build());
 	}
 
 	/**
@@ -174,8 +178,6 @@ public class InitializerService {
 	 *                                       the current {@link ServletContext}
 	 * @param  messagingExecutor
 	 *                                       an {@link ExecutorService} used for cluster communication threads
-	 * @param  startupExecutor
-	 *                                       an {@link ExecutorService} used for starting sites in parallel
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -185,10 +187,9 @@ public class InitializerService {
 	 */
 	@Transactional
 	public void initPlatform(PlatformProperties platformConfig, Environment env, DatabaseConnection rootConnection,
-			ServletContext ctx, ExecutorService messagingExecutor, ExecutorService startupExecutor)
-			throws InvalidConfigurationException {
+			ServletContext ctx, ExecutorService messagingExecutor) throws InvalidConfigurationException {
 		logEnvironment();
-		loadPlatform(platformConfig, env, null, null, messagingExecutor, startupExecutor);
+		loadPlatform(platformConfig, env, null, null, messagingExecutor);
 		addJarInfo(env, ctx);
 		databaseService.setActiveConnection(rootConnection, false);
 		coreService.createEvent(Type.INFO, "Started platform");
@@ -242,12 +243,6 @@ public class InitializerService {
 		return submitted;
 	}
 
-	@Deprecated
-	public void loadPlatform(PlatformProperties platformConfig, Environment env, String siteName, String target,
-			ExecutorService messagingExecutor) throws InvalidConfigurationException {
-		loadPlatform(platformConfig, env, siteName, target, messagingExecutor, null);
-	}
-
 	/**
 	 * Loads the platform by loading every active {@link Site}.
 	 * 
@@ -261,14 +256,12 @@ public class InitializerService {
 	 *                                       an (optional) target to redirect to after platform reload
 	 * @param  messagingExecutor
 	 *                                       an {@link ExecutorService} used for cluster communication threads
-	 * @param  startupExecutor
-	 *                                       an {@link ExecutorService} used for starting sites in parallel
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
 	 */
 	public void loadPlatform(PlatformProperties platformConfig, Environment env, String siteName, String target,
-			ExecutorService messagingExecutor, ExecutorService startupExecutor) throws InvalidConfigurationException {
+			ExecutorService messagingExecutor) throws InvalidConfigurationException {
 
 		if (platformConfig.getBoolean(Platform.Property.CLEAN_TEMP_FOLDER_ON_STARTUP, true)) {
 			File tempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -501,18 +494,18 @@ public class InitializerService {
 
 		FieldProcessorImpl asyncFp = new FieldProcessorImpl(fp.getReference());
 		Runnable siteLoader = getSiteLoader(siteToLoad, env, true, asyncFp, false);
-		String siteLoaderThreadName = getSiteLoaderThreadName(siteToLoad);
-		final Future<?> reloadTask = startSiteThread(siteToLoad, siteLoaderThreadName, Thread.MAX_PRIORITY, siteLoader);
-		startSiteThread(siteToLoad, siteLoaderThreadName + "-done", Thread.MAX_PRIORITY, () -> {
+
+		final Future<?> reloadTask = startupExecutor.submit(siteLoader);
+		startupExecutor.submit(() -> {
 			try {
 				reloadTask.get();
-			} catch (InterruptedException | ExecutionException e) {
+			} catch (Throwable e) {
 				String error = String.format("Error while loading site %s", siteToLoad.getName());
 				asyncFp.addErrorMessage(error);
-				LOGGER.error(error, e);
+			} finally {
+				Messages messages = asyncFp.getMessages();
+				ElementHelper.addMessages(env, messages);
 			}
-			Messages messages = asyncFp.getMessages();
-			ElementHelper.addMessages(env, messages);
 		});
 	}
 
@@ -935,22 +928,19 @@ public class InitializerService {
 	private void handleReload(Environment env, boolean sendReloadEvent, SiteImpl currentSite)
 			throws InterruptedException {
 		Properties siteProps = currentSite.getProperties();
-		int siteSuspendOffset = siteProps.getInteger(SiteProperties.SUSPEND_ON_RELOAD,
-				SITE_SUSPEND_DEFAULT);
+		int siteSuspendOffset = siteProps.getInteger(SiteProperties.SUSPEND_ON_RELOAD, SITE_SUSPEND_DEFAULT);
 		if (siteSuspendOffset > 0) {
 			((SiteImpl) currentSite).setState(SiteState.SUSPENDED, env);
-			LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading.",
-					currentSite.getState(), currentSite.getName(), siteSuspendOffset);
+			LOGGER.info("Setting state to {} for site {}, waiting {}s before reloading.", currentSite.getState(),
+					currentSite.getName(), siteSuspendOffset);
 			Thread.sleep(TimeUnit.SECONDS.toMillis(siteSuspendOffset));
 
-			int suspendMaxWait = siteProps.getInteger(SiteProperties.SUSPEND_MAX_WAIT,
-					SITE_SUSPEND_MAXWAIT);
+			int suspendMaxWait = siteProps.getInteger(SiteProperties.SUSPEND_MAX_WAIT, SITE_SUSPEND_MAXWAIT);
 			int waited = 0;
 			int requests = 0;
 			int maxRequest = sendReloadEvent ? 1 : 0;
 			while ((requests = currentSite.getRequests()) > maxRequest && waited < suspendMaxWait) {
-				LOGGER.info("Site {} is still processing {} requests, waiting 1s.", currentSite.getName(),
-						requests);
+				LOGGER.info("Site {} is still processing {} requests, waiting 1s.", currentSite.getName(), requests);
 				Thread.sleep(TimeUnit.SECONDS.toMillis(1));
 				waited += 1;
 			}

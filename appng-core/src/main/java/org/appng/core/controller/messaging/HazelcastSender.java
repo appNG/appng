@@ -24,6 +24,7 @@ import org.appng.api.messaging.Serializer;
 import org.slf4j.Logger;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.topic.ITopic;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,8 +50,9 @@ public class HazelcastSender extends HazelcastBase implements Sender {
 	public boolean send(Event event) {
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 			serializer.serialize(out, event);
-			instance.getReliableTopic(getTopicName()).publish(out.toByteArray());
-			LOGGER.debug("Successfully published event {} to instance {}", event, instance.getName());
+			ITopic<byte[]> topic = getTopic();
+			topic.publish(out.toByteArray());
+			LOGGER.debug("Successfully published event {} to {}", event, topic);
 			return true;
 		} catch (IOException e) {
 			logger().error(String.format("error while sending event %s", event), e);

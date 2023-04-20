@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link Receiver} that uses a
- * <a href= "https://docs.hazelcast.com/hazelcast/5.2/data-structures/topic">Topic</a> for sending
+ * <a href= "https://docs.hazelcast.com/hazelcast/5.2/data-structures/reliable-topic">Reliable Topic</a> for sending
  * {@link Event}s. Following platform properties are supported (default value in brackets):
  * <ul>
  * <li>{@code hazelcastTopicName} (appng-messaging): Name of the topic</li>
@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Müller
  *
- * @see HazelcastInstance#getReliableTopic(String)
+ * @see    HazelcastInstance#getReliableTopic(String)
  */
 @Slf4j
 public class HazelcastReceiver extends HazelcastBase implements Receiver, MessageListener<byte[]> {
@@ -68,7 +68,7 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 		return new HazelcastSender(instance).configure(serializer);
 	}
 
-	public void runWith(ExecutorService executorService) {
+	public void runWith(ExecutorService executor) {
 		ITopic<byte[]> topic = getTopic();
 		this.listenerId = topic.addMessageListener(this);
 		LOGGER.info("Listening to topic {} on {} with id {}", topic.getName(), instance, listenerId);
