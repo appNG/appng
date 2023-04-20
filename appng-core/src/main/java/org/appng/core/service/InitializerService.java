@@ -41,7 +41,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -318,7 +317,7 @@ public class InitializerService implements InitializingBean {
 			try {
 				SiteImpl site = getCoreService().getSite(id);
 				if (site.isActive()) {
-					Runnable siteLoader = getSiteLoader(site, env, false, platformMessages, parallelSiteStarts);
+					Runnable siteLoader = getSiteLoader(site, env, false, platformMessages);
 					if (parallelSiteStarts) {
 						startupExecutor.execute(siteLoader);
 					} else {
@@ -472,41 +471,7 @@ public class InitializerService implements InitializingBean {
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		if (siteToLoad.getProperties().getBoolean("asyncSiteReloads", false)) {
-			loadSiteAsync(env, siteToLoad, fp);
-		} else {
-			loadSite(env, siteToLoad, true, fp);
-		}
-	}
-
-	public synchronized void loadSiteAsync(Environment env, SiteImpl siteToLoad, FieldProcessor fp)
-			throws InvalidConfigurationException {
-		Integer suspendOnReload = siteToLoad.getProperties().getInteger(SiteProperties.SUSPEND_ON_RELOAD,
-				SITE_SUSPEND_DEFAULT);
-		String message;
-		if (suspendOnReload.intValue() == 0) {
-			message = String.format("Site %s will be loaded in the background.", siteToLoad.getName());
-		} else {
-			message = String.format("Site %s wil be suspended for %s seconds and then be loadded in the background.",
-					siteToLoad.getName(), suspendOnReload);
-		}
-		fp.addOkMessage(message);
-
-		FieldProcessorImpl asyncFp = new FieldProcessorImpl(fp.getReference());
-		Runnable siteLoader = getSiteLoader(siteToLoad, env, true, asyncFp, false);
-
-		final Future<?> reloadTask = startupExecutor.submit(siteLoader);
-		startupExecutor.submit(() -> {
-			try {
-				reloadTask.get();
-			} catch (Throwable e) {
-				String error = String.format("Error while loading site %s", siteToLoad.getName());
-				asyncFp.addErrorMessage(error);
-			} finally {
-				Messages messages = asyncFp.getMessages();
-				ElementHelper.addMessages(env, messages);
-			}
-		});
+		loadSite(env, siteToLoad, false, fp);
 	}
 
 	/**
@@ -523,28 +488,43 @@ public class InitializerService implements InitializingBean {
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		loadSite(siteToLoad, env, sendReloadEvent, fp, false);
+		if (siteToLoad.getProperties().getBoolean("asyncSiteReloads", false)) {
+			loadSiteAsync(env, siteToLoad, sendReloadEvent, fp);
+			LOGGER.info("Asynchronously loading site {}", siteToLoad.getName());
+		} else {
+			LOGGER.info("Synchronously loading site {}", siteToLoad.getName());
+			getSiteLoader(siteToLoad, env, sendReloadEvent, fp).run();
+		}
 	}
 
-	/**
-	 * Loads the given {@link Site}.
-	 * 
-	 * @param  siteToLoad
-	 *                                       the {@link Site} to load
-	 * @param  servletContext
-	 *                                       the current {@link ServletContext}
-	 * 
-	 * @throws InvalidConfigurationException
-	 *                                       if an configuration error occurred
-	 */
-	public synchronized void loadSite(SiteImpl siteToLoad, ServletContext servletContext, FieldProcessor fp)
-			throws InvalidConfigurationException {
-		loadSite(siteToLoad, DefaultEnvironment.getGlobal(), true, fp, false);
-	}
+	public synchronized void loadSiteAsync(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent,
+			FieldProcessor fp) throws InvalidConfigurationException {
+		Integer suspendOnReload = siteToLoad.getProperties().getInteger(SiteProperties.SUSPEND_ON_RELOAD,
+				SITE_SUSPEND_DEFAULT);
+		String message;
+		if (suspendOnReload.intValue() == 0) {
+			message = String.format("Site %s will be loaded in the background.", siteToLoad.getName());
+		} else {
+			message = String.format("Site %s wil be suspended for %s seconds and then be loadded in the background.",
+					siteToLoad.getName(), suspendOnReload);
+		}
+		fp.addOkMessage(message);
 
-	public synchronized void loadSite(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp,
-			boolean setThreadName) throws InvalidConfigurationException {
-		getSiteLoader(siteToLoad, env, sendReloadEvent, fp, setThreadName).run();
+		FieldProcessorImpl asyncFp = new FieldProcessorImpl(fp.getReference());
+		Runnable siteLoader = getSiteLoader(siteToLoad, env, sendReloadEvent, asyncFp);
+
+		final Future<?> reloadTask = startupExecutor.submit(siteLoader);
+		startupExecutor.submit(() -> {
+			try {
+				reloadTask.get();
+			} catch (Throwable e) {
+				String error = String.format("Error while loading site %s", siteToLoad.getName());
+				asyncFp.addErrorMessage(error);
+			} finally {
+				Messages messages = asyncFp.getMessages();
+				ElementHelper.addMessages(env, messages);
+			}
+		});
 	}
 
 	/**
@@ -559,18 +539,16 @@ public class InitializerService implements InitializingBean {
 	 *                         whether or not a {@link ReloadSiteEvent} should be sent
 	 * @param  fp
 	 *                         a {@link FieldProcessor} to attach messages to
-	 * @param  setThreadName
 	 * 
 	 * @return                 the {@link Runnable}
 	 */
-	public Runnable getSiteLoader(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp,
-			boolean setThreadName) {
+	public Runnable getSiteLoader(SiteImpl siteToLoad, Environment env, boolean sendReloadEvent, FieldProcessor fp) {
 		return () -> {
 			StopWatch sw = new StopWatch("Loading site " + siteToLoad.getName());
 			sw.start("Setup");
-			if (setThreadName) {
-				Thread.currentThread().setName(getSiteLoaderThreadName(siteToLoad));
-			}
+			Thread currentThread = Thread.currentThread();
+			final String originalThreadName = currentThread.getName();
+			currentThread.setName(getSiteLoaderThreadName(siteToLoad));
 			SiteImpl site = siteToLoad;
 			try {
 				ServletContext servletContext = ((DefaultEnvironment) env).getServletContext();
@@ -754,7 +732,7 @@ public class InitializerService implements InitializingBean {
 				site.getSiteApplications().clear();
 
 				SiteClassLoader siteClassLoader = siteClassPath.build(getClass().getClassLoader(), site.getName());
-				Thread.currentThread().setContextClassLoader(siteClassLoader);
+				currentThread.setContextClassLoader(siteClassLoader);
 
 				LOGGER.info(siteClassLoader.toString());
 				site.setSiteClassLoader(siteClassLoader);
@@ -921,6 +899,7 @@ public class InitializerService implements InitializingBean {
 				if (sw.isRunning()) {
 					sw.stop();
 				}
+				currentThread.setName(originalThreadName);
 			}
 		};
 	}

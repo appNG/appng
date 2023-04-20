@@ -54,7 +54,7 @@ public class ReloadSiteEvent extends SiteEvent {
 			FieldProcessor fp = new FieldProcessorImpl("start");
 			wait(env, site, logger);
 			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
-			getInitializerService(env).loadSite(siteByName, env, false, fp, false);
+			getInitializerService(env).loadSite(env, siteByName, false, fp);
 		} else {
 			logIgnoreMessage(logger);
 		}

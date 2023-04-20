@@ -41,7 +41,6 @@ import org.appng.api.support.FieldProcessorImpl;
 import org.appng.api.support.PropertyHolder;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.TestSupport;
-import org.appng.core.domain.SiteImpl;
 import org.appng.testapplication.TestEntity;
 import org.appng.testapplication.TestService;
 import org.junit.Assert;
@@ -152,7 +151,7 @@ public class InitializerServiceTest extends TestSupport
 		PlatformProperties platformProperties = service.loadPlatformProperties(new Properties(), env);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		service.loadPlatform(platformProperties, env, null, null, executor);
-		executor.awaitTermination(5, TimeUnit. SECONDS);
+		executor.awaitTermination(5, TimeUnit.SECONDS);
 
 		Mockito.verify(ctx, Mockito.atLeastOnce()).getRealPath(Mockito.anyString());
 		Mockito.verify(env, VerificationModeFactory.atLeast(1)).setAttribute(Mockito.eq(Scope.PLATFORM),
@@ -181,7 +180,7 @@ public class InitializerServiceTest extends TestSupport
 		FileUtils.copyDirectory(new File("src/test/resources/applications/application1"),
 				new File("target/root/applications/application1"));
 		Site siteToLoad = siteMap.remove("manager");
-		service.loadSite((SiteImpl) siteToLoad, ctx, new FieldProcessorImpl("testLoadSite"));
+		service.loadSite(DefaultEnvironment.getGlobal(), site, true, new FieldProcessorImpl("testLoadSite"));
 
 		Application application = siteToLoad.getApplication("application1");
 		TestService testservice = application.getBean(TestService.class);
