@@ -17,6 +17,8 @@ package org.appng.core.controller.messaging;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.appng.api.Environment;
@@ -35,6 +37,8 @@ import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 public class ReloadSiteEvent extends SiteEvent {
 
 	private static final long serialVersionUID = 8053808333634879840L;
@@ -52,6 +56,12 @@ public class ReloadSiteEvent extends SiteEvent {
 		if (isTargetNode(env)) {
 			logger.info("about to start site: {}", getSiteName());
 			FieldProcessor fp = new FieldProcessorImpl("start");
+
+			ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+					.setNameFormat(String.format("siteloader-%s-wait", site.getName())).build());
+			executor.submit(() -> wait(env, site, logger));
+			executor.shutdown();
+
 			wait(env, site, logger);
 			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
 			getInitializerService(env).loadSite(env, siteByName, false, fp);
