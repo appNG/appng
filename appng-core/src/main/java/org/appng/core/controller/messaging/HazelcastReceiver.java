@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link Receiver} that uses a
- * <a href= "https://docs.hazelcast.com/imdg/4.2/data-structures/reliable-topic.html">reliable topic</a> for sending
+ * <a href= "https://docs.hazelcast.com/hazelcast/5.2/data-structures/topic">Topic</a> for sending
  * {@link Event}s. Following platform properties are supported (default value in brackets):
  * <ul>
  * <li>{@code hazelcastTopicName} (appng-messaging): Name of the topic</li>
