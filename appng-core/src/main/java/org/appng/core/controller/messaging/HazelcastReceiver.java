@@ -73,7 +73,6 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 		this.executor = executor;
 		ITopic<byte[]> topic = getTopic();
 		this.listenerId = topic.addMessageListener(this);
-		//topic.addMessageListener(new ReloadMessageListener());
 		LOGGER.info("Listening to topic {} on {} with id {}", topic.getName(), instance, listenerId);
 	}
 
@@ -88,7 +87,7 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 	}
 
 	public void onMessage(Message<byte[]> message) {
-		executor.submit(() -> Messaging.handleEvent(LOGGER, eventRegistry, serializer, message.getMessageObject()));
+		Messaging.handleEvent(LOGGER, eventRegistry, serializer, message.getMessageObject(), false, executor);
 	}
 
 	protected Logger logger() {
@@ -103,15 +102,4 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 		eventRegistry.setDefaultHandler(defaultHandler);
 	}
 
-	class ReloadMessageListener implements MessageListener<byte[]> {
-
-		@Override
-		public void onMessage(Message<byte[]> message) {
-			EventRegistry reloadRegistry = new EventRegistry();
-			ReloadSiteEvent.Handler handler = new ReloadSiteEvent.Handler(true);
-			reloadRegistry.register(handler);
-			Messaging.handleEvent(LOGGER, reloadRegistry, serializer, message.getMessageObject());
-		}
-
-	}
 }

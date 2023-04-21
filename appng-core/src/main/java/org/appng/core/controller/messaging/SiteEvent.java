@@ -30,10 +30,14 @@ abstract class SiteEvent extends Event {
 	String currentNode;
 
 	SiteEvent(String siteName) {
-		this(siteName, null);
+		this(siteName, false);
 	}
 
-	SiteEvent(String siteName, String targetNode) {
+	SiteEvent(String siteName, boolean async) {
+		this(siteName, null, async);
+	}
+
+	SiteEvent(String siteName, String targetNode, boolean async) {
 		super(siteName);
 		this.targetNode = targetNode;
 	}

@@ -126,7 +126,7 @@ public class RabbitMQReceiver extends RabbitMQBase implements Receiver {
 		@Override
 		public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
 				throws IOException {
-			Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, body);
+			Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, body, false, null);
 		}
 
 		@Override

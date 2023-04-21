@@ -19,13 +19,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
-import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
@@ -42,11 +40,11 @@ public class ReloadSiteEvent extends SiteEvent {
 	private static final long serialVersionUID = 8053808333634879840L;
 
 	public ReloadSiteEvent(String siteName) {
-		super(siteName);
+		super(siteName, true);
 	}
-
+	
 	public ReloadSiteEvent(String siteName, String targetNode) {
-		super(siteName, targetNode);
+		super(siteName, targetNode, true);
 	}
 
 	public void perform(Environment env, Site site) throws InvalidConfigurationException {
@@ -107,7 +105,7 @@ public class ReloadSiteEvent extends SiteEvent {
 				}
 				if (activeNodes < minActiveNodes) {
 					try {
-						logger.debug("Site {} is active on {} of {} nodes, waiting {}s for site to start on {} nodes.",
+						logger.info("Site {} is active on {} of {} nodes, waiting {}s for site to start on {} nodes.",
 								site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
 						waited += waitTime;
 						Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
@@ -129,29 +127,4 @@ public class ReloadSiteEvent extends SiteEvent {
 		return true;
 	}
 
-	/**
-	 * Because a {@link ReloadSiteEvent} is a potentially long running, blocking operation that needs to check the state
-	 * of the site on all other nodes, we need a separate {@link EventHandler} here.
-	 */
-	public static class Handler implements EventHandler<ReloadSiteEvent> {
-
-		private final boolean doPerform;
-
-		public Handler(boolean doPerform) {
-			this.doPerform = doPerform;
-		}
-
-		@Override
-		public void onEvent(ReloadSiteEvent event, Environment env, Site site)
-				throws InvalidConfigurationException, BusinessException {
-			if (doPerform) {
-				event.perform(env, site);
-			}
-		}
-
-		@Override
-		public Class<ReloadSiteEvent> getEventClass() {
-			return ReloadSiteEvent.class;
-		}
-	}
 }
