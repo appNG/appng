@@ -114,7 +114,8 @@ public abstract class Event implements Serializable {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " - Origin: " + getNodeId() + " - Site: " + getSiteName();
+		return getClass().getName() + " - Origin: " + getNodeId() + " - Site: " + getSiteName() + " - Async: "
+				+ isAsync();
 	}
 
 }

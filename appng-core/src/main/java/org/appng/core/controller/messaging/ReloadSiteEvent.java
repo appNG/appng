@@ -42,7 +42,7 @@ public class ReloadSiteEvent extends SiteEvent {
 	public ReloadSiteEvent(String siteName) {
 		super(siteName, true);
 	}
-	
+
 	public ReloadSiteEvent(String siteName, String targetNode) {
 		super(siteName, targetNode, true);
 	}
