@@ -62,7 +62,6 @@ public class ReloadSiteEvent extends SiteEvent {
 			executor.submit(() -> wait(env, site, logger));
 			executor.shutdown();
 
-			wait(env, site, logger);
 			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
 			getInitializerService(env).loadSite(env, siteByName, false, fp);
 		} else {
