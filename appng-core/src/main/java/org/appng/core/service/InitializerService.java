@@ -292,6 +292,7 @@ public class InitializerService implements InitializingBean {
 		}
 
 		Sender sender = Messaging.createMessageSender(env, messagingExecutor);
+		// , null, null, Arrays.asList(new ReloadSiteEvent.Handler(false)));
 
 		File applicationRootFolder = platformConfig.getApplicationDir();
 		if (!applicationRootFolder.exists()) {
@@ -1108,4 +1109,5 @@ public class InitializerService implements InitializingBean {
 			return new SiteClassLoader(urls.toArray(new URL[0]), parent, site);
 		}
 	}
+
 }

@@ -17,15 +17,15 @@ package org.appng.core.controller.messaging;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.appng.api.BusinessException;
 import org.appng.api.Environment;
 import org.appng.api.FieldProcessor;
 import org.appng.api.InvalidConfigurationException;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.messaging.EventHandler;
 import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
@@ -36,8 +36,6 @@ import org.appng.core.domain.SiteImpl;
 import org.appng.core.service.CoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class ReloadSiteEvent extends SiteEvent {
 
@@ -56,12 +54,7 @@ public class ReloadSiteEvent extends SiteEvent {
 		if (isTargetNode(env)) {
 			logger.info("about to start site: {}", getSiteName());
 			FieldProcessor fp = new FieldProcessorImpl("start");
-
-			ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-					.setNameFormat(String.format("siteloader-%s-wait", site.getName())).build());
-			executor.submit(() -> wait(env, site, logger));
-			executor.shutdown();
-
+			wait(env, site, logger);
 			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
 			getInitializerService(env).loadSite(env, siteByName, false, fp);
 		} else {
@@ -134,5 +127,31 @@ public class ReloadSiteEvent extends SiteEvent {
 
 	protected boolean delayed() {
 		return true;
+	}
+
+	/**
+	 * Because a {@link ReloadSiteEvent} is a potentially long running, blocking operation that needs to check the state
+	 * of the site on all other nodes, we need a separate {@link EventHandler} here.
+	 */
+	public static class Handler implements EventHandler<ReloadSiteEvent> {
+
+		private final boolean doPerform;
+
+		public Handler(boolean doPerform) {
+			this.doPerform = doPerform;
+		}
+
+		@Override
+		public void onEvent(ReloadSiteEvent event, Environment env, Site site)
+				throws InvalidConfigurationException, BusinessException {
+			if (doPerform) {
+				event.perform(env, site);
+			}
+		}
+
+		@Override
+		public Class<ReloadSiteEvent> getEventClass() {
+			return ReloadSiteEvent.class;
+		}
 	}
 }

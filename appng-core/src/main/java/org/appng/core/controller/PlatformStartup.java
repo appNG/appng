@@ -119,11 +119,11 @@ public class PlatformStartup implements ServletContextListener {
 			service.loadNodeProperties(env);
 			File debugFolder = new File(appngData, "debug").getAbsoluteFile();
 			if (!(debugFolder.exists() || debugFolder.mkdirs())) {
-				LOGGER.warn("Failed to create debig folder at {}", debugFolder.getPath());
+				LOGGER.warn("Failed to create debug folder at {}", debugFolder.getPath());
 			}
 
-			messagingExecutor = Executors
-					.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat(nodeId).build());
+			messagingExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+					new ThreadFactoryBuilder().setDaemon(true).setNameFormat("messaging-" + nodeId + "-%d").build());
 
 			service.initPlatform(platformProperties, env, platformConnection, ctx, messagingExecutor);
 			startupWatch.stop();
