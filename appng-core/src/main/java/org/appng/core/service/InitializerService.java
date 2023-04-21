@@ -465,6 +465,8 @@ public class InitializerService implements InitializingBean {
 	 *                                       the current {@link Environment}
 	 * @param  siteToLoad
 	 *                                       the {@link Site} to load
+	 * @param  fp
+	 *                                       a {@link FieldProcessor} to add messages to
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -482,6 +484,10 @@ public class InitializerService implements InitializingBean {
 	 *                                       the current {@link Environment}
 	 * @param  siteToLoad
 	 *                                       the {@link Site} to load
+	 * @param  sendReloadEvent
+	 *                                       if a {@link ReloadSiteEvent} should be sent or not
+	 * @param  fp
+	 *                                       a {@link FieldProcessor} to add messages to
 	 * 
 	 * @throws InvalidConfigurationException
 	 *                                       if an configuration error occurred
@@ -489,7 +495,32 @@ public class InitializerService implements InitializingBean {
 	@Transactional
 	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp)
 			throws InvalidConfigurationException {
-		if (siteToLoad.getProperties().getBoolean("asyncSiteReloads", false)) {
+		Boolean async = siteToLoad.getProperties().getBoolean("asyncSiteReloads", false);
+		loadSite(env, siteToLoad, sendReloadEvent, fp, async);
+	}
+
+	/**
+	 * Loads the given {@link Site}.
+	 * 
+	 * @param  env
+	 *                                       the current {@link Environment}
+	 * @param  siteToLoad
+	 *                                       the {@link Site} to load
+	 * @param  sendReloadEvent
+	 *                                       if a {@link ReloadSiteEvent} should be sent or not
+	 * @param  fp
+	 *                                       a {@link FieldProcessor} to add messages to
+	 * @param  async
+	 *                                       if the reload should be performed asynchronously using an
+	 *                                       {@link ExecutorService}
+	 * 
+	 * @throws InvalidConfigurationException
+	 *                                       if an configuration error occurred
+	 */
+	@Transactional
+	public synchronized void loadSite(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent, FieldProcessor fp,
+			boolean async) throws InvalidConfigurationException {
+		if (async) {
 			loadSiteAsync(env, siteToLoad, sendReloadEvent, fp);
 			LOGGER.info("Asynchronously loading site {}", siteToLoad.getName());
 		} else {
@@ -498,7 +529,7 @@ public class InitializerService implements InitializingBean {
 		}
 	}
 
-	public synchronized void loadSiteAsync(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent,
+	private synchronized void loadSiteAsync(Environment env, SiteImpl siteToLoad, boolean sendReloadEvent,
 			FieldProcessor fp) throws InvalidConfigurationException {
 		Integer suspendOnReload = siteToLoad.getProperties().getInteger(SiteProperties.SUSPEND_ON_RELOAD,
 				SITE_SUSPEND_DEFAULT);

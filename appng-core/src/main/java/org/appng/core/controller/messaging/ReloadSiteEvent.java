@@ -54,7 +54,7 @@ public class ReloadSiteEvent extends SiteEvent {
 			FieldProcessor fp = new FieldProcessorImpl("start");
 			wait(env, site, logger);
 			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
-			getInitializerService(env).loadSite(env, siteByName, false, fp);
+			getInitializerService(env).loadSite(env, siteByName, false, fp, false);
 		} else {
 			logIgnoreMessage(logger);
 		}
@@ -90,18 +90,17 @@ public class ReloadSiteEvent extends SiteEvent {
 			int waited = 0;
 			int waitTime = cfg.getInteger("waitForSitesStartedWaitTime", 5);
 			int maxWaittime = cfg.getInteger("waitForSitesStartedMaxWaitTime", 30);
-			int activeNodes = 0;
+			int activeNodes;
 
 			do {
+				activeNodes = 0;
 				for (Entry<String, NodeState> state : nodeStates.entrySet()) {
 					String otherNode = state.getKey();
-					if (!nodeId.equals(otherNode)) {
-						SiteState siteState = state.getValue().getSiteStates().get(site.getName());
-						if (SiteState.STARTED.equals(siteState)) {
-							activeNodes++;
-						}
-						logger.debug("Site {} is {} on node {}", site.getName(), siteState, otherNode);
+					SiteState siteState = state.getValue().getSiteStates().get(site.getName());
+					if (SiteState.STARTED.equals(siteState)) {
+						activeNodes++;
 					}
+					logger.debug("Site {} is {} on node {}", site.getName(), siteState, otherNode);
 				}
 				if (activeNodes < minActiveNodes) {
 					try {
