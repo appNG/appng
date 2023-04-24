@@ -134,7 +134,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 		}
 
 		Action action = getAction(application, initialRequest, initialAction, env, null, false, null);
-		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
+		return new ResponseEntity<Action>(action, hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY :  HttpStatus.valueOf(httpServletResponse.getStatus()));
 	}
 
 	// @formatter:off
@@ -179,7 +179,7 @@ abstract class OpenApiAction extends OpenApiOperation {
 
 		Action action = getAction(application, request, processedAction, environment, null, false, null);
 		ResponseEntity<Action> responseEntity = new ResponseEntity<>(action,
-				hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.OK);
+				hasErrors() ? HttpStatus.UNPROCESSABLE_ENTITY : HttpStatus.valueOf(servletResp.getStatus()));
 		errors = false;
 		return responseEntity;
 	}

@@ -141,7 +141,7 @@ abstract class OpenApiDataSource extends OpenApiOperation {
 
 		Datasource datasource = transformDataSource(environment, httpServletResponse, applicationProvider,
 				processedDataSource);
-		return new ResponseEntity<Datasource>(datasource, HttpStatus.OK);
+		return new ResponseEntity<Datasource>(datasource, HttpStatus.valueOf(httpServletResponse.getStatus()));
 	}
 
 	protected Datasource transformDataSource(Environment environment, HttpServletResponse httpServletResponse,
