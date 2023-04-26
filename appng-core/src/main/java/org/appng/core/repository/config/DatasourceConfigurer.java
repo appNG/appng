@@ -96,4 +96,6 @@ public interface DatasourceConfigurer {
 	default void setAutoCommit(boolean autoCommit) {
 	}
 
+	void setConnectionInitSql(String sql);
+
 }

@@ -40,6 +40,7 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
 	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
 	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
+	private @Setter String connectionInitSql;
 
 	public DataSourceFactory() {
 
@@ -65,6 +66,7 @@ public class DataSourceFactory implements FactoryBean<DataSource>, DisposableBea
 			this.configurer.setConnectionTimeout(connectionTimeout);
 			this.configurer.setValidationTimeout(validationTimeout);
 			this.configurer.setMaxLifetime(maxLifetime);
+			this.configurer.setConnectionInitSql(connectionInitSql);
 			this.configurer.setAutoCommit(autoCommit);
 		} catch (Exception e) {
 			LOGGER.error(String.format("error creating instance of '%s'", configurerClass), e);

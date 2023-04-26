@@ -17,6 +17,7 @@ package org.appng.core.repository.config;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.appng.core.JMXUtils;
 import org.appng.core.domain.DatabaseConnection;
@@ -37,6 +38,7 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 	private @Setter long connectionTimeout = DEFAULT_TIMEOUT;
 	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
 	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
+	private @Setter String connectionInitSql;
 
 	public TomcatJdbcConfigurer() {
 
@@ -60,6 +62,12 @@ public class TomcatJdbcConfigurer implements DatasourceConfigurer {
 		tomcatDatasource.setMaxAge(maxLifetime);
 		tomcatDatasource.setValidationInterval(connection.getValidationPeriod() * 60 * 1000);
 		tomcatDatasource.setValidationQuery(connection.getValidationQuery());
+		if (StringUtils.isNotBlank(connectionInitSql)) {
+			tomcatDatasource.setInitSQL(connectionInitSql);
+		}
+		if (StringUtils.isNotBlank(connection.getValidationQuery())) {
+			tomcatDatasource.setValidationQuery(connectionInitSql);
+		}
 		tomcatDatasource.setValidationQueryTimeout((int) validationTimeout);
 		if (tomcatDatasource.getMaxIdle() > tomcatDatasource.getMaxActive()) {
 			tomcatDatasource.setMaxIdle(tomcatDatasource.getMaxActive());
