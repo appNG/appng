@@ -49,16 +49,21 @@ public class HsqlStarter {
 	public static final String CONTEXT = "hsqlContext";
 
 	/**
-	 * Checks if the database-type is hsql and if {@value #DATABASE_PORT} is set.
+	 * Checks if the database-type is hsql and if {@value #DATABASE_PORT} is set and not already in use.
 	 */
 	public static boolean mustStartServer(Properties platformProperties) {
 		return DatabaseType.HSQL.name().equalsIgnoreCase(platformProperties.getProperty(DatabaseService.DATABASE_TYPE))
-				&& StringUtils.isNotBlank(platformProperties.getProperty(DATABASE_PORT));
+				&& StringUtils.isNotBlank(platformProperties.getProperty(DATABASE_PORT))
+				&& !testConnection(Integer.valueOf(platformProperties.getProperty(DATABASE_PORT)));
+	}
+
+	private static boolean testConnection(int port) {
+		return runStatement("select 1 from INFORMATION_SCHEMA.SYSTEM_USERS", port);
 	}
 
 	/**
 	 * Starts a HSQL {@link Server}, but only if {@link DatabaseType#HSQL} is the configured type and
-	 * {@value #DATABASE_PORT} is set.
+	 * {@value #DATABASE_PORT} is set and not already in use.
 	 * 
 	 * @param  platformProperties
 	 *                            the properties read from
@@ -110,17 +115,23 @@ public class HsqlStarter {
 		if (null != server) {
 			LOGGER.info("shutting down HSQL Server {} at {} on port {}", server.getProductVersion(),
 					server.getDatabasePath(0, false), server.getPort());
-			String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", server.getPort(), DATABASE_NAME);
-			try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
-					Statement statement = connection.createStatement()) {
-				statement.execute("SHUTDOWN");
-			} catch (SQLException e) {
-				LOGGER.warn("error while shutting down server", e);
-			}
+			runStatement("SHUTDOWN", server.getPort());
 			server.shutdown();
 		} else {
 			LOGGER.debug("not running on HSQL, nothing to shutdown");
 		}
+	}
+
+	private static boolean runStatement(String sql, int port) {
+		String jdbcUrl = String.format("jdbc:hsqldb:hsql://localhost:%s/%s", port, DATABASE_NAME);
+		try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+				Statement statement = connection.createStatement()) {
+			statement.execute(sql);
+			return true;
+		} catch (SQLException e) {
+			LOGGER.warn("error while running statement", e);
+		}
+		return false;
 	}
 
 }

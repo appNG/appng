@@ -112,20 +112,17 @@ public class CliBootstrap {
 				Properties cliConfig = getCliConfig(env, true, platformRootPath);
 
 				Server hsqlServer = null;
-				if (HsqlStarter.mustStartServer(cliConfig)) {
+				boolean isHsql = HsqlStarter.mustStartServer(cliConfig);
+				if (isHsql) {
 					hsqlServer = HsqlStarter.startHsql(cliConfig, platformRootPath.getAbsolutePath());
 					boolean serverStarted = ServerConstants.SERVER_STATE_ONLINE == hsqlServer.getState();
 					if (!serverStarted) {
-						if (hsqlServer.getServerError().getClass().isAssignableFrom(BindException.class)) {
-							LOGGER.info("HSQL Server {} already running on port {}", hsqlServer.getProductVersion(),
-									hsqlServer.getPort());
-						} else {
-							LOGGER.error(
-									String.format("Failed to start HSQL Server %s on port %s",
-											hsqlServer.getProductVersion(), hsqlServer.getPort()),
-									hsqlServer.getServerError());
-							return CliCore.DATABASE_ERROR;
-						}
+						LOGGER.error(
+								String.format("Failed to start HSQL Server %s on port %s",
+										hsqlServer.getProductVersion(), hsqlServer.getPort()),
+								hsqlServer.getServerError());
+						hsqlServer.shutdown();
+						return CliCore.DATABASE_ERROR;
 					}
 				}
 
@@ -137,7 +134,7 @@ public class CliBootstrap {
 					cliWatch.stop();
 					LOGGER.info("duration: {}ms", cliWatch.getTotalTimeMillis());
 					context.close();
-					if (null != hsqlServer) {
+					if (isHsql) {
 						HsqlStarter.shutdown(hsqlServer);
 					} else {
 						LOGGER.info("HSQL server was already running, shutdown not required.");
