@@ -129,7 +129,7 @@ public class HsqlStarter {
 			statement.execute(sql);
 			return true;
 		} catch (SQLException e) {
-			LOGGER.warn("error while running statement", e);
+			// ignore
 		}
 		return false;
 	}
