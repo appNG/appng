@@ -88,7 +88,7 @@ public class NodeEvent extends Event {
 			environment.setAttribute(Scope.PLATFORM, NODE_STATE, clusterState);
 		}
 		if (!clusterState.containsKey(nodeId)) {
-			clusterState.put(nodeId, new NodeEvent().new NodeState(nodeId, new HashMap<String, SiteState>()));
+			clusterState.put(nodeId, new NodeEvent().new NodeState(nodeId, new ConcurrentHashMap<>()));
 		}
 		return clusterState;
 	}
