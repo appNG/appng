@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * An {@link Event} to be fired when a {@link Site}'s {@link SiteState} changes. Triggers a {@link NodeEvent}.
+ * An {@link Event} to be fired when a {@link Site}'s {@link SiteState} changes.
  * 
  * @author Matthias Müller
  */
@@ -45,7 +45,6 @@ public class SiteStateEvent extends Event {
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {
 		handleSiteState(environment);
-		new RequestNodeState(getSiteName(), getNodeId()).perform(environment, site);
 	}
 
 	public void handleSiteState(Environment environment) {

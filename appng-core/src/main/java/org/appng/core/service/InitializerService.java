@@ -292,7 +292,6 @@ public class InitializerService implements InitializingBean {
 		}
 
 		Sender sender = Messaging.createMessageSender(env, messagingExecutor);
-		// , null, null, Arrays.asList(new ReloadSiteEvent.Handler(false)));
 
 		File applicationRootFolder = platformConfig.getApplicationDir();
 		if (!applicationRootFolder.exists()) {
