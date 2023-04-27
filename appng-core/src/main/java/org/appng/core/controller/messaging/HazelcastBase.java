@@ -27,6 +27,8 @@ import com.hazelcast.topic.ITopic;
  */
 abstract class HazelcastBase {
 
+	public static final String DEFAULT_TOPIC_NAME = "appng-messaging";
+	public static final String HAZELCAST_TOPIC_NAME = "hazelcastTopicName";
 	protected HazelcastInstance instance;
 	protected Serializer serializer;
 
@@ -43,7 +45,7 @@ abstract class HazelcastBase {
 	}
 
 	protected String getTopicName() {
-		return serializer.getPlatformConfig().getString("hazelcastTopicName", "appng-messaging");
+		return serializer.getPlatformConfig().getString(HAZELCAST_TOPIC_NAME, DEFAULT_TOPIC_NAME);
 	}
 
 }

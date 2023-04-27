@@ -104,7 +104,7 @@ public class MulticastReceiver extends MessageHandler implements Receiver, Runna
 	void onEvent(byte[] data, List<String> nodeIps, String senderHost) throws IOException, InterruptedException {
 		if (nodeIps.isEmpty() || nodeIps.contains(senderHost)) {
 			boolean sameAddress = isSameAddress(senderHost);
-			Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, data, !sameAddress);
+			Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, data, !sameAddress, null);
 		} else {
 			LOGGER.debug("ignoring message from {}", senderHost);
 		}

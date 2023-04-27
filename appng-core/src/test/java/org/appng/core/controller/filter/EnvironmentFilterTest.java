@@ -29,6 +29,7 @@ import org.appng.api.SiteProperties;
 import org.appng.api.VHostMode;
 import org.appng.api.model.Properties;
 import org.appng.api.model.Site;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.controller.Session;
 import org.appng.core.controller.SessionListener;
 import org.junit.Assert;
@@ -72,6 +73,7 @@ public class EnvironmentFilterTest {
 		sitemap.put(site.getHost(), site);
 		platformMap.put(Platform.Environment.SITES, sitemap);
 		servletContext.setAttribute(Scope.PLATFORM.name(), platformMap);
+		DefaultEnvironment.initGlobal(servletContext);
 	}
 
 	@Test

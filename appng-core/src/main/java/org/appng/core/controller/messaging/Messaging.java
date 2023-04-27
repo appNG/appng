@@ -15,6 +15,8 @@
  */
 package org.appng.core.controller.messaging;
 
+import java.util.concurrent.ExecutorService;
+
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.messaging.Event;
 import org.appng.api.messaging.EventHandler;
@@ -34,12 +36,8 @@ class Messaging {
 	Messaging() {
 	}
 
-	static void handleEvent(final Logger logger, EventRegistry registry, Serializer serializer, byte[] eventData) {
-		handleEvent(logger, registry, serializer, eventData, false);
-	}
-
 	static void handleEvent(final Logger logger, EventRegistry registry, Serializer serializer, byte[] eventData,
-			boolean alternativeCondition) {
+			boolean alternativeCondition, ExecutorService executor) {
 		Event event = serializer.deserialize(eventData);
 		if (null != event) {
 			try {
@@ -50,8 +48,13 @@ class Messaging {
 				boolean sameNode = StringUtils.equals(currentNode, originNode);
 				if (!sameNode || alternativeCondition) {
 					logger.info("about to execute {} ", event);
+					boolean isAsync = event.isAsync() && null != executor;
 					for (EventHandler<Event> eventHandler : registry.getHandlers(event)) {
-						eventHandler.onEvent(event, serializer.getEnvironment(), site);
+						if (isAsync) {
+							executor.submit(() -> processEvent(logger, serializer, event, site, eventHandler));
+						} else {
+							processEvent(logger, serializer, event, site, eventHandler);
+						}
 					}
 				} else {
 					logger.debug("event {} is from myself ({}) and can be ignored", event, currentNode);
@@ -62,6 +65,17 @@ class Messaging {
 			}
 		} else {
 			logger.debug("could not read event");
+		}
+	}
+
+	private static void processEvent(final Logger logger, Serializer serializer, Event event, Site site,
+			EventHandler<Event> eventHandler) {
+		try {
+			eventHandler.onEvent(event, serializer.getEnvironment(), site);
+		} catch (Exception e) {
+			String message = String.format("Error while executing event %s with %s", event,
+					eventHandler.getClass().getName());
+			logger.error(message, e);
 		}
 	}
 

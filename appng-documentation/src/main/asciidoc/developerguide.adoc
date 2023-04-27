@@ -5,6 +5,7 @@ Version {project-version} created on {localdate}
 :title-logo-image: images/appng.png
 :toc:
 :homepage: http://appng.org
+:stable: 1.26.0
 
 :appng: https://appng.org/appng/docs/{project-version}/javadoc
 :lucene: http://lucene.apache.org/core/8_5_0/core/index.html
@@ -53,6 +54,8 @@ include::parts/datasources.adoc[]
 include::parts/actions.adoc[]
 
 include::parts/pages.adoc[]
+
+include::parts/openapi.adoc[]
 
 include::parts/common.adoc[]
 

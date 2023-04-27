@@ -73,7 +73,7 @@ public class JedisReceiver extends JedisBase implements Receiver, Runnable {
 		BinaryJedisPubSub pubSub = new BinaryJedisPubSub() {
 
 			public void onMessage(byte[] channel, byte[] message) {
-				Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, message);
+				Messaging.handleEvent(LOGGER, eventRegistry, eventSerializer, message, false, null);
 			}
 		};
 		jedis.subscribe(pubSub, this.channel.getBytes());

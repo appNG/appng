@@ -26,11 +26,11 @@ public class StopSiteEvent extends SiteEvent {
 	private static final long serialVersionUID = 8053808333634879840L;
 
 	public StopSiteEvent(String siteName) {
-		super(siteName);
+		super(siteName, false);
 	}
 
 	public StopSiteEvent(String siteName, String targetNode) {
-		super(siteName, targetNode);
+		super(siteName, targetNode, false);
 	}
 
 	public void perform(Environment environment, Site site) throws InvalidConfigurationException {

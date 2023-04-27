@@ -438,9 +438,8 @@ public class CoreServiceTest {
 
 		coreService.deleteSite(environment, site);
 		// 5x SiteStateEvent(STARTING, STARTED, STOPPING, STOPPED, DELETED)
-		// 5x NodeEvent
 		// 1x SiteDeletedEvent
-		while (11 != receiver.getProcessed().size()) {
+		while (6 != receiver.getProcessed().size()) {
 			Thread.sleep(100);
 		}
 		LOGGER.info("Processed {} events", receiver.getProcessed().size());

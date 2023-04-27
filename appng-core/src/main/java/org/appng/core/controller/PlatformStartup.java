@@ -87,7 +87,6 @@ public class PlatformStartup implements ServletContextListener {
 	public static final String CONFIG_LOCATION = "/conf/appNG.properties";
 	public static final String WEB_INF = "/WEB-INF";
 	private ExecutorService messagingExecutor;
-	private ExecutorService startUpExecutor;
 
 	public void contextInitialized(ServletContextEvent sce) {
 
@@ -127,18 +126,13 @@ public class PlatformStartup implements ServletContextListener {
 			service.loadNodeProperties(env);
 			File debugFolder = new File(appngData, "debug").getAbsoluteFile();
 			if (!(debugFolder.exists() || debugFolder.mkdirs())) {
-				LOGGER.warn("Failed to create debig folder at {}", debugFolder.getPath());
+				LOGGER.warn("Failed to create debug folder at {}", debugFolder.getPath());
 			}
 
-			messagingExecutor = Executors.newSingleThreadExecutor(
-					new ThreadFactoryBuilder().setDaemon(true).setNameFormat(nodeId).build());
-			startUpExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
-					new ThreadFactoryBuilder().setNameFormat("appng-startup-%d").setUncaughtExceptionHandler((t, e) -> {
-						LOGGER.error("Uncaught exception was thrown!", e);
-					}).build());
+			messagingExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+					new ThreadFactoryBuilder().setDaemon(true).setNameFormat("messaging-" + nodeId + "-%d").build());
 
-			service.initPlatform(platformProperties, env, platformConnection, ctx, messagingExecutor, startUpExecutor);
-			startUpExecutor.shutdown();
+			service.initPlatform(platformProperties, env, platformConnection, ctx, messagingExecutor);
 			startupWatch.stop();
 			String appngVersion = env.getAttribute(Scope.PLATFORM, Platform.Environment.APPNG_VERSION);
 			LOGGER.info("appNG {} started in {} ms.", appngVersion, startupWatch.getTotalTimeMillis());
@@ -233,7 +227,6 @@ public class PlatformStartup implements ServletContextListener {
 		Messaging.shutdown(env);
 		HazelcastConfigurer.shutdown();
 		shutDownExecutor(messagingExecutor);
-		shutDownExecutor(startUpExecutor);
 		LOGGER.info("appNG stopped.");
 		LOGGER.info(StringUtils.leftPad("", 100, "="));
 	}

@@ -56,14 +56,14 @@ public class HazelcastConfigurer {
 		return getInstance(platformProperties, null);
 	}
 
-	public static HazelcastInstance getInstance(PlatformProperties platformProperties, String clientId) {
+	public static HazelcastInstance getInstance(PlatformProperties platformProps, String clientId) {
 		if (null == instance) {
-			if (null != platformProperties) {
+			if (null != platformProps) {
 				try {
 					String providerType = System.getProperty("hazelcast.jcache.provider.type");
-					Boolean useClient = platformProperties.getBoolean(HAZELCAST_USE_CLIENT, false);
+					Boolean useClient = platformProps.getBoolean(HAZELCAST_USE_CLIENT, false);
 					if ("client".equals(providerType) || useClient) {
-						String appNGData = platformProperties.getString(Platform.Property.APPNG_DATA);
+						String appNGData = platformProps.getString(Platform.Property.APPNG_DATA);
 						FileInputStream clientIs = new FileInputStream(new File(appNGData, HAZELCAST_CLIENT_XML));
 
 						ClientConfig clientConfig = new XmlClientConfigBuilder(clientIs).build();
@@ -79,7 +79,7 @@ public class HazelcastConfigurer {
 						}
 						isClient = true;
 					} else {
-						InputStream cacheConfig = platformProperties.getCacheConfig();
+						InputStream cacheConfig = platformProps.getCacheConfig();
 						if (null != cacheConfig) {
 							Config config = new XmlConfigBuilder(cacheConfig).build();
 							instance = Hazelcast.getOrCreateHazelcastInstance(config);

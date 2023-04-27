@@ -43,6 +43,7 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 	private @Setter long validationTimeout = DEFAULT_TIMEOUT;
 	private @Setter long maxLifetime = DEFAULT_LIFE_TIME;
 	private @Setter boolean autoCommit = false;
+	private @Setter String connectionInitSql;
 
 	public HikariCPConfigurer() {
 
@@ -56,6 +57,9 @@ public class HikariCPConfigurer implements DatasourceConfigurer {
 		configuration.setConnectionTimeout(connectionTimeout);
 		configuration.setValidationTimeout(validationTimeout);
 		configuration.setMaxLifetime(maxLifetime);
+		if (StringUtils.isNotBlank(connectionInitSql)) {
+			configuration.setConnectionInitSql(connectionInitSql);
+		}
 		if (StringUtils.isNotBlank(connection.getValidationQuery())) {
 			configuration.setConnectionTestQuery(connection.getValidationQuery());
 		}

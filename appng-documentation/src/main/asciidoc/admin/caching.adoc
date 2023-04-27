@@ -23,9 +23,16 @@ Also check out the section about caching in the {manager-guide}#caching[Manager 
 === Site configuration
 There are several site-scoped properties to configure caching.
 
-* `cacheEnabled` +
+* `cacheEnabled` (default: `false`) +
 Set to `true` to enable caching for the site.
 * `cacheExceptions` +
+Default: + 
++
+[source,]
+----
+/health
+/manager
+----
 URL path prefixes which are never cached, as a multiline value. Contains one prefix per line. +
 *Example:*
 +
@@ -34,24 +41,37 @@ URL path prefixes which are never cached, as a multiline value. Contains one pre
 /service/appng/my-application
 /service/my-site
 ----
++
+TIP: An entry in `cacheExceptions` beats an entry in `cacheTimeouts`.
 * `cacheTimeouts` +
-The path specific cache timeouts, as a multiline value. The format is `path-prefix = TTL in seconds`. Contains one path-prefix per line. +
+The path specific cache timeouts, as a multilined value. The format is `path-prefix = <TTL in seconds>`. +
+Optionally, with appending `,<client TTL in seconds>`, you can  control the https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control[Cache-Control^] 
+HTTP header that is sent to the client. +
+Contains one path-prefix per line. +
 *Example:*
 +
 [source,]
 ----
+# same TTL for internal cache and client:
+# Cache-Control: max-age=7200
 /service/appng/cached-application = 7200
-/service/thesite = 3600
+# different TTL for internal cache and client:
+# Cache-Control: max-age=14400
+/service/thesite = 3600,14400
+# disable client caching:
+# Cache-Control: no-cache,no-store,max-age=0
+# Expires: Thu, 01 Jan 1970 00:00:00 GMT 
+/en/index.html = 1800,0
 ----
-* `cacheTimeoutsAntStyle` +
+* `cacheTimeoutsAntStyle` (default: `true`) +
 When set to `true`, the path-prefixes defined in `cacheTimeouts` can use https://ant.apache.org/manual/dirtasks.html#patterns[Ant-style path matching^].
-* `cacheTimeToLive` +
+* `cacheTimeToLive` (default: `1800`) +
 The default TTL for a cache entry in seconds, if there's no matching path defined in `cacheTimeouts`.
-* `cacheStatistics` +
+* `cacheStatistics` (default: `false`) +
 Set to `true to` enable caching statistics
-* `cacheWatchRepository` +
+* `cacheWatchRepository` (default: `false`) +
 Set to `true` to watch the repository folder for changes and invalidate cache elements, if necessary.
-* `cacheWatcherRuleSourceSuffix` +
+* `cacheWatcherRuleSourceSuffix` (default: `((\?\S+)?)`) +
 The suffix to be removed from a `<from>`-rule element when parsing the rules from `urlrewrite.xml` for the repository watchers. See also the {developerguide}#beautifying-urls[Beautifying URLs^] section from the developer's guide,
-* `cacheClearOnShutdown` +
+* `cacheClearOnShutdown` (default: `true`) +
 Set to `true` to clear the cache on a site shutdown/reload.

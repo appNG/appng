@@ -110,7 +110,8 @@ public class PlatformConfig {
 			@Value("${database.validationTimeout:5000}") Integer validationTimeout,
 			@Value("${database.connectionTimeout:5000}") Integer connectionTimeout,
 			@Value("${database.logPerformance:false}") boolean logPerformance,
-			@Value("${database.autoCommit:true}") boolean autoCommit
+			@Value("${database.autoCommit:true}") boolean autoCommit,
+			@Value("${database.initSql:}") String initSql
 	// @formatter:on
 	) {
 		DatabaseConnection connection = new DatabaseConnection(DatabaseType.valueOf(type.toUpperCase()), jdbcUrl,
@@ -126,6 +127,7 @@ public class PlatformConfig {
 		dataSourceFactory.setValidationTimeout(validationTimeout);
 		dataSourceFactory.setConnectionTimeout(connectionTimeout);
 		dataSourceFactory.setAutoCommit(autoCommit);
+		dataSourceFactory.setConnectionInitSql(initSql);
 		dataSourceFactory.configure(connection);
 		return dataSourceFactory;
 	}

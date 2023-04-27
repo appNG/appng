@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link Receiver} that uses a
- * <a href= "https://docs.hazelcast.com/imdg/4.2/data-structures/reliable-topic.html">reliable topic</a> for sending
+ * <a href= "https://docs.hazelcast.com/hazelcast/5.2/data-structures/reliable-topic">Reliable Topic</a> for sending
  * {@link Event}s. Following platform properties are supported (default value in brackets):
  * <ul>
  * <li>{@code hazelcastTopicName} (appng-messaging): Name of the topic</li>
@@ -48,13 +48,14 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Matthias Müller
  *
- * @see HazelcastInstance#getReliableTopic(String)
+ * @see    HazelcastInstance#getReliableTopic(String)
  */
 @Slf4j
 public class HazelcastReceiver extends HazelcastBase implements Receiver, MessageListener<byte[]> {
 
 	private EventRegistry eventRegistry = new EventRegistry();
 	private UUID listenerId;
+	private ExecutorService executor;
 
 	public Receiver configure(Serializer serializer) {
 		this.serializer = serializer;
@@ -68,7 +69,8 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 		return new HazelcastSender(instance).configure(serializer);
 	}
 
-	public void runWith(ExecutorService executorService) {
+	public void runWith(ExecutorService executor) {
+		this.executor = executor;
 		ITopic<byte[]> topic = getTopic();
 		this.listenerId = topic.addMessageListener(this);
 		LOGGER.info("Listening to topic {} on {} with id {}", topic.getName(), instance, listenerId);
@@ -85,7 +87,7 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 	}
 
 	public void onMessage(Message<byte[]> message) {
-		Messaging.handleEvent(LOGGER, eventRegistry, serializer, message.getMessageObject());
+		Messaging.handleEvent(LOGGER, eventRegistry, serializer, message.getMessageObject(), false, executor);
 	}
 
 	protected Logger logger() {
@@ -99,4 +101,5 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 	public void setDefaultHandler(EventHandler<?> defaultHandler) {
 		eventRegistry.setDefaultHandler(defaultHandler);
 	}
+
 }
