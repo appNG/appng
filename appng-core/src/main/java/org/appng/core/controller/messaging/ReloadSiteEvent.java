@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class ReloadSiteEvent extends SiteEvent {
 
 	private static final long serialVersionUID = 8053808333634879840L;
+	private static final int DEFAULT_MAX_RELOAD_DELAY = (int) TimeUnit.SECONDS.toMillis(5);
 
 	public ReloadSiteEvent(String siteName) {
 		super(siteName, true);
@@ -52,7 +53,7 @@ public class ReloadSiteEvent extends SiteEvent {
 		if (isTargetNode(env)) {
 			logger.info("about to start site: {}", getSiteName());
 			FieldProcessor fp = new FieldProcessorImpl("start");
-			wait(env, site, logger);
+			waitForClusterState(env, site, logger);
 			SiteImpl siteByName = getPlatformContext(env).getBean(CoreService.class).getSiteByName(getSiteName());
 			getInitializerService(env).loadSite(env, siteByName, false, fp, false);
 		} else {
@@ -60,29 +61,19 @@ public class ReloadSiteEvent extends SiteEvent {
 		}
 	}
 
-	public void wait(Environment env, Site site, Logger logger) {
-		if (delayed()) {
-			Properties nodeCfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.NODE_CONFIG);
-			long delayMillis = nodeCfg.getInteger(Platform.Property.SITE_RELOAD_DELAY, 0);
-			if (delayMillis <= 0) {
-				Properties cfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-				Integer siteReloadMaxDelay = cfg.getInteger(Platform.Property.SITE_RELOAD_MAX_RANDOM_DELAY, 10000);
-				delayMillis = (long) (Math.random() * siteReloadMaxDelay);
-			}
-			try {
-				logger.info("Waiting {}ms before reloading site {} on node {}", delayMillis, site.getName(),
-						Messaging.getNodeId());
-				Thread.sleep(delayMillis);
-			} catch (InterruptedException e) {
-				//
-			}
-		}
-		waitForClusterState(env, site, logger);
-	}
-
 	public void waitForClusterState(Environment env, Site site, Logger logger) {
 		Properties cfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		if (cfg.getBoolean("waitForSitesStarted", false)) {
+		Integer siteReloadMaxDelay = cfg.getInteger(Platform.Property.SITE_RELOAD_MAX_RANDOM_DELAY,
+				DEFAULT_MAX_RELOAD_DELAY);
+		long delayMillis = (long) (Math.random() * siteReloadMaxDelay);
+		try {
+			logger.info("Waiting {}ms before reloading site {} on node {}", delayMillis, site.getName(),
+					Messaging.getNodeId());
+			Thread.sleep(delayMillis);
+		} catch (InterruptedException e) {
+			//
+		}
+		if (cfg.getBoolean("waitForSitesStarted", true)) {
 			String nodeId = Messaging.getNodeId();
 			Map<String, NodeState> nodeStates = NodeEvent.clusterState(env, nodeId);
 			int numNodes = nodeStates.size();
@@ -91,6 +82,9 @@ public class ReloadSiteEvent extends SiteEvent {
 			int waitTime = cfg.getInteger("waitForSitesStartedWaitTime", 5);
 			int maxWaittime = cfg.getInteger("waitForSitesStartedMaxWaitTime", 30);
 			int activeNodes;
+
+			logger.info("Site {} must be {} on {} of {} nodes before reloading.", site.getName(), SiteState.STARTED,
+					minActiveNodes, numNodes);
 
 			do {
 				activeNodes = 0;
@@ -120,10 +114,6 @@ public class ReloadSiteEvent extends SiteEvent {
 						numNodes);
 			}
 		}
-	}
-
-	protected boolean delayed() {
-		return true;
 	}
 
 }

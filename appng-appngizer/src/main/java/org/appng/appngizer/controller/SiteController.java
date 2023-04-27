@@ -96,10 +96,6 @@ public class SiteController extends ControllerBase {
 			super.setNodeId(nodeId + "_appNGizer");
 		}
 
-		@Override
-		protected boolean delayed() {
-			return false;
-		}
 	}
 
 	@PutMapping(value = "/site/{name}/reload")
