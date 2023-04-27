@@ -554,8 +554,12 @@ public class InitializerService implements InitializingBean {
 				LOGGER.error(error, e);
 			} finally {
 				Messages messages = asyncFp.getMessages();
-				LOGGER.info("Loading site {} finished with {} messages", siteToLoad.getName(),
-						messages.getMessageList().size());
+				int messageCnt = messages.getMessageList().size();
+				LOGGER.info("Loading site {} finished with {} messages", siteToLoad.getName(), messageCnt);
+				if (0 == messageCnt) {
+					asyncFp.addOkMessage(
+							String.format("Site %s has been loaded in the background.", siteToLoad.getName()));
+				}
 				ElementHelper.addMessages(env, messages);
 			}
 		});

@@ -86,7 +86,7 @@ public class ReloadSiteEvent extends SiteEvent {
 			String nodeId = Messaging.getNodeId();
 			Map<String, NodeState> nodeStates = NodeEvent.clusterState(env, nodeId);
 			int numNodes = nodeStates.size();
-			int minActiveNodes = (numNodes + 1) / 2;
+			int minActiveNodes = numNodes > 3 ? (numNodes + 1) / 2 : numNodes;
 			int waited = 0;
 			int waitTime = cfg.getInteger("waitForSitesStartedWaitTime", 5);
 			int maxWaittime = cfg.getInteger("waitForSitesStartedMaxWaitTime", 30);
