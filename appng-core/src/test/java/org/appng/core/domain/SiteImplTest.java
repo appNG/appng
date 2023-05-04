@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.appng.api.Path;
+import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.messaging.Messaging;
@@ -115,6 +116,9 @@ public class SiteImplTest {
 	public void testSetSiteState() {
 		Mockito.when(environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE))
 				.thenReturn(new HashMap<String, NodeState>());
+		Properties platformCfg = Mockito.mock(Properties.class);
+		Mockito.when(environment.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG)).thenReturn(platformCfg);
+		Mockito.when(platformCfg.getInteger("setSiteStateStartedDelay", 10)).thenReturn(10);
 		String nodeId = Messaging.getNodeId();
 		NodeState nodeState = NodeEvent.clusterState(environment, nodeId).get(nodeId);
 		Map<String, SiteState> stateMap = nodeState.getSiteStates();
