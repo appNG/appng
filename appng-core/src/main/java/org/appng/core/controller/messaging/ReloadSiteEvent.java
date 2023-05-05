@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class ReloadSiteEvent extends SiteEvent {
 
 	private static final long serialVersionUID = 8053808333634879840L;
-	private static final int DEFAULT_MAX_RELOAD_DELAY = (int) TimeUnit.SECONDS.toMillis(5);
+	private static final int DEFAULT_MAX_RELOAD_DELAY = (int) TimeUnit.SECONDS.toMillis(6);
 
 	public ReloadSiteEvent(String siteName) {
 		super(siteName, true);
@@ -63,9 +63,9 @@ public class ReloadSiteEvent extends SiteEvent {
 
 	public void waitForClusterState(Environment env, Site site, Logger logger) {
 		Properties cfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
-		Integer siteReloadMaxDelay = cfg.getInteger(Platform.Property.SITE_RELOAD_MAX_RANDOM_DELAY,
+		Integer maxReloadDelay = cfg.getInteger(Platform.Property.SITE_RELOAD_MAX_RANDOM_DELAY,
 				DEFAULT_MAX_RELOAD_DELAY);
-		long delayMillis = (long) (Math.random() * siteReloadMaxDelay);
+		long delayMillis = maxReloadDelay + (long) (Math.random() * maxReloadDelay);
 		try {
 			logger.info("Waiting {}ms before reloading site {} on node {}", delayMillis, site.getName(),
 					Messaging.getNodeId());

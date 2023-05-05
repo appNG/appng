@@ -931,7 +931,7 @@ public class InitializerService implements InitializingBean {
 				}
 			} catch (Throwable t) {
 				((DefaultEnvironment) env).clearSiteScope(site);
-				site.setState(SiteState.INACTIVE);
+				site.setState(SiteState.INACTIVE, env);
 				throw new SiteLoadingException("Error while loading site " + siteToLoad.getName(), t);
 			} finally {
 				if (sw.isRunning()) {

@@ -15,10 +15,6 @@
  */
 package org.appng.core.domain;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
-import javax.persistence.ForeignKey;
-import javax.persistence.JoinColumn;
 import static org.appng.api.Scope.REQUEST;
 
 import java.io.File;
@@ -29,16 +25,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -50,6 +51,7 @@ import javax.validation.constraints.Size;
 
 import org.appng.api.Environment;
 import org.appng.api.Path;
+import org.appng.api.Platform;
 import org.appng.api.Scope;
 import org.appng.api.SiteProperties;
 import org.appng.api.ValidationMessages;
@@ -425,6 +427,15 @@ public class SiteImpl implements Site, Auditable<Integer> {
 		SiteStateEvent event = new SiteStateEvent(getName(), state, Messaging.getNodeId());
 		if (null != env) {
 			event.handleSiteState(env);
+			if (SiteState.STARTED.equals(this.state.get())) {
+				Properties cfg = env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG);
+				Integer setSiteStartedDelay = cfg.getInteger("setSiteStateStartedDelay", 10);
+				try {
+					Thread.sleep(TimeUnit.SECONDS.toMillis(setSiteStartedDelay));
+				} catch (InterruptedException e) {
+					// ignore
+				}
+			}
 		}
 		sendEvent(event);
 	}
