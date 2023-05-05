@@ -26,7 +26,8 @@ import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 
-import org.appng.api.support.environment.EnvironmentFactoryBean;
+import org.appng.api.Environment;
+import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.core.domain.PlatformEventListener;
 import org.appng.core.model.PlatformProcessor;
 import org.appng.core.model.PlatformTransformer;
@@ -51,6 +52,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
@@ -190,8 +192,8 @@ public class PlatformTestConfig {
 	}
 
 	@Bean
-	public EnvironmentFactoryBean environment() {
-		return new EnvironmentFactoryBean();
+	public Environment environment() {
+		return DefaultEnvironment.initGlobal(new MockServletContext());
 	}
 
 	@Bean
