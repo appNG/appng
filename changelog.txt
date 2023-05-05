@@ -1,3 +1,21 @@
+Release Notes - appNG - Version 1.26.2 (2023-05-05)
+---------------------------------------------------
+** Feature
+    * [APPNG-2479] - Delay sending a SiteStateEvent for STARTED state
+    * [APPNG-2480] - Remove deprecated EnvironmentFactoryBean
+
+Release Notes - appNG - Version 1.26.1 (2023-04-27)
+---------------------------------------------------
+** Bug
+    * [APPNG-2473] - Platform Property "sessionFilter" not working for multiple lines
+    * [APPNG-2477] - Loading sites asynchronously has some issues
+    * [APPNG-2478] - OpenAPI must use HTTP Status of HttpServletResponse
+
+** Feature
+    * [APPNG-2474] - In site property cacheTimeouts, allow defining different cache-control headers
+    * [APPNG-2475] - Do not append stacktrace by default for errors during an OpenAPI call
+    * [APPNG-2476] - Rework the process of starting a HSQL server
+
 Release Notes - appNG - Version 1.26.0 (2023-03-30)
 ---------------------------------------------------
 ** Feature
