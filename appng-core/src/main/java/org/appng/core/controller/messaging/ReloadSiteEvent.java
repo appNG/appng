@@ -112,7 +112,7 @@ public class ReloadSiteEvent extends SiteEvent {
 									"Site {} is active on {} of {} nodes, waiting {}s for site to start on {} nodes.",
 									site.getName(), activeNodes, numNodes, waitTime, minActiveNodes - activeNodes);
 							waited += waitTime;
-							Thread.sleep(TimeUnit.SECONDS.toMillis(waitTime));
+							TimeUnit.SECONDS.sleep(waitTime);
 						} catch (InterruptedException e) {
 							//
 						}

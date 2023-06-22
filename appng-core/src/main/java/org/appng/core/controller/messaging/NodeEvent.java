@@ -38,8 +38,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * An {@link Event} that holds information about the current status of an node (system properties and environment,memory
- * usage, state of sites).
+ * An {@link Event} that holds information about the current status of an node (system properties and environment,
+ * memory usage, state of sites).
  * 
  * @author Matthias Müller
  */
