@@ -313,23 +313,23 @@ public class PageCacheFilter implements javax.servlet.Filter {
 		chain.doFilter(request, wrapper);
 		wrapper.flush();
 
-		HttpHeaders headers = new HttpHeaders();
-		wrapper.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
-				.forEach(n -> wrapper.getHeaders(n).forEach(v -> headers.add(n, v)));
-
-		addCacheControl(headers, expiry);
+		HttpHeaders headers = applyHeaders(wrapper, expiry);
 		return new CachedResponse(calculateKey(request), site, request, wrapper.getStatus(), wrapper.getContentType(),
 				outstr.toByteArray(), headers, expiry.ttl);
 	}
 
-	protected void addCacheControl(HttpHeaders headers, Expiry expiry) {
+	protected HttpHeaders applyHeaders(final HttpServletResponse response, Expiry expiry) {
 		int ttl = expiry.getClientTtl();
 		if (ttl <= 0) {
-			headers.add(HttpHeaders.CACHE_CONTROL, "no-cache,no-store,max-age=0");
-			headers.add(HttpHeaders.EXPIRES, "Thu, 01 Jan 1970 00:00:00 GMT");
+			response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache,no-store,max-age=0");
+			response.setHeader(HttpHeaders.EXPIRES, "Thu, 01 Jan 1970 00:00:00 GMT");
 		} else {
-			headers.add(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", ttl));
+			response.setHeader(HttpHeaders.CACHE_CONTROL, String.format("max-age=%s", ttl));
 		}
+		HttpHeaders headers = new HttpHeaders();
+		response.getHeaderNames().stream().filter(h -> !h.startsWith(HttpHeaders.SET_COOKIE))
+				.forEach(n -> response.getHeaders(n).forEach(v -> headers.add(n, v)));
+		return headers;
 	}
 
 	private boolean isCacheableRequest(HttpServletRequest httpServletRequest) {

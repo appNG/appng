@@ -100,11 +100,9 @@ public class PageCacheFilterTest {
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
 				response.addDateHeader(HttpHeaders.LAST_MODIFIED, lastModifiedSeconds);
-				HttpHeaders headers = new HttpHeaders();
-				headers.add(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE, "user");
-				headers.add(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE, "viewer");
-				addCacheControl(headers, expiry);
-				headers.setLastModified(lastModifiedSeconds);
+				response.addHeader(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE, "user");
+				response.addHeader(HttpHeaderUtils.X_APPNG_REQUIRED_ROLE, "viewer");
+				HttpHeaders headers = applyHeaders(response, expiry);
 				return new CachedResponse("GET/" + req.getServletPath(), site, request, 200, "text/plain",
 						content.getBytes(), headers, 1800);
 			};
@@ -124,8 +122,12 @@ public class PageCacheFilterTest {
 		Mockito.when(site.getProperties()).thenReturn(siteProps);
 		Mockito.when(siteProps.getBoolean("cacheHitStats", false)).thenReturn(true);
 
+		// create cached response
 		Expiry expiry = new Expiry(30, 60, new AccessedExpiryPolicy(new Duration(TimeUnit.SECONDS, 30)));
 		CachedResponse pageInfo = pageCacheFilter.getCachedResponse(req, resp, chain, site, cache, expiry);
+		Assert.assertEquals("max-age=60", resp.getHeader(HttpHeaders.CACHE_CONTROL));
+		Assert.assertNull(resp.getHeader(HttpHeaders.EXPIRES));
+
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(resp));
 		Assert.assertEquals(0, pageInfo.getHitCount());
 		Assert.assertEquals(modifiedDate, resp.getHeader(HttpHeaders.LAST_MODIFIED));
@@ -172,6 +174,9 @@ public class PageCacheFilterTest {
 		aborted.setServletPath("/aborted");
 		MockHttpServletResponse abortedResponse = new MockHttpServletResponse();
 		pageCacheFilter.handleCaching(aborted, abortedResponse, Mockito.mock(Site.class), chain, cache, expiry);
+		Assert.assertEquals("max-age=60", resp.getHeader(HttpHeaders.CACHE_CONTROL));
+		Assert.assertNull(resp.getHeader(HttpHeaders.EXPIRES));
+
 		Assert.assertEquals(HttpStatus.OK.value(), abortedResponse.getStatus());
 		Assert.assertEquals(0, abortedResponse.getContentLength());
 		Mockito.verify(chain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.eq(abortedResponse));
