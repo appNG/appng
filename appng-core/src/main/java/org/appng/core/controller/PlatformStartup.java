@@ -204,6 +204,7 @@ public class PlatformStartup implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent sce) {
 		ServletContext ctx = sce.getServletContext();
 		DefaultEnvironment env = DefaultEnvironment.getGlobal();
+		Optional.ofNullable(Messaging.getMessageSender(env)).ifPresent(s -> s.send(new ShutdownEvent()));
 		InitializerService initializerService = getService(env);
 		if (null != initializerService) {
 			initializerService.shutdownPlatform(ctx);
@@ -227,7 +228,6 @@ public class PlatformStartup implements ServletContextListener {
 			shutdownCleanUpThread("com.mysql.jdbc");
 		}
 
-		Optional.ofNullable(Messaging.getMessageSender(env)).ifPresent(s -> s.send(new ShutdownEvent()));
 		Messaging.shutdown(env);
 		HazelcastConfigurer.shutdown();
 		shutDownExecutor(messagingExecutor);
