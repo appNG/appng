@@ -202,6 +202,7 @@ public class PlatformStartup implements ServletContextListener {
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
+		LOGGER.info("Stopping appNG");
 		ServletContext ctx = sce.getServletContext();
 		DefaultEnvironment env = DefaultEnvironment.getGlobal();
 		Optional.ofNullable(Messaging.getMessageSender(env)).ifPresent(s -> s.send(new ShutdownEvent()));
@@ -231,7 +232,7 @@ public class PlatformStartup implements ServletContextListener {
 		Messaging.shutdown(env);
 		HazelcastConfigurer.shutdown();
 		shutDownExecutor(messagingExecutor);
-		LOGGER.info("appNG stopped.");
+		LOGGER.info("appNG stopped");
 		LOGGER.info(StringUtils.leftPad("", 100, "="));
 	}
 
