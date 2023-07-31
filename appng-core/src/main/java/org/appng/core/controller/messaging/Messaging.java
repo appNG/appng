@@ -41,7 +41,8 @@ class Messaging {
 		Event event = serializer.deserialize(eventData);
 		if (null != event) {
 			try {
-				Site site = serializer.getSite(event.getSiteName());
+				String siteName = event.getSiteName();
+				Site site = StringUtils.isNotBlank(siteName) ? serializer.getSite(siteName) : null;
 				String currentNode = serializer.getNodeId();
 				String originNode = event.getNodeId();
 				logger.trace("current node: {}, originNode node: {}", currentNode, originNode);
