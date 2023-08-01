@@ -21,6 +21,7 @@ public class ShutdownEvent extends Event {
 		LoggerFactory.getLogger(ShutdownEvent.class.getName()).info("Received shutdown for node '{}'", nodeId);
 		Map<String, NodeState> clusterState = environment.getAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE);
 		clusterState.remove(nodeId);
+		environment.setAttribute(Scope.PLATFORM, NodeEvent.NODE_STATE, clusterState);
 	}
 
 }
