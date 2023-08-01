@@ -91,11 +91,11 @@ public class HazelcastConfigurer {
 							LOGGER.info("Using {}", instance);
 						}
 					}
+					instance.getCluster().addMembershipListener(getMembershipListener());
 				} catch (IOException e) {
 					LOGGER.error("failed to create Hazelcast instance!", e);
 				}
 			}
-			instance.getCluster().addMembershipListener(getMembershipListener());
 		} else if (isClient) {
 			LOGGER.info("Using existing client '{}' for ID '{}'", instance.getName(), clientId);
 		}
