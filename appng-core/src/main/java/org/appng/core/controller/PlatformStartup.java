@@ -205,7 +205,6 @@ public class PlatformStartup implements ServletContextListener {
 		LOGGER.info("Stopping appNG");
 		ServletContext ctx = sce.getServletContext();
 		DefaultEnvironment env = DefaultEnvironment.getGlobal();
-		Optional.ofNullable(Messaging.getMessageSender(env)).ifPresent(s -> s.send(new ShutdownEvent()));
 		InitializerService initializerService = getService(env);
 		if (null != initializerService) {
 			initializerService.shutdownPlatform(ctx);
@@ -214,6 +213,7 @@ public class PlatformStartup implements ServletContextListener {
 			org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
 			platformCtx.close();
 		}
+		Optional.ofNullable(Messaging.getMessageSender(env)).ifPresent(s -> s.send(new ShutdownEvent()));
 
 		HsqlStarter.shutdown((Server) ctx.getAttribute(HsqlStarter.CONTEXT));
 
