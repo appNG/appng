@@ -143,6 +143,11 @@ public class ServiceRequestHandlerTest extends ServiceRequestHandler {
 	}
 
 	@Test
+	public void testRootPath() throws Exception {
+		handleRestCall("", null, HttpStatus.NOT_FOUND, "/services/site1/appng-demoapplication/rest/");
+	}
+
+	@Test
 	public void testRestHandleBusinessException() throws Exception {
 		handleRestCall(11, 47, "{\"message\":\"BOOOM!\"}", MediaType.APPLICATION_JSON_UTF8_VALUE,
 				HttpStatus.METHOD_NOT_ALLOWED);
