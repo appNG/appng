@@ -64,7 +64,7 @@
 		<bouncycastle.version>1.69</bouncycastle.version>
 		<esapi.version>2.2.3.1</esapi.version>
 		<flyway.version>8.5.13</flyway.version>
-		<hazelcast.version>5.0.2</hazelcast.version>
+		<hazelcast.version>5.3.0</hazelcast.version>
 		<hibernate.version>5.4.32.Final</hibernate.version>
 		<jackson.version>2.14.1</jackson.version>
 		<junrar.version>1.0.1</junrar.version>
