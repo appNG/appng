@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Platform;
@@ -27,6 +29,9 @@ import org.appng.core.controller.messaging.HazelcastReceiver;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
+import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
@@ -86,6 +91,7 @@ public class HazelcastConfigurer {
 							LOGGER.info("Using {}", instance);
 						}
 					}
+					instance.getCluster().addMembershipListener(getMembershipListener());
 				} catch (IOException e) {
 					LOGGER.error("failed to create Hazelcast instance!", e);
 				}
@@ -96,9 +102,37 @@ public class HazelcastConfigurer {
 		if (null == instance) {
 			LOGGER.warn("No Hazelcast configuration could be found, using default!");
 			instance = Hazelcast.newHazelcastInstance();
+			instance.getCluster().addMembershipListener(getMembershipListener());
 			LOGGER.info("Created default instance {}", instance);
 		}
 		return instance;
+	}
+
+	private static MembershipListener getMembershipListener() {
+		return new MembershipListener() {
+			
+			@Override
+			public void memberRemoved(MembershipEvent me) {
+				try {
+					Address address = me.getMember().getAddress();
+					InetAddress inetAddress = address.getInetAddress();
+					LOGGER.info("Node removed: {} ({})", address, inetAddress.getHostName());
+				} catch (UnknownHostException e) {
+					// ignore
+				}
+			}
+
+			@Override
+			public void memberAdded(MembershipEvent me) {
+				try {
+					Address address = me.getMember().getAddress();
+					InetAddress inetAddress = address.getInetAddress();
+					LOGGER.info("Node added: {} ({})", address, inetAddress.getHostName());
+				} catch (UnknownHostException e) {
+					// ignore
+				}
+			}
+		};
 	}
 
 	public static void shutdown() {

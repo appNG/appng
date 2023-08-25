@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,6 +52,7 @@ import org.appng.api.messaging.Messaging;
 import org.appng.api.model.Application;
 import org.appng.api.model.Site;
 import org.appng.api.support.environment.DefaultEnvironment;
+import org.appng.core.controller.messaging.ShutdownEvent;
 import org.appng.core.domain.DatabaseConnection;
 import org.appng.core.service.DatabaseService;
 import org.appng.core.service.HazelcastConfigurer;
@@ -200,6 +202,7 @@ public class PlatformStartup implements ServletContextListener {
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
+		LOGGER.info("Stopping appNG");
 		ServletContext ctx = sce.getServletContext();
 		DefaultEnvironment env = DefaultEnvironment.getGlobal();
 		InitializerService initializerService = getService(env);
@@ -210,6 +213,7 @@ public class PlatformStartup implements ServletContextListener {
 			org.apache.commons.logging.LogFactory.release(platformCtx.getClassLoader());
 			platformCtx.close();
 		}
+		Optional.ofNullable(Messaging.getMessageSender(env)).ifPresent(s -> s.send(new ShutdownEvent()));
 
 		HsqlStarter.shutdown((Server) ctx.getAttribute(HsqlStarter.CONTEXT));
 
@@ -224,10 +228,11 @@ public class PlatformStartup implements ServletContextListener {
 		if (!shutdownCleanUpThread("com.mysql.cj.jdbc")) {
 			shutdownCleanUpThread("com.mysql.jdbc");
 		}
+
 		Messaging.shutdown(env);
 		HazelcastConfigurer.shutdown();
 		shutDownExecutor(messagingExecutor);
-		LOGGER.info("appNG stopped.");
+		LOGGER.info("appNG stopped");
 		LOGGER.info(StringUtils.leftPad("", 100, "="));
 	}
 

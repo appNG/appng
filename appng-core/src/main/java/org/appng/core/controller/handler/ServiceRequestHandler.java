@@ -235,7 +235,7 @@ public class ServiceRequestHandler implements RequestHandler {
 					servletRequest.setAttribute(MetricsFilter.SERVICE_NAME, serviceName);
 					handleSoap(siteToUse, application, environment, servletRequest, servletResponse);
 				} else if (SERVICE_TYPE_REST.equals(serviceType)) {
-					path.checkPathLength(6);
+					path.checkPathLength(5);
 					handleRest(application, servletRequest, servletResponse);
 				} else {
 					LOGGER.warn("unknown service type: {}", serviceType);
