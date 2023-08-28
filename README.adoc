@@ -58,44 +58,24 @@ appNG is very well suited to create and operate your own application platform as
 The dollar sign ($) at the beginning of a line denotes the command prompt. Depending on your operating system and shell you might see other signs like %, # or >. This sign is not part of the command to be executed.
 ====
 
-=== Download and run the appNG standalone version
-appNG is available as a standalone version, suitable for evaluation and testing purposes.
-
-The standalone version also comes with *appNGizer*, the REST-based administration tool for appNG.
-
-The standalone version can be found here:
-https://appng.org/appng/builds/stable/appng-standalone-{stable}.zip
-
-Check that Java >= 1.8 is available in your system's path:
+=== Run appNG as standalone container
+appNG can be started as docker container for evaluation and testing purposes.
 ----
-$ java -version
-openjdk version "1.8.0_171"
-OpenJDK Runtime Environment (build 1.8.0_171-8u171-b11-1~bpo8+1-b11)
-OpenJDK 64-Bit Server VM (build 25.171-b11, mixed mode)
+$ docker run -d -p 8080:8080 --name appng aiticon/appng
+----
+- Wait about 30 seconds for appNG to come up
+- Open http://localhost:8080 in your favorite browser
+- Login as user `admin` with password `appNG$42`
+
+To see the Tomcat logs:
+----
+$ docker logs -f appng
 ----
 
-Unzip the file, change into the extracted folder and run
-[source,subs=normal]
+To see the appNG logs:
 ----
-./appng.sh
+$ docker exec appng sh -c 'tail -f ${APPNG_HOME}/WEB-INF/log/appNG.log'
 ----
-
-[NOTE]
-====
-When running under Windows, use `appng.bat`.
-====
-
-Wait a few seconds, until the console output stops, then visit http://localhost:8080/manager in your browser.
-
-Sign-in with the username `admin` and the password `@ppNG$42`.
-
-[NOTE]
-====
-On the first run, some unpacking and installation operations are performed, this my take a few seconds. The subsequent starts will be much faster.
-
-If you accidentally misconfigured your appNG instance, you can force a clean re-installation with the `-i` option: +
-`./appng.sh -i`
-====
 
 === Download and run the appNG web-application version
 If you run appNG in production you should use the web-application version, which is a standard web application archive (WAR-file).
