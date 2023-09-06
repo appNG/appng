@@ -19,13 +19,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.appng.api.Environment;
 import org.appng.api.Platform;
 import org.appng.api.Scope;
+import org.appng.api.messaging.Messaging;
 import org.appng.api.support.environment.DefaultEnvironment;
 import org.appng.api.support.environment.ScopedEnvironment;
 import org.appng.core.controller.messaging.HazelcastReceiver;
@@ -35,7 +35,6 @@ import org.appng.core.controller.messaging.NodeEvent.NodeState;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
-import com.hazelcast.cluster.Address;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
@@ -95,6 +94,8 @@ public class HazelcastConfigurer {
 						InputStream cacheConfig = platformProps.getCacheConfig();
 						if (null != cacheConfig) {
 							Config config = new XmlConfigBuilder(cacheConfig).build();
+							config.getMemberAttributeConfig().setAttribute(Messaging.APPNG_NODE_ID,
+									Messaging.getNodeId());
 							instance = Hazelcast.getOrCreateHazelcastInstance(config);
 							LOGGER.info("Using {}", instance);
 						}
@@ -126,10 +127,8 @@ public class HazelcastConfigurer {
 			@Override
 			public void memberRemoved(MembershipEvent me) {
 				Member member = me.getMember();
-				Address address = member.getAddress();
-				InetSocketAddress socketAddress = member.getSocketAddress();
-				String nodeId = socketAddress.getHostName();
-				LOGGER.info("Node removed: {} ({})", address, nodeId);
+				String nodeId = member.getAttribute(Messaging.APPNG_NODE_ID);
+				LOGGER.info("Node removed: {} ({})", nodeId, member.getUuid());
 				if (null != scoped) {
 					Map<String, NodeState> clusterState = scoped.getAttribute(NodeEvent.NODE_STATE);
 					NodeState removed = clusterState.remove(nodeId);
@@ -144,9 +143,8 @@ public class HazelcastConfigurer {
 			@Override
 			public void memberAdded(MembershipEvent me) {
 				Member member = me.getMember();
-				Address address = member.getAddress();
-				InetSocketAddress socketAddress = member.getSocketAddress();
-				LOGGER.info("Node added: {} ({})", address, socketAddress.getHostName());
+				String nodeId = member.getAttribute(Messaging.APPNG_NODE_ID);
+				LOGGER.info("Node added: {} ({})", nodeId, member.getUuid());
 			}
 		};
 	}
