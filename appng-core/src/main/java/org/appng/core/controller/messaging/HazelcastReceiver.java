@@ -61,7 +61,7 @@ public class HazelcastReceiver extends HazelcastBase implements Receiver, Messag
 		this.serializer = serializer;
 		Environment env = serializer.getEnvironment();
 		instance = HazelcastConfigurer.getInstance(
-				env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG), serializer.getNodeId());
+				env.getAttribute(Scope.PLATFORM, Platform.Environment.PLATFORM_CONFIG), serializer.getNodeId(), env);
 		return this;
 	}
 
