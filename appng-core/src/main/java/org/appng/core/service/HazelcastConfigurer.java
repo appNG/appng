@@ -47,9 +47,8 @@ import com.hazelcast.core.HazelcastInstance;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Utility class to retrieve the {@link HazelcastInstance} to be used by appNG.
- * This instance is then being used by {@link CacheService} and also by
- * {@link HazelcastReceiver}.
+ * Utility class to retrieve the {@link HazelcastInstance} to be used by appNG. This instance is then being used by
+ * {@link CacheService} and also by {@link HazelcastReceiver}.
  * 
  * @author Matthias Müller
  */
@@ -121,7 +120,8 @@ public class HazelcastConfigurer {
 
 		return new MembershipListener() {
 
-			final ScopedEnvironment scoped = ((DefaultEnvironment) environment).getEnvironment(Scope.PLATFORM);
+			final ScopedEnvironment scoped = null == environment ? null
+					: ((DefaultEnvironment) environment).getEnvironment(Scope.PLATFORM);
 
 			@Override
 			public void memberRemoved(MembershipEvent me) {
@@ -130,12 +130,14 @@ public class HazelcastConfigurer {
 				InetSocketAddress socketAddress = member.getSocketAddress();
 				String nodeId = socketAddress.getHostName();
 				LOGGER.info("Node removed: {} ({})", address, nodeId);
-				Map<String, NodeState> clusterState = scoped.getAttribute(NodeEvent.NODE_STATE);
-				NodeState removed = clusterState.remove(nodeId);
-				if (removed == null) {
-					LOGGER.warn("Failed removing node '{}' from cluster state.", nodeId);
-				} else {
-					LOGGER.info("Removed node '{}' from cluster state.", nodeId);
+				if (null != scoped) {
+					Map<String, NodeState> clusterState = scoped.getAttribute(NodeEvent.NODE_STATE);
+					NodeState removed = clusterState.remove(nodeId);
+					if (removed == null) {
+						LOGGER.warn("Failed removing node '{}' from cluster state.", nodeId);
+					} else {
+						LOGGER.info("Removed node '{}' from cluster state.", nodeId);
+					}
 				}
 			}
 
