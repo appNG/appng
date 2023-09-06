@@ -277,7 +277,7 @@ public class InitializerService implements InitializingBean {
 
 		RepositoryCacheFactory.init(platformConfig);
 
-		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId());
+		HazelcastInstance hazelcast = HazelcastConfigurer.getInstance(platformConfig, Messaging.getNodeId(), env);
 		CacheService.createCacheManager(hazelcast, HazelcastConfigurer.isClient());
 		HazelcastInstance hazelcastInstance = ((HazelcastCacheManager) CacheService.getCacheManager())
 				.getHazelcastInstance();
