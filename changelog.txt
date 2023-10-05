@@ -1,3 +1,21 @@
+Release Notes - appNG - Version 1.26.5 (2023-10-05)
+---------------------------------------------------
+** Feature
+    * [APPNG-2484] - Send a ShutdownEvent when servlet context is destroyed
+    * [APPNG-2487] - Use Hazelcast's MembershipListener no get notified when a node is being removed from the cluster
+
+Release Notes - appNG - Version 1.26.4 (2023-08-25)
+---------------------------------------------------
+** Feature
+    * [APPNG-2484] - Send a ShutdownEvent when servlet context is destroyed
+    * [APPNG-2485] - Allow Root-Path "/" for RestControllers
+
+Release Notes - appNG - Version 1.26.3 (2023-06-27)
+---------------------------------------------------
+** Feature
+    * [APPNG-2481] - Improve ReloadSiteEvent
+    * [APPNG-2482] - Cache-Control header is missing in first response from PageCachefilter
+
 Release Notes - appNG - Version 1.26.2 (2023-05-05)
 ---------------------------------------------------
 ** Feature
