@@ -152,8 +152,13 @@ public class SiteController extends ControllerBase {
 		}
 		siteByName.setHost(site.getHost());
 		siteByName.setDomain(site.getDomain());
-		if (null != siteByName.getHostAliases())
-			siteByName.setHostAliases(new HashSet<>(site.getHostAliases().getAlias()));
+		siteByName.getHostAliases().clear();
+		if (null != site.getHostAliases()) {
+			if(null == siteByName.getHostAliases()) {
+				siteByName.setHostAliases(new HashSet<>());
+			}
+			siteByName.getHostAliases().addAll(site.getHostAliases().getAlias());
+		}
 		siteByName.setDescription(site.getDescription());
 		siteByName.setActive(site.isActive());
 		getCoreService().saveSite(siteByName);
