@@ -186,6 +186,7 @@ public class InitializerService {
 		coreService.createEvent(Type.INFO, "Started platform");
 	}
 
+
 	/**
 	 * @param config
 	 * @param env
@@ -549,6 +550,9 @@ public class InitializerService {
 				}
 
 				Sender sender = env.getAttribute(Scope.PLATFORM, Platform.Environment.MESSAGE_SENDER);
+				if (null == sender && Messaging.isEnabled(env)) {
+					LOGGER.warn("Failed to retrieve {} although messaging is enabled!", Sender.class.getName());
+				}
 				site.setSender(sender);
 				List<? extends Group> groups = coreService.getGroups();
 				site.setGroups(new HashSet<>(groups));
