@@ -62,7 +62,7 @@
 		<appNG.authentication.version>1.13.2</appNG.authentication.version>
 		<appNG.template.version>1.14.4</appNG.template.version>
 		<bouncycastle.version>1.69</bouncycastle.version>
-		<esapi.version>2.2.3.1</esapi.version>
+		<esapi.version>2.5.2.0</esapi.version>
 		<flyway.version>8.5.13</flyway.version>
 		<hazelcast.version>5.3.0</hazelcast.version>
 		<hibernate.version>5.4.32.Final</hibernate.version>
