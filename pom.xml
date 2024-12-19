@@ -80,7 +80,7 @@
 		<springDataJpa.version>1.11.23.RELEASE</springDataJpa.version>
 		<springSecurity.version>4.2.17.RELEASE</springSecurity.version>
 		<springWS.version>2.4.6.RELEASE</springWS.version>
-		<tika.version>1.18</tika.version>
+		<tika.version>1.22</tika.version>
 		<tomcat.version>9.0.31</tomcat.version>
 	</properties>
 	<scm>
